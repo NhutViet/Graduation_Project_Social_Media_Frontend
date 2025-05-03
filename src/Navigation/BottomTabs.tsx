@@ -1,11 +1,12 @@
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import Colors from '../../assets/color/Colors';
 import {Image, StyleSheet, View} from 'react-native';
-import Home from '../Layout/Home';
-import Search from '../Layout/Search';
-import Post from '../Layout/Post';
-import Account from '../Layout/Account';
-import Reels from '../Layout/Reels';
+import {Colors} from '../../assets/color/Colors';
+import {useTheme} from '../util/ThemeContext'; // THÊM DÒNG NÀY
+import Home from '../(tabs)/Home';
+import Search from '../(tabs)/Search';
+import Post from '../(tabs)/Post';
+import Account from '../(tabs)/Profile';
+import Reels from '../(tabs)/Reels';
 
 const Tab = createBottomTabNavigator();
 
@@ -13,10 +14,12 @@ const TabIcon = ({
   source,
   focused,
   size,
+  tintColor,
 }: {
   source: any;
   focused: boolean;
   size: number;
+  tintColor: string;
 }) => (
   <View style={styles.iconWrapper}>
     <Image
@@ -24,7 +27,7 @@ const TabIcon = ({
       style={[
         styles.icon,
         {
-          tintColor: focused ? Colors.black : Colors.gray,
+          tintColor: focused ? tintColor : `${tintColor}66`,
           width: size,
           height: size,
         },
@@ -34,14 +37,19 @@ const TabIcon = ({
 );
 
 const BottomTabs = () => {
+  const {theme} = useTheme();
+  const color = Colors[theme];
+
   return (
     <Tab.Navigator
       screenOptions={{
         tabBarShowLabel: false,
         tabBarStyle: {
-          backgroundColor: Colors.white,
+          backgroundColor: color.background, // đổi theo theme
           borderTopWidth: 0,
-          height: 60,
+          height: 80,
+          shadowColor: 'gray',
+          shadowOpacity: 0.3,
         },
         headerShown: false,
       }}>
@@ -54,6 +62,7 @@ const BottomTabs = () => {
               source={require('../../assets/icon/home.png')}
               focused={focused}
               size={20}
+              tintColor={color.text} // đổi theo theme
             />
           ),
         }}
@@ -67,6 +76,7 @@ const BottomTabs = () => {
               source={require('../../assets/icon/search.png')}
               focused={focused}
               size={20}
+              tintColor={color.text}
             />
           ),
         }}
@@ -80,6 +90,7 @@ const BottomTabs = () => {
               source={require('../../assets/icon/post.png')}
               focused={focused}
               size={20}
+              tintColor={color.text}
             />
           ),
         }}
@@ -93,6 +104,7 @@ const BottomTabs = () => {
               source={require('../../assets/icon/reels.png')}
               focused={focused}
               size={20}
+              tintColor={color.text}
             />
           ),
         }}
@@ -106,6 +118,7 @@ const BottomTabs = () => {
               source={require('../../assets/icon/account.png')}
               focused={focused}
               size={20}
+              tintColor={color.text}
             />
           ),
         }}
