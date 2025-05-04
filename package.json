@@ -19,9 +19,11 @@
     "react": "18.2.0",
     "react-native": "0.73.4",
     "react-native-gesture-handler": "^2.15.0",
+    "react-native-linear-gradient": "^2.8.3",
     "react-native-reanimated": "3.7.0",
     "react-native-safe-area-context": "3.3.2",
-    "react-native-screens": "3.27.0"
+    "react-native-screens": "3.27.0",
+    "react-native-video": "^6.13.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
