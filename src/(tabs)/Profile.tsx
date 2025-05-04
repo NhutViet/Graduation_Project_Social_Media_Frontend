@@ -12,7 +12,7 @@ import {Colors} from '../../assets/color/Colors';
 import {useNavigation} from '@react-navigation/native';
 
 const Account = () => {
-  const navigation = useNavigation();
+  const navigation: any = useNavigation();
 
   const {theme} = useTheme();
   const color = Colors[theme];
@@ -33,7 +33,7 @@ const Account = () => {
             </TouchableOpacity>
             <TouchableOpacity>
               <Image
-                source={require('../../assets/icon/Heart.png')}
+                source={require('../../assets/icon/heart.png')}
                 style={[styles.icon, {tintColor: color.text}]}
               />
             </TouchableOpacity>

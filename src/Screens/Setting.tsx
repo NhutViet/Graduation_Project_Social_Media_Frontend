@@ -13,7 +13,7 @@ import {Colors} from '../../assets/color/Colors';
 import {useNavigation} from '@react-navigation/native';
 
 const Setting = () => {
-  const navigation = useNavigation();
+  const navigation: any = useNavigation();
 
   const {theme, toggleTheme} = useTheme();
   const color = Colors[theme];
