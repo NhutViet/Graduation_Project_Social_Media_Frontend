@@ -7,6 +7,7 @@ const LightTheme = {
   primary: '#1E90FF',
   orange: '#FFC107',
   transparent: 'transparent',
+  blue: '#0095F6',
 };
 
 const DarkTheme = {
@@ -18,6 +19,7 @@ const DarkTheme = {
   primary: '#1E90FF',
   orange: '#FFC107',
   transparent: 'transparent',
+  blue: '#0095F6',
 };
 
 export const Colors = {
