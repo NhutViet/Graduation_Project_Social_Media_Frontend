@@ -28,7 +28,11 @@ const Login = ({navigation}: any) => {
             />
           </View>
           <Text style={styles.text}>Justina Xie</Text>
-          <TouchableOpacity style={styles.buttonLogin}>
+          <TouchableOpacity
+            style={styles.buttonLogin}
+            onPress={() => {
+              navigation.navigate('BottomTabs');
+            }}>
             <Text style={styles.textBtn}>Login</Text>
           </TouchableOpacity>
           <TouchableOpacity
