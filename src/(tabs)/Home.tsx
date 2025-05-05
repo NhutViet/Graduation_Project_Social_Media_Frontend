@@ -1,4 +1,4 @@
-import {ScrollView, StyleSheet, View} from 'react-native';
+import {SafeAreaView, ScrollView, StyleSheet, View} from 'react-native';
 import {Colors} from '../../assets/color/Colors';
 import {useTheme} from '../util/ThemeContext';
 import {FlashList} from '@shopify/flash-list';
@@ -82,15 +82,16 @@ const Home = () => {
   ];
 
   return (
-    <ScrollView>
-      <View style={{backgroundColor: color.background}}>
-        <Header
-          icon={require('../../assets/icon/logo_row.png')}
-          iconQR={require('../../assets/icon/qr.png')}
-          iconNotify={require('../../assets/icon/heart.png')}
-          iconMessage={require('../../assets/icon/message.png')}
-          navigation={navigation}
-        />
+    <SafeAreaView
+      style={[styles.container, {backgroundColor: color.background}]}>
+      <Header
+        icon={require('../../assets/icon/logo_row.png')}
+        iconQR={require('../../assets/icon/qr.png')}
+        iconNotify={require('../../assets/icon/Heart.png')}
+        iconMessage={require('../../assets/icon/message.png')}
+        navigation={navigation}
+      />
+      <ScrollView>
         <View style={{paddingLeft: 10}}>
           <FlashList
             data={dataUser}
@@ -108,8 +109,8 @@ const Home = () => {
             showsHorizontalScrollIndicator={false}
           />
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
