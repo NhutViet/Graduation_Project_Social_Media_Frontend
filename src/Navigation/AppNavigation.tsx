@@ -7,6 +7,8 @@ import Login from '../Screens/Login';
 import SwitchAccount from '../Screens/SwitchAccount';
 import AddPost from '../Screens/AddPost';
 import PostSetting from '../Screens/PostSetting';
+import NotificationsScreen from '../Screens/NotificationsScreen';
+import FollowerRequests from '../Screens/FollowerRequests';
 
 const Stack = createStackNavigator();
 
@@ -22,6 +24,8 @@ const AppNavigator = () => {
         <Stack.Screen name="SwitchAccount" component={SwitchAccount} />
         <Stack.Screen name="BottomTabs" component={BottomTabs} />
         <Stack.Screen name="Setting" component={Setting} />
+        <Stack.Screen name="NotificationsScreen" component={NotificationsScreen} />
+        <Stack.Screen name="FollowerRequests" component={FollowerRequests} />
       </Stack.Navigator>
     </NavigationContainer>
   );
