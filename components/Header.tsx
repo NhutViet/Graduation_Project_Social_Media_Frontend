@@ -10,7 +10,9 @@ const Header = (props: any) => {
     iconQR,
     iconNotify,
     iconMessage,
+    iconLeft,
     func,
+    funcLeft,
     navigation,
   } = props;
   const {theme} = useTheme();
@@ -53,6 +55,14 @@ const Header = (props: any) => {
           <TouchableOpacity style={styles.iconBox}>
             <Image
               source={iconMessage}
+              style={[styles.icon, {tintColor: color.text}]}
+            />
+          </TouchableOpacity>
+        )}
+        {iconLeft && (
+          <TouchableOpacity style={styles.iconBox} onPress={funcLeft}>
+            <Image
+              source={iconLeft}
               style={[styles.icon, {tintColor: color.text}]}
             />
           </TouchableOpacity>
