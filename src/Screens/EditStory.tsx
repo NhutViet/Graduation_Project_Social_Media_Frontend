@@ -16,7 +16,7 @@ const EditStory = ({route, navigation}: any) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [videoDuration, setVideoDuration] = useState(null); // Store video duration dynamically
   const progressAnim = useRef(new Animated.Value(0)).current;
-  const animationRef = useRef(null); // Store animation reference to stop it
+  const animationRef = useRef<Animated.CompositeAnimation | null>(null); // Store animation reference to stop it
 
   // If single item, convert to array for consistency
   const mediaItems = selectedItems || (selectedItem ? [selectedItem] : []);
@@ -73,7 +73,7 @@ const EditStory = ({route, navigation}: any) => {
   }, [currentIndex, mediaItems]);
 
   // Handle video load to get duration
-  const onVideoLoad = data => {
+  const onVideoLoad = (data: any) => {
     setVideoDuration(data.duration);
     // Restart animation with correct duration
     startProgressAnimation();
@@ -104,7 +104,7 @@ const EditStory = ({route, navigation}: any) => {
   const renderProgressBars = () => {
     return (
       <View style={styles.progressContainer}>
-        {mediaItems.map((_, index) => {
+        {mediaItems.map((_: any, index: any) => {
           const isActive = index === currentIndex;
           const width = progressAnim.interpolate({
             inputRange: [0, 1],
