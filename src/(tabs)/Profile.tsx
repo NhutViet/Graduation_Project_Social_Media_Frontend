@@ -33,7 +33,7 @@ const Account = () => {
             </TouchableOpacity>
             <TouchableOpacity>
               <Image
-                source={require('../../assets/icon/Heart.png')}
+                source={require('../../assets/icon/heart.png')}
                 style={[styles.icon, {tintColor: color.text}]}
               />
             </TouchableOpacity>

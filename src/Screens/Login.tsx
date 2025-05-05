@@ -1,4 +1,4 @@
-import {Image, Text, TouchableOpacity, View} from 'react-native';
+import {Image, SafeAreaView, Text, TouchableOpacity, View} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import LoginStyles from '../StyleSheet/LoginStyles';
 
@@ -6,7 +6,7 @@ const Login = ({navigation}: any) => {
   const styles = LoginStyles();
 
   return (
-    <View style={styles.page}>
+    <SafeAreaView style={styles.page}>
       <LinearGradient
         colors={['#FEB70B', '#C83753', '#A52AA3', '#0064E0', '#0064E0']}
         locations={[0, 0.24, 0.43, 0.65, 1]}
@@ -47,7 +47,7 @@ const Login = ({navigation}: any) => {
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
