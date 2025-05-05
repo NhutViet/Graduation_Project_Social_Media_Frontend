@@ -1,10 +1,10 @@
-import {Image, Text, View} from 'react-native';
+import {Image, SafeAreaView, Text, View} from 'react-native';
 
 const Splash = () => {
   return (
-    <View>
+    <SafeAreaView>
       <Image source={require('../../assets/icon/logo.png')} />
-    </View>
+    </SafeAreaView>
   );
 };
 

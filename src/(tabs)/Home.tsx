@@ -1,4 +1,4 @@
-import {ScrollView, StyleSheet, View} from 'react-native';
+import {SafeAreaView, ScrollView, StyleSheet, View} from 'react-native';
 import {Colors} from '../../assets/color/Colors';
 import {useTheme} from '../util/ThemeContext';
 import {FlashList} from '@shopify/flash-list';
@@ -112,7 +112,7 @@ const Home = () => {
   ];
 
   return (
-    <View style={{flex: 1, backgroundColor: color.background}}>
+    <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
       <FlashList
         data={posts}
         keyExtractor={item => item.id}
@@ -151,7 +151,7 @@ const Home = () => {
           </View>
         }
       />
-    </View>
+    </SafeAreaView>
   );
 };
 

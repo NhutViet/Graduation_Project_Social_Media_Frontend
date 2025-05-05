@@ -1,4 +1,11 @@
-import {Image, Text, TextInput, TouchableOpacity, View} from 'react-native';
+import {
+  Image,
+  SafeAreaView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import LoginStyles from '../StyleSheet/LoginStyles';
 import {useState} from 'react';
@@ -15,7 +22,7 @@ const SwitchAccount = ({navigation}: any) => {
   const SwitchStyles = SwitchAccountStyles(theme);
 
   return (
-    <View style={styles.page}>
+    <SafeAreaView style={styles.page}>
       <LinearGradient
         colors={['#FEB70B', '#C83753', '#A52AA3', '#0064E0', '#0064E0']}
         locations={[0, 0.24, 0.43, 0.65, 1]}
@@ -63,7 +70,10 @@ const SwitchAccount = ({navigation}: any) => {
               Facebook
             </Text>
           </TouchableOpacity>
-          <Image source={require('../../assets/icon/seperator_or.png')} />
+          <Image
+            style={{width: '100%'}}
+            source={require('../../assets/icon/seperator_or.png')}
+          />
           <TouchableOpacity>
             <Text style={SwitchStyles.textGoogle}>
               <Image source={require('../../assets/icon/gg.png')} /> Log in with
@@ -78,7 +88,7 @@ const SwitchAccount = ({navigation}: any) => {
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
