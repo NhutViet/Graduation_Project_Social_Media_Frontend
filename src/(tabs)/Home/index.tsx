@@ -133,7 +133,17 @@ const Home = () => {
               iconMessage={require('../../../assets/icon/message.png')}
               navigation={navigation}
             />
-            <View style={{paddingLeft: 10}}>
+            <View
+              style={{
+                paddingLeft: 10,
+                alignItems: 'center',
+                flexDirection: 'row',
+              }}>
+              <User
+                name="Tin của bạn"
+                image="https://i.pinimg.com/736x/42/49/53/424953431a91e5f651573a25d8fafbff.jpg"
+                status={1}
+              />
               <FlashList
                 data={dataUser}
                 renderItem={({item}: any) => (

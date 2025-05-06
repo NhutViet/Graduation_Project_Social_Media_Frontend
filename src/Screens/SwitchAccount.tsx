@@ -77,7 +77,7 @@ const SwitchAccount = ({navigation}: any) => {
           <TouchableOpacity>
             <Text style={SwitchStyles.textGoogle}>
               <Image source={require('../../assets/icon/gg.png')} /> Log in with
-              Facebook
+              Google
             </Text>
           </TouchableOpacity>
         </View>

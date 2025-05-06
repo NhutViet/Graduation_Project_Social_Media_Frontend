@@ -48,11 +48,14 @@ const ItemHome = (props: any) => {
               muted={muted}
             />
           ) : (
-            <Image
-              source={{uri: img}}
-              style={{width: '100%', height: '100%'}}
-              resizeMode="cover"
-            />
+            <>
+              <View style={styles.blockWhite}></View>
+              <Image
+                source={{uri: img}}
+                style={{width: '100%', height: '100%'}}
+                resizeMode="cover"
+              />
+            </>
           )}
         </View>
         <View style={styles.headerItem}>
@@ -61,17 +64,43 @@ const ItemHome = (props: any) => {
               <Image style={styles.imgUser} source={{uri: imgUser}} />
             </View>
             <View>
-              <Text style={styles.textNormal}>{name}</Text>
-              <Text style={styles.text}>Gợi ý cho bạn</Text>
+              <Text
+                style={[
+                  styles.textNormal,
+                  {color: uriVideo ? Colors.dark.text : color.text},
+                ]}>
+                {name}
+              </Text>
+              <Text
+                style={[
+                  styles.text,
+                  {color: uriVideo ? Colors.dark.text : color.text},
+                ]}>
+                Gợi ý cho bạn
+              </Text>
             </View>
           </View>
           <View style={styles.rowContainer}>
-            <TouchableOpacity style={styles.btnFollow}>
-              <Text style={styles.textNormal}>Theo dõi</Text>
+            <TouchableOpacity
+              style={[
+                styles.btnFollow,
+                {
+                  borderColor: uriVideo ? Colors.light.background : color.text,
+                },
+              ]}>
+              <Text
+                style={[
+                  styles.textNormal,
+                  {color: uriVideo ? Colors.dark.text : color.text},
+                ]}>
+                Theo dõi
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity>
               <Image
-                style={{tintColor: Colors.light.background}}
+                style={{
+                  tintColor: uriVideo ? Colors.light.background : color.text,
+                }}
                 source={require('../assets/icon/menu-dots-vertical.png')}
               />
             </TouchableOpacity>
@@ -170,11 +199,9 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   textNormal: {
-    color: Colors.dark.text,
     fontSize: 14,
   },
   text: {
-    color: Colors.dark.text,
     fontSize: 12,
   },
   btnFollow: {
@@ -204,6 +231,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 20,
     right: 20,
+  },
+  blockWhite: {
+    width: '100%',
+    height: 60,
+    backgroundColor: Colors.light.transparent,
   },
 });
 
