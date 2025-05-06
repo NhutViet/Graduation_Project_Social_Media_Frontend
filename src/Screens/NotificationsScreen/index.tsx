@@ -6,6 +6,7 @@ import {
   View,
   Text,
   TouchableOpacity,
+  Image,
 } from 'react-native';
 import NotificationSection from '../../../components/NotificationSection';
 import {useNotificationStyles} from '../../StyleSheet/NotificationStyles';
@@ -110,7 +111,7 @@ export const NotificationsScreen = ({navigation}: any) => {
   const handleBackPress = () => navigation?.goBack();
 
   // Demo hasRequests flag
-  const username = 'johndoe';
+  const username = 'ark';
   const hasRequests = true;
 
   return (
@@ -134,7 +135,10 @@ export const NotificationsScreen = ({navigation}: any) => {
 
           {hasRequests && <View style={styles.specialDot} />}
 
-          <Text style={styles.backIcon}>{'>'}</Text>
+          <Image
+            style={styles.backIcon}
+            source={require('../../../assets/icon/right.png')}
+          />
         </TouchableOpacity>
 
         <NotificationSection
