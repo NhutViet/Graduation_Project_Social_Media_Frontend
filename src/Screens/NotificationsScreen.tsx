@@ -1,5 +1,5 @@
 import React from 'react';
-import { SafeAreaView, StyleSheet, ScrollView, View, Text, TouchableOpacity } from 'react-native';
+import { SafeAreaView, StyleSheet, ScrollView, View, Text, Image, TouchableOpacity } from 'react-native';
 import NotificationSection from '../../components/NotificationSection';
 import { useNotificationStyles } from '../StyleSheet/NotificationStyles';
 
@@ -102,7 +102,7 @@ const NotificationsScreen = ({ navigation }: any) => {
   const handleBackPress = () => navigation?.goBack();
 
   // Demo hasRequests flag
-  const username = 'johndoe';
+  const username = 'ark';
   const hasRequests = true;
 
   return (
@@ -125,7 +125,10 @@ const NotificationsScreen = ({ navigation }: any) => {
 
           {hasRequests && <View style={styles.specialDot} />}
 
-          <Text style={styles.backIcon}>{'>'}</Text>
+          <Image 
+            style={styles.backIcon}
+            source={require('../../assets/icon/right.png')}
+          />
         </TouchableOpacity>
 
         <NotificationSection title="This month" notifications={notificationData.thisMonth} />
