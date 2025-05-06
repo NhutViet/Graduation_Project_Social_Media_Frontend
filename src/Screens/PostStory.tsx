@@ -25,10 +25,14 @@ const PostStory = () => {
 
   const [mediaList, setMediaList] = useState([]);
   const [isMultiSelectMode, setIsMultiSelectMode] = useState(false);
-  const [selectedItems, setSelectedItems] = useState([]);
-  const [videoDurations, setVideoDurations] = useState({});
+  const [selectedItems, setSelectedItems] = useState<
+    {uri: string; order: number}[]
+  >([]);
+  const [videoDurations, setVideoDurations] = useState<Record<string, number>>(
+    {},
+  );
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<String | null>(null);
 
   // Use useRef to store the latest value of isMultiSelectMode
   const isMultiSelectModeRef = useRef(isMultiSelectMode);
@@ -93,7 +97,7 @@ const PostStory = () => {
           include: ['playableDuration', 'filename'],
         });
 
-        const media = result.edges.map(edge => ({
+        const media: any = result.edges.map((edge: any) => ({
           uri: edge.node.image.uri,
           type: edge.node.type,
           duration: edge.node.playableDuration || 0,
@@ -125,19 +129,19 @@ const PostStory = () => {
   }, []);
 
   const handleItemPress = useCallback(
-    item => {
+    (item: any) => {
       console.log(
         'handleItemPress called, Current isMultiSelectModeRef:',
         isMultiSelectModeRef.current,
       );
       if (isMultiSelectModeRef.current) {
-        setSelectedItems(prev => {
-          const index = prev.findIndex(i => i.uri === item.uri);
+        setSelectedItems((prev: any) => {
+          const index = prev.findIndex((i: any) => i.uri === item.uri);
           if (index !== -1) {
             // Deselect the item
             const updatedItems = prev
-              .filter(i => i.uri !== item.uri)
-              .map((media, idx) => ({...media, order: idx + 1}));
+              .filter((i: any) => i.uri !== item.uri)
+              .map((media: any, idx: number) => ({...media, order: idx + 1}));
             console.log('Deselected, Updated Items:', updatedItems);
             return updatedItems;
           }
@@ -158,14 +162,14 @@ const PostStory = () => {
     [navigation],
   );
 
-  const onLoadVideo = useCallback((data, uri) => {
+  const onLoadVideo = useCallback((data: any, uri: any) => {
     setVideoDurations(prev => ({
       ...prev,
       [uri]: data.duration,
     }));
   }, []);
 
-  const formatDuration = useCallback(duration => {
+  const formatDuration = useCallback((duration: any) => {
     if (!duration || duration <= 0) return '0:00';
     const minutes = Math.floor(duration / 60);
     const seconds = Math.floor(duration % 60);
@@ -173,10 +177,10 @@ const PostStory = () => {
   }, []);
 
   const renderItem = useCallback(
-    ({item}) => {
-      const isSelected = selectedItems.some(i => i.uri === item.uri);
+    ({item}: any) => {
+      const isSelected = selectedItems.some((i: any) => i.uri === item.uri);
       const selectionOrder =
-        selectedItems.find(i => i.uri === item.uri)?.order || 0;
+        selectedItems.find((i: any) => i.uri === item.uri)?.order || 0;
       const duration = videoDurations[item.uri] || item.duration || 0;
 
       console.log(
@@ -228,7 +232,7 @@ const PostStory = () => {
     ],
   );
 
-  const keyExtractor = useCallback(item => item.id, []);
+  const keyExtractor = useCallback((item: any) => item.id, []);
 
   const handleNextPress = () => {
     if (selectedItems.length > 0) {
@@ -318,9 +322,9 @@ const PostStory = () => {
           estimatedItemSize={92}
           contentContainerStyle={styles.grid}
           ListEmptyComponent={
-            !isLoading && (
+            !isLoading ? (
               <Text style={styles.emptyText}>Không tìm thấy media</Text>
-            )
+            ) : null
           }
         />
       </View>

@@ -7,11 +7,11 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {useTheme} from '../util/ThemeContext';
-import {Colors} from '../../assets/color/Colors';
+import {useTheme} from '../../util/ThemeContext';
+import {Colors} from '../../../assets/color/Colors';
 import {useNavigation} from '@react-navigation/native';
 
-const Account = () => {
+const Profile = () => {
   const navigation: any = useNavigation();
 
   const {theme} = useTheme();
@@ -27,19 +27,19 @@ const Account = () => {
           <View style={styles.headerIcon}>
             <TouchableOpacity>
               <Image
-                source={require('../../assets/icon/icon_tinder.png')}
+                source={require('../../../assets/icon/icon_tinder.png')}
                 style={[styles.icon, {tintColor: color.text}]}
               />
             </TouchableOpacity>
             <TouchableOpacity>
               <Image
-                source={require('../../assets/icon/heart.png')}
+                source={require('../../../assets/icon/heart.png')}
                 style={[styles.icon, {tintColor: color.text}]}
               />
             </TouchableOpacity>
             <TouchableOpacity onPress={() => navigation.navigate('Setting')}>
               <Image
-                source={require('../../assets/icon/Menu.png')}
+                source={require('../../../assets/icon/Menu.png')}
                 style={[styles.icon, {tintColor: color.text}]}
               />
             </TouchableOpacity>
@@ -73,4 +73,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Account;
+export default Profile;
