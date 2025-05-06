@@ -6,12 +6,18 @@ import {
   TouchableOpacity,
   View,
   ScrollView,
-  FlatList,
+  Animated,
+  Dimensions,
+  StyleSheet,
 } from 'react-native';
 import {useTheme} from '../util/ThemeContext';
 import {Colors} from '../../assets/color/Colors';
 import {useNavigation} from '@react-navigation/native';
 import styles, {itemSize} from '../StyleSheet/Profile.Styles';
+import {FlashList} from '@shopify/flash-list';
+import {PostData} from '../mockData/posts.mock';
+import {PlusSquare, Menu, Grid, UserSquare2} from 'lucide-react-native';
+import CommentSection from '../../components/CommentSection';
 
 const Profile = () => {
   const navigation: any = useNavigation();
@@ -22,15 +28,27 @@ const Profile = () => {
   const [selectedTab, setSelectedTab] = useState('grid');
 
   // Mock data cho grid posts
-  const gridPosts = [
-    {id: '1', image: 'https://picsum.photos/300/300?random=1'},
-    {id: '2', image: 'https://picsum.photos/300/300?random=2'},
-    {id: '3', image: 'https://picsum.photos/300/300?random=3'},
-    {id: '4', image: 'https://picsum.photos/300/300?random=4'},
-    {id: '5', image: 'https://picsum.photos/300/300?random=5'},
-    {id: '6', image: 'https://picsum.photos/300/300?random=6'},
-    // Thêm nhiều posts khác nếu cần
-  ];
+  const gridPosts = PostData;
+
+  const [showComments, setShowComments] = useState(false);
+  const slideAnim = useState(new Animated.Value(0))[0];
+
+  const toggleComments = () => {
+    if (showComments) {
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => setShowComments(false));
+    } else {
+      setShowComments(true);
+      Animated.timing(slideAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    }
+  };
 
   return (
     <SafeAreaView
@@ -42,17 +60,13 @@ const Profile = () => {
             pingenriquez
           </Text>
           <View style={styles.headerRight}>
-            <TouchableOpacity style={styles.iconButton}>
-              <Image
-                source={require('../../assets/icon/post.png')}
-                style={[styles.icon, {tintColor: color.text}]}
-              />
+            <TouchableOpacity
+              style={styles.iconButton}
+              onPress={toggleComments}>
+              <PlusSquare color={color.text} size={24} />
             </TouchableOpacity>
             <TouchableOpacity onPress={() => navigation.navigate('Setting')}>
-              <Image
-                source={require('../../assets/icon/Menu.png')}
-                style={[styles.icon, {tintColor: color.text}]}
-              />
+              <Menu color={color.text} size={24} />
             </TouchableOpacity>
           </View>
         </View>
@@ -128,54 +142,91 @@ const Profile = () => {
               <TouchableOpacity
                 style={[
                   styles.tabButton,
-                  selectedTab === 'grid' && styles.activeTab,
+                  selectedTab === 'grid' && [
+                    styles.activeTab,
+                    {borderTopColor: color.text},
+                  ],
                 ]}
                 onPress={() => setSelectedTab('grid')}>
-                <Image
-                  source={require('../../assets/icon/grid.png')}
-                  style={[styles.tabIcon, {tintColor: color.text}]}
-                />
+                <Grid color={color.text} size={24} />
               </TouchableOpacity>
               <TouchableOpacity
                 style={[
                   styles.tabButton,
-                  selectedTab === 'tagged' && styles.activeTab,
+                  selectedTab === 'tagged' && [
+                    styles.activeTab,
+                    {borderTopColor: color.text},
+                  ],
                 ]}
                 onPress={() => setSelectedTab('tagged')}>
-                <Image
-                  source={require('../../assets/icon/tagged.png')}
-                  style={[styles.tabIcon, {tintColor: color.text}]}
-                />
+                <UserSquare2 color={color.text} size={24} />
               </TouchableOpacity>
             </View>
-
-            {/* Grid View */}
-            <FlatList
-              data={gridPosts}
-              numColumns={3}
-              renderItem={({item}) => (
-                <TouchableOpacity
-                  style={{
-                    width: itemSize,
-                    height: itemSize,
-                    padding: 1,
-                  }}>
-                  <Image
-                    source={{uri: item.image}}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                    }}
-                  />
-                </TouchableOpacity>
-              )}
-              keyExtractor={item => item.id}
-            />
           </View>
+          <FlashList
+            data={gridPosts}
+            numColumns={3}
+            estimatedItemSize={itemSize}
+            renderItem={renderItem}
+            keyExtractor={item => item.id}
+          />
         </ScrollView>
       </View>
+
+      {showComments && (
+        <Animated.View
+          style={[
+            modalStyles.commentsContainer,
+            {
+              transform: [
+                {
+                  translateY: slideAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [Dimensions.get('window').height, 0],
+                  }),
+                },
+              ],
+            },
+          ]}>
+          <TouchableOpacity
+            style={modalStyles.modalOverlay}
+            activeOpacity={1}
+            onPress={toggleComments}>
+            <View style={{backgroundColor: color.background}}>
+              <CommentSection />
+            </View>
+          </TouchableOpacity>
+        </Animated.View>
+      )}
     </SafeAreaView>
   );
 };
 
 export default Profile;
+
+const renderItem = ({item}: {item: {id: string; image: string}}) => (
+  <TouchableOpacity style={styles.tabLabel}>
+    <View style={styles.imageContainer}>
+      <Image
+        source={{uri: item.image}}
+        style={styles.tabLabelImage}
+        resizeMode="cover"
+      />
+    </View>
+  </TouchableOpacity>
+);
+
+// Đổi tên biến styles mới thành modalStyles
+const modalStyles = StyleSheet.create({
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  commentsContainer: {
+    backgroundColor: 'white',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    height: Dimensions.get('window').height * 0.8,
+  },
+});

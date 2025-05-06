@@ -1,9 +1,9 @@
-import {StyleSheet, Dimensions} from 'react-native';
+import {StyleSheet} from 'react-native';
+import theme from '../constants/theme';
 
-const {width} = Dimensions.get('window');
+const width = theme.dimensions.width;
 const numColumns = 3;
 const tileSize = width / numColumns;
-// Tính toán kích thước cho grid item
 export const itemSize = width / 3;
 
 const styles = StyleSheet.create({
@@ -12,7 +12,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: 15,
+    paddingHorizontal: 5,
   },
   header: {
     flexDirection: 'row',
@@ -190,6 +190,19 @@ const styles = StyleSheet.create({
   tabIcon: {
     width: 24,
     height: 24,
+  },
+  tabLabel: {
+    flex: 1,
+    aspectRatio: 1,
+    padding: 1,
+  },
+  imageContainer: {
+    flex: 1,
+    overflow: 'hidden',
+  },
+  tabLabelImage: {
+    width: '100%',
+    height: '100%',
   },
 });
 
