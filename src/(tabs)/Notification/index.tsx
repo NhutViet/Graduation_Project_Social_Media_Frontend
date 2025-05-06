@@ -1,12 +1,12 @@
 import {StyleSheet, Text, View} from 'react-native';
-import {Colors} from '../../assets/color/Colors';
-import {useTheme} from '../util/ThemeContext';
-const Reels = () => {
+import {Colors} from '../../../assets/color/Colors';
+import {useTheme} from '../../util/ThemeContext';
+const Notification = () => {
   const {theme} = useTheme();
   const color = Colors[theme];
   return (
     <View style={[styles.container, {backgroundColor: color.background}]}>
-      <Text>Reels Screen</Text>
+      <Text>Notification</Text>
     </View>
   );
 };
@@ -16,4 +16,4 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
-export default Reels;
+export default Notification;
