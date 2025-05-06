@@ -1,12 +1,12 @@
 import {SafeAreaView, ScrollView, StyleSheet, View} from 'react-native';
-import {Colors} from '../../assets/color/Colors';
-import {useTheme} from '../util/ThemeContext';
+import {Colors} from '../../../assets/color/Colors';
+import {useTheme} from '../../util/ThemeContext';
 import {FlashList} from '@shopify/flash-list';
-import Header from '../../components/Header';
+import Header from '../../../components/Header';
 import {useNavigation} from '@react-navigation/native';
-import User from '../../components/User';
+import User from '../../../components/User';
 import {useRef, useState} from 'react';
-import ItemHome from '../../components/ItemHome';
+import ItemHome from '../../../components/ItemHome';
 
 const Home = () => {
   const navigation: any = useNavigation();
@@ -127,10 +127,10 @@ const Home = () => {
         ListHeaderComponent={
           <View>
             <Header
-              icon={require('../../assets/icon/logo_row.png')}
-              iconQR={require('../../assets/icon/qr.png')}
-              iconNotify={require('../../assets/icon/heart.png')}
-              iconMessage={require('../../assets/icon/message.png')}
+              icon={require('../../../assets/icon/logo_row.png')}
+              iconQR={require('../../../assets/icon/qr.png')}
+              iconNotify={require('../../../assets/icon/heart.png')}
+              iconMessage={require('../../../assets/icon/message.png')}
               navigation={navigation}
             />
             <View style={{paddingLeft: 10}}>

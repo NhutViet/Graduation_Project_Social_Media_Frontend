@@ -1,14 +1,13 @@
 import {SafeAreaView, StyleSheet, Text, View} from 'react-native';
-import {Colors} from '../../assets/color/Colors';
-import {useTheme} from '../util/ThemeContext';
-
-const Search = () => {
+import {Colors} from '../../../assets/color/Colors';
+import {useTheme} from '../../util/ThemeContext';
+const Post = () => {
   const {theme} = useTheme();
   const color = Colors[theme];
   return (
     <SafeAreaView
       style={[styles.container, {backgroundColor: color.background}]}>
-      <Text style={{color: color.text}}>Search Screen</Text>
+      <Text>Post Screen</Text>
     </SafeAreaView>
   );
 };
@@ -18,5 +17,4 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
-
-export default Search;
+export default Post;
