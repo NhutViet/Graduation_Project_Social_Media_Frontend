@@ -1,4 +1,3 @@
-import React from 'react';
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Colors} from '../assets/color/Colors';
 import {useTheme} from '../src/util/ThemeContext';
@@ -21,25 +20,19 @@ const Header = (props: any) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.leftSection}>
-        {icon && <Image source={icon} style={styles.logo} />}
-        {iconBack && (
-          <TouchableOpacity style={styles.iconBox} onPress={func}>
-            <Image
-              source={iconBack}
-              style={[styles.icon, {tintColor: color.text}]}
-            />
-          </TouchableOpacity>
-        )}
-      </View>
-
-      <View style={styles.centerSection}>
-        {title && (
-          <Text style={[styles.title, {color: color.text}]}>{title}</Text>
-        )}
-      </View>
-
-      <View style={styles.rightSection}>
+      <Image source={icon} style={styles.logo} />
+      {iconBack && (
+        <TouchableOpacity style={styles.iconBox} onPress={func}>
+          <Image
+            source={iconBack}
+            style={[styles.icon, {tintColor: color.text}]}
+          />
+        </TouchableOpacity>
+      )}
+      {title && (
+        <Text style={[styles.title, {color: color.text}]}>{title}</Text>
+      )}
+      <View style={styles.iconBlock}>
         {iconQR && (
           <TouchableOpacity
             style={styles.iconBox}
@@ -83,43 +76,26 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#DBDBDB',
-  },
-  leftSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    minWidth: 80,
-  },
-  centerSection: {
-    flex: 1,
-    alignItems: 'center',
-    paddingHorizontal: 16,
-  },
-  rightSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    minWidth: 80,
+    paddingHorizontal: 10,
+    paddingVertical: 20,
   },
   logo: {
     width: 100,
     height: 30,
   },
   title: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  iconBlock: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   iconBox: {
-    width: 24,
-    height: 24,
-    marginLeft: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: 20,
+    height: 20,
+    marginLeft: 20,
   },
   icon: {
     width: '100%',
