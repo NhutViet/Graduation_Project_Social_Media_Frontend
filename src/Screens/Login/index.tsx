@@ -1,8 +1,8 @@
 import {Image, SafeAreaView, Text, TouchableOpacity, View} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import LoginStyles from '../StyleSheet/LoginStyles';
+import LoginStyles from '../../StyleSheet/LoginStyles';
 
-const Login = ({navigation}: any) => {
+export const Login = ({navigation}: any) => {
   const styles = LoginStyles();
 
   return (
@@ -16,7 +16,7 @@ const Login = ({navigation}: any) => {
       <View style={styles.container}>
         <Image
           style={styles.logo}
-          source={require('../../assets/icon/logo.png')}
+          source={require('../../../assets/icon/logo.png')}
         />
         <View style={styles.blockCenter}>
           <View style={styles.imageUserBlock}>
@@ -50,5 +50,3 @@ const Login = ({navigation}: any) => {
     </SafeAreaView>
   );
 };
-
-export default Login;

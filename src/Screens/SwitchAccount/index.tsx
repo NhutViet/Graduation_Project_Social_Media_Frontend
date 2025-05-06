@@ -7,13 +7,13 @@ import {
   View,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import LoginStyles from '../StyleSheet/LoginStyles';
+import LoginStyles from '../../StyleSheet/LoginStyles';
 import {useState} from 'react';
-import SwitchAccountStyles from '../StyleSheet/SwitchAccountStyles';
-import {Colors} from '../../assets/color/Colors';
-import {useTheme} from '../util/ThemeContext';
+import SwitchAccountStyles from '../../StyleSheet/SwitchAccountStyles';
+import {Colors} from '../../../assets/color/Colors';
+import {useTheme} from '../../util/ThemeContext';
 
-const SwitchAccount = ({navigation}: any) => {
+export const SwitchAccount = ({navigation}: any) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -32,13 +32,13 @@ const SwitchAccount = ({navigation}: any) => {
       <TouchableOpacity onPress={() => navigation.goBack()}>
         <Image
           style={SwitchStyles.iconBack}
-          source={require('../../assets/icon/left.png')}
+          source={require('../../../assets/icon/left.png')}
         />
       </TouchableOpacity>
       <View style={styles.container}>
         <Image
           style={styles.logo}
-          source={require('../../assets/icon/logo.png')}
+          source={require('../../../assets/icon/logo.png')}
         />
         <View style={SwitchStyles.body}>
           <TextInput
@@ -66,18 +66,18 @@ const SwitchAccount = ({navigation}: any) => {
           </TouchableOpacity>
           <TouchableOpacity>
             <Text style={SwitchStyles.textFb}>
-              <Image source={require('../../assets/icon/fb.png')} /> Log in with
-              Facebook
+              <Image source={require('../../../assets/icon/fb.png')} /> Log in
+              with Facebook
             </Text>
           </TouchableOpacity>
           <Image
             style={{width: '100%'}}
-            source={require('../../assets/icon/seperator_or.png')}
+            source={require('../../../assets/icon/seperator_or.png')}
           />
           <TouchableOpacity>
             <Text style={SwitchStyles.textGoogle}>
-              <Image source={require('../../assets/icon/gg.png')} /> Log in with
-              Google
+              <Image source={require('../../../assets/icon/gg.png')} /> Log in
+              with Facebook
             </Text>
           </TouchableOpacity>
         </View>
@@ -91,5 +91,3 @@ const SwitchAccount = ({navigation}: any) => {
     </SafeAreaView>
   );
 };
-
-export default SwitchAccount;

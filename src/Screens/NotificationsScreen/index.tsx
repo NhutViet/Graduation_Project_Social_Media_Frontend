@@ -1,7 +1,15 @@
 import React from 'react';
-import { SafeAreaView, StyleSheet, ScrollView, View, Text, Image, TouchableOpacity } from 'react-native';
-import NotificationSection from '../../components/NotificationSection';
-import { useNotificationStyles } from '../StyleSheet/NotificationStyles';
+import {
+  SafeAreaView,
+  StyleSheet,
+  ScrollView,
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+} from 'react-native';
+import NotificationSection from '../../../components/NotificationSection';
+import {useNotificationStyles} from '../../StyleSheet/NotificationStyles';
 
 // Mock data for notifications
 const notificationData = {
@@ -12,7 +20,7 @@ const notificationData = {
       hasStoryRing: true,
       content: 'John Doe started following you. You might know them.',
       time: '2d',
-      actionType: 'follow'
+      actionType: 'follow',
     },
     {
       id: '2',
@@ -20,7 +28,7 @@ const notificationData = {
       hasStoryRing: false,
       content: 'Your post received 25 likes and 5 comments.',
       time: '5d',
-      actionType: 'post'
+      actionType: 'post',
     },
     {
       id: '3',
@@ -28,8 +36,8 @@ const notificationData = {
       hasStoryRing: false,
       content: 'Sarah Smith started a live video. Watch it before it ends!',
       time: '1w',
-      actionType: 'friends'
-    }
+      actionType: 'friends',
+    },
   ],
   earlier: [
     {
@@ -38,15 +46,16 @@ const notificationData = {
       hasStoryRing: true,
       content: 'Alex Johnson commented on your photo: "Amazing shot!"',
       time: '2w',
-      actionType: 'post'
+      actionType: 'post',
     },
     {
       id: '5',
       imageIcon: 'flag',
       hasStoryRing: false,
-      content: 'Your report has been reviewed. Thank you for keeping our community safe.',
+      content:
+        'Your report has been reviewed. Thank you for keeping our community safe.',
       time: '3w',
-      actionType: 'flag'
+      actionType: 'flag',
     },
     {
       id: '6',
@@ -54,8 +63,8 @@ const notificationData = {
       hasStoryRing: true,
       content: 'Emma Wilson and 15 others liked your photo.',
       time: '3w',
-      actionType: 'post'
-    }
+      actionType: 'post',
+    },
   ],
   suggested: [
     {
@@ -64,7 +73,7 @@ const notificationData = {
       hasStoryRing: true,
       content: 'Mark Davis is on the platform. Do you know them?',
       time: '1d',
-      actionType: 'others'
+      actionType: 'others',
     },
     {
       id: '8',
@@ -72,7 +81,7 @@ const notificationData = {
       hasStoryRing: true,
       content: 'Jessica White started following your friend. Follow them back?',
       time: '3d',
-      actionType: 'follow'
+      actionType: 'follow',
     },
     {
       id: '9',
@@ -80,12 +89,12 @@ const notificationData = {
       hasStoryRing: true,
       content: 'Based on your interests, you might like to follow Mike Brown.',
       time: '1w',
-      actionType: 'follow'
-    }
-  ]
+      actionType: 'follow',
+    },
+  ],
 };
 
-const Header: React.FC<{ onBackPress: () => void }> = ({ onBackPress }) => {
+const Header: React.FC<{onBackPress: () => void}> = ({onBackPress}) => {
   const styles = useNotificationStyles();
   return (
     <View style={styles.header}>
@@ -97,7 +106,7 @@ const Header: React.FC<{ onBackPress: () => void }> = ({ onBackPress }) => {
   );
 };
 
-const NotificationsScreen = ({ navigation }: any) => {
+export const NotificationsScreen = ({navigation}: any) => {
   const styles = useNotificationStyles();
   const handleBackPress = () => navigation?.goBack();
 
@@ -109,11 +118,12 @@ const NotificationsScreen = ({ navigation }: any) => {
     <SafeAreaView style={styles.container}>
       <Header onBackPress={handleBackPress} />
 
-      <ScrollView style={styles.scrollView} contentContainerStyle={{ paddingBottom: 16 }}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={{paddingBottom: 16}}>
         <TouchableOpacity
           style={styles.contentContainer}
-          onPress={() => navigation.navigate('FollowerRequests')}
-        >
+          onPress={() => navigation.navigate('FollowerRequests')}>
           <View style={styles.iconContainer}>
             <Text style={styles.iconText}>👤</Text>
           </View>
@@ -125,19 +135,25 @@ const NotificationsScreen = ({ navigation }: any) => {
 
           {hasRequests && <View style={styles.specialDot} />}
 
-          <Image 
+          <Image
             style={styles.backIcon}
-            source={require('../../assets/icon/right.png')}
+            source={require('../../../assets/icon/right.png')}
           />
         </TouchableOpacity>
 
-        <NotificationSection title="This month" notifications={notificationData.thisMonth} />
-        <NotificationSection title="Earlier" notifications={notificationData.earlier} />
-        <NotificationSection title="Suggested for you" notifications={notificationData.suggested} />
+        <NotificationSection
+          title="This month"
+          notifications={notificationData.thisMonth}
+        />
+        <NotificationSection
+          title="Earlier"
+          notifications={notificationData.earlier}
+        />
+        <NotificationSection
+          title="Suggested for you"
+          notifications={notificationData.suggested}
+        />
       </ScrollView>
     </SafeAreaView>
   );
 };
-
-
-export default NotificationsScreen;

@@ -1,16 +1,18 @@
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
-import Splash from '../Screens/Splash';
+
+import {
+  AddPost,
+  EditStory,
+  FollowerRequests,
+  Login,
+  NotificationsScreen,
+  PostSetting,
+  PostStory,
+  Setting,
+  SwitchAccount,
+} from '../Screens';
 import BottomTabs from './BottomTabs';
-import Setting from '../Screens/Setting';
-import Login from '../Screens/Login';
-import SwitchAccount from '../Screens/SwitchAccount';
-import PostStory from '../Screens/PostStory';
-import EditStoryScreen from '../Screens/EditStory';
-import AddPost from '../Screens/AddPost';
-import PostSetting from '../Screens/PostSetting';
-import NotificationsScreen from '../Screens/NotificationsScreen';
-import FollowerRequests from '../Screens/FollowerRequests';
 
 const Stack = createStackNavigator();
 
@@ -27,7 +29,7 @@ const AppNavigator = () => {
         <Stack.Screen name="BottomTabs" component={BottomTabs} />
         <Stack.Screen name="Setting" component={Setting} />
         <Stack.Screen name="UpStory" component={PostStory} />
-        <Stack.Screen name="EditStory" component={EditStoryScreen} />
+        <Stack.Screen name="EditStory" component={EditStory} />
         <Stack.Screen
           name="NotificationsScreen"
           component={NotificationsScreen}

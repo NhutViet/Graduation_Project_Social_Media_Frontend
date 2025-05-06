@@ -14,11 +14,11 @@ import {
 import {FlashList} from '@shopify/flash-list';
 import {CameraRoll} from '@react-native-camera-roll/camera-roll';
 import Video from 'react-native-video';
-import {useTheme} from '../util/ThemeContext';
-import {Colors} from '../../assets/color/Colors';
+import {useTheme} from '../../util/ThemeContext';
+import {Colors} from '../../../assets/color/Colors';
 import {useNavigation} from '@react-navigation/native';
 
-const PostStory = () => {
+export const PostStory = () => {
   const {theme} = useTheme();
   const color = Colors[theme];
   const navigation: any = useNavigation();
@@ -270,7 +270,7 @@ const PostStory = () => {
         <TouchableOpacity onPress={() => navigation.navigate('BottomTabs')}>
           <Image
             style={[styles.headerIcon, {tintColor: color.text}]}
-            source={require('../../assets/icon/left.png')}
+            source={require('../../../assets/icon/left.png')}
           />
         </TouchableOpacity>
         <Text style={{color: color.text}}>Tạo Story</Text>
@@ -284,7 +284,7 @@ const PostStory = () => {
         <TouchableOpacity style={styles.btnTop}>
           <Image
             style={[styles.imgTop, {tintColor: color.text}]}
-            source={require('../../assets/icon/iconAndYou.png')}
+            source={require('../../../assets/icon/iconAndYou.png')}
             resizeMode="contain"
           />
           <Text style={[styles.txtTop, {color: color.text}]}>Template</Text>
@@ -292,7 +292,7 @@ const PostStory = () => {
         <TouchableOpacity style={styles.btnTop}>
           <Image
             style={[styles.imgTop, {tintColor: color.text}]}
-            source={require('../../assets/icon/music.png')}
+            source={require('../../../assets/icon/music.png')}
             resizeMode="contain"
           />
           <Text style={[styles.txtTop, {color: color.text}]}>Music</Text>
@@ -310,7 +310,7 @@ const PostStory = () => {
             {backgroundColor: color.background},
           ]}
           onPress={toggleMultiSelectMode}>
-          <Image source={require('../../assets/icon/Select.png')} />
+          <Image source={require('../../../assets/icon/Select.png')} />
         </TouchableOpacity>
       </View>
       <View style={styles.bottomSection}>
@@ -465,5 +465,3 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 });
-
-export default PostStory;

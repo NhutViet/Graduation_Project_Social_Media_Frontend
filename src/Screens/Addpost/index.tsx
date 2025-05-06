@@ -18,11 +18,11 @@ import {
 } from '@react-native-camera-roll/camera-roll';
 import {useNavigation} from '@react-navigation/native';
 import {FlashList} from '@shopify/flash-list';
-import {getAddPostStyles} from '../StyleSheet/AddPostStyles';
-import {useTheme} from '../util/ThemeContext';
-import { Colors } from '../../assets/color/Colors';
+import {getAddPostStyles} from '../../StyleSheet/AddPostStyles';
+import {useTheme} from '../../util/ThemeContext';
+import {Colors} from '../../../assets/color/Colors';
 
-const AddPost = () => {
+export const AddPost = () => {
   const {theme} = useTheme();
   const color = Colors[theme];
   const {width} = Dimensions.get('window');
@@ -95,21 +95,21 @@ const AddPost = () => {
 
   const handleSelect = (item: PhotoIdentifier) => {
     if (isMultiSelect) {
-        const isSelected = selectedItems.some(
-          i => i.node.image.uri === item.node.image.uri,
+      const isSelected = selectedItems.some(
+        i => i.node.image.uri === item.node.image.uri,
+      );
+      if (isSelected) {
+        setSelectedItems(prev =>
+          prev.filter(i => i.node.image.uri !== item.node.image.uri),
         );
-        if (isSelected) {
-          setSelectedItems(prev =>
-            prev.filter(i => i.node.image.uri !== item.node.image.uri),
-          );
-        } else {
-          setSelectedItems(prev => [...prev, item]);
-        }
       } else {
-        // Single mode: chỉ chọn duy nhất 1 item
-        setSelectedItems([item]);
+        setSelectedItems(prev => [...prev, item]);
       }
-      setSelectedMedia(item); // luôn cập nhật ảnh lớn
+    } else {
+      // Single mode: chỉ chọn duy nhất 1 item
+      setSelectedItems([item]);
+    }
+    setSelectedMedia(item); // luôn cập nhật ảnh lớn
   };
 
   const handleNext = () => {
@@ -146,7 +146,7 @@ const AddPost = () => {
         <View style={styles.rowSpace}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Image
-              source={require('../../assets/icon/x.png')}
+              source={require('../../../assets/icon/x.png')}
               style={styles.iconR}
             />
           </TouchableOpacity>
@@ -174,16 +174,19 @@ const AddPost = () => {
             <TouchableOpacity style={styles.row}>
               <Text style={styles.textR}>Recently</Text>
               <Image
-                source={require('../../assets/icon/right.png')}
+                source={require('../../../assets/icon/right.png')}
                 style={styles.iconRR}
               />
             </TouchableOpacity>
-            <TouchableOpacity onPress={toggleSelectMode} style={[styles.btnCir, {backgroundColor: isMultiSelect ? color.gray : 'transparent'}]}>
+            <TouchableOpacity
+              onPress={toggleSelectMode}
+              style={[
+                styles.btnCir,
+                {backgroundColor: isMultiSelect ? color.gray : 'transparent'},
+              ]}>
               <Image
-                source={require('../../assets/icon/gallery.png')}
-                style={[
-                    styles.icon,
-                  ]}
+                source={require('../../../assets/icon/gallery.png')}
+                style={[styles.icon]}
               />
             </TouchableOpacity>
           </View>
@@ -235,7 +238,7 @@ const AddPost = () => {
                   {/* Icon video */}
                   {item.node.type.startsWith('video') && (
                     <Image
-                      source={require('../../assets/icon/x.png')}
+                      source={require('../../../assets/icon/x.png')}
                       style={{
                         position: 'absolute',
                         bottom: 5,
@@ -257,5 +260,3 @@ const AddPost = () => {
     </SafeAreaView>
   );
 };
-
-export default AddPost;
