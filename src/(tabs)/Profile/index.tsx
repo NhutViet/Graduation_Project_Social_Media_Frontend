@@ -10,8 +10,8 @@ import {
   Dimensions,
   StyleSheet,
 } from 'react-native';
-import {useTheme} from '../util/ThemeContext';
-import {Colors} from '../../assets/color/Colors';
+import {useTheme} from '../../util/ThemeContext';
+import {Colors} from '../../../assets/color/Colors';
 import {useNavigation} from '@react-navigation/native';
 import styles, {itemSize} from '../StyleSheet/Profile.Styles';
 import {FlashList} from '@shopify/flash-list';
@@ -59,14 +59,24 @@ const Profile = () => {
           <Text style={[styles.username, {color: color.text}]}>
             pingenriquez
           </Text>
-          <View style={styles.headerRight}>
-            <TouchableOpacity
-              style={styles.iconButton}
-              onPress={toggleComments}>
-              <PlusSquare color={color.text} size={24} />
+          <View style={styles.headerIcon}>
+            <TouchableOpacity>
+              <Image
+                source={require('../../../assets/icon/icon_tinder.png')}
+                style={[styles.icon, {tintColor: color.text}]}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity>
+              <Image
+                source={require('../../../assets/icon/heart.png')}
+                style={[styles.icon, {tintColor: color.text}]}
+              />
             </TouchableOpacity>
             <TouchableOpacity onPress={() => navigation.navigate('Setting')}>
-              <Menu color={color.text} size={24} />
+              <Image
+                source={require('../../../assets/icon/Menu.png')}
+                style={[styles.icon, {tintColor: color.text}]}
+              />
             </TouchableOpacity>
           </View>
         </View>
@@ -230,3 +240,4 @@ const modalStyles = StyleSheet.create({
     height: Dimensions.get('window').height * 0.8,
   },
 });
+export default Profile;

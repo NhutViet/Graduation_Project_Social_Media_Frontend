@@ -55,7 +55,10 @@ const NotificationItem: React.FC<{ notification: Notification }> = ({ notificati
                     },
                   ]}
                 >
-                  <Text style={styles.profileInitial}>{content[0]}</Text>
+                  <Image 
+                    style={styles.backIcon}
+                    source={require('../assets/icon/account.png')}
+                  />
                 </View>
               </View>
             </LinearGradient>
@@ -63,7 +66,10 @@ const NotificationItem: React.FC<{ notification: Notification }> = ({ notificati
         ) : (
           <View style={styles.imageIconContainer}>
             <View style={styles.imageIcon}>
-              <Text style={styles.profileInitial}>{content[0]}</Text>
+              <Image 
+                style={styles.backIcon}
+                source={require('../assets/icon/account.png')}
+              />
             </View>
           </View>
         );

@@ -18,7 +18,7 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="AddPost"
+        initialRouteName="UpStory"
         screenOptions={{headerShown: false}}>
         <Stack.Screen name="PostSetting" component={PostSetting} />
         <Stack.Screen name="AddPost" component={AddPost} />

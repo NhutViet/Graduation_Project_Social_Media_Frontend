@@ -1,12 +1,12 @@
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {Image, StyleSheet, View} from 'react-native';
 import {Colors} from '../../assets/color/Colors';
-import {useTheme} from '../util/ThemeContext'; // THÊM DÒNG NÀY
+import {useTheme} from '../util/ThemeContext';
 import Home from '../(tabs)/Home';
 import Search from '../(tabs)/Search';
 import Post from '../(tabs)/Post';
-import Account from '../(tabs)/Profile';
-import Reels from '../(tabs)/Reels';
+import Notification from '../(tabs)/Notification';
+import Profile from '../(tabs)/Profile';
 
 const Tab = createBottomTabNavigator();
 
@@ -47,7 +47,7 @@ const BottomTabs = () => {
         tabBarStyle: {
           backgroundColor: color.background, // đổi theo theme
           borderTopWidth: 0,
-          height: 60,
+          height: 80,
           shadowColor: 'gray',
           shadowOpacity: 0.3,
         },
@@ -96,12 +96,12 @@ const BottomTabs = () => {
         }}
       />
       <Tab.Screen
-        name="Reels"
-        component={Reels}
+        name="Notification"
+        component={Notification}
         options={{
           tabBarIcon: ({focused}) => (
             <TabIcon
-              source={require('../../assets/icon/reels.png')}
+              source={require('../../assets/icon/heart.png')}
               focused={focused}
               size={20}
               tintColor={color.text}
@@ -111,7 +111,7 @@ const BottomTabs = () => {
       />
       <Tab.Screen
         name="Account"
-        component={Account}
+        component={Profile}
         options={{
           tabBarIcon: ({focused}) => (
             <TabIcon
