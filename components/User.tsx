@@ -46,7 +46,7 @@ const User = (props: any) => {
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    marginRight: 10,
+    marginLeft: 10,
   },
   block: {
     width: 80,

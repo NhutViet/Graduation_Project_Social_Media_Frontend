@@ -5,7 +5,7 @@ import {FlashList} from '@shopify/flash-list';
 import Header from '../../../components/Header';
 import {useNavigation} from '@react-navigation/native';
 import User from '../../../components/User';
-import {useRef, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import ItemHome from '../../../components/ItemHome';
 
 const Home = () => {
@@ -80,7 +80,7 @@ const Home = () => {
     },
   ];
 
-  const dataUser = [
+  const [dataUser, setDataUser] = useState<any>([
     {
       id: 1,
       name: 'user1',
@@ -109,7 +109,21 @@ const Home = () => {
         'https://i.pinimg.com/736x/56/81/64/5681646985e7ddc1b2cd4b826763b541.jpg',
       status: 0,
     },
-  ];
+  ]);
+
+  useEffect(() => {
+    const exists = dataUser.some((user: any) => user.name === 'Tin của tôi');
+    if (!exists) {
+      const newUser = {
+        id: Date.now(),
+        name: 'Tin của tôi',
+        image:
+          'https://i.pinimg.com/736x/07/03/c7/0703c771ceecfd6142ce0ca726c056e7.jpg',
+        status: 1,
+      };
+      setDataUser([newUser, ...dataUser]);
+    }
+  }, []);
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
@@ -133,7 +147,11 @@ const Home = () => {
               iconMessage={require('../../../assets/icon/message.png')}
               navigation={navigation}
             />
-            <View style={{paddingLeft: 10}}>
+            <View
+              style={{
+                alignItems: 'center',
+                flexDirection: 'row',
+              }}>
               <FlashList
                 data={dataUser}
                 renderItem={({item}: any) => (
@@ -146,6 +164,9 @@ const Home = () => {
                 horizontal
                 estimatedItemSize={100}
                 showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{
+                  paddingRight: 10,
+                }}
               />
             </View>
           </View>

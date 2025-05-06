@@ -47,7 +47,7 @@ const BottomTabs = () => {
         tabBarStyle: {
           backgroundColor: color.background, // đổi theo theme
           borderTopWidth: 0,
-          height: 80,
+          height: 60,
           shadowColor: 'gray',
           shadowOpacity: 0.3,
         },

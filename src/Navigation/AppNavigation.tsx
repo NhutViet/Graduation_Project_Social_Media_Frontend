@@ -20,7 +20,7 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="UpStory"
+        initialRouteName="BottomTabs"
         screenOptions={{headerShown: false}}>
         <Stack.Screen name="PostSetting" component={PostSetting} />
         <Stack.Screen name="AddPost" component={AddPost} />
