@@ -10,11 +10,11 @@ import {
   View,
 } from 'react-native';
 import React from 'react';
-import {useTheme} from '../util/ThemeContext';
-import {getAddPostStyles} from '../StyleSheet/AddPostStyles';
+import {useTheme} from '../../util/ThemeContext';
+import {getAddPostStyles} from '../../StyleSheet/AddPostStyles';
 import {FlashList} from '@shopify/flash-list';
-import {Colors} from '../../assets/color/Colors';
-import Section from '../../components/Section';
+import {Colors} from '../../../assets/color/Colors';
+import Section from '../../../components/Section';
 import {useNavigation, useRoute} from '@react-navigation/native';
 
 const images = [
@@ -36,7 +36,7 @@ const images = [
   },
 ];
 
-const PostSetting = () => {
+export const PostSetting = () => {
   const {theme} = useTheme();
   const color = Colors[theme];
   const {width} = Dimensions.get('window');
@@ -45,14 +45,14 @@ const PostSetting = () => {
 
   //lâys dữ liệu
   const route = useRoute();
-  const {selectedMedia}:any = route.params || [];
+  const {selectedMedia}: any = route.params || [];
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.rowSpace}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Image
-            source={require('../../assets/icon/left.png')}
+            source={require('../../../assets/icon/left.png')}
             style={styles.iconR}
           />
         </TouchableOpacity>
@@ -92,34 +92,34 @@ const PostSetting = () => {
           textAlignVertical="top"
         />
         <TouchableOpacity style={styles.btnTD}>
-          <Image source={require('../../assets/icon/Menu.png')} />
+          <Image source={require('../../../assets/icon/Menu.png')} />
           <Text>Thăm dò ý kiến</Text>
         </TouchableOpacity>
         <Section
           title={'Gắn thẻ người khác'}
-          iconRight={require('../../assets/icon/right.png')}
-          iconLeft={require('../../assets/icon/tagSO.png')}
+          iconRight={require('../../../assets/icon/right.png')}
+          iconLeft={require('../../../assets/icon/tagSO.png')}
         />
         <Section
           title={'Thêm vị trí'}
-          iconRight={require('../../assets/icon/right.png')}
-          iconLeft={require('../../assets/icon/location.png')}
+          iconRight={require('../../../assets/icon/right.png')}
+          iconLeft={require('../../../assets/icon/location.png')}
         />
         <Section
           title={'Thêm nhạc'}
-          iconRight={require('../../assets/icon/right.png')}
-          iconLeft={require('../../assets/icon/music.png')}
+          iconRight={require('../../../assets/icon/right.png')}
+          iconLeft={require('../../../assets/icon/music.png')}
         />
         <Section
           title={'Đối tượng'}
-          iconRight={require('../../assets/icon/right.png')}
-          iconLeft={require('../../assets/icon/eye.png')}
+          iconRight={require('../../../assets/icon/right.png')}
+          iconLeft={require('../../../assets/icon/eye.png')}
         />
         <View style={styles.divi}></View>
         <Section
           title={'Lựa chọn khác'}
-          iconRight={require('../../assets/icon/right.png')}
-          iconLeft={require('../../assets/icon/threedot.png')}
+          iconRight={require('../../../assets/icon/right.png')}
+          iconLeft={require('../../../assets/icon/threedot.png')}
         />
       </ScrollView>
       <TouchableOpacity style={styles.btnShare}>
@@ -128,5 +128,3 @@ const PostSetting = () => {
     </SafeAreaView>
   );
 };
-
-export default PostSetting;

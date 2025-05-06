@@ -8,11 +8,11 @@ import {
   View,
 } from 'react-native';
 import React from 'react';
-import {useTheme} from '../util/ThemeContext';
-import {Colors} from '../../assets/color/Colors';
+import {useTheme} from '../../util/ThemeContext';
+import {Colors} from '../../../assets/color/Colors';
 import {useNavigation} from '@react-navigation/native';
 
-const Setting = () => {
+export const Setting = () => {
   const navigation: any = useNavigation();
 
   const {theme, toggleTheme} = useTheme();
@@ -25,7 +25,7 @@ const Setting = () => {
         <TouchableOpacity onPress={() => navigation.navigate('BottomTabs')}>
           <Image
             style={[styles.icon, {tintColor: color.text}]}
-            source={require('../../assets/icon/left.png')}
+            source={require('../../../assets/icon/left.png')}
           />
         </TouchableOpacity>
 
@@ -44,8 +44,6 @@ const Setting = () => {
     </SafeAreaView>
   );
 };
-
-export default Setting;
 
 const styles = StyleSheet.create({
   container: {

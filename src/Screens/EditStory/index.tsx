@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import Video from 'react-native-video';
 
-const EditStory = ({route, navigation}: any) => {
+export const EditStory = ({route, navigation}: any) => {
   const {selectedItem, selectedItems, clearSelections} = route.params;
   const [currentIndex, setCurrentIndex] = useState(0);
   const [videoDuration, setVideoDuration] = useState(null); // Store video duration dynamically
@@ -143,13 +143,13 @@ const EditStory = ({route, navigation}: any) => {
         <TouchableOpacity style={styles.btnCloser} onPress={handleCloserPress}>
           <Image
             style={styles.iconCloser}
-            source={require('../../assets/icon/closer.png')}
+            source={require('../../../assets/icon/closer.png')}
           />
         </TouchableOpacity>
         <TouchableOpacity style={styles.btnCloser} onPress={handleCloserPress}>
           <Image
             style={styles.iconCloser}
-            source={require('../../assets/icon/rightArrow.png')}
+            source={require('../../../assets/icon/rightArrow.png')}
           />
         </TouchableOpacity>
       </View>
@@ -294,5 +294,3 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
-
-export default EditStory;
