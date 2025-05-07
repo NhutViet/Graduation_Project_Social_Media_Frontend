@@ -11,6 +11,7 @@ import {
   PostStory,
   Setting,
   SwitchAccount,
+  Register
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 
@@ -35,6 +36,7 @@ const AppNavigator = () => {
           component={NotificationsScreen}
         />
         <Stack.Screen name="FollowerRequests" component={FollowerRequests} />
+        <Stack.Screen name="Register" component={Register} />
       </Stack.Navigator>
     </NavigationContainer>
   );
