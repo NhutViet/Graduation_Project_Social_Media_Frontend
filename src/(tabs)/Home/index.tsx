@@ -80,7 +80,7 @@ const Home = () => {
     },
   ];
 
-  const [dataUser, setDataUser] = useState<any>([
+  const [dataUser, setDataUser] = useState([
     {
       id: 1,
       name: 'user1',
@@ -112,7 +112,7 @@ const Home = () => {
   ]);
 
   useEffect(() => {
-    const exists = dataUser.some((user: any) => user.name === 'Tin của tôi');
+    const exists = dataUser.some(user => user.name === 'Tin của tôi');
     if (!exists) {
       const newUser = {
         id: Date.now(),
@@ -125,6 +125,16 @@ const Home = () => {
     }
   }, []);
 
+  const handleUserPress = (user: any) => {
+    console.log('Navigating to SeenStory with user:', user);
+    // Cập nhật status của user được nhấn thành 0
+    setDataUser(prevData =>
+      prevData.map(item => (item.id === user.id ? {...item, status: 0} : item)),
+    );
+    // Điều hướng đến SeenStoryOwner
+    navigation.navigate('SeenStoryOwner', {selectedItem: user});
+  };
+
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
       <FlashList
@@ -133,7 +143,6 @@ const Home = () => {
         renderItem={({item}) => (
           <ItemHome {...item} currentVisible={currentVisible} />
         )}
-        // pagingEnabled
         showsVerticalScrollIndicator={false}
         onViewableItemsChanged={onViewableItemsChanged}
         viewabilityConfig={viewAbilityConfig}
@@ -154,13 +163,16 @@ const Home = () => {
               }}>
               <FlashList
                 data={dataUser}
-                renderItem={({item}: any) => (
-                  <User
-                    name={item.name}
-                    image={item.image}
-                    status={item.status}
-                  />
-                )}
+                renderItem={({item}) => {
+                  return (
+                    <User
+                      name={item.name}
+                      image={item.image}
+                      status={item.status}
+                      func={() => handleUserPress(item)}
+                    />
+                  );
+                }}
                 horizontal
                 estimatedItemSize={100}
                 showsHorizontalScrollIndicator={false}
@@ -176,13 +188,4 @@ const Home = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  logo: {
-    width: 93,
-    height: 93,
-  },
-});
 export default Home;

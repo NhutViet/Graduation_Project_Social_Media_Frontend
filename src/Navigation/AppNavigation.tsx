@@ -9,9 +9,13 @@ import {
   NotificationsScreen,
   PostSetting,
   PostStory,
+  SeenStory,
+  SeenStoryOwner,
   Setting,
   SwitchAccount,
   Search,
+  EditProfile,
+  PendingMessages,
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 
@@ -21,7 +25,7 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="BottomTabs"
+        initialRouteName="PendingMessages"
         screenOptions={{headerShown: false}}>
           <Stack.Screen name="Search" component={Search} />
         <Stack.Screen name="PostSetting" component={PostSetting} />
@@ -32,11 +36,15 @@ const AppNavigator = () => {
         <Stack.Screen name="Setting" component={Setting} />
         <Stack.Screen name="UpStory" component={PostStory} />
         <Stack.Screen name="EditStory" component={EditStory} />
+        <Stack.Screen name="EditProfile" component={EditProfile} />
+        <Stack.Screen name="PendingMessages" component={PendingMessages} />
         <Stack.Screen
           name="NotificationsScreen"
           component={NotificationsScreen}
         />
         <Stack.Screen name="FollowerRequests" component={FollowerRequests} />
+        <Stack.Screen name="SeenStory" component={SeenStory} />
+        <Stack.Screen name="SeenStoryOwner" component={SeenStoryOwner} />
       </Stack.Navigator>
     </NavigationContainer>
   );
