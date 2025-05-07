@@ -6,6 +6,8 @@ import {useTheme} from '../src/util/ThemeContext';
 const User = (props: any) => {
   const {name, image, status, func, navigation} = props;
 
+  console.log('User props:', {name, image, status, func}); // Debug prop
+
   const {theme} = useTheme();
   const color = Colors[theme];
 
@@ -16,7 +18,14 @@ const User = (props: any) => {
           ? [styles.bgWhite, {backgroundColor: color.background}]
           : null
       }
-      onPress={func}>
+      onPress={() => {
+        console.log('User avatar pressed:', name);
+        if (typeof func === 'function') {
+          func();
+        } else {
+          console.warn('func is not a function:', func);
+        }
+      }}>
       <View style={styles.imgContainer}>
         <Image style={styles.img} source={{uri: image}} />
       </View>
@@ -59,8 +68,6 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    // overflow: 'hidden',
-    // padding: 3,
   },
   bgWhite: {
     borderRadius: 40,
