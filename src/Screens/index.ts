@@ -9,3 +9,5 @@ export * from './QRcode';
 export * from './Setting';
 export * from './Splash';
 export * from './SwitchAccount';
+export * from './EditProfile';
+export * from './PendingMessages';
