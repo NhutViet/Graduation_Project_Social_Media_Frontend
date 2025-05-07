@@ -6,8 +6,6 @@ import {useTheme} from '../src/util/ThemeContext';
 const User = (props: any) => {
   const {name, image, status, func, navigation} = props;
 
-  console.log('User props:', {name, image, status, func}); // Debug prop
-
   const {theme} = useTheme();
   const color = Colors[theme];
 

@@ -127,6 +127,11 @@ const Home = () => {
 
   const handleUserPress = (user: any) => {
     console.log('Navigating to SeenStory with user:', user);
+    // Cập nhật status của user được nhấn thành 0
+    setDataUser(prevData =>
+      prevData.map(item => (item.id === user.id ? {...item, status: 0} : item)),
+    );
+    // Điều hướng đến SeenStoryOwner
     navigation.navigate('SeenStoryOwner', {selectedItem: user});
   };
 
@@ -159,7 +164,6 @@ const Home = () => {
               <FlashList
                 data={dataUser}
                 renderItem={({item}) => {
-                  console.log('Rendering User:', item); // Debug renderItem
                   return (
                     <User
                       name={item.name}
