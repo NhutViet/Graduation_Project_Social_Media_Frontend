@@ -11,6 +11,7 @@ import {
   PostStory,
   Setting,
   SwitchAccount,
+  Search,
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 
@@ -22,6 +23,7 @@ const AppNavigator = () => {
       <Stack.Navigator
         initialRouteName="BottomTabs"
         screenOptions={{headerShown: false}}>
+          <Stack.Screen name="Search" component={Search} />
         <Stack.Screen name="PostSetting" component={PostSetting} />
         <Stack.Screen name="AddPost" component={AddPost} />
         <Stack.Screen name="Login" component={Login} />

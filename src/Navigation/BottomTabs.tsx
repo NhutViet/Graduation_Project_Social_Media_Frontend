@@ -3,7 +3,7 @@ import {Image, StyleSheet, View} from 'react-native';
 import {Colors} from '../../assets/color/Colors';
 import {useTheme} from '../util/ThemeContext';
 import Home from '../(tabs)/Home';
-import Search from '../(tabs)/Search';
+import { Search } from '../Screens';
 import Post from '../(tabs)/Post';
 import Notification from '../(tabs)/Notification';
 import Profile from '../(tabs)/Profile';
