@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -7,16 +7,32 @@ import {
   TextInput,
   FlatList,
 } from 'react-native';
-import { useProfileEditingStyles } from '../../../src/StyleSheet/ProfileEditingStyles';
+import {useProfileEditingStyles} from '../../../src/StyleSheet/ProfileEditingStyles';
 import MessageThumbnail, {
   MessageThumbnailProps,
 } from '../../../components/MessageThumbnail';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {RootStackParamList} from '../../Navigation/AppNavigation';
+import {useNavigation} from '@react-navigation/native';
 
-export const PendingMessages = ({ navigation }: any) => {
+const rooms = ['room1', 'room2'];
+
+type RoomSelectorProp = StackNavigationProp<
+  RootStackParamList,
+  'PendingMessages'
+>;
+
+export const PendingMessages = ({navigation}: any) => {
   const styles = useProfileEditingStyles();
   const [activeTab, setActiveTab] = useState<'strangers' | 'mine'>('strangers');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [searchText, setSearchText] = useState('');
+
+  const navMess = useNavigation<RoomSelectorProp>();
+
+  const enterRoom = (room: string) => {
+    navMess.navigate('MessageScreen', {room});
+  };
 
   // Dummy data for strangers
   const strangersData: MessageThumbnailProps[] = [
@@ -43,14 +59,15 @@ export const PendingMessages = ({ navigation }: any) => {
     isMine: true,
   }));
 
-  const dataToRender =
-    activeTab === 'strangers' ? strangersData : mineData;
+  const dataToRender = activeTab === 'strangers' ? strangersData : mineData;
 
-  const renderItem = ({ item }: { item: MessageThumbnailProps }) => (
+  const renderItem = ({item}: {item: MessageThumbnailProps}) => (
     <MessageThumbnail
       {...item}
       selected={item.id === selectedId}
-      onPress={() => setSelectedId(item.id)}
+      onPress={() => {
+        setSelectedId(item.id), enterRoom(rooms[0]);
+      }}
     />
   );
 
@@ -94,14 +111,14 @@ export const PendingMessages = ({ navigation }: any) => {
             style={styles.tabButton}
             onPress={() =>
               setActiveTab(tab === 'strangers' ? 'strangers' : 'mine')
-            }
-          >
+            }>
             <Text
               style={[
                 styles.tabText,
-                activeTab !== tab && { color: styles.tabSelected.backgroundColor },
-              ]}
-            >
+                activeTab !== tab && {
+                  color: styles.tabSelected.backgroundColor,
+                },
+              ]}>
               {tab === 'strangers'
                 ? "Strangers' messages"
                 : 'My message requests'}
@@ -109,7 +126,9 @@ export const PendingMessages = ({ navigation }: any) => {
             <View
               style={[
                 styles.tabIndicator,
-                activeTab !== tab && { backgroundColor: styles.tabSelected.backgroundColor },
+                activeTab !== tab && {
+                  backgroundColor: styles.tabSelected.backgroundColor,
+                },
               ]}
             />
           </TouchableOpacity>
@@ -131,9 +150,10 @@ export const PendingMessages = ({ navigation }: any) => {
       </View>
 
       <FlatList
-        data={dataToRender.filter(item =>
-          item.username.includes(searchText) ||
-          item.message.includes(searchText)
+        data={dataToRender.filter(
+          item =>
+            item.username.includes(searchText) ||
+            item.message.includes(searchText),
         )}
         keyExtractor={item => item.id}
         renderItem={renderItem}

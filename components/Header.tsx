@@ -11,6 +11,7 @@ const Header = (props: any) => {
     iconNotify,
     iconMessage,
     iconLeft,
+    iconNewChat,
     func,
     funcLeft,
     navigation,
@@ -20,18 +21,22 @@ const Header = (props: any) => {
 
   return (
     <View style={styles.container}>
-      <Image source={icon} style={styles.logo} />
-      {iconBack && (
-        <TouchableOpacity style={styles.iconBox} onPress={func}>
-          <Image
-            source={iconBack}
-            style={[styles.icon, {tintColor: color.text}]}
-          />
-        </TouchableOpacity>
-      )}
-      {title && (
-        <Text style={[styles.title, {color: color.text}]}>{title}</Text>
-      )}
+      <View style={{flexDirection: 'row', alignItems: 'center'}}>
+        <Image source={icon} style={styles.logo} />
+        {iconBack && (
+          <TouchableOpacity
+            style={styles.iconBox}
+            onPress={navigation.goBack()}>
+            <Image
+              source={iconBack}
+              style={[styles.icon, {tintColor: color.text}]}
+            />
+          </TouchableOpacity>
+        )}
+        {title && (
+          <Text style={[styles.title, {color: color.text}]}>{title}</Text>
+        )}
+      </View>
       <View style={styles.iconBlock}>
         {iconQR && (
           <TouchableOpacity
@@ -52,7 +57,11 @@ const Header = (props: any) => {
           </TouchableOpacity>
         )}
         {iconMessage && (
-          <TouchableOpacity style={styles.iconBox}>
+          <TouchableOpacity
+            style={styles.iconBox}
+            onPress={() => {
+              navigation.navigate('Message');
+            }}>
             <Image
               source={iconMessage}
               style={[styles.icon, {tintColor: color.text}]}
@@ -63,6 +72,14 @@ const Header = (props: any) => {
           <TouchableOpacity style={styles.iconBox} onPress={funcLeft}>
             <Image
               source={iconLeft}
+              style={[styles.icon, {tintColor: color.text}]}
+            />
+          </TouchableOpacity>
+        )}
+        {iconNewChat && (
+          <TouchableOpacity style={styles.iconBox} onPress={func}>
+            <Image
+              source={iconNewChat}
               style={[styles.icon, {tintColor: color.text}]}
             />
           </TouchableOpacity>

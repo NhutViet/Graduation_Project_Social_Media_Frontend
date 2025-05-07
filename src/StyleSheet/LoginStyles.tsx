@@ -5,6 +5,8 @@ const LoginStyles = () => {
   return StyleSheet.create({
     page: {
       flex: 1,
+      width: '100%',
+      height: '100%',
       position: 'relative',
     },
     linear: {

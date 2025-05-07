@@ -13,3 +13,4 @@ export * from './EditProfile';
 export * from './PendingMessages';
 export * from './SeenStory';
 export * from './SeenStoryOwner';
+export * from './Message';

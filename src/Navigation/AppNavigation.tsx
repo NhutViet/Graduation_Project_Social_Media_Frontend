@@ -17,6 +17,12 @@ import {
   PendingMessages,
 } from '../Screens';
 import BottomTabs from './BottomTabs';
+import MessageScreen from '../Screens/Message';
+
+export type RootStackParamList = {
+  PendingMessages: undefined;
+  MessageScreen: {room: string};
+};
 
 const Stack = createStackNavigator();
 
@@ -24,7 +30,7 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="PendingMessages"
+        initialRouteName="Login"
         screenOptions={{headerShown: false}}>
         <Stack.Screen name="PostSetting" component={PostSetting} />
         <Stack.Screen name="AddPost" component={AddPost} />
@@ -43,6 +49,7 @@ const AppNavigator = () => {
         <Stack.Screen name="FollowerRequests" component={FollowerRequests} />
         <Stack.Screen name="SeenStory" component={SeenStory} />
         <Stack.Screen name="SeenStoryOwner" component={SeenStoryOwner} />
+        <Stack.Screen name="MessageScreen" component={MessageScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
