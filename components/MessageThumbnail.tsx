@@ -6,7 +6,7 @@ import {
   Image,
   ImageSourcePropType,
 } from 'react-native';
-import { useProfileEditingStyles } from '../src/StyleSheet/ProfileEditingStyles';
+import {useProfileEditingStyles} from '../src/StyleSheet/ProfileEditingStyles';
 
 export interface MessageThumbnailProps {
   id: string;
@@ -40,24 +40,22 @@ const MessageThumbnail: React.FC<MessageThumbnailProps> = ({
     <TouchableOpacity style={styles.messageThumbnail} onPress={onPress}>
       <Image
         source={
-          avatarUri
-            ? { uri: avatarUri }
-            : require('../assets/icon/account.png')
+          avatarUri ? {uri: avatarUri} : require('../assets/icon/account.png')
         }
         style={styles.messageAvatar}
       />
       <View style={styles.messageTextContainer}>
-        <Text style={styles.messageUsername} numberOfLines={1} ellipsizeMode="tail">
+        <Text
+          style={styles.messageUsername}
+          numberOfLines={1}
+          ellipsizeMode="tail">
           {username}
         </Text>
         <Text
-          style={[
-            styles.messageSnippet,
-          ]}
+          style={[styles.messageSnippet]}
           numberOfLines={1}
-          ellipsizeMode="tail"
-        >
-          {snippet}  {time}
+          ellipsizeMode="tail">
+          {snippet} {time}
         </Text>
       </View>
       <Image

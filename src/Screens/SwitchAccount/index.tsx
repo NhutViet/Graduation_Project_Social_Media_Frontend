@@ -64,7 +64,7 @@ export const SwitchAccount = ({navigation}: any) => {
             onPress={() => navigation.navigate('BottomTabs')}>
             <Text style={styles.textBtn}>Login</Text>
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity style={{width: '100%'}}>
             <Text style={SwitchStyles.textFb}>
               <Image source={require('../../../assets/icon/fb.png')} /> Log in
               with Facebook
@@ -74,10 +74,10 @@ export const SwitchAccount = ({navigation}: any) => {
             style={{width: '100%'}}
             source={require('../../../assets/icon/seperator_or.png')}
           />
-          <TouchableOpacity>
+          <TouchableOpacity style={{width: '100%'}}>
             <Text style={SwitchStyles.textGoogle}>
               <Image source={require('../../../assets/icon/gg.png')} /> Log in
-              with Facebook
+              with Google
             </Text>
           </TouchableOpacity>
         </View>
