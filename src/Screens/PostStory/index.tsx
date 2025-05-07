@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useCallback, useRef} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   View,
   StyleSheet,
@@ -7,9 +7,7 @@ import {
   Text,
   PermissionsAndroid,
   Platform,
-  ActivityIndicator,
   SafeAreaView,
-  Alert,
 } from 'react-native';
 import {FlashList} from '@shopify/flash-list';
 import {CameraRoll} from '@react-native-camera-roll/camera-roll';
@@ -24,25 +22,11 @@ export const PostStory = () => {
   const navigation: any = useNavigation();
 
   const [mediaList, setMediaList] = useState([]);
-  const [isMultiSelectMode, setIsMultiSelectMode] = useState(false);
-  const [selectedItems, setSelectedItems] = useState<
-    {uri: string; order: number}[]
-  >([]);
   const [videoDurations, setVideoDurations] = useState<Record<string, number>>(
     {},
   );
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<String | null>(null);
-
-  // Use useRef to store the latest value of isMultiSelectMode
-  const isMultiSelectModeRef = useRef(isMultiSelectMode);
-  useEffect(() => {
-    isMultiSelectModeRef.current = isMultiSelectMode;
-    console.log(
-      'Updated isMultiSelectModeRef to:',
-      isMultiSelectModeRef.current,
-    );
-  }, [isMultiSelectMode]);
 
   const requestPermissions = async () => {
     try {
@@ -116,60 +100,27 @@ export const PostStory = () => {
     loadMedia();
   }, []);
 
-  const toggleMultiSelectMode = useCallback(() => {
-    setIsMultiSelectMode(prev => {
-      const newMode = !prev;
-      console.log('Toggling multi-select mode to:', newMode);
-      if (newMode) {
-        // Entering multi-select mode, reset selected items
-        setSelectedItems([]);
-      }
-      return newMode;
-    });
-  }, []);
-
   const handleItemPress = useCallback(
     (item: any) => {
-      console.log(
-        'handleItemPress called, Current isMultiSelectModeRef:',
-        isMultiSelectModeRef.current,
-      );
-      if (isMultiSelectModeRef.current) {
-        setSelectedItems((prev: any) => {
-          const index = prev.findIndex((i: any) => i.uri === item.uri);
-          if (index !== -1) {
-            // Deselect the item
-            const updatedItems = prev
-              .filter((i: any) => i.uri !== item.uri)
-              .map((media: any, idx: number) => ({...media, order: idx + 1}));
-            console.log('Deselected, Updated Items:', updatedItems);
-            return updatedItems;
-          }
-          // Select the item
-          const updatedItems = [...prev, {...item, order: prev.length + 1}];
-          console.log('Selected, Updated Items:', updatedItems);
-          return updatedItems;
-        });
-      } else {
-        // Single select mode: navigate immediately to EditStory
-        console.log('Navigating to EditStory with single item:', item);
-        navigation.navigate('EditStory', {
-          selectedItem: item,
-          clearSelections: () => setSelectedItems([]), // Pass callback to clear selections
-        });
-      }
+      console.log('Navigating to EditStory with item:', item);
+      navigation.navigate('EditStory', {
+        selectedItem: item,
+      });
     },
     [navigation],
   );
 
-  const onLoadVideo = useCallback((data: any, uri: any) => {
-    setVideoDurations(prev => ({
-      ...prev,
-      [uri]: data.duration,
-    }));
+  const onLoadVideo = useCallback((data: any, uri: string) => {
+    console.log(`Video loaded for ${uri}, duration: ${data.duration}`);
+    if (data.duration && data.duration > 0) {
+      setVideoDurations(prev => ({
+        ...prev,
+        [uri]: data.duration,
+      }));
+    }
   }, []);
 
-  const formatDuration = useCallback((duration: any) => {
+  const formatDuration = useCallback((duration: number) => {
     if (!duration || duration <= 0) return '0:00';
     const minutes = Math.floor(duration / 60);
     const seconds = Math.floor(duration % 60);
@@ -178,21 +129,9 @@ export const PostStory = () => {
 
   const renderItem = useCallback(
     ({item}: any) => {
-      const isSelected = selectedItems.some((i: any) => i.uri === item.uri);
-      const selectionOrder =
-        selectedItems.find((i: any) => i.uri === item.uri)?.order || 0;
       const duration = videoDurations[item.uri] || item.duration || 0;
 
-      console.log(
-        'Rendering item:',
-        item.uri,
-        'Is Selected:',
-        isSelected,
-        'Order:',
-        selectionOrder,
-        'isMultiSelectMode:',
-        isMultiSelectMode,
-      );
+      console.log(`Rendering item: ${item.uri}, Duration: ${duration}`);
 
       return (
         <TouchableOpacity
@@ -206,52 +145,23 @@ export const PostStory = () => {
                   source={{uri: item.uri}}
                   style={styles.hiddenVideo}
                   onLoad={data => onLoadVideo(data, item.uri)}
-                  paused
-                  muted
+                  paused={true}
+                  muted={true}
+                  preload="metadata"
                 />
                 <Text style={styles.videoDuration}>
                   {formatDuration(duration)}
                 </Text>
               </>
             )}
-            {isSelected && (
-              <View style={styles.selectionCircle}>
-                <Text style={styles.selectionNumber}>{selectionOrder}</Text>
-              </View>
-            )}
           </View>
         </TouchableOpacity>
       );
     },
-    [
-      selectedItems,
-      videoDurations,
-      onLoadVideo,
-      handleItemPress,
-      isMultiSelectMode,
-    ],
+    [videoDurations, onLoadVideo, handleItemPress],
   );
 
   const keyExtractor = useCallback((item: any) => item.id, []);
-
-  const handleNextPress = () => {
-    if (selectedItems.length > 0) {
-      console.log(
-        'Navigating to EditStory with multiple items:',
-        selectedItems,
-      );
-      navigation.navigate('EditStory', {
-        selectedItems,
-        clearSelections: () => setSelectedItems([]), // Pass callback to clear selections
-      });
-    } else {
-      console.log('No items selected');
-      Alert.alert(
-        'Thông báo',
-        'Vui lòng chọn ít nhất một hình ảnh hoặc video!',
-      );
-    }
-  };
 
   if (error) {
     return (
@@ -261,7 +171,7 @@ export const PostStory = () => {
     );
   }
 
-  console.log('Rendering PostStory, isMultiSelectMode:', isMultiSelectMode);
+  console.log('Rendering PostStory');
 
   return (
     <SafeAreaView
@@ -272,12 +182,6 @@ export const PostStory = () => {
             style={[styles.headerIcon, {tintColor: color.text}]}
             source={require('../../../assets/icon/left.png')}
           />
-        </TouchableOpacity>
-        <Text style={{color: color.text}}>Tạo Story</Text>
-        <TouchableOpacity onPress={handleNextPress}>
-          <Text style={{color: selectedItems.length > 0 ? color.text : '#888'}}>
-            Tiếp
-          </Text>
         </TouchableOpacity>
       </View>
       <View style={styles.topSection}>
@@ -303,14 +207,6 @@ export const PostStory = () => {
           <Text style={[styles.titleMid, {color: color.text}]}>
             Gần đây {'>'}
           </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.multiSelectButton,
-            {backgroundColor: color.background},
-          ]}
-          onPress={toggleMultiSelectMode}>
-          <Image source={require('../../../assets/icon/Select.png')} />
         </TouchableOpacity>
       </View>
       <View style={styles.bottomSection}>
@@ -341,8 +237,6 @@ const styles = StyleSheet.create({
     marginLeft: 15,
     marginRight: 15,
     marginBottom: 15,
-    justifyContent: 'space-between',
-    alignItems: 'center',
   },
   headerIcon: {
     width: 15,
@@ -395,25 +289,6 @@ const styles = StyleSheet.create({
     height: 0,
     position: 'absolute',
   },
-  selectionCircle: {
-    position: 'absolute',
-    top: 5,
-    right: 5,
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    width: 24,
-    height: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#007AFF',
-    zIndex: 10,
-  },
-  selectionNumber: {
-    color: '#007AFF',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
   videoDuration: {
     position: 'absolute',
     bottom: 5,
@@ -425,16 +300,6 @@ const styles = StyleSheet.create({
     paddingVertical: 1,
     borderRadius: 3,
     zIndex: 5,
-  },
-  multiSelectButton: {
-    borderRadius: 25,
-    width: 35,
-    height: 35,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  multiSelectIcon: {
-    fontSize: 20,
   },
   errorContainer: {
     flex: 1,

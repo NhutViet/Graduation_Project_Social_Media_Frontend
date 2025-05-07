@@ -11,3 +11,5 @@ export * from './Splash';
 export * from './SwitchAccount';
 export * from './EditProfile';
 export * from './PendingMessages';
+export * from './SeenStory';
+export * from './SeenStoryOwner';

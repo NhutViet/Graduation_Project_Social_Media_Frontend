@@ -6,40 +6,45 @@ import {
   Text,
   SafeAreaView,
   Animated,
-  TouchableWithoutFeedback,
   TouchableOpacity,
+  TouchableWithoutFeedback,
+  TextInput,
+  Modal,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import Video from 'react-native-video';
+import Draggable from 'react-native-draggable';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import {Colors} from '../../../assets/color/Colors';
 
 export const EditStory = ({route, navigation}: any) => {
-  const {selectedItem, selectedItems, clearSelections} = route.params;
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [videoDuration, setVideoDuration] = useState(null); // Store video duration dynamically
+  const {selectedItem} = route.params;
+  const [videoDuration, setVideoDuration] = useState<number | null>(null);
+  const [videoCurrentTime, setVideoCurrentTime] = useState(0);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [hasShownModal, setHasShownModal] = useState(false);
+  const [caption, setCaption] = useState('');
   const progressAnim = useRef(new Animated.Value(0)).current;
-  const animationRef = useRef<Animated.CompositeAnimation | null>(null); // Store animation reference to stop it
+  const animationRef = useRef<Animated.CompositeAnimation | null>(null);
+  const videoRef = useRef<any>(null);
 
-  // If single item, convert to array for consistency
-  const mediaItems = selectedItems || (selectedItem ? [selectedItem] : []);
   const imageDuration = 10000; // 10 seconds for images
 
-  // Determine duration for the current item
-  const getCurrentItemDuration = () => {
-    const currentItem = mediaItems[currentIndex];
-    if (currentItem?.type.includes('video') && videoDuration) {
+  const getItemDuration = () => {
+    if (selectedItem?.type.includes('video') && videoDuration) {
       return videoDuration * 1000; // Convert to milliseconds
     }
-    return imageDuration; // 10 seconds for images
+    return imageDuration;
   };
 
-  // Animate progress bar
   const startProgressAnimation = () => {
-    // Stop previous animation if it exists
     if (animationRef.current) {
       animationRef.current.stop();
     }
 
     progressAnim.setValue(0);
-    const duration = getCurrentItemDuration();
+    const duration = getItemDuration();
     animationRef.current = Animated.timing(progressAnim, {
       toValue: 1,
       duration: duration,
@@ -48,155 +53,196 @@ export const EditStory = ({route, navigation}: any) => {
 
     animationRef.current.start(({finished}) => {
       if (finished) {
-        if (currentIndex < mediaItems.length - 1) {
-          setCurrentIndex(currentIndex + 1);
-        } else {
-          setCurrentIndex(0); // Loop back to start
-        }
+        progressAnim.setValue(0); // Reset progress for loop
+        startProgressAnimation(); // Restart animation
       }
     });
   };
 
-  // Update progress animation whenever currentIndex changes
+  const onVideoLoad = (data: any) => {
+    console.log(`Video loaded, duration: ${data.duration}`);
+    setVideoDuration(data.duration);
+  };
+
+  const onVideoProgress = (data: any) => {
+    if (selectedItem?.type.includes('video')) {
+      const currentTime = data.currentTime;
+      setVideoCurrentTime(currentTime);
+      if (videoDuration) {
+        const progress = currentTime / videoDuration;
+        progressAnim.setValue(progress);
+      }
+    }
+  };
+
+  const onVideoEnd = () => {
+    progressAnim.setValue(0); // Reset progress for loop
+    if (videoRef.current) {
+      videoRef.current.seek(0); // Restart video
+    }
+  };
+
   useEffect(() => {
-    if (mediaItems.length > 0) {
-      setVideoDuration(null); // Reset video duration for new item
+    setVideoDuration(null);
+    setVideoCurrentTime(0);
+    progressAnim.setValue(0);
+
+    if (selectedItem?.type.includes('video')) {
+      if (animationRef.current) {
+        animationRef.current.stop();
+      }
+    } else {
       startProgressAnimation();
     }
 
-    // Cleanup on unmount
     return () => {
       if (animationRef.current) {
         animationRef.current.stop();
       }
     };
-  }, [currentIndex, mediaItems]);
+  }, [selectedItem]);
 
-  // Handle video load to get duration
-  const onVideoLoad = (data: any) => {
-    setVideoDuration(data.duration);
-    // Restart animation with correct duration
-    startProgressAnimation();
+  const handleScreenTap = () => {
+    console.log('Screen tapped, opening modal');
+    setIsModalVisible(true);
   };
 
-  // Handle navigation on tap
-  const handleLeftTap = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
-    }
+  const handleDonePress = () => {
+    console.log('Done pressed, closing modal with caption:', caption);
+    setIsModalVisible(false);
+    setHasShownModal(true); // Keep track that modal has been shown at least once
   };
 
-  const handleRightTap = () => {
-    if (currentIndex < mediaItems.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-    } else {
-      setCurrentIndex(0); // Loop back to start
-    }
-  };
-
-  // Handle closer press
   const handleCloserPress = () => {
-    clearSelections(); // Clear selected items in PostStory
-    navigation.goBack(); // Navigate back
+    console.log('Closer pressed, navigating back');
+    navigation.goBack();
   };
 
-  // Render progress bars
-  const renderProgressBars = () => {
+  const renderProgressBar = () => {
+    const width = progressAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: ['0%', '100%'],
+    });
+
     return (
       <View style={styles.progressContainer}>
-        {mediaItems.map((_: any, index: any) => {
-          const isActive = index === currentIndex;
-          const width = progressAnim.interpolate({
-            inputRange: [0, 1],
-            outputRange: ['0%', '100%'],
-          });
-
-          return (
-            <View key={index} style={styles.progressBarWrapper}>
-              <Animated.View
-                style={[
-                  styles.progressBar,
-                  {
-                    width: isActive
-                      ? width
-                      : index < currentIndex
-                      ? '100%'
-                      : '0%',
-                    backgroundColor:
-                      isActive || index < currentIndex ? '#fff' : '#888',
-                  },
-                ]}
-              />
-            </View>
-          );
-        })}
+        <View style={styles.progressBarWrapper}>
+          <Animated.View
+            style={[
+              styles.progressBar,
+              {
+                width,
+                backgroundColor: '#fff',
+              },
+            ]}
+          />
+        </View>
       </View>
     );
   };
 
-  // Render current media item
-  const currentItem = mediaItems[currentIndex] || null;
-
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.btnCloser} onPress={handleCloserPress}>
-          <Image
-            style={styles.iconCloser}
-            source={require('../../../assets/icon/closer.png')}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.btnCloser} onPress={handleCloserPress}>
-          <Image
-            style={styles.iconCloser}
-            source={require('../../../assets/icon/rightArrow.png')}
-          />
-        </TouchableOpacity>
-      </View>
-      <View style={styles.mediaItems}>
-        {mediaItems.length > 1 && renderProgressBars()}
-      </View>
-      <View style={styles.mediaWrapper}>
-        <TouchableWithoutFeedback onPress={handleLeftTap}>
-          <View style={styles.leftTapArea} />
-        </TouchableWithoutFeedback>
-        <TouchableWithoutFeedback onPress={handleRightTap}>
-          <View style={styles.rightTapArea} />
-        </TouchableWithoutFeedback>
-        {currentItem ? (
-          currentItem.type.includes('video') ? (
-            <Video
-              source={{uri: currentItem.uri}}
-              style={styles.media}
-              resizeMode="cover"
-              muted
-              repeat={false}
-              onLoad={onVideoLoad}
-              onEnd={() => {
-                if (currentIndex < mediaItems.length - 1) {
-                  setCurrentIndex(currentIndex + 1);
-                } else {
-                  setCurrentIndex(0);
-                }
-              }}
-            />
-          ) : (
-            <Image
-              source={{uri: currentItem.uri}}
-              style={styles.media}
-              resizeMode="cover"
-            />
-          )
-        ) : (
-          <Text style={styles.errorText}>Không có media để hiển thị</Text>
-        )}
-      </View>
-      <View style={styles.controls}>
-        <Text style={styles.controlText}>
-          Thêm văn bản, sticker, hoặc nhạc...
-        </Text>
-      </View>
-    </SafeAreaView>
+    <GestureHandlerRootView style={styles.container}>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <SafeAreaView style={styles.container}>
+          <View style={styles.header}>
+            <TouchableOpacity
+              style={styles.btnCloser}
+              onPress={handleCloserPress}>
+              <Image
+                style={styles.iconCloser}
+                source={require('../../../assets/icon/closer.png')}
+              />
+            </TouchableOpacity>
+            <View style={styles.viewHeaderRight}>
+              <TouchableOpacity
+                style={[styles.btnCloser, {marginRight: 15}]}
+                onPress={() => setIsModalVisible(true)}>
+                <Text style={styles.txtAa}>Aa</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.btnCloser}
+                onPress={handleCloserPress}>
+                <Image
+                  style={styles.iconCloser}
+                  source={require('../../../assets/icon/rightArrow.png')}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+          <View style={styles.mediaItems}>{renderProgressBar()}</View>
+          <View style={styles.mediaWrapper}>
+            <TouchableWithoutFeedback onPress={handleScreenTap}>
+              <View style={styles.mediaTouchArea}>
+                {selectedItem ? (
+                  selectedItem.type.includes('video') ? (
+                    <Video
+                      ref={videoRef}
+                      source={{uri: selectedItem.uri}}
+                      style={styles.media}
+                      resizeMode="contain"
+                      repeat={false}
+                      onLoad={onVideoLoad}
+                      onProgress={onVideoProgress}
+                      onEnd={onVideoEnd}
+                      playInBackground={false}
+                      playWhenInactive={false}
+                    />
+                  ) : (
+                    <Image
+                      source={{uri: selectedItem.uri}}
+                      style={styles.media}
+                      resizeMode="contain"
+                    />
+                  )
+                ) : (
+                  <Text style={styles.errorText}>
+                    Không có media để hiển thị
+                  </Text>
+                )}
+                {caption && (
+                  <Draggable x={100} y={100}>
+                    <View style={styles.textInputContainer}>
+                      <Text style={styles.captionText}>{caption}</Text>
+                    </View>
+                  </Draggable>
+                )}
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+          <View style={styles.controls} />
+          <Modal
+            visible={isModalVisible}
+            transparent={true}
+            animationType="fade"
+            onRequestClose={() => {
+              console.log('Modal close requested, closing modal');
+              setIsModalVisible(false);
+            }}>
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                <TextInput
+                  style={styles.textInput}
+                  value={caption}
+                  onChangeText={setCaption}
+                  placeholderTextColor="#aaa"
+                  multiline
+                  autoFocus
+                  returnKeyType="done"
+                />
+                <TouchableOpacity
+                  style={styles.doneButton}
+                  onPress={handleDonePress}>
+                  <Text style={styles.doneButtonText}>Xong</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
+        </SafeAreaView>
+      </KeyboardAvoidingView>
+    </GestureHandlerRootView>
   );
 };
 
@@ -210,10 +256,11 @@ const styles = StyleSheet.create({
     marginLeft: 15,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    height: 50, // Fixed height for header
   },
   btnCloser: {
-    width: 30,
-    height: 30,
+    width: 40,
+    height: 40,
     borderRadius: 50,
     backgroundColor: 'rgba(140, 137, 137, 0.5)',
     justifyContent: 'center',
@@ -225,47 +272,27 @@ const styles = StyleSheet.create({
     tintColor: '#fff',
   },
   mediaItems: {
-    marginBottom: 25,
-    marginTop: 15,
-  },
-  headerText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
+    height: 35,
+    marginBottom: 0,
     marginTop: 10,
   },
   mediaWrapper: {
     flex: 1,
     position: 'relative',
   },
+  mediaTouchArea: {
+    flex: 1,
+    position: 'relative',
+  },
   media: {
     flex: 1,
     width: '100%',
-  },
-  leftTapArea: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    bottom: 0,
-    width: '33%', // 1/3 screen for left tap
-    zIndex: 10,
-  },
-  rightTapArea: {
-    position: 'absolute',
-    right: 0,
-    top: 0,
-    bottom: 0,
-    width: '67%', // 2/3 screen for right tap
-    zIndex: 10,
+    height: '100%',
   },
   progressContainer: {
     flexDirection: 'row',
     width: '100%',
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    paddingHorizontal: 5,
-    paddingTop: 5,
+    marginTop: 5,
   },
   progressBarWrapper: {
     flex: 1,
@@ -279,18 +306,70 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: '#fff',
   },
-  controls: {
-    padding: 15,
-    alignItems: 'center',
-  },
-  controlText: {
-    color: '#fff',
-    fontSize: 16,
-  },
   errorText: {
     color: '#ff4444',
     fontSize: 16,
     textAlign: 'center',
     flex: 1,
+    padding: 15,
+  },
+  textInputContainer: {
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: 8,
+    padding: 5,
+    width: '100%',
+  },
+  textInput: {
+    width: 300,
+    color: '#fff',
+    fontSize: 18,
+    textAlign: 'center',
+    backgroundColor: '#333',
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 10,
+  },
+  captionText: {
+    width: 200,
+    color: '#fff',
+    fontSize: 20,
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    width: '80%',
+  },
+  doneButton: {
+    backgroundColor: '#555',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  doneButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  controls: {
+    height: 50,
+    padding: 15,
+    alignItems: 'center',
+  },
+  txtAa: {
+    fontWeight: '500',
+    fontSize: 16,
+    color: '#fff',
+  },
+  viewHeaderRight: {
+    flexDirection: 'row',
   },
 });
