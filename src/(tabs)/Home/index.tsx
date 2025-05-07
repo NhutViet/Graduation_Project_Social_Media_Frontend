@@ -1,4 +1,4 @@
-import {SafeAreaView, ScrollView, StyleSheet, View} from 'react-native';
+import {SafeAreaView, ScrollView, StyleSheet, TextInput, View} from 'react-native';
 import {Colors} from '../../../assets/color/Colors';
 import {useTheme} from '../../util/ThemeContext';
 import {FlashList} from '@shopify/flash-list';

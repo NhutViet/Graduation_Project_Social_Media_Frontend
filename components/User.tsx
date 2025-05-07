@@ -4,17 +4,18 @@ import {Colors} from '../assets/color/Colors';
 import {useTheme} from '../src/util/ThemeContext';
 
 const User = (props: any) => {
-  const {name, image, status, func, navigation} = props;
+  const {name, image, status, func, navigation, isStory = true} = props;
 
   const {theme} = useTheme();
   const color = Colors[theme];
 
   const AvatarContent = () => (
-    <TouchableOpacity
+    <View
       style={
         status === 1
           ? [styles.bgWhite, {backgroundColor: color.background}]
           : null
+
       }
       onPress={() => {
         console.log('User avatar pressed:', name);
@@ -27,25 +28,49 @@ const User = (props: any) => {
       <View style={styles.imgContainer}>
         <Image style={styles.img} source={{uri: image}} />
       </View>
-    </TouchableOpacity>
+    </View>
   );
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {alignItems: isStory ? 'center' : 'flex-start'}]}>
       {status === 1 ? (
-        <LinearGradient
-          colors={['#D300C4', '#FE393C', '#FED203']}
-          start={{x: 0, y: 0}}
-          end={{x: 1, y: 1}}
-          style={styles.block}>
-          <AvatarContent />
-        </LinearGradient>
+        <TouchableOpacity style={[styles.box, {marginVertical: 10}]} onPress={func}>
+          <LinearGradient
+            colors={['#D300C4', '#FE393C', '#FED203']}
+            start={{x: 0, y: 0}}
+            end={{x: 1, y: 1}}
+            style={[styles.block, {width: isStory ? 80 : 50,
+              height: isStory ? 80 : 50,
+            }]}>
+            <AvatarContent />
+          </LinearGradient>
+          {!isStory && (
+            <View style={styles.boxText}>
+              <Text style={[styles.nameText, {color: color.text}]}>{name}</Text>
+              <Text style={[styles.namehandleText, {color: color.lightDark}]}>
+                {name}
+              </Text>
+            </View>
+          )}
+        </TouchableOpacity>
       ) : (
-        <View style={styles.block1}>
-          <AvatarContent />
-        </View>
+        <TouchableOpacity style={[styles.box, {marginVertical: 10}]} onPress={func}>
+          <View style={[styles.block1, {width: isStory ? 80 : 50,
+              height: isStory ? 80 : 50,
+            }]}>
+            <AvatarContent />
+          </View>
+          {!isStory && (
+            <View style={styles.boxText}>
+              <Text style={[styles.nameText, {color: color.text}]}>{name}</Text>
+              <Text style={[styles.namehandleText, {color: color.lightDark}]}>
+                {name}
+              </Text>
+            </View>
+          )}
+        </TouchableOpacity>
       )}
-      <Text style={[styles.text, {color: color.text}]}>{name}</Text>
+      {isStory && <Text style={[styles.text, {color: color.text}]}>{name}</Text>}
     </View>
   );
 };
@@ -85,6 +110,21 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 16,
     marginTop: 4,
+  },
+  box: {
+    flexDirection: 'row',
+  },
+  boxText: {
+    justifyContent: 'center',
+    marginLeft: 15,
+  },
+  nameText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  namehandleText: {
+    fontSize: 12,
+    fontWeight: 'normal',
   },
 });
 
