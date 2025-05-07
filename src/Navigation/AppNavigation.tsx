@@ -9,6 +9,8 @@ import {
   NotificationsScreen,
   PostSetting,
   PostStory,
+  SeenStory,
+  SeenStoryOwner,
   Setting,
   SwitchAccount,
 } from '../Screens';
@@ -20,7 +22,7 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="UpStory"
+        initialRouteName="BottomTabs"
         screenOptions={{headerShown: false}}>
         <Stack.Screen name="PostSetting" component={PostSetting} />
         <Stack.Screen name="AddPost" component={AddPost} />
@@ -35,6 +37,8 @@ const AppNavigator = () => {
           component={NotificationsScreen}
         />
         <Stack.Screen name="FollowerRequests" component={FollowerRequests} />
+        <Stack.Screen name="SeenStory" component={SeenStory} />
+        <Stack.Screen name="SeenStoryOwner" component={SeenStoryOwner} />
       </Stack.Navigator>
     </NavigationContainer>
   );
