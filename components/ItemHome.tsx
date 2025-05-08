@@ -17,6 +17,8 @@ const ItemHome = (props: any) => {
     title,
     date,
     currentVisible,
+    modalizeRef,
+    setCurrentPost
   } = props;
 
   const {theme} = useTheme();
@@ -122,13 +124,17 @@ const ItemHome = (props: any) => {
       <View style={{backgroundColor: color.background, padding: 10}}>
         <View style={[styles.rowContainer, {justifyContent: 'space-between'}]}>
           <View style={styles.rowContainer}>
-            <TouchableOpacity style={styles.iconBlock}>
+            <TouchableOpacity style={styles.iconBlock} >
               <Image
                 style={[{tintColor: color.text}, styles.icon]}
                 source={require('../assets/icon/heart.png')}
               />
             </TouchableOpacity>
-            <Text style={{color: color.text, marginLeft: 8, marginRight: 16}}>
+            <Text 
+              style={{color: color.text, marginLeft: 8, marginRight: 16}} 
+              onPress={() => {
+                modalizeRef?.current?.open();
+            }}>
               {formatNumber(like)}
             </Text>
             <TouchableOpacity style={styles.iconBlock}>

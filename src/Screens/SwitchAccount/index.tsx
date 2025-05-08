@@ -22,14 +22,17 @@ export const SwitchAccount = ({navigation}: any) => {
   const SwitchStyles = SwitchAccountStyles(theme);
 
   return (
-    <SafeAreaView style={styles.page}>
+    <View style={styles.page}>
       <LinearGradient
         colors={['#FEB70B', '#C83753', '#A52AA3', '#0064E0', '#0064E0']}
         locations={[0, 0.24, 0.43, 0.65, 1]}
         start={{x: 0, y: 1}}
         end={{x: 1, y: 0}}
-        style={styles.linear}></LinearGradient>
-      <TouchableOpacity onPress={() => navigation.goBack()}>
+        style={styles.linear}
+      />
+      <TouchableOpacity
+        style={styles.btnBack}
+        onPress={() => navigation.goBack()}>
         <Image
           style={SwitchStyles.iconBack}
           source={require('../../../assets/icon/left.png')}
@@ -64,22 +67,24 @@ export const SwitchAccount = ({navigation}: any) => {
             onPress={() => navigation.navigate('BottomTabs')}>
             <Text style={styles.textBtn}>Login</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={{width: '100%'}}>
-            <Text style={SwitchStyles.textFb}>
-              <Image source={require('../../../assets/icon/fb.png')} /> Log in
-              with Facebook
-            </Text>
-          </TouchableOpacity>
-          <Image
-            style={{width: '100%'}}
-            source={require('../../../assets/icon/seperator_or.png')}
-          />
-          <TouchableOpacity style={{width: '100%'}}>
-            <Text style={SwitchStyles.textGoogle}>
-              <Image source={require('../../../assets/icon/gg.png')} /> Log in
-              with Google
-            </Text>
-          </TouchableOpacity>
+          <View style={{alignItems: 'center'}}>
+            <TouchableOpacity>
+              <Text style={SwitchStyles.textFb}>
+                <Image source={require('../../../assets/icon/fb.png')} /> Log in
+                with Facebook
+              </Text>
+            </TouchableOpacity>
+            <Image
+              style={{width: '100%'}}
+              source={require('../../../assets/icon/seperator_or.png')}
+            />
+            <TouchableOpacity>
+              <Text style={SwitchStyles.textGoogle}>
+                <Image source={require('../../../assets/icon/gg.png')} /> Log in
+                with Google
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
         <View style={styles.textRow}>
           <Text style={styles.textGray}>Don't have an account?</Text>
@@ -88,6 +93,6 @@ export const SwitchAccount = ({navigation}: any) => {
           </TouchableOpacity>
         </View>
       </View>
-    </SafeAreaView>
+    </View>
   );
 };

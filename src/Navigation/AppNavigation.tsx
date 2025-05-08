@@ -12,7 +12,9 @@ import {
   SeenStory,
   SeenStoryOwner,
   Setting,
+  Profile,
   SwitchAccount,
+  Register,
   Search,
   EditProfile,
   PendingMessages,
@@ -44,8 +46,13 @@ const AppNavigator = () => {
         <Stack.Screen name="EditStory" component={EditStory} />
         <Stack.Screen name="EditProfile" component={EditProfile} />
         <Stack.Screen name="PendingMessages" component={PendingMessages} />
-        <Stack.Screen name="NotificationsScreen" component={NotificationsScreen} />
+        <Stack.Screen name="Profile" component={Profile} />
+        <Stack.Screen
+          name="NotificationsScreen"
+          component={NotificationsScreen}
+        />
         <Stack.Screen name="FollowerRequests" component={FollowerRequests} />
+        <Stack.Screen name="Register" component={Register} />
         <Stack.Screen name="SeenStory" component={SeenStory} />
         <Stack.Screen name="SeenStoryOwner" component={SeenStoryOwner} />
         <Stack.Screen name="MessageScreen" component={MessageScreen} />
