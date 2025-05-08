@@ -33,7 +33,7 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="NotificationsScreen"
+        initialRouteName="Login"
         screenOptions={{headerShown: false}}>
         <Stack.Screen name="Search" component={Search} />
         <Stack.Screen name="PostSetting" component={PostSetting} />

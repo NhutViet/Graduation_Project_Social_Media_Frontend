@@ -1,4 +1,14 @@
-import { TouchableOpacity, SafeAreaView, ScrollView, StyleSheet, View, Text, Image, Dimensions, TextInput} from 'react-native';
+import {
+  TouchableOpacity,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  View,
+  Text,
+  Image,
+  Dimensions,
+  TextInput,
+} from 'react-native';
 import {Colors} from '../../../assets/color/Colors';
 import {useTheme} from '../../util/ThemeContext';
 import {FlashList} from '@shopify/flash-list';
@@ -7,7 +17,7 @@ import {useNavigation} from '@react-navigation/native';
 import User from '../../../components/User';
 import {useEffect, useRef, useState} from 'react';
 import ItemHome from '../../../components/ItemHome';
-import { Modalize } from 'react-native-modalize';
+import {Modalize} from 'react-native-modalize';
 
 const Home = () => {
   const navigation: any = useNavigation();
@@ -27,7 +37,7 @@ const Home = () => {
   }).current;
 
   const modalizeRef = useRef<Modalize>(null);
-  const [currentPost, setCurrentPost] = useState<any>(null)
+  const [currentPost, setCurrentPost] = useState<any>(null);
 
   // data mẫu
   const posts = [
@@ -135,77 +145,88 @@ const Home = () => {
       id: '1',
       username: 'user1',
       bio: 'abc',
-      profile_pic: 'https://i.pinimg.com/736x/8c/71/92/8c7192c084765c076ef33024c0b34406.jpg',
+      profile_pic:
+        'https://i.pinimg.com/736x/8c/71/92/8c7192c084765c076ef33024c0b34406.jpg',
       is_following: true,
     },
     {
       id: '2',
       username: 'user2',
       bio: 'xyz',
-      profile_pic: 'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
+      profile_pic:
+        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
       is_following: false,
     },
     {
       id: '3',
       username: 'user3',
       bio: '',
-      profile_pic: 'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
+      profile_pic:
+        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
       is_following: true,
     },
     {
       id: '4',
       username: 'user3',
       bio: '',
-      profile_pic: 'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
+      profile_pic:
+        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
       is_following: true,
     },
     {
       id: '5',
       username: 'user3',
       bio: '',
-      profile_pic: 'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
+      profile_pic:
+        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
       is_following: true,
     },
     {
       id: '6',
       username: 'user3',
       bio: '',
-      profile_pic: 'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
+      profile_pic:
+        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
       is_following: true,
     },
     {
       id: '7',
       username: 'user3',
       bio: '',
-      profile_pic: 'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
+      profile_pic:
+        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
       is_following: true,
     },
     {
       id: '8',
       username: 'user3',
       bio: '',
-      profile_pic: 'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
+      profile_pic:
+        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
       is_following: true,
     },
     {
       id: '9',
       username: 'user3',
       bio: '',
-      profile_pic: 'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
+      profile_pic:
+        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
       is_following: true,
     },
     {
       id: '10',
       username: 'user3',
       bio: '',
-      profile_pic: 'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
+      profile_pic:
+        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
       is_following: true,
     },
     {
       id: '11',
       username: 'user3',
       bio: '',
-      profile_pic: 'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
+      profile_pic:
+        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
       is_following: true,
     },
   ];
@@ -218,21 +239,29 @@ const Home = () => {
     is_following: boolean;
   };
 
-  const renderItem = ({ item } : { item: UserItem}) => (
+  const renderItem = ({item}: {item: UserItem}) => (
     <View style={[styles.userItem, {backgroundColor: color.modal}]}>
-      <Image source={{ uri: item.profile_pic }} style={styles.avatar} />
+      <Image source={{uri: item.profile_pic}} style={styles.avatar} />
       <View style={[styles.userInfo, {backgroundColor: color.modal}]}>
-        <Text style={[styles.username, {color: color.text}]}>{item.username}</Text>
+        <Text style={[styles.username, {color: color.text}]}>
+          {item.username}
+        </Text>
         <Text style={[styles.bio, {color: color.text}]}>{item.bio}</Text>
       </View>
       <TouchableOpacity
         style={[
           styles.followButton,
-          item.is_following ? [styles.disabledButton, {borderColor: color.text}] : styles.activeButton,
+          item.is_following
+            ? [styles.disabledButton, {borderColor: color.text}]
+            : styles.activeButton,
         ]}
-        disabled={item.is_following}
-      >
-        <Text style={[item.is_following ? [styles.followButtonText, {color: color.text}] : styles.followButtonText]}>
+        disabled={item.is_following}>
+        <Text
+          style={[
+            item.is_following
+              ? [styles.followButtonText, {color: color.text}]
+              : styles.followButtonText,
+          ]}>
           {item.is_following ? 'Followed' : 'Follow'}
         </Text>
       </TouchableOpacity>
@@ -248,7 +277,7 @@ const Home = () => {
     // Điều hướng đến SeenStoryOwner
     navigation.navigate('SeenStoryOwner', {selectedItem: user});
   };
-    
+
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
       <Modalize
@@ -261,26 +290,29 @@ const Home = () => {
         onOverlayPress={() => modalizeRef.current?.close()}
         HeaderComponent={
           <View style={styles.modalHeader}>
-            <Text style={[styles.title, {color : color.text}]}>Favorites</Text>
+            <Text style={[styles.title, {color: color.text}]}>Favorites</Text>
           </View>
         }
         scrollViewProps={{
           showsVerticalScrollIndicator: false,
-        }}
-      >   
-          <FlashList
-              data={modalData}
-              keyExtractor={(item) => item.id}
-              renderItem={renderItem}
-              estimatedItemSize={50}
-              showsVerticalScrollIndicator={false}
-            />
+        }}>
+        <FlashList
+          data={modalData}
+          keyExtractor={item => item.id}
+          renderItem={renderItem}
+          estimatedItemSize={50}
+          showsVerticalScrollIndicator={false}
+        />
       </Modalize>
       <FlashList
         data={posts}
         keyExtractor={item => item.id}
         renderItem={({item}) => (
-          <ItemHome {...item} currentVisible={currentVisible} modalizeRef={modalizeRef}/>
+          <ItemHome
+            {...item}
+            currentVisible={currentVisible}
+            modalizeRef={modalizeRef}
+          />
         )}
         showsVerticalScrollIndicator={false}
         onViewableItemsChanged={onViewableItemsChanged}
@@ -353,13 +385,13 @@ const styles = StyleSheet.create({
     padding: 15,
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
-    marginTop: 20
+    marginTop: 20,
   },
   title: {
     fontSize: 18,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 10
+    marginBottom: 10,
   },
   searchInput: {
     height: 40,
@@ -373,7 +405,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 15,
-    paddingTop: 10
+    paddingTop: 10,
   },
   avatar: {
     width: 50,
@@ -398,7 +430,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     borderRadius: 10,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   activeButton: {
     backgroundColor: '#007BFF',
