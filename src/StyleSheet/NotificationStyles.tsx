@@ -135,8 +135,8 @@ export const useNotificationStyles = () => {
           color: palette.text,
         },
         backIcon: {
-          width: 24,
-          height: 24,
+          width: 20,
+          height: 20,
           resizeMode: 'contain',
         },
         specialContainer: {
