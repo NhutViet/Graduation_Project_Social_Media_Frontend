@@ -4,8 +4,8 @@ import {Colors} from '../../assets/color/Colors';
 const LoginStyles = () => {
   return StyleSheet.create({
     page: {
-      flex: 1,
       position: 'relative',
+      flex: 1,
     },
     linear: {
       position: 'absolute',
@@ -20,6 +20,10 @@ const LoginStyles = () => {
       padding: 20,
       justifyContent: 'space-between',
       alignItems: 'center',
+    },
+    btnBack: {
+      position: 'absolute',
+      top: 40,
     },
     logo: {
       width: 180,

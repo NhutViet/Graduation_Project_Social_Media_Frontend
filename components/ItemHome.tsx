@@ -194,9 +194,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   blockImg: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     overflow: 'hidden',
     marginRight: 10,
   },
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   btnFollow: {
-    paddingVertical: 8,
+    paddingVertical: 6,
     paddingHorizontal: 20,
     justifyContent: 'center',
     alignItems: 'center',

@@ -9,11 +9,23 @@ import {
   NotificationsScreen,
   PostSetting,
   PostStory,
+  SeenStory,
+  SeenStoryOwner,
   Setting,
+  Profile,
   SwitchAccount,
   Register
+  Search,
+  EditProfile,
+  PendingMessages,
 } from '../Screens';
 import BottomTabs from './BottomTabs';
+import MessageScreen from '../Screens/Message';
+
+export type RootStackParamList = {
+  PendingMessages: undefined;
+  MessageScreen: {room: string};
+};
 
 const Stack = createStackNavigator();
 
@@ -21,8 +33,9 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="BottomTabs"
+        initialRouteName="Profile"
         screenOptions={{headerShown: false}}>
+        <Stack.Screen name="Search" component={Search} />
         <Stack.Screen name="PostSetting" component={PostSetting} />
         <Stack.Screen name="AddPost" component={AddPost} />
         <Stack.Screen name="Login" component={Login} />
@@ -31,12 +44,16 @@ const AppNavigator = () => {
         <Stack.Screen name="Setting" component={Setting} />
         <Stack.Screen name="UpStory" component={PostStory} />
         <Stack.Screen name="EditStory" component={EditStory} />
+        <Stack.Screen name="Profile" component={Profile} />
         <Stack.Screen
           name="NotificationsScreen"
           component={NotificationsScreen}
         />
         <Stack.Screen name="FollowerRequests" component={FollowerRequests} />
         <Stack.Screen name="Register" component={Register} />
+        <Stack.Screen name="SeenStory" component={SeenStory} />
+        <Stack.Screen name="SeenStoryOwner" component={SeenStoryOwner} />
+        <Stack.Screen name="MessageScreen" component={MessageScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
