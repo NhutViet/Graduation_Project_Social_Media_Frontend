@@ -1,7 +1,6 @@
 import {
-  Image,
   SafeAreaView,
-  StyleSheet,
+  ScrollView,
   Switch,
   Text,
   TouchableOpacity,
@@ -11,60 +10,214 @@ import React from 'react';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {useNavigation} from '@react-navigation/native';
+import Header from '../../../components/Header';
+import {createStyles} from '../../StyleSheet/Setting.Styles';
+import {
+  ChevronRight,
+  HelpCircle,
+  LogOut,
+  Moon,
+  Heart,
+  User,
+} from 'lucide-react-native';
 
 export const Setting = () => {
   const navigation: any = useNavigation();
-
   const {theme, toggleTheme} = useTheme();
-  const color = Colors[theme];
+  const styles = createStyles(theme);
+  const mColor = Colors[theme] || Colors;
+
+  const handleLogout = () => {
+    // In a real app, we would clear the auth state
+    // For now, just navigate back to profile
+    navigation.goBack();
+  };
 
   return (
     <SafeAreaView
-      style={[styles.container, {backgroundColor: color.background}]}>
-      <View style={styles.content}>
-        <TouchableOpacity onPress={() => navigation.navigate('BottomTabs')}>
-          <Image
-            style={[styles.icon, {tintColor: color.text}]}
-            source={require('../../../assets/icon/left.png')}
-          />
-        </TouchableOpacity>
-
-        <View style={styles.changeColor}>
-          <Text style={[styles.label, {color: color.text}]}>
-            Chế độ hiện tại: {theme === 'light' ? 'Sáng' : 'Tối'}
+      style={[styles.container, {backgroundColor: mColor.background}]}>
+      <Header
+        title="Settings and privacy "
+        iconBack={require('../../../assets/icon/left.png')}
+        iconQR={require('../../../assets/icon/qr.png')}
+        func={() => navigation.goBack()}
+        navigation={navigation}
+      />
+      <ScrollView style={styles.content}>
+        {/* Account Section */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, {color: mColor.text}]}>
+            Account
           </Text>
-          <Switch
-            value={theme === 'dark'}
-            onValueChange={toggleTheme}
-            thumbColor={theme === 'dark' ? '#fff' : '#f4f3f4'}
-            trackColor={{false: '#767577', true: '#81b0ff'}}
-          />
+
+          <TouchableOpacity
+            style={[
+              styles.settingItem,
+              {
+                backgroundColor: mColor.background,
+                borderBottomColor: mColor.border,
+              },
+            ]}>
+            <View
+              style={[
+                styles.settingIconContainer,
+                {backgroundColor: mColor.gray},
+              ]}>
+              <User size={22} stroke={mColor.text} />
+            </View>
+            <View style={styles.settingContent}>
+              <Text style={[styles.settingTitle, {color: mColor.text}]}>
+                Personal Information
+              </Text>
+              <Text
+                style={[
+                  styles.settingDescription,
+                  {color: mColor.textSecondary},
+                ]}>
+                Update your profile details
+              </Text>
+            </View>
+            <ChevronRight size={20} stroke={mColor.textSecondary} />
+          </TouchableOpacity>
+
+          {/* Tương tự cho các settingItem khác trong Account Section */}
         </View>
-      </View>
+
+        {/* Preferences Section */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, {color: mColor.text}]}>
+            Preferences
+          </Text>
+
+          <View
+            style={[
+              styles.settingItem,
+              {
+                backgroundColor: mColor.background,
+                borderBottomColor: mColor.border,
+              },
+            ]}>
+            <View
+              style={[
+                styles.settingIconContainer,
+                {backgroundColor: mColor.gray},
+              ]}>
+              <Moon size={22} stroke={mColor.text} />
+            </View>
+            <View style={styles.settingContent}>
+              <Text style={[styles.settingTitle, {color: mColor.text}]}>
+                Dark Mode
+              </Text>
+              <Text
+                style={[
+                  styles.settingDescription,
+                  {color: mColor.textSecondary},
+                ]}>
+                Toggle dark theme
+              </Text>
+            </View>
+            <Switch
+              value={theme === 'dark'}
+              onValueChange={toggleTheme}
+              trackColor={{
+                false: mColor.border,
+                true: mColor.primary,
+              }}
+              thumbColor={mColor.white}
+            />
+          </View>
+
+          {/* Tương tự cho settingItem khác trong Preferences Section */}
+        </View>
+
+        {/* Activity Section */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, {color: mColor.text}]}>
+            Activity
+          </Text>
+
+          <TouchableOpacity
+            style={[
+              styles.settingItem,
+              {
+                backgroundColor: mColor.background,
+                borderBottomColor: mColor.border,
+              },
+            ]}>
+            <View
+              style={[
+                styles.settingIconContainer,
+                {backgroundColor: mColor.gray},
+              ]}>
+              <Heart size={22} stroke={mColor.text} />
+            </View>
+            <View style={styles.settingContent}>
+              <Text style={[styles.settingTitle, {color: mColor.text}]}>
+                Likes
+              </Text>
+              <Text
+                style={[
+                  styles.settingDescription,
+                  {color: mColor.textSecondary},
+                ]}>
+                Posts you've liked
+              </Text>
+            </View>
+            <ChevronRight size={20} stroke={mColor.textSecondary} />
+          </TouchableOpacity>
+
+          {/* Tương tự cho settingItem khác trong Activity Section */}
+        </View>
+
+        {/* Support Section */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, {color: mColor.text}]}>
+            Support
+          </Text>
+
+          <TouchableOpacity
+            style={[
+              styles.settingItem,
+              {
+                backgroundColor: mColor.background,
+                borderBottomColor: mColor.border,
+              },
+            ]}>
+            <View
+              style={[
+                styles.settingIconContainer,
+                {backgroundColor: mColor.gray},
+              ]}>
+              <HelpCircle size={22} stroke={mColor.text} />
+            </View>
+            <View style={styles.settingContent}>
+              <Text style={[styles.settingTitle, {color: mColor.text}]}>
+                Help Center
+              </Text>
+              <Text
+                style={[
+                  styles.settingDescription,
+                  {color: mColor.textSecondary},
+                ]}>
+                Get help with Instagram
+              </Text>
+            </View>
+            <ChevronRight size={20} stroke={mColor.textSecondary} />
+          </TouchableOpacity>
+
+          {/* Tương tự cho settingItem khác trong Support Section */}
+        </View>
+
+        {/* Logout Button */}
+        <TouchableOpacity
+          style={[styles.logoutButton, {backgroundColor: mColor.gray}]}
+          onPress={handleLogout}>
+          <LogOut size={22} stroke={mColor.error} />
+          <Text style={[styles.logoutText, {color: mColor.error}]}>
+            Log Out
+          </Text>
+        </TouchableOpacity>
+      </ScrollView>
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  content: {
-    marginLeft: 15,
-    marginRight: 15,
-  },
-  icon: {
-    width: 20,
-    height: 20,
-    marginBottom: 12,
-  },
-  label: {
-    fontSize: 16,
-    marginBottom: 12,
-  },
-  changeColor: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-});

@@ -12,6 +12,7 @@ import {
   SeenStory,
   SeenStoryOwner,
   Setting,
+  Profile,
   SwitchAccount,
   Search,
   EditProfile,
@@ -31,7 +32,7 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="Login"
+        initialRouteName="Profile"
         screenOptions={{headerShown: false}}>
         <Stack.Screen name="Search" component={Search} />
         <Stack.Screen name="PostSetting" component={PostSetting} />
@@ -42,8 +43,7 @@ const AppNavigator = () => {
         <Stack.Screen name="Setting" component={Setting} />
         <Stack.Screen name="UpStory" component={PostStory} />
         <Stack.Screen name="EditStory" component={EditStory} />
-        <Stack.Screen name="EditProfile" component={EditProfile} />
-        <Stack.Screen name="PendingMessages" component={PendingMessages} />
+        <Stack.Screen name="Profile" component={Profile} />
         <Stack.Screen
           name="NotificationsScreen"
           component={NotificationsScreen}
