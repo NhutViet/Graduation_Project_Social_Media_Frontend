@@ -127,7 +127,7 @@ export const PendingMessages = ({navigation}: any) => {
               style={[
                 styles.tabIndicator,
                 activeTab !== tab && {
-                  backgroundColor: styles.tabSelected.backgroundColor,
+                  backgroundColor: 'transparent',
                 },
               ]}
             />

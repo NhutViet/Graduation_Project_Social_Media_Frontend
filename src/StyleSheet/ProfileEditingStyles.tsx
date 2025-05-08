@@ -123,12 +123,14 @@ export const useProfileEditingStyles = () => {
           height: 24,
           marginLeft: 8,
           tintColor: palette.text,
+          resizeMode: 'contain',
         },
         headerSmallIcon: {
           width: 16,
           height: 16,
           marginLeft: 4,
           tintColor: palette.text,
+          resizeMode: 'contain',
         },
         headerUsername: {
           fontSize: 24,

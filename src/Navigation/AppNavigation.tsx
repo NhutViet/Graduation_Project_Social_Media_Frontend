@@ -31,7 +31,7 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="Login"
+        initialRouteName="NotificationsScreen"
         screenOptions={{headerShown: false}}>
         <Stack.Screen name="Search" component={Search} />
         <Stack.Screen name="PostSetting" component={PostSetting} />
@@ -44,10 +44,7 @@ const AppNavigator = () => {
         <Stack.Screen name="EditStory" component={EditStory} />
         <Stack.Screen name="EditProfile" component={EditProfile} />
         <Stack.Screen name="PendingMessages" component={PendingMessages} />
-        <Stack.Screen
-          name="NotificationsScreen"
-          component={NotificationsScreen}
-        />
+        <Stack.Screen name="NotificationsScreen" component={NotificationsScreen} />
         <Stack.Screen name="FollowerRequests" component={FollowerRequests} />
         <Stack.Screen name="SeenStory" component={SeenStory} />
         <Stack.Screen name="SeenStoryOwner" component={SeenStoryOwner} />

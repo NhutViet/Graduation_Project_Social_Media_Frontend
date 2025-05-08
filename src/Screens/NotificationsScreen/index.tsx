@@ -99,7 +99,10 @@ const Header: React.FC<{onBackPress: () => void}> = ({onBackPress}) => {
   return (
     <View style={styles.header}>
       <TouchableOpacity style={styles.backButton} onPress={onBackPress}>
-        <Text style={styles.backIcon}>{'<'}</Text>
+        <Image 
+          style={styles.backIcon}
+          source={require('../../../assets/icon/left.png')}
+        />
       </TouchableOpacity>
       <Text style={styles.headerTitle}>Notifications</Text>
     </View>
