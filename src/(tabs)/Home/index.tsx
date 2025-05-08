@@ -219,9 +219,9 @@ const Home = () => {
   };
 
   const renderItem = ({ item } : { item: UserItem}) => (
-    <View style={[styles.userItem, {backgroundColor: color.background}]}>
+    <View style={[styles.userItem, {backgroundColor: color.modal}]}>
       <Image source={{ uri: item.profile_pic }} style={styles.avatar} />
-      <View style={[styles.userInfo, {backgroundColor: color.background}]}>
+      <View style={[styles.userInfo, {backgroundColor: color.modal}]}>
         <Text style={[styles.username, {color: color.text}]}>{item.username}</Text>
         <Text style={[styles.bio, {color: color.text}]}>{item.bio}</Text>
       </View>
@@ -245,18 +245,13 @@ const Home = () => {
         ref={modalizeRef}
         adjustToContentHeight={false}
         modalHeight={Dimensions.get('window').height * 0.7}
-        modalStyle={[styles.modal, {backgroundColor: color.background}]}
+        modalStyle={[styles.modal, {backgroundColor: color.modal}]}
         handleStyle={styles.modalHandle}
         withHandle
         onOverlayPress={() => modalizeRef.current?.close()}
         HeaderComponent={
           <View style={styles.modalHeader}>
-            <Text style={[styles.title, {color : color.text}]}>Reactions</Text>
-            <TextInput
-              placeholder="Search..."
-              style={[styles.searchInput, {color: color.text, borderColor: color.text, backgroundColor: color.background}]}
-              placeholderTextColor={color.text}
-            />
+            <Text style={[styles.title, {color : color.text}]}>Favorites</Text>
           </View>
         }
         scrollViewProps={{

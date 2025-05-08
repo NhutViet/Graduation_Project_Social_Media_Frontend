@@ -8,6 +8,7 @@ const LightTheme = {
   orange: '#FFC107',
   transparent: 'transparent',
   blue: '#0095F6',
+  modal: '#FFFFFF'
 };
 
 const DarkTheme = {
@@ -20,6 +21,7 @@ const DarkTheme = {
   orange: '#FFC107',
   transparent: 'transparent',
   blue: '#0095F6',
+  modal: '#1A1A1A'
 };
 
 export const Colors = {
