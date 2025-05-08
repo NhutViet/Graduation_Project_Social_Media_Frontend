@@ -44,7 +44,7 @@ const Home = () => {
     {
       id: '1',
       uriVideo:
-        'https://firebasestorage.googleapis.com/v0/b/project-no1-daseinzumtode.appspot.com/o/video-phuc%2FDownload.mp4?alt=media&token=77311316-23f5-43da-bf98-ad67aec92965',
+        'https://res.cloudinary.com/dsvcoywkc/video/upload/v1746718746/my_video/ncd28sjnze0wfaqti2hm.mp4',
       imgUser:
         'https://i.pinimg.com/736x/8c/71/92/8c7192c084765c076ef33024c0b34406.jpg',
       name: 'User 1',
@@ -57,7 +57,7 @@ const Home = () => {
     {
       id: '2',
       uriVideo:
-        'https://firebasestorage.googleapis.com/v0/b/project-no1-daseinzumtode.appspot.com/o/video-phuc%2FDownload%20(1).mp4?alt=media&token=bfbe4f47-58ed-4019-a168-25e50fc8d22e',
+        'https://res.cloudinary.com/dsvcoywkc/video/upload/v1746718987/my_video/aynip2pj7jchjfdddmot.mp4',
       imgUser:
         'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
       name: 'User 2',
@@ -70,7 +70,7 @@ const Home = () => {
     {
       id: '3',
       uriVideo:
-        'https://firebasestorage.googleapis.com/v0/b/project-no1-daseinzumtode.appspot.com/o/video-phuc%2FDownload%20(2).mp4?alt=media&token=eb34d2d2-e128-4df4-bf50-aa363e246a25',
+        'https://res.cloudinary.com/dsvcoywkc/video/upload/v1746719121/my_video/wfamwgeiy4eeibslfhjc.mp4',
       imgUser:
         'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
       name: 'User 2',
