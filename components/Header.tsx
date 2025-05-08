@@ -1,3 +1,4 @@
+import React from 'react';
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Colors} from '../assets/color/Colors';
 import {useTheme} from '../src/util/ThemeContext';
@@ -21,23 +22,25 @@ const Header = (props: any) => {
 
   return (
     <View style={styles.container}>
-      <View style={{flexDirection: 'row', alignItems: 'center'}}>
-        <Image source={icon} style={styles.logo} />
+      <View style={styles.leftSection}>
+        {icon && <Image source={icon} style={styles.logo} />}
         {iconBack && (
-          <TouchableOpacity
-            style={styles.iconBox}
-            onPress={navigation.goBack()}>
+          <TouchableOpacity style={styles.iconBox} onPress={func}>
             <Image
               source={iconBack}
               style={[styles.icon, {tintColor: color.text}]}
             />
           </TouchableOpacity>
         )}
+      </View>
+
+      <View style={styles.centerSection}>
         {title && (
           <Text style={[styles.title, {color: color.text}]}>{title}</Text>
         )}
       </View>
-      <View style={styles.iconBlock}>
+
+      <View style={styles.rightSection}>
         {iconQR && (
           <TouchableOpacity
             style={styles.iconBox}
@@ -94,8 +97,21 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: 10,
     paddingVertical: 20,
+  },
+  leftSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  centerSection: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  rightSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   logo: {
     width: 100,
@@ -104,10 +120,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: 'bold',
-  },
-  iconBlock: {
-    flexDirection: 'row',
-    alignItems: 'center',
   },
   iconBox: {
     width: 20,
