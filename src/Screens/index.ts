@@ -9,6 +9,7 @@ export * from './QRcode';
 export * from './Setting';
 export * from './Splash';
 export * from './SwitchAccount';
+export * from './Register';
 export * from './Profile';
 export * from './Search';
 export * from './EditProfile';

@@ -61,6 +61,7 @@ const LightTheme = {
   ...CommonColors,
   background: '#FFFFFF',
   text: '#000000',
+  modal: '#FFFFFF'
   gray: '#F0F0F0',
   lightDark: '#00000020',
   card: '#F8F8F8',
@@ -70,6 +71,7 @@ const DarkTheme = {
   ...CommonColors,
   background: '#000000',
   text: '#FFFFFF',
+  modal: '#1A1A1A'
   gray: '#1A1A1A',
   lightDark: '#FFFFFF20',
   card: '#121212',

@@ -14,6 +14,7 @@ import {
   Setting,
   Profile,
   SwitchAccount,
+  Register
   Search,
   EditProfile,
   PendingMessages,
@@ -49,6 +50,7 @@ const AppNavigator = () => {
           component={NotificationsScreen}
         />
         <Stack.Screen name="FollowerRequests" component={FollowerRequests} />
+        <Stack.Screen name="Register" component={Register} />
         <Stack.Screen name="SeenStory" component={SeenStory} />
         <Stack.Screen name="SeenStoryOwner" component={SeenStoryOwner} />
         <Stack.Screen name="MessageScreen" component={MessageScreen} />
