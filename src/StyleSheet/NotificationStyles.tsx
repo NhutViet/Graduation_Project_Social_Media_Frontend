@@ -135,9 +135,9 @@ export const useNotificationStyles = () => {
           color: palette.text,
         },
         backIcon: {
-          width: 24,
-          height: 24,
-          resizeMode: 'contain'
+          width: 20,
+          height: 20,
+          resizeMode: 'contain',
         },
         specialContainer: {
             paddingHorizontal: 16,
@@ -181,9 +181,7 @@ export const useNotificationStyles = () => {
           borderColor: palette.gray,
         },
         searchIcon: {
-            fontSize: 18,
             marginRight: 8,
-            color: palette.text,
             opacity: 0.7, 
         },
         searchPlaceholderText: {
