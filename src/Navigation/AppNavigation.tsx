@@ -14,7 +14,7 @@ import {
   Setting,
   Profile,
   SwitchAccount,
-  Register
+  Register,
   Search,
   EditProfile,
   PendingMessages,
