@@ -1,7 +1,15 @@
-import React from 'react';
-import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import React, {useState} from 'react';
+import {
+  Alert,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {Colors} from '../assets/color/Colors';
 import {useTheme} from '../src/util/ThemeContext';
+import {Menu, Divider, Provider} from 'react-native-paper';
 
 const Header = (props: any) => {
   const {
@@ -17,78 +25,109 @@ const Header = (props: any) => {
     funcLeft,
     navigation,
   } = props;
+
   const {theme} = useTheme();
   const color = Colors[theme];
 
+  const [visible, setVisible] = useState(false);
+
+  const openMenu = () => setVisible(true);
+  const closeMenu = () => setVisible(false);
+
   return (
-    <View style={styles.container}>
-      <View style={styles.leftSection}>
-        {icon && <Image source={icon} style={styles.logo} />}
-        {iconBack && (
-          <TouchableOpacity style={styles.iconBox} onPress={func}>
-            <Image
-              source={iconBack}
-              style={[styles.icon, {tintColor: color.text}]}
-            />
-          </TouchableOpacity>
-        )}
-      </View>
+    <Provider>
+      <View style={styles.container}>
+        <View style={styles.leftSection}>
+          {icon && (
+            <Menu
+              visible={visible}
+              onDismiss={closeMenu}
+              style={{
+                marginTop: 40,
+                marginLeft: 40,
+              }}
+              anchor={
+                <TouchableOpacity onPress={openMenu}>
+                  <Image source={icon} style={styles.logo} />
+                </TouchableOpacity>
+              }>
+              <Menu.Item
+                onPress={() => Alert.alert('Option 1')}
+                title="Đang theo dõi"
+              />
+              <Menu.Item
+                onPress={() => Alert.alert('Option 2')}
+                title="Yêu thích"
+              />
+              <Divider />
+            </Menu>
+          )}
+          {iconBack && (
+            <TouchableOpacity style={styles.iconBox} onPress={func}>
+              <Image
+                source={iconBack}
+                style={[styles.icon, {tintColor: color.text}]}
+              />
+            </TouchableOpacity>
+          )}
+        </View>
 
-      <View style={styles.centerSection}>
-        {title && (
-          <Text style={[styles.title, {color: color.text}]}>{title}</Text>
-        )}
-      </View>
+        <View style={styles.centerSection}>
+          {title && (
+            <Text style={[styles.title, {color: color.text}]}>{title}</Text>
+          )}
+        </View>
 
-      <View style={styles.rightSection}>
-        {iconQR && (
-          <TouchableOpacity
-            style={styles.iconBox}
-            onPress={() => navigation.navigate('QRcode')}>
-            <Image
-              source={iconQR}
-              style={[styles.icon, {tintColor: color.text}]}
-            />
-          </TouchableOpacity>
-        )}
-        {iconNotify && (
-          <TouchableOpacity style={styles.iconBox}>
-            <Image
-              source={iconNotify}
-              style={[styles.icon, {tintColor: color.text}]}
-            />
-          </TouchableOpacity>
-        )}
-        {iconMessage && (
-          <TouchableOpacity
-            style={styles.iconBox}
-            onPress={() => {
-              navigation.navigate('Message');
-            }}>
-            <Image
-              source={iconMessage}
-              style={[styles.icon, {tintColor: color.text}]}
-            />
-          </TouchableOpacity>
-        )}
-        {iconLeft && (
-          <TouchableOpacity style={styles.iconBox} onPress={funcLeft}>
-            <Image
-              source={iconLeft}
-              style={[styles.icon, {tintColor: color.text}]}
-            />
-          </TouchableOpacity>
-        )}
-        {iconNewChat && (
-          <TouchableOpacity style={styles.iconBox} onPress={func}>
-            <Image
-              source={iconNewChat}
-              style={[styles.icon, {tintColor: color.text}]}
-            />
-          </TouchableOpacity>
-        )}
+        <View style={styles.rightSection}>
+          {iconQR && (
+            <TouchableOpacity
+              style={styles.iconBox}
+              onPress={() => navigation.navigate('QRcode')}>
+              <Image
+                source={iconQR}
+                style={[styles.icon, {tintColor: color.text}]}
+              />
+            </TouchableOpacity>
+          )}
+          {iconNotify && (
+            <TouchableOpacity style={styles.iconBox}>
+              <Image
+                source={iconNotify}
+                style={[styles.icon, {tintColor: color.text}]}
+              />
+            </TouchableOpacity>
+          )}
+          {iconMessage && (
+            <TouchableOpacity
+              style={styles.iconBox}
+              onPress={() => {
+                navigation.navigate('Message');
+              }}>
+              <Image
+                source={iconMessage}
+                style={[styles.icon, {tintColor: color.text}]}
+              />
+            </TouchableOpacity>
+          )}
+          {iconLeft && (
+            <TouchableOpacity style={styles.iconBox} onPress={funcLeft}>
+              <Image
+                source={iconLeft}
+                style={[styles.icon, {tintColor: color.text}]}
+              />
+            </TouchableOpacity>
+          )}
+          {iconNewChat && (
+            <TouchableOpacity style={styles.iconBox} onPress={func}>
+              <Image
+                source={iconNewChat}
+                style={[styles.icon, {tintColor: color.text}]}
+              />
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
-    </View>
+    </Provider>
   );
 };
 
@@ -99,7 +138,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 10,
-    paddingVertical: 20,
+    paddingVertical: 10,
   },
   leftSection: {
     flexDirection: 'row',
