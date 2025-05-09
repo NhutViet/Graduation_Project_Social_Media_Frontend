@@ -1,7 +1,7 @@
 import {
+  Animated,
   Dimensions,
   Image,
-  Modal,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -13,8 +13,12 @@ import React, {useEffect, useRef, useState} from 'react';
 import {FlashList} from '@shopify/flash-list';
 import {useTheme} from '../../util/ThemeContext';
 import {SearchStyles} from '../../StyleSheet/SearchStyles';
-import Video from 'react-native-video';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import HistoryItem from './Components/HistoryItem';
 import User from '../../../components/User';
+import GridMedia from './Components/GridMedia';
+import {Colors} from '../../../assets/color/Colors';
+import SearchResult from './Components/SearchResult';
 
 const generateImages = (count: number) =>
   Array.from({length: count}, (_, i) => ({
@@ -53,14 +57,23 @@ const dataUser = [
   },
 ];
 
+const SEARCH_HISTORY_KEY = 'search_history';
+
 export const Search = () => {
   const theme = useTheme();
+  const color = Colors[theme.theme];
   const [images, setImages] = useState(generateImages(20));
   const styles = SearchStyles(theme.theme);
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<TextInput>(null);
+  const [isShowResult, setIsShowResult] = useState(false);
 
-  //chạy videovideo
+  //animated value cho opacity ẩn hiện
+  const searchOpacity = useRef(new Animated.Value(0)).current;
+  const mediaOpacity = useRef(new Animated.Value(1)).current;
+  const resultOpacity = useRef(new Animated.Value(0)).current;
+
+  // Xử lý video
   const [currentVisibleIndex, setCurrentVisibleIndex] = useState<number | null>(
     null,
   );
@@ -73,139 +86,148 @@ export const Search = () => {
 
   const viewabilityConfig = {viewAreaCoveragePercentThreshold: 50};
 
+  // Tải thêm ảnh
   const loadMore = () => {
     const newImages = generateImages(images.length + 20);
     setImages(newImages);
   };
 
-  //render ảnh 
-  const renderItem = ({item, index}: any) => {
-    const bigImage = images[index * 5];
-    const smallImage1 = images[index * 5 + 1];
-    const smallImage2 = images[index * 5 + 2];
-    const smallImage3 = images[index * 5 + 3];
-    const smallImage4 = images[index * 5 + 4];
-
-    if (!bigImage) return null;
-
-    const isReversed = index % 2 === 0;
-    const isPlaying = currentVisibleIndex === index;
-
-    return (
-      <View
-        style={{
-          flexDirection: isReversed ? 'row' : 'row-reverse',
-          gap: 2,
-          marginBottom: 2,
-        }}>
-        {bigImage && (
-          <TouchableOpacity style={{flex: 1}}>
-            <Video
-              source={{
-                uri: 'https://firebasestorage.googleapis.com/v0/b/project-no1-daseinzumtode.appspot.com/o/video-phuc%2FDownload.mp4?alt=media&token=77311316-23f5-43da-bf98-ad67aec92965',
-              }}
-              style={styles.bigImage}
-              resizeMode="cover"
-              repeat
-              muted={true}
-              paused={isFocused || !isPlaying}
-            />
-          </TouchableOpacity>
-        )}
-        <View style={styles.smallImages}>
-          {smallImage1 && (
-            <TouchableOpacity>
-              <Image
-                source={{uri: smallImage1.uri}}
-                style={styles.smallImage}
-              />
-              <Image
-                source={require('../../../assets/icon/gallery.png')}
-                style={styles.iconDif}
-              />
-            </TouchableOpacity>
-          )}
-          {smallImage2 && (
-            <TouchableOpacity>
-              <Image
-                source={{uri: smallImage2.uri}}
-                style={styles.smallImage}
-              />
-              <Image
-                source={require('../../../assets/icon/gallery.png')}
-                style={styles.iconDif}
-              />
-            </TouchableOpacity>
-          )}
-          {smallImage3 && (
-            <TouchableOpacity>
-              <Image
-                source={{uri: smallImage3.uri}}
-                style={styles.smallImage}
-              />
-              <Image
-                source={require('../../../assets/icon/gallery.png')}
-                style={styles.iconDif}
-              />
-            </TouchableOpacity>
-          )}
-          {smallImage4 && (
-            <TouchableOpacity>
-              <Image
-                source={{uri: smallImage4.uri}}
-                style={styles.smallImage}
-              />
-              <Image
-                source={require('../../../assets/icon/gallery.png')}
-                style={styles.iconDif}
-              />
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
-    );
-  };
-
   const numBlocks = Math.ceil(images.length / 3);
   const data = Array.from({length: numBlocks}, (_, index) => index);
 
-  //xử lý tìm kiếm
+  // Xử lý tìm kiếm
   const [searchText, setSearchText] = useState('');
-  const [searchResult, setSearchResults] = useState<any>([]);
+  const [combinedResults, setCombinedResults] = useState<any[]>([]);
+  const [searchHistory, setSearchHistory] = useState<string[]>([]);
 
+  // Tải lịch sử tìm kiếm
+  const loadSearchHistory = async () => {
+    try {
+      const history = await AsyncStorage.getItem(SEARCH_HISTORY_KEY);
+      if (history) {
+        setSearchHistory(JSON.parse(history));
+      }
+    } catch (error) {
+      console.error(
+        'Screens/Search/index_line_118: Load search history: ',
+        error,
+      );
+    }
+  };
+
+  // Lưu lịch sử tìm kiếm
+  const saveSearchHistory = async (query: string) => {
+    if (!query.trim()) return;
+
+    let updatedHistory = [
+      query,
+      ...searchHistory.filter(item => item !== query),
+    ];
+    if (updatedHistory.length > 10) {
+      updatedHistory = updatedHistory.slice(0, 10);
+    }
+
+    setSearchHistory(updatedHistory);
+    await AsyncStorage.setItem(
+      SEARCH_HISTORY_KEY,
+      JSON.stringify(updatedHistory),
+    );
+  };
+
+  // Xóa mục lịch sử
+  const deleteHistoryItem = async (query: string) => {
+    const updatedHistory = searchHistory.filter(item => item !== query);
+    setSearchHistory(updatedHistory);
+    await AsyncStorage.setItem(
+      SEARCH_HISTORY_KEY,
+      JSON.stringify(updatedHistory),
+    );
+  };
+
+  // Tải lịch sử khi mount
+  useEffect(() => {
+    loadSearchHistory();
+  }, []);
+
+  // Logic tìm kiếm
   useEffect(() => {
     const handler = setTimeout(() => {
       if (searchText.trim().length > 0) {
-        const filtered = dataUser.filter((user: any) =>
+        const filteredUsers = dataUser.filter((user: any) =>
           user.name.toLowerCase().includes(searchText.trim().toLowerCase()),
         );
-        setSearchResults(filtered);
+
+        const filteredHistory = searchHistory.filter((historyItem: string) =>
+          historyItem.toLowerCase().includes(searchText.trim().toLowerCase()),
+        );
+
+        const combined = [
+          ...filteredHistory.map(item => ({type: 'history', value: item})),
+          ...filteredUsers.map(item => ({type: 'user', value: item})),
+        ];
+
+        setCombinedResults(combined);
       } else {
-        setSearchResults([]);
+        setCombinedResults(
+          searchHistory.map(item => ({type: 'history', value: item})),
+        );
       }
     }, 500);
 
-    // nếu user gõ tiếp trước 500ms, clear timer cũ
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [searchText]);
+    return () => clearTimeout(handler);
+  }, [searchText, searchHistory]);
+
+  // hiệu ứng opacity khi focused thay đổi
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(searchOpacity, {
+        toValue: isFocused && !isShowResult ? 1 : 0,
+        duration: 300,
+        useNativeDriver: false,
+      }),
+      Animated.timing(mediaOpacity, {
+        toValue: isFocused || isShowResult ? 0 : 1,
+        duration: 300,
+        useNativeDriver: false,
+      }),
+      Animated.timing(resultOpacity, {
+        toValue: isShowResult ? 1 : 0,
+        duration: 300,
+        useNativeDriver: false,
+      }),
+    ]).start();
+  }, [isFocused, isShowResult]);
 
   return (
     <View style={[styles.container]}>
       <View style={styles.searchContainer}>
-        <TextInput
-          ref={inputRef}
-          placeholder="Searching..."
-          style={styles.search}
-          onFocus={() => setIsFocused(true)}
-          value={searchText}
-          onChangeText={setSearchText}
-        />
-        <Image
-          source={require('../../../assets/icon/search.png')}
-          style={styles.iconSearch}
-        />
+        {isShowResult && (
+          <TouchableOpacity
+            onPress={() => {
+              setIsShowResult(false);
+              setSearchText('');
+            }}>
+            <Image
+              source={require('../../../assets/icon/left.png')}
+              style={[styles.icon, {marginRight: 10,}]}
+            />
+          </TouchableOpacity>
+        )}
+        <View style={styles.row}>
+          <TextInput
+            ref={inputRef}
+            placeholder="Searching..."
+            placeholderTextColor={color.text}
+            style={styles.search}
+            onFocus={() => setIsFocused(true)}
+            value={searchText}
+            onChangeText={setSearchText}
+          />
+          <Image
+            source={require('../../../assets/icon/search.png')}
+            style={styles.iconSearch}
+          />
+        </View>
         {isFocused && (
           <TouchableOpacity
             onPress={() => {
@@ -217,35 +239,111 @@ export const Search = () => {
           </TouchableOpacity>
         )}
       </View>
-
-      {isFocused ? (
-        <View style={styles.container}>
-            <FlashList
-                data={searchResult}
-                renderItem={({item}: any) => (
+      <View style={styles.container}>
+        {/* Kết quả tìm kiếm (ẩn/hiện bằng display) */}
+        <Animated.View
+          pointerEvents={isFocused && !isShowResult ? 'auto' : 'none'}
+          style={[
+            styles.container,
+            {
+              opacity: searchOpacity,
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              top: 0,
+              bottom: 0,
+            },
+          ]}>
+          {searchText === '' && searchHistory.length > 0 && (
+            <View style={styles.rowSpace}>
+              <Text style={styles.textGD}>Gần đây</Text>
+              <Text style={styles.textAll}>Xem tất cả</Text>
+            </View>
+          )}
+          {searchText !== '' && (
+            <HistoryItem
+              name={searchText}
+              func={() => {
+                saveSearchHistory(searchText);
+                setSearchText(searchText);
+                setIsFocused(false);
+                setIsShowResult(true);
+                inputRef.current?.blur();
+              }}
+            />
+          )}
+          <FlashList
+            data={combinedResults}
+            renderItem={({item}: any) => {
+              if (item.type === 'history') {
+                return (
+                  <HistoryItem
+                    name={item.value}
+                    deleteFunc={() => deleteHistoryItem(item.value)}
+                    func={() => {
+                      setSearchText(item.value);
+                      saveSearchHistory(item.value);
+                      setIsFocused(false);
+                      setIsShowResult(true);
+                      inputRef.current?.blur();
+                    }}
+                  />
+                );
+              } else {
+                return (
                   <User
-                    name={item.name}
-                    image={item.image}
-                    status={item.status}
+                    name={item.value.name}
+                    image={item.value.image}
+                    status={item.value.status}
                     isStory={false}
                   />
-                )}
-                estimatedItemSize={100}
-                showsVerticalScrollIndicator={false}
+                );
+              }
+            }}
+            estimatedItemSize={100}
+            showsVerticalScrollIndicator={false}
+          />
+        </Animated.View>
+
+        {/* Lưới media (ẩn/hiện bằng display) */}
+        <Animated.View
+          style={[styles.container, {opacity: mediaOpacity}]}
+          pointerEvents={isFocused || isShowResult ? 'none' : 'auto'}>
+          <FlashList
+            data={data}
+            keyExtractor={item => item.toString()}
+            renderItem={({item, index}) => (
+              <GridMedia
+                images={images}
+                index={index}
+                isFocused={isFocused}
+                currentVisibleIndex={currentVisibleIndex}
               />
-        </View>
-      ) : (
-        <FlashList
-          data={data}
-          keyExtractor={item => item.toString()}
-          renderItem={({item, index}) => renderItem({item, index})}
-          onEndReached={loadMore}
-          onEndReachedThreshold={0.5}
-          estimatedItemSize={200}
-          onViewableItemsChanged={onViewableItemsChanged}
-          viewabilityConfig={viewabilityConfig}
-        />
-      )}
+            )}
+            onEndReached={loadMore}
+            onEndReachedThreshold={0.5}
+            estimatedItemSize={200}
+            onViewableItemsChanged={onViewableItemsChanged}
+            viewabilityConfig={viewabilityConfig}
+          />
+        </Animated.View>
+        {/* kêts quả tìm kiếmkiếm (ẩn/hiện bằng display) */}
+        <Animated.View
+          pointerEvents={isShowResult ? 'auto' : 'none'}
+          style={[
+            styles.container,
+            {
+              opacity: resultOpacity,
+              position: 'absolute',
+              right: 0,
+              left: 0,
+              top: 0,
+              bottom: 0,
+            },
+          ]}>
+          <SearchResult searchText={searchText} />
+        </Animated.View>
+      </View>
     </View>
   );
 };

@@ -32,7 +32,7 @@ export const SearchStyles = (theme: 'light' | 'dark') => {
       iconSearch: {
         height: 15,
         width: 15,
-        tintColor: color.lightDark,
+        tintColor: color.text,
         position: 'absolute',
         left: 10,
         resizeMode: 'contain',
@@ -62,6 +62,31 @@ export const SearchStyles = (theme: 'light' | 'dark') => {
       textHuy: {
         color: color.text,
         marginLeft: 15,
+      },
+      rowSpace: {
+        justifyContent: 'space-between',
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 15,
+      },
+      textGD: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: color.text
+      },
+      textAll: {
+        fontSize: 14,
+        color: color.primary
+      },
+      icon: {
+        width: 24,
+        resizeMode: 'contain',
+        tintColor: color.text
+      },
+      row: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1,
       },
   });
 };
