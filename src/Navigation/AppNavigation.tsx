@@ -21,6 +21,7 @@ import {
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 import MessageScreen from '../Screens/Message';
+import SearchResult from '../Screens/Search/Components/SearchResult';
 
 export type RootStackParamList = {
   PendingMessages: undefined;
@@ -35,6 +36,7 @@ const AppNavigator = () => {
       <Stack.Navigator
         initialRouteName="BottomTabs"
         screenOptions={{headerShown: false}}>
+          <Stack.Screen name="SearchResult" component={SearchResult} />
         <Stack.Screen name="Search" component={Search} />
         <Stack.Screen name="PostSetting" component={PostSetting} />
         <Stack.Screen name="AddPost" component={AddPost} />
