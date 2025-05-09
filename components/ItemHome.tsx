@@ -3,6 +3,7 @@ import Video from 'react-native-video';
 import {Colors} from '../assets/color/Colors';
 import {useTheme} from '../src/util/ThemeContext';
 import {useState} from 'react';
+import {useNavigation} from '@react-navigation/native';
 
 const ItemHome = (props: any) => {
   const {
@@ -18,9 +19,11 @@ const ItemHome = (props: any) => {
     date,
     currentVisible,
     modalizeRef,
-    setCurrentPost
+    setCurrentPost,
+    isFocused,
   } = props;
 
+  const navigation: any = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];
   const [muted, setMuted] = useState(true);
@@ -46,7 +49,7 @@ const ItemHome = (props: any) => {
               resizeMode="cover"
               style={{width: '100%', height: '100%'}}
               repeat
-              paused={currentVisible !== id}
+              paused={currentVisible !== id || !isFocused}
               muted={muted}
             />
           ) : (
@@ -62,9 +65,13 @@ const ItemHome = (props: any) => {
         </View>
         <View style={styles.headerItem}>
           <View style={styles.rowContainer}>
-            <View style={styles.blockImg}>
+            <TouchableOpacity
+              style={styles.blockImg}
+              onPress={() => {
+                navigation.navigate('InfoUser', {id});
+              }}>
               <Image style={styles.imgUser} source={{uri: imgUser}} />
-            </View>
+            </TouchableOpacity>
             <View>
               <Text
                 style={[
@@ -124,17 +131,17 @@ const ItemHome = (props: any) => {
       <View style={{backgroundColor: color.background, padding: 10}}>
         <View style={[styles.rowContainer, {justifyContent: 'space-between'}]}>
           <View style={styles.rowContainer}>
-            <TouchableOpacity style={styles.iconBlock} >
+            <TouchableOpacity style={styles.iconBlock}>
               <Image
                 style={[{tintColor: color.text}, styles.icon]}
                 source={require('../assets/icon/heart.png')}
               />
             </TouchableOpacity>
-            <Text 
-              style={{color: color.text, marginLeft: 8, marginRight: 16}} 
+            <Text
+              style={{color: color.text, marginLeft: 8, marginRight: 16}}
               onPress={() => {
                 modalizeRef?.current?.open();
-            }}>
+              }}>
               {formatNumber(like)}
             </Text>
             <TouchableOpacity style={styles.iconBlock}>

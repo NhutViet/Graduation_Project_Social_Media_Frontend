@@ -13,7 +13,7 @@ import {Colors} from '../../../assets/color/Colors';
 import {useTheme} from '../../util/ThemeContext';
 import {FlashList} from '@shopify/flash-list';
 import Header from '../../../components/Header';
-import {useNavigation} from '@react-navigation/native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
 import User from '../../../components/User';
 import {useEffect, useRef, useState} from 'react';
 import ItemHome from '../../../components/ItemHome';
@@ -23,6 +23,7 @@ const Home = () => {
   const navigation: any = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];
+  const isFocused = useIsFocused();
 
   // scroll bài post
   const [currentVisible, setCurrentVisible] = useState('1');
@@ -310,6 +311,7 @@ const Home = () => {
         renderItem={({item}) => (
           <ItemHome
             {...item}
+            isFocused={isFocused}
             currentVisible={currentVisible}
             modalizeRef={modalizeRef}
           />
@@ -319,18 +321,13 @@ const Home = () => {
         viewabilityConfig={viewAbilityConfig}
         estimatedItemSize={100}
         ListHeaderComponent={
-          <View>
-            <Header
-              icon={require('../../../assets/icon/logo_row.png')}
-              iconQR={require('../../../assets/icon/qr.png')}
-              iconNotify={require('../../../assets/icon/heart.png')}
-              iconMessage={require('../../../assets/icon/message.png')}
-              navigation={navigation}
-            />
+          <View style={{position: 'relative', height: 180}}>
             <View
               style={{
                 alignItems: 'center',
                 flexDirection: 'row',
+                position: 'absolute',
+                top: 50,
               }}>
               <FlashList
                 data={dataUser}
@@ -352,6 +349,13 @@ const Home = () => {
                 }}
               />
             </View>
+            <Header
+              icon={require('../../../assets/icon/logo_row.png')}
+              iconQR={require('../../../assets/icon/qr.png')}
+              iconNotify={require('../../../assets/icon/heart.png')}
+              iconMessage={require('../../../assets/icon/message.png')}
+              navigation={navigation}
+            />
           </View>
         }
       />

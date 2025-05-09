@@ -18,9 +18,10 @@ import {
   Search,
   EditProfile,
   PendingMessages,
+  MessageScreen,
+  UserInfo,
 } from '../Screens';
 import BottomTabs from './BottomTabs';
-import MessageScreen from '../Screens/Message';
 
 export type RootStackParamList = {
   PendingMessages: undefined;
@@ -56,6 +57,7 @@ const AppNavigator = () => {
         <Stack.Screen name="SeenStory" component={SeenStory} />
         <Stack.Screen name="SeenStoryOwner" component={SeenStoryOwner} />
         <Stack.Screen name="MessageScreen" component={MessageScreen} />
+        <Stack.Screen name="InfoUser" component={UserInfo} />
       </Stack.Navigator>
     </NavigationContainer>
   );
