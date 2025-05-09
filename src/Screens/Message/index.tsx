@@ -1,10 +1,8 @@
 import {
-  Button,
   FlatList,
   Image,
   InteractionManager,
   SafeAreaView,
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -28,7 +26,7 @@ interface ChatMessage {
   room: string;
 }
 
-const MessageScreen = () => {
+export const MessageScreen = () => {
   const navigation: any = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];
@@ -125,7 +123,7 @@ const MessageScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <View style={styles.rowContainer}>
           <TouchableOpacity
@@ -202,8 +200,6 @@ const MessageScreen = () => {
           </View>
         </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
-
-export default MessageScreen;

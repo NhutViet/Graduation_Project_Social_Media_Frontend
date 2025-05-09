@@ -17,3 +17,4 @@ export * from './PendingMessages';
 export * from './SeenStory';
 export * from './SeenStoryOwner';
 export * from './Message';
+export * from './UserInfo';
