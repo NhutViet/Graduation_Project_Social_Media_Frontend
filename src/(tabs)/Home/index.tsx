@@ -240,32 +240,34 @@ const Home = () => {
   };
 
   const renderItem = ({item}: {item: UserItem}) => (
-    <View style={[styles.userItem, {backgroundColor: color.modal}]}>
-      <Image source={{uri: item.profile_pic}} style={styles.avatar} />
-      <View style={[styles.userInfo, {backgroundColor: color.modal}]}>
-        <Text style={[styles.username, {color: color.text}]}>
-          {item.username}
-        </Text>
-        <Text style={[styles.bio, {color: color.text}]}>{item.bio}</Text>
-      </View>
-      <TouchableOpacity
-        style={[
-          styles.followButton,
-          item.is_following
-            ? [styles.disabledButton, {borderColor: color.text}]
-            : styles.activeButton,
-        ]}
-        disabled={item.is_following}>
-        <Text
+    <TouchableOpacity>
+      <View style={[styles.userItem, {backgroundColor: color.modal}]}>
+        <Image source={{uri: item.profile_pic}} style={styles.avatar} />
+        <View style={[styles.userInfo, {backgroundColor: color.modal}]}>
+          <Text style={[styles.username, {color: color.text}]}>
+            {item.username}
+          </Text>
+          <Text style={[styles.bio, {color: color.text}]}>{item.bio}</Text>
+        </View>
+        <TouchableOpacity
           style={[
+            styles.followButton,
             item.is_following
-              ? [styles.followButtonText, {color: color.text}]
-              : styles.followButtonText,
-          ]}>
-          {item.is_following ? 'Followed' : 'Follow'}
-        </Text>
-      </TouchableOpacity>
-    </View>
+              ? [styles.disabledButton, {borderColor: color.text}]
+              : styles.activeButton,
+          ]}
+          disabled={item.is_following}>
+          <Text
+            style={[
+              item.is_following
+                ? [styles.followButtonText, {color: color.text}]
+                : styles.followButtonText,
+            ]}>
+            {item.is_following ? 'Followed' : 'Follow'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </TouchableOpacity>
   );
 
   const handleUserPress = (user: any) => {

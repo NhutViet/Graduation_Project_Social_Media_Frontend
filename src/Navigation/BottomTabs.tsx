@@ -7,6 +7,7 @@ import { Search } from '../Screens';
 import Post from '../(tabs)/Post';
 import Notification from '../(tabs)/Notification';
 import Profile from '../(tabs)/Profile';
+import ProfileNavigation from '../(tabs)/Profile/ProfileNavigation';
 
 const Tab = createBottomTabNavigator();
 
@@ -111,7 +112,7 @@ const BottomTabs = () => {
       />
       <Tab.Screen
         name="Account"
-        component={Profile}
+        component={ProfileNavigation}
         options={{
           tabBarIcon: ({focused}) => (
             <TabIcon

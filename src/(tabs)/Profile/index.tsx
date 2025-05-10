@@ -25,7 +25,7 @@ const Profile = () => {
             Nhut Viet
           </Text>
           <View style={styles.headerIcon}>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('FollowersScreen')}>
               <Image
                 source={require('../../../assets/icon/icon_tinder.png')}
                 style={[styles.icon, {tintColor: color.text}]}
