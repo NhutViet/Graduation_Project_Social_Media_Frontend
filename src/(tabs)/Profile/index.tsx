@@ -31,9 +31,9 @@ const Profile = () => {
                 style={[styles.icon, {tintColor: color.text}]}
               />
             </TouchableOpacity>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate("QRCode")}>
               <Image
-                source={require('../../../assets/icon/heart.png')}
+                source={require('../../../assets/icon/Plus.png')}
                 style={[styles.icon, {tintColor: color.text}]}
               />
             </TouchableOpacity>
