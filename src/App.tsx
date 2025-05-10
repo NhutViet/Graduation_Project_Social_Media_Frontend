@@ -15,9 +15,9 @@ const App = () => {
     <GestureHandlerRootView style={{flex: 1}}>
       <ThemeProvider>
         <SafeAreaProvider>
-       
+          <BottomSheetModalProvider>
             <AppNavigator />
- 
+          </BottomSheetModalProvider>
         </SafeAreaProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
