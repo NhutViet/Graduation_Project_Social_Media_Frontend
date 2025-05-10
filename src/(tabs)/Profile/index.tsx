@@ -145,7 +145,7 @@ export const Profile = () => {
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.shareButton, {backgroundColor: color.gray}]}>
+            style={[styles.shareButton, {backgroundColor: color.gray}]} onPress={() => navigation.navigate("QRCode")}>
             <Text style={[styles.buttonText, {color: color.text}]}>
               Share Profile
             </Text>
