@@ -18,6 +18,7 @@ import {
   PendingMessages,
   MessageScreen,
   UserInfo,
+  ScreenQRCode,
   MessageBox,
 } from '../Screens';
 import BottomTabs from './BottomTabs';
@@ -35,7 +36,7 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="BottomTabs"
+        initialRouteName="QRCode"
         screenOptions={{headerShown: false}}>
         <Stack.Screen name="SearchResult" component={SearchResult} />
         <Stack.Screen name="Search" component={Search} />
@@ -59,6 +60,7 @@ const AppNavigator = () => {
         <Stack.Screen name="SeenStoryOwner" component={SeenStoryOwner} />
         <Stack.Screen name="MessageScreen" component={MessageScreen} />
         <Stack.Screen name="InfoUser" component={UserInfo} />
+        <Stack.Screen name="QRCode" component={ScreenQRCode} />
         <Stack.Screen name="MessageBox" component={MessageBox} />
       </Stack.Navigator>
     </NavigationContainer>
