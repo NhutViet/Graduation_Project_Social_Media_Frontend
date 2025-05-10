@@ -144,7 +144,7 @@ export const AddPost = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.container}>
         <View style={styles.rowSpace}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
+          <TouchableOpacity onPress={() => navigation.navigate('BottomTabs')}>
             <Image
               source={require('../../../assets/icon/x.png')}
               style={styles.iconR}
