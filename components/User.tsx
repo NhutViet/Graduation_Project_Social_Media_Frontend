@@ -42,9 +42,7 @@ const User = (props: any) => {
         {alignItems: isStory ? 'center' : 'flex-start'},
       ]}>
       {status === 1 ? (
-        <TouchableOpacity
-          style={[styles.box, {marginVertical: 10}]}
-          onPress={func}>
+        <TouchableOpacity style={[styles.box, {marginTop: 10}]} onPress={func}>
           <LinearGradient
             colors={['#D300C4', '#FE393C', '#FED203']}
             start={{x: 0, y: 0}}
@@ -65,13 +63,16 @@ const User = (props: any) => {
           )}
         </TouchableOpacity>
       ) : (
-        <TouchableOpacity
-          style={[styles.box, {marginVertical: 10}]}
-          onPress={func}>
+        <TouchableOpacity style={[styles.box, {marginTop: 10}]} onPress={func}>
           <View
             style={
               isHashTag
-                ? {padding: 10, borderColor: color.gray, borderWidth: 1, borderRadius: 50,}
+                ? {
+                    padding: 10,
+                    borderColor: color.gray,
+                    borderWidth: 1,
+                    borderRadius: 50,
+                  }
                 : [
                     styles.block1,
                     {width: isStory ? 80 : 50, height: isStory ? 80 : 50},
