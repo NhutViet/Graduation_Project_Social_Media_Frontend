@@ -5,7 +5,7 @@ import AppNavigator from './Navigation/AppNavigation';
 import {ThemeProvider} from './util/ThemeContext';
 import 'react-native-gesture-handler';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
-import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
+// import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 
 enableScreens();
 
@@ -14,9 +14,9 @@ const App = () => {
     <GestureHandlerRootView style={{flex: 1}}>
       <ThemeProvider>
         <SafeAreaProvider>
-          <BottomSheetModalProvider>
+          {/* <BottomSheetModalProvider> */}
             <AppNavigator />
-          </BottomSheetModalProvider>
+          {/* </BottomSheetModalProvider> */}
         </SafeAreaProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
