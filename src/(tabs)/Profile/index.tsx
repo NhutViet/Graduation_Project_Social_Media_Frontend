@@ -1,4 +1,5 @@
-import React from 'react';
+import React, {useState, useRef, useCallback} from 'react';
+import BottomSheet from '@gorhom/bottom-sheet';
 import {
   TouchableOpacity,
   View,
@@ -8,7 +9,6 @@ import {
   Image,
   Dimensions,
 } from 'react-native';
-import {useState} from 'react';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {useNavigation} from '@react-navigation/native';
@@ -16,6 +16,7 @@ import {FlashList} from '@shopify/flash-list';
 import {PostData} from '../../MockData/posts.mock';
 import {highlights} from '../../MockData/story.mock';
 import {CommentSection} from '../../../components/CommentSection';
+import {SwitchAccount} from '../../../components/SwitchAccount';
 import {
   PlusSquare,
   Menu,
@@ -27,18 +28,41 @@ import {
   Moon,
 } from 'lucide-react-native';
 import {Styles} from '../../StyleSheet/Profile.Styles';
+import {ViewMore} from '../../../components/ViewMore';
 
 interface PostItem {
   id: string;
   image: string;
 }
 
-export const Profile = () => {
+const Profile = () => {
   const navigation: any = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];
   const [selectedTab, setSelectedTab] = useState('grid');
   const [isCommentVisible, setIsCommentVisible] = useState(false);
+  const [isMoreVisible, setIsMoreVisible] = useState(false);
+  const bottomSheetRef = useRef<BottomSheet>(null);
+  const [isSwitchAccountVisible, setIsSwitchAccountVisible] = useState(false);
+
+  const handlePresentModalPress = useCallback(() => {
+    setIsMoreVisible(true);
+    bottomSheetRef.current?.expand();
+  }, []);
+
+  const handleCloseModal = useCallback(() => {
+    bottomSheetRef.current?.close();
+    setIsMoreVisible(false);
+  }, []);
+
+  const handleOpenSwitchAccount = () => {
+    setIsSwitchAccountVisible(true);
+  };
+
+  const handleCloseSwitchAccount = () => {
+    setIsSwitchAccountVisible(false);
+  };
+
   const windowWidth = Dimensions.get('window').width;
   const itemSize = windowWidth / 3;
   const {styles} = Styles;
@@ -64,9 +88,11 @@ export const Profile = () => {
       <View style={styles.header}>
         <View style={styles.usernameContainer}>
           <Lock size={16} color={color.text} />
-          <Text style={[styles.username, {color: color.text}]}>
-            pingenriquez
-          </Text>
+          <TouchableOpacity onPress={handleOpenSwitchAccount}>
+            <Text style={[styles.username, {color: color.text}]}>
+              pingenriquez
+            </Text>
+          </TouchableOpacity>
           <ChevronDown size={16} color={color.text} />
         </View>
         <View style={styles.headerRight}>
@@ -141,13 +167,14 @@ export const Profile = () => {
 
         <View style={styles.actionButtons}>
           <TouchableOpacity
-            style={[styles.editButton, {backgroundColor: color.gray}]}>
+            style={[styles.editButton, {backgroundColor: color.gray}]}
+            onPress={handlePresentModalPress}>
             <Text style={[styles.buttonText, {color: color.text}]}>
               Edit Profile
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.shareButton, {backgroundColor: color.gray}]} onPress={() => navigation.navigate("QRCode")}>
+            style={[styles.shareButton, {backgroundColor: color.gray}]}>
             <Text style={[styles.buttonText, {color: color.text}]}>
               Share Profile
             </Text>
@@ -216,6 +243,17 @@ export const Profile = () => {
         </View>
       </ScrollView>
       {isCommentVisible && <CommentSection />}
+      <ViewMore
+        visible={isMoreVisible}
+        onClose={handleCloseModal}
+        postId="profile"
+      />
+      <SwitchAccount
+        visible={isSwitchAccountVisible}
+        onClose={handleCloseSwitchAccount}
+      />
     </SafeAreaView>
   );
 };
+
+export default Profile;

@@ -1,3 +1,4 @@
+import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 
@@ -22,9 +23,6 @@ import {
   MessageBox,
 } from '../Screens';
 import BottomTabs from './BottomTabs';
-import SearchResult from '../(tabs)/Search/Components/SearchResult';
-import {Search} from '../(tabs)/Search';
-
 export type RootStackParamList = {
   PendingMessages: undefined;
   MessageScreen: {room: string};
@@ -38,8 +36,6 @@ const AppNavigator = () => {
       <Stack.Navigator
         initialRouteName="QRCode"
         screenOptions={{headerShown: false}}>
-        <Stack.Screen name="SearchResult" component={SearchResult} />
-        <Stack.Screen name="Search" component={Search} />
         <Stack.Screen name="PostSetting" component={PostSetting} />
         <Stack.Screen name="AddPost" component={AddPost} />
         <Stack.Screen name="Login" component={Login} />
