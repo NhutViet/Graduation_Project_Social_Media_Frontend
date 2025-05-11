@@ -34,8 +34,9 @@ export const ScreenQRCode = ({navigation}: any) => {
         end={{x: 0.5, y: 1}}
         style={styles.linear}>
         <View style={styles.content}>
-          <TouchableOpacity
-            style={styles.btnClose}
+          <View style={styles.Header}>
+            <TouchableOpacity
+            style={styles.btn}
             onPress={() => navigation.navigate('BottomTabs')}>
             <Image
               style={styles.iconClose}
@@ -43,18 +44,19 @@ export const ScreenQRCode = ({navigation}: any) => {
             />
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.btnQScan}
+            style={styles.btn}
             onPress={() => navigation.navigate('QScanner')}>
             <Image
               style={styles.iconClose}
               source={require('../../../assets/icon/Qscan.png')}
             />
           </TouchableOpacity>
+          </View>
 
           <View style={styles.ViewQR}>
             <QRCode
               value={linkQR}
-              size={200}
+              // size={200}
               quietZone={10}
               logo={require('../../../assets/icon/logo.png')}
               logoSize={50}
@@ -105,22 +107,15 @@ const styles = StyleSheet.create({
   linear: {
     flex: 1,
   },
-  btnClose: {
-    position: 'absolute',
-    top: 60,
-    left: 15,
-    flexDirection: 'row',
-  },
-  btnQScan: {
-    position: 'absolute',
-    top: 60,
-    right: 15,
-    flexDirection: 'row',
-  },
-  iconClose: {
+  btn: {
     width: 20,
     height: 20,
+  },
+  iconClose: {
+    width: '100%',
+    height: '100%',
     tintColor: '#fff',
+    resizeMode: 'contain',
   },
   icon: {
     width: 20,
@@ -131,36 +126,42 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 20,
+
   },
   ViewQR: {
-    width: 320,
-    height: 320,
+    width: '100%',
+    padding: 80,
     backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 8,
   },
   btnBottom: {
-    width: 100,
-    height: 80,
+    width: "32%",
     backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
+    paddingVertical: 20,
     borderRadius: 15,
   },
   footer: {
     width: '100%',
     marginTop: 15,
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingRight: 35,
-    paddingLeft: 35,
   },
   txtBottom: {
     color: '#000',
     fontSize: 15,
     fontWeight: '500',
     marginTop: 5,
+  },
+  Header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
   },
 });
