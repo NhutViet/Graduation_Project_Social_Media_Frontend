@@ -1,6 +1,7 @@
 import {
   Animated,
   Image,
+  SafeAreaView,
   Text,
   TextInput,
   TouchableOpacity,
@@ -74,15 +75,20 @@ export const Search = () => {
   const resultOpacity = useRef(new Animated.Value(0)).current;
 
   // Xử lý video
-  const [currentVisibleIndex, setCurrentVisibleIndex] = useState<number | null>(
-    null,
-  );
+  const [visibleIndexView1, setVisibleIndexView1] = useState<number | null>(null);
+  const [visibleIndexView2, setVisibleIndexView2] = useState<number | null>(null);
 
-  const onViewableItemsChanged = useRef(({viewableItems}: any) => {
-    if (viewableItems.length > 0) {
-      setCurrentVisibleIndex(viewableItems[0].index);
-    }
-  }).current;
+  const onViewableItemsChangedView1 = useRef(({ viewableItems }: any) => {
+  if (viewableItems.length > 0) {
+    setVisibleIndexView1(viewableItems[0].index);
+  }
+}).current;
+
+const onViewableItemsChangedView2 = useRef(({ viewableItems }: any) => {
+  if (viewableItems.length > 0) {
+    setVisibleIndexView2(viewableItems[0].index);
+  }
+}).current;
 
   const viewabilityConfig = {viewAreaCoveragePercentThreshold: 50};
 
@@ -198,8 +204,16 @@ export const Search = () => {
     ]).start();
   }, [isFocused, isShowResult]);
 
+  useEffect(() => {
+    if(!isFocusedPage){
+      setIsFocused(false);
+      setIsShowResult(false);
+      setSearchText('');
+    }
+  }, [isFocusedPage]);
+
   return (
-    <View style={[styles.container]}>
+    <SafeAreaView style={[styles.container]}>
       <View style={styles.searchContainer}>
         {isShowResult && (
           <TouchableOpacity
@@ -219,7 +233,10 @@ export const Search = () => {
             placeholder="Searching..."
             placeholderTextColor={color.text}
             style={styles.search}
-            onFocus={() => setIsFocused(true)}
+            onFocus={() => {
+              setIsFocused(true);
+              setIsShowResult(false);
+            }}
             value={searchText}
             onChangeText={setSearchText}
           />
@@ -318,7 +335,7 @@ export const Search = () => {
               bottom: 0,
             },
           ]}>
-          <SearchResult searchText={searchText} />
+          <SearchResult searchText={searchText} currentVisibleIndex={visibleIndexView2} onViewableItemsChanged={onViewableItemsChangedView2} isPause={isShowResult}/>
         </Animated.View>
 
         {/* Lưới media (ẩn/hiện bằng display) */}
@@ -327,26 +344,26 @@ export const Search = () => {
           pointerEvents={isFocused || isShowResult ? 'none' : 'auto'}>
           <FlashList
             data={data}
-            
             keyExtractor={item => item.toString()}
             renderItem={({item, index}) => (
               <GridMedia
                 images={images}
                 index={index}
+                isPause={isFocused || isShowResult}
                 isFocused={isFocused}
                 isFocusedPage={isFocusedPage}
-                currentVisibleIndex={currentVisibleIndex}
+                currentVisibleIndex={visibleIndexView1}
               />
             )}
             onEndReached={loadMore}
             onEndReachedThreshold={0.5}
             estimatedItemSize={200}
-            onViewableItemsChanged={onViewableItemsChanged}
+            onViewableItemsChanged={onViewableItemsChangedView1}
             viewabilityConfig={viewabilityConfig}
           />
         </Animated.View>
         
       </View>
-    </View>
+    </SafeAreaView>
   );
 };

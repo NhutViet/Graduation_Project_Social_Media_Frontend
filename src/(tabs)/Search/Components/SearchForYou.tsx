@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
 import {FlashList} from '@shopify/flash-list';
@@ -147,67 +147,20 @@ const mediasHeight = ((screenWidth - 4) / 3) * 2;
 const mediasWidth = (screenWidth - 4) / 3;
 
 const SearchForYou = (props: any) => {
-  const {searchText, isFocusedPage} = props;
-
-  // Xử lý video
-  const [currentVisibleIndex, setCurrentVisibleIndex] = useState<number | null>(
-    null,
-  );
-
-  const onViewableItemsChanged = useRef(({viewableItems}: any) => {
-    if (viewableItems.length > 0) {
-      setCurrentVisibleIndex(viewableItems[0].index);
-    }
-  }).current;
+  const {searchText, isFocusedPage, currentVisibleIndex, onViewableItemsChanged, isPause} = props;
 
   const viewabilityConfig = {viewAreaCoveragePercentThreshold: 50};
 
   const {theme} = useTheme();
   const color = Colors[theme];
+
   return (
-    <ScrollView style={{flex: 1, backgroundColor: color.background}}>
-      <View
-        style={{
-          padding: 20,
-          gap: 10,
-        }}>
-        <Text
-          style={{
-            fontSize: 18,
-            fontWeight: 'bold',
-            color: color.text,
-          }}>
-          Tài khoản
-        </Text>
-        <FlashList
-          data={dataUser.slice(0, 4)}
-          renderItem={({item}: any) => {
-            return (
-              <User
-                name={item.name}
-                image={item.image}
-                status={item.status}
-                isStory={false}
-              />
-            );
-          }}
-          estimatedItemSize={200}
-          showsVerticalScrollIndicator={false}
-        />
-        <Text
-          style={{
-            fontSize: 18,
-            fontWeight: 'bold',
-            color: color.text,
-          }}>
-          Bài viết
-        </Text>
-      </View>
+    <View style={{flex: 1, backgroundColor: color.background}}>
       <FlashList
         data={posts}
         numColumns={3}
         renderItem={({item, index}: any) => {
-          const isPlaying = currentVisibleIndex === index;
+          const isPlaying = index >= currentVisibleIndex && index < (currentVisibleIndex + 3);
           return (
             <TouchableOpacity style={{marginBottom: 2}}>
               {item.type === 'video' ? (
@@ -222,7 +175,7 @@ const SearchForYou = (props: any) => {
                     }}
                     repeat
                     muted={true}
-                    paused={!isPlaying || !isFocusedPage}
+                    paused={!isPlaying || !isPause || !isFocusedPage}
                   />
                   <View
                     style={{
@@ -284,8 +237,9 @@ const SearchForYou = (props: any) => {
         estimatedItemSize={200}
         onViewableItemsChanged={onViewableItemsChanged}
         viewabilityConfig={viewabilityConfig}
+        extraData={[currentVisibleIndex, isFocusedPage]}
       />
-    </ScrollView>
+    </View>
   );
 };
 
