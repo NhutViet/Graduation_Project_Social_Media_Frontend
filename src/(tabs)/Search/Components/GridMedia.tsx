@@ -5,7 +5,7 @@ import {useTheme} from '../../../util/ThemeContext';
 import {SearchStyles} from '../../../StyleSheet/SearchStyles';
 
 const GridMedia = (props: any) => {
-  const {images, item, index, currentVisibleIndex, isFocused, func, isFocusedPage} = props;
+  const {images, item, index, currentVisibleIndex, isFocused, func, isFocusedPage, isPause} = props;
 
   const theme = useTheme();
   const styles = SearchStyles(theme.theme);
@@ -37,8 +37,8 @@ const GridMedia = (props: any) => {
             style={styles.bigImage}
             resizeMode="cover"
             repeat
-            muted={false}
-            paused={!isPlaying || isFocused || !isFocusedPage}
+            muted={true}
+            paused={!isPlaying || isFocused || !isFocusedPage || isPause}
           />
         </TouchableOpacity>
       )}
