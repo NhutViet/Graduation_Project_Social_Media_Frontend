@@ -43,180 +43,182 @@ export const Setting = () => {
         func={() => navigation.goBack()}
         navigation={navigation}
       />
-      <ScrollView style={styles.content}>
-        {/* Account Section */}
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, {color: mColor.text}]}>
-            Account
-          </Text>
+      <ScrollView>
+        <View style={styles.content}>
+          {/* Account Section */}
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, {color: mColor.text}]}>
+              Account
+            </Text>
 
-          <TouchableOpacity
-            style={[
-              styles.settingItem,
-              {
-                backgroundColor: mColor.background,
-                borderBottomColor: mColor.border,
-              },
-            ]}>
-            <View
+            <TouchableOpacity
               style={[
-                styles.settingIconContainer,
-                {backgroundColor: mColor.gray},
+                styles.settingItem,
+                {
+                  backgroundColor: mColor.background,
+                  borderBottomColor: mColor.border,
+                },
               ]}>
-              <User size={22} stroke={mColor.text} />
-            </View>
-            <View style={styles.settingContent}>
-              <Text style={[styles.settingTitle, {color: mColor.text}]}>
-                Personal Information
-              </Text>
-              <Text
+              <View
                 style={[
-                  styles.settingDescription,
-                  {color: mColor.textSecondary},
+                  styles.settingIconContainer,
+                  {backgroundColor: mColor.gray},
                 ]}>
-                Update your profile details
-              </Text>
-            </View>
-            <ChevronRight size={20} stroke={mColor.textSecondary} />
-          </TouchableOpacity>
+                <User size={22} stroke={mColor.text} />
+              </View>
+              <View style={styles.settingContent}>
+                <Text style={[styles.settingTitle, {color: mColor.text}]}>
+                  Personal Information
+                </Text>
+                <Text
+                  style={[
+                    styles.settingDescription,
+                    {color: mColor.textSecondary},
+                  ]}>
+                  Update your profile details
+                </Text>
+              </View>
+              <ChevronRight size={20} stroke={mColor.textSecondary} />
+            </TouchableOpacity>
 
-          {/* Tương tự cho các settingItem khác trong Account Section */}
-        </View>
-
-        {/* Preferences Section */}
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, {color: mColor.text}]}>
-            Preferences
-          </Text>
-
-          <View
-            style={[
-              styles.settingItem,
-              {
-                backgroundColor: mColor.background,
-                borderBottomColor: mColor.border,
-              },
-            ]}>
-            <View
-              style={[
-                styles.settingIconContainer,
-                {backgroundColor: mColor.gray},
-              ]}>
-              <Moon size={22} stroke={mColor.text} />
-            </View>
-            <View style={styles.settingContent}>
-              <Text style={[styles.settingTitle, {color: mColor.text}]}>
-                Dark Mode
-              </Text>
-              <Text
-                style={[
-                  styles.settingDescription,
-                  {color: mColor.textSecondary},
-                ]}>
-                Toggle dark theme
-              </Text>
-            </View>
-            <Switch
-              value={theme === 'dark'}
-              onValueChange={toggleTheme}
-              trackColor={{
-                false: mColor.border,
-                true: mColor.primary,
-              }}
-              thumbColor={mColor.white}
-            />
+            {/* Tương tự cho các settingItem khác trong Account Section */}
           </View>
 
-          {/* Tương tự cho settingItem khác trong Preferences Section */}
-        </View>
+          {/* Preferences Section */}
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, {color: mColor.text}]}>
+              Preferences
+            </Text>
 
-        {/* Activity Section */}
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, {color: mColor.text}]}>
-            Activity
-          </Text>
-
-          <TouchableOpacity
-            style={[
-              styles.settingItem,
-              {
-                backgroundColor: mColor.background,
-                borderBottomColor: mColor.border,
-              },
-            ]}>
             <View
               style={[
-                styles.settingIconContainer,
-                {backgroundColor: mColor.gray},
+                styles.settingItem,
+                {
+                  backgroundColor: mColor.background,
+                  borderBottomColor: mColor.border,
+                },
               ]}>
-              <Heart size={22} stroke={mColor.text} />
-            </View>
-            <View style={styles.settingContent}>
-              <Text style={[styles.settingTitle, {color: mColor.text}]}>
-                Likes
-              </Text>
-              <Text
+              <View
                 style={[
-                  styles.settingDescription,
-                  {color: mColor.textSecondary},
+                  styles.settingIconContainer,
+                  {backgroundColor: mColor.gray},
                 ]}>
-                Posts you've liked
-              </Text>
+                <Moon size={22} stroke={mColor.text} />
+              </View>
+              <View style={styles.settingContent}>
+                <Text style={[styles.settingTitle, {color: mColor.text}]}>
+                  Dark Mode
+                </Text>
+                <Text
+                  style={[
+                    styles.settingDescription,
+                    {color: mColor.textSecondary},
+                  ]}>
+                  Toggle dark theme
+                </Text>
+              </View>
+              <Switch
+                value={theme === 'dark'}
+                onValueChange={toggleTheme}
+                trackColor={{
+                  false: mColor.border,
+                  true: mColor.primary,
+                }}
+                thumbColor={mColor.white}
+              />
             </View>
-            <ChevronRight size={20} stroke={mColor.textSecondary} />
-          </TouchableOpacity>
 
-          {/* Tương tự cho settingItem khác trong Activity Section */}
-        </View>
+            {/* Tương tự cho settingItem khác trong Preferences Section */}
+          </View>
 
-        {/* Support Section */}
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, {color: mColor.text}]}>
-            Support
-          </Text>
+          {/* Activity Section */}
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, {color: mColor.text}]}>
+              Activity
+            </Text>
 
-          <TouchableOpacity
-            style={[
-              styles.settingItem,
-              {
-                backgroundColor: mColor.background,
-                borderBottomColor: mColor.border,
-              },
-            ]}>
-            <View
+            <TouchableOpacity
               style={[
-                styles.settingIconContainer,
-                {backgroundColor: mColor.gray},
+                styles.settingItem,
+                {
+                  backgroundColor: mColor.background,
+                  borderBottomColor: mColor.border,
+                },
               ]}>
-              <HelpCircle size={22} stroke={mColor.text} />
-            </View>
-            <View style={styles.settingContent}>
-              <Text style={[styles.settingTitle, {color: mColor.text}]}>
-                Help Center
-              </Text>
-              <Text
+              <View
                 style={[
-                  styles.settingDescription,
-                  {color: mColor.textSecondary},
+                  styles.settingIconContainer,
+                  {backgroundColor: mColor.gray},
                 ]}>
-                Get help with Instagram
-              </Text>
-            </View>
-            <ChevronRight size={20} stroke={mColor.textSecondary} />
+                <Heart size={22} stroke={mColor.text} />
+              </View>
+              <View style={styles.settingContent}>
+                <Text style={[styles.settingTitle, {color: mColor.text}]}>
+                  Likes
+                </Text>
+                <Text
+                  style={[
+                    styles.settingDescription,
+                    {color: mColor.textSecondary},
+                  ]}>
+                  Posts you've liked
+                </Text>
+              </View>
+              <ChevronRight size={20} stroke={mColor.textSecondary} />
+            </TouchableOpacity>
+
+            {/* Tương tự cho settingItem khác trong Activity Section */}
+          </View>
+
+          {/* Support Section */}
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, {color: mColor.text}]}>
+              Support
+            </Text>
+
+            <TouchableOpacity
+              style={[
+                styles.settingItem,
+                {
+                  backgroundColor: mColor.background,
+                  borderBottomColor: mColor.border,
+                },
+              ]}>
+              <View
+                style={[
+                  styles.settingIconContainer,
+                  {backgroundColor: mColor.gray},
+                ]}>
+                <HelpCircle size={22} stroke={mColor.text} />
+              </View>
+              <View style={styles.settingContent}>
+                <Text style={[styles.settingTitle, {color: mColor.text}]}>
+                  Help Center
+                </Text>
+                <Text
+                  style={[
+                    styles.settingDescription,
+                    {color: mColor.textSecondary},
+                  ]}>
+                  Get help with Instagram
+                </Text>
+              </View>
+              <ChevronRight size={20} stroke={mColor.textSecondary} />
+            </TouchableOpacity>
+
+            {/* Tương tự cho settingItem khác trong Support Section */}
+          </View>
+
+          {/* Logout Button */}
+          <TouchableOpacity
+            style={[styles.logoutButton, {backgroundColor: mColor.gray}]}
+            onPress={handleLogout}>
+            <LogOut size={22} stroke={mColor.error} />
+            <Text style={[styles.logoutText, {color: mColor.error}]}>
+              Log Out
+            </Text>
           </TouchableOpacity>
-
-          {/* Tương tự cho settingItem khác trong Support Section */}
         </View>
-
-        {/* Logout Button */}
-        <TouchableOpacity
-          style={[styles.logoutButton, {backgroundColor: mColor.gray}]}
-          onPress={handleLogout}>
-          <LogOut size={22} stroke={mColor.error} />
-          <Text style={[styles.logoutText, {color: mColor.error}]}>
-            Log Out
-          </Text>
-        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
