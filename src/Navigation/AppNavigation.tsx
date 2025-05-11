@@ -1,3 +1,4 @@
+import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 
@@ -12,7 +13,6 @@ import {
   SeenStory,
   SeenStoryOwner,
   Setting,
-  Profile,
   SwitchAccount,
   Register,
   Search,
@@ -23,7 +23,7 @@ import {
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 import SearchResult from '../Screens/Search/Components/SearchResult';
-
+import Profile from '../(tabs)/Profile';
 export type RootStackParamList = {
   PendingMessages: undefined;
   MessageScreen: {room: string};
@@ -37,7 +37,7 @@ const AppNavigator = () => {
       <Stack.Navigator
         initialRouteName="BottomTabs"
         screenOptions={{headerShown: false}}>
-          <Stack.Screen name="SearchResult" component={SearchResult} />
+        <Stack.Screen name="SearchResult" component={SearchResult} />
         <Stack.Screen name="Search" component={Search} />
         <Stack.Screen name="PostSetting" component={PostSetting} />
         <Stack.Screen name="AddPost" component={AddPost} />
