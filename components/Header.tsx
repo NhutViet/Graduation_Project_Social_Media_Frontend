@@ -77,59 +77,55 @@ const Header = (props: any) => {
             <Text style={[styles.title, {color: color.text}]}>{title}</Text>
           )}
         </View>
+      </View>
 
-        <View style={styles.rightSection}>
-          {iconQR && (
-            <TouchableOpacity
-              style={styles.iconBox}
-              onPress={() => navigation.navigate('QRcode')}>
-              <Image
-                source={iconQR}
-                style={[styles.icon, {tintColor: color.text}]}
-              />
-            </TouchableOpacity>
-          )}
-          {iconNotify && (
-            <TouchableOpacity
-              style={styles.iconBox}
-              onPress={() => {
-                navigation.navigate('NotificationsScreen');
-              }}>
-              <Image
-                source={iconNotify}
-                style={[styles.icon, {tintColor: color.text}]}
-              />
-            </TouchableOpacity>
-          )}
-          {iconMessage && (
-            <TouchableOpacity
-              style={styles.iconBox}
-              onPress={() => {
-                navigation.navigate('MessageBox');
-              }}>
-              <Image
-                source={iconMessage}
-                style={[styles.icon, {tintColor: color.text}]}
-              />
-            </TouchableOpacity>
-          )}
-          {iconLeft && (
-            <TouchableOpacity style={styles.iconBox} onPress={funcLeft}>
-              <Image
-                source={iconLeft}
-                style={[styles.icon, {tintColor: color.text}]}
-              />
-            </TouchableOpacity>
-          )}
-          {iconNewChat && (
-            <TouchableOpacity style={styles.iconBox} onPress={func}>
-              <Image
-                source={iconNewChat}
-                style={[styles.icon, {tintColor: color.text}]}
-              />
-            </TouchableOpacity>
-          )}
-        </View>
+      <View style={styles.rightSection}>
+        {iconQR && (
+          <TouchableOpacity
+            style={styles.iconBox}
+            onPress={() => navigation.navigate('QRcode')}>
+            <Image
+              source={iconQR}
+              style={[styles.icon, {tintColor: color.text}]}
+            />
+          </TouchableOpacity>
+        )}
+        {iconNotify && (
+          <TouchableOpacity style={styles.iconBox} onPress={() => {}}>
+            <Image
+              source={iconNotify}
+              style={[styles.icon, {tintColor: color.text}]}
+            />
+          </TouchableOpacity>
+        )}
+        {iconMessage && (
+          <TouchableOpacity
+            style={styles.iconBox}
+            onPress={() => {
+              navigation.navigate('Message');
+            }}>
+            <Image
+              source={iconMessage}
+              style={[styles.icon, {tintColor: color.text}]}
+            />
+          </TouchableOpacity>
+        )}
+        {iconLeft && (
+          <TouchableOpacity style={styles.iconBox} onPress={funcLeft}>
+            <Image
+              source={iconLeft}
+              style={[styles.icon, {tintColor: color.text}]}
+            />
+          </TouchableOpacity>
+        )}
+        {iconNewChat && (
+          <TouchableOpacity style={styles.iconBox} onPress={func}>
+            <Image
+              source={iconNewChat}
+              style={[styles.icon, {tintColor: color.text}]}
+            />
+          </TouchableOpacity>
+        )}
       </View>
     </Provider>
   );
