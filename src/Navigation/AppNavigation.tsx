@@ -1,4 +1,3 @@
-import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 
@@ -15,15 +14,17 @@ import {
   Setting,
   SwitchAccount,
   Register,
-  Search,
   EditProfile,
   PendingMessages,
   MessageScreen,
   UserInfo,
+  ScreenQRCode,
+  MessageBox,
 } from '../Screens';
 import BottomTabs from './BottomTabs';
-import SearchResult from '../Screens/Search/Components/SearchResult';
-import Profile from '../(tabs)/Profile';
+import SearchResult from '../(tabs)/Search/Components/SearchResult';
+import {Search} from '../(tabs)/Search';
+
 export type RootStackParamList = {
   PendingMessages: undefined;
   MessageScreen: {room: string};
@@ -35,7 +36,7 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="BottomTabs"
+        initialRouteName="QRCode"
         screenOptions={{headerShown: false}}>
         <Stack.Screen name="SearchResult" component={SearchResult} />
         <Stack.Screen name="Search" component={Search} />
@@ -49,7 +50,6 @@ const AppNavigator = () => {
         <Stack.Screen name="EditStory" component={EditStory} />
         <Stack.Screen name="EditProfile" component={EditProfile} />
         <Stack.Screen name="PendingMessages" component={PendingMessages} />
-        <Stack.Screen name="Profile" component={Profile} />
         <Stack.Screen
           name="NotificationsScreen"
           component={NotificationsScreen}
@@ -60,6 +60,8 @@ const AppNavigator = () => {
         <Stack.Screen name="SeenStoryOwner" component={SeenStoryOwner} />
         <Stack.Screen name="MessageScreen" component={MessageScreen} />
         <Stack.Screen name="InfoUser" component={UserInfo} />
+        <Stack.Screen name="QRCode" component={ScreenQRCode} />
+        <Stack.Screen name="MessageBox" component={MessageBox} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -90,7 +90,11 @@ const Header = (props: any) => {
             </TouchableOpacity>
           )}
           {iconNotify && (
-            <TouchableOpacity style={styles.iconBox}>
+            <TouchableOpacity
+              style={styles.iconBox}
+              onPress={() => {
+                navigation.navigate('NotificationsScreen');
+              }}>
               <Image
                 source={iconNotify}
                 style={[styles.icon, {tintColor: color.text}]}
@@ -101,7 +105,7 @@ const Header = (props: any) => {
             <TouchableOpacity
               style={styles.iconBox}
               onPress={() => {
-                navigation.navigate('Message');
+                navigation.navigate('MessageBox');
               }}>
               <Image
                 source={iconMessage}
