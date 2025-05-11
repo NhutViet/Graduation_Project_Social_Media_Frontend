@@ -129,12 +129,14 @@ const Profile = () => {
               <Text style={[styles.statNumber, {color: color.text}]}>66</Text>
               <Text style={[styles.statLabel, {color: color.text}]}>posts</Text>
             </View>
-            <View style={styles.statItem}>
-              <Text style={[styles.statNumber, {color: color.text}]}>589</Text>
-              <Text style={[styles.statLabel, {color: color.text}]}>
-                followers
-              </Text>
-            </View>
+            <TouchableOpacity onPress={() => navigation.navigate('FollowersScreen')}>
+                <View style={styles.statItem}>
+                  <Text style={[styles.statNumber, {color: color.text}]}>589</Text>
+                  <Text style={[styles.statLabel, {color: color.text}]}>
+                    followers
+                  </Text>
+                </View>
+            </TouchableOpacity>
             <View style={styles.statItem}>
               <Text style={[styles.statNumber, {color: color.text}]}>526</Text>
               <Text style={[styles.statLabel, {color: color.text}]}>

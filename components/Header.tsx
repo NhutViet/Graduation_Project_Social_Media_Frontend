@@ -139,13 +139,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 10,
     paddingVertical: 10,
+    height: 60,
   },
   leftSection: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   centerSection: {
-    flex: 1,
     alignItems: 'center',
   },
   rightSection: {
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
   iconBox: {
     width: 20,
     height: 20,
-    marginLeft: 20,
+    marginLeft: 10,
   },
   icon: {
     width: '100%',

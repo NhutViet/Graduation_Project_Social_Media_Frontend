@@ -8,7 +8,8 @@ export const createStyles = (themeColors: any) =>
       backgroundColor: themeColors.background,
     },
     content: {
-      flex: 1,
+      width: '100%',
+      height: '100%',
     },
     section: {
       marginBottom: theme.spacing.l,
