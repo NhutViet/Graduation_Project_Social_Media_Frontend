@@ -1,8 +1,8 @@
 import { StyleSheet, Text, View } from 'react-native'
 import { createStackNavigator } from '@react-navigation/stack';
 import React from 'react'
-import {Profile} from './index'
 import FollowersScreen from './FollowersScreen'
+import Profile from '.';
 
 const Stack = createStackNavigator();
 

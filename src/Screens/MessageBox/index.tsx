@@ -185,7 +185,8 @@ export const MessageBox = () => {
           paddingVertical: 10,
         }}>
         <Text style={{color: color.text, fontWeight: '600'}}>Tin nhắn</Text>
-        <TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('PendingMessages')}>
           <Text style={{color: color.text}}>Tin nhắn đang chờ</Text>
         </TouchableOpacity>
       </View>

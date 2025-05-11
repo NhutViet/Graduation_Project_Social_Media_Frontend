@@ -33,7 +33,6 @@ export const ScreenQRCode = ({navigation}: any) => {
         start={{x: 0.5, y: 0}}
         end={{x: 0.5, y: 1}}
         style={styles.linear}>
-        <View style={styles.content}>
           <View style={styles.Header}>
             <TouchableOpacity
             style={styles.btn}
@@ -53,10 +52,12 @@ export const ScreenQRCode = ({navigation}: any) => {
           </TouchableOpacity>
           </View>
 
+        <View style={styles.content}>
+          
           <View style={styles.ViewQR}>
             <QRCode
               value={linkQR}
-              // size={200}
+              size={200}
               quietZone={10}
               logo={require('../../../assets/icon/logo.png')}
               logoSize={50}
@@ -131,11 +132,12 @@ const styles = StyleSheet.create({
   },
   ViewQR: {
     width: '100%',
-    padding: 80,
+    padding: 60,
     backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 8,
+    borderRadius: 15
+    ,
   },
   btnBottom: {
     width: "32%",
@@ -147,7 +149,7 @@ const styles = StyleSheet.create({
   },
   footer: {
     width: '100%',
-    marginTop: 15,
+    marginTop: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -163,5 +165,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
+    paddingHorizontal: 20,
+    paddingTop: 20,
   },
 });
