@@ -1,12 +1,12 @@
-import { useMemo } from 'react';
-import { StyleSheet, Dimensions } from 'react-native';
-import { useTheme } from '../util/ThemeContext';
-import { Colors } from '../../assets/color/Colors';
+import {useMemo} from 'react';
+import {StyleSheet, Dimensions} from 'react-native';
+import {useTheme} from '../util/ThemeContext';
+import {Colors} from '../../assets/color/Colors';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const {width: SCREEN_WIDTH} = Dimensions.get('window');
 
 export const useProfileEditingStyles = () => {
-  const { theme } = useTheme();
+  const {theme} = useTheme();
   const palette = Colors[theme];
 
   return useMemo(
@@ -65,6 +65,8 @@ export const useProfileEditingStyles = () => {
           alignItems: 'center',
           justifyContent: 'space-between',
           paddingHorizontal: 16,
+          borderBottomWidth: 1,
+          borderBottomColor: palette.gray,
         },
         headerText: {
           fontSize: 16,
@@ -102,7 +104,7 @@ export const useProfileEditingStyles = () => {
         },
         modalContainer: {
           backgroundColor: palette.card,
-          padding: 20,
+          width: SCREEN_WIDTH * 0.8,
           borderRadius: 8,
         },
         modalOverlay: {
@@ -110,6 +112,16 @@ export const useProfileEditingStyles = () => {
           justifyContent: 'center',
           alignItems: 'center',
           backgroundColor: 'rgba(0,0,0,0.5)',
+        },
+        btnModel: {
+          width: '100%',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 15,
+          
+        },
+        textModel: {
+          color: palette.text,
         },
         headerRow: {
           flexDirection: 'row',
@@ -226,8 +238,8 @@ export const useProfileEditingStyles = () => {
         },
         tabSelected: {
           backgroundColor: palette.lightDark,
-        }
+        },
       }),
-    [palette]
+    [palette],
   );
 };
