@@ -10,6 +10,14 @@ export const Styles = {
   tileSize: tileSize,
   itemSize: itemSize,
   styles: StyleSheet.create({
+    headerContainer: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      zIndex: 10,
+      backgroundColor: 'white',
+    },
     content: {
       flex: 1,
       paddingHorizontal: 5,
@@ -48,10 +56,8 @@ export const Styles = {
     },
     postsContainer: {
       flex: 1,
-      marginTop: 10,
     },
 
-    // Header components
     usernameContainer: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -174,15 +180,15 @@ export const Styles = {
 
     // Highlights section
     highlightsContainer: {
-      paddingHorizontal: 16,
-      marginTop: 15,
+      marginVertical: 10,
     },
     highlightItem: {
       alignItems: 'center',
+      marginVertical: 10,
       marginRight: 15,
     },
     highlightImageContainer: {
-      padding: 2,
+      padding: 1,
       borderRadius: 35,
       borderWidth: 1,
       borderColor: '#DBDBDB',
@@ -199,23 +205,24 @@ export const Styles = {
 
     // Tab bar
     tabBar: {
+      flex: 0,
       flexDirection: 'row',
-      borderTopWidth: StyleSheet.hairlineWidth,
-      borderBottomWidth: StyleSheet.hairlineWidth,
-      borderColor: '#DBDBDB',
-      marginTop: 15,
+      alignItems: 'center',
+      borderTopWidth: 1,
+      borderTopColor: '#DBDBDB',
+      paddingVertical: 10,
+      backgroundColor: '#FFFFFF',
     },
     tabButton: {
       flex: 1,
       alignItems: 'center',
-      paddingVertical: 12,
-      borderBottomWidth: 1,
+      paddingVertical: 10,
+      justifyContent: 'center',
     },
     activeTab: {
       borderBottomWidth: 1,
+      flex: 1,
     },
-
-    // Grid layout
     gridItem: {
       padding: 1,
       width: Dimensions.get('window').width / 3,
@@ -225,6 +232,22 @@ export const Styles = {
       width: '100%',
       height: '100%',
       resizeMode: 'cover',
+    },
+    reelOverlay: {
+      position: 'absolute',
+      top: 8,
+      right: 8,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      borderRadius: 4,
+      padding: 4,
+    },
+    tagOverlay: {
+      position: 'absolute',
+      top: 8,
+      right: 8,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      borderRadius: 4,
+      padding: 4,
     },
   }),
 };

@@ -19,7 +19,7 @@ export interface Comment {
   isLiked?: boolean;
   likedBy?: LikedBy;
 }
-export const Comments: Comment[] = [
+export const mockComments: Comment[] = [
   {
     id: '1',
     username: 'enzetto',
