@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, { useRef, useState } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
 import {FlashList} from '@shopify/flash-list';
@@ -52,7 +52,7 @@ const posts = [
   },
   {
     type: 'video',
-    uri: 'https://firebasestorage.googleapis.com/v0/b/project-no1-daseinzumtode.appspot.com/o/video-phuc%2FDownload.mp4?alt=media&token=77311316-23f5-43da-bf98-ad67aec92965',
+    uri: 'https://res.cloudinary.com/dsvcoywkc/video/upload/v1746718746/my_video/ncd28sjnze0wfaqti2hm.mp4',
     seen: 1000,
   },
   {
@@ -73,33 +73,12 @@ const posts = [
   },
   {
     type: 'video',
-    uri: 'https://firebasestorage.googleapis.com/v0/b/project-no1-daseinzumtode.appspot.com/o/video-phuc%2FDownload.mp4?alt=media&token=77311316-23f5-43da-bf98-ad67aec92965',
+    uri: 'https://res.cloudinary.com/dsvcoywkc/video/upload/v1746718746/my_video/ncd28sjnze0wfaqti2hm.mp4',
     seen: 1000,
   },
   {
     type: 'video',
-    uri: 'https://firebasestorage.googleapis.com/v0/b/project-no1-daseinzumtode.appspot.com/o/video-phuc%2FDownload.mp4?alt=media&token=77311316-23f5-43da-bf98-ad67aec92965',
-    seen: 1000,
-  },
-  {
-    type: 'image',
-    uri: 'https://kimipet.vn/wp-content/uploads/2021/06/husky-ngao-.jpg',
-  },
-  {
-    type: 'image',
-    uri: [
-      'https://kimipet.vn/wp-content/uploads/2021/06/husky-ngao-.jpg',
-      'https://kimipet.vn/wp-content/uploads/2021/06/husky-ngao-.jpg',
-      'https://kimipet.vn/wp-content/uploads/2021/06/husky-ngao-.jpg',
-    ],
-  },
-  {
-    type: 'image',
-    uri: 'https://kimipet.vn/wp-content/uploads/2021/06/husky-ngao-.jpg',
-  },
-  {
-    type: 'video',
-    uri: 'https://firebasestorage.googleapis.com/v0/b/project-no1-daseinzumtode.appspot.com/o/video-phuc%2FDownload.mp4?alt=media&token=77311316-23f5-43da-bf98-ad67aec92965',
+    uri: 'https://res.cloudinary.com/dsvcoywkc/video/upload/v1746718746/my_video/ncd28sjnze0wfaqti2hm.mp4',
     seen: 1000,
   },
   {
@@ -120,12 +99,33 @@ const posts = [
   },
   {
     type: 'video',
-    uri: 'https://firebasestorage.googleapis.com/v0/b/project-no1-daseinzumtode.appspot.com/o/video-phuc%2FDownload.mp4?alt=media&token=77311316-23f5-43da-bf98-ad67aec92965',
+    uri: 'https://res.cloudinary.com/dsvcoywkc/video/upload/v1746718746/my_video/ncd28sjnze0wfaqti2hm.mp4',
+    seen: 1000,
+  },
+  {
+    type: 'image',
+    uri: 'https://kimipet.vn/wp-content/uploads/2021/06/husky-ngao-.jpg',
+  },
+  {
+    type: 'image',
+    uri: [
+      'https://kimipet.vn/wp-content/uploads/2021/06/husky-ngao-.jpg',
+      'https://kimipet.vn/wp-content/uploads/2021/06/husky-ngao-.jpg',
+      'https://kimipet.vn/wp-content/uploads/2021/06/husky-ngao-.jpg',
+    ],
+  },
+  {
+    type: 'image',
+    uri: 'https://kimipet.vn/wp-content/uploads/2021/06/husky-ngao-.jpg',
+  },
+  {
+    type: 'video',
+    uri: 'https://res.cloudinary.com/dsvcoywkc/video/upload/v1746718746/my_video/ncd28sjnze0wfaqti2hm.mp4',
     seen: 1000,
   },
   {
     type: 'video',
-    uri: 'https://firebasestorage.googleapis.com/v0/b/project-no1-daseinzumtode.appspot.com/o/video-phuc%2FDownload.mp4?alt=media&token=77311316-23f5-43da-bf98-ad67aec92965',
+    uri: 'https://res.cloudinary.com/dsvcoywkc/video/upload/v1746718746/my_video/ncd28sjnze0wfaqti2hm.mp4',
     seen: 1000,
   },
   {
@@ -143,64 +143,24 @@ const posts = [
 ];
 
 const screenWidth = Dimensions.get('window').width;
-const mediasHeight = ((screenWidth-4) / 3) * 2;
-const mediasWidth = (screenWidth-4) / 3;
+const mediasHeight = ((screenWidth - 4) / 3) * 2;
+const mediasWidth = (screenWidth - 4) / 3;
 
 const SearchForYou = (props: any) => {
-  const {searchText} = props;
+  const {searchText, isFocusedPage, currentVisibleIndex, onViewableItemsChanged, isPause} = props;
 
-  // Xử lý video
-    const [currentVisibleIndex, setCurrentVisibleIndex] = useState<number | null>(null);
-  
-    const onViewableItemsChanged = useRef(({viewableItems}: any) => {
-      if (viewableItems.length > 0) {
-        setCurrentVisibleIndex(viewableItems[0].index);
-      }
-    }).current;
-  
-    const viewabilityConfig = {viewAreaCoveragePercentThreshold: 50};
+  const viewabilityConfig = {viewAreaCoveragePercentThreshold: 50};
 
   const {theme} = useTheme();
   const color = Colors[theme];
+
   return (
-    <ScrollView style={{flex: 1,
-        backgroundColor: color.background
-    }}>
-      <View style={{
-        padding: 20,
-        gap: 10,
-      }}>
-        <Text style={{
-            fontSize: 18,
-            fontWeight: 'bold',
-            color: color.text,
-        }}>Tài khoản</Text>
-        <FlashList
-          data={dataUser.slice(0, 4)}
-          renderItem={({item}: any) => {
-            return (
-              <User
-                name={item.name}
-                image={item.image}
-                status={item.status}
-                isStory={false}
-              />
-            );
-          }}
-          estimatedItemSize={200}
-          showsVerticalScrollIndicator={false}
-        />
-        <Text style={{
-            fontSize: 18,
-            fontWeight: 'bold',
-            color: color.text,
-        }}>Bài viết</Text>
-      </View>
+    <View style={{flex: 1, backgroundColor: color.background}}>
       <FlashList
         data={posts}
         numColumns={3}
         renderItem={({item, index}: any) => {
-          const isPlaying = currentVisibleIndex === index;
+          const isPlaying = index >= currentVisibleIndex && index < (currentVisibleIndex + 3);
           return (
             <TouchableOpacity style={{marginBottom: 2}}>
               {item.type === 'video' ? (
@@ -215,15 +175,17 @@ const SearchForYou = (props: any) => {
                     }}
                     repeat
                     muted={true}
-                    paused={!isPlaying}
+                    paused={!isPlaying || !isPause || !isFocusedPage}
                   />
-                  <View style={{
-                    flexDirection: 'row',
-                    gap: 5,
-                    alignItems: 'center',
-                    position: 'absolute',
-                    bottom: 8, left: 8
-                  }}>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      gap: 5,
+                      alignItems: 'center',
+                      position: 'absolute',
+                      bottom: 8,
+                      left: 8,
+                    }}>
                     <Image
                       source={require('../../../../assets/icon/eye.png')}
                       style={{
@@ -244,18 +206,29 @@ const SearchForYou = (props: any) => {
                 </View>
               ) : (
                 <View>
-                    <Image source={{uri: Array.isArray(item.uri) ? item.uri[0] : item.uri}} style={{
-                        width: mediasWidth, height: mediasHeight,
-                        marginRight: (index + 1) % 3 == 0 ? 0 : 2,
-                    }}/>
-                    {Array.isArray(item.uri) && (
-                        <Image source={require('../../../../assets/icon/gallery.png')} style={{
-                            width: 20, height: 20,
-                            tintColor: color.background,
-                            position: 'absolute',
-                            right: 12, top: 10,
-                        }}/>
-                    )}
+                  <Image
+                    source={{
+                      uri: Array.isArray(item.uri) ? item.uri[0] : item.uri,
+                    }}
+                    style={{
+                      width: mediasWidth,
+                      height: mediasHeight,
+                      marginRight: (index + 1) % 3 == 0 ? 0 : 2,
+                    }}
+                  />
+                  {Array.isArray(item.uri) && (
+                    <Image
+                      source={require('../../../../assets/icon/gallery.png')}
+                      style={{
+                        width: 20,
+                        height: 20,
+                        tintColor: color.background,
+                        position: 'absolute',
+                        right: 12,
+                        top: 10,
+                      }}
+                    />
+                  )}
                 </View>
               )}
             </TouchableOpacity>
@@ -264,8 +237,9 @@ const SearchForYou = (props: any) => {
         estimatedItemSize={200}
         onViewableItemsChanged={onViewableItemsChanged}
         viewabilityConfig={viewabilityConfig}
+        extraData={[currentVisibleIndex, isFocusedPage]}
       />
-    </ScrollView>
+    </View>
   );
 };
 

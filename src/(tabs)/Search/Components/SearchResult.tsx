@@ -6,25 +6,28 @@ import {SceneMap, TabBar, TabView} from 'react-native-tab-view';
 import SearchForYou from './SearchForYou';
 import HashTag from './HashTag';
 import SearchUser from './SearchUser';
+import { useIsFocused } from '@react-navigation/native';
 
 const SearchResult = (props: any) => {
   const layout = Dimensions.get('window');
   const {theme} = useTheme();
   const color = Colors[theme];
-  const {searchText} = props;
+  const {searchText, currentVisibleIndex, onViewableItemsChanged, isPause} = props;
+  const isFocusedPage = useIsFocused();
 
   //tab
   const [index, setIndex] = useState(0);
   const [routes] = useState([
-    {key: 'first', title: 'Dành cho bạn'},
+    {key: 'first', title: 'Bài viết'},
     {key: 'second', title: 'Người dùng'},
     {key: 'three', title: 'Thẻ'},
   ]);
 
   const renderScene = ({route}: any) => {
+    const isFirstTab = index === 0 && route.key === 'first';
     switch (route.key) {
       case 'first':
-        return <SearchForYou searchText={searchText} />;
+        return <SearchForYou searchText={searchText}  isFocusedPage={isFocusedPage} currentVisibleIndex={currentVisibleIndex} onViewableItemsChanged={onViewableItemsChanged} isPause={isPause && isFirstTab}/>;
       case 'second':
         return <SearchUser searchText={searchText} />;
       case 'three':

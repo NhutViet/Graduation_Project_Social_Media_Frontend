@@ -5,7 +5,8 @@ import AppNavigator from './Navigation/AppNavigation';
 import {ThemeProvider} from './util/ThemeContext';
 import 'react-native-gesture-handler';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
-// import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
+import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
+import 'fast-text-encoding';
 
 enableScreens();
 

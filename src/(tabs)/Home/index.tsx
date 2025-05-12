@@ -43,6 +43,19 @@ const Home = () => {
   // data mẫu
   const posts = [
     {
+      id: '0',
+      uriVideo:
+        'https://res.cloudinary.com/dsvcoywkc/video/upload/v1746957530/my_video/afezzsxayqcz9cpfbpsj.mp4',
+      imgUser:
+        'https://i.pinimg.com/736x/8c/71/92/8c7192c084765c076ef33024c0b34406.jpg',
+      name: 'Xie',
+      like: 27000,
+      comment: 5,
+      share: 27,
+      title: 'Phép màu',
+      date: '11/05/2025',
+    },
+    {
       id: '1',
       uriVideo:
         'https://res.cloudinary.com/dsvcoywkc/video/upload/v1746718746/my_video/ncd28sjnze0wfaqti2hm.mp4',

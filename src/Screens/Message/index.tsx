@@ -188,14 +188,23 @@ export const MessageScreen = () => {
             onSubmitEditing={sendMessage}
           />
           <View style={styles.rowContainer}>
-            <TouchableOpacity>
-              <Image source={require('../../../assets/icon/Microphone.png')} />
+            <TouchableOpacity style={styles.blockIcon1}>
+              <Image
+                style={styles.icon}
+                source={require('../../../assets/icon/Microphone.png')}
+              />
             </TouchableOpacity>
-            <TouchableOpacity>
-              <Image source={require('../../../assets/icon/Picture.png')} />
+            <TouchableOpacity style={styles.blockIcon1}>
+              <Image
+                style={styles.icon}
+                source={require('../../../assets/icon/Picture.png')}
+              />
             </TouchableOpacity>
-            <TouchableOpacity>
-              <Image source={require('../../../assets/icon/another.png')} />
+            <TouchableOpacity style={styles.blockIcon1}>
+              <Image
+                style={styles.icon}
+                source={require('../../../assets/icon/another.png')}
+              />
             </TouchableOpacity>
           </View>
         </View>

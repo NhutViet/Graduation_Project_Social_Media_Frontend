@@ -3,10 +3,11 @@ import {Image, StyleSheet, View} from 'react-native';
 import {Colors} from '../../assets/color/Colors';
 import {useTheme} from '../util/ThemeContext';
 import Home from '../(tabs)/Home';
-import { Search } from '../Screens';
 import Post from '../(tabs)/Post';
 import Notification from '../(tabs)/Notification';
-import Profile from '../(tabs)/Profile';
+import {Profile} from '../(tabs)/Profile';
+import {Search} from '../(tabs)/Search';
+import ProfileNavigation from '../(tabs)/Profile/ProfileNavigation'
 
 const Tab = createBottomTabNavigator();
 
@@ -52,6 +53,7 @@ const BottomTabs = () => {
           shadowOpacity: 0.3,
         },
         headerShown: false,
+        tabBarHideOnKeyboard: true,
       }}>
       <Tab.Screen
         name="Home"
@@ -111,7 +113,7 @@ const BottomTabs = () => {
       />
       <Tab.Screen
         name="Account"
-        component={Profile}
+        component={ProfileNavigation}
         options={{
           tabBarIcon: ({focused}) => (
             <TabIcon

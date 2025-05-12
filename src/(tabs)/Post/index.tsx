@@ -1,20 +1,20 @@
-import {SafeAreaView, StyleSheet, Text, View} from 'react-native';
-import {Colors} from '../../../assets/color/Colors';
-import {useTheme} from '../../util/ThemeContext';
+import {SafeAreaView, View} from 'react-native';
+import React from 'react';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+
 const Post = () => {
-  const {theme} = useTheme();
-  const color = Colors[theme];
+  const navigation: any = useNavigation();
+  useFocusEffect(
+    React.useCallback(() => {
+      navigation.replace('AddPost');
+    }, []),
+  );
+
   return (
-    <SafeAreaView
-      style={[styles.container, {backgroundColor: color.background}]}>
-      <Text>Post Screen</Text>
+    <SafeAreaView>
+      <View></View>
     </SafeAreaView>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
 export default Post;

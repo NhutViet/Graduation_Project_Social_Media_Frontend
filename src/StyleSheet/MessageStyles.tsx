@@ -30,6 +30,10 @@ const MessageStyles = (theme: ThemeType) => {
       height: 20,
       marginHorizontal: 10,
     },
+    blockIcon1: {
+      width: 20,
+      height: 20,
+    },
     icon: {
       width: '100%',
       height: '100%',
