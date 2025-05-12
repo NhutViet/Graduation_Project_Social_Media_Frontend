@@ -1,9 +1,10 @@
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import Video from 'react-native-video';
 import { Modalize } from 'react-native-modalize';
 import { Colors } from '../assets/color/Colors';
 import { useTheme } from '../src/util/ThemeContext';
+import { Portal } from 'react-native-portalize';
 import BottomSheetOptions, { OptionItem } from './BottomSheetOptions';
 
 const ItemHome = (props: any) => {
@@ -26,11 +27,22 @@ const ItemHome = (props: any) => {
   const { theme } = useTheme();
   const color = Colors[theme];
   const [muted, setMuted] = React.useState(true);
+  const [isModalVisible, setIsModalVisible] = React.useState(false);
 
   // Modalize bottom sheet reference
-  const sheetRef = useRef<Modalize>(null);
-  const openOptions = useCallback(() => sheetRef.current?.open(), []);
-  const closeOptions = useCallback(() => sheetRef.current?.close(), []);
+const sheetRef = useRef<Modalize>(null);
+
+const openOptions = useCallback(() => {
+  sheetRef.current?.open();
+}, []);
+
+const closeSheet = useCallback(() => {
+  sheetRef.current?.close();
+}, []);
+
+const onSheetClose = useCallback(() => {
+  setIsModalVisible(false);
+}, []);
 
   // Number formatting utility
   const formatNumber = (num: number): string => {
@@ -45,38 +57,49 @@ const ItemHome = (props: any) => {
 
   // Bottom sheet options
   const topOptions: OptionItem[] = [
-    { icon: require('../assets/icon/bookmark.png'), label: 'Bookmark', onPress: closeOptions },
-    { icon: require('../assets/icon/remix.png'), label: 'Remix', onPress: closeOptions },
+    { id: 'bookmark', icon: require('../assets/icon/bookmark.png'), label: 'Bookmark',     onPress: () => { closeSheet(); }, },
+    { id: 'remix',    icon: require('../assets/icon/remix.png'),    label: 'Remix',        onPress: () => { closeSheet(); }, },
   ];
-
   const firstListOptions: OptionItem[] = [
-    { icon: require('../assets/icon/star.png'), label: 'Adding to favorite', onPress: closeOptions },
-    { icon: require('../assets/icon/unfollow.png'), label: 'Unfollow', onPress: closeOptions },
+    { id: 'favorite', icon: require('../assets/icon/star.png'),      label: 'Adding to favorite',     onPress: () => { closeSheet(); }, },
+    { id: 'unfollow', icon: require('../assets/icon/unfollow.png'),  label: 'Unfollow',               onPress: () => { closeSheet(); }, },
+  ];
+  const secondListOptions: OptionItem[] = [
+    { id: 'accountInfo', icon: require('../assets/icon/account.png'), label: 'This account info',               onPress: () => { closeSheet(); }, },
+    { id: 'whySee',      icon: require('../assets/icon/info.png'),    label: 'Why am I seeing this post',       onPress: () => { closeSheet(); }, },
+    { id: 'hide',        icon: require('../assets/icon/blind.png'),   label: 'Hide',                            onPress: () => { closeSheet(); }, },
+    { id: 'report',      icon: require('../assets/icon/report.png'),  label: 'Report this post',                onPress: () => { closeSheet(); }, labelColor: '#FF0000' },
   ];
 
-  const secondListOptions: OptionItem[] = [
-    { icon: require('../assets/icon/account.png'), label: 'This account info', onPress: closeOptions },
-    { icon: require('../assets/icon/info.png'), label: 'Why am I seeing this post', onPress: closeOptions },
-    { icon: require('../assets/icon/blind.png'), label: 'Hide', onPress: closeOptions },
-    { icon: require('../assets/icon/report.png'), label: 'Report this post', onPress: closeOptions, labelColor: '#FF0000' },
-  ];
   const textColor = uriVideo ? Colors.dark.text : color.text;
 
   return (
   <View style={styles.wrapper}>
     {/* Single Modalize wrapping only the BottomSheetOptions content */}
-    <Modalize
-      ref={sheetRef}
-      modalStyle={{ backgroundColor: color.background }}
-      handleStyle={{ backgroundColor: color.text, height: 4, width: 40 }}
-      panGestureEnabled
-    >
-      <BottomSheetOptions
-        topOptions={topOptions}
-        listOptions={[...firstListOptions, ...secondListOptions]}
-        onClose={closeOptions}
-      />
-    </Modalize>
+    <Portal>
+      <Modalize
+        ref={sheetRef}
+        modalStyle={{ backgroundColor: color.background, borderTopLeftRadius: 16, borderTopRightRadius: 16, paddingTop: 18, }}
+        handleStyle={{ backgroundColor: color.text, height: 6, width: 40, marginBottom: 8, }}
+        handlePosition="inside"
+        panGestureEnabled
+        scrollViewProps={{ scrollEnabled: false }}
+        adjustToContentHeight
+
+        // only updates state, does NOT call sheetRef.close()
+        onClose={onSheetClose}  
+      >
+        <BottomSheetOptions
+          topOptions={topOptions}
+          listOptionGroups={[firstListOptions, secondListOptions]}
+
+          // when an option is pressed, only CLOSE the sheet
+          // BottomSheetOptions will call item.onPress(), then onClose()
+          onClose={closeSheet}
+        />
+      </Modalize>
+    </Portal>
+
 
     {/* Video Content */}
     <View style={styles.container}>
@@ -123,16 +146,13 @@ const ItemHome = (props: any) => {
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={e => {
-              e.persist();      // prevent synthetic-event warning
-              openOptions();
-            }}
-            accessibilityRole="button"
-            accessibilityLabel="More options"
+            onPress={openOptions}
+            style={styles.optionsButton}
+            activeOpacity={0.7}
           >
             <Image
               source={require('../assets/icon/menu-dots-vertical.png')}
-              style={{ tintColor: textColor }}
+              style={[styles.optionsIcon, { tintColor: textColor }]}
             />
           </TouchableOpacity>
         </View>
@@ -219,7 +239,9 @@ const styles = StyleSheet.create({
   icon: { width: '100%', height: '100%' },
   title: { marginVertical: 10, fontSize: 14 },
   muteButton: { position: 'absolute', bottom: 20, right: 20 },
-  blockWhite: { width: '100%', height: 60, backgroundColor: Colors.light.transparent }
+  blockWhite: { width: '100%', height: 60, backgroundColor: Colors.light.transparent },
+  optionsButton: { padding: 8, justifyContent: 'center', alignItems: 'center', },
+  optionsIcon: { width: 24, height: 24, resizeMode: 'contain', },
 });
 
 export default ItemHome;

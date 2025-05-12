@@ -45,14 +45,14 @@ const Home = () => {
     {
       id: '0',
       uriVideo:
-        'https://res.cloudinary.com/dsvcoywkc/video/upload/v1746957530/my_video/afezzsxayqcz9cpfbpsj.mp4',
+        'https://res.cloudinary.com/degdvuuhd/video/upload/v1747040358/zqo2titvgjtxklfeqivm.mp4',
       imgUser:
         'https://i.pinimg.com/736x/8c/71/92/8c7192c084765c076ef33024c0b34406.jpg',
-      name: 'Xie',
+      name: 'a\nb\nc',
       like: 27000,
       comment: 5,
       share: 27,
-      title: 'Phép màu',
+      title: 'Magic',
       date: '11/05/2025',
     },
     {

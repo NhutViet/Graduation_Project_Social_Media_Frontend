@@ -33,6 +33,7 @@
     "react-native-pager-view": "^6.7.1",
     "react-native-paper": "^5.14.1",
     "react-native-permissions": "^5.4.0",
+    "react-native-portalize": "^1.0.7",
     "react-native-qrcode-svg": "^6.3.15",
     "react-native-reanimated": "3.6.1",
     "react-native-safe-area-context": "3.3.2",

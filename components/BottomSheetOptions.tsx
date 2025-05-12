@@ -1,11 +1,11 @@
-import React, { forwardRef } from 'react';
-import { View, Text, Image, TouchableOpacity, FlatList, ListRenderItem } from 'react-native';
-// import { Modalize } from 'react-native-modalize';
+import React from 'react';
+import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { useBottomSheetStyles } from '../src/StyleSheet/BottomSheetStyles';
 import { useTheme } from '../src/util/ThemeContext';
 import { Colors } from '../assets/color/Colors';
 
 export interface OptionItem {
+  id: string;
   icon: any;
   label: string;
   onPress: () => void;
@@ -14,71 +14,78 @@ export interface OptionItem {
 
 export interface BottomSheetOptionsProps {
   topOptions: OptionItem[];
-  listOptions: OptionItem[];
+  // array of groups for vertical lists
+  listOptionGroups: OptionItem[][];
   onClose: () => void;
 }
 
 export const BottomSheetOptions: React.FC<BottomSheetOptionsProps> = ({
   topOptions,
-  listOptions,
-  onClose
+  listOptionGroups,
+  onClose,
 }) => {
   const { theme } = useTheme();
   const palette = Colors[theme];
   const styles = useBottomSheetStyles();
+  const spacing = Colors.spacing; 
 
-    const renderTopButton: ListRenderItem<OptionItem> = ({ item }) => (
-      <TouchableOpacity
-        style={[styles.topButton, { backgroundColor: palette.modal }]}
-        onPress={() => {
-          item.onPress();
-          onClose();
-        }}
-      >
-        <Image source={item.icon} style={styles.topIcon} resizeMode="contain" />
-        <Text style={[styles.topLabel, { color: palette.text }]}>
-          {item.label}
-        </Text>
-      </TouchableOpacity>
-    );
+  const handlePress = (item: OptionItem) => {
+    item.onPress();
+    onClose();
+  };
 
-    const renderListButton: ListRenderItem<OptionItem> = ({ item }) => (
-      <TouchableOpacity
-        style={styles.listItem}
-        onPress={() => {
-          item.onPress();
-          onClose();
-        }}
-      >
-        <Image source={item.icon} style={styles.listIcon} resizeMode="contain" />
-        <Text style={[styles.listLabel, { color: item.labelColor || palette.text }]}>
-          {item.label}
-        </Text>
-      </TouchableOpacity>
-    );
+  return (
+    <View style={styles.sectionContainer}>
+      {/* Horizontal row */}
+      {topOptions.length > 0 && (
+        <View style={styles.horizontalContainer}>
+          {topOptions.map((item, idx) => (
+            <React.Fragment key={item.id}>
+              <TouchableOpacity
+                style={styles.horizontalButton}
+                onPress={() => handlePress(item)}
+              >
+                <Image
+                  source={item.icon}
+                  style={styles.topIcon}
+                  resizeMode="contain"
+                />
+                <Text style={[styles.topLabel, { color: palette.text }]}>
+                  {item.label}
+                </Text>
+              </TouchableOpacity>
 
-    return (
-    <>
-      <View style={styles.topRowContainer}>
-        <FlatList
-          data={topOptions}
-          keyExtractor={item => item.label}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.topListContent}
-          renderItem={renderTopButton}
-        />
-      </View>
-      <View style={styles.listContainer}>
-        <FlatList
-          data={listOptions}
-          keyExtractor={item => item.label}
-          renderItem={renderListButton}
-          ItemSeparatorComponent={() => <View style={styles.listSeparator} />}
-        />
-      </View>
-    </>
+              {/* only render an invisible spacer if this isn’t the last item */}
+              {idx < topOptions.length - 1 && (
+                <View style={{ width: spacing.s }} />
+              )}
+            </React.Fragment>
+          ))}
+        </View>
+      )}
+
+      {/* Vertical lists */}
+      {listOptionGroups.map((group, idx) => (
+        <View key={idx} style={styles.verticalSectionContainer}>
+          {group.map((item, i) => (
+            <React.Fragment key={item.id}>
+              <TouchableOpacity
+                style={styles.listItem}
+                onPress={() => handlePress(item)}
+              >
+                <Image source={item.icon} style={styles.listIcon} resizeMode="contain" />
+                <Text style={[styles.listLabel, { color: item.labelColor || palette.text }]}> 
+                  {item.label}
+                </Text>
+              </TouchableOpacity>
+              {/* Separator except after last item */}
+              {i < group.length - 1 && <View style={styles.listSeparator} />}
+            </React.Fragment>
+          ))}
+        </View>
+      ))}
+    </View>
   );
- }
- 
+};
+
 export default BottomSheetOptions;
