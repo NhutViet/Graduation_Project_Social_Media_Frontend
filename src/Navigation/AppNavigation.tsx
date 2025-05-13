@@ -21,7 +21,7 @@ import {
   UserInfo,
   ScreenQRCode,
   MessageBox,
-  Swipe
+  Swipe,
   CameraScreen,
 } from '../Screens';
 import BottomTabs from './BottomTabs';
