@@ -7,10 +7,7 @@ export const createStyles = (themeColors: any) =>
       flex: 1,
       backgroundColor: themeColors.background,
     },
-    content: {
-      width: '100%',
-      height: '100%',
-    },
+    content: {flex: 1},
     section: {
       marginBottom: theme.spacing.l,
     },

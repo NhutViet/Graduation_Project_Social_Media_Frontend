@@ -1,4 +1,4 @@
-interface HighlightItem {
+export interface HighlightItem {
   id: string;
   image: string;
   title: string;

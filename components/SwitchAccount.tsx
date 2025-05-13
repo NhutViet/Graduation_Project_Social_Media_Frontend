@@ -1,8 +1,16 @@
 import React from 'react';
-import {Modal, Pressable, StyleSheet, Text, View, Image} from 'react-native';
+import {
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  TouchableOpacity,
+} from 'react-native';
 import {useTheme} from '../src/util/ThemeContext';
 import {Colors} from '../assets/color/Colors';
-import {Check} from 'lucide-react-native';
+import {Check, Plus} from 'lucide-react-native';
 
 interface SwitchAccountProps {
   visible: boolean;
@@ -34,12 +42,13 @@ export const SwitchAccount: React.FC<SwitchAccountProps> = ({
                 borderWidth: 1,
                 borderRadius: 20,
                 padding: 10,
-                borderColor: color.text,
+                marginBottom: 14,
+                borderColor: '#aaa',
               }}>
               <View style={styles.accountItem}>
                 <Image
                   source={{
-                    uri: 'https://www.smartsight.in/wp-content/uploads/2019/10/golang-1200x900.png', // Thay thế bằng URL avatar thực
+                    uri: 'https://www.smartsight.in/wp-content/uploads/2019/10/golang-1200x900.png',
                   }}
                   style={styles.avatar}
                 />
@@ -48,41 +57,52 @@ export const SwitchAccount: React.FC<SwitchAccountProps> = ({
                     Mimi11_0
                   </Text>
                 </View>
-                <Check size={20} color="#0095F6" />
+                <View
+                  style={{
+                    width: 25,
+                    height: 25,
+                    borderRadius: 15,
+                    backgroundColor: '#0095F6',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}>
+                  <Check size={20} color="#fff" />
+                </View>
               </View>
 
               {/* Divider */}
               <View
                 style={{
                   height: 1,
-                  backgroundColor: color.text,
+                  backgroundColor: '#aaa',
                 }}
               />
 
               {/* Add Account Button */}
-              <Pressable
-                style={({pressed}) => [
-                  styles.addAccountButton,
-                  {opacity: pressed ? 0.8 : 1},
-                ]}>
-                <View style={styles.addIcon}>
-                  <Text style={[styles.plusIcon, {color: color.text}]}>+</Text>
+              <TouchableOpacity style={styles.addAccountButton}>
+                <View
+                  style={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: 22,
+                    backgroundColor: color.lightDark,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}>
+                  <Plus size={24} color={color.text} />
                 </View>
                 <Text style={[styles.addAccountText, {color: color.text}]}>
                   Thêm tài khoản Instagram
                 </Text>
-              </Pressable>
+              </TouchableOpacity>
             </View>
             {/* Account Center Button */}
-            <Pressable
-              style={({pressed}) => [
-                styles.accountCenterButton,
-                {opacity: pressed ? 0.8 : 1},
-              ]}>
+            <TouchableOpacity
+              style={[styles.accountCenterButton, {marginBottom: 16}]}>
               <Text style={[styles.accountCenterText, {color: color.text}]}>
                 Đi đến trung tâm tài khoản
               </Text>
-            </Pressable>
+            </TouchableOpacity>
           </View>
         </View>
       </Pressable>
@@ -147,9 +167,13 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   accountCenterButton: {
+    borderWidth: 1,
+    borderRadius: 20,
+    borderColor: '#aaa',
     paddingVertical: 12,
-    padding: 5,
-    margin: 8,
+    alignItems: 'center',
+    padding: 15,
+    margin: 4,
   },
   accountCenterText: {
     fontSize: 16,
