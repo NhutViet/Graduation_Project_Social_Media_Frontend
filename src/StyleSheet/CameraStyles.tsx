@@ -17,7 +17,7 @@ export const useCameraStyles = () => {
       StyleSheet.create({
         cameraContainer: {
             flex: 1,
-            backgroundColor: 'black',
+            backgroundColor: palette.black,
         },
         preview: {
             flex: 1,
@@ -29,18 +29,18 @@ export const useCameraStyles = () => {
             flexDirection: 'row',
             justifyContent: 'space-between',
             padding: 16,
-            backgroundColor: 'transparent',
+            backgroundColor: palette.transparent,
         },
         cameraPreviewContainer: {
             flex: 1,
             overflow: 'hidden',
-            backgroundColor: 'black',
+            backgroundColor: palette.black,
         },
         loaderContainer: {
             flex: 1,
             alignItems: 'center',
             justifyContent: 'center',
-            backgroundColor: 'black',
+            backgroundColor: palette.black,
         },
         actionBarContainer: {
             width: '100%',
