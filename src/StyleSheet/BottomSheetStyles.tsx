@@ -83,6 +83,50 @@ export const useBottomSheetStyles = () => {
           backgroundColor: palette.background,
           marginHorizontal: spacing.m,
         } as ViewStyle,
+        intentionContainer: { 
+          paddingBottom: spacing.m,
+          backgroundColor: palette.background,
+        } as ViewStyle,
+        intentionTitle: { 
+          fontSize: typography.fontSizes.xl, 
+          fontWeight: typography.fontWeights.medium as FontWeight, 
+          textAlign: 'center',
+          color: palette.text,
+          marginBottom: spacing.xl - 10,
+        },
+        intentionBorder: { 
+          height:1, 
+          width:'100%', 
+          marginBottom: spacing.m,
+          backgroundColor: palette.lightDark,
+        },
+        innerContainer: {
+          paddingHorizontal: spacing.m,
+          paddingBottom: spacing.m,
+          backgroundColor: palette.background,
+        } as ViewStyle,
+        intentionSubtitle: { 
+          fontSize: typography.fontSizes.xl, 
+          fontWeight: typography.fontWeights.bold as FontWeight, 
+          textAlign:'center', 
+          marginBottom: spacing.s,
+          color: palette.text,
+        },
+        intentionContent: { 
+          fontSize: typography.fontSizes.m, 
+          fontWeight: typography.fontWeights.regular as FontWeight, 
+          textAlign:'center', 
+          marginBottom: spacing.m,
+          color: palette.lessBlack,
+        },
+        intentionChoiceText: { 
+          fontSize: typography.fontSizes.l, 
+          fontWeight: typography.fontWeights.regular as FontWeight, 
+          textAlign:'left'
+        },
+        intentionChoiceSpacing: {
+          height: spacing.xl-15,
+        } as ViewStyle,   
       }),
     [palette, spacing, typography]
   );

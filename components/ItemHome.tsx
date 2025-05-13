@@ -6,6 +6,7 @@ import { Colors } from '../assets/color/Colors';
 import { useTheme } from '../src/util/ThemeContext';
 import { Portal } from 'react-native-portalize';
 import BottomSheetOptions, { OptionItem } from './BottomSheetOptions';
+import BottomSheetIntentions, { IntentionOption } from './BottomSheetIntentions';
 
 const ItemHome = (props: any) => {
   const {
@@ -30,19 +31,15 @@ const ItemHome = (props: any) => {
   const [isModalVisible, setIsModalVisible] = React.useState(false);
 
   // Modalize bottom sheet reference
-const sheetRef = useRef<Modalize>(null);
+  const sheetRef = useRef<Modalize>(null);
+  const openOptions = useCallback(() => { sheetRef.current?.open(); }, []);
+  const closeSheet = useCallback(() => { sheetRef.current?.close(); }, []);
+  const onSheetClose = useCallback(() => { setIsModalVisible(false); }, []);
 
-const openOptions = useCallback(() => {
-  sheetRef.current?.open();
-}, []);
-
-const closeSheet = useCallback(() => {
-  sheetRef.current?.close();
-}, []);
-
-const onSheetClose = useCallback(() => {
-  setIsModalVisible(false);
-}, []);
+  const intentRef = useRef<Modalize>(null);
+  const openIntentions = useCallback(() => intentRef.current?.open(), []);
+  const closeIntentions = useCallback(() => intentRef.current?.close(), []);
+  const onIntentionsClose = useCallback(() => {}, []);
 
   // Number formatting utility
   const formatNumber = (num: number): string => {
@@ -68,8 +65,19 @@ const onSheetClose = useCallback(() => {
     { id: 'accountInfo', icon: require('../assets/icon/account.png'), label: 'This account info',               onPress: () => { closeSheet(); }, },
     { id: 'whySee',      icon: require('../assets/icon/info.png'),    label: 'Why am I seeing this post',       onPress: () => { closeSheet(); }, },
     { id: 'hide',        icon: require('../assets/icon/blind.png'),   label: 'Hide',                            onPress: () => { closeSheet(); }, },
-    { id: 'report',      icon: require('../assets/icon/report.png'),  label: 'Report this post',                onPress: () => { closeSheet(); }, labelColor: '#FF0000' },
+    { id: 'report',      icon: require('../assets/icon/report.png'),  label: 'Report this post',                onPress: () => { closeSheet(); openIntentions(); }, labelColor: '#FF0000' },
   ];
+
+ const reportChoices: IntentionOption[] = [
+  { id: 'bullying', label: 'Bullying or unwanted contact', onPress: closeIntentions },
+  { id: 'selfHarm', label: 'Suicide, self-injury or eating disorders', onPress: closeIntentions },
+  { id: 'violence', label: 'Violence, hate or exploitation', onPress: closeIntentions },
+  { id: 'restricted', label: 'Selling or promoting restricted items', onPress: closeIntentions },
+  { id: 'nudity', label: 'Nudity or sexual activity', onPress: closeIntentions },
+  { id: 'spam', label: 'Scam, fraud or spam', onPress: closeIntentions },
+  { id: 'false', label: 'False information', onPress: closeIntentions },
+  { id: 'copyright', label: 'Vandalism of intellectual property', onPress: closeIntentions },
+ ];
 
   const textColor = uriVideo ? Colors.dark.text : color.text;
 
@@ -100,6 +108,26 @@ const onSheetClose = useCallback(() => {
       </Modalize>
     </Portal>
 
+    <Portal>
+      <Modalize
+        ref={intentRef}
+        modalStyle={{ backgroundColor: color.background, borderTopLeftRadius: 16, borderTopRightRadius: 16, paddingTop: 18, }}
+        handleStyle={{ backgroundColor: color.text, height: 6, width: 40, marginBottom: 8, }}
+        handlePosition="inside"
+        panGestureEnabled
+        scrollViewProps={{ scrollEnabled: false }}
+        adjustToContentHeight
+        onClose={onIntentionsClose}
+      >
+        <BottomSheetIntentions
+          title="Report"
+          subtitle="Why are you reporting this post?"
+          content="Your report is anonymous. If someone is in immediate danger, call the local emergency services - don’t wait."
+          options={reportChoices}
+          onClose={closeIntentions}
+        />
+      </Modalize>
+    </Portal>
 
     {/* Video Content */}
     <View style={styles.container}>
