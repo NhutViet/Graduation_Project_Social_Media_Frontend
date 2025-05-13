@@ -37,44 +37,40 @@ export const ViewMore: React.FC<PostMoreOptionProps> = ({visible, onClose}) => {
       visible={visible}
       onRequestClose={onClose}>
       <Pressable
-        style={[styles.modalContainer, {backgroundColor: 'rgba(0,0,0,0.5)'}]} // Giữ nguyên màu overlay
+        style={[styles.modalContainer, {backgroundColor: 'rgba(0,0,0,0.5)'}]}
         onPress={onClose}>
         <View
           style={[styles.modalContent, {backgroundColor: color.background}]}>
           <View style={[styles.content, {backgroundColor: color.background}]}>
             {/* Top actions */}
             <View style={[styles.topActions]}>
-              <Pressable
-                style={({pressed}) => [
+              <TouchableOpacity
+                style={[
                   styles.topActionButton,
                   styles.actionContainer,
-                  styles.halfWidth,
                   {
                     backgroundColor: color.gray,
-                    opacity: pressed ? 0.8 : 0.9,
                   },
                 ]}>
                 <Bookmark size={24} color={color.text} />
                 <Text style={[styles.actionText, {color: color.text}]}>
                   Bookmark
                 </Text>
-              </Pressable>
+              </TouchableOpacity>
 
-              <Pressable
-                style={({pressed}) => [
+              <TouchableOpacity
+                style={[
                   styles.topActionButton,
                   styles.actionContainer,
-                  styles.halfWidth,
                   {
                     backgroundColor: color.gray,
-                    opacity: pressed ? 0.8 : 0.9,
                   },
                 ]}>
                 <RefreshCw size={24} color={color.text} />
                 <Text style={[styles.actionText, {color: color.text}]}>
                   Remix
                 </Text>
-              </Pressable>
+              </TouchableOpacity>
             </View>
 
             {/* List actions */}
@@ -162,53 +158,50 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     width: '100%',
-    height: Dimensions.get('window').height * 0.7, // 70% chiều cao màn hình
+    height: Dimensions.get('window').height * 0.7,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
   },
   content: {
     flex: 1,
-    margin: Dimensions.get('window').width * 0.05, // 5% chiều rộng màn hình
+    margin: Dimensions.get('window').width * 0.05,
   },
   topActions: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     paddingVertical: Dimensions.get('window').height * 0.02,
-    paddingHorizontal: Dimensions.get('window').width * 0.03,
+    width: '100%',
   },
   topActionButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    width: Dimensions.get('window').width * 0.45, // 45% chiều rộng màn hình
-    paddingVertical: Dimensions.get('window').height * 0.02, // 2% chiều cao màn hình
+    width: '48%',
+    paddingVertical: Dimensions.get('window').height * 0.02,
   },
   actionItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: Dimensions.get('window').height * 0.015, // 1.5% chiều cao màn hình
-    gap: Dimensions.get('window').width * 0.04, // 4% chiều rộng màn hình
+    paddingVertical: Dimensions.get('window').height * 0.015,
+    gap: Dimensions.get('window').width * 0.04,
   },
   actionText: {
-    fontSize: Dimensions.get('window').width * 0.04, // 4% chiều rộng màn hình
+    fontSize: Dimensions.get('window').width * 0.04,
     fontWeight: '500',
   },
   divider: {
     height: 1,
     width: '100%',
-    marginVertical: Dimensions.get('window').height * 0.01, // 1% chiều cao màn hình
+    marginVertical: Dimensions.get('window').height * 0.01,
   },
   actionContainer: {
     borderRadius: Dimensions.get('window').width * 0.02,
     padding: Dimensions.get('window').width * 0.025,
   },
   additionalActionsContainer: {
+    width: '100%',
     borderRadius: Dimensions.get('window').width * 0.02,
     padding: Dimensions.get('window').width * 0.025,
     marginTop: Dimensions.get('window').height * 0.01,
-  },
-  halfWidth: {
-    width: Dimensions.get('window').width * 0.45, // 45% chiều rộng màn hình
-    marginHorizontal: Dimensions.get('window').width * 0.02, // 2% khoảng cách hai bên
   },
 });
 

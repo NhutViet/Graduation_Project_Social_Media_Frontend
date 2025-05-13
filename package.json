@@ -40,6 +40,7 @@
     "react-native-screens": "3.27.0",
     "react-native-svg": "^15.11.2",
     "react-native-tab-view": "3.5.1",
+    "react-native-vector-icons": "^10.2.0",
     "react-native-video": "^6.13.0",
     "react-native-vision-camera": "^4.6.4",
     "socket.io-client": "^4.8.1"

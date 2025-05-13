@@ -22,6 +22,7 @@ import {
   ScreenQRCode,
   MessageBox,
   CameraScreen,
+  Swipe
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 export type RootStackParamList = {
@@ -37,6 +38,7 @@ const AppNavigator = () => {
       <Stack.Navigator
         initialRouteName="CameraScreen"
         screenOptions={{headerShown: false}}>
+          <Stack.Screen name="Swipe" component={Swipe} />
         <Stack.Screen name="PostSetting" component={PostSetting} />
         <Stack.Screen name="AddPost" component={AddPost} />
         <Stack.Screen name="Login" component={Login} />

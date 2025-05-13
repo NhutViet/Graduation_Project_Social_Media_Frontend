@@ -1,61 +1,9 @@
 import {StyleSheet} from 'react-native';
+
 export default StyleSheet.create({
-  header: {
-    borderRadius: 40,
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#a1a1a199',
-  },
   headerText: {
     fontSize: 16,
     fontWeight: '600',
-  },
-  commentsContainer: {
-    flex: 1,
-  },
-  commentItem: {
-    flexDirection: 'row',
-    padding: 16,
-    alignItems: 'flex-start',
-  },
-  avatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    marginRight: 12,
-  },
-  commentContent: {
-    flex: 1,
-  },
-  commentHeader: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 4,
-  },
-  username: {
-    fontWeight: '600',
-    fontSize: 13,
-  },
-  content: {
-    fontSize: 13,
-  },
-  commentFooter: {
-    flexDirection: 'row',
-    marginTop: 8,
-    gap: 12,
-  },
-  timeAgo: {
-    fontSize: 12,
-  },
-  reply: {
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  likes: {
-    fontSize: 12,
-  },
-  likeButton: {
-    padding: 8,
   },
   reactionsContainer: {
     borderTopWidth: 1,
@@ -69,41 +17,121 @@ export default StyleSheet.create({
   reactionEmoji: {
     fontSize: 24,
   },
-  inputContainer: {
-    flexDirection: 'row',
-    padding: 12,
-    alignItems: 'center',
-    borderTopWidth: 1,
-    borderTopColor: '#DBDBDB',
-  },
-  userAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: 12,
-  },
-  input: {
-    flex: 1,
-    fontSize: 14,
-    padding: 0,
-  },
-  sendButton: {
-    padding: 8,
-    marginLeft: 8,
-  },
   nestedComment: {
     marginLeft: 32,
     paddingLeft: 16,
     borderLeftWidth: 1,
     borderLeftColor: '#a1a1a199',
   },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    height: '80%',
+    borderTopLeftRadius: 15,
+    borderTopRightRadius: 15,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 25,
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#ccc',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  closeButtonText: {
+    fontSize: 16,
+  },
+  commentsContainer: {
+    flex: 1,
+  },
+  commentItem: {
+    flexDirection: 'row',
+    padding: 15,
+    alignItems: 'flex-start',
+  },
+  avatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    marginRight: 12,
+  },
+  commentContent: {
+    flex: 1,
+    marginRight: 8,
+  },
+  commentHeader: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  content: {
+    flex: 1,
+  },
+  commentFooter: {
+    flexDirection: 'row',
+    marginTop: 8,
+    alignItems: 'center',
+  },
+  timeAgo: {
+    fontSize: 12,
+    marginRight: 12,
+  },
+  reply: {
+    fontSize: 12,
+    marginRight: 12,
+  },
+  likes: {
+    fontSize: 12,
+  },
+  likeButton: {
+    padding: 4,
+  },
   viewMoreButton: {
+    paddingLeft: 44,
     paddingVertical: 8,
-    paddingHorizontal: 16,
-    marginLeft: 48,
   },
   viewMoreText: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontSize: 12,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 22,
+    marginBottom: 12,
+    borderTopWidth: 0.5,
+    borderTopColor: '#ccc',
+  },
+  userAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 32,
+    marginRight: 12,
+  },
+  username: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  caption: {
+    fontSize: 14,
+    color: '#888',
+    marginBottom: 8,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#000',
+    borderRadius: 24,
+    flex: 1,
+    fontSize: 16,
+    padding: 10,
+  },
+  sendButton: {
+    padding: 8,
+    marginLeft: 8,
   },
 });
