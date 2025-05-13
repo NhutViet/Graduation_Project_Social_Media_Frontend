@@ -12,7 +12,7 @@ interface Notification {
   actionType: string;
 }
 
-const NotificationItem: React.FC<{ notification: Notification }> = ({ notification }) => {
+ const NotificationItem: React.FC<{ notification: Notification; stackTime?: boolean; }> = ({ notification, stackTime = false }) => {
   const { id, imageIcon, hasStoryRing, content, time, actionType } = notification;
   const styles = useNotificationStyles();
 
@@ -56,7 +56,7 @@ const NotificationItem: React.FC<{ notification: Notification }> = ({ notificati
                   ]}
                 >
                   <Image 
-                    style={styles.backIcon}
+                    style={styles.userIcon}
                     source={require('../assets/icon/account.png')}
                   />
                 </View>
@@ -67,7 +67,7 @@ const NotificationItem: React.FC<{ notification: Notification }> = ({ notificati
           <View style={styles.imageIconContainer}>
             <View style={styles.imageIcon}>
               <Image 
-                style={styles.backIcon}
+                style={styles.userIcon}
                 source={require('../assets/icon/account.png')}
               />
             </View>
@@ -81,10 +81,21 @@ const NotificationItem: React.FC<{ notification: Notification }> = ({ notificati
       <View style={styles.contentContainer}>
         {renderIcon()}
         <View style={styles.textContainer}>
-          <Text numberOfLines={3} style={styles.contentText}>
-            {content}
-            <Text style={styles.timeText}> • {time}</Text>
-          </Text>
+         {stackTime ? (
+           <>
+             <Text numberOfLines={2} style={styles.contentText}>
+               {content}
+             </Text>
+             <Text style={[styles.timeText, { marginTop: 4 }]}>
+               {time}
+             </Text>
+           </>
+         ) : (
+           <Text numberOfLines={3} style={styles.contentText}>
+             {content}
+             <Text style={styles.timeText}> • {time}</Text>
+           </Text>
+         )}
         </View>
         {actionType === 'request' ? (
           <View style={styles.actionButtonsContainer}>

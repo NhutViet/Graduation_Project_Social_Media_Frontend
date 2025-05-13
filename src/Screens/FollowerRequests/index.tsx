@@ -83,7 +83,7 @@ export const FollowerRequests: React.FC<{navigation: any}> = ({navigation}) => {
         <FlatList
           data={displayed}
           keyExtractor={item => item.id}
-          renderItem={({item}) => <NotificationItem notification={item} />}
+          renderItem={({item}) => ( <NotificationItem notification={item} stackTime /> )}
           scrollEnabled={false}
         />
 

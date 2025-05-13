@@ -48,10 +48,7 @@ const AppNavigator = () => {
         <Stack.Screen name="EditStory" component={EditStory} />
         <Stack.Screen name="EditProfile" component={EditProfile} />
         <Stack.Screen name="PendingMessages" component={PendingMessages} />
-        <Stack.Screen
-          name="NotificationsScreen"
-          component={NotificationsScreen}
-        />
+        <Stack.Screen name="NotificationsScreen" component={NotificationsScreen} />
         <Stack.Screen name="FollowerRequests" component={FollowerRequests} />
         <Stack.Screen name="Register" component={Register} />
         <Stack.Screen name="SeenStory" component={SeenStory} />
