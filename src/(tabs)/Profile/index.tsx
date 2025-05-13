@@ -185,7 +185,7 @@ const Profile = () => {
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.optionButton, {backgroundColor: color.gray}]}>
+            style={[styles.optionButton, {backgroundColor: color.gray}]} onPress={() => navigation.navigate('Swipe')}>
             <Share2 size={18} color={color.text} />
           </TouchableOpacity>
         </View>
