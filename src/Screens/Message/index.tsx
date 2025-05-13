@@ -2,6 +2,7 @@ import {
   FlatList,
   Image,
   InteractionManager,
+  Modal,
   SafeAreaView,
   Text,
   TextInput,
@@ -15,6 +16,7 @@ import {useEffect, useRef, useState} from 'react';
 import MessageStyles from '../../StyleSheet/MessageStyles';
 import {io} from 'socket.io-client';
 import {RootStackParamList} from '../../Navigation/AppNavigation';
+import {launchImageLibrary} from 'react-native-image-picker';
 
 const socket = io('https://backendchatsocket.onrender.com');
 
@@ -24,13 +26,14 @@ interface ChatMessage {
   image: string;
   content: string;
   room: string;
+  reaction?: string;
+  isImage?: boolean;
 }
 
 export const MessageScreen = () => {
   const navigation: any = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];
-  const [search, setSearch] = useState('');
   const styles = MessageStyles(theme);
 
   const [message, setMessage] = useState('');
@@ -41,6 +44,13 @@ export const MessageScreen = () => {
 
   const route = useRoute<RouteProp<RootStackParamList, 'MessageScreen'>>();
   const {room} = route.params;
+
+  const reactions = ['❤️', '😂', '😮', '😢', '😡'];
+
+  const [selectedMessageIndex, setSelectedMessageIndex] = useState<
+    number | null
+  >(null);
+  const [reactionModalVisible, setReactionModalVisible] = useState(false);
 
   useEffect(() => {
     socket.emit('join_room', room);
@@ -78,46 +88,140 @@ export const MessageScreen = () => {
     }
   };
 
+  const handleReaction = (emoji: string) => {
+    if (selectedMessageIndex === null) return;
+
+    const updatedChat = [...chat];
+    updatedChat[selectedMessageIndex].reaction = emoji;
+    setChat(updatedChat);
+
+    setReactionModalVisible(false);
+    setSelectedMessageIndex(null);
+  };
+
+  const sendImage = () => {
+    launchImageLibrary({mediaType: 'photo'}, response => {
+      if (response.assets && response.assets.length > 0) {
+        const imageUri = response.assets[0].uri;
+        const msgData: ChatMessage = {
+          id,
+          name,
+          image:
+            'https://i.pinimg.com/736x/2d/db/ae/2ddbaec1fb3d18f6ce00c4ebc1693193.jpg',
+          content: imageUri || '',
+          room,
+          isImage: true,
+        };
+        socket.emit('send_message', msgData);
+      }
+    });
+  };
+
   const renderItem = ({item, index}: {item: ChatMessage; index: number}) => {
     const isMe = item.id === id;
     const prevMsg = chat[index - 1];
     const showAvatar = !prevMsg || prevMsg.id !== item.id;
+    const isSelected = selectedMessageIndex === index;
 
-    return isMe ? (
-      <View style={[styles.containerMessage, {justifyContent: 'flex-end'}]}>
-        <View style={[styles.row, {alignItems: 'flex-end'}]}>
-          {showAvatar && <Text style={styles.name}>{item.name}</Text>}
-          <View
-            style={[
-              styles.message,
-              {marginRight: showAvatar ? 0 : 60, backgroundColor: '#00BFFF'},
-            ]}>
-            <Text style={{color: color.text}}>{item.content}</Text>
-          </View>
-        </View>
-        {showAvatar && (
-          <TouchableOpacity style={[styles.blockAvatar, {marginLeft: 10}]}>
-            <Image source={{uri: item.image}} style={styles.avatar} />
-          </TouchableOpacity>
-        )}
-      </View>
-    ) : (
-      <View style={styles.containerMessage}>
-        {showAvatar && (
+    return (
+      <View
+        style={[
+          styles.containerMessage,
+          {justifyContent: isMe ? 'flex-end' : 'flex-start'},
+        ]}>
+        {!isMe && showAvatar && (
           <TouchableOpacity style={[styles.blockAvatar, {marginRight: 10}]}>
             <Image source={{uri: item.image}} style={styles.avatar} />
           </TouchableOpacity>
         )}
-        <View style={[styles.row, {alignItems: 'flex-start'}]}>
+
+        <View
+          style={[styles.row, {alignItems: isMe ? 'flex-end' : 'flex-start'}]}>
           {showAvatar && <Text style={styles.name}>{item.name}</Text>}
-          <View
-            style={[
-              styles.message,
-              {marginLeft: showAvatar ? 0 : 60, backgroundColor: '#696969'},
-            ]}>
-            <Text style={{color: color.text}}>{item.content}</Text>
-          </View>
+
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onLongPress={() => {
+              setSelectedMessageIndex(index);
+              setReactionModalVisible(true);
+            }}>
+            <View
+              style={[
+                styles.message,
+                {
+                  marginHorizontal: showAvatar ? 0 : 60,
+                  backgroundColor: item.isImage
+                    ? 'transparent'
+                    : isMe
+                    ? '#00BFFF'
+                    : '#A9A9A9',
+                  padding: item.isImage ? 0 : 10,
+                  marginBottom: item.reaction ? 15 : 0,
+                },
+              ]}>
+              {item.isImage ? (
+                <Image
+                  source={{uri: item.content}}
+                  style={{width: 150, height: 150, borderRadius: 8}}
+                  resizeMode="cover"
+                />
+              ) : (
+                <Text style={{color: color.text}}>{item.content}</Text>
+              )}
+
+              {item.reaction && (
+                <View
+                  style={[
+                    styles.reactionContainer,
+                    {
+                      [isMe ? 'right' : 'left']: 5,
+                      alignSelf: isMe ? 'flex-end' : 'flex-start',
+                    },
+                  ]}>
+                  <Text
+                    style={{
+                      color: color.text,
+                      fontSize: 15,
+                    }}>
+                    {item.reaction}
+                  </Text>
+                </View>
+              )}
+
+              {/* Reaction */}
+              {isSelected && (
+                <View
+                  style={{
+                    width: 190,
+                    flexDirection: 'row',
+                    position: 'absolute',
+                    top: -30,
+                    backgroundColor: 'white',
+                    padding: 6,
+                    borderRadius: 30,
+                    alignSelf: isMe ? 'flex-end' : 'flex-start',
+                    elevation: 3,
+                  }}>
+                  {reactions.map((emoji, idx) => (
+                    <TouchableOpacity
+                      key={idx}
+                      onPress={() => handleReaction(emoji)}>
+                      <Text style={{fontSize: 22, marginHorizontal: 6}}>
+                        {emoji}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+            </View>
+          </TouchableOpacity>
         </View>
+
+        {isMe && showAvatar && (
+          <TouchableOpacity style={[styles.blockAvatar, {marginLeft: 10}]}>
+            <Image source={{uri: item.image}} style={styles.avatar} />
+          </TouchableOpacity>
+        )}
       </View>
     );
   };
@@ -171,6 +275,7 @@ export const MessageScreen = () => {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{paddingBottom: 20}}
         />
+
         <View style={styles.inputContainer}>
           <TouchableOpacity style={styles.blockCamera}>
             <Image
@@ -194,7 +299,7 @@ export const MessageScreen = () => {
                 source={require('../../../assets/icon/Microphone.png')}
               />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.blockIcon1}>
+            <TouchableOpacity style={styles.blockIcon1} onPress={sendImage}>
               <Image
                 style={styles.icon}
                 source={require('../../../assets/icon/Picture.png')}
