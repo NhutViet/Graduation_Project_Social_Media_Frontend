@@ -137,7 +137,7 @@ export const MessageScreen = () => {
 
         <View
           style={[styles.row, {alignItems: isMe ? 'flex-end' : 'flex-start'}]}>
-          {showAvatar && <Text style={styles.name}>{item.name}</Text>}
+          {!isMe && showAvatar && <Text style={styles.name}>{item.name}</Text>}
 
           <TouchableOpacity
             activeOpacity={0.7}
@@ -149,7 +149,7 @@ export const MessageScreen = () => {
               style={[
                 styles.message,
                 {
-                  marginHorizontal: showAvatar ? 0 : 60,
+                  marginLeft: showAvatar ? 0 : 60,
                   backgroundColor: item.isImage
                     ? 'transparent'
                     : isMe
@@ -201,6 +201,7 @@ export const MessageScreen = () => {
                     borderRadius: 30,
                     alignSelf: isMe ? 'flex-end' : 'flex-start',
                     elevation: 3,
+                    zIndex: 1,
                   }}>
                   {reactions.map((emoji, idx) => (
                     <TouchableOpacity
@@ -217,11 +218,11 @@ export const MessageScreen = () => {
           </TouchableOpacity>
         </View>
 
-        {isMe && showAvatar && (
+        {/* {isMe && showAvatar && (
           <TouchableOpacity style={[styles.blockAvatar, {marginLeft: 10}]}>
             <Image source={{uri: item.image}} style={styles.avatar} />
           </TouchableOpacity>
-        )}
+        )} */}
       </View>
     );
   };
@@ -266,14 +267,19 @@ export const MessageScreen = () => {
         </View>
       </View>
 
-      <View style={{flex: 1, padding: 10}}>
+      <View
+        style={{
+          flex: 1,
+          paddingBottom: 10,
+          paddingHorizontal: 10,
+        }}>
         <FlatList
           ref={flatListRef}
           data={chat}
           renderItem={renderItem}
           keyExtractor={(_, i) => i.toString()}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{paddingBottom: 20}}
+          contentContainerStyle={{paddingVertical: 30}}
         />
 
         <View style={styles.inputContainer}>
