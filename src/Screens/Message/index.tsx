@@ -2,11 +2,13 @@ import {
   FlatList,
   Image,
   InteractionManager,
+  Modal,
   SafeAreaView,
   Text,
   TextInput,
   TouchableOpacity,
   View,
+  Linking,
 } from 'react-native';
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {useTheme} from '../../util/ThemeContext';
@@ -15,6 +17,8 @@ import {useEffect, useRef, useState} from 'react';
 import MessageStyles from '../../StyleSheet/MessageStyles';
 import {io} from 'socket.io-client';
 import {RootStackParamList} from '../../Navigation/AppNavigation';
+import {launchImageLibrary} from 'react-native-image-picker';
+import LinkPreview from 'react-native-link-preview';
 
 const socket = io('https://backendchatsocket.onrender.com');
 
@@ -24,13 +28,14 @@ interface ChatMessage {
   image: string;
   content: string;
   room: string;
+  reaction?: string;
+  isImage?: boolean;
 }
 
 export const MessageScreen = () => {
   const navigation: any = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];
-  const [search, setSearch] = useState('');
   const styles = MessageStyles(theme);
 
   const [message, setMessage] = useState('');
@@ -41,6 +46,15 @@ export const MessageScreen = () => {
 
   const route = useRoute<RouteProp<RootStackParamList, 'MessageScreen'>>();
   const {room} = route.params;
+
+  const reactions = ['❤️', '😂', '😮', '😢', '😡'];
+
+  const [selectedMessageIndex, setSelectedMessageIndex] = useState<
+    number | null
+  >(null);
+  const [reactionModalVisible, setReactionModalVisible] = useState(false);
+  const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
+  const [linkPreviews, setLinkPreviews] = useState<{[key: number]: any}>({});
 
   useEffect(() => {
     socket.emit('join_room', room);
@@ -62,6 +76,16 @@ export const MessageScreen = () => {
     }
   }, [chat]);
 
+  useEffect(() => {
+    chat.forEach((item, index) => {
+      if (!linkPreviews[index] && item.content.match(/https?:\/\/\S+/)) {
+        LinkPreview.getPreview(item.content).then(data => {
+          setLinkPreviews(prev => ({...prev, [index]: data}));
+        });
+      }
+    });
+  }, [chat]);
+
   const sendMessage = () => {
     if (message.trim()) {
       const msgData: ChatMessage = {
@@ -78,46 +102,203 @@ export const MessageScreen = () => {
     }
   };
 
+  const handleReaction = (emoji: string) => {
+    if (selectedMessageIndex === null) return;
+
+    const updatedChat = [...chat];
+    updatedChat[selectedMessageIndex].reaction = emoji;
+    setChat(updatedChat);
+
+    setReactionModalVisible(false);
+    setSelectedMessageIndex(null);
+  };
+
+  const sendImage = () => {
+    launchImageLibrary({mediaType: 'photo'}, response => {
+      if (response.assets && response.assets.length > 0) {
+        const imageUri = response.assets[0].uri;
+        const msgData: ChatMessage = {
+          id,
+          name,
+          image:
+            'https://i.pinimg.com/736x/2d/db/ae/2ddbaec1fb3d18f6ce00c4ebc1693193.jpg',
+          content: imageUri || '',
+          room,
+          isImage: true,
+        };
+        socket.emit('send_message', msgData);
+      }
+    });
+  };
+
   const renderItem = ({item, index}: {item: ChatMessage; index: number}) => {
     const isMe = item.id === id;
     const prevMsg = chat[index - 1];
     const showAvatar = !prevMsg || prevMsg.id !== item.id;
+    const isSelected = selectedMessageIndex === index;
 
-    return isMe ? (
-      <View style={[styles.containerMessage, {justifyContent: 'flex-end'}]}>
-        <View style={[styles.row, {alignItems: 'flex-end'}]}>
-          {showAvatar && <Text style={styles.name}>{item.name}</Text>}
-          <View
-            style={[
-              styles.message,
-              {marginRight: showAvatar ? 0 : 60, backgroundColor: '#00BFFF'},
-            ]}>
-            <Text style={{color: color.text}}>{item.content}</Text>
-          </View>
-        </View>
-        {showAvatar && (
-          <TouchableOpacity style={[styles.blockAvatar, {marginLeft: 10}]}>
-            <Image source={{uri: item.image}} style={styles.avatar} />
-          </TouchableOpacity>
-        )}
-      </View>
-    ) : (
-      <View style={styles.containerMessage}>
-        {showAvatar && (
+    return (
+      <View
+        style={[
+          styles.containerMessage,
+          {justifyContent: isMe ? 'flex-end' : 'flex-start'},
+        ]}>
+        {!isMe && showAvatar && (
           <TouchableOpacity style={[styles.blockAvatar, {marginRight: 10}]}>
             <Image source={{uri: item.image}} style={styles.avatar} />
           </TouchableOpacity>
         )}
-        <View style={[styles.row, {alignItems: 'flex-start'}]}>
-          {showAvatar && <Text style={styles.name}>{item.name}</Text>}
-          <View
-            style={[
-              styles.message,
-              {marginLeft: showAvatar ? 0 : 60, backgroundColor: '#696969'},
-            ]}>
-            <Text style={{color: color.text}}>{item.content}</Text>
-          </View>
+
+        <View
+          style={[styles.row, {alignItems: isMe ? 'flex-end' : 'flex-start'}]}>
+          {!isMe && showAvatar && <Text style={styles.name}>{item.name}</Text>}
+
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onLongPress={() => {
+              setSelectedMessageIndex(index);
+              setReactionModalVisible(true);
+            }}>
+            <View
+              style={[
+                styles.message,
+                {
+                  marginLeft: isMe || showAvatar ? 0 : 60,
+                  marginRight: isMe ? 0 : 40,
+                  backgroundColor: item.isImage
+                    ? 'transparent'
+                    : isMe
+                    ? '#00BFFF'
+                    : '#A9A9A9',
+                  padding: item.isImage ? 0 : 10,
+                  marginBottom: item.reaction ? 15 : 0,
+                },
+              ]}>
+              {item.isImage ? (
+                <TouchableOpacity
+                  onPress={() => setSelectedImageUri(item.content)}>
+                  <Image
+                    source={{uri: item.content}}
+                    style={{width: 150, height: 150, borderRadius: 8}}
+                    resizeMode="cover"
+                  />
+                </TouchableOpacity>
+              ) : (
+                <>
+                  {item.content
+                    .split(/(\s+)/)
+                    .filter(part => !/^https?:\/\/\S+$/i.test(part))
+                    .join('') !== '' && (
+                    <Text style={{color: color.text}}>
+                      {item.content
+                        .split(/(\s+)/)
+                        .filter(part => !/^https?:\/\/\S+$/i.test(part))
+                        .join('')}
+                    </Text>
+                  )}
+                  {linkPreviews[index] && (
+                    <TouchableOpacity
+                      onPress={() => {
+                        Linking.openURL(linkPreviews[index].url);
+                      }}
+                      style={{
+                        borderRadius: 8,
+                        backgroundColor: '#f0f0f0',
+                        marginTop: 5,
+                        padding: 8,
+                        maxWidth: 200,
+                      }}>
+                      {linkPreviews[index].images?.length > 0 && (
+                        <Image
+                          source={{uri: linkPreviews[index].images[0]}}
+                          style={{
+                            width: '100%',
+                            height: 120,
+                            borderRadius: 6,
+                            marginBottom: 6,
+                          }}
+                          resizeMode="cover"
+                        />
+                      )}
+                      <Text
+                        style={{fontWeight: 'bold', color: 'black'}}
+                        numberOfLines={2}
+                        ellipsizeMode="tail">
+                        {linkPreviews[index].title}
+                      </Text>
+                      {linkPreviews[index].description && (
+                        <Text
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
+                          style={{color: 'gray', fontSize: 12}}>
+                          {linkPreviews[index].description}
+                        </Text>
+                      )}
+                      <Text
+                        style={{color: '#007AFF', fontSize: 12, marginTop: 4}}
+                        numberOfLines={2}
+                        ellipsizeMode="tail">
+                        {linkPreviews[index].url}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                </>
+              )}
+
+              {item.reaction && (
+                <View
+                  style={[
+                    styles.reactionContainer,
+                    {
+                      [isMe ? 'right' : 'left']: 5,
+                      alignSelf: isMe ? 'flex-end' : 'flex-start',
+                    },
+                  ]}>
+                  <Text
+                    style={{
+                      color: color.text,
+                      fontSize: 15,
+                    }}>
+                    {item.reaction}
+                  </Text>
+                </View>
+              )}
+
+              {/* Reaction */}
+              {isSelected && (
+                <View
+                  style={{
+                    width: 190,
+                    flexDirection: 'row',
+                    position: 'absolute',
+                    top: -30,
+                    backgroundColor: 'white',
+                    padding: 6,
+                    borderRadius: 30,
+                    alignSelf: isMe ? 'flex-end' : 'flex-start',
+                    elevation: 3,
+                    zIndex: 1,
+                  }}>
+                  {reactions.map((emoji, idx) => (
+                    <TouchableOpacity
+                      key={idx}
+                      onPress={() => handleReaction(emoji)}>
+                      <Text style={{fontSize: 22, marginHorizontal: 6}}>
+                        {emoji}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+            </View>
+          </TouchableOpacity>
         </View>
+
+        {/* {isMe && showAvatar && (
+          <TouchableOpacity style={[styles.blockAvatar, {marginLeft: 10}]}>
+            <Image source={{uri: item.image}} style={styles.avatar} />
+          </TouchableOpacity>
+        )} */}
       </View>
     );
   };
@@ -162,15 +343,21 @@ export const MessageScreen = () => {
         </View>
       </View>
 
-      <View style={{flex: 1, padding: 10}}>
+      <View
+        style={{
+          flex: 1,
+          paddingBottom: 10,
+          paddingHorizontal: 10,
+        }}>
         <FlatList
           ref={flatListRef}
           data={chat}
           renderItem={renderItem}
           keyExtractor={(_, i) => i.toString()}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{paddingBottom: 20}}
+          contentContainerStyle={{paddingVertical: 30}}
         />
+
         <View style={styles.inputContainer}>
           <TouchableOpacity style={styles.blockCamera}>
             <Image
@@ -194,7 +381,7 @@ export const MessageScreen = () => {
                 source={require('../../../assets/icon/Microphone.png')}
               />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.blockIcon1}>
+            <TouchableOpacity style={styles.blockIcon1} onPress={sendImage}>
               <Image
                 style={styles.icon}
                 source={require('../../../assets/icon/Picture.png')}
@@ -209,6 +396,30 @@ export const MessageScreen = () => {
           </View>
         </View>
       </View>
+      <Modal visible={!!selectedImageUri} transparent={true}>
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          <TouchableOpacity
+            style={{position: 'absolute', top: 40, right: 20, zIndex: 1}}
+            onPress={() => setSelectedImageUri(null)}>
+            <Text style={{color: Colors.light.background, fontSize: 24}}>
+              ✕
+            </Text>
+          </TouchableOpacity>
+          {selectedImageUri && (
+            <Image
+              source={{uri: selectedImageUri}}
+              style={{width: '90%', height: '80%', borderRadius: 10}}
+              resizeMode="contain"
+            />
+          )}
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };

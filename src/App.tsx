@@ -1,11 +1,11 @@
+import 'react-native-gesture-handler';
 import React from 'react';
 import {enableScreens} from 'react-native-screens';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import AppNavigator from './Navigation/AppNavigation';
 import {ThemeProvider} from './util/ThemeContext';
-import 'react-native-gesture-handler';
+import { Host } from 'react-native-portalize'; 
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
-import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 import 'fast-text-encoding';
 
 enableScreens();
@@ -15,9 +15,9 @@ const App = () => {
     <GestureHandlerRootView style={{flex: 1}}>
       <ThemeProvider>
         <SafeAreaProvider>
-          <BottomSheetModalProvider>
+          <Host>
             <AppNavigator />
-          </BottomSheetModalProvider>
+          </Host>
         </SafeAreaProvider>
       </ThemeProvider>
     </GestureHandlerRootView>

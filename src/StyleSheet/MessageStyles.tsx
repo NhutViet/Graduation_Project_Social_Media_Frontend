@@ -72,9 +72,10 @@ const MessageStyles = (theme: ThemeType) => {
       height: '100%',
     },
     row: {
-      width: '90%',
+      // width: '80%',
     },
     message: {
+      position: 'relative',
       padding: 10,
       borderRadius: 10,
     },
@@ -91,6 +92,7 @@ const MessageStyles = (theme: ThemeType) => {
       borderRadius: 30,
       paddingHorizontal: 10,
       paddingVertical: 2,
+      marginVertical: 10,
       backgroundColor: color.gray,
     },
     blockCamera: {
@@ -99,6 +101,19 @@ const MessageStyles = (theme: ThemeType) => {
       alignItems: 'center',
       justifyContent: 'center',
       borderRadius: 20,
+    },
+    reactionContainer: {
+      position: 'absolute',
+      width: 25,
+      height: 25,
+      bottom: -15,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: Colors.light.background,
+      borderRadius: 15,
+      padding: 2,
+      borderWidth: 1,
+      borderColor: Colors.light.gray,
     },
   });
 };

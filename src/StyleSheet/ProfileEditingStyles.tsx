@@ -131,15 +131,15 @@ export const useProfileEditingStyles = () => {
           backgroundColor: palette.background,
         },
         headerIcon: {
-          width: 24,
-          height: 24,
+          width: 18,
+          height: 18,
           marginLeft: 8,
           tintColor: palette.text,
           resizeMode: 'contain',
         },
         headerSmallIcon: {
-          width: 16,
-          height: 16,
+          width: 12,
+          height: 12,
           marginLeft: 4,
           tintColor: palette.text,
           resizeMode: 'contain',
@@ -157,7 +157,7 @@ export const useProfileEditingStyles = () => {
         tabSwitch: {
           flexDirection: 'row',
           borderBottomWidth: 1,
-          borderBottomColor: palette.gray,
+          borderBottomColor: palette.transparent,
         },
         tabButton: {
           flex: 1,
@@ -207,7 +207,6 @@ export const useProfileEditingStyles = () => {
           alignItems: 'center',
           height: 77,
           marginHorizontal: 16,
-          marginVertical: 8,
         },
         messageAvatar: {
           width: 52,

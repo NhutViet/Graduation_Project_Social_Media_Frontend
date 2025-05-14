@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
   iconBox: {
     width: 20,
     height: 20,
-    marginLeft: 10,
+    marginLeft: 20,
   },
   icon: {
     width: '100%',

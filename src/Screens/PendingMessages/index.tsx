@@ -89,7 +89,7 @@ export const PendingMessages = ({navigation}: any) => {
         </TouchableOpacity>
 
         <View style={styles.headerRightIcons}>
-          <TouchableOpacity>
+          <TouchableOpacity style={{marginRight: 16}}>
             <Image
               source={require('../../../assets/icon/videoCamera.png')}
               style={styles.headerIcon}

@@ -16,7 +16,7 @@ const NotificationSection: React.FC<NotificationSectionProps> = ({ title, notifi
       <FlatList
         data={notifications}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <NotificationItem notification={item} />}
+            renderItem={({ item }) => ( <NotificationItem notification={item} stackTime /> )}
         scrollEnabled={false}
       />
     </View>
