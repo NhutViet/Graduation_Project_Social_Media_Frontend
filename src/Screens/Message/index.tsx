@@ -8,6 +8,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Linking,
 } from 'react-native';
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {useTheme} from '../../util/ThemeContext';
@@ -17,6 +18,7 @@ import MessageStyles from '../../StyleSheet/MessageStyles';
 import {io} from 'socket.io-client';
 import {RootStackParamList} from '../../Navigation/AppNavigation';
 import {launchImageLibrary} from 'react-native-image-picker';
+import LinkPreview from 'react-native-link-preview';
 
 const socket = io('https://backendchatsocket.onrender.com');
 
@@ -51,6 +53,8 @@ export const MessageScreen = () => {
     number | null
   >(null);
   const [reactionModalVisible, setReactionModalVisible] = useState(false);
+  const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
+  const [linkPreviews, setLinkPreviews] = useState<{[key: number]: any}>({});
 
   useEffect(() => {
     socket.emit('join_room', room);
@@ -70,6 +74,16 @@ export const MessageScreen = () => {
         flatListRef.current?.scrollToEnd({animated: true});
       });
     }
+  }, [chat]);
+
+  useEffect(() => {
+    chat.forEach((item, index) => {
+      if (!linkPreviews[index] && item.content.match(/https?:\/\/\S+/)) {
+        LinkPreview.getPreview(item.content).then(data => {
+          setLinkPreviews(prev => ({...prev, [index]: data}));
+        });
+      }
+    });
   }, [chat]);
 
   const sendMessage = () => {
@@ -149,7 +163,8 @@ export const MessageScreen = () => {
               style={[
                 styles.message,
                 {
-                  marginLeft: showAvatar ? 0 : 60,
+                  marginLeft: isMe || showAvatar ? 0 : 60,
+                  marginRight: isMe ? 0 : 40,
                   backgroundColor: item.isImage
                     ? 'transparent'
                     : isMe
@@ -160,13 +175,74 @@ export const MessageScreen = () => {
                 },
               ]}>
               {item.isImage ? (
-                <Image
-                  source={{uri: item.content}}
-                  style={{width: 150, height: 150, borderRadius: 8}}
-                  resizeMode="cover"
-                />
+                <TouchableOpacity
+                  onPress={() => setSelectedImageUri(item.content)}>
+                  <Image
+                    source={{uri: item.content}}
+                    style={{width: 150, height: 150, borderRadius: 8}}
+                    resizeMode="cover"
+                  />
+                </TouchableOpacity>
               ) : (
-                <Text style={{color: color.text}}>{item.content}</Text>
+                <>
+                  {item.content
+                    .split(/(\s+)/)
+                    .filter(part => !/^https?:\/\/\S+$/i.test(part))
+                    .join('') !== '' && (
+                    <Text style={{color: color.text}}>
+                      {item.content
+                        .split(/(\s+)/)
+                        .filter(part => !/^https?:\/\/\S+$/i.test(part))
+                        .join('')}
+                    </Text>
+                  )}
+                  {linkPreviews[index] && (
+                    <TouchableOpacity
+                      onPress={() => {
+                        Linking.openURL(linkPreviews[index].url);
+                      }}
+                      style={{
+                        borderRadius: 8,
+                        backgroundColor: '#f0f0f0',
+                        marginTop: 5,
+                        padding: 8,
+                        maxWidth: 200,
+                      }}>
+                      {linkPreviews[index].images?.length > 0 && (
+                        <Image
+                          source={{uri: linkPreviews[index].images[0]}}
+                          style={{
+                            width: '100%',
+                            height: 120,
+                            borderRadius: 6,
+                            marginBottom: 6,
+                          }}
+                          resizeMode="cover"
+                        />
+                      )}
+                      <Text
+                        style={{fontWeight: 'bold', color: 'black'}}
+                        numberOfLines={2}
+                        ellipsizeMode="tail">
+                        {linkPreviews[index].title}
+                      </Text>
+                      {linkPreviews[index].description && (
+                        <Text
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
+                          style={{color: 'gray', fontSize: 12}}>
+                          {linkPreviews[index].description}
+                        </Text>
+                      )}
+                      <Text
+                        style={{color: '#007AFF', fontSize: 12, marginTop: 4}}
+                        numberOfLines={2}
+                        ellipsizeMode="tail">
+                        {linkPreviews[index].url}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                </>
               )}
 
               {item.reaction && (
@@ -320,6 +396,30 @@ export const MessageScreen = () => {
           </View>
         </View>
       </View>
+      <Modal visible={!!selectedImageUri} transparent={true}>
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          <TouchableOpacity
+            style={{position: 'absolute', top: 40, right: 20, zIndex: 1}}
+            onPress={() => setSelectedImageUri(null)}>
+            <Text style={{color: Colors.light.background, fontSize: 24}}>
+              ✕
+            </Text>
+          </TouchableOpacity>
+          {selectedImageUri && (
+            <Image
+              source={{uri: selectedImageUri}}
+              style={{width: '90%', height: '80%', borderRadius: 10}}
+              resizeMode="contain"
+            />
+          )}
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
