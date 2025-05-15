@@ -331,11 +331,14 @@ const ItemHome = (props: any) => {
                 Theo dõi
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={openOptions}>
+            <TouchableOpacity onPress={openOptions} style={styles.iconBlock}>
               <Image
-                style={{
-                  tintColor: uriVideo ? Colors.light.background : color.text,
-                }}
+                style={[
+                  {
+                    tintColor: uriVideo ? Colors.light.background : color.text,
+                  },
+                  styles.icon,
+                ]}
                 source={require('../../../../assets/icon/menu-dots-vertical.png')}
               />
             </TouchableOpacity>
@@ -350,7 +353,7 @@ const ItemHome = (props: any) => {
                 ? require('../../../../assets/icon/mute.png')
                 : require('../../../../assets/icon/volume.png')
             }
-            style={{width: 24, height: 24, tintColor: Colors.dark.text}}
+            style={[{tintColor: Colors.dark.text}, styles.icon]}
           />
         </TouchableOpacity>
       </View>
@@ -500,6 +503,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   muteButton: {
+    width: 25,
+    height: 25,
     position: 'absolute',
     bottom: 20,
     right: 20,
@@ -515,8 +520,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   optionsIcon: {
-    width: 24,
-    height: 24,
+    width: 25,
+    height: 25,
     resizeMode: 'contain',
   },
 });
