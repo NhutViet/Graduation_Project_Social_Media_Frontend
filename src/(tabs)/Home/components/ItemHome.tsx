@@ -2,12 +2,17 @@ import React, {useRef, useCallback, useState} from 'react';
 import {View, Text, Image, TouchableOpacity, StyleSheet} from 'react-native';
 import Video from 'react-native-video';
 import {Modalize} from 'react-native-modalize';
-import {Colors} from '../assets/color/Colors';
-import {useTheme} from '../src/util/ThemeContext';
+import {Colors} from '../../../../assets/color/Colors';
+import {useTheme} from '../../../util/ThemeContext';
 import {Portal} from 'react-native-portalize';
-import BottomSheetOptions, {OptionItem} from './BottomSheetOptions';
-import BottomSheetIntentions, {IntentionOption} from './BottomSheetIntentions';
+import BottomSheetOptions, {
+  OptionItem,
+} from '../../../../components/BottomSheetOptions';
+import BottomSheetIntentions, {
+  IntentionOption,
+} from '../../../../components/BottomSheetIntentions';
 import {useNavigation} from '@react-navigation/native';
+import ModalShare from './ModalShare';
 
 const ItemHome = (props: any) => {
   const {
@@ -32,7 +37,7 @@ const ItemHome = (props: any) => {
   const [muted, setMuted] = React.useState(true);
   const [isModalVisible, setIsModalVisible] = React.useState(false);
   const navigation: any = useNavigation();
-
+  const [visibleModalShare, setVisibleModalShare] = useState(false);
   // Modalize bottom sheet reference
   const sheetRef = useRef<Modalize>(null);
   const openOptions = useCallback(() => {
@@ -65,7 +70,7 @@ const ItemHome = (props: any) => {
   const topOptions: OptionItem[] = [
     {
       id: 'bookmark',
-      icon: require('../assets/icon/bookmark.png'),
+      icon: require('../../../../assets/icon/bookmark.png'),
       label: 'Bookmark',
       onPress: () => {
         closeSheet();
@@ -73,7 +78,7 @@ const ItemHome = (props: any) => {
     },
     {
       id: 'remix',
-      icon: require('../assets/icon/remix.png'),
+      icon: require('../../../../assets/icon/remix.png'),
       label: 'Remix',
       onPress: () => {
         closeSheet();
@@ -83,7 +88,7 @@ const ItemHome = (props: any) => {
   const firstListOptions: OptionItem[] = [
     {
       id: 'favorite',
-      icon: require('../assets/icon/star.png'),
+      icon: require('../../../../assets/icon/star.png'),
       label: 'Adding to favorite',
       onPress: () => {
         closeSheet();
@@ -91,7 +96,7 @@ const ItemHome = (props: any) => {
     },
     {
       id: 'unfollow',
-      icon: require('../assets/icon/unfollow.png'),
+      icon: require('../../../../assets/icon/unfollow.png'),
       label: 'Unfollow',
       onPress: () => {
         closeSheet();
@@ -101,7 +106,7 @@ const ItemHome = (props: any) => {
   const secondListOptions: OptionItem[] = [
     {
       id: 'accountInfo',
-      icon: require('../assets/icon/account.png'),
+      icon: require('../../../../assets/icon/account.png'),
       label: 'This account info',
       onPress: () => {
         closeSheet();
@@ -109,7 +114,7 @@ const ItemHome = (props: any) => {
     },
     {
       id: 'whySee',
-      icon: require('../assets/icon/info.png'),
+      icon: require('../../../../assets/icon/info.png'),
       label: 'Why am I seeing this post',
       onPress: () => {
         closeSheet();
@@ -117,7 +122,7 @@ const ItemHome = (props: any) => {
     },
     {
       id: 'hide',
-      icon: require('../assets/icon/blind.png'),
+      icon: require('../../../../assets/icon/blind.png'),
       label: 'Hide',
       onPress: () => {
         closeSheet();
@@ -125,7 +130,7 @@ const ItemHome = (props: any) => {
     },
     {
       id: 'report',
-      icon: require('../assets/icon/report.png'),
+      icon: require('../../../../assets/icon/report.png'),
       label: 'Report this post',
       onPress: () => {
         closeSheet();
@@ -171,6 +176,32 @@ const ItemHome = (props: any) => {
   ];
 
   const textColor = uriVideo ? Colors.dark.text : color.text;
+
+  // data share
+  const friends = [
+    {
+      id: '1',
+      name: 'Huỳnh Duy Linh',
+      avatar: 'https://picsum.photos/seed/1/100',
+    },
+    {id: '2', name: 'Ng.Đức Phi', avatar: 'https://picsum.photos/seed/2/100'},
+    {
+      id: '3',
+      name: 'Hoàng Thị Bảo Trâm',
+      avatar: 'https://picsum.photos/seed/3/100',
+    },
+    {
+      id: '4',
+      name: 'Coraline Hoang',
+      avatar: 'https://picsum.photos/seed/4/100',
+    },
+    {id: '5', name: 'Chu Kim Gun', avatar: 'https://picsum.photos/seed/5/100'},
+    {
+      id: '6',
+      name: 'Huỳnh Duy Linh',
+      avatar: 'https://picsum.photos/seed/1/100',
+    },
+  ];
 
   return (
     <View style={styles.wrapper}>
@@ -305,7 +336,7 @@ const ItemHome = (props: any) => {
                 style={{
                   tintColor: uriVideo ? Colors.light.background : color.text,
                 }}
-                source={require('../assets/icon/menu-dots-vertical.png')}
+                source={require('../../../../assets/icon/menu-dots-vertical.png')}
               />
             </TouchableOpacity>
           </View>
@@ -316,8 +347,8 @@ const ItemHome = (props: any) => {
           <Image
             source={
               muted
-                ? require('../assets/icon/mute.png')
-                : require('../assets/icon/volume.png')
+                ? require('../../../../assets/icon/mute.png')
+                : require('../../../../assets/icon/volume.png')
             }
             style={{width: 24, height: 24, tintColor: Colors.dark.text}}
           />
@@ -329,7 +360,7 @@ const ItemHome = (props: any) => {
             <TouchableOpacity style={styles.iconBlock}>
               <Image
                 style={[{tintColor: color.text}, styles.icon]}
-                source={require('../assets/icon/heart.png')}
+                source={require('../../../../assets/icon/heart.png')}
               />
             </TouchableOpacity>
             <Text
@@ -342,16 +373,18 @@ const ItemHome = (props: any) => {
             <TouchableOpacity style={styles.iconBlock}>
               <Image
                 style={[{tintColor: color.text}, styles.icon]}
-                source={require('../assets/icon/comment.png')}
+                source={require('../../../../assets/icon/comment.png')}
               />
             </TouchableOpacity>
             <Text style={{color: color.text, marginLeft: 8, marginRight: 16}}>
               {formatNumber(comment)}
             </Text>
-            <TouchableOpacity style={styles.iconBlock}>
+            <TouchableOpacity
+              style={styles.iconBlock}
+              onPress={() => setVisibleModalShare(true)}>
               <Image
                 style={[{tintColor: color.text}, styles.icon]}
-                source={require('../assets/icon/share.png')}
+                source={require('../../../../assets/icon/share.png')}
               />
             </TouchableOpacity>
             <Text style={{color: color.text, marginLeft: 8, marginRight: 16}}>
@@ -361,27 +394,58 @@ const ItemHome = (props: any) => {
           <TouchableOpacity style={styles.iconBlock}>
             <Image
               style={[{tintColor: color.text}, styles.icon]}
-              source={require('../assets/icon/bookmark.png')}
+              source={require('../../../../assets/icon/bookmark.png')}
             />
           </TouchableOpacity>
         </View>
         <Text style={[styles.title, {color: color.text}]}>{title}</Text>
         <Text style={{color: color.text, fontSize: 12}}>{date}</Text>
       </View>
+      <ModalShare
+        visible={visibleModalShare}
+        onClose={() => setVisibleModalShare(false)}
+        friends={friends}
+      />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {position: 'relative', width: '100%'},
-  wrapper: {width: '100%', marginTop: 10},
-  fullSize: {width: '100%', height: '100%'},
-  footer: {padding: 10},
-  footerTop: {justifyContent: 'space-between'},
-  countText: {color: Colors.dark.text, marginHorizontal: 8},
-  dateText: {color: Colors.dark.text, fontSize: 12},
-  muteIcon: {width: 24, height: 24, tintColor: Colors.dark.text},
-  video: {width: '100%', height: 600},
+  container: {
+    position: 'relative',
+    width: '100%',
+  },
+  wrapper: {
+    width: '100%',
+    marginTop: 10,
+  },
+  fullSize: {
+    width: '100%',
+    height: '100%',
+  },
+  footer: {
+    padding: 10,
+  },
+  footerTop: {
+    justifyContent: 'space-between',
+  },
+  countText: {
+    color: Colors.dark.text,
+    marginHorizontal: 8,
+  },
+  dateText: {
+    color: Colors.dark.text,
+    fontSize: 12,
+  },
+  muteIcon: {
+    width: 24,
+    height: 24,
+    tintColor: Colors.dark.text,
+  },
+  video: {
+    width: '100%',
+    height: 600,
+  },
   headerItem: {
     position: 'absolute',
     zIndex: 1,
@@ -392,7 +456,10 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: Colors.light.transparent,
   },
-  rowContainer: {flexDirection: 'row', alignItems: 'center'},
+  rowContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   blockImg: {
     width: 40,
     height: 40,
@@ -400,9 +467,16 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     marginRight: 10,
   },
-  imgUser: {width: '100%', height: '100%'},
-  textNormal: {fontSize: 14},
-  text: {fontSize: 12},
+  imgUser: {
+    width: '100%',
+    height: '100%',
+  },
+  textNormal: {
+    fontSize: 14,
+  },
+  text: {
+    fontSize: 12,
+  },
   btnFollow: {
     paddingVertical: 6,
     paddingHorizontal: 20,
@@ -413,17 +487,38 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginRight: 10,
   },
-  iconBlock: {width: 24, height: 24},
-  icon: {width: '100%', height: '100%'},
-  title: {marginVertical: 10, fontSize: 14},
-  muteButton: {position: 'absolute', bottom: 20, right: 20},
+  iconBlock: {
+    width: 24,
+    height: 24,
+  },
+  icon: {
+    width: '100%',
+    height: '100%',
+  },
+  title: {
+    marginVertical: 10,
+    fontSize: 14,
+  },
+  muteButton: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+  },
   blockWhite: {
     width: '100%',
     height: 60,
     backgroundColor: Colors.light.transparent,
   },
-  optionsButton: {padding: 8, justifyContent: 'center', alignItems: 'center'},
-  optionsIcon: {width: 24, height: 24, resizeMode: 'contain'},
+  optionsButton: {
+    padding: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  optionsIcon: {
+    width: 24,
+    height: 24,
+    resizeMode: 'contain',
+  },
 });
 
 export default ItemHome;
