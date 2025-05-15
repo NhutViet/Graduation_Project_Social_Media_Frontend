@@ -82,7 +82,7 @@ const Header = (props: any) => {
           {iconQR && (
             <TouchableOpacity
               style={styles.iconBox}
-              onPress={() => navigation.navigate('QRcode')}>
+              onPress={() => navigation.navigate('QRCode')}>
               <Image
                 source={iconQR}
                 style={[styles.icon, {tintColor: color.text}]}

@@ -118,7 +118,6 @@ export const useProfileEditingStyles = () => {
           alignItems: 'center',
           justifyContent: 'center',
           padding: 15,
-          
         },
         textModel: {
           color: palette.text,
