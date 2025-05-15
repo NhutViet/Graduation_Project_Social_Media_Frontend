@@ -13,6 +13,7 @@ import {useProfileEditingStyles} from '../../../src/StyleSheet/ProfileEditingSty
 import {UserInfo} from '../../../components/UserInfo';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {PermissionsAndroid, Platform} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 async function requestCameraPermission() {
   if (Platform.OS !== 'android') return true;
@@ -29,7 +30,8 @@ async function requestCameraPermission() {
   return granted === PermissionsAndroid.RESULTS.GRANTED;
 }
 
-export const EditProfile = ({route, navigation}: any) => {
+export const EditProfile = ({route}: any) => {
+  const navigation = useNavigation();
   const styles = useProfileEditingStyles();
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -65,7 +67,7 @@ export const EditProfile = ({route, navigation}: any) => {
   return (
     <SafeAreaView style={styles.screen}>
       <View style={styles.header}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text style={styles.headerText}>Cancel</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Edit Profile</Text>
