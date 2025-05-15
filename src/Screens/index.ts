@@ -17,5 +17,6 @@ export * from './SeenStoryOwner';
 export * from './Message';
 export * from './UserInfo';
 export * from './MessageBox';
+export * from './Streaming';
 export * from './CameraScreen';
 export * from './Swipe';
