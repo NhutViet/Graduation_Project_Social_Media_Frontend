@@ -16,8 +16,9 @@ import Header from '../../../components/Header';
 import {useIsFocused, useNavigation} from '@react-navigation/native';
 import User from '../../../components/User';
 import {useEffect, useRef, useState} from 'react';
-import ItemHome from '../../../components/ItemHome';
+import ItemHome from './components/ItemHome';
 import {Modalize} from 'react-native-modalize';
+import ModalShare from './components/ModalShare';
 
 const Home = () => {
   const navigation: any = useNavigation();

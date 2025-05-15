@@ -23,6 +23,7 @@ import {
   MessageBox,
   CameraScreen,
   Swipe,
+  CreateGroupScreen,
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 export type RootStackParamList = {
@@ -62,6 +63,7 @@ const AppNavigator = () => {
         <Stack.Screen name="QRCode" component={ScreenQRCode} />
         <Stack.Screen name="MessageBox" component={MessageBox} />
         <Stack.Screen name="CameraScreen" component={CameraScreen} />
+        <Stack.Screen name="CreateGroupScreen" component={CreateGroupScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

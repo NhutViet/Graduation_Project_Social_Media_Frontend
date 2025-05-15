@@ -29,6 +29,7 @@ import {Styles} from '../../StyleSheet/Profile.Styles';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 import {SwitchAccount} from '../../../components/SwitchAccount';
 import {ViewMore} from '../../../components/ViewMore';
+import ModalCreate from './components/ModalCreate';
 
 const HEADER_HEIGHT = 400;
 
@@ -116,6 +117,8 @@ const Profile = () => {
   const color = Colors[theme];
   const {styles} = Styles;
 
+  const [visibleModalCreate, setVisibleModalCreate] = useState(false);
+
   const scrollY = useRef(new Animated.Value(0)).current;
   const translateY = scrollY.interpolate({
     inputRange: [0, HEADER_HEIGHT],
@@ -163,7 +166,7 @@ const Profile = () => {
         <View style={styles.headerRight}>
           <TouchableOpacity
             style={styles.iconButton}
-            onPress={handlePlusSquarePress}>
+            onPress={() => setVisibleModalCreate(true)}>
             <PlusSquare color={color.text} size={24} />
           </TouchableOpacity>
           <TouchableOpacity
@@ -246,7 +249,8 @@ const Profile = () => {
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.optionButton, {backgroundColor: color.gray}]} onPress={() => navigation.navigate('Swipe')}>
+            style={[styles.optionButton, {backgroundColor: color.gray}]}
+            onPress={() => navigation.navigate('Swipe')}>
             <Share2 size={18} color={color.text} />
           </TouchableOpacity>
         </View>
@@ -260,6 +264,11 @@ const Profile = () => {
             showsHorizontalScrollIndicator={false}
           />
         </View>
+        <ModalCreate
+          visible={visibleModalCreate}
+          onClose={() => setVisibleModalCreate(false)}
+          onSelect={id => console.log('Selected:', id)}
+        />
       </View>
     </Animated.View>
   );
