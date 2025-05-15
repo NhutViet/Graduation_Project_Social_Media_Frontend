@@ -39,7 +39,7 @@ const Home = () => {
   }).current;
 
   const modalizeRef = useRef<Modalize>(null);
-  const [currentPost, setCurrentPost] = useState<any>(null);
+  // const [currentPost, setCurrentPost] = useState<any>(null);
 
   // data mẫu
   const posts = [
