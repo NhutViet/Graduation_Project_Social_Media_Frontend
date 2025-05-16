@@ -40,7 +40,7 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="BookmarkScreen"
+        initialRouteName="InfoUser"
         screenOptions={{headerShown: false}}>
         <Stack.Screen name="Swipe" component={Swipe} />
         <Stack.Screen name="PostSetting" component={PostSetting} />

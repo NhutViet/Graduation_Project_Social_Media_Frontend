@@ -80,7 +80,7 @@ export const useBottomSheetStyles = () => {
         listSeparator: {
           height: 1,
           backgroundColor: palette.background,
-          marginHorizontal: spacing.m,
+          marginHorizontal: -spacing.m,
         } as ViewStyle,
         intentionContainer: { 
           paddingBottom: spacing.m,
@@ -126,6 +126,76 @@ export const useBottomSheetStyles = () => {
         intentionChoiceSpacing: {
           height: spacing.xl-15,
         } as ViewStyle,   
+        choiceRow: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingVertical: spacing.s,
+          paddingHorizontal: spacing.m,
+          borderBottomWidth: 1,
+          borderBottomColor: palette.lightDark,
+        } as ViewStyle,
+
+        choiceTextContainer: {
+          flex: 1,
+          marginRight: spacing.m,
+        } as ViewStyle,
+        ns_container: {
+          paddingHorizontal: spacing.m,
+          paddingBottom: spacing.m,
+          position: 'relative',
+        } as ViewStyle,
+
+        ns_title: {
+          fontSize: typography.fontSizes.xl,
+          fontWeight: typography.fontWeights.medium as FontWeight,
+          textAlign: 'center',
+          marginBottom: spacing.s,
+        } as TextStyle,
+
+        ns_separator: {
+          height: 1,
+          width: '150%',
+          marginBottom: spacing.s,
+          marginHorizontal: -spacing.m,
+        } as ViewStyle,
+
+        ns_choiceRow: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingVertical: spacing.s,
+        } as ViewStyle,
+
+        ns_choiceTextContainer: {
+          flex: 1,
+          marginRight: spacing.m,
+          alignItems: 'flex-start',
+        } as ViewStyle,
+
+        ns_choiceLabel: {
+          fontSize: typography.fontSizes.l,
+          fontWeight: typography.fontWeights.regular as FontWeight,
+          textAlign: 'left',
+        } as TextStyle,
+
+        ns_choiceDescription: {
+          fontSize: typography.fontSizes.m,
+          fontWeight: typography.fontWeights.regular as FontWeight,
+          textAlign: 'left',
+          marginTop: spacing.xs,
+        } as TextStyle,
+
+        ns_switch: {
+          transform: [{ scale: 1.3 }],
+        } as ViewStyle,
+
+        ns_thickSeparator: {
+          height: 6,
+          width: '150%',
+          marginVertical: spacing.m,
+          marginHorizontal: -spacing.m,
+        } as ViewStyle,
       }),
     [palette, spacing, typography]
   );
