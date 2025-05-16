@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useRef } from 'react';
 import {
   Animated,
   Dimensions,
@@ -14,6 +14,9 @@ import {useTheme} from '../../util/ThemeContext';
 import UserInfoStyles from '../../StyleSheet/UserInfoStyles';
 import {Colors} from '../../../assets/color/Colors';
 import {useNavigation} from '@react-navigation/native';
+import BottomSheetNotification, { SwitchOption, } from '../../../components/BottomSheetNotification';
+import { Modalize } from 'react-native-modalize';
+import { Portal } from 'react-native-portalize';
 
 const screenWidth = Dimensions.get('window').width - 8;
 const initialLayout = {width: Dimensions.get('window').width};
@@ -33,6 +36,43 @@ export const UserInfo = () => {
   }, [index]);
   const styles = UserInfoStyles(theme);
   const color = Colors[theme];
+
+  // --- notification sheet state ---
+  const sheetRef = useRef<Modalize>(null);
+  const [msgNotif, setMsgNotif] = useState(false);
+  const [callNotif, setCallNotif] = useState(false);
+  const [previewNotif, setPreviewNotif] = useState(false);
+
+  const notificationOptions: SwitchOption[] = [
+    {
+      id: 'msg',
+      label: 'Turn off message notifications',
+      description: '',
+      value: msgNotif,
+      onValueChange: setMsgNotif,
+    },
+    {
+      id: 'call',
+      label: 'Turn off call notifications',
+      description: '',
+      value: callNotif,
+      onValueChange: setCallNotif,
+    },
+    {
+      id: 'preview',
+      label: 'Notification previews',
+      description: 'Show name and message on notifications',
+      value: previewNotif,
+      onValueChange: setPreviewNotif,
+    },
+  ];
+
+  const openNotifications = () => {
+    sheetRef.current?.open();
+  };
+  const closeNotifications = () => {
+    sheetRef.current?.close();
+  };
 
   const [routes] = React.useState([
     {
@@ -93,7 +133,10 @@ export const UserInfo = () => {
           <Text style={styles.text}>Tìm kiếm</Text>
         </View>
         <View style={styles.blockFeature}>
-          <TouchableOpacity style={styles.blockIcon}>
+          <TouchableOpacity
+            style={styles.blockIcon}
+            onPress={openNotifications}
+          >
             <Image
               style={styles.icon}
               source={require('../../../assets/icon/bell.png')}
@@ -256,6 +299,34 @@ export const UserInfo = () => {
           </View>
         )}
       />
+      {/* --- notification bottom sheet --- */}
+      <Portal>
+        <Modalize
+          ref={sheetRef}
+          modalStyle={{
+            backgroundColor: color.background,
+            borderTopLeftRadius: 16,
+            borderTopRightRadius: 16,
+            paddingTop: 18,
+          }}
+          handleStyle={{
+            backgroundColor: color.text,
+            height: 6,
+            width: 40,
+            marginBottom: 8,
+          }}
+          handlePosition="inside"
+          panGestureEnabled
+          adjustToContentHeight
+          onClose={closeNotifications}
+        >
+          <BottomSheetNotification
+            title="Notification"
+            options={notificationOptions}
+            onClose={closeNotifications}
+          />
+        </Modalize>
+      </Portal>
     </SafeAreaView>
   );
 };

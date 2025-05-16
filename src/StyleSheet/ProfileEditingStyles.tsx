@@ -164,7 +164,7 @@ export const useProfileEditingStyles = () => {
           paddingVertical: 12,
         },
         tabText: {
-          fontSize: 16,
+          fontSize: 14,
           fontWeight: '400',
           color: palette.text,
         },
