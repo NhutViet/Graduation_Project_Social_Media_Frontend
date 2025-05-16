@@ -20,7 +20,6 @@ export const useBottomSheetStyles = () => {
           backgroundColor: palette.background,
         } as ViewStyle,
 
-        // horizontal row container (no shared background)
         horizontalContainer: {
           flexDirection: 'row',
           justifyContent: 'space-between',
@@ -30,7 +29,7 @@ export const useBottomSheetStyles = () => {
         // each button in horizontal row with its own background and spacing
         horizontalButton: {
           flex: 1,
-          backgroundColor: palette.lightGray,
+          backgroundColor: palette.lessBlack,
           height: 110,
           alignItems: 'center',
           justifyContent: 'center',
@@ -53,7 +52,7 @@ export const useBottomSheetStyles = () => {
 
         // vertical list section wrapper
         verticalSectionContainer: {
-          backgroundColor: palette.lightGray,
+          backgroundColor: palette.lessBlack,
           borderRadius: 8,
           marginBottom: spacing.m,
           overflow: 'hidden',

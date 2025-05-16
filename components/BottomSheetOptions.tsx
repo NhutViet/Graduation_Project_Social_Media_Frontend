@@ -25,6 +25,7 @@ export const BottomSheetOptions: React.FC<BottomSheetOptionsProps> = ({
   onClose,
 }) => {
   const { theme } = useTheme();
+  const color = Colors[theme];
   const palette = Colors[theme];
   const styles = useBottomSheetStyles();
   const spacing = Colors.spacing; 
@@ -47,7 +48,7 @@ export const BottomSheetOptions: React.FC<BottomSheetOptionsProps> = ({
               >
                 <Image
                   source={item.icon}
-                  style={styles.topIcon}
+                  style={[styles.topIcon, { tintColor: color.text }]}
                   resizeMode="contain"
                 />
                 <Text style={[styles.topLabel, { color: palette.text }]}>
@@ -73,7 +74,7 @@ export const BottomSheetOptions: React.FC<BottomSheetOptionsProps> = ({
                 style={styles.listItem}
                 onPress={() => handlePress(item)}
               >
-                <Image source={item.icon} style={styles.listIcon} resizeMode="contain" />
+                <Image source={item.icon} style={[ styles.listIcon, { tintColor: item.labelColor ?? color.text }]} resizeMode="contain"/>
                 <Text style={[styles.listLabel, { color: item.labelColor || palette.text }]}> 
                   {item.label}
                 </Text>

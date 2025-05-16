@@ -64,7 +64,7 @@ const LightTheme = {
   modal: '#FFFFFF',
   gray: '#F0F0F0',
   lightDark: '#00000020',
-  lessBlack: '#00000080',
+  lessBlack: '#f1f1f1',
   search: '#F8F8FF',
   card: '#F8F8F8',
 };
@@ -76,7 +76,7 @@ const DarkTheme = {
   modal: '#1A1A1A',
   gray: '#1A1A1A',
   lightDark: '#FFFFFF20',
-  lessBlack: '#8E8E8E',
+  lessBlack: '#141414',
   search: '#222222',
   card: '#121212',
 };
