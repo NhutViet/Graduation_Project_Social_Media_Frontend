@@ -23,3 +23,4 @@ export * from './Swipe';
 export * from './CreateGroupScreen';
 export * from './BookmarkScreen';
 export * from './PlaylistScreen';
+export * from './BlockUser';
