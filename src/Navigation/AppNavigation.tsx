@@ -25,7 +25,8 @@ import {
   CameraScreen,
   Swipe,
   CreateGroupScreen,
-  BlockUser
+  BlockUser,
+  BlockedAccounts
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 export type RootStackParamList = {
@@ -42,6 +43,7 @@ const AppNavigator = () => {
         initialRouteName="BottomTabs"
         screenOptions={{headerShown: false}}>
           <Stack.Screen name="BlockUser" component={BlockUser} />
+          <Stack.Screen name="BlockedAccounts" component={BlockedAccounts} />
         <Stack.Screen name="Swipe" component={Swipe} />
         <Stack.Screen name="PostSetting" component={PostSetting} />
         <Stack.Screen name="AddPost" component={AddPost} />
