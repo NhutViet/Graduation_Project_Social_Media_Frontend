@@ -25,6 +25,7 @@ import {
   CameraScreen,
   Swipe,
   CreateGroupScreen,
+  BlockedAccounts,
   BookmarkScreen,
   PlaylistsScreen,
   BlockUser
@@ -44,6 +45,7 @@ const AppNavigator = () => {
         initialRouteName="InfoUser"
         screenOptions={{headerShown: false}}>
           <Stack.Screen name="BlockUser" component={BlockUser} />
+          <Stack.Screen name="BlockedAccounts" component={BlockedAccounts} />
         <Stack.Screen name="Swipe" component={Swipe} />
         <Stack.Screen name="PostSetting" component={PostSetting} />
         <Stack.Screen name="AddPost" component={AddPost} />
