@@ -8,8 +8,8 @@ import {
 } from 'react-native';
 import {FlashList} from '@shopify/flash-list';
 import React from 'react';
-import {Colors} from '../../../assets/color/Colors';
-import {useTheme} from '../../util/ThemeContext';
+import {Colors} from '../../../../assets/color/Colors';
+import {useTheme} from '../../../util/ThemeContext';
 
 const categoriesData = [
   {

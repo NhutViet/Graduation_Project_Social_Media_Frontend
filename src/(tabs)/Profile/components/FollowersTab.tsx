@@ -9,8 +9,8 @@ import {
 } from 'react-native';
 import React, {useState} from 'react';
 import {FlashList} from '@shopify/flash-list';
-import {Colors} from '../../../assets/color/Colors';
-import {useTheme} from '../../util/ThemeContext';
+import {Colors} from '../../../../assets/color/Colors';
+import {useTheme} from '../../../util/ThemeContext';
 import {useNavigation} from '@react-navigation/native';
 
 // data mẫu

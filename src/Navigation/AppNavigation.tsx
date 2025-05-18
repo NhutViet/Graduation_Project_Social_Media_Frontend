@@ -27,7 +27,8 @@ import {
   CreateGroupScreen,
   BookmarkScreen,
   PlaylistsScreen,
-  BlockUser
+  BlockUser,
+  QRScanner
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 export type RootStackParamList = {
@@ -41,9 +42,9 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="InfoUser"
+        initialRouteName="BottomTabs"
         screenOptions={{headerShown: false}}>
-          <Stack.Screen name="BlockUser" component={BlockUser} />
+        <Stack.Screen name="BlockUser" component={BlockUser} />
         <Stack.Screen name="Swipe" component={Swipe} />
         <Stack.Screen name="PostSetting" component={PostSetting} />
         <Stack.Screen name="AddPost" component={AddPost} />
@@ -69,6 +70,7 @@ const AppNavigator = () => {
         <Stack.Screen name="CreateGroupScreen" component={CreateGroupScreen} />
         <Stack.Screen name="BookmarkScreen" component={BookmarkScreen} />
         <Stack.Screen name="PlaylistsScreen" component={PlaylistsScreen} />
+        <Stack.Screen name="QRScanner" component={QRScanner}/>
       </Stack.Navigator>
     </NavigationContainer>
   );
