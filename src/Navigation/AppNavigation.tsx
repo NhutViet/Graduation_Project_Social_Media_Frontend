@@ -41,7 +41,7 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="InfoUser"
+        initialRouteName="BottomTabs"
         screenOptions={{headerShown: false}}>
           <Stack.Screen name="BlockUser" component={BlockUser} />
         <Stack.Screen name="Swipe" component={Swipe} />
