@@ -28,9 +28,10 @@ import {
   BlockedAccounts,
   BookmarkScreen,
   PlaylistsScreen,
-  BlockUser
+  BlockUser,
 } from '../Screens';
 import BottomTabs from './BottomTabs';
+import EditHighlightScreen from '../(tabs)/Profile/components/EditHighlightScreen';
 export type RootStackParamList = {
   PendingMessages: undefined;
   MessageScreen: {room: string};
@@ -42,10 +43,10 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="InfoUser"
+        initialRouteName="BottomTabs"
         screenOptions={{headerShown: false}}>
-          <Stack.Screen name="BlockUser" component={BlockUser} />
-          <Stack.Screen name="BlockedAccounts" component={BlockedAccounts} />
+        <Stack.Screen name="BlockUser" component={BlockUser} />
+        <Stack.Screen name="BlockedAccounts" component={BlockedAccounts} />
         <Stack.Screen name="Swipe" component={Swipe} />
         <Stack.Screen name="PostSetting" component={PostSetting} />
         <Stack.Screen name="AddPost" component={AddPost} />
@@ -57,7 +58,10 @@ const AppNavigator = () => {
         <Stack.Screen name="EditStory" component={EditStory} />
         <Stack.Screen name="EditProfile" component={EditProfile} />
         <Stack.Screen name="PendingMessages" component={PendingMessages} />
-        <Stack.Screen name="NotificationsScreen" component={NotificationsScreen}/>
+        <Stack.Screen
+          name="NotificationsScreen"
+          component={NotificationsScreen}
+        />
         <Stack.Screen name="FollowerRequests" component={FollowerRequests} />
         <Stack.Screen name="Register" component={Register} />
         <Stack.Screen name="SeenStory" component={SeenStory} />
@@ -71,6 +75,10 @@ const AppNavigator = () => {
         <Stack.Screen name="CreateGroupScreen" component={CreateGroupScreen} />
         <Stack.Screen name="BookmarkScreen" component={BookmarkScreen} />
         <Stack.Screen name="PlaylistsScreen" component={PlaylistsScreen} />
+        <Stack.Screen
+          name="EditHighlightStory"
+          component={EditHighlightScreen}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
