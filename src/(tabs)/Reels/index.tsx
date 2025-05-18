@@ -44,7 +44,7 @@ const Reels = () => {
     }, [theme]),
   );
 
-  const [currentVisible, setCurrentVisible] = useState('1');
+  const [currentVisible, setCurrentVisible] = useState();
   const viewAbilityConfig = {
     itemVisiblePercentThreshold: 70,
   };
