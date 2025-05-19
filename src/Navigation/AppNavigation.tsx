@@ -30,7 +30,8 @@ import {
   PlaylistsScreen,
   BlockUser,
   PeopleGroupChat,
-  AddPeopleToGroupChat
+  AddPeopleToGroupChat,
+  QRScanner
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 import EditHighlightScreen from '../(tabs)/Profile/components/EditHighlightScreen';
@@ -79,6 +80,7 @@ const AppNavigator = () => {
         <Stack.Screen name="CreateGroupScreen" component={CreateGroupScreen} />
         <Stack.Screen name="BookmarkScreen" component={BookmarkScreen} />
         <Stack.Screen name="PlaylistsScreen" component={PlaylistsScreen} />
+        <Stack.Screen name="QRScanner" component={QRScanner}/>
         <Stack.Screen
           name="EditHighlightStory"
           component={EditHighlightScreen}
