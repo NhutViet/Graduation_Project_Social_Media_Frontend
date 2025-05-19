@@ -20,7 +20,7 @@ const FollowersScreen = () => {
       <View style={{width: '100%', height: 60}}>
         <Header
           title="username..."
-          iconBack={require('../../../assets/icon/left.png')}
+          iconBack={require('../../../../assets/icon/left.png')}
           func={() => navigation.goBack()}
           navigation={navigation}
         />

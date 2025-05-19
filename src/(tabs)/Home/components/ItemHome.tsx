@@ -13,6 +13,7 @@ import BottomSheetIntentions, {
 } from '../../../../components/BottomSheetIntentions';
 import {useNavigation} from '@react-navigation/native';
 import ModalShare from './ModalShare';
+import ModalReaction from './ModalReaction'
 
 const ItemHome = (props: any) => {
   const {
@@ -27,7 +28,6 @@ const ItemHome = (props: any) => {
     title,
     date,
     currentVisible,
-    modalizeRef,
     setCurrentPost,
     isFocused,
   } = props;
@@ -54,6 +54,12 @@ const ItemHome = (props: any) => {
   const openIntentions = useCallback(() => intentRef.current?.open(), []);
   const closeIntentions = useCallback(() => intentRef.current?.close(), []);
   const onIntentionsClose = useCallback(() => {}, []);
+
+  const modalReactionRef = useRef<Modalize>(null);
+
+  const handleOpenReactionModal = useCallback(() => {
+    modalReactionRef.current?.open();
+  }, []);
 
   // Number formatting utility
   const formatNumber = (num: number): string => {
@@ -202,6 +208,97 @@ const ItemHome = (props: any) => {
       avatar: 'https://picsum.photos/seed/1/100',
     },
   ];
+
+  const modalReactionData = [
+      {
+        id: '1',
+        username: 'user1',
+        bio: 'abc',
+        profile_pic:
+          'https://i.pinimg.com/736x/8c/71/92/8c7192c084765c076ef33024c0b34406.jpg',
+        is_following: true,
+      },
+      {
+        id: '2',
+        username: 'user2',
+        bio: 'xyz',
+        profile_pic:
+          'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
+        is_following: false,
+      },
+      {
+        id: '3',
+        username: 'user3',
+        bio: '',
+        profile_pic:
+          'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
+        is_following: true,
+      },
+      {
+        id: '4',
+        username: 'user3',
+        bio: '',
+        profile_pic:
+          'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
+        is_following: true,
+      },
+      {
+        id: '5',
+        username: 'user3',
+        bio: '',
+        profile_pic:
+          'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
+        is_following: true,
+      },
+      {
+        id: '6',
+        username: 'user3',
+        bio: '',
+        profile_pic:
+          'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
+        is_following: true,
+      },
+      {
+        id: '7',
+        username: 'user3',
+        bio: '',
+        profile_pic:
+          'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
+        is_following: true,
+      },
+      {
+        id: '8',
+        username: 'user3',
+        bio: '',
+        profile_pic:
+          'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
+        is_following: true,
+      },
+      {
+        id: '9',
+        username: 'user3',
+        bio: '',
+        profile_pic:
+          'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
+        is_following: true,
+      },
+      {
+        id: '10',
+        username: 'user3',
+        bio: '',
+        profile_pic:
+          'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
+        is_following: true,
+      },
+      {
+        id: '11',
+        username: 'user3',
+        bio: '',
+        profile_pic:
+          'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
+        is_following: true,
+      },
+    ];
 
   return (
     <View style={styles.wrapper}>
@@ -368,9 +465,7 @@ const ItemHome = (props: any) => {
             </TouchableOpacity>
             <Text
               style={{color: color.text, marginLeft: 8, marginRight: 16}}
-              onPress={() => {
-                modalizeRef?.current?.open();
-              }}>
+              onPress={handleOpenReactionModal}>
               {formatNumber(like)}
             </Text>
             <TouchableOpacity style={styles.iconBlock}>
@@ -409,6 +504,12 @@ const ItemHome = (props: any) => {
         onClose={() => setVisibleModalShare(false)}
         friends={friends}
       />
+      <Portal>
+        <ModalReaction
+        ref = {modalReactionRef}
+        data = {modalReactionData}
+        />
+      </Portal>
     </View>
   );
 };

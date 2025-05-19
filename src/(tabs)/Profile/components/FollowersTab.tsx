@@ -145,7 +145,7 @@ const FollowersTab = () => {
       <TouchableOpacity style={styles.cancelButton}>
         <View style={{width: 10, height: 10, overflow: 'hidden'}}>
           <Image
-            source={require('../../../assets/icon/x.png')}
+            source={require('../../../../assets/icon/x.png')}
             style={[styles.cancelImage, {tintColor: color.text}]}
           />
         </View>
@@ -179,7 +179,7 @@ const FollowersTab = () => {
             {backgroundColor: color.background, borderColor: color.text},
           ]}>
           <Image
-            source={require('../../../assets/icon/search.png')}
+            source={require('../../../../assets/icon/search.png')}
             style={[styles.searchIcon, {tintColor: color.text}]}
           />
           <TextInput

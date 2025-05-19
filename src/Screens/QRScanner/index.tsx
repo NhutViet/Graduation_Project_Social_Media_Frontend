@@ -154,8 +154,8 @@ export const QRScanner = () => {
       />
       <LinearGradient
         colors={[
-          'rgba(71, 55, 248, 0.5)',   
-          'rgba(255, 255, 255, 0.5)', 
+          'rgba(14,129,255,0.6)',   
+          'rgba(203,218,255, 0.6)', 
         ]}
         style={StyleSheet.absoluteFill}
         start={{ x: 0, y: 0 }}
@@ -168,7 +168,12 @@ export const QRScanner = () => {
         
       </TouchableOpacity>
       <View style={styles.overlay}>
-        <View style={[styles.scanArea, { width: SCAN_AREA_SIZE, height: SCAN_AREA_SIZE }]} />
+        <View style={[styles.scanArea, { width: SCAN_AREA_SIZE, height: SCAN_AREA_SIZE }]}>
+          <View style={[styles.corner, styles.topLeft]} />
+          <View style={[styles.corner, styles.topRight]} />
+          <View style={[styles.corner, styles.bottomLeft]} />
+          <View style={[styles.corner, styles.bottomRight]} />
+        </View>
       </View>
       
     </View>
@@ -186,9 +191,41 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   scanArea: {
-    borderWidth: 2,
+    position: 'relative',
+  },
+  corner: {
+    position: 'absolute',
+    width: 30,
+    height: 30,
     borderColor: '#fff',
-    borderRadius: 12,
+  },
+  topLeft: {
+    top: -2, 
+    left: -2, 
+    borderTopWidth: 4,
+    borderLeftWidth: 4,
+    borderTopLeftRadius: 10
+  },
+  topRight: {
+    top: -2,
+    right: -2,
+    borderTopWidth: 4,
+    borderRightWidth: 4,
+    borderTopRightRadius: 10
+  },
+  bottomLeft: {
+    bottom: -2,
+    left: -2,
+    borderBottomWidth: 4,
+    borderLeftWidth: 4,
+    borderBottomLeftRadius: 10
+  },
+  bottomRight: {
+    bottom: -2,
+    right: -2,
+    borderBottomWidth: 4,
+    borderRightWidth: 4,
+    borderBottomRightRadius: 10
   },
   backButton: {
     position: 'absolute',
