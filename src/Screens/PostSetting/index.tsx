@@ -62,7 +62,6 @@ export const PostSetting = () => {
       <ScrollView style={styles.container}>
         <View
           style={[
-            styles.showContainer,
             {
               backgroundColor: color.transparent,
               justifyContent: 'center',
@@ -92,8 +91,8 @@ export const PostSetting = () => {
           textAlignVertical="top"
         />
         <TouchableOpacity style={styles.btnTD}>
-          <Image source={require('../../../assets/icon/Menu.png')} />
-          <Text>Thăm dò ý kiến</Text>
+          <Image source={require('../../../assets/icon/Menu.png')} style={styles.icon}/>
+          <Text style={[styles.textR, {fontWeight: 'normal'}]}>Thăm dò ý kiến</Text>
         </TouchableOpacity>
         <Section
           title={'Gắn thẻ người khác'}

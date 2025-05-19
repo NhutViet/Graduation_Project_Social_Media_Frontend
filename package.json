@@ -16,6 +16,7 @@
     "@react-navigation/material-top-tabs": "^6.5.3",
     "@react-navigation/native": "6.1.3",
     "@react-navigation/stack": "6.2.1",
+    "@reduxjs/toolkit": "^2.8.2",
     "@shopify/flash-list": "^1.8.0",
     "axios": "0.27.2",
     "expo-modules-core": "^2.3.12",
@@ -43,6 +44,8 @@
     "react-native-vector-icons": "^10.2.0",
     "react-native-video": "^6.13.0",
     "react-native-vision-camera": "^4.6.4",
+    "react-redux": "^9.2.0",
+    "redux": "^5.0.1",
     "socket.io-client": "^4.8.1"
   },
   "devDependencies": {

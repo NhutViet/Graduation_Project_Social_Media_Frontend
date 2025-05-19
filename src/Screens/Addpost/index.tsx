@@ -212,12 +212,18 @@ export const AddPost = () => {
                     style={{
                       width: width / 3,
                       height: width / 3,
-                      borderWidth: isSelected ? 3 : 0,
-                      borderColor: 'white',
                     }}
                   />
+                  {isSelected && (
+                    <View style={{
+                      width: width / 3,
+                      height: width / 3,
+                      position: 'absolute',
+                      backgroundColor: 'rgba(0,0,0,0.6)'
+                    }}/>
+                  )}
                   {/* Thứ tự chọn */}
-                  {indexSelected >= 0 && (
+                  {indexSelected >= 0 ? (
                     <View
                       style={{
                         position: 'absolute',
@@ -234,17 +240,30 @@ export const AddPost = () => {
                         {indexSelected + 1}
                       </Text>
                     </View>
-                  )}
+                  ): (<View
+                      style={{
+                        position: 'absolute',
+                        top: 5,
+                        right: 5,
+                        width: 24,
+                        height: 24,
+                        borderRadius: 12,
+                        backgroundColor: 'rgba(0, 0, 0, 0.4)',
+                        borderWidth: 1,
+                        borderColor: 'white',
+                      }}>
+                    </View>)}
                   {/* Icon video */}
                   {item.node.type.startsWith('video') && (
                     <Image
-                      source={require('../../../assets/icon/x.png')}
+                      source={require('../../../assets/icon/reels.png')}
                       style={{
                         position: 'absolute',
                         bottom: 5,
                         right: 5,
                         width: 20,
                         height: 20,
+                        tintColor: color.primary
                       }}
                     />
                   )}

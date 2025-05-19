@@ -85,6 +85,7 @@ export const getAddPostStyles = (theme: 'light' | 'dark') => {
       marginLeft: 20,
       flexDirection: 'row',
       alignSelf: 'flex-start',
+      alignItems: 'center',
       gap: 10,
     },
     btnShare: {

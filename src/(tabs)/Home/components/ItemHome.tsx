@@ -1,5 +1,13 @@
 import React, {useRef, useCallback, useState} from 'react';
-import {View, Text, Image, TouchableOpacity, StyleSheet} from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+  FlatList,
+} from 'react-native';
 import Video from 'react-native-video';
 import {Modalize} from 'react-native-modalize';
 import {Colors} from '../../../../assets/color/Colors';
@@ -16,19 +24,15 @@ import ModalShare from './ModalShare';
 
 const ItemHome = (props: any) => {
   const {
-    id,
-    uriVideo,
-    img,
-    imgUser,
-    name,
-    like,
-    comment,
+    _id,
+    type,
+    caption,
     share,
-    title,
-    date,
-    currentVisible,
+    createdAt,
+    media,
+    user,
     modalizeRef,
-    setCurrentPost,
+    currentVisible,
     isFocused,
   } = props;
 
@@ -38,6 +42,7 @@ const ItemHome = (props: any) => {
   const [isModalVisible, setIsModalVisible] = React.useState(false);
   const navigation: any = useNavigation();
   const [visibleModalShare, setVisibleModalShare] = useState(false);
+
   // Modalize bottom sheet reference
   const sheetRef = useRef<Modalize>(null);
   const openOptions = useCallback(() => {
@@ -63,8 +68,32 @@ const ItemHome = (props: any) => {
     if (num >= 1_000) {
       return (num / 1_000).toFixed(1).replace(/\.0$/, '') + 'k';
     }
-    return num.toString();
+    return num?.toString();
   };
+
+  // hàm đổi ngày
+  const formatTimeAgo = (dateString: string): string => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+
+    const seconds = Math.floor(diffMs / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    const months = Math.floor(days / 30);
+    const years = Math.floor(days / 365);
+
+    if (years > 0) return `${years} năm trước`;
+    if (months > 0) return `${months} tháng trước`;
+    if (days > 0) return `${days} ngày trước`;
+    if (hours > 0) return `${hours} giờ trước`;
+    if (minutes > 0) return `${minutes} phút trước`;
+    return `Vừa xong`;
+  };
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const screenWidth = Dimensions.get('window').width;
 
   // Bottom sheet options
   const topOptions: OptionItem[] = [
@@ -175,7 +204,7 @@ const ItemHome = (props: any) => {
     },
   ];
 
-  const textColor = uriVideo ? Colors.dark.text : color.text;
+  const textColor = type === 'reel' ? Colors.dark.text : color.text;
 
   // data share
   const friends = [
@@ -268,25 +297,62 @@ const ItemHome = (props: any) => {
       </Portal>
 
       <View style={styles.container}>
+        {type != 'reel' && <View style={styles.blockWhite}></View>}
         <View style={styles.video}>
-          {uriVideo ? (
-            <Video
-              source={{uri: uriVideo}}
-              resizeMode="cover"
-              style={{width: '100%', height: '100%'}}
-              repeat
-              paused={currentVisible !== id || !isFocused}
-              muted={muted}
-            />
-          ) : (
-            <>
-              <View style={styles.blockWhite}></View>
-              <Image
-                source={{uri: img}}
-                style={{width: '100%', height: '100%'}}
-                resizeMode="cover"
-              />
-            </>
+          <FlatList
+            data={media}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            keyExtractor={item => item._id.toString()}
+            renderItem={({item, index}) => {
+              if (item.videoUrl) {
+                return (
+                  <Video
+                    key={index}
+                    source={{uri: item.videoUrl}}
+                    resizeMode="contain"
+                    style={{width: screenWidth, height: '100%'}}
+                    repeat
+                    paused={!currentVisible || !isFocused}
+                    muted={muted}
+                  />
+                );
+              } else {
+                return (
+                  <Image
+                    key={index}
+                    source={{uri: item.imageUrl}}
+                    style={{width: screenWidth, height: '100%'}}
+                    resizeMode="contain"
+                  />
+                );
+              }
+            }}
+            onMomentumScrollEnd={event => {
+              const offsetX = event.nativeEvent.contentOffset.x;
+              const newIndex = Math.round(offsetX / screenWidth);
+              setCurrentIndex(newIndex);
+            }}
+          />
+
+          {media.length > 1 && (
+            <View style={styles.pagination}>
+              {media.map((_: any, index: any) => (
+                <View
+                  key={index}
+                  style={[
+                    styles.dot,
+                    {
+                      backgroundColor:
+                        index === currentIndex
+                          ? '#fff'
+                          : 'rgba(255,255,255,0.5)',
+                    },
+                  ]}
+                />
+              ))}
+            </View>
           )}
         </View>
         <View style={styles.headerItem}>
@@ -294,22 +360,27 @@ const ItemHome = (props: any) => {
             <TouchableOpacity
               style={styles.blockImg}
               onPress={() => {
-                navigation.navigate('InfoUser', {id});
+                navigation.navigate('InfoUser', {userId: user._id});
               }}>
-              <Image style={styles.imgUser} source={{uri: imgUser}} />
+              <Image
+                style={styles.imgUser}
+                source={{
+                  uri: user.profilePic,
+                }}
+              />
             </TouchableOpacity>
             <View>
               <Text
                 style={[
                   styles.textNormal,
-                  {color: uriVideo ? Colors.dark.text : color.text},
+                  {color: type === 'reel' ? Colors.dark.text : color.text},
                 ]}>
-                {name}
+                {user.handleName}
               </Text>
               <Text
                 style={[
                   styles.text,
-                  {color: uriVideo ? Colors.dark.text : color.text},
+                  {color: type === 'reel' ? Colors.dark.text : color.text},
                 ]}>
                 Gợi ý cho bạn
               </Text>
@@ -320,13 +391,14 @@ const ItemHome = (props: any) => {
               style={[
                 styles.btnFollow,
                 {
-                  borderColor: uriVideo ? Colors.light.background : color.text,
+                  borderColor:
+                    type === 'reel' ? Colors.light.background : color.text,
                 },
               ]}>
               <Text
                 style={[
                   styles.textNormal,
-                  {color: uriVideo ? Colors.dark.text : color.text},
+                  {color: type === 'reel' ? Colors.dark.text : color.text},
                 ]}>
                 Theo dõi
               </Text>
@@ -335,7 +407,8 @@ const ItemHome = (props: any) => {
               <Image
                 style={[
                   {
-                    tintColor: uriVideo ? Colors.light.background : color.text,
+                    tintColor:
+                      type === 'reel' ? Colors.light.background : color.text,
                   },
                   styles.icon,
                 ]}
@@ -371,7 +444,7 @@ const ItemHome = (props: any) => {
               onPress={() => {
                 modalizeRef?.current?.open();
               }}>
-              {formatNumber(like)}
+              {formatNumber(0)}
             </Text>
             <TouchableOpacity style={styles.iconBlock}>
               <Image
@@ -380,7 +453,7 @@ const ItemHome = (props: any) => {
               />
             </TouchableOpacity>
             <Text style={{color: color.text, marginLeft: 8, marginRight: 16}}>
-              {formatNumber(comment)}
+              {formatNumber(0)}
             </Text>
             <TouchableOpacity
               style={styles.iconBlock}
@@ -401,8 +474,10 @@ const ItemHome = (props: any) => {
             />
           </TouchableOpacity>
         </View>
-        <Text style={[styles.title, {color: color.text}]}>{title}</Text>
-        <Text style={{color: color.text, fontSize: 12}}>{date}</Text>
+        <Text style={[styles.title, {color: color.text}]}>{caption}</Text>
+        <Text style={{color: color.text, fontSize: 12}}>
+          {formatTimeAgo(createdAt)}
+        </Text>
       </View>
       <ModalShare
         visible={visibleModalShare}
@@ -447,6 +522,7 @@ const styles = StyleSheet.create({
   },
   video: {
     width: '100%',
+    backgroundColor: Colors.black,
     height: 600,
   },
   headerItem: {
@@ -523,6 +599,21 @@ const styles = StyleSheet.create({
     width: 25,
     height: 25,
     resizeMode: 'contain',
+  },
+  pagination: {
+    position: 'absolute',
+    bottom: 15,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    marginHorizontal: 4,
   },
 });
 
