@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, {useState, useEffect, useCallback, useRef} from 'react';
 import {
   View,
   StyleSheet,
@@ -15,6 +15,7 @@ import Video from 'react-native-video';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {useNavigation} from '@react-navigation/native';
+import BottomSheet, {BottomSheetRef} from './BottomSheet/BottomSheetMusic';
 
 export const PostStory = () => {
   const {theme} = useTheme();
@@ -173,6 +174,8 @@ export const PostStory = () => {
 
   console.log('Rendering PostStory');
 
+  const sheetRef = useRef<BottomSheetRef>(null);
+
   return (
     <SafeAreaView
       style={[styles.container, {backgroundColor: color.background}]}>
@@ -193,7 +196,9 @@ export const PostStory = () => {
           />
           <Text style={[styles.txtTop, {color: color.text}]}>Template</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.btnTop}>
+        <TouchableOpacity
+          style={styles.btnTop}
+          onPress={() => sheetRef.current?.open()}>
           <Image
             style={[styles.imgTop, {tintColor: color.text}]}
             source={require('../../../assets/icon/music.png')}
@@ -224,6 +229,7 @@ export const PostStory = () => {
           }
         />
       </View>
+      <BottomSheet ref={sheetRef} children={undefined}/>
     </SafeAreaView>
   );
 };
