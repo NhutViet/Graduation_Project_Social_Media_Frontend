@@ -29,6 +29,8 @@ import {
   BookmarkScreen,
   PlaylistsScreen,
   BlockUser,
+  PeopleGroupChat,
+  AddPeopleToGroupChat
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 import EditHighlightScreen from '../(tabs)/Profile/components/EditHighlightScreen';
@@ -45,6 +47,8 @@ const AppNavigator = () => {
       <Stack.Navigator
         initialRouteName="BottomTabs"
         screenOptions={{headerShown: false}}>
+          <Stack.Screen name="AddPeopleToGroupChat" component={AddPeopleToGroupChat} />
+          <Stack.Screen name="PeopleGroupChat" component={PeopleGroupChat} />
         <Stack.Screen name="BlockUser" component={BlockUser} />
         <Stack.Screen name="BlockedAccounts" component={BlockedAccounts} />
         <Stack.Screen name="Swipe" component={Swipe} />

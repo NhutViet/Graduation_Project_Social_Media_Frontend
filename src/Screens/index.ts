@@ -25,3 +25,5 @@ export * from './BlockUser';
 export * from './BlockedAccounts';
 export * from './BookmarkScreen';
 export * from './PlaylistScreen';
+export * from './PeopleGroupChat';
+export * from './AddPeopleToGroupChat';
