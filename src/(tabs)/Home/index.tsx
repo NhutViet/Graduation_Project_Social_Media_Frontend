@@ -17,6 +17,7 @@ import User from '../../../components/User';
 import {useEffect, useRef, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import ItemHome from './components/ItemHome';
+import ModalShare from './components/ModalShare';
 import {Modalize} from 'react-native-modalize';
 import {AppDispatch, RootState} from '../../../services/store';
 import {fetchPostsWithMedia} from '../../../services/postRedux/postSlice';
@@ -50,7 +51,7 @@ export const Home = () => {
 
   /////////////////////////////////////////////////////////
 
-  const modalizeRef = useRef<Modalize>(null);
+  const modalizeRef = useRef<Modalize>(null)
 
   // data mẫu
   const [dataUser, setDataUser] = useState([
@@ -98,135 +99,6 @@ export const Home = () => {
     }
   }, []);
 
-  // data cho model mẫu
-  const modalData = [
-    {
-      id: '1',
-      username: 'user1',
-      bio: 'abc',
-      profile_pic:
-        'https://i.pinimg.com/736x/8c/71/92/8c7192c084765c076ef33024c0b34406.jpg',
-      is_following: true,
-    },
-    {
-      id: '2',
-      username: 'user2',
-      bio: 'xyz',
-      profile_pic:
-        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-      is_following: false,
-    },
-    {
-      id: '3',
-      username: 'user3',
-      bio: '',
-      profile_pic:
-        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-      is_following: true,
-    },
-    {
-      id: '4',
-      username: 'user3',
-      bio: '',
-      profile_pic:
-        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-      is_following: true,
-    },
-    {
-      id: '5',
-      username: 'user3',
-      bio: '',
-      profile_pic:
-        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-      is_following: true,
-    },
-    {
-      id: '6',
-      username: 'user3',
-      bio: '',
-      profile_pic:
-        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-      is_following: true,
-    },
-    {
-      id: '7',
-      username: 'user3',
-      bio: '',
-      profile_pic:
-        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-      is_following: true,
-    },
-    {
-      id: '8',
-      username: 'user3',
-      bio: '',
-      profile_pic:
-        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-      is_following: true,
-    },
-    {
-      id: '9',
-      username: 'user3',
-      bio: '',
-      profile_pic:
-        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-      is_following: true,
-    },
-    {
-      id: '10',
-      username: 'user3',
-      bio: '',
-      profile_pic:
-        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-      is_following: true,
-    },
-    {
-      id: '11',
-      username: 'user3',
-      bio: '',
-      profile_pic:
-        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-      is_following: true,
-    },
-  ];
-
-  type UserItem = {
-    id: string;
-    username: string;
-    profile_pic: string;
-    bio: string;
-    is_following: boolean;
-  };
-
-  const renderItem = ({item}: {item: UserItem}) => (
-    <View style={[styles.userItem, {backgroundColor: color.modal}]}>
-      <Image source={{uri: item.profile_pic}} style={styles.avatar} />
-      <View style={[styles.userInfo, {backgroundColor: color.modal}]}>
-        <Text style={[styles.username, {color: color.text}]}>
-          {item.username}
-        </Text>
-        <Text style={[styles.bio, {color: color.text}]}>{item.bio}</Text>
-      </View>
-      <TouchableOpacity
-        style={[
-          styles.followButton,
-          item.is_following
-            ? [styles.disabledButton, {borderColor: color.text}]
-            : styles.activeButton,
-        ]}
-        disabled={item.is_following}>
-        <Text
-          style={[
-            item.is_following
-              ? [styles.followButtonText, {color: color.text}]
-              : styles.followButtonText,
-          ]}>
-          {item.is_following ? 'Followed' : 'Follow'}
-        </Text>
-      </TouchableOpacity>
-    </View>
-  );
-
   const handleUserPress = (user: any) => {
     console.log('Navigating to SeenStory with user:', user);
     // Cập nhật status của user được nhấn thành 0
@@ -253,30 +125,6 @@ export const Home = () => {
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
-      <Modalize
-        ref={modalizeRef}
-        adjustToContentHeight={false}
-        modalHeight={Dimensions.get('window').height * 0.7}
-        modalStyle={[styles.modal, {backgroundColor: color.modal}]}
-        handleStyle={styles.modalHandle}
-        withHandle
-        onOverlayPress={() => modalizeRef.current?.close()}
-        HeaderComponent={
-          <View style={styles.modalHeader}>
-            <Text style={[styles.title, {color: color.text}]}>Favorites</Text>
-          </View>
-        }
-        scrollViewProps={{
-          showsVerticalScrollIndicator: false,
-        }}>
-        <FlashList
-          data={modalData}
-          keyExtractor={item => item.id}
-          renderItem={renderItem}
-          estimatedItemSize={50}
-          showsVerticalScrollIndicator={false}
-        />
-      </Modalize>
       <FlashList
         data={posts}
         extraData={currentVisible}

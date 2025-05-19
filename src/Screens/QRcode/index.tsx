@@ -44,7 +44,7 @@ export const ScreenQRCode = ({navigation}: any) => {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.btn}
-            onPress={() => navigation.navigate('QScanner')}>
+            onPress={() => navigation.navigate('QRScanner')}>
             <Image
               style={styles.iconClose}
               source={require('../../../assets/icon/Qscan.png')}
