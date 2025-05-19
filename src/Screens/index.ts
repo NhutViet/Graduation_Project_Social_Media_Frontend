@@ -7,6 +7,7 @@ export * from './PostSetting';
 export * from './PostStory';
 export * from './QRcode';
 export * from './Setting';
+export * from './Setting/Privacy';
 export * from './Splash';
 export * from './SwitchAccount';
 export * from './Register';

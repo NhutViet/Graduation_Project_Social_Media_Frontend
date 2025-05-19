@@ -118,6 +118,7 @@ const Profile = () => {
   const {styles} = Styles;
 
   const [visibleModalCreate, setVisibleModalCreate] = useState(false);
+  const [activeTab, setActiveTab] = useState('grid'); // Thêm state để quản lý tab active
 
   const scrollY = useRef(new Animated.Value(0)).current;
   const translateY = scrollY.interpolate({
@@ -186,7 +187,11 @@ const Profile = () => {
               }}
               style={styles.avatar}
             />
-            <TouchableOpacity style={styles.addStoryButton} onPress={() => {navigation.navigate('UpStory')}}>
+            <TouchableOpacity
+              style={styles.addStoryButton}
+              onPress={() => {
+                navigation.navigate('UpStory');
+              }}>
               <Text style={styles.addStoryIcon}>+</Text>
             </TouchableOpacity>
           </View>
@@ -243,7 +248,8 @@ const Profile = () => {
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.shareButton, {backgroundColor: color.gray}]} onPress={() => navigation.navigate('QRCode')}>
+            style={[styles.shareButton, {backgroundColor: color.gray}]}
+            onPress={() => navigation.navigate('QRCode')}>
             <Text style={[styles.buttonText, {color: color.text}]}>
               Share Profile
             </Text>
@@ -273,6 +279,60 @@ const Profile = () => {
     </Animated.View>
   );
 
+  const renderTabBar = () => (
+    <View style={[styles.tabBar, {backgroundColor: color.background}]}>
+      <TouchableOpacity
+        style={[
+          styles.tab,
+          activeTab === 'grid' && styles.activeTab,
+          {borderBottomColor: color.text},
+        ]}
+        onPress={() => setActiveTab('grid')}>
+        <Grid
+          color={activeTab === 'grid' ? color.text : color.textSecondary}
+          size={24}
+        />
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[
+          styles.tab,
+          activeTab === 'reels' && styles.activeTab,
+          {borderBottomColor: color.text},
+        ]}
+        onPress={() => setActiveTab('reels')}>
+        <Video
+          color={activeTab === 'reels' ? color.text : color.textSecondary}
+          size={24}
+        />
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[
+          styles.tab,
+          activeTab === 'tagged' && styles.activeTab,
+          {borderBottomColor: color.text},
+        ]}
+        onPress={() => setActiveTab('tagged')}>
+        <UserSquare2
+          color={activeTab === 'tagged' ? color.text : color.textSecondary}
+          size={24}
+        />
+      </TouchableOpacity>
+    </View>
+  );
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'grid':
+        return <PostsView data={PostData} />;
+      case 'reels':
+        return <ReelsView data={PostData} />;
+      case 'tagged':
+        return <TaggedView data={PostData} />;
+      default:
+        return <PostsView data={PostData} />;
+    }
+  };
+
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
       <Animated.ScrollView
@@ -282,59 +342,8 @@ const Profile = () => {
         )}
         scrollEventThrottle={16}>
         {renderHeader()}
-
-        <View style={{height: 800}}>
-          <Tab.Navigator
-            screenOptions={{
-              tabBarIndicatorStyle: {
-                backgroundColor: color.text,
-              },
-              tabBarShowLabel: false,
-              tabBarShowIcon: true,
-              tabBarStyle: {
-                elevation: 0,
-                shadowOpacity: 0,
-                backgroundColor: color.background,
-              },
-            }}>
-            <Tab.Screen
-              name="Grid"
-              options={{
-                tabBarIcon: ({focused}) => (
-                  <Grid
-                    color={focused ? color.text : color.textSecondary}
-                    size={24}
-                  />
-                ),
-              }}
-              children={() => <PostsView data={PostData} />}
-            />
-            <Tab.Screen
-              name="Reels"
-              options={{
-                tabBarIcon: ({focused}) => (
-                  <Video
-                    color={focused ? color.text : color.textSecondary}
-                    size={24}
-                  />
-                ),
-              }}
-              children={() => <ReelsView data={PostData} />}
-            />
-            <Tab.Screen
-              name="Tagged"
-              options={{
-                tabBarIcon: ({focused}) => (
-                  <UserSquare2
-                    color={focused ? color.text : color.textSecondary}
-                    size={24}
-                  />
-                ),
-              }}
-              children={() => <TaggedView data={PostData} />}
-            />
-          </Tab.Navigator>
-        </View>
+        {renderTabBar()}
+        {renderContent()}
       </Animated.ScrollView>
       <SwitchAccount
         visible={isSwitchAccountVisible}
