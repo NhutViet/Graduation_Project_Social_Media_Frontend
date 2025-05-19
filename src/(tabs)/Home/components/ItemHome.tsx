@@ -1,29 +1,38 @@
 import React, {useRef, useCallback, useState} from 'react';
-import {View, Text, Image, TouchableOpacity, StyleSheet} from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+  FlatList,
+} from 'react-native';
 import Video from 'react-native-video';
 import {Modalize} from 'react-native-modalize';
-import {Colors} from '../assets/color/Colors';
-import {useTheme} from '../src/util/ThemeContext';
+import {Colors} from '../../../../assets/color/Colors';
+import {useTheme} from '../../../util/ThemeContext';
 import {Portal} from 'react-native-portalize';
-import BottomSheetOptions, {OptionItem} from './BottomSheetOptions';
-import BottomSheetIntentions, {IntentionOption} from './BottomSheetIntentions';
+import BottomSheetOptions, {
+  OptionItem,
+} from '../../../../components/BottomSheetOptions';
+import BottomSheetIntentions, {
+  IntentionOption,
+} from '../../../../components/BottomSheetIntentions';
 import {useNavigation} from '@react-navigation/native';
+import ModalShare from './ModalShare';
 
 const ItemHome = (props: any) => {
   const {
-    id,
-    uriVideo,
-    img,
-    imgUser,
-    name,
-    like,
-    comment,
+    _id,
+    type,
+    caption,
     share,
-    title,
-    date,
-    currentVisible,
+    createdAt,
+    media,
+    user,
     modalizeRef,
-    setCurrentPost,
+    currentVisible,
     isFocused,
   } = props;
 
@@ -32,6 +41,7 @@ const ItemHome = (props: any) => {
   const [muted, setMuted] = React.useState(true);
   const [isModalVisible, setIsModalVisible] = React.useState(false);
   const navigation: any = useNavigation();
+  const [visibleModalShare, setVisibleModalShare] = useState(false);
 
   // Modalize bottom sheet reference
   const sheetRef = useRef<Modalize>(null);
@@ -58,14 +68,38 @@ const ItemHome = (props: any) => {
     if (num >= 1_000) {
       return (num / 1_000).toFixed(1).replace(/\.0$/, '') + 'k';
     }
-    return num.toString();
+    return num?.toString();
   };
+
+  // hàm đổi ngày
+  const formatTimeAgo = (dateString: string): string => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+
+    const seconds = Math.floor(diffMs / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    const months = Math.floor(days / 30);
+    const years = Math.floor(days / 365);
+
+    if (years > 0) return `${years} năm trước`;
+    if (months > 0) return `${months} tháng trước`;
+    if (days > 0) return `${days} ngày trước`;
+    if (hours > 0) return `${hours} giờ trước`;
+    if (minutes > 0) return `${minutes} phút trước`;
+    return `Vừa xong`;
+  };
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const screenWidth = Dimensions.get('window').width;
 
   // Bottom sheet options
   const topOptions: OptionItem[] = [
     {
       id: 'bookmark',
-      icon: require('../assets/icon/bookmark.png'),
+      icon: require('../../../../assets/icon/bookmark.png'),
       label: 'Bookmark',
       onPress: () => {
         closeSheet();
@@ -73,7 +107,7 @@ const ItemHome = (props: any) => {
     },
     {
       id: 'remix',
-      icon: require('../assets/icon/remix.png'),
+      icon: require('../../../../assets/icon/remix.png'),
       label: 'Remix',
       onPress: () => {
         closeSheet();
@@ -83,7 +117,7 @@ const ItemHome = (props: any) => {
   const firstListOptions: OptionItem[] = [
     {
       id: 'favorite',
-      icon: require('../assets/icon/star.png'),
+      icon: require('../../../../assets/icon/star.png'),
       label: 'Adding to favorite',
       onPress: () => {
         closeSheet();
@@ -91,7 +125,7 @@ const ItemHome = (props: any) => {
     },
     {
       id: 'unfollow',
-      icon: require('../assets/icon/unfollow.png'),
+      icon: require('../../../../assets/icon/unfollow.png'),
       label: 'Unfollow',
       onPress: () => {
         closeSheet();
@@ -101,7 +135,7 @@ const ItemHome = (props: any) => {
   const secondListOptions: OptionItem[] = [
     {
       id: 'accountInfo',
-      icon: require('../assets/icon/account.png'),
+      icon: require('../../../../assets/icon/account.png'),
       label: 'This account info',
       onPress: () => {
         closeSheet();
@@ -109,7 +143,7 @@ const ItemHome = (props: any) => {
     },
     {
       id: 'whySee',
-      icon: require('../assets/icon/info.png'),
+      icon: require('../../../../assets/icon/info.png'),
       label: 'Why am I seeing this post',
       onPress: () => {
         closeSheet();
@@ -117,7 +151,7 @@ const ItemHome = (props: any) => {
     },
     {
       id: 'hide',
-      icon: require('../assets/icon/blind.png'),
+      icon: require('../../../../assets/icon/blind.png'),
       label: 'Hide',
       onPress: () => {
         closeSheet();
@@ -125,7 +159,7 @@ const ItemHome = (props: any) => {
     },
     {
       id: 'report',
-      icon: require('../assets/icon/report.png'),
+      icon: require('../../../../assets/icon/report.png'),
       label: 'Report this post',
       onPress: () => {
         closeSheet();
@@ -170,7 +204,33 @@ const ItemHome = (props: any) => {
     },
   ];
 
-  const textColor = uriVideo ? Colors.dark.text : color.text;
+  const textColor = type === 'reel' ? Colors.dark.text : color.text;
+
+  // data share
+  const friends = [
+    {
+      id: '1',
+      name: 'Huỳnh Duy Linh',
+      avatar: 'https://picsum.photos/seed/1/100',
+    },
+    {id: '2', name: 'Ng.Đức Phi', avatar: 'https://picsum.photos/seed/2/100'},
+    {
+      id: '3',
+      name: 'Hoàng Thị Bảo Trâm',
+      avatar: 'https://picsum.photos/seed/3/100',
+    },
+    {
+      id: '4',
+      name: 'Coraline Hoang',
+      avatar: 'https://picsum.photos/seed/4/100',
+    },
+    {id: '5', name: 'Chu Kim Gun', avatar: 'https://picsum.photos/seed/5/100'},
+    {
+      id: '6',
+      name: 'Huỳnh Duy Linh',
+      avatar: 'https://picsum.photos/seed/1/100',
+    },
+  ];
 
   return (
     <View style={styles.wrapper}>
@@ -237,25 +297,62 @@ const ItemHome = (props: any) => {
       </Portal>
 
       <View style={styles.container}>
+        {type != 'reel' && <View style={styles.blockWhite}></View>}
         <View style={styles.video}>
-          {uriVideo ? (
-            <Video
-              source={{uri: uriVideo}}
-              resizeMode="cover"
-              style={{width: '100%', height: '100%'}}
-              repeat
-              paused={currentVisible !== id || !isFocused}
-              muted={muted}
-            />
-          ) : (
-            <>
-              <View style={styles.blockWhite}></View>
-              <Image
-                source={{uri: img}}
-                style={{width: '100%', height: '100%'}}
-                resizeMode="cover"
-              />
-            </>
+          <FlatList
+            data={media}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            keyExtractor={item => item._id.toString()}
+            renderItem={({item, index}) => {
+              if (item.videoUrl) {
+                return (
+                  <Video
+                    key={index}
+                    source={{uri: item.videoUrl}}
+                    resizeMode="contain"
+                    style={{width: screenWidth, height: '100%'}}
+                    repeat
+                    paused={!currentVisible || !isFocused}
+                    muted={muted}
+                  />
+                );
+              } else {
+                return (
+                  <Image
+                    key={index}
+                    source={{uri: item.imageUrl}}
+                    style={{width: screenWidth, height: '100%'}}
+                    resizeMode="contain"
+                  />
+                );
+              }
+            }}
+            onMomentumScrollEnd={event => {
+              const offsetX = event.nativeEvent.contentOffset.x;
+              const newIndex = Math.round(offsetX / screenWidth);
+              setCurrentIndex(newIndex);
+            }}
+          />
+
+          {media.length > 1 && (
+            <View style={styles.pagination}>
+              {media.map((_: any, index: any) => (
+                <View
+                  key={index}
+                  style={[
+                    styles.dot,
+                    {
+                      backgroundColor:
+                        index === currentIndex
+                          ? '#fff'
+                          : 'rgba(255,255,255,0.5)',
+                    },
+                  ]}
+                />
+              ))}
+            </View>
           )}
         </View>
         <View style={styles.headerItem}>
@@ -263,22 +360,27 @@ const ItemHome = (props: any) => {
             <TouchableOpacity
               style={styles.blockImg}
               onPress={() => {
-                navigation.navigate('InfoUser', {id});
+                navigation.navigate('InfoUser', {userId: user._id});
               }}>
-              <Image style={styles.imgUser} source={{uri: imgUser}} />
+              <Image
+                style={styles.imgUser}
+                source={{
+                  uri: user.profilePic,
+                }}
+              />
             </TouchableOpacity>
             <View>
               <Text
                 style={[
                   styles.textNormal,
-                  {color: uriVideo ? Colors.dark.text : color.text},
+                  {color: type === 'reel' ? Colors.dark.text : color.text},
                 ]}>
-                {name}
+                {user.handleName}
               </Text>
               <Text
                 style={[
                   styles.text,
-                  {color: uriVideo ? Colors.dark.text : color.text},
+                  {color: type === 'reel' ? Colors.dark.text : color.text},
                 ]}>
                 Gợi ý cho bạn
               </Text>
@@ -289,23 +391,28 @@ const ItemHome = (props: any) => {
               style={[
                 styles.btnFollow,
                 {
-                  borderColor: uriVideo ? Colors.light.background : color.text,
+                  borderColor:
+                    type === 'reel' ? Colors.light.background : color.text,
                 },
               ]}>
               <Text
                 style={[
                   styles.textNormal,
-                  {color: uriVideo ? Colors.dark.text : color.text},
+                  {color: type === 'reel' ? Colors.dark.text : color.text},
                 ]}>
                 Theo dõi
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={openOptions}>
+            <TouchableOpacity onPress={openOptions} style={styles.iconBlock}>
               <Image
-                style={{
-                  tintColor: uriVideo ? Colors.light.background : color.text,
-                }}
-                source={require('../assets/icon/menu-dots-vertical.png')}
+                style={[
+                  {
+                    tintColor:
+                      type === 'reel' ? Colors.light.background : color.text,
+                  },
+                  styles.icon,
+                ]}
+                source={require('../../../../assets/icon/menu-dots-vertical.png')}
               />
             </TouchableOpacity>
           </View>
@@ -316,10 +423,10 @@ const ItemHome = (props: any) => {
           <Image
             source={
               muted
-                ? require('../assets/icon/mute.png')
-                : require('../assets/icon/volume.png')
+                ? require('../../../../assets/icon/mute.png')
+                : require('../../../../assets/icon/volume.png')
             }
-            style={{width: 24, height: 24, tintColor: Colors.dark.text}}
+            style={[{tintColor: Colors.dark.text}, styles.icon]}
           />
         </TouchableOpacity>
       </View>
@@ -329,7 +436,7 @@ const ItemHome = (props: any) => {
             <TouchableOpacity style={styles.iconBlock}>
               <Image
                 style={[{tintColor: color.text}, styles.icon]}
-                source={require('../assets/icon/heart.png')}
+                source={require('../../../../assets/icon/heart.png')}
               />
             </TouchableOpacity>
             <Text
@@ -337,21 +444,23 @@ const ItemHome = (props: any) => {
               onPress={() => {
                 modalizeRef?.current?.open();
               }}>
-              {formatNumber(like)}
+              {formatNumber(0)}
             </Text>
             <TouchableOpacity style={styles.iconBlock}>
               <Image
                 style={[{tintColor: color.text}, styles.icon]}
-                source={require('../assets/icon/comment.png')}
+                source={require('../../../../assets/icon/comment.png')}
               />
             </TouchableOpacity>
             <Text style={{color: color.text, marginLeft: 8, marginRight: 16}}>
-              {formatNumber(comment)}
+              {formatNumber(0)}
             </Text>
-            <TouchableOpacity style={styles.iconBlock}>
+            <TouchableOpacity
+              style={styles.iconBlock}
+              onPress={() => setVisibleModalShare(true)}>
               <Image
                 style={[{tintColor: color.text}, styles.icon]}
-                source={require('../assets/icon/share.png')}
+                source={require('../../../../assets/icon/share.png')}
               />
             </TouchableOpacity>
             <Text style={{color: color.text, marginLeft: 8, marginRight: 16}}>
@@ -361,27 +470,61 @@ const ItemHome = (props: any) => {
           <TouchableOpacity style={styles.iconBlock}>
             <Image
               style={[{tintColor: color.text}, styles.icon]}
-              source={require('../assets/icon/bookmark.png')}
+              source={require('../../../../assets/icon/bookmark.png')}
             />
           </TouchableOpacity>
         </View>
-        <Text style={[styles.title, {color: color.text}]}>{title}</Text>
-        <Text style={{color: color.text, fontSize: 12}}>{date}</Text>
+        <Text style={[styles.title, {color: color.text}]}>{caption}</Text>
+        <Text style={{color: color.text, fontSize: 12}}>
+          {formatTimeAgo(createdAt)}
+        </Text>
       </View>
+      <ModalShare
+        visible={visibleModalShare}
+        onClose={() => setVisibleModalShare(false)}
+        friends={friends}
+      />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {position: 'relative', width: '100%'},
-  wrapper: {width: '100%', marginTop: 10},
-  fullSize: {width: '100%', height: '100%'},
-  footer: {padding: 10},
-  footerTop: {justifyContent: 'space-between'},
-  countText: {color: Colors.dark.text, marginHorizontal: 8},
-  dateText: {color: Colors.dark.text, fontSize: 12},
-  muteIcon: {width: 24, height: 24, tintColor: Colors.dark.text},
-  video: {width: '100%', height: 600},
+  container: {
+    position: 'relative',
+    width: '100%',
+  },
+  wrapper: {
+    width: '100%',
+    marginTop: 10,
+  },
+  fullSize: {
+    width: '100%',
+    height: '100%',
+  },
+  footer: {
+    padding: 10,
+  },
+  footerTop: {
+    justifyContent: 'space-between',
+  },
+  countText: {
+    color: Colors.dark.text,
+    marginHorizontal: 8,
+  },
+  dateText: {
+    color: Colors.dark.text,
+    fontSize: 12,
+  },
+  muteIcon: {
+    width: 24,
+    height: 24,
+    tintColor: Colors.dark.text,
+  },
+  video: {
+    width: '100%',
+    backgroundColor: Colors.black,
+    height: 600,
+  },
   headerItem: {
     position: 'absolute',
     zIndex: 1,
@@ -392,7 +535,10 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: Colors.light.transparent,
   },
-  rowContainer: {flexDirection: 'row', alignItems: 'center'},
+  rowContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   blockImg: {
     width: 40,
     height: 40,
@@ -400,9 +546,16 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     marginRight: 10,
   },
-  imgUser: {width: '100%', height: '100%'},
-  textNormal: {fontSize: 14},
-  text: {fontSize: 12},
+  imgUser: {
+    width: '100%',
+    height: '100%',
+  },
+  textNormal: {
+    fontSize: 14,
+  },
+  text: {
+    fontSize: 12,
+  },
   btnFollow: {
     paddingVertical: 6,
     paddingHorizontal: 20,
@@ -413,17 +566,55 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginRight: 10,
   },
-  iconBlock: {width: 24, height: 24},
-  icon: {width: '100%', height: '100%'},
-  title: {marginVertical: 10, fontSize: 14},
-  muteButton: {position: 'absolute', bottom: 20, right: 20},
+  iconBlock: {
+    width: 24,
+    height: 24,
+  },
+  icon: {
+    width: '100%',
+    height: '100%',
+  },
+  title: {
+    marginVertical: 10,
+    fontSize: 14,
+  },
+  muteButton: {
+    width: 25,
+    height: 25,
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+  },
   blockWhite: {
     width: '100%',
     height: 60,
     backgroundColor: Colors.light.transparent,
   },
-  optionsButton: {padding: 8, justifyContent: 'center', alignItems: 'center'},
-  optionsIcon: {width: 24, height: 24, resizeMode: 'contain'},
+  optionsButton: {
+    padding: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  optionsIcon: {
+    width: 25,
+    height: 25,
+    resizeMode: 'contain',
+  },
+  pagination: {
+    position: 'absolute',
+    bottom: 15,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    marginHorizontal: 4,
+  },
 });
 
 export default ItemHome;

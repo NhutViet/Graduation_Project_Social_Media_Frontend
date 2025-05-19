@@ -118,7 +118,6 @@ export const useProfileEditingStyles = () => {
           alignItems: 'center',
           justifyContent: 'center',
           padding: 15,
-          
         },
         textModel: {
           color: palette.text,
@@ -165,7 +164,7 @@ export const useProfileEditingStyles = () => {
           paddingVertical: 12,
         },
         tabText: {
-          fontSize: 16,
+          fontSize: 14,
           fontWeight: '400',
           color: palette.text,
         },

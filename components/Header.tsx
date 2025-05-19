@@ -82,7 +82,7 @@ const Header = (props: any) => {
           {iconQR && (
             <TouchableOpacity
               style={styles.iconBox}
-              onPress={() => navigation.navigate('QRcode')}>
+              onPress={() => navigation.navigate('QRCode')}>
               <Image
                 source={iconQR}
                 style={[styles.icon, {tintColor: color.text}]}
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
   iconBox: {
     width: 20,
     height: 20,
-    marginLeft: 10,
+    marginLeft: 20,
   },
   icon: {
     width: '100%',

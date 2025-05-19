@@ -2,6 +2,7 @@ import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {Colors} from '../assets/color/Colors';
 import {useTheme} from '../src/util/ThemeContext';
+import { useNavigation } from '@react-navigation/native';
 
 const User = (props: any) => {
   const {
@@ -9,13 +10,13 @@ const User = (props: any) => {
     image,
     status,
     func,
-    navigation,
     isStory = true,
     isHashTag = false,
   } = props;
 
   const {theme} = useTheme();
   const color = Colors[theme];
+  const navigation = useNavigation();
 
   const AvatarContent = () => (
     <View

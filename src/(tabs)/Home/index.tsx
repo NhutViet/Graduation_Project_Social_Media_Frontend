@@ -1,13 +1,12 @@
 import {
   TouchableOpacity,
   SafeAreaView,
-  ScrollView,
   StyleSheet,
   View,
   Text,
   Image,
   Dimensions,
-  TextInput,
+  ActivityIndicator,
 } from 'react-native';
 import {Colors} from '../../../assets/color/Colors';
 import {useTheme} from '../../util/ThemeContext';
@@ -16,98 +15,44 @@ import Header from '../../../components/Header';
 import {useIsFocused, useNavigation} from '@react-navigation/native';
 import User from '../../../components/User';
 import {useEffect, useRef, useState} from 'react';
-import ItemHome from '../../../components/ItemHome';
+import {useDispatch, useSelector} from 'react-redux';
+import ItemHome from './components/ItemHome';
 import {Modalize} from 'react-native-modalize';
+import {AppDispatch, RootState} from '../../../services/store';
+import {fetchPostsWithMedia} from '../../../services/postRedux/postSlice';
 
-const Home = () => {
+export const Home = () => {
   const navigation: any = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];
   const isFocused = useIsFocused();
 
-  // scroll bài post
-  const [currentVisible, setCurrentVisible] = useState('1');
-  const viewAbilityConfig = {
-    itemVisiblePercentThreshold: 70,
-  };
+  // fetch api
+  const dispatch = useDispatch<AppDispatch>();
+  const {posts, loading, error} = useSelector((state: RootState) => state.post);
 
-  const onViewableItemsChanged = useRef(({viewableItems}: any) => {
+  useEffect(() => {
+    dispatch(fetchPostsWithMedia());
+  }, []);
+
+  // scroll bài post
+  const [currentVisible, setCurrentVisible] = useState<string | null>(null);
+
+  const onViewRef = useRef(({viewableItems}: {viewableItems: any[]}) => {
     if (viewableItems.length > 0) {
-      setCurrentVisible(viewableItems[0].item.id);
+      const visibleItem = viewableItems[0];
+      const id = visibleItem?.item?._id;
+      if (id) {
+        setCurrentVisible(id);
+      }
     }
-  }).current;
+  });
+
+  /////////////////////////////////////////////////////////
 
   const modalizeRef = useRef<Modalize>(null);
-  const [currentPost, setCurrentPost] = useState<any>(null);
 
   // data mẫu
-  const posts = [
-    {
-      id: '0',
-      uriVideo:
-        'https://res.cloudinary.com/dsvcoywkc/video/upload/v1746957530/my_video/afezzsxayqcz9cpfbpsj.mp4',
-      imgUser:
-        'https://i.pinimg.com/736x/8c/71/92/8c7192c084765c076ef33024c0b34406.jpg',
-      name: 'Xie',
-      like: 27000,
-      comment: 5,
-      share: 27,
-      title: 'Phép màu',
-      date: '11/05/2025',
-    },
-    {
-      id: '1',
-      uriVideo:
-        'https://res.cloudinary.com/dsvcoywkc/video/upload/v1746718746/my_video/ncd28sjnze0wfaqti2hm.mp4',
-      imgUser:
-        'https://i.pinimg.com/736x/8c/71/92/8c7192c084765c076ef33024c0b34406.jpg',
-      name: 'User 1',
-      like: 123,
-      comment: 10,
-      share: 5,
-      title: 'Video đầu tiên',
-      date: '05/05/2025',
-    },
-    {
-      id: '2',
-      uriVideo:
-        'https://res.cloudinary.com/dsvcoywkc/video/upload/v1746718987/my_video/aynip2pj7jchjfdddmot.mp4',
-      imgUser:
-        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-      name: 'User 2',
-      like: 456,
-      comment: 2290,
-      share: 7,
-      title: 'Video 2',
-      date: '05/05/2025',
-    },
-    {
-      id: '3',
-      uriVideo:
-        'https://res.cloudinary.com/dsvcoywkc/video/upload/v1746719121/my_video/wfamwgeiy4eeibslfhjc.mp4',
-      imgUser:
-        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-      name: 'User 2',
-      like: 45096,
-      comment: 22,
-      share: 79,
-      title: 'Video 3',
-      date: '05/05/2025',
-    },
-    {
-      id: '4',
-      img: 'https://i.pinimg.com/736x/d2/03/ca/d203ca1c1ca1efd8b80f612fd550f55c.jpg',
-      imgUser:
-        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-      name: 'User 2',
-      like: 11566,
-      comment: 10092,
-      share: 27,
-      title: 'Image',
-      date: '05/05/2025',
-    },
-  ];
-
   const [dataUser, setDataUser] = useState([
     {
       id: 1,
@@ -292,6 +237,20 @@ const Home = () => {
     navigation.navigate('SeenStoryOwner', {selectedItem: user});
   };
 
+  if (loading) {
+    return (
+      <SafeAreaView
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: color.background,
+        }}>
+        <ActivityIndicator size="large" color={color.text} />
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
       <Modalize
@@ -320,19 +279,24 @@ const Home = () => {
       </Modalize>
       <FlashList
         data={posts}
-        keyExtractor={item => item.id}
-        renderItem={({item}) => (
-          <ItemHome
-            {...item}
-            isFocused={isFocused}
-            currentVisible={currentVisible}
-            modalizeRef={modalizeRef}
-          />
-        )}
+        extraData={currentVisible}
+        renderItem={({item}: any) => {
+          const shouldPlay = item?._id === currentVisible;
+          return (
+            <ItemHome
+              {...item}
+              isFocused={isFocused}
+              currentVisible={shouldPlay}
+              modalizeRef={modalizeRef}
+            />
+          );
+        }}
         showsVerticalScrollIndicator={false}
-        onViewableItemsChanged={onViewableItemsChanged}
-        viewabilityConfig={viewAbilityConfig}
         estimatedItemSize={100}
+        onViewableItemsChanged={onViewRef.current}
+        viewabilityConfig={{
+          itemVisiblePercentThreshold: 70,
+        }}
         ListHeaderComponent={
           <View style={{position: 'relative', height: 180}}>
             <View
@@ -461,5 +425,3 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-
-export default Home;
