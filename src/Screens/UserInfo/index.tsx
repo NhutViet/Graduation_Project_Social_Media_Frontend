@@ -318,7 +318,6 @@ export const UserInfo = () => {
           handlePosition="inside"
           panGestureEnabled
           adjustToContentHeight
-          onClose={closeNotifications}
         >
           <BottomSheetNotification
             title="Notification"
