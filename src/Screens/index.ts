@@ -21,6 +21,8 @@ export * from './Streaming';
 export * from './CameraScreen';
 export * from './Swipe';
 export * from './CreateGroupScreen';
+export * from './BlockUser';
+export * from './BlockedAccounts';
 export * from './BookmarkScreen';
 export * from './PlaylistScreen';
 export * from './BlockUser';
