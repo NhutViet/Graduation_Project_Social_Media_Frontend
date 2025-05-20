@@ -36,7 +36,7 @@ const TabIcon = ({
   </View>
 );
 
-const BottomTabs = () => {
+const BottomTabs = ({onTabChange}: {onTabChange?: (index: number) => void}) => {
   const {theme} = useTheme();
   const color = Colors[theme];
 
@@ -53,6 +53,12 @@ const BottomTabs = () => {
         },
         headerShown: false,
         tabBarHideOnKeyboard: true,
+      }}
+      screenListeners={{
+        state: (e) => {
+          const index = e.data.state.index;
+          onTabChange?.(index);
+        },
       }}>
       <Tab.Screen
         name="Home"

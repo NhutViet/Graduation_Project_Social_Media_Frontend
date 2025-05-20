@@ -31,7 +31,8 @@ import {
   BlockUser,
   PeopleGroupChat,
   AddPeopleToGroupChat,
-  QRScanner
+  QRScanner,
+  HorizontalScreen
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 import EditHighlightScreen from '../(tabs)/Profile/components/EditHighlightScreen';
@@ -46,8 +47,9 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="BottomTabs"
+        initialRouteName="HorizontalScreen"
         screenOptions={{headerShown: false}}>
+          <Stack.Screen name="HorizontalScreen" component={HorizontalScreen} />
           <Stack.Screen name="AddPeopleToGroupChat" component={AddPeopleToGroupChat} />
           <Stack.Screen name="PeopleGroupChat" component={PeopleGroupChat} />
         <Stack.Screen name="BlockUser" component={BlockUser} />
