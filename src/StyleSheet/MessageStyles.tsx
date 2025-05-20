@@ -1,5 +1,6 @@
 import {StyleSheet} from 'react-native';
 import {Colors} from '../../assets/color/Colors';
+import { Palette } from 'lucide-react-native';
 
 type ThemeType = 'light' | 'dark';
 
@@ -94,6 +95,7 @@ const MessageStyles = (theme: ThemeType) => {
       paddingVertical: 2,
       marginVertical: 10,
       backgroundColor: color.gray,
+      position: 'relative',
     },
     blockCamera: {
       backgroundColor: color.blue,
@@ -114,6 +116,55 @@ const MessageStyles = (theme: ThemeType) => {
       padding: 2,
       borderWidth: 1,
       borderColor: Colors.light.gray,
+    },
+    menu: {
+      position: 'absolute',
+      bottom: '100%',        
+      right: 0,              
+      backgroundColor: color.background,
+      borderRadius: 8,
+      elevation: 10,
+      zIndex: 2,   
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 4,
+      paddingVertical: 4,
+      paddingHorizontal: 8,
+      minWidth: 120,
+    },
+    menuItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: 8,
+      paddingHorizontal: 12,
+    },
+    menuIcon: {
+      width: 20,
+      height: 20,
+      marginRight: 10,
+      tintColor: color.text,    
+    },
+    menuText: {
+      fontSize: 16,
+      color: color.text,        
+    },
+    backdrop: {
+      ...StyleSheet.absoluteFillObject,
+      zIndex: 1,
+    },
+    ongoingButton: {
+      marginHorizontal: 16,
+      marginTop: 12,
+      paddingVertical: 8,
+      borderRadius: 8,
+      backgroundColor: color.primary,
+      alignItems: 'center',
+    },
+    ongoingText: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: color.text,  
     },
   });
 };
