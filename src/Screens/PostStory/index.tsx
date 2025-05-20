@@ -8,6 +8,7 @@ import {
   PermissionsAndroid,
   Platform,
   SafeAreaView,
+  Dimensions,
 } from 'react-native';
 import {FlashList} from '@shopify/flash-list';
 import {CameraRoll} from '@react-native-camera-roll/camera-roll';
@@ -16,6 +17,8 @@ import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {useNavigation} from '@react-navigation/native';
 import BottomSheet, {BottomSheetRef} from './BottomSheet/BottomSheetMusic';
+
+const width = Dimensions.get('window').width * 0.25 - 1;
 
 export const PostStory = () => {
   const {theme} = useTheme();
@@ -144,7 +147,7 @@ export const PostStory = () => {
               <>
                 <Video
                   source={{uri: item.uri}}
-                  style={styles.hiddenVideo}
+                  style={styles.thumbnail}
                   onLoad={data => onLoadVideo(data, item.uri)}
                   paused={true}
                   muted={true}
@@ -180,30 +183,36 @@ export const PostStory = () => {
     <SafeAreaView
       style={[styles.container, {backgroundColor: color.background}]}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.navigate('BottomTabs')}>
+        <TouchableOpacity
+          style={styles.headerIcon}
+          onPress={() => navigation.navigate('BottomTabs')}>
           <Image
-            style={[styles.headerIcon, {tintColor: color.text}]}
+            style={[styles.icon, {tintColor: color.text}]}
             source={require('../../../assets/icon/left.png')}
           />
         </TouchableOpacity>
       </View>
       <View style={styles.topSection}>
         <TouchableOpacity style={styles.btnTop}>
-          <Image
-            style={[styles.imgTop, {tintColor: color.text}]}
-            source={require('../../../assets/icon/iconAndYou.png')}
-            resizeMode="contain"
-          />
+          <View style={styles.iconBlock}>
+            <Image
+              style={[styles.imgTop, {tintColor: color.text}]}
+              source={require('../../../assets/icon/iconAndYou.png')}
+              resizeMode="contain"
+            />
+          </View>
           <Text style={[styles.txtTop, {color: color.text}]}>Template</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.btnTop}
           onPress={() => sheetRef.current?.open()}>
-          <Image
-            style={[styles.imgTop, {tintColor: color.text}]}
-            source={require('../../../assets/icon/music.png')}
-            resizeMode="contain"
-          />
+          <View style={styles.iconBlock}>
+            <Image
+              style={[styles.imgTop, {tintColor: color.text}]}
+              source={require('../../../assets/icon/music.png')}
+              resizeMode="contain"
+            />
+          </View>
           <Text style={[styles.txtTop, {color: color.text}]}>Music</Text>
         </TouchableOpacity>
       </View>
@@ -220,8 +229,9 @@ export const PostStory = () => {
           renderItem={renderItem}
           keyExtractor={keyExtractor}
           numColumns={4}
-          estimatedItemSize={92}
+          estimatedItemSize={width}
           contentContainerStyle={styles.grid}
+          showsVerticalScrollIndicator={false}
           ListEmptyComponent={
             !isLoading ? (
               <Text style={styles.emptyText}>Không tìm thấy media</Text>
@@ -229,7 +239,7 @@ export const PostStory = () => {
           }
         />
       </View>
-      <BottomSheet ref={sheetRef} children={undefined}/>
+      <BottomSheet ref={sheetRef} children={undefined} />
     </SafeAreaView>
   );
 };
@@ -240,13 +250,16 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    marginLeft: 15,
-    marginRight: 15,
-    marginBottom: 15,
+    margin: 15,
   },
   headerIcon: {
-    width: 15,
-    height: 15,
+    width: 20,
+    height: 20,
+  },
+  icon: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
   },
   topSection: {
     flexDirection: 'row',
@@ -256,45 +269,50 @@ const styles = StyleSheet.create({
   btnTop: {
     borderWidth: 1,
     borderColor: '#CDD7E1',
-    width: 170,
-    height: 80,
+    width: '48%',
+    paddingVertical: 12,
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  imgTop: {
+  iconBlock: {
     height: 35,
     width: 60,
+    padding: 2,
+  },
+  imgTop: {
+    width: '100%',
+    height: '100%',
   },
   txtTop: {
+    marginTop: 6,
     fontSize: 15,
     fontWeight: '400',
   },
   bottomSection: {
     flex: 1,
-    position: 'relative',
+    // position: 'relative',
   },
   grid: {
-    padding: 5,
+    paddingLeft: 1,
   },
   thumbnailWrapper: {
     position: 'relative',
-    width: 90,
-    height: 90,
-    margin: 1,
+    width: width,
+    height: width,
+    marginRight: 1,
+    marginBottom: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
   thumbnail: {
     width: '100%',
     height: '100%',
-    position: 'absolute',
   },
-  hiddenVideo: {
-    width: 0,
-    height: 0,
-    position: 'absolute',
-  },
+  // hiddenVideo: {
+  //   width: '100%',
+  //   height: '100%',
+  // },
   videoDuration: {
     position: 'absolute',
     bottom: 5,

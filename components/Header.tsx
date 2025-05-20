@@ -36,7 +36,7 @@ const Header = (props: any) => {
 
   return (
     <Provider>
-      <View style={styles.container}>
+      <View style={[styles.container, {backgroundColor: color.background}]}>
         <View style={styles.leftSection}>
           {icon && (
             <Menu
@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 10,
+    paddingRight: 20,
     paddingVertical: 10,
     height: 60,
   },
@@ -159,6 +159,7 @@ const styles = StyleSheet.create({
   logo: {
     width: 100,
     height: 30,
+    marginLeft: 10,
   },
   title: {
     fontSize: 18,

@@ -2,17 +2,10 @@ import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {Colors} from '../assets/color/Colors';
 import {useTheme} from '../src/util/ThemeContext';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 
 const User = (props: any) => {
-  const {
-    name,
-    image,
-    status,
-    func,
-    isStory = true,
-    isHashTag = false,
-  } = props;
+  const {name, image, status, func, isStory = true, isHashTag = false} = props;
 
   const {theme} = useTheme();
   const color = Colors[theme];
@@ -50,7 +43,7 @@ const User = (props: any) => {
             end={{x: 1, y: 1}}
             style={[
               styles.block,
-              {width: isStory ? 80 : 50, height: isStory ? 80 : 50},
+              {width: isStory ? 75 : 50, height: isStory ? 75 : 50},
             ]}>
             <AvatarContent />
           </LinearGradient>
@@ -76,7 +69,7 @@ const User = (props: any) => {
                   }
                 : [
                     styles.block1,
-                    {width: isStory ? 80 : 50, height: isStory ? 80 : 50},
+                    {width: isStory ? 75 : 50, height: isStory ? 75 : 50},
                   ]
             }>
             <AvatarContent />
