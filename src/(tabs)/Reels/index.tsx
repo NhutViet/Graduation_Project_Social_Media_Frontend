@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   Image,
   SafeAreaView,
   StyleSheet,
@@ -28,6 +29,7 @@ const Reels = () => {
   const isFocused = useIsFocused();
   const navigation: any = useNavigation();
   const {theme, toggleTheme} = useTheme();
+  const color = Colors[theme];
 
   const initialThemeRef = useRef<'light' | 'dark' | null>(null);
 
@@ -67,6 +69,20 @@ const Reels = () => {
     dispatch(fetchReelsWithMedia());
   }, []);
   ///////////////////////////////
+
+  if (loading) {
+      return (
+        <SafeAreaView
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: color.background,
+          }}>
+          <ActivityIndicator size="large" color={color.text} />
+        </SafeAreaView>
+      );
+    }
 
   return (
     <SafeAreaView style={styles.container}>

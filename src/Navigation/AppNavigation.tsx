@@ -36,6 +36,7 @@ import {
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 import ProfileComp from '../Screens/Profile';
+import EditHighlightScreen from '../(tabs)/Profile/components/EditHighlightScreen';
 export type RootStackParamList = {
   PendingMessages: undefined;
   MessageScreen: {room: string};
