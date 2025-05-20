@@ -204,6 +204,39 @@ export const useBottomSheetStyles = () => {
           marginBottom: spacing.m,
           color: palette.text,
         } as TextStyle,
+        optionRow: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          paddingVertical: spacing.s,
+        } as ViewStyle,
+
+        radioOuter: {
+          width: 20,
+          height: 20,
+          borderRadius: 10,
+          borderWidth: 2,
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginRight: spacing.m,
+        } as ViewStyle,
+
+        radioInner: {
+          width: 10,
+          height: 10,
+          borderRadius: 5,
+        } as ViewStyle,
+
+        optionText: {
+          fontSize: typography.fontSizes.l,
+          fontWeight: typography.fontWeights.regular as FontWeight,
+        } as TextStyle,
+
+        addRow: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          paddingVertical: spacing.s,
+        } as ViewStyle,
+
       }),
     [palette, spacing, typography]
   );

@@ -31,20 +31,31 @@ const BottomSheetPoll: React.FC<BottomSheetPollProps> = ({ onClose, onSubmit }) 
 
   // Keep refs to focus new inputs
   const optionRefs = useRef<Record<string, TextInput | null>>({});
+  const [lastAddedId, setLastAddedId] = useState<string | null>(null);
 
-  // Focus the newly added option input
+  // Only focus newly added options
   useEffect(() => {
-    if (options.length) {
-      const last = options[options.length - 1];
-      optionRefs.current[last.id]?.focus();
+    if (lastAddedId && optionRefs.current[lastAddedId]) {
+      optionRefs.current[lastAddedId]?.focus();
+      setLastAddedId(null); // Reset after focusing
     }
-  }, [options]);
+  }, [lastAddedId]);
+
+  // // Focus the newly added option input
+  // useEffect(() => {
+  //   if (options.length) {
+  //     const last = options[options.length - 1];
+  //     optionRefs.current[last.id]?.focus();
+  //   }
+  // }, [options]);
 
   const addOption = () => {
+    const newId = uuid.v4().toString();
     setOptions(prev => [
       ...prev,
-      { id: uuid.v4().toString(), value: '' },
+      { id: newId, value: '' },
     ]);
+    setLastAddedId(newId); 
   };
 
   const handleOptionChange = (id: string, text: string) => {

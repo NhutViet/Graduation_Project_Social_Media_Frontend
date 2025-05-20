@@ -22,7 +22,8 @@ import {launchImageLibrary} from 'react-native-image-picker';
 import LinkPreview from 'react-native-link-preview';
 import { Modalize } from 'react-native-modalize';
 import { Portal } from 'react-native-portalize';
-import BottomSheetPoll from '../../../components/BottomSheetPoll';
+import BottomSheetPoll, { BottomSheetPollProps } from '../../../components/BottomSheetPoll';
+import BottomSheetVote from '../../../components/BottomSheetVote';
 
 const socket = io('https://backendchatsocket.onrender.com');
 
@@ -50,8 +51,15 @@ export const MessageScreen = () => {
   const [showMenu, setShowMenu] = useState(false);
   // poll sheet setup 
   const pollSheetRef = useRef<Modalize>(null);
+  const voteSheetRef = useRef<Modalize>(null);
+  const [ongoingPoll, setOngoingPoll] = useState<{
+    question: string;
+    options: string[];
+  } | null>(null)
   const openPollSheet = () => pollSheetRef.current?.open();
   const closePollSheet = () => pollSheetRef.current?.close();
+  const openVoteSheet = () => voteSheetRef.current?.open();
+  const closeVoteSheet = () => voteSheetRef.current?.close();
 
   // popup menu handlers 
   const onLocation = () => {
@@ -66,6 +74,30 @@ export const MessageScreen = () => {
     openPollSheet();
     // console.log('Poll');
     setShowMenu(false);
+  };
+
+  // new poll
+  const handleCreatePoll: BottomSheetPollProps['onSubmit'] = (question, options) => {
+    // save it
+    setOngoingPoll({ question, options });
+    // then close the poll sheet
+    closePollSheet();
+  };
+
+  // vote on poll
+  const onShowOngoing = () => {
+    if (ongoingPoll) {
+      openVoteSheet();
+    }
+  };
+
+  const handleVoteSubmit = (selectedOption: string | null) => {
+    console.log('Voted for', selectedOption);
+    closeVoteSheet();
+  };
+  const handleAddOption = () => {
+    closeVoteSheet();
+    openPollSheet();
   };
 
   const route = useRoute<RouteProp<RootStackParamList, 'MessageScreen'>>();
@@ -371,6 +403,16 @@ export const MessageScreen = () => {
           </TouchableOpacity>
         </View>
       </View>
+
+      {ongoingPoll && (
+        <TouchableOpacity
+          style={styles.ongoingButton}
+          onPress={onShowOngoing}
+        >
+          <Text style={styles.ongoingText}>New Ongoing Poll</Text>
+        </TouchableOpacity>
+      )}
+
       {/* Popup menu */}
           {showMenu && (
             <View style={[styles.menu, { position: 'absolute', bottom: 70, right: 10, zIndex: 3 }]}>
@@ -498,12 +540,42 @@ export const MessageScreen = () => {
         >
           <BottomSheetPoll
             onClose={closePollSheet}
-            onSubmit={(question, options) => {
-              console.log('New poll:', question, options);
-            }}
+            onSubmit={handleCreatePoll}
           />
         </Modalize>
       </Portal>
+      <Portal>
+        {/* Voting sheet */}
+        <Modalize
+          ref={voteSheetRef}
+          adjustToContentHeight
+          handlePosition="inside"
+          panGestureEnabled
+          modalStyle={{
+            backgroundColor: color.background,
+            borderTopLeftRadius: 16,
+            borderTopRightRadius: 16,
+            paddingTop: 18,
+          }}
+          handleStyle={{
+            backgroundColor: color.text,
+            width: 40,
+            height: 6,
+            marginBottom: 8,
+          }}
+        >
+          {ongoingPoll && (
+            <BottomSheetVote
+              question={ongoingPoll.question}
+              options={ongoingPoll.options}
+              onClose={closeVoteSheet}
+              onSubmit={handleVoteSubmit}
+              onAddOption={handleAddOption}
+            />
+          )}
+        </Modalize>
+      </Portal>
+
     </SafeAreaView>
   );
 };

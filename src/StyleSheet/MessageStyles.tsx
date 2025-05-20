@@ -153,6 +153,19 @@ const MessageStyles = (theme: ThemeType) => {
       ...StyleSheet.absoluteFillObject,
       zIndex: 1,
     },
+    ongoingButton: {
+      marginHorizontal: 16,
+      marginTop: 12,
+      paddingVertical: 8,
+      borderRadius: 8,
+      backgroundColor: color.primary,
+      alignItems: 'center',
+    },
+    ongoingText: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: color.text,  
+    },
   });
 };
 
