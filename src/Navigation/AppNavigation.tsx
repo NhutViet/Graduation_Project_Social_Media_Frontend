@@ -50,13 +50,9 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="SaveMusic"
+        initialRouteName="BottomTabs"
         screenOptions={{headerShown: false}}>
         <Stack.Screen name="ProfileComp" component={ProfileComp} />
-        <Stack.Screen
-          name="AddPeopleToGroupChat"
-          component={AddPeopleToGroupChat}
-        />
         <Stack.Screen
           name="AddPeopleToGroupChat"
           component={AddPeopleToGroupChat}
