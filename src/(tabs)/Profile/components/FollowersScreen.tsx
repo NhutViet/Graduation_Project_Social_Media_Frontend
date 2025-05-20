@@ -1,13 +1,13 @@
 import {StyleSheet, Text, View} from 'react-native';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 import React from 'react';
-import Header from '../../../components/Header';
+import Header from '../../../../components/Header';
 import {useNavigation} from '@react-navigation/native';
 import FollowersTab from './FollowersTab';
 import FollowingTab from './FollowingTab';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {Colors} from '../../../assets/color/Colors';
-import {useTheme} from '../../util/ThemeContext';
+import {Colors} from '../../../../assets/color/Colors';
+import {useTheme} from '../../../util/ThemeContext';
 
 const TopTab = createMaterialTopTabNavigator();
 
@@ -20,7 +20,7 @@ const FollowersScreen = () => {
       <View style={{width: '100%', height: 60}}>
         <Header
           title="username..."
-          iconBack={require('../../../assets/icon/left.png')}
+          iconBack={require('../../../../assets/icon/left.png')}
           func={() => navigation.goBack()}
           navigation={navigation}
         />

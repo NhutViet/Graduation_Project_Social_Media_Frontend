@@ -55,6 +55,7 @@ const CommonColors = {
   transparent: 'transparent',
   blue: '#0095F6',
   orange: '#FFC107',
+  input: '#CCCCCC',
 };
 
 const LightTheme = {

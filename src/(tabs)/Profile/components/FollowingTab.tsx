@@ -8,8 +8,8 @@ import {
 } from 'react-native';
 import {FlashList} from '@shopify/flash-list';
 import React from 'react';
-import {Colors} from '../../../assets/color/Colors';
-import {useTheme} from '../../util/ThemeContext';
+import {Colors} from '../../../../assets/color/Colors';
+import {useTheme} from '../../../util/ThemeContext';
 
 const categoriesData = [
   {
@@ -100,7 +100,7 @@ const FollowingTab = () => {
       </TouchableOpacity>
       <TouchableOpacity>
         <Image
-          source={require('../../../assets/icon/menu-dots-vertical.png')}
+          source={require('../../../../assets/icon/menu-dots-vertical.png')}
           style={[styles.moreIcon, {tintColor: color.text}]}
         />
       </TouchableOpacity>
@@ -125,7 +125,7 @@ const FollowingTab = () => {
       </TouchableOpacity>
       <TouchableOpacity>
         <Image
-          source={require('../../../assets/icon/menu-dots-vertical.png')}
+          source={require('../../../../assets/icon/menu-dots-vertical.png')}
           style={[styles.moreIcon, {tintColor: color.text}]}
         />
       </TouchableOpacity>
@@ -164,7 +164,7 @@ const FollowingTab = () => {
               Sort by Default
             </Text>
             <Image
-              source={require('../../../assets/icon/icon_sort.png')}
+              source={require('../../../../assets/icon/icon_sort.png')}
               style={[styles.sortIcon, {tintColor: color.text}]}
             />
           </TouchableOpacity>

@@ -30,6 +30,9 @@ import {
   PlaylistsScreen,
   BlockUser,
   Privacy,
+  PeopleGroupChat,
+  AddPeopleToGroupChat,
+  QRScanner
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 import ProfileComp from '../Screens/Profile';
@@ -47,6 +50,8 @@ const AppNavigator = () => {
         initialRouteName="BottomTabs"
         screenOptions={{headerShown: false}}>
         <Stack.Screen name="ProfileComp" component={ProfileComp} />
+        <Stack.Screen name="AddPeopleToGroupChat" component={AddPeopleToGroupChat} />
+        <Stack.Screen name="PeopleGroupChat" component={PeopleGroupChat} />
         <Stack.Screen name="BlockUser" component={BlockUser} />
         <Stack.Screen name="Swipe" component={Swipe} />
         <Stack.Screen name="PostSetting" component={PostSetting} />
@@ -77,6 +82,11 @@ const AppNavigator = () => {
         <Stack.Screen name="BookmarkScreen" component={BookmarkScreen} />
         <Stack.Screen name="PlaylistsScreen" component={PlaylistsScreen} />
         <Stack.Screen name="Privacy" component={Privacy} />
+        <Stack.Screen name="QRScanner" component={QRScanner}/>
+        <Stack.Screen
+          name="EditHighlightStory"
+          component={EditHighlightScreen}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
