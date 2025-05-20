@@ -14,3 +14,15 @@ export const fetchPostsWithMedia = createAsyncThunk<PostWithMedia[]>(
     }
   },
 );
+
+export const fetchReelsWithMedia = createAsyncThunk<PostWithMedia[]>(
+  'posts/fetchReelsWithMedia',
+  async (_, {rejectWithValue}) => {
+    try {
+      const response = await axiosInstance.get(API.GET_REELS_POST);
+      return response.data;
+    } catch (err: any) {
+      return rejectWithValue(err.response.data);
+    }
+  },
+);
