@@ -67,4 +67,46 @@ export const createStyles = (themeColors: any) =>
       fontWeight: '600',
       color: themeColors.error,
     },
+    privacyContainer: {
+      padding: 16,
+    },
+    privacyHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 12,
+    },
+    privacyTitle: {
+      fontSize: 16,
+      fontWeight: '500',
+    },
+    privacyDescription: {
+      color: '#8e8e8e',
+      fontSize: 14,
+      lineHeight: 20,
+    },
+    learnMore: {
+      color: '#0095f6',
+      fontWeight: '600',
+    },
+    head: {
+      width: '100%',
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: 10,
+      paddingVertical: 10,
+      height: 60,
+    },
+    backButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      width: 40,
+      height: 40,
+    },
+    headTitle: {
+      alignItems: 'center',
+      fontSize: 20,
+      fontWeight: '500',
+    },
   });
