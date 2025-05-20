@@ -37,6 +37,7 @@ import ItemMusic from '../Component/itemMusic';
 
 const maxHeight = Dimensions.get('window').height;
 const height = Dimensions.get('window').height * 0.8;
+const width = Dimensions.get('window').width - 100;
 
 export type BottomSheetRef = {
   open: () => void;
@@ -223,19 +224,31 @@ const BottomSheet = forwardRef<BottomSheetRef, {children: React.ReactNode}>(
           ]}>
           <View style={styles.handle} />
           <View style={styles.searchContainer}>
-            <View style={styles.blockIcon}>
-              <Image
-                style={[styles.icon, {tintColor: color.text}]}
-                source={require('../../../../assets/icon/search.png')}
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <View style={styles.blockIcon}>
+                <Image
+                  style={[styles.icon, {tintColor: color.text}]}
+                  source={require('../../../../assets/icon/search.png')}
+                />
+              </View>
+              <TextInput
+                value={search}
+                onChangeText={setSearch}
+                placeholder="Search music"
+                placeholderTextColor={color.text}
+                style={[styles.input, {color: color.text}]}
               />
             </View>
-            <TextInput
-              value={search}
-              onChangeText={setSearch}
-              placeholder="Search music"
-              placeholderTextColor={color.text}
-              style={[styles.input, {color: color.text}]}
-            />
+            {search && (
+              <TouchableOpacity
+                style={[styles.blockIcon, {padding: 5}]}
+                onPress={() => setSearch('')}>
+                <Image
+                  style={styles.icon}
+                  source={require('../../../../assets/icon/closer.png')}
+                />
+              </TouchableOpacity>
+            )}
           </View>
           {keyboardVisible || search ? (
             <View style={{flex: 1, paddingVertical: 20}}>
@@ -332,9 +345,11 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 10,
+    justifyContent: 'space-between',
+    paddingHorizontal: 10,
+    paddingVertical: 8,
     backgroundColor: Colors.input,
-    borderRadius: 10,
+    borderRadius: 7,
   },
   blockIcon: {
     width: 20,
@@ -348,7 +363,7 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 20,
-    width: '100%',
+    width: width,
     padding: 0,
     marginLeft: 10,
   },
@@ -359,10 +374,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
-    borderRadius: 20,
+    borderRadius: 40,
     justifyContent: 'center',
     marginVertical: 10,
-    paddingVertical: 8,
+    paddingVertical: 7,
     backgroundColor: Colors.input,
   },
   rowContainer: {

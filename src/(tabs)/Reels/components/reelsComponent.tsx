@@ -10,19 +10,8 @@ const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height - 60;
 
 const ReelsComponent = (props: any) => {
-  const {
-    url,
-    like,
-    comment,
-    share,
-    imgUser,
-    name,
-    title,
-    muted,
-    currentVisible,
-    id,
-    isFocused,
-  } = props;
+  const {_id, caption, share, media, user, muted, currentVisible, isFocused} =
+    props;
   const {theme} = useTheme();
   const color = Colors[theme];
   const navigation = useNavigation();
@@ -34,18 +23,18 @@ const ReelsComponent = (props: any) => {
     if (num >= 1_000) {
       return (num / 1_000).toFixed(1).replace(/\.0$/, '') + 'k';
     }
-    return num.toString();
+    return num?.toString();
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.video}>
         <Video
-          source={{uri: url}}
-          resizeMode="cover"
+          source={{uri: media[0]?.videoUrl}}
+          resizeMode="contain"
           style={{width: '100%', height: '100%'}}
           repeat
-          paused={currentVisible !== id || !isFocused}
+          paused={!currentVisible || !isFocused}
           muted={muted}
         />
       </View>
@@ -53,9 +42,9 @@ const ReelsComponent = (props: any) => {
         <View style={styles.block1}>
           <View style={styles.rowContainer}>
             <TouchableOpacity style={styles.imgContainer}>
-              <Image style={styles.img} source={{uri: imgUser}} />
+              <Image style={styles.img} source={{uri: user.profilePic}} />
             </TouchableOpacity>
-            <Text style={styles.name}>{name}</Text>
+            <Text style={styles.name}>{user.handleName}</Text>
             <TouchableOpacity style={styles.btnFollow}>
               <Text style={{fontSize: 14, color: Colors.dark.text}}>
                 Theo dõi
@@ -63,7 +52,7 @@ const ReelsComponent = (props: any) => {
             </TouchableOpacity>
           </View>
           <Text style={styles.textNormal} numberOfLines={1}>
-            {title}
+            {caption}
           </Text>
         </View>
         <View style={styles.block2}>
@@ -74,7 +63,7 @@ const ReelsComponent = (props: any) => {
                 source={require('../../../../assets/icon/heart.png')}
               />
             </TouchableOpacity>
-            <Text style={styles.textNormal}>{formatNumber(like)}</Text>
+            <Text style={styles.textNormal}>{formatNumber(27000)}</Text>
           </View>
           <View style={styles.containerVertical}>
             <TouchableOpacity style={styles.iconContainer}>
@@ -83,7 +72,7 @@ const ReelsComponent = (props: any) => {
                 source={require('../../../../assets/icon/comment.png')}
               />
             </TouchableOpacity>
-            <Text style={styles.textNormal}>{formatNumber(comment)}</Text>
+            <Text style={styles.textNormal}>{formatNumber(5)}</Text>
           </View>
           <View style={styles.containerVertical}>
             <TouchableOpacity style={styles.iconContainer}>

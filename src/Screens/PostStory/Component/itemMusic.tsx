@@ -18,11 +18,11 @@ const ItemMusic = (props: any) => {
             {nameMusic}
           </Text>
           <View style={styles.leftContainer}>
-            <Text style={[styles.text, {color: color.text}]}>{author}</Text>
+            <Text style={[styles.text, {color: color.text}]}>{author} </Text>
             <Text style={[styles.text, {color: color.text}]}>
               · {countVideoUsed} reels ·
             </Text>
-            <Text style={[styles.text, {color: color.text}]}>{time}</Text>
+            <Text style={[styles.text, {color: color.text}]}> {time}</Text>
           </View>
         </View>
       </View>
