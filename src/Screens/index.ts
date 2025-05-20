@@ -29,4 +29,6 @@ export * from './PlaylistScreen';
 export * from './PeopleGroupChat';
 export * from './AddPeopleToGroupChat';
 export * from './BlockUser';
-export * from './QRScanner'
+export * from './QRScanner';
+export * from './Setting/ShowActivity.tsx';
+export * from './SaveMusic';

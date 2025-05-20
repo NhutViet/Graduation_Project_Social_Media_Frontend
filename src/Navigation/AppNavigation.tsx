@@ -32,7 +32,9 @@ import {
   Privacy,
   PeopleGroupChat,
   AddPeopleToGroupChat,
-  QRScanner
+  QRScanner,
+  ShowActivity,
+  SaveMusic,
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 import ProfileComp from '../Screens/Profile';
@@ -47,10 +49,19 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="BottomTabs"
+        initialRouteName="SaveMusic"
         screenOptions={{headerShown: false}}>
         <Stack.Screen name="ProfileComp" component={ProfileComp} />
-        <Stack.Screen name="AddPeopleToGroupChat" component={AddPeopleToGroupChat} />
+        <Stack.Screen
+          name="AddPeopleToGroupChat"
+          component={AddPeopleToGroupChat}
+        />
+        <Stack.Screen
+          name="AddPeopleToGroupChat"
+          component={AddPeopleToGroupChat}
+        />
+        <Stack.Screen name="SaveMusic" component={SaveMusic} />
+        <Stack.Screen name="ShowActivity" component={ShowActivity} />
         <Stack.Screen name="PeopleGroupChat" component={PeopleGroupChat} />
         <Stack.Screen name="BlockUser" component={BlockUser} />
         <Stack.Screen name="Swipe" component={Swipe} />
@@ -82,7 +93,7 @@ const AppNavigator = () => {
         <Stack.Screen name="BookmarkScreen" component={BookmarkScreen} />
         <Stack.Screen name="PlaylistsScreen" component={PlaylistsScreen} />
         <Stack.Screen name="Privacy" component={Privacy} />
-        <Stack.Screen name="QRScanner" component={QRScanner}/>
+        <Stack.Screen name="QRScanner" component={QRScanner} />
         <Stack.Screen
           name="EditHighlightStory"
           component={EditHighlightScreen}
