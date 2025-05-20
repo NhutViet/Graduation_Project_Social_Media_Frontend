@@ -1,7 +1,7 @@
 import {Dimensions, StyleSheet} from 'react-native';
-import {Colors as theme} from '../../assets/color/Colors';
+import {Colors} from '../../assets/color/Colors';
 
-const width = theme.dimensions.width;
+const width = Colors.dimensions.width;
 const numColumns = 3;
 const tileSize = width / numColumns;
 const itemSize = width / 3;
@@ -204,24 +204,11 @@ export const Styles = {
     },
 
     // Tab bar
-    tabBar: {
-      flex: 0,
-      flexDirection: 'row',
-      alignItems: 'center',
-      borderTopWidth: 1,
-      borderTopColor: '#DBDBDB',
-      paddingVertical: 10,
-      backgroundColor: '#FFFFFF',
-    },
     tabButton: {
       flex: 1,
       alignItems: 'center',
       paddingVertical: 10,
       justifyContent: 'center',
-    },
-    activeTab: {
-      borderBottomWidth: 1,
-      flex: 1,
     },
     gridItem: {
       padding: 1,
@@ -248,6 +235,28 @@ export const Styles = {
       backgroundColor: 'rgba(0, 0, 0, 0.5)',
       borderRadius: 4,
       padding: 4,
+    },
+    tabBar: {
+      flexDirection: 'row',
+      height: 50,
+      elevation: 4,
+      shadowColor: '#000',
+      shadowOffset: {width: 0, height: 2},
+      shadowOpacity: 0.25,
+      shadowRadius: 3.84,
+    },
+    tab: {
+      flex: 1,
+      alignItems: 'center',
+      paddingVertical: 10,
+    },
+    activeTab: {
+      borderBottomWidth: 2,
+    },
+    highlightTitle: {
+      fontSize: 12,
+      marginTop: 4,
+      textAlign: 'center',
     },
   }),
 };

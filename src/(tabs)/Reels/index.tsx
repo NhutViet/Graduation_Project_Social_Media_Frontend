@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   Image,
   SafeAreaView,
   StyleSheet,
@@ -12,11 +13,14 @@ import {
   useIsFocused,
   useNavigation,
 } from '@react-navigation/native';
-import {useCallback, useRef, useState} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 import {FlashList} from '@shopify/flash-list';
 import {Dimensions} from 'react-native';
 import {Colors} from '../../../assets/color/Colors';
 import {useTheme} from '../../util/ThemeContext';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '../../../services/store';
+import {fetchReelsWithMedia} from '../../../services/postRedux/postSlice';
 
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
@@ -25,6 +29,7 @@ const Reels = () => {
   const isFocused = useIsFocused();
   const navigation: any = useNavigation();
   const {theme, toggleTheme} = useTheme();
+  const color = Colors[theme];
 
   const initialThemeRef = useRef<'light' | 'dark' | null>(null);
 
@@ -44,68 +49,40 @@ const Reels = () => {
     }, [theme]),
   );
 
-  const [currentVisible, setCurrentVisible] = useState();
-  const viewAbilityConfig = {
-    itemVisiblePercentThreshold: 70,
-  };
+  const [currentVisible, setCurrentVisible] = useState<string | null>(null);
 
-  const onViewableItemsChanged = useRef(({viewableItems}: any) => {
+  const onViewRef = useRef(({viewableItems}: {viewableItems: any[]}) => {
     if (viewableItems.length > 0) {
-      setCurrentVisible(viewableItems[0].item.id);
+      const visibleItem = viewableItems[0];
+      const id = visibleItem?.item?._id;
+      if (id) {
+        setCurrentVisible(id);
+      }
     }
-  }).current;
+  });
 
-  // data mẫu
-  const posts = [
-    {
-      id: '0',
-      url: 'https://res.cloudinary.com/dsvcoywkc/video/upload/v1746957530/my_video/afezzsxayqcz9cpfbpsj.mp4',
-      imgUser:
-        'https://i.pinimg.com/736x/8c/71/92/8c7192c084765c076ef33024c0b34406.jpg',
-      name: 'Xie',
-      like: 27000,
-      comment: 5,
-      share: 27,
-      title: 'Phép màu',
-      date: '11/05/2025',
-    },
-    {
-      id: '1',
-      url: 'https://res.cloudinary.com/dsvcoywkc/video/upload/v1746718746/my_video/ncd28sjnze0wfaqti2hm.mp4',
-      imgUser:
-        'https://i.pinimg.com/736x/8c/71/92/8c7192c084765c076ef33024c0b34406.jpg',
-      name: 'User 1',
-      like: 123,
-      comment: 10,
-      share: 5,
-      title: 'Video đầu tiên',
-      date: '05/05/2025',
-    },
-    {
-      id: '2',
-      url: 'https://res.cloudinary.com/dsvcoywkc/video/upload/v1746718987/my_video/aynip2pj7jchjfdddmot.mp4',
-      imgUser:
-        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-      name: 'User 2',
-      like: 456,
-      comment: 2290,
-      share: 7,
-      title: 'Video 2',
-      date: '05/05/2025',
-    },
-    {
-      id: '3',
-      url: 'https://res.cloudinary.com/dsvcoywkc/video/upload/v1746719121/my_video/wfamwgeiy4eeibslfhjc.mp4',
-      imgUser:
-        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-      name: 'User 2',
-      like: 45096,
-      comment: 22,
-      share: 79,
-      title: 'Video 3',
-      date: '05/05/2025',
-    },
-  ];
+  // fetch api
+  const dispatch = useDispatch<AppDispatch>();
+  const {reels, loading} = useSelector((state: RootState) => state.post);
+
+  useEffect(() => {
+    dispatch(fetchReelsWithMedia());
+  }, []);
+  ///////////////////////////////
+
+  if (loading) {
+      return (
+        <SafeAreaView
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: color.background,
+          }}>
+          <ActivityIndicator size="large" color={color.text} />
+        </SafeAreaView>
+      );
+    }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -127,19 +104,25 @@ const Reels = () => {
         </TouchableOpacity>
       </View>
       <FlashList
-        data={posts}
-        renderItem={({item}) => (
-          <ReelsComponent
-            {...item}
-            isFocused={isFocused}
-            currentVisible={currentVisible}
-            muted={false}
-          />
-        )}
+        data={reels}
+        extraData={[currentVisible, isFocused]}
+        renderItem={({item}: any) => {
+          const shouldPlay = item?._id === currentVisible;
+          return (
+            <ReelsComponent
+              {...item}
+              isFocused={isFocused}
+              currentVisible={shouldPlay}
+              muted={false}
+            />
+          );
+        }}
         pagingEnabled
         showsVerticalScrollIndicator={false}
-        onViewableItemsChanged={onViewableItemsChanged}
-        viewabilityConfig={viewAbilityConfig}
+        onViewableItemsChanged={onViewRef.current}
+        viewabilityConfig={{
+          itemVisiblePercentThreshold: 70,
+        }}
         estimatedItemSize={height}
       />
     </SafeAreaView>

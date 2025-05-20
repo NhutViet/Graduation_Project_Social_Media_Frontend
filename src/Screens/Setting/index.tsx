@@ -19,6 +19,8 @@ import {
   Moon,
   Heart,
   User,
+  Lock,
+  UserRoundCheck,
 } from 'lucide-react-native';
 
 export const Setting = () => {
@@ -57,6 +59,7 @@ export const Setting = () => {
                 {
                   backgroundColor: mColor.background,
                   borderBottomColor: mColor.border,
+                  borderBottomWidth: 0,
                 },
               ]}>
               <View
@@ -80,7 +83,36 @@ export const Setting = () => {
               </View>
               <ChevronRight size={20} stroke={mColor.textSecondary} />
             </TouchableOpacity>
-
+            <TouchableOpacity
+              style={[
+                styles.settingItem,
+                {
+                  backgroundColor: mColor.background,
+                  borderBottomColor: mColor.border,
+                },
+              ]}
+              onPress={() => navigation.navigate('ShowActivity')}>
+              <View
+                style={[
+                  styles.settingIconContainer,
+                  {backgroundColor: mColor.gray},
+                ]}>
+                <UserRoundCheck size={22} stroke={mColor.text} />
+              </View>
+              <View style={styles.settingContent}>
+                <Text style={[styles.settingTitle, {color: mColor.text}]}>
+                  Activity Status
+                </Text>
+                <Text
+                  style={[
+                    styles.settingDescription,
+                    {color: mColor.textSecondary},
+                  ]}>
+                  Update your activity status
+                </Text>
+              </View>
+              <ChevronRight size={20} stroke={mColor.textSecondary} />
+            </TouchableOpacity>
             {/* Tương tự cho các settingItem khác trong Account Section */}
           </View>
 
@@ -129,6 +161,45 @@ export const Setting = () => {
             </View>
 
             {/* Tương tự cho settingItem khác trong Preferences Section */}
+          </View>
+
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, {color: mColor.text}]}>
+              Privacy
+            </Text>
+
+            <TouchableOpacity
+              style={[
+                styles.settingItem,
+                {
+                  backgroundColor: mColor.background,
+                  borderBottomColor: mColor.border,
+                },
+              ]}
+              onPress={() => navigation.navigate('Privacy')}>
+              <View
+                style={[
+                  styles.settingIconContainer,
+                  {backgroundColor: mColor.gray},
+                ]}>
+                <Lock size={22} stroke={mColor.text} />
+              </View>
+              <View style={styles.settingContent}>
+                <Text style={[styles.settingTitle, {color: mColor.text}]}>
+                  Privacy and Security
+                </Text>
+                <Text
+                  style={[
+                    styles.settingDescription,
+                    {color: mColor.textSecondary},
+                  ]}>
+                  Settings for privacy and security
+                </Text>
+              </View>
+              <ChevronRight size={20} stroke={mColor.textSecondary} />
+            </TouchableOpacity>
+
+            {/* Tương tự cho các settingItem khác trong Account Section */}
           </View>
 
           {/* Activity Section */}
