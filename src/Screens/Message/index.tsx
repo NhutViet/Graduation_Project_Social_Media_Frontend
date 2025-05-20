@@ -8,6 +8,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  TouchableWithoutFeedback,
   Linking,
 } from 'react-native';
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
@@ -19,6 +20,9 @@ import {io} from 'socket.io-client';
 import {RootStackParamList} from '../../Navigation/AppNavigation';
 import {launchImageLibrary} from 'react-native-image-picker';
 import LinkPreview from 'react-native-link-preview';
+import { Modalize } from 'react-native-modalize';
+import { Portal } from 'react-native-portalize';
+import BottomSheetPoll from '../../../components/BottomSheetPoll';
 
 const socket = io('https://backendchatsocket.onrender.com');
 
@@ -43,6 +47,26 @@ export const MessageScreen = () => {
   const [name] = useState('Justina Xie');
   const [id] = useState('27052005');
   const flatListRef = useRef<FlatList>(null);
+  const [showMenu, setShowMenu] = useState(false);
+  // poll sheet setup 
+  const pollSheetRef = useRef<Modalize>(null);
+  const openPollSheet = () => pollSheetRef.current?.open();
+  const closePollSheet = () => pollSheetRef.current?.close();
+
+  // popup menu handlers 
+  const onLocation = () => {
+    setShowMenu(false);
+    /* */
+  };
+  const onHelp = () => {
+    setShowMenu(false);
+    /* */
+  };
+  const onPoll = () => {
+    openPollSheet();
+    // console.log('Poll');
+    setShowMenu(false);
+  };
 
   const route = useRoute<RouteProp<RootStackParamList, 'MessageScreen'>>();
   const {room} = route.params;
@@ -305,6 +329,11 @@ export const MessageScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      {showMenu && (
+        <TouchableWithoutFeedback onPress={() => setShowMenu(false)}>
+          <View style={styles.backdrop} />
+        </TouchableWithoutFeedback>
+      )}
       <View style={styles.header}>
         <View style={styles.rowContainer}>
           <TouchableOpacity
@@ -342,7 +371,34 @@ export const MessageScreen = () => {
           </TouchableOpacity>
         </View>
       </View>
+      {/* Popup menu */}
+          {showMenu && (
+            <View style={[styles.menu, { position: 'absolute', bottom: 70, right: 10, zIndex: 3 }]}>
+              <TouchableOpacity onPress={onLocation} style={styles.menuItem}>
+                <Image
+                  source={require('../../../assets/icon/location.png')}
+                  style={styles.menuIcon}
+                />
+                <Text style={styles.menuText}>Location</Text>
+              </TouchableOpacity>
 
+              <TouchableOpacity onPress={onPoll} style={styles.menuItem} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                <Image
+                  source={require('../../../assets/icon/polling.png')}
+                  style={styles.menuIcon}
+                />
+                <Text style={styles.menuText}>Poll</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={onHelp} style={styles.menuItem}>
+                <Image
+                  source={require('../../../assets/icon/star_mess.png')}
+                  style={styles.menuIcon}
+                />
+                <Text style={styles.menuText}>Help</Text>
+              </TouchableOpacity>
+            </View>
+          )}
       <View
         style={{
           flex: 1,
@@ -387,12 +443,12 @@ export const MessageScreen = () => {
                 source={require('../../../assets/icon/Picture.png')}
               />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.blockIcon1}>
-              <Image
-                style={styles.icon}
-                source={require('../../../assets/icon/another.png')}
-              />
-            </TouchableOpacity>
+          <TouchableOpacity style={styles.blockIcon1} onPress={() => setShowMenu((v) => !v)} >
+            <Image
+              style={styles.icon}
+              source={require('../../../assets/icon/another.png')}
+            />
+          </TouchableOpacity>
           </View>
         </View>
       </View>
@@ -420,6 +476,34 @@ export const MessageScreen = () => {
           )}
         </View>
       </Modal>
+      {/* BottomSheetPoll */}
+      <Portal>
+        <Modalize
+          ref={pollSheetRef}
+          adjustToContentHeight
+          handlePosition="inside"
+          panGestureEnabled
+          modalStyle={{
+            backgroundColor: color.background,
+            borderTopLeftRadius: 16,
+            borderTopRightRadius: 16,
+            paddingTop: 18,
+          }}
+          handleStyle={{
+            backgroundColor: color.text,
+            width: 40,
+            height: 6,
+            marginBottom: 8,
+          }}
+        >
+          <BottomSheetPoll
+            onClose={closePollSheet}
+            onSubmit={(question, options) => {
+              console.log('New poll:', question, options);
+            }}
+          />
+        </Modalize>
+      </Portal>
     </SafeAreaView>
   );
 };

@@ -196,6 +196,14 @@ export const useBottomSheetStyles = () => {
           marginVertical: spacing.m,
           marginHorizontal: -spacing.m,
         } as ViewStyle,
+        textInput: {
+          borderWidth: 1,
+          borderColor: palette.lightDark,
+          borderRadius: 4,
+          padding: spacing.s,
+          marginBottom: spacing.m,
+          color: palette.text,
+        } as TextStyle,
       }),
     [palette, spacing, typography]
   );
