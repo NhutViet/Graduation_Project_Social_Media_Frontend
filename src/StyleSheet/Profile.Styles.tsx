@@ -253,5 +253,10 @@ export const Styles = {
     activeTab: {
       borderBottomWidth: 2,
     },
+    highlightTitle: {
+      fontSize: 12,
+      marginTop: 4,
+      textAlign: 'center',
+    },
   }),
 };

@@ -29,9 +29,10 @@ import {
   BookmarkScreen,
   PlaylistsScreen,
   BlockUser,
-  Privacy,,
+  Privacy,
 } from '../Screens';
 import BottomTabs from './BottomTabs';
+import ProfileComp from '../Screens/Profile';
 export type RootStackParamList = {
   PendingMessages: undefined;
   MessageScreen: {room: string};
@@ -45,7 +46,8 @@ const AppNavigator = () => {
       <Stack.Navigator
         initialRouteName="BottomTabs"
         screenOptions={{headerShown: false}}>
-          <Stack.Screen name="BlockUser" component={BlockUser} />
+        <Stack.Screen name="ProfileComp" component={ProfileComp} />
+        <Stack.Screen name="BlockUser" component={BlockUser} />
         <Stack.Screen name="Swipe" component={Swipe} />
         <Stack.Screen name="PostSetting" component={PostSetting} />
         <Stack.Screen name="AddPost" component={AddPost} />
@@ -74,6 +76,7 @@ const AppNavigator = () => {
         <Stack.Screen name="CreateGroupScreen" component={CreateGroupScreen} />
         <Stack.Screen name="BookmarkScreen" component={BookmarkScreen} />
         <Stack.Screen name="PlaylistsScreen" component={PlaylistsScreen} />
+        <Stack.Screen name="Privacy" component={Privacy} />
       </Stack.Navigator>
     </NavigationContainer>
   );

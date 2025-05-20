@@ -23,93 +23,18 @@ import {
   Share2,
   Moon,
   Video,
-  Tag,
 } from 'lucide-react-native';
 import {Styles} from '../../StyleSheet/Profile.Styles';
-import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 import {SwitchAccount} from '../../../components/SwitchAccount';
 import {ViewMore} from '../../../components/ViewMore';
 import ModalCreate from './components/ModalCreate';
+import {
+  PostsView,
+  ReelsView,
+  TaggedView,
+} from './components/PostView.component';
 
 const HEADER_HEIGHT = 400;
-
-const Tab = createMaterialTopTabNavigator();
-
-const PostsView = ({data}: {data: any[]}) => {
-  return (
-    <FlashList
-      data={data}
-      numColumns={3}
-      estimatedItemSize={Styles.itemSize}
-      scrollEnabled={true}
-      renderItem={({item}) => (
-        <TouchableOpacity style={Styles.styles.gridItem}>
-          <Image
-            source={{uri: item.image}}
-            style={[
-              Styles.styles.gridImage,
-              {width: Styles.itemSize - 2, height: Styles.itemSize - 2},
-            ]}
-          />
-        </TouchableOpacity>
-      )}
-      keyExtractor={item => item.id}
-      showsVerticalScrollIndicator={false}
-    />
-  );
-};
-const ReelsView = ({data}: {data: any[]}) => {
-  return (
-    <FlashList
-      data={data}
-      numColumns={3}
-      estimatedItemSize={Styles.itemSize}
-      scrollEnabled={true}
-      renderItem={({item}) => (
-        <TouchableOpacity style={Styles.styles.gridItem}>
-          <Image
-            source={{uri: item.image}}
-            style={[
-              Styles.styles.gridImage,
-              {width: Styles.itemSize - 2, height: Styles.itemSize - 2},
-            ]}
-          />
-          <View style={Styles.styles.reelOverlay}>
-            <Video color="white" size={20} />
-          </View>
-        </TouchableOpacity>
-      )}
-      keyExtractor={item => item.id}
-      showsVerticalScrollIndicator={false}
-    />
-  );
-};
-const TaggedView = ({data}: {data: any[]}) => {
-  return (
-    <FlashList
-      data={data}
-      numColumns={3}
-      estimatedItemSize={Styles.itemSize}
-      scrollEnabled={true}
-      renderItem={({item}) => (
-        <TouchableOpacity style={Styles.styles.gridItem}>
-          <Image
-            source={{uri: item.image}}
-            style={[
-              Styles.styles.gridImage,
-              {width: Styles.itemSize - 2, height: Styles.itemSize - 2},
-            ]}
-          />
-          <View style={Styles.styles.tagOverlay}>
-            <Tag color="white" size={20} />
-          </View>
-        </TouchableOpacity>
-      )}
-      keyExtractor={item => item.id}
-      showsVerticalScrollIndicator={false}
-    />
-  );
-};
 
 const Profile = () => {
   const navigation: any = useNavigation();
@@ -118,7 +43,6 @@ const Profile = () => {
   const {styles} = Styles;
 
   const [visibleModalCreate, setVisibleModalCreate] = useState(false);
-  const [activeTab, setActiveTab] = useState('grid'); // Thêm state để quản lý tab active
 
   const scrollY = useRef(new Animated.Value(0)).current;
   const translateY = scrollY.interpolate({
@@ -320,6 +244,7 @@ const Profile = () => {
     </View>
   );
 
+  const [activeTab, setActiveTab] = useState('grid');
   const renderContent = () => {
     switch (activeTab) {
       case 'grid':

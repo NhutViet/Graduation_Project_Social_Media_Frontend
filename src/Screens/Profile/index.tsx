@@ -1,21 +1,33 @@
-import React, {useState} from 'react';
+import React, {useState, useCallback} from 'react';
 import {
   StyleSheet,
   Text,
   View,
-  Image,
   TouchableOpacity,
   ScrollView,
   SafeAreaView,
   Alert,
+  Image,
 } from 'react-native';
-import {ChevronLeft, Grid, Lock, Video, Ellipsis} from 'lucide-react-native';
+import {
+  ChevronLeft,
+  Lock,
+  Ellipsis,
+  Grid,
+  UserSquare2,
+  Video,
+} from 'lucide-react-native';
 import {useNavigation} from '@react-navigation/native';
-import {useTheme} from '../src/util/ThemeContext';
-import {Colors} from '../assets/color/Colors';
-import {UserMock} from '../src/MockData/user.mock';
-import {highlights} from '../src/MockData/story.mock';
-import {PostData} from '../src/MockData/posts.mock';
+import {useTheme} from '../../util/ThemeContext';
+import {Colors} from '../../../assets/color/Colors';
+import {UserMock} from '../../MockData/user.mock';
+import {highlights} from '../../MockData/story.mock';
+import {PostData} from '../../MockData/posts.mock';
+import StoryComponent from './components/story.component';
+import ActionButtons from './components/actionButton.component';
+import UserInfo from './components/userInfo.component';
+import {FlashList} from '@shopify/flash-list';
+import {Styles} from '../../StyleSheet/Profile.Styles';
 
 const ProfileComp = () => {
   const navigation: any = useNavigation();
@@ -23,12 +35,12 @@ const ProfileComp = () => {
   const styles = createStyles(theme);
 
   const [isPrivate, setIsPrivate] = useState(UserMock.isPrivate);
-  const togglePrivacy = async () => {
+  const togglePrivacy = useCallback(() => {
     setIsPrivate(prevState => !prevState);
-  };
+  }, []);
 
   const [isFollowing, setIsFollowing] = useState(false);
-  const toggleFollow = () => {
+  const toggleFollow = useCallback(() => {
     setIsFollowing(!isFollowing);
     Alert.alert(
       isFollowing ? 'Unfollowed' : 'Followed',
@@ -36,7 +48,7 @@ const ProfileComp = () => {
         ? 'You have unfollowed this user.'
         : 'You have followed this user.',
     );
-  };
+  }, [isFollowing]);
 
   const renderPrivateContent = () => {
     return (
@@ -52,6 +64,47 @@ const ProfileComp = () => {
     );
   };
 
+  const [activeTab, setActiveTab] = useState('grid');
+  const renderItem = ({item}: {item: any}) => (
+    <TouchableOpacity
+      style={[Styles.styles.gridItem, {backgroundColor: '#f0f0f0'}]}>
+      <Image
+        source={{uri: item.image}}
+        style={[
+          Styles.styles.gridImage,
+          {
+            width: Styles.itemSize - 2,
+            height: Styles.itemSize - 2,
+            borderRadius: 1,
+          },
+        ]}
+      />
+      {activeTab !== 'grid' && (
+        <View style={styles.overlayStyle}>
+          {activeTab === 'reels' && <Video color="white" size={20} />}
+          {activeTab === 'tagged' && <UserSquare2 color="white" size={20} />}
+        </View>
+      )}
+    </TouchableOpacity>
+  );
+  const renderTabContent = () => {
+    if (!isPrivate) {
+      return renderPrivateContent();
+    }
+    return (
+      <FlashList
+        data={PostData}
+        numColumns={3}
+        estimatedItemSize={Styles.itemSize}
+        scrollEnabled={true}
+        renderItem={renderItem}
+        keyExtractor={item => item.id}
+        showsVerticalScrollIndicator={false}
+        extraData={activeTab}
+        contentContainerStyle={{paddingBottom: 20}}
+      />
+    );
+  };
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.container}>
@@ -64,106 +117,90 @@ const ProfileComp = () => {
           <Text style={styles.headTitle}>{UserMock.handleName}</Text>
           <View style={styles.SectionRight}>
             <TouchableOpacity>
-              {/* onPress={() => navigation.goBack()}> */}
               <Ellipsis size={24} color={Colors[theme].text} />
             </TouchableOpacity>
           </View>
         </View>
         {/* Header Info */}
-        <View style={styles.header}>
-          <Image source={{uri: UserMock.avatar}} style={styles.profileImage} />
-          <View style={styles.statsContainer}>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>330</Text>
-              <Text style={styles.statLabel}>posts</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>54K</Text>
-              <Text style={styles.statLabel}>followers</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>266</Text>
-              <Text style={styles.statLabel}>following</Text>
-            </View>
-          </View>
+        <View>
+          <UserInfo
+            name={UserMock.name}
+            followers={UserMock.followers}
+            following={UserMock.following}
+            posts={UserMock.posts}
+            avatar={UserMock.avatar}
+            bio={UserMock.bio}
+            theme={theme}
+          />
         </View>
-
-        {/* Bio */}
-        <View style={styles.bioContainer}>
-          <Text style={styles.username}>Mama S Bake House</Text>
-          <Text style={styles.bioText}>Oubao Enterprise (SA0585438-P)</Text>
-          <Text style={styles.bioText}>
-            Find us @ Night Market from Monday to Sunday
-          </Text>
-          <Text style={styles.bioText}>5pm- 10pm</Text>
-          <Text style={styles.bioText}>
-            Dms : slow response (order at least a day in advance)
-          </Text>
-        </View>
-
         {/* Action Buttons */}
-        {isPrivate === false ? (
-          <View style={{paddingHorizontal: 12, marginBottom: 12}}>
-            <TouchableOpacity
-              style={styles.followButton}
-              onPress={togglePrivacy}>
-              <Text style={styles.followButtonText}>Follow</Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <View style={styles.actionButtons}>
-            <TouchableOpacity
-              style={styles.followButton}
-              onPress={togglePrivacy}>
-              <Text style={styles.followButtonText}>Follow</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.messageButton}>
-              <Text style={styles.messageButtonText}>Message</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-
+        <ActionButtons
+          onFollowPress={toggleFollow}
+          onMessagePress={togglePrivacy}
+          theme={theme}
+        />
         {/* Story Highlights */}
-        {isPrivate === false ? (
-          <View />
-        ) : (
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.highlightsContainer}>
-            {highlights.map((highlight: any) => (
-              <View key={highlight.id} style={styles.highlightItem}>
-                <View style={styles.highlightCircle}>
-                  <Image
-                    source={{uri: highlight.image}}
-                    style={styles.highlightImage}
-                  />
-                </View>
-                <Text style={styles.highlightTitle}>{highlight.title}</Text>
-              </View>
-            ))}
-          </ScrollView>
-        )}
-
+        <StoryComponent isPrivate={isPrivate} highlights={highlights} />
         {/* Posts Grid/Video Tabs */}
-        <View style={styles.tabsContainer}>
-          <TouchableOpacity style={styles.tab}>
-            <Grid size={26} />
+        <View style={{flexDirection: 'row'}}>
+          <TouchableOpacity
+            disabled={!isPrivate}
+            onPress={() => {
+              setActiveTab('grid');
+            }}
+            style={[
+              styles.tab,
+              activeTab === 'grid' && styles.activeTab,
+              !isPrivate && {opacity: 0.5},
+            ]}>
+            <Grid
+              size={26}
+              color={
+                activeTab === 'grid' ? Colors[theme].text : Colors.textSecondary
+              }
+            />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.tab}>
-            <Video size={26} />
+          <TouchableOpacity
+            disabled={!isPrivate}
+            onPress={() => {
+              setActiveTab('reels');
+            }}
+            style={[
+              styles.tab,
+              activeTab === 'reels' && styles.activeTab,
+              !isPrivate && {opacity: 0.5},
+            ]}>
+            <Video
+              size={26}
+              color={
+                activeTab === 'reels'
+                  ? Colors[theme].text
+                  : Colors.textSecondary
+              }
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            disabled={!isPrivate}
+            onPress={() => {
+              setActiveTab('tagged');
+            }}
+            style={[
+              styles.tab,
+              activeTab === 'tagged' && styles.activeTab,
+              !isPrivate && {opacity: 0.5},
+            ]}>
+            <UserSquare2
+              size={26}
+              color={
+                activeTab === 'tagged'
+                  ? Colors[theme].text
+                  : Colors.textSecondary
+              }
+            />
           </TouchableOpacity>
         </View>
-
         {/* Posts Grid */}
-        <View style={styles.postsGrid}>
-          {/* Grid items will be added here */}
-        </View>
-        {isPrivate === false ? (
-          renderPrivateContent()
-        ) : (
-          <View style={styles.postsGrid} />
-        )}
+        {renderTabContent()}
       </ScrollView>
     </SafeAreaView>
   );
@@ -171,7 +208,7 @@ const ProfileComp = () => {
 
 export default ProfileComp;
 
-const createStyles = (theme: any) => {
+export const createStyles = (theme: any) => {
   return StyleSheet.create({
     container: {
       flex: 1,
@@ -205,49 +242,11 @@ const createStyles = (theme: any) => {
       fontSize: 13,
       color: Colors.textSecondary,
     },
-    bioContainer: {
-      padding: 15,
-    },
-    username: {
-      fontSize: 16,
-      fontWeight: 'bold',
-      color: theme.text,
-      marginBottom: 4,
-    },
-    bioText: {
-      fontSize: 14,
-      lineHeight: 20,
-      color: theme.text,
-    },
     actionButtons: {
       flexDirection: 'row',
       paddingHorizontal: 12,
       marginBottom: 12,
       gap: 8,
-    },
-    followButton: {
-      flex: 1,
-      backgroundColor: Colors.primary,
-      padding: 8,
-      borderRadius: 8,
-      alignItems: 'center',
-    },
-    followButtonText: {
-      color: Colors.white,
-      fontWeight: '600',
-    },
-    messageButton: {
-      flex: 1,
-      backgroundColor: theme.background,
-      padding: 8,
-      borderRadius: 8,
-      alignItems: 'center',
-      borderWidth: 1,
-      borderColor: Colors.border,
-    },
-    messageButtonText: {
-      color: theme.text,
-      fontWeight: '600',
     },
     highlightsContainer: {
       padding: 15,
@@ -277,6 +276,7 @@ const createStyles = (theme: any) => {
       color: theme.text,
     },
     tabsContainer: {
+      flex: 1,
       flexDirection: 'row',
       borderBottomWidth: 1,
       borderColor: Colors.border,
@@ -357,6 +357,14 @@ const createStyles = (theme: any) => {
       flex: 1,
       paddingRight: 12,
       alignItems: 'flex-end',
+    },
+    overlayStyle: {
+      position: 'absolute' as const,
+      top: 8,
+      right: 8,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      borderRadius: 4,
+      padding: 4,
     },
   });
 };
