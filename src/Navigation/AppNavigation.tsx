@@ -35,6 +35,8 @@ import {
   QRScanner,
   InforGroupChat,
   HorizontalScreen,
+  HorizontalScreen,
+  ShowActivity,
   SaveMusic,
 } from '../Screens';
 import BottomTabs from './BottomTabs';
