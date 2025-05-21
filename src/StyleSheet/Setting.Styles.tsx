@@ -6,8 +6,19 @@ export const createStyles = (themeColors: any) =>
     container: {
       flex: 1,
       backgroundColor: themeColors.background,
+      position: 'relative',
     },
-    content: {flex: 1},
+    fixed: {
+      position: 'absolute',
+      top: 0,
+      right: 0,
+      left: 0,
+      zIndex: 1,
+    },
+    content: {
+      height: '100%',
+      marginTop: 60,
+    },
     section: {
       marginBottom: theme.spacing.l,
     },

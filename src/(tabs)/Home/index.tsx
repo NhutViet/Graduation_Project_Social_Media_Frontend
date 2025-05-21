@@ -1,14 +1,9 @@
-import {
-  SafeAreaView,
-  StyleSheet,
-  View,
-  ActivityIndicator,
-} from 'react-native';
+import {SafeAreaView, StyleSheet, View, ActivityIndicator} from 'react-native';
 import {Colors} from '../../../assets/color/Colors';
 import {useTheme} from '../../util/ThemeContext';
 import {FlashList} from '@shopify/flash-list';
 import Header from '../../../components/Header';
-import { useIsFocused, useNavigation} from '@react-navigation/native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
 import User from '../../../components/User';
 import {useEffect, useRef, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
@@ -141,7 +136,7 @@ export const Home = () => {
           itemVisiblePercentThreshold: 70,
         }}
         ListHeaderComponent={
-          <View style={{position: 'relative', height: 180}}>
+          <View style={{position: 'relative', height: 160}}>
             <View
               style={{
                 alignItems: 'center',
@@ -165,7 +160,7 @@ export const Home = () => {
                 estimatedItemSize={100}
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={{
-                  paddingRight: 10,
+                  paddingHorizontal: 10,
                 }}
               />
             </View>
