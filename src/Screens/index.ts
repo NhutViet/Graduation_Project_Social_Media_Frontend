@@ -30,3 +30,4 @@ export * from './PeopleGroupChat';
 export * from './AddPeopleToGroupChat';
 export * from './BlockUser';
 export * from './QRScanner'
+export * from "./InfoGroupChat"

@@ -32,10 +32,12 @@ import {
   Privacy,
   PeopleGroupChat,
   AddPeopleToGroupChat,
-  QRScanner
+  QRScanner,
+  InforGroupChat,
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 import ProfileComp from '../Screens/Profile';
+import EditHighlightScreen from '../(tabs)/Profile/components/EditHighlightScreen';
 export type RootStackParamList = {
   PendingMessages: undefined;
   MessageScreen: {room: string};
@@ -47,10 +49,13 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="BottomTabs"
+        initialRouteName="InforGroupChat"
         screenOptions={{headerShown: false}}>
         <Stack.Screen name="ProfileComp" component={ProfileComp} />
-        <Stack.Screen name="AddPeopleToGroupChat" component={AddPeopleToGroupChat} />
+        <Stack.Screen
+          name="AddPeopleToGroupChat"
+          component={AddPeopleToGroupChat}
+        />
         <Stack.Screen name="PeopleGroupChat" component={PeopleGroupChat} />
         <Stack.Screen name="BlockUser" component={BlockUser} />
         <Stack.Screen name="Swipe" component={Swipe} />
@@ -82,11 +87,12 @@ const AppNavigator = () => {
         <Stack.Screen name="BookmarkScreen" component={BookmarkScreen} />
         <Stack.Screen name="PlaylistsScreen" component={PlaylistsScreen} />
         <Stack.Screen name="Privacy" component={Privacy} />
-        <Stack.Screen name="QRScanner" component={QRScanner}/>
+        <Stack.Screen name="QRScanner" component={QRScanner} />
         <Stack.Screen
           name="EditHighlightStory"
           component={EditHighlightScreen}
         />
+        <Stack.Screen name="InforGroupChat" component={InforGroupChat} />
       </Stack.Navigator>
     </NavigationContainer>
   );
