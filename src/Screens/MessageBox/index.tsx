@@ -15,11 +15,12 @@ import MessageItem from '../../../components/MessageItem';
 import User from '../../../components/User';
 import {useState} from 'react';
 
-export const MessageBox = () => {
+export const MessageBox = (props: any) => {
   const navigation: any = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];
   const styles = MessageBoxStyles(theme);
+  const {onBack} = props;
 
   const data = [
     {
@@ -113,7 +114,7 @@ export const MessageBox = () => {
         <View style={styles.headerBlock}>
           <TouchableOpacity
             style={styles.iconBlock}
-            onPress={() => navigation.goBack()}>
+            onPress={onBack}>
             <Image
               source={require('../../../assets/icon/left.png')}
               style={styles.icon}

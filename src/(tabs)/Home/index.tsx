@@ -1,13 +1,4 @@
-import {
-  TouchableOpacity,
-  SafeAreaView,
-  StyleSheet,
-  View,
-  Text,
-  Image,
-  Dimensions,
-  ActivityIndicator,
-} from 'react-native';
+import {SafeAreaView, StyleSheet, View, ActivityIndicator} from 'react-native';
 import {Colors} from '../../../assets/color/Colors';
 import {useTheme} from '../../util/ThemeContext';
 import {FlashList} from '@shopify/flash-list';
@@ -17,7 +8,6 @@ import User from '../../../components/User';
 import {useEffect, useRef, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import ItemHome from './components/ItemHome';
-import ModalShare from './components/ModalShare';
 import {Modalize} from 'react-native-modalize';
 import {AppDispatch, RootState} from '../../../services/store';
 import {fetchPostsWithMedia} from '../../../services/postRedux/postSlice';
@@ -30,7 +20,7 @@ export const Home = () => {
 
   // fetch api
   const dispatch = useDispatch<AppDispatch>();
-  const {posts, loading, error} = useSelector((state: RootState) => state.post);
+  const {posts, loading} = useSelector((state: RootState) => state.post);
 
   useEffect(() => {
     dispatch(fetchPostsWithMedia());
@@ -51,7 +41,7 @@ export const Home = () => {
 
   /////////////////////////////////////////////////////////
 
-  const modalizeRef = useRef<Modalize>(null)
+  const modalizeRef = useRef<Modalize>(null);
 
   // data mẫu
   const [dataUser, setDataUser] = useState([
@@ -127,7 +117,7 @@ export const Home = () => {
     <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
       <FlashList
         data={posts}
-        extraData={currentVisible}
+        extraData={[currentVisible, isFocused]}
         renderItem={({item}: any) => {
           const shouldPlay = item?._id === currentVisible;
           return (
@@ -146,7 +136,7 @@ export const Home = () => {
           itemVisiblePercentThreshold: 70,
         }}
         ListHeaderComponent={
-          <View style={{position: 'relative', height: 180}}>
+          <View style={{position: 'relative', height: 160}}>
             <View
               style={{
                 alignItems: 'center',
@@ -170,7 +160,7 @@ export const Home = () => {
                 estimatedItemSize={100}
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={{
-                  paddingRight: 10,
+                  paddingHorizontal: 10,
                 }}
               />
             </View>

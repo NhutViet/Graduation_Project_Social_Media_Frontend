@@ -21,7 +21,7 @@ import BottomSheetIntentions, {
 } from '../../../../components/BottomSheetIntentions';
 import {useNavigation} from '@react-navigation/native';
 import ModalShare from './ModalShare';
-import ModalReaction from './ModalReaction'
+import ModalReaction from './ModalReaction';
 
 const ItemHome = (props: any) => {
   const {
@@ -240,95 +240,95 @@ const ItemHome = (props: any) => {
   ];
 
   const modalReactionData = [
-      {
-        id: '1',
-        username: 'user1',
-        bio: 'abc',
-        profile_pic:
-          'https://i.pinimg.com/736x/8c/71/92/8c7192c084765c076ef33024c0b34406.jpg',
-        is_following: true,
-      },
-      {
-        id: '2',
-        username: 'user2',
-        bio: 'xyz',
-        profile_pic:
-          'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-        is_following: false,
-      },
-      {
-        id: '3',
-        username: 'user3',
-        bio: '',
-        profile_pic:
-          'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-        is_following: true,
-      },
-      {
-        id: '4',
-        username: 'user3',
-        bio: '',
-        profile_pic:
-          'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-        is_following: true,
-      },
-      {
-        id: '5',
-        username: 'user3',
-        bio: '',
-        profile_pic:
-          'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-        is_following: true,
-      },
-      {
-        id: '6',
-        username: 'user3',
-        bio: '',
-        profile_pic:
-          'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-        is_following: true,
-      },
-      {
-        id: '7',
-        username: 'user3',
-        bio: '',
-        profile_pic:
-          'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-        is_following: true,
-      },
-      {
-        id: '8',
-        username: 'user3',
-        bio: '',
-        profile_pic:
-          'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-        is_following: true,
-      },
-      {
-        id: '9',
-        username: 'user3',
-        bio: '',
-        profile_pic:
-          'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-        is_following: true,
-      },
-      {
-        id: '10',
-        username: 'user3',
-        bio: '',
-        profile_pic:
-          'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-        is_following: true,
-      },
-      {
-        id: '11',
-        username: 'user3',
-        bio: '',
-        profile_pic:
-          'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-        is_following: true,
-      },
-    ];
+    {
+      id: '1',
+      username: 'user1',
+      bio: 'abc',
+      profile_pic:
+        'https://i.pinimg.com/736x/8c/71/92/8c7192c084765c076ef33024c0b34406.jpg',
+      is_following: true,
+    },
+    {
+      id: '2',
+      username: 'user2',
+      bio: 'xyz',
+      profile_pic:
+        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
+      is_following: false,
+    },
+    {
+      id: '3',
+      username: 'user3',
+      bio: '',
+      profile_pic:
+        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
+      is_following: true,
+    },
+    {
+      id: '4',
+      username: 'user3',
+      bio: '',
+      profile_pic:
+        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
+      is_following: true,
+    },
+    {
+      id: '5',
+      username: 'user3',
+      bio: '',
+      profile_pic:
+        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
+      is_following: true,
+    },
+    {
+      id: '6',
+      username: 'user3',
+      bio: '',
+      profile_pic:
+        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
+      is_following: true,
+    },
+    {
+      id: '7',
+      username: 'user3',
+      bio: '',
+      profile_pic:
+        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
+      is_following: true,
+    },
+    {
+      id: '8',
+      username: 'user3',
+      bio: '',
+      profile_pic:
+        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
+      is_following: true,
+    },
+    {
+      id: '9',
+      username: 'user3',
+      bio: '',
+      profile_pic:
+        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
+      is_following: true,
+    },
+    {
+      id: '10',
+      username: 'user3',
+      bio: '',
+      profile_pic:
+        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
+      is_following: true,
+    },
+    {
+      id: '11',
+      username: 'user3',
+      bio: '',
+      profile_pic:
+        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
+      is_following: true,
+    },
+  ];
 
   return (
     <View style={styles.wrapper}>
@@ -540,7 +540,7 @@ const ItemHome = (props: any) => {
             <Text
               style={{color: color.text, marginLeft: 8, marginRight: 16}}
               onPress={handleOpenReactionModal}>
-              {formatNumber(0)}
+              {formatNumber(27000)}
             </Text>
             <TouchableOpacity style={styles.iconBlock}>
               <Image
@@ -549,7 +549,7 @@ const ItemHome = (props: any) => {
               />
             </TouchableOpacity>
             <Text style={{color: color.text, marginLeft: 8, marginRight: 16}}>
-              {formatNumber(0)}
+              {formatNumber(5)}
             </Text>
             <TouchableOpacity
               style={styles.iconBlock}
@@ -581,10 +581,7 @@ const ItemHome = (props: any) => {
         friends={friends}
       />
       <Portal>
-        <ModalReaction
-        ref = {modalReactionRef}
-        data = {modalReactionData}
-        />
+        <ModalReaction ref={modalReactionRef} data={modalReactionData} />
       </Portal>
     </View>
   );
