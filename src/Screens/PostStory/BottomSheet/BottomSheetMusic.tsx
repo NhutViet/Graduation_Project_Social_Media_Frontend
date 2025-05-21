@@ -34,6 +34,7 @@ import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
 import {FlashList} from '@shopify/flash-list';
 import ItemMusic from '../Component/itemMusic';
+import {SceneMap, TabBar, TabView} from 'react-native-tab-view';
 
 const maxHeight = Dimensions.get('window').height;
 const height = Dimensions.get('window').height * 0.8;
@@ -204,6 +205,39 @@ const BottomSheet = forwardRef<BottomSheetRef, {children: React.ReactNode}>(
       };
     }, []);
 
+    const [showSavedView, setShowSavedView] = useState(false);
+
+    const FirstRoute = () => (
+      <View style={styles.tab}>
+        <FlashList
+          data={musicMockData.slice(0, 4)}
+          renderItem={({item}) => <ItemMusic {...item} />}
+          estimatedItemSize={50}
+        />
+      </View>
+    );
+
+    const SecondRoute = () => (
+      <View style={styles.tab}>
+        <FlashList
+          data={musicMockData.slice(4)}
+          renderItem={({item}) => <ItemMusic {...item} />}
+          estimatedItemSize={50}
+        />
+      </View>
+    );
+
+    const [index, setIndex] = useState(0);
+    const [routes] = useState([
+      {key: 'first', title: 'Original audio'},
+      {key: 'second', title: 'Music'},
+    ]);
+
+    const renderScene = SceneMap({
+      first: FirstRoute,
+      second: SecondRoute,
+    });
+
     return (
       <>
         <Animated.View style={[styles.overlay, overlayStyle]}>
@@ -250,8 +284,9 @@ const BottomSheet = forwardRef<BottomSheetRef, {children: React.ReactNode}>(
               </TouchableOpacity>
             )}
           </View>
+
           {keyboardVisible || search ? (
-            <View style={{flex: 1, paddingVertical: 20}}>
+            <View style={{flex: 1, paddingVertical: 20, marginHorizontal: 16}}>
               <FlashList
                 data={filteredData}
                 bounces={false}
@@ -260,9 +295,47 @@ const BottomSheet = forwardRef<BottomSheetRef, {children: React.ReactNode}>(
                 estimatedItemSize={50}
               />
             </View>
+          ) : showSavedView ? (
+            <View style={{flex: 1}}>
+              <View style={styles.spaceContainer}>
+                <TouchableOpacity
+                  onPress={() => setShowSavedView(false)}
+                  style={styles.blockIcon}>
+                  <Image
+                    style={[styles.icon, {tintColor: color.text}]}
+                    source={require('../../../../assets/icon/left.png')}
+                  />
+                </TouchableOpacity>
+                <Text style={[styles.textNormal, {color: color.text}]}>
+                  Saved
+                </Text>
+                <View style={styles.blockIcon}></View>
+              </View>
+              <TabView
+                navigationState={{index, routes}}
+                renderScene={renderScene}
+                onIndexChange={setIndex}
+                initialLayout={{width: Dimensions.get('window').width}}
+                renderTabBar={props => (
+                  <TabBar
+                    {...props}
+                    indicatorStyle={{backgroundColor: color.text}}
+                    style={{
+                      backgroundColor: color.transparent,
+                      marginBottom: 10,
+                    }}
+                    labelStyle={{color: color.text, textTransform: 'none'}}
+                    pressColor="transparent"
+                    pressOpacity={1}
+                  />
+                )}
+              />
+            </View>
           ) : (
             <View style={{flex: 1}}>
-              <TouchableOpacity style={styles.saveButton}>
+              <TouchableOpacity
+                style={styles.saveButton}
+                onPress={() => setShowSavedView(true)}>
                 <View style={styles.blockIcon}>
                   <Image
                     style={[styles.icon, {tintColor: color.text}]}
@@ -292,7 +365,7 @@ const BottomSheet = forwardRef<BottomSheetRef, {children: React.ReactNode}>(
                 </TouchableOpacity>
               </View>
               <NativeViewGestureHandler ref={nativeGestureRef}>
-                <View style={{flex: 1}}>
+                <View style={{flex: 1, marginHorizontal: 16}}>
                   <FlashList
                     data={musicMockData}
                     bounces={false}
@@ -329,7 +402,6 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     opacity: 0.9,
-    paddingHorizontal: 16,
     paddingTop: 16,
     zIndex: 2,
   },
@@ -342,13 +414,13 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   searchContainer: {
-    width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 10,
     paddingVertical: 8,
     backgroundColor: Colors.input,
+    marginHorizontal: 16,
     borderRadius: 7,
   },
   blockIcon: {
@@ -373,9 +445,9 @@ const styles = StyleSheet.create({
   saveButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: '100%',
     borderRadius: 40,
     justifyContent: 'center',
+    marginHorizontal: 16,
     marginVertical: 10,
     paddingVertical: 7,
     backgroundColor: Colors.input,
@@ -385,6 +457,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginVertical: 20,
+    marginHorizontal: 16,
+  },
+  spaceContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginVertical: 10,
+    marginHorizontal: 16,
+  },
+  tab: {
+    flex: 1,
+    paddingHorizontal: 16,
+    backgroundColor: Colors.transparent,
   },
 });
 
