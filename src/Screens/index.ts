@@ -30,5 +30,6 @@ export * from './PeopleGroupChat';
 export * from './AddPeopleToGroupChat';
 export * from './BlockUser';
 export * from './QRScanner';
+export * from './HorizontalScreen';
 export * from './Setting/ShowActivity.tsx';
 export * from './SaveMusic';

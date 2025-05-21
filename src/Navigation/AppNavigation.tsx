@@ -33,6 +33,7 @@ import {
   PeopleGroupChat,
   AddPeopleToGroupChat,
   QRScanner,
+  HorizontalScreen
   ShowActivity,
   SaveMusic,
 } from '../Screens';
@@ -52,11 +53,9 @@ const AppNavigator = () => {
       <Stack.Navigator
         initialRouteName="BottomTabs"
         screenOptions={{headerShown: false}}>
+        <Stack.Screen name="HorizontalScreen" component={HorizontalScreen} />
+        <Stack.Screen name="AddPeopleToGroupChat" component={AddPeopleToGroupChat} />
         <Stack.Screen name="ProfileComp" component={ProfileComp} />
-        <Stack.Screen
-          name="AddPeopleToGroupChat"
-          component={AddPeopleToGroupChat}
-        />
         <Stack.Screen name="SaveMusic" component={SaveMusic} />
         <Stack.Screen name="ShowActivity" component={ShowActivity} />
         <Stack.Screen name="PeopleGroupChat" component={PeopleGroupChat} />
