@@ -39,15 +39,13 @@ export const Setting = () => {
   return (
     <SafeAreaView
       style={[styles.container, {backgroundColor: mColor.background}]}>
-      <View style={styles.fixed}>
-        <Header
-          title="Settings and privacy "
-          iconBack={require('../../../assets/icon/left.png')}
-          iconQR={require('../../../assets/icon/qr.png')}
-          func={() => navigation.goBack()}
-          navigation={navigation}
-        />
-      </View>
+      <Header
+        title="Settings and privacy "
+        iconBack={require('../../../assets/icon/left.png')}
+        iconQR={require('../../../assets/icon/qr.png')}
+        func={() => navigation.goBack()}
+        navigation={navigation}
+      />
       <ScrollView>
         <View style={styles.content}>
           {/* Account Section */}

@@ -135,12 +135,15 @@ const Profile = () => {
                 </Text>
               </View>
             </TouchableOpacity>
-            <View style={styles.statItem}>
-              <Text style={[styles.statNumber, {color: color.text}]}>526</Text>
-              <Text style={[styles.statLabel, {color: color.text}]}>
-                following
-              </Text>
-            </View>
+            <TouchableOpacity
+              onPress={() => navigation.naviate('FollowersScreen')}>
+              <View style={styles.statItem}>
+                <Text style={[styles.statNumber, {color: color.text}]}>526</Text>
+                <Text style={[styles.statLabel, {color: color.text}]}>
+                  following
+                </Text>
+              </View>
+            </TouchableOpacity>
           </View>
         </View>
 
