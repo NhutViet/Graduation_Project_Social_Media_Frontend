@@ -200,6 +200,7 @@ export const MessageBox = (props: any) => {
                 img={item.img}
                 name={item.name}
                 description={item.description}
+                isGroup={item.id == '2'}
               />
             );
           }}

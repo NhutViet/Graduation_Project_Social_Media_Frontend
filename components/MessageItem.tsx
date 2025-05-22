@@ -13,7 +13,7 @@ type RoomSelectorProp = StackNavigationProp<
 >;
 
 const MessageItem = (props: any) => {
-  const {img, name, description} = props;
+  const {img, name, description, isGroup = false} = props;
   const navigation: any = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];
@@ -27,10 +27,13 @@ const MessageItem = (props: any) => {
   return (
     <TouchableOpacity
       style={styles.container}
-      onPress={() => enterRoom(rooms[0])}>
+      onPress={() => enterRoom(isGroup ? rooms[1] : rooms[0])}>
       <View style={styles.userBlock}>
         <View style={styles.imgBlock}>
           <Image style={styles.img} source={{uri: img}} />
+          {isGroup && (
+            <View style={[styles.img, {position: 'absolute', right: 0, top: 0, width: '90%', height: '90%', zIndex: 1, backgroundColor: color.black, borderRadius: 100}]} />
+          )}
         </View>
         <View>
           <Text style={[styles.text, {color: color.text, fontWeight: '500'}]}>
