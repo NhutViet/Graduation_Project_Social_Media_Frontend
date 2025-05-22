@@ -1,6 +1,7 @@
 import {
   FlatList,
   Image,
+  ImageBackground,
   InteractionManager,
   Modal,
   SafeAreaView,
@@ -8,7 +9,6 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  TouchableWithoutFeedback,
   Linking,
 } from 'react-native';
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
@@ -20,10 +20,7 @@ import {io} from 'socket.io-client';
 import {RootStackParamList} from '../../Navigation/AppNavigation';
 import {launchImageLibrary} from 'react-native-image-picker';
 import LinkPreview from 'react-native-link-preview';
-import { Modalize } from 'react-native-modalize';
-import { Portal } from 'react-native-portalize';
-import BottomSheetPoll, { BottomSheetPollProps } from '../../../components/BottomSheetPoll';
-import BottomSheetVote from '../../../components/BottomSheetVote';
+import ModalTheme from './components/ModalTheme';
 
 const socket = io('https://backendchatsocket.onrender.com');
 
@@ -48,60 +45,9 @@ export const MessageScreen = () => {
   const [name] = useState('Justina Xie');
   const [id] = useState('27052005');
   const flatListRef = useRef<FlatList>(null);
-  const [showMenu, setShowMenu] = useState(false);
-  // poll sheet setup 
-  const pollSheetRef = useRef<Modalize>(null);
-  const voteSheetRef = useRef<Modalize>(null);
-  const [ongoingPoll, setOngoingPoll] = useState<{
-    question: string;
-    options: string[];
-  } | null>(null)
-  const openPollSheet = () => pollSheetRef.current?.open();
-  const closePollSheet = () => pollSheetRef.current?.close();
-  const openVoteSheet = () => voteSheetRef.current?.open();
-  const closeVoteSheet = () => voteSheetRef.current?.close();
-
-  // popup menu handlers 
-  const onLocation = () => {
-    setShowMenu(false);
-    /* */
-  };
-  const onHelp = () => {
-    setShowMenu(false);
-    /* */
-  };
-  const onPoll = () => {
-    openPollSheet();
-    // console.log('Poll');
-    setShowMenu(false);
-  };
-
-  // new poll
-  const handleCreatePoll: BottomSheetPollProps['onSubmit'] = (question, options) => {
-    // save it
-    setOngoingPoll({ question, options });
-    // then close the poll sheet
-    closePollSheet();
-  };
-
-  // vote on poll
-  const onShowOngoing = () => {
-    if (ongoingPoll) {
-      openVoteSheet();
-    }
-  };
-
-  const handleVoteSubmit = (selectedOption: string | null) => {
-    console.log('Voted for', selectedOption);
-    closeVoteSheet();
-  };
-  const handleAddOption = () => {
-    closeVoteSheet();
-    openPollSheet();
-  };
 
   const route = useRoute<RouteProp<RootStackParamList, 'MessageScreen'>>();
-  const {room} = route.params;
+  const room = route?.params?.room;
 
   const reactions = ['❤️', '😂', '😮', '😢', '😡'];
 
@@ -111,6 +57,8 @@ export const MessageScreen = () => {
   const [reactionModalVisible, setReactionModalVisible] = useState(false);
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
   const [linkPreviews, setLinkPreviews] = useState<{[key: number]: any}>({});
+  const [visibleThemeModal, setVisibleThemeModal] = useState(false);
+  const [chatBackground, setChatBackground] = useState<string | null>(null);
 
   useEffect(() => {
     socket.emit('join_room', room);
@@ -141,6 +89,11 @@ export const MessageScreen = () => {
       }
     });
   }, [chat]);
+
+  useEffect(() => {
+    console.log('visibleThemeModal:', visibleThemeModal);
+    console.log('chatBackground:', chatBackground);
+  }, [visibleThemeModal, chatBackground]);
 
   const sendMessage = () => {
     if (message.trim()) {
@@ -320,7 +273,6 @@ export const MessageScreen = () => {
                 </View>
               )}
 
-              {/* Reaction */}
               {isSelected && (
                 <View
                   style={{
@@ -349,151 +301,253 @@ export const MessageScreen = () => {
             </View>
           </TouchableOpacity>
         </View>
-
-        {/* {isMe && showAvatar && (
-          <TouchableOpacity style={[styles.blockAvatar, {marginLeft: 10}]}>
-            <Image source={{uri: item.image}} style={styles.avatar} />
-          </TouchableOpacity>
-        )} */}
       </View>
     );
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      {showMenu && (
-        <TouchableWithoutFeedback onPress={() => setShowMenu(false)}>
-          <View style={styles.backdrop} />
-        </TouchableWithoutFeedback>
-      )}
-      <View style={styles.header}>
-        <View style={styles.rowContainer}>
-          <TouchableOpacity
-            style={styles.blockIcon}
-            onPress={() => {
-              navigation.goBack();
+      {chatBackground ? (
+        <ImageBackground
+          source={{uri: chatBackground}}
+          style={{flex: 1}}
+          resizeMode="cover"
+          onError={() => console.log('Failed to load background image')}>
+          <View
+            style={{
+              flex: 1,
+              backgroundColor: 'rgba(0, 0, 0, 0.3)',
             }}>
-            <Image
-              style={styles.icon}
-              source={require('../../../assets/icon/left.png')}
-            />
-          </TouchableOpacity>
-          <View style={styles.blockImg}>
-            <Image
-              style={styles.img}
-              source={{
-                uri: 'https://i.pinimg.com/736x/2d/db/ae/2ddbaec1fb3d18f6ce00c4ebc1693193.jpg',
-              }}
-            />
+            <View
+              style={[
+                styles.header,
+                {backgroundColor: 'rgba(255, 255, 255, 0.9)'},
+              ]}>
+              <View style={styles.rowContainer}>
+                <TouchableOpacity
+                  style={styles.blockIcon}
+                  onPress={() => {
+                    console.log('Back button pressed');
+                    navigation.goBack();
+                  }}>
+                  <Image
+                    style={styles.icon}
+                    source={require('../../../assets/icon/left.png')}
+                  />
+                </TouchableOpacity>
+                <View style={styles.blockImg}>
+                  <Image
+                    style={styles.img}
+                    source={{
+                      uri: 'https://i.pinimg.com/736x/2d/db/ae/2ddbaec1fb3d18f6ce00c4ebc1693193.jpg',
+                    }}
+                  />
+                </View>
+                <Text style={{color: color.text, fontSize: 16}}>{name}</Text>
+              </View>
+              <View style={styles.rowContainer}>
+                <TouchableOpacity
+                  style={styles.blockIcon}
+                  onPress={() => {
+                    console.log('Video camera button pressed');
+                  }}>
+                  <Image
+                    style={styles.icon}
+                    source={require('../../../assets/icon/videoCamera.png')}
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.blockIcon}>
+                  <Image
+                    style={styles.icon}
+                    source={require('../../../assets/icon/info.png')}
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <View
+              style={{
+                flex: 1,
+                paddingBottom: 10,
+                paddingHorizontal: 10,
+              }}>
+              <TouchableOpacity
+                style={{flex: 1, zIndex: 10}}
+                onLongPress={() => {
+                  console.log('Long press detected, opening ModalTheme');
+                  setVisibleThemeModal(true);
+                }}
+                activeOpacity={1}>
+                <FlatList
+                  ref={flatListRef}
+                  data={chat}
+                  renderItem={renderItem}
+                  keyExtractor={(_, i) => i.toString()}
+                  showsVerticalScrollIndicator={false}
+                  contentContainerStyle={{paddingVertical: 30}}
+                />
+              </TouchableOpacity>
+
+              <View
+                style={[
+                  styles.inputContainer,
+                  {backgroundColor: 'rgba(255, 255, 255, 0.8)', zIndex: 20},
+                ]}>
+                <TouchableOpacity style={styles.blockCamera}>
+                  <Image
+                    style={{tintColor: color.text, width: 20, height: 20}}
+                    source={require('../../../assets/icon/camera.png')}
+                  />
+                </TouchableOpacity>
+                <TextInput
+                  value={message}
+                  onChangeText={setMessage}
+                  placeholder="Type a message..."
+                  placeholderTextColor={color.text}
+                  style={styles.input}
+                  returnKeyType="send"
+                  onSubmitEditing={sendMessage}
+                />
+                <View style={styles.rowContainer}>
+                  <TouchableOpacity style={styles.blockIcon1}>
+                    <Image
+                      style={styles.icon}
+                      source={require('../../../assets/icon/Microphone.png')}
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.blockIcon1}
+                    onPress={sendImage}>
+                    <Image
+                      style={styles.icon}
+                      source={require('../../../assets/icon/Picture.png')}
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.blockIcon1}>
+                    <Image
+                      style={styles.icon}
+                      source={require('../../../assets/icon/another.png')}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
           </View>
-          <Text style={{color: color.text, fontSize: 16}}>{name}</Text>
-        </View>
-        <View style={styles.rowContainer}>
-          <TouchableOpacity style={styles.blockIcon}>
-            <Image
-              style={styles.icon}
-              source={require('../../../assets/icon/videoCamera.png')}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.blockIcon}>
-            <Image
-              style={styles.icon}
-              source={require('../../../assets/icon/info.png')}
-            />
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {ongoingPoll && (
-        <TouchableOpacity
-          style={styles.ongoingButton}
-          onPress={onShowOngoing}
-        >
-          <Text style={styles.ongoingText}>New Ongoing Poll</Text>
-        </TouchableOpacity>
-      )}
-
-      {/* Popup menu */}
-          {showMenu && (
-            <View style={[styles.menu, { position: 'absolute', bottom: 70, right: 10, zIndex: 3 }]}>
-              <TouchableOpacity onPress={onLocation} style={styles.menuItem}>
+        </ImageBackground>
+      ) : (
+        <View style={{flex: 1}}>
+          <View style={styles.header}>
+            <View style={styles.rowContainer}>
+              <TouchableOpacity
+                style={styles.blockIcon}
+                onPress={() => {
+                  console.log('Back button pressed');
+                  navigation.goBack();
+                }}>
                 <Image
-                  source={require('../../../assets/icon/location.png')}
-                  style={styles.menuIcon}
+                  style={styles.icon}
+                  source={require('../../../assets/icon/left.png')}
                 />
-                <Text style={styles.menuText}>Location</Text>
               </TouchableOpacity>
-
-              <TouchableOpacity onPress={onPoll} style={styles.menuItem} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+              <View style={styles.blockImg}>
                 <Image
-                  source={require('../../../assets/icon/polling.png')}
-                  style={styles.menuIcon}
+                  style={styles.img}
+                  source={{
+                    uri: 'https://i.pinimg.com/736x/2d/db/ae/2ddbaec1fb3d18f6ce00c4ebc1693193.jpg',
+                  }}
                 />
-                <Text style={styles.menuText}>Poll</Text>
+              </View>
+              <Text style={{color: color.text, fontSize: 16}}>{name}</Text>
+            </View>
+            <View style={styles.rowContainer}>
+              <TouchableOpacity
+                style={styles.blockIcon}
+                onPress={() => {
+                  console.log('Video camera button pressed');
+                }}>
+                <Image
+                  style={styles.icon}
+                  source={require('../../../assets/icon/videoCamera.png')}
+                />
               </TouchableOpacity>
-
-              <TouchableOpacity onPress={onHelp} style={styles.menuItem}>
+              <TouchableOpacity
+                style={styles.blockIcon}
+                onPress={() => {
+                  console.log('Info button pressed, opening ModalTheme');
+                  setVisibleThemeModal(true);
+                }}>
                 <Image
-                  source={require('../../../assets/icon/star_mess.png')}
-                  style={styles.menuIcon}
+                  style={styles.icon}
+                  source={require('../../../assets/icon/info.png')}
                 />
-                <Text style={styles.menuText}>Help</Text>
               </TouchableOpacity>
             </View>
-          )}
-      <View
-        style={{
-          flex: 1,
-          paddingBottom: 10,
-          paddingHorizontal: 10,
-        }}>
-        <FlatList
-          ref={flatListRef}
-          data={chat}
-          renderItem={renderItem}
-          keyExtractor={(_, i) => i.toString()}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{paddingVertical: 30}}
-        />
+          </View>
 
-        <View style={styles.inputContainer}>
-          <TouchableOpacity style={styles.blockCamera}>
-            <Image
-              style={{tintColor: color.text, width: 20, height: 20}}
-              source={require('../../../assets/icon/camera.png')}
-            />
-          </TouchableOpacity>
-          <TextInput
-            value={message}
-            onChangeText={setMessage}
-            placeholder="Type a message..."
-            placeholderTextColor={color.text}
-            style={styles.input}
-            returnKeyType="send"
-            onSubmitEditing={sendMessage}
-          />
-          <View style={styles.rowContainer}>
-            <TouchableOpacity style={styles.blockIcon1}>
-              <Image
-                style={styles.icon}
-                source={require('../../../assets/icon/Microphone.png')}
+          <View
+            style={{
+              flex: 1,
+              paddingBottom: 10,
+              paddingHorizontal: 10,
+            }}>
+            <TouchableOpacity
+              style={{flex: 1, zIndex: 10}}
+              onLongPress={() => {
+                console.log('Long press detected, opening ModalTheme');
+                setVisibleThemeModal(true);
+              }}
+              activeOpacity={1}>
+              <FlatList
+                ref={flatListRef}
+                data={chat}
+                renderItem={renderItem}
+                keyExtractor={(_, i) => i.toString()}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{paddingVertical: 30}}
               />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.blockIcon1} onPress={sendImage}>
-              <Image
-                style={styles.icon}
-                source={require('../../../assets/icon/Picture.png')}
+
+            <View style={[styles.inputContainer, {zIndex: 20}]}>
+              <TouchableOpacity style={styles.blockCamera}>
+                <Image
+                  style={{tintColor: color.text, width: 20, height: 20}}
+                  source={require('../../../assets/icon/camera.png')}
+                />
+              </TouchableOpacity>
+              <TextInput
+                value={message}
+                onChangeText={setMessage}
+                placeholder="Type a message..."
+                placeholderTextColor={color.text}
+                style={styles.input}
+                returnKeyType="send"
+                onSubmitEditing={sendMessage}
               />
-            </TouchableOpacity>
-          <TouchableOpacity style={styles.blockIcon1} onPress={() => setShowMenu((v) => !v)} >
-            <Image
-              style={styles.icon}
-              source={require('../../../assets/icon/another.png')}
-            />
-          </TouchableOpacity>
+              <View style={styles.rowContainer}>
+                <TouchableOpacity style={styles.blockIcon1}>
+                  <Image
+                    style={styles.icon}
+                    source={require('../../../assets/icon/Microphone.png')}
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.blockIcon1} onPress={sendImage}>
+                  <Image
+                    style={styles.icon}
+                    source={require('../../../assets/icon/Picture.png')}
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.blockIcon1}>
+                  <Image
+                    style={styles.icon}
+                    source={require('../../../assets/icon/another.png')}
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
           </View>
         </View>
-      </View>
+      )}
+
       <Modal visible={!!selectedImageUri} transparent={true}>
         <View
           style={{
@@ -518,64 +572,19 @@ export const MessageScreen = () => {
           )}
         </View>
       </Modal>
-      {/* BottomSheetPoll */}
-      <Portal>
-        <Modalize
-          ref={pollSheetRef}
-          adjustToContentHeight
-          handlePosition="inside"
-          panGestureEnabled
-          modalStyle={{
-            backgroundColor: color.background,
-            borderTopLeftRadius: 16,
-            borderTopRightRadius: 16,
-            paddingTop: 18,
-          }}
-          handleStyle={{
-            backgroundColor: color.text,
-            width: 40,
-            height: 6,
-            marginBottom: 8,
-          }}
-        >
-          <BottomSheetPoll
-            onClose={closePollSheet}
-            onSubmit={handleCreatePoll}
-          />
-        </Modalize>
-      </Portal>
-      <Portal>
-        {/* Voting sheet */}
-        <Modalize
-          ref={voteSheetRef}
-          adjustToContentHeight
-          handlePosition="inside"
-          panGestureEnabled
-          modalStyle={{
-            backgroundColor: color.background,
-            borderTopLeftRadius: 16,
-            borderTopRightRadius: 16,
-            paddingTop: 18,
-          }}
-          handleStyle={{
-            backgroundColor: color.text,
-            width: 40,
-            height: 6,
-            marginBottom: 8,
-          }}
-        >
-          {ongoingPoll && (
-            <BottomSheetVote
-              question={ongoingPoll.question}
-              options={ongoingPoll.options}
-              onClose={closeVoteSheet}
-              onSubmit={handleVoteSubmit}
-              onAddOption={handleAddOption}
-            />
-          )}
-        </Modalize>
-      </Portal>
 
+      <ModalTheme
+        visible={visibleThemeModal}
+        onClose={() => {
+          console.log('Closing ModalTheme');
+          setVisibleThemeModal(false);
+        }}
+        onSelect={selectedBackground => {
+          console.log('Selected background:', selectedBackground);
+          setChatBackground(selectedBackground);
+          setVisibleThemeModal(false);
+        }}
+      />
     </SafeAreaView>
   );
 };
