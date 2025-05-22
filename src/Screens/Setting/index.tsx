@@ -1,4 +1,5 @@
 import {
+  Image,
   SafeAreaView,
   ScrollView,
   Switch,
@@ -38,15 +39,13 @@ export const Setting = () => {
   return (
     <SafeAreaView
       style={[styles.container, {backgroundColor: mColor.background}]}>
-      <View style={styles.fixed}>
-        <Header
-          title="Settings and privacy "
-          iconBack={require('../../../assets/icon/left.png')}
-          iconQR={require('../../../assets/icon/qr.png')}
-          func={() => navigation.goBack()}
-          navigation={navigation}
-        />
-      </View>
+      <Header
+        title="Settings and privacy "
+        iconBack={require('../../../assets/icon/left.png')}
+        iconQR={require('../../../assets/icon/qr.png')}
+        func={() => navigation.goBack()}
+        navigation={navigation}
+      />
       <ScrollView>
         <View style={styles.content}>
           {/* Account Section */}
@@ -217,7 +216,8 @@ export const Setting = () => {
                   backgroundColor: mColor.background,
                   borderBottomColor: mColor.border,
                 },
-              ]}>
+              ]}
+              onPress={() => navigation.navigate('LikedScreen')}>
               <View
                 style={[
                   styles.settingIconContainer,
@@ -235,6 +235,30 @@ export const Setting = () => {
                     {color: mColor.textSecondary},
                   ]}>
                   Posts you've liked
+                </Text>
+              </View>
+              <ChevronRight size={20} stroke={mColor.textSecondary} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.settingItem,
+                {
+                  backgroundColor: mColor.background,
+                  borderBottomColor: mColor.border,
+                },
+              ]}
+              onPress={() => navigation.navigate('BookmarkScreen')}>
+              <View
+                style={[
+                  styles.settingIconContainer,
+                  {backgroundColor: mColor.gray},
+                ]}>
+                <Image source={require('../../../assets/icon/bookmark.png')} style={{width: 20, height: 20, tintColor: mColor.text}} />
+              </View>
+              <View style={styles.settingContent}>
+                <Text style={[styles.settingTitle, {color: mColor.text}]}>
+                  Saved
                 </Text>
               </View>
               <ChevronRight size={20} stroke={mColor.textSecondary} />

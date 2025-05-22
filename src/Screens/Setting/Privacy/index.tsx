@@ -72,7 +72,9 @@ export const Privacy = () => {
           <Text style={styles.privacyDescription}>
             When your account is private, only people you approve can see your
             photos and videos. Your existing followers won't be affected.{' '}
-            <Text style={styles.learnMore}>Learn more</Text>
+            <TouchableOpacity onPress={() => console.log('VIEW MORE')}>
+              <Text style={styles.learnMore}>Learn more</Text>
+            </TouchableOpacity>
           </Text>
         </View>
       </View>

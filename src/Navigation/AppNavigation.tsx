@@ -37,6 +37,10 @@ import {
   HorizontalScreen,
   ShowActivity,
   SaveMusic,
+  LikedScreen,
+  MusicSavedScreen,
+  AddCollectionScreen,
+  Archive,
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 import ProfileComp from '../Screens/Profile';
@@ -54,10 +58,14 @@ const AppNavigator = () => {
       <Stack.Navigator
         initialRouteName="HorizontalScreen"
         screenOptions={{headerShown: false}}>
+        <Stack.Screen name="BlockedAccounts" component={BlockedAccounts} />
+        <Stack.Screen name="ShowActivity" component={ShowActivity} />
+        <Stack.Screen name="LikedScreen" component={LikedScreen} />
         <Stack.Screen
           name="AddPeopleToGroupChat"
           component={AddPeopleToGroupChat}
         />
+        <Stack.Screen name="MusicSaved" component={MusicSavedScreen} />
         <Stack.Screen name="HorizontalScreen" component={HorizontalScreen} />
         <Stack.Screen name="ProfileComp" component={ProfileComp} />
         <Stack.Screen name="SaveMusic" component={SaveMusic} />
@@ -97,7 +105,9 @@ const AppNavigator = () => {
           name="EditHighlightStory"
           component={EditHighlightScreen}
         />
+        <Stack.Screen name="Archive" component={Archive}/>
         <Stack.Screen name="InforGroupChat" component={InforGroupChat} />
+        <Stack.Screen name="AddCollection" component={AddCollectionScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

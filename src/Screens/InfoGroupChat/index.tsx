@@ -31,7 +31,7 @@ import {launchImageLibrary} from 'react-native-image-picker';
 export const InforGroupChat = () => {
   const {theme} = useTheme();
   const color = Colors[theme];
-  const navigation = useNavigation();
+  const navigation: any = useNavigation();
   const [imageUri, setImageUri] = useState(
     'https://i.pinimg.com/736x/2d/db/ae/2ddbaec1fb3d18f6ce00c4ebc1693193.jpg',
   );
@@ -81,7 +81,7 @@ export const InforGroupChat = () => {
       </View>
 
       <View style={styles.actionRow}>
-        <TouchableOpacity style={styles.actionItem}>
+        <TouchableOpacity style={styles.actionItem} onPress={() => navigation.navigate('AddPeopleToGroupChat')}>
           <UserPlus size={20} color={color.text} />
           <Text style={[styles.actionText, {color: color.text}]}>Thêm</Text>
         </TouchableOpacity>
@@ -142,7 +142,7 @@ export const InforGroupChat = () => {
           <ChevronRight size={24} color={color.text} />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.btn}>
+        <TouchableOpacity style={styles.btn} onPress={() => navigation.navigate('PeopleGroupChat')}>
           <View style={styles.menuItem}>
             <View style={styles.menuIcon}>
               <Users size={24} color={color.text} />

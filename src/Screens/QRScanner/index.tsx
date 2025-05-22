@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Alert, StyleSheet, View, Platform, PermissionsAndroid, Dimensions, TouchableOpacity, Image } from 'react-native';
 import { Camera, useCameraDevices, useCodeScanner, getCameraDevice, Code } from 'react-native-vision-camera';
 import LinearGradient from 'react-native-linear-gradient';
+import { useNavigation } from '@react-navigation/native';
 
 const { width, height } = Dimensions.get('window');
 const SCAN_AREA_SIZE = width * 0.7;
@@ -27,6 +28,7 @@ export const QRScanner = () => {
   const cooldownTimer = useRef<NodeJS.Timeout | null>(null);
   const devices = useCameraDevices();
   const device = getCameraDevice(devices, "back");
+  const navigation: any = useNavigation();
 
   const scanArea: ScanAreaType = {
     x: (width - SCAN_AREA_SIZE) / 2,
@@ -161,7 +163,9 @@ export const QRScanner = () => {
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
       />
-      <TouchableOpacity style={styles.backButton}>
+      <TouchableOpacity style={styles.backButton} onPress={() => {
+          navigation.goBack();
+      }}>
         <Image source={require('../../../assets/icon/left.png')} style={styles.buttonImage}/>
       </TouchableOpacity>
       <TouchableOpacity style={styles.libraryButton}>
