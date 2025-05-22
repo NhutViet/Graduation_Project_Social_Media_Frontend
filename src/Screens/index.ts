@@ -32,3 +32,4 @@ export * from './BlockUser';
 export * from './QRScanner';
 export * from './Setting/ShowActivity.tsx';
 export * from './SaveMusic';
+export * from './Setting/Archive';

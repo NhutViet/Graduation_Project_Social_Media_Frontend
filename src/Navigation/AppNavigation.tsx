@@ -35,6 +35,7 @@ import {
   QRScanner,
   ShowActivity,
   SaveMusic,
+  Archive,
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 import ProfileComp from '../Screens/Profile';
@@ -50,7 +51,7 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="BottomTabs"
+        initialRouteName="Archive"
         screenOptions={{headerShown: false}}>
         <Stack.Screen name="ProfileComp" component={ProfileComp} />
         <Stack.Screen
@@ -95,6 +96,7 @@ const AppNavigator = () => {
           name="EditHighlightStory"
           component={EditHighlightScreen}
         />
+        <Stack.Screen name="Archive" component={Archive}/>
       </Stack.Navigator>
     </NavigationContainer>
   );
