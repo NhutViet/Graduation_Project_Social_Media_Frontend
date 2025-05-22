@@ -14,7 +14,7 @@ import {Colors} from '../../../assets/color/Colors';
 import {ChevronLeft, Bookmark, Ellipsis, Send, Eye} from 'lucide-react-native';
 import {FlashList} from '@shopify/flash-list';
 
-const musicData = {
+export const musicData = {
   id: '1',
   title: 'Take My Hand',
   artist: 'Matt Berry',
@@ -105,7 +105,6 @@ export const SaveMusic = () => {
   const navigation = useNavigation();
   const {theme} = useTheme();
   const colors = Colors[theme];
-  const opositeColor = theme === 'dark' ? Colors.light : Colors.dark;
   const formatReelViews = (num: number): string => {
     if (num >= 1000000) {
       return (num / 1000000).toFixed(1) + 'M';

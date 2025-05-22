@@ -37,6 +37,8 @@ import {
   HorizontalScreen,
   ShowActivity,
   SaveMusic,
+  LikedScreen,
+  MusicSavedScreen,
   AddCollectionScreen,
   Archive,
 } from '../Screens';
@@ -56,10 +58,14 @@ const AppNavigator = () => {
       <Stack.Navigator
         initialRouteName="BookmarkScreen"
         screenOptions={{headerShown: false}}>
+        <Stack.Screen name="BlockedAccounts" component={BlockedAccounts} />
+        <Stack.Screen name="ShowActivity" component={ShowActivity} />
+        <Stack.Screen name="LikedScreen" component={LikedScreen} />
         <Stack.Screen
           name="AddPeopleToGroupChat"
           component={AddPeopleToGroupChat}
         />
+        <Stack.Screen name="MusicSaved" component={MusicSavedScreen} />
         <Stack.Screen name="HorizontalScreen" component={HorizontalScreen} />
         <Stack.Screen name="ProfileComp" component={ProfileComp} />
         <Stack.Screen name="SaveMusic" component={SaveMusic} />

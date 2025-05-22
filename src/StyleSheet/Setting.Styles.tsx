@@ -8,16 +8,8 @@ export const createStyles = (themeColors: any) =>
       backgroundColor: themeColors.background,
       position: 'relative',
     },
-    fixed: {
-      position: 'absolute',
-      top: 0,
-      right: 0,
-      left: 0,
-      zIndex: 1,
-    },
     content: {
       height: '100%',
-      marginTop: 60,
     },
     section: {
       marginBottom: theme.spacing.l,
@@ -79,7 +71,7 @@ export const createStyles = (themeColors: any) =>
       color: themeColors.error,
     },
     privacyContainer: {
-      padding: 16,
+      padding: 15,
     },
     privacyHeader: {
       flexDirection: 'row',
