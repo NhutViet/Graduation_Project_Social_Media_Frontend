@@ -7,7 +7,7 @@ import { useCameraStyles } from '../../../src/StyleSheet/CameraStyles';
 
 const modes = ['Normal', 'Portrait', 'Video', 'Pano'];
 
-export const CameraScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
+export const CameraScreen = ({ navigation, onBack }: any) => {
   const cameraRef = useRef<CameraVisionHandle>(null);
   const [mode, setMode] = useState<string>('Normal');
   const [previewUri, setPreviewUri] = useState<string | null>(null);
@@ -47,7 +47,7 @@ export const CameraScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         <>
           <CameraVision ref={cameraRef} style={styles.preview} />
             <View style={styles.topBar}>
-            <TouchableOpacity onPress={() => navigation.goBack()}>
+            <TouchableOpacity onPress={onBack}>
               <Image
                 source={require('../../../assets/icon/left.png')}
                 style={styles.topIcon}

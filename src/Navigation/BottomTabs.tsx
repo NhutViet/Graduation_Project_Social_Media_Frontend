@@ -6,7 +6,7 @@ import Post from '../(tabs)/Post';
 import {Search} from '../(tabs)/Search';
 import ProfileNavigation from '../(tabs)/Profile/ProfileNavigation';
 import Reels from '../(tabs)/Reels';
-import { Home } from '../(tabs)/Home';
+import {Home} from '../(tabs)/Home';
 
 const Tab = createBottomTabNavigator();
 
@@ -55,7 +55,7 @@ const BottomTabs = ({onTabChange}: {onTabChange?: (index: number) => void}) => {
         tabBarHideOnKeyboard: true,
       }}
       screenListeners={{
-        state: (e) => {
+        state: e => {
           const index = e.data.state.index;
           onTabChange?.(index);
         },

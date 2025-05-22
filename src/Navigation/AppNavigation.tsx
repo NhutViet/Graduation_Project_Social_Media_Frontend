@@ -35,7 +35,6 @@ import {
   QRScanner,
   InforGroupChat,
   HorizontalScreen,
-  HorizontalScreen,
   ShowActivity,
   SaveMusic,
 } from '../Screens';
@@ -53,7 +52,7 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="BottomTabs"
+        initialRouteName="HorizontalScreen"
         screenOptions={{headerShown: false}}>
         <Stack.Screen
           name="AddPeopleToGroupChat"
