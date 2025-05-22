@@ -38,6 +38,7 @@ import {
   ShowActivity,
   SaveMusic,
   AddCollectionScreen,
+  Archive,
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 import ProfileComp from '../Screens/Profile';
@@ -98,6 +99,7 @@ const AppNavigator = () => {
           name="EditHighlightStory"
           component={EditHighlightScreen}
         />
+        <Stack.Screen name="Archive" component={Archive}/>
         <Stack.Screen name="InforGroupChat" component={InforGroupChat} />
         <Stack.Screen name="AddCollection" component={AddCollectionScreen} />
       </Stack.Navigator>
