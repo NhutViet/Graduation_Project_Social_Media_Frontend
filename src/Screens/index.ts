@@ -35,4 +35,5 @@ export * from './QRScanner';
 export * from './HorizontalScreen';
 export * from './Setting/ShowActivity.tsx';
 export * from './SaveMusic';
+export * from './Setting/Archive';
 export * from './LikedScreen';
