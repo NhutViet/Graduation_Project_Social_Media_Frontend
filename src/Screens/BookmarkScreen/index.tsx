@@ -1,9 +1,16 @@
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, ScrollView, FlatList } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { bookmarked, BookmarkedItem } from '../../MockData/bookmarked.mock';
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+  FlatList,
+} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import {bookmarked, BookmarkedItem} from '../../MockData/bookmarked.mock';
 import BookmarkedPlaylist from './components/BookmarkedPlaylist';
-import { useBookmarkStyles } from '../../StyleSheet/BookmarkedStyles';
+import {useBookmarkStyles} from '../../StyleSheet/BookmarkedStyles';
 
 export const BookmarkScreen = () => {
   const navigation: any = useNavigation();
@@ -20,19 +27,18 @@ export const BookmarkScreen = () => {
   }
 
   const playlists: Playlist[] = [
-    { id: '1', title: 'All posts', type: 'post',  items: posts },
-    { id: '2', title: 'Sounds',    type: 'music', items: musics },
+    {id: '1', title: 'All posts', type: 'post', items: posts},
+    {id: '2', title: 'Sounds', type: 'music', items: musics},
   ];
 
   const handlePlaylistPress = (title: string, type: 'post' | 'music') => {
-    navigation.navigate('PlaylistsScreen', { title, type });
+    navigation.navigate('PlaylistsScreen', {title, type});
   };
 
-  const renderPlaylistItem = ({ item, index }: { item: any, index: number }) => (
-    <TouchableOpacity 
+  const renderPlaylistItem = ({item, index}: {item: any; index: number}) => (
+    <TouchableOpacity
       style={styles.columnItem}
-      onPress={() => handlePlaylistPress(item.title, item.type)}
-    >
+      onPress={() => handlePlaylistPress(item.title, item.type)}>
       <BookmarkedPlaylist title={item.title} items={item.items} />
     </TouchableOpacity>
   );
@@ -41,11 +47,20 @@ export const BookmarkScreen = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Image source={require('../../../assets/icon/left.png')} style={styles.icon} />
+          <Image
+            source={require('../../../assets/icon/left.png')}
+            style={styles.icon}
+          />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Saved</Text>
-        <TouchableOpacity onPress={() => {/* add new playlist */}}>
-          <Image source={require('../../../assets/icon/Plus.png')} style={styles.icon} />
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate('AddCollection');
+          }}>
+          <Image
+            source={require('../../../assets/icon/Plus.png')}
+            style={styles.icon}
+          />
         </TouchableOpacity>
       </View>
 
