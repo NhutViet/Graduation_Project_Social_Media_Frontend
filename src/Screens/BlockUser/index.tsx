@@ -79,7 +79,7 @@ export const BlockUser = () => {
           ref={inputRef}
           value={searchText}
           onChangeText={setSearchText}
-          placeholderTextColor={colors.lessBlack}
+          placeholderTextColor={colors.textSecondary}
           onFocus={() => setIsFocused(true)}
           style={styles.inputBox}
         />
