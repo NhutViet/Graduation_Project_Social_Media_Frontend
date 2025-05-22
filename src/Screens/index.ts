@@ -34,5 +34,6 @@ export * from './InfoGroupChat';
 export * from './QRScanner';
 export * from './HorizontalScreen';
 export * from './Setting/ShowActivity.tsx';
-export * from './SaveMusic';
+export * from './MusicDetail';
 export * from './LikedScreen';
+export * from './MusicSaved';
