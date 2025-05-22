@@ -36,3 +36,4 @@ export * from './HorizontalScreen';
 export * from './Setting/ShowActivity.tsx';
 export * from './SaveMusic';
 export * from './LikedScreen';
+export * from './AddCollectionScreen';

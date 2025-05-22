@@ -35,9 +35,9 @@ import {
   QRScanner,
   InforGroupChat,
   HorizontalScreen,
-  HorizontalScreen,
   ShowActivity,
   SaveMusic,
+  AddCollectionScreen,
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 import ProfileComp from '../Screens/Profile';
@@ -53,7 +53,7 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="BottomTabs"
+        initialRouteName="BookmarkScreen"
         screenOptions={{headerShown: false}}>
         <Stack.Screen
           name="AddPeopleToGroupChat"
@@ -99,6 +99,7 @@ const AppNavigator = () => {
           component={EditHighlightScreen}
         />
         <Stack.Screen name="InforGroupChat" component={InforGroupChat} />
+        <Stack.Screen name="AddCollection" component={AddCollectionScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
