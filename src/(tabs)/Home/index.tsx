@@ -130,6 +130,7 @@ export const Home = () => {
           );
         }}
         showsVerticalScrollIndicator={false}
+        nestedScrollEnabled={true}
         estimatedItemSize={100}
         onViewableItemsChanged={onViewRef.current}
         viewabilityConfig={{

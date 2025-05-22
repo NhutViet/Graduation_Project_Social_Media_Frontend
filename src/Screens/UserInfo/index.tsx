@@ -1,4 +1,4 @@
-import React, {useState, useRef } from 'react';
+import React, {useState, useRef} from 'react';
 import {
   Animated,
   Dimensions,
@@ -14,9 +14,11 @@ import {useTheme} from '../../util/ThemeContext';
 import UserInfoStyles from '../../StyleSheet/UserInfoStyles';
 import {Colors} from '../../../assets/color/Colors';
 import {useNavigation} from '@react-navigation/native';
-import BottomSheetNotification, { SwitchOption, } from '../../../components/BottomSheetNotification';
-import { Modalize } from 'react-native-modalize';
-import { Portal } from 'react-native-portalize';
+import BottomSheetNotification, {
+  SwitchOption,
+} from '../../../components/BottomSheetNotification';
+import {Modalize} from 'react-native-modalize';
+import {Portal} from 'react-native-portalize';
 
 const screenWidth = Dimensions.get('window').width - 8;
 const initialLayout = {width: Dimensions.get('window').width};
@@ -121,7 +123,9 @@ export const UserInfo = () => {
               source={require('../../../assets/icon/user.png')}
             />
           </TouchableOpacity>
-          <Text style={styles.text}>Trang cá nhân</Text>
+          <Text style={styles.text} numberOfLines={1}>
+            Trang cá nhân
+          </Text>
         </View>
         <View style={styles.blockFeature}>
           <TouchableOpacity style={styles.blockIcon}>
@@ -130,19 +134,22 @@ export const UserInfo = () => {
               source={require('../../../assets/icon/search.png')}
             />
           </TouchableOpacity>
-          <Text style={styles.text}>Tìm kiếm</Text>
+          <Text style={styles.text} numberOfLines={1}>
+            Tìm kiếm
+          </Text>
         </View>
         <View style={styles.blockFeature}>
           <TouchableOpacity
             style={styles.blockIcon}
-            onPress={openNotifications}
-          >
+            onPress={openNotifications}>
             <Image
               style={styles.icon}
               source={require('../../../assets/icon/bell.png')}
             />
           </TouchableOpacity>
-          <Text style={styles.text}>Tắt thông báo</Text>
+          <Text style={styles.text} numberOfLines={1}>
+            Tắt thông báo
+          </Text>
         </View>
         <View style={styles.blockFeature}>
           <TouchableOpacity style={styles.blockIcon}>
@@ -151,7 +158,9 @@ export const UserInfo = () => {
               source={require('../../../assets/icon/ellipsis.png')}
             />
           </TouchableOpacity>
-          <Text style={styles.text}>Tuỳ chọn</Text>
+          <Text style={styles.text} numberOfLines={1}>
+            Tuỳ chọn
+          </Text>
         </View>
       </View>
       <View style={styles.tab2Container}>
@@ -321,8 +330,7 @@ export const UserInfo = () => {
           }}
           handlePosition="inside"
           panGestureEnabled
-          adjustToContentHeight
-        >
+          adjustToContentHeight>
           <BottomSheetNotification
             title="Notification"
             options={notificationOptions}

@@ -14,8 +14,8 @@ const UserInfoStyles = (theme: ThemeType) => {
       backgroundColor: color.background,
     },
     iconBack: {
-      width: 20,
-      height: 20,
+      width: 18,
+      height: 18,
       position: 'absolute',
       top: 20,
       left: 20,
@@ -50,12 +50,12 @@ const UserInfoStyles = (theme: ThemeType) => {
       marginTop: 20,
     },
     blockFeature: {
-      marginHorizontal: 8,
+      marginHorizontal: 6,
       alignItems: 'center',
     },
     blockIcon: {
-      width: 20,
-      height: 20,
+      width: 18,
+      height: 18,
     },
     icon: {
       width: '100%',
@@ -64,6 +64,8 @@ const UserInfoStyles = (theme: ThemeType) => {
       tintColor: color.text,
     },
     text: {
+      width: 50,
+      textAlign: 'center',
       color: color.text,
       fontSize: 12,
       marginTop: 4,
@@ -73,10 +75,11 @@ const UserInfoStyles = (theme: ThemeType) => {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginVertical: 5,
+      marginVertical: 10,
     },
     tab2Container: {
-      padding: 20,
+      paddingTop: 10,
+      paddingHorizontal: 30,
     },
     image: {
       width: '100%',
@@ -88,8 +91,8 @@ const UserInfoStyles = (theme: ThemeType) => {
     },
 
     infoIcon: {
-      width: 24,
-      height: 24,
+      width: 18,
+      height: 18,
       marginRight: 10,
     },
 
