@@ -181,7 +181,11 @@ export const UserInfo = () => {
             label: 'Đã xảy ra lỗi',
           },
         ].map((item, i) => (
-          <TouchableOpacity style={styles.row} key={i}>
+          <TouchableOpacity style={styles.row} key={i} onPress={() => {
+            if(i == 4){
+              navigation.navigate('CreateGroupScreen');
+            }
+          }}>
             <View style={styles.infoRowContainer}>
               <Image
                 style={[

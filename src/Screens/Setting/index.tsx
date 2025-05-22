@@ -1,4 +1,5 @@
 import {
+  Image,
   SafeAreaView,
   ScrollView,
   Switch,
@@ -215,7 +216,8 @@ export const Setting = () => {
                   backgroundColor: mColor.background,
                   borderBottomColor: mColor.border,
                 },
-              ]}>
+              ]}
+              onPress={() => navigation.navigate('LikedScreen')}>
               <View
                 style={[
                   styles.settingIconContainer,
@@ -233,6 +235,30 @@ export const Setting = () => {
                     {color: mColor.textSecondary},
                   ]}>
                   Posts you've liked
+                </Text>
+              </View>
+              <ChevronRight size={20} stroke={mColor.textSecondary} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.settingItem,
+                {
+                  backgroundColor: mColor.background,
+                  borderBottomColor: mColor.border,
+                },
+              ]}
+              onPress={() => navigation.navigate('BookmarkScreen')}>
+              <View
+                style={[
+                  styles.settingIconContainer,
+                  {backgroundColor: mColor.gray},
+                ]}>
+                <Image source={require('../../../assets/icon/bookmark.png')} style={{width: 20, height: 20, tintColor: mColor.text}} />
+              </View>
+              <View style={styles.settingContent}>
+                <Text style={[styles.settingTitle, {color: mColor.text}]}>
+                  Saved
                 </Text>
               </View>
               <ChevronRight size={20} stroke={mColor.textSecondary} />

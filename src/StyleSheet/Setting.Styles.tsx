@@ -99,17 +99,18 @@ export const createStyles = (themeColors: any) =>
       alignItems: 'center',
       paddingHorizontal: 10,
       paddingVertical: 10,
-      height: 60,
+      borderBottomColor: theme.lightGray,
+      borderBottomWidth: 1
     },
     backButton: {
       flexDirection: 'row',
       alignItems: 'center',
-      width: 40,
-      height: 40,
+      width: 30,
+      height: 30,
     },
     headTitle: {
       alignItems: 'center',
-      fontSize: 20,
+      fontSize: 18,
       fontWeight: '500',
     },
   });

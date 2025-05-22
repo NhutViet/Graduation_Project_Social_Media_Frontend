@@ -335,14 +335,17 @@ export const MessageScreen = () => {
                     source={require('../../../assets/icon/left.png')}
                   />
                 </TouchableOpacity>
-                <View style={styles.blockImg}>
+                <TouchableOpacity style={styles.blockImg} onPress={() => {
+                  console.log('avatar');
+                  navigation.navigate(room == 'room2' ? "InforGroupChat" :"InfoUser");
+                }}>
                   <Image
                     style={styles.img}
                     source={{
                       uri: 'https://i.pinimg.com/736x/2d/db/ae/2ddbaec1fb3d18f6ce00c4ebc1693193.jpg',
                     }}
                   />
-                </View>
+                </TouchableOpacity>
                 <Text style={{color: color.text, fontSize: 16}}>{name}</Text>
               </View>
               <View style={styles.rowContainer}>
@@ -449,14 +452,14 @@ export const MessageScreen = () => {
                   source={require('../../../assets/icon/left.png')}
                 />
               </TouchableOpacity>
-              <View style={styles.blockImg}>
+              <TouchableOpacity style={styles.blockImg} onPress={() => navigation.navigate(room == 'room2' ? "InforGroupChat" :"InfoUser")}>
                 <Image
                   style={styles.img}
                   source={{
                     uri: 'https://i.pinimg.com/736x/2d/db/ae/2ddbaec1fb3d18f6ce00c4ebc1693193.jpg',
                   }}
                 />
-              </View>
+              </TouchableOpacity>
               <Text style={{color: color.text, fontSize: 16}}>{name}</Text>
             </View>
             <View style={styles.rowContainer}>
