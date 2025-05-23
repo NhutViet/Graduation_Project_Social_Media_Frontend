@@ -88,7 +88,7 @@ export const LikedScreen = () => {
               }}
               style={styles.filterContainer}
               key={item.id}>
-              <Text>{item.label}</Text>
+              <Text style={styles.textFilter}>{item.label}</Text>
               <Image
                 source={require('../../../assets/icon/down.png')}
                 style={[styles.iconBack, {width: 10}]}

@@ -40,7 +40,7 @@ export const BlockUsersStyles = (theme: 'light' | 'dark') => {
         resizeMode: 'contain',
         position: 'absolute',
         left: 35,
-        tintColor: color.lessBlack
+        tintColor: color.textSecondary
     },
     inputBox: {
         backgroundColor: color.lightGray,
