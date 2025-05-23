@@ -203,6 +203,44 @@ export const Setting = () => {
             {/* Tương tự cho các settingItem khác trong Account Section */}
           </View>
 
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, {color: mColor.text}]}>
+              Notifications
+            </Text>
+
+            <TouchableOpacity
+              style={[
+                styles.settingItem,
+                {
+                  backgroundColor: mColor.background,
+                  borderBottomColor: mColor.border,
+                },
+              ]}
+              onPress={() => navigation.navigate('Notifications')}>
+              <View
+                style={[
+                  styles.settingIconContainer,
+                  {backgroundColor: mColor.gray},
+                ]}>
+                <Lock size={22} stroke={mColor.text} />
+              </View>
+              <View style={styles.settingContent}>
+                <Text style={[styles.settingTitle, {color: mColor.text}]}>
+                  Update you notification settings
+                </Text>
+                <Text
+                  style={[
+                    styles.settingDescription,
+                    {color: mColor.textSecondary},
+                  ]}>
+                  Choose how you want to be notified
+                </Text>
+              </View>
+              <ChevronRight size={20} stroke={mColor.textSecondary} />
+            </TouchableOpacity>
+
+          </View>
+
           {/* Activity Section */}
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, {color: mColor.text}]}>

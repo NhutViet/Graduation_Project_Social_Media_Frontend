@@ -30,6 +30,8 @@ import {
   PlaylistsScreen,
   BlockUser,
   Privacy,
+  Notifications,
+  NotificationOption,
   PeopleGroupChat,
   AddPeopleToGroupChat,
   QRScanner,
@@ -100,6 +102,8 @@ const AppNavigator = () => {
         <Stack.Screen name="BookmarkScreen" component={BookmarkScreen} />
         <Stack.Screen name="PlaylistsScreen" component={PlaylistsScreen} />
         <Stack.Screen name="Privacy" component={Privacy} />
+        <Stack.Screen name="Notifications" component={Notifications} />
+        <Stack.Screen name="NotificationOption" component={NotificationOption} />
         <Stack.Screen name="QRScanner" component={QRScanner} />
         <Stack.Screen
           name="EditHighlightStory"
