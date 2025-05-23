@@ -56,7 +56,7 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="SaveMusic"
+        initialRouteName="HorizontalScreen"
         screenOptions={{headerShown: false}}>
         <Stack.Screen name="BlockedAccounts" component={BlockedAccounts} />
         <Stack.Screen name="ShowActivity" component={ShowActivity} />
@@ -105,7 +105,7 @@ const AppNavigator = () => {
           name="EditHighlightStory"
           component={EditHighlightScreen}
         />
-        <Stack.Screen name="Archive" component={Archive} />
+        <Stack.Screen name="Archive" component={Archive}/>
         <Stack.Screen name="InforGroupChat" component={InforGroupChat} />
         <Stack.Screen name="AddCollection" component={AddCollectionScreen} />
       </Stack.Navigator>
