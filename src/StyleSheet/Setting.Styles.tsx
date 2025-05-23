@@ -100,7 +100,7 @@ export const createStyles = (themeColors: any) =>
       paddingHorizontal: 10,
       paddingVertical: 10,
       borderBottomColor: theme.lightGray,
-      borderBottomWidth: 1
+      borderBottomWidth: 1,
     },
     backButton: {
       flexDirection: 'row',

@@ -39,14 +39,14 @@ export const Setting = () => {
   return (
     <SafeAreaView
       style={[styles.container, {backgroundColor: mColor.background}]}>
-      <Header
-        title="Settings and privacy "
-        iconBack={require('../../../assets/icon/left.png')}
-        iconQR={require('../../../assets/icon/qr.png')}
-        func={() => navigation.goBack()}
-        navigation={navigation}
-      />
       <ScrollView>
+        <Header
+          title="Settings and privacy "
+          iconBack={require('../../../assets/icon/left.png')}
+          iconQR={require('../../../assets/icon/qr.png')}
+          func={() => navigation.goBack()}
+          navigation={navigation}
+        />
         <View style={styles.content}>
           {/* Account Section */}
           <View style={styles.section}>
@@ -278,7 +278,10 @@ export const Setting = () => {
                   styles.settingIconContainer,
                   {backgroundColor: mColor.gray},
                 ]}>
-                <Image source={require('../../../assets/icon/bookmark.png')} style={{width: 20, height: 20, tintColor: mColor.text}} />
+                <Image
+                  source={require('../../../assets/icon/bookmark.png')}
+                  style={{width: 20, height: 20, tintColor: mColor.text}}
+                />
               </View>
               <View style={styles.settingContent}>
                 <Text style={[styles.settingTitle, {color: mColor.text}]}>
