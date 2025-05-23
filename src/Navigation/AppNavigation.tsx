@@ -43,6 +43,7 @@ import {
   MusicSavedScreen,
   AddCollectionScreen,
   Archive,
+  YourActivity
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 import ProfileComp from '../Screens/Profile';
@@ -58,7 +59,7 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="HorizontalScreen"
+        initialRouteName="YourActivity"
         screenOptions={{headerShown: false}}>
         <Stack.Screen name="BlockedAccounts" component={BlockedAccounts} />
         <Stack.Screen name="ShowActivity" component={ShowActivity} />
@@ -112,6 +113,7 @@ const AppNavigator = () => {
         <Stack.Screen name="Archive" component={Archive}/>
         <Stack.Screen name="InforGroupChat" component={InforGroupChat} />
         <Stack.Screen name="AddCollection" component={AddCollectionScreen} />
+        <Stack.Screen name="YourActivity" component={YourActivity} />
       </Stack.Navigator>
     </NavigationContainer>
   );
