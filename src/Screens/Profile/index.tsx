@@ -208,11 +208,12 @@ const ProfileComp = () => {
 
 export default ProfileComp;
 
-export const createStyles = (theme: any) => {
+export const createStyles = (theme: 'light' | 'dark') => {
+  const color = Colors[theme];
   return StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: theme.background,
+      backgroundColor: color.background,
     },
     header: {
       flexDirection: 'row',
@@ -236,7 +237,7 @@ export const createStyles = (theme: any) => {
     statNumber: {
       fontSize: 16,
       fontWeight: 'bold',
-      color: theme.text,
+      color: color.text,
     },
     statLabel: {
       fontSize: 13,
@@ -273,7 +274,7 @@ export const createStyles = (theme: any) => {
       fontSize: 12,
       marginTop: 4,
       textAlign: 'center',
-      color: theme.text,
+      color: color.text,
     },
     tabsContainer: {
       flex: 1,
@@ -299,7 +300,7 @@ export const createStyles = (theme: any) => {
       width: 80,
       height: 80,
       borderWidth: 2,
-      borderColor: theme.text,
+      borderColor: color.text,
       borderRadius: 40,
       alignItems: 'center',
       justifyContent: 'center',
@@ -308,12 +309,12 @@ export const createStyles = (theme: any) => {
     privateTitle: {
       fontSize: 20,
       fontWeight: 'bold',
-      color: theme.text,
+      color: color.text,
       marginBottom: 10,
     },
     privateDescription: {
       fontSize: 14,
-      color: theme.textSecondary,
+      color: color.textSecondary,
       textAlign: 'center',
     },
     linkText: {
@@ -332,7 +333,7 @@ export const createStyles = (theme: any) => {
     suggestedTitle: {
       fontSize: 16,
       fontWeight: '600',
-      color: theme.text,
+      color: color.text,
     },
     seeAllText: {
       color: Colors.blue,
@@ -340,13 +341,14 @@ export const createStyles = (theme: any) => {
     },
     activeTab: {
       borderBottomWidth: 1,
-      borderBottomColor: theme.text,
+      borderBottomColor: color.text,
     },
     headTitle: {
       alignItems: 'center',
       justifyContent: 'flex-start',
       fontSize: 20,
       fontWeight: '500',
+      color: color.text,
     },
     Header: {
       flexDirection: 'row',

@@ -13,6 +13,7 @@ export const LikedStyles = (theme: 'light' | 'dark') => {
         flexDirection: 'row',
         justifyContent: 'space-between',
         paddingHorizontal: 24,
+        alignItems: 'center',
         marginTop: 20,
         paddingBottom: 10,
         borderBottomColor: color.gray,

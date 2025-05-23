@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   TouchableOpacity,
   View,
@@ -62,15 +62,75 @@ const Profile = () => {
   };
 
   const renderStories = ({item}: {item: HighlightItem}) => (
-    <View key={item.id} style={styles.highlightItem}>
+    <TouchableOpacity key={item.id} style={styles.highlightItem} onPress={() => handleUserPress(item)}>
       <View style={styles.highlightImageContainer}>
         <Image source={{uri: item.image}} style={styles.highlightImage} />
       </View>
       <Text style={[styles.highlightText, {color: color.text}]}>
         {item.title}
       </Text>
-    </View>
+    </TouchableOpacity>
   );
+
+  // data mẫu
+    const [dataUser, setDataUser] = useState([
+      {
+        id: 1,
+        name: 'user1',
+        image:
+          'https://i.pinimg.com/736x/b7/25/61/b72561fd1ec7018c0418c84a3c2d5a57.jpg',
+        status: 1,
+      },
+      {
+        id: 2,
+        name: 'user2',
+        image:
+          'https://i.pinimg.com/736x/c1/70/e8/c170e84663405785c80ba367cd5e3b85.jpg',
+        status: 1,
+      },
+      {
+        id: 3,
+        name: 'user3',
+        image:
+          'https://i.pinimg.com/736x/8b/ae/77/8bae77c63f046f5a307a864a9d230da2.jpg',
+        status: 0,
+      },
+      {
+        id: 4,
+        name: 'user4',
+        image:
+          'https://i.pinimg.com/736x/56/81/64/5681646985e7ddc1b2cd4b826763b541.jpg',
+        status: 0,
+      },
+    ]);
+  
+    useEffect(() => {
+      const exists = dataUser.some(user => user.name === 'Tin của tôi');
+      if (!exists) {
+        const newUser = {
+          id: Date.now(),
+          name: 'Tin của tôi',
+          image:
+            'https://i.pinimg.com/736x/07/03/c7/0703c771ceecfd6142ce0ca726c056e7.jpg',
+          status: 1,
+        };
+        setDataUser([newUser, ...dataUser]);
+      }
+    }, []);
+  
+    const handleUserPress = (user: any) => {
+      console.log('Navigating to SeenStory with user:', user);
+      // Cập nhật status của user được nhấn thành 0
+      setDataUser(prevData =>
+        prevData.map(item => (item.id === user.id ? {...item, status: 0} : item)),
+      );
+      // Điều hướng đến SeenStoryOwner
+      if(user.id === '1'){
+        navigation.navigate('EditHighlightStory');
+      }else{
+        navigation.navigate('SeenStoryOwner', {selectedItem: user});
+      }
+    };
 
   const renderHeader = () => (
     <Animated.View

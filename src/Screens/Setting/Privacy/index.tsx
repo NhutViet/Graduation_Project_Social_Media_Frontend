@@ -17,7 +17,7 @@ export const Privacy = () => {
   const navigation: any = useNavigation();
   const {theme} = useTheme();
   const mColor = Colors[theme] || Colors;
-  const styles = createStyles(mColor);
+  const styles = createStyles(theme);
   const [isPrivate, setIsPrivate] = useState(false);
 
   const handlePrivacyToogle = async () => {
