@@ -114,6 +114,30 @@ export const Setting = () => {
               </View>
               <ChevronRight size={20} stroke={mColor.textSecondary} />
             </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.settingItem,
+                {
+                  backgroundColor: mColor.background,
+                  borderBottomColor: mColor.border,
+                },
+              ]}
+              onPress={() => navigation.navigate('BlockedAccounts')}>
+              <View
+                style={[
+                  styles.settingIconContainer,
+                  {backgroundColor: mColor.gray},
+                ]}>
+                <Image source={require('../../../assets/icon/block.png')} style={{width: 20, height: 20, tintColor: mColor.text}} />
+              </View>
+              <View style={styles.settingContent}>
+                <Text style={[styles.settingTitle, {color: mColor.text}]}>
+                  Blocked
+                </Text>
+              </View>
+              <ChevronRight size={20} stroke={mColor.textSecondary} />
+            </TouchableOpacity>
             {/* Tương tự cho các settingItem khác trong Account Section */}
           </View>
 
