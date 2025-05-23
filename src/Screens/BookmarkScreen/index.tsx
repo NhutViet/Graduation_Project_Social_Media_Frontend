@@ -38,7 +38,13 @@ export const BookmarkScreen = () => {
   const renderPlaylistItem = ({item, index}: {item: any; index: number}) => (
     <TouchableOpacity
       style={styles.columnItem}
-      onPress={() => handlePlaylistPress(item.title, item.type)}>
+      onPress={() => {
+        if(item.title == 'Sounds'){
+          navigation.navigate('MusicSaved');
+        }else{
+          handlePlaylistPress(item.title, item.type)
+        }
+      }}>
       <BookmarkedPlaylist title={item.title} items={item.items} />
     </TouchableOpacity>
   );
