@@ -22,6 +22,7 @@ import {
   User,
   Lock,
   UserRoundCheck,
+  ClockFading 
 } from 'lucide-react-native';
 
 export const Setting = () => {
@@ -115,7 +116,6 @@ export const Setting = () => {
               </View>
               <ChevronRight size={20} stroke={mColor.textSecondary} />
             </TouchableOpacity>
-
             <TouchableOpacity
               style={[
                 styles.settingItem,
@@ -164,6 +164,7 @@ export const Setting = () => {
               </View>
               <ChevronRight size={20} stroke={mColor.textSecondary} />
             </TouchableOpacity>
+            
             {/* Tương tự cho các settingItem khác trong Account Section */}
           </View>
 
@@ -303,6 +304,7 @@ export const Setting = () => {
                 {
                   backgroundColor: mColor.background,
                   borderBottomColor: mColor.border,
+                  borderBottomWidth: 0,
                 },
               ]}
               onPress={() => navigation.navigate('LikedScreen')}>
@@ -323,6 +325,34 @@ export const Setting = () => {
                     {color: mColor.textSecondary},
                   ]}>
                   Posts you've liked
+                </Text>
+              </View>
+              <ChevronRight size={20} stroke={mColor.textSecondary} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.settingItem,
+                {
+                  backgroundColor: mColor.background,
+                  borderBottomColor: mColor.border,
+                  borderBottomWidth: 0,
+                },
+              ]}
+              onPress={() => navigation.navigate('Archive')}>
+              <View
+                style={[
+                  styles.settingIconContainer,
+                  {backgroundColor: mColor.gray},
+                ]}>
+                <Image
+                  source={require('../../../assets/icon/clock.png')}
+                  style={{width: 20, height: 20, tintColor: mColor.text}}
+                />
+              </View>
+              <View style={styles.settingContent}>
+                <Text style={[styles.settingTitle, {color: mColor.text}]}>
+                  Archive
                 </Text>
               </View>
               <ChevronRight size={20} stroke={mColor.textSecondary} />

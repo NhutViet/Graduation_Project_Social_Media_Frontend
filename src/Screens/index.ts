@@ -41,5 +41,6 @@ export * from './LikedScreen';
 export * from './MusicSaved';
 export * from './Setting/Archive';
 export * from './AddCollectionScreen';
+export * from './LinkToGroup';
 export * from './MusicDetail';
 export * from './Setting/YourActivity'

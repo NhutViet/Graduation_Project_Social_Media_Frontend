@@ -16,12 +16,13 @@ export const BlockUsersStyles = (theme: 'light' | 'dark') => {
         paddingTop: 20,
         paddingBottom: 10,
         paddingHorizontal: 20,
-        borderBottomColor: color.lightGray,
+        borderBottomColor: color.gray,
         borderBottomWidth: 0.5
     },
     iconBack: {
         width: 14,
         resizeMode: 'contain',
+        tintColor: color.text,
     },
     title: {
         fontSize: 16,
@@ -43,7 +44,7 @@ export const BlockUsersStyles = (theme: 'light' | 'dark') => {
         tintColor: color.textSecondary
     },
     inputBox: {
-        backgroundColor: color.lightGray,
+        backgroundColor: color.gray,
         fontSize: 14,
         paddingLeft: 40,
         paddingEnd: 20,
