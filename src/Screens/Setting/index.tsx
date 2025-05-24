@@ -22,6 +22,7 @@ import {
   User,
   Lock,
   UserRoundCheck,
+  ClockFading 
 } from 'lucide-react-native';
 
 export const Setting = () => {
@@ -90,7 +91,7 @@ export const Setting = () => {
                 {
                   backgroundColor: mColor.background,
                   borderBottomColor: mColor.border,
-                  borderBottomWidth: 0,
+                  borderBottomWidth: 0
                 },
               ]}
               onPress={() => navigation.navigate('ShowActivity')}>
@@ -115,7 +116,6 @@ export const Setting = () => {
               </View>
               <ChevronRight size={20} stroke={mColor.textSecondary} />
             </TouchableOpacity>
-
             <TouchableOpacity
               style={[
                 styles.settingItem,
@@ -139,6 +139,7 @@ export const Setting = () => {
               </View>
               <ChevronRight size={20} stroke={mColor.textSecondary} />
             </TouchableOpacity>
+            
             {/* Tương tự cho các settingItem khác trong Account Section */}
           </View>
 
