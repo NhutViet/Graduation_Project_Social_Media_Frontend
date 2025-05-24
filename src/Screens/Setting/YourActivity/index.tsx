@@ -35,7 +35,7 @@ const Section: React.FC<SectionProps> = ({ title, items }) => {
             {item.icon}
             <Text style={[styles.itemLabel, {color: color.text}]}>{item.label}</Text>
           </View>
-          <Text style={styles.itemArrow}>&gt;</Text>
+          <Image source={require('../../../../assets/icon/right.png')}/>
         </TouchableOpacity>
       ))}
     </View>
