@@ -69,22 +69,22 @@ export const LinkToGroup = () => {
 
         <TouchableOpacity style={styles.row} onPress={copyToClipboard}>
             <Image source={require('../../../assets/icon/copy.png')} style={styles.icon} />
-            <Text style={styles.rowText}>Copy</Text>
+            <Text style={[styles.rowText, {color: color.text}]}>Copy</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.row}>
             <Image source={require('../../../assets/icon/share.png')} style={styles.icon} />
-            <Text style={styles.rowText}>Send in Instagram</Text>
+            <Text style={[styles.rowText, {color: color.text}]}>Send in Instagram</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.row} onPress={() => setModalVisible(true)}>
             <Image source={require('../../../assets/icon/qrlink.png')} style={styles.icon} />
-            <Text style={styles.rowText}>QR code</Text>
+            <Text style={[styles.rowText, {color: color.text}]}>QR code</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.row}>
             <Image source={require('../../../assets/icon/upload.png')} style={styles.icon} />
-            <Text style={styles.rowText}>Share</Text>
+            <Text style={[styles.rowText, {color: color.text}]}>Share</Text>
         </TouchableOpacity>
 
         <View style={{width: '100%', borderWidth: 3, borderColor: color.gray}}/>

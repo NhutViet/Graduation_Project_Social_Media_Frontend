@@ -67,7 +67,7 @@ const StoriesTab = () => {
             />
           </Pressable>
         ) : (
-          <Pressable onPress={() => navigation.navigate('BottomTabs')}>
+          <Pressable onPress={() => navigation.navigate('SeenStoryOwner')}>
             <Image source={{ uri: item.imageURL }} style={styles.media} />
           </Pressable>
         )}

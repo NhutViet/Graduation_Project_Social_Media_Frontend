@@ -22,6 +22,7 @@ import {
   User,
   Lock,
   UserRoundCheck,
+  ClockFading 
 } from 'lucide-react-native';
 
 export const Setting = () => {
@@ -90,6 +91,7 @@ export const Setting = () => {
                 {
                   backgroundColor: mColor.background,
                   borderBottomColor: mColor.border,
+                  borderBottomWidth: 0
                 },
               ]}
               onPress={() => navigation.navigate('ShowActivity')}>
@@ -114,6 +116,30 @@ export const Setting = () => {
               </View>
               <ChevronRight size={20} stroke={mColor.textSecondary} />
             </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.settingItem,
+                {
+                  backgroundColor: mColor.background,
+                  borderBottomColor: mColor.border,
+                },
+              ]}
+              onPress={() => navigation.navigate('Archive')}>
+              <View
+                style={[
+                  styles.settingIconContainer,
+                  {backgroundColor: mColor.gray},
+                ]}>
+                <Image source={require('../../../assets/icon/archiveStory.png')} style={{width: 35, height: 35, tintColor: mColor.text}} />
+              </View>
+              <View style={styles.settingContent}>
+                <Text style={[styles.settingTitle, {color: mColor.text}]}>
+                  Archive
+                </Text>
+              </View>
+              <ChevronRight size={20} stroke={mColor.textSecondary} />
+            </TouchableOpacity>
+            
             {/* Tương tự cho các settingItem khác trong Account Section */}
           </View>
 
