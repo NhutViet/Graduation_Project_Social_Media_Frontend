@@ -59,7 +59,7 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="YourActivity"
+        initialRouteName="Setting"
         screenOptions={{headerShown: false}}>
         <Stack.Screen name="BlockedAccounts" component={BlockedAccounts} />
         <Stack.Screen name="ShowActivity" component={ShowActivity} />
