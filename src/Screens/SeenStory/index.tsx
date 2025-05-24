@@ -27,7 +27,7 @@ export const SeenStory = ({route, navigation}: any) => {
   const {selectedItem} = route.params;
   const [videoDuration, setVideoDuration] = useState(null);
   const progressAnim = useRef(new Animated.Value(0)).current;
-  const animationRef = useRef(null);
+  const animationRef: any = useRef(null);
   const videoRef = useRef(null);
   const viewModalRef = useRef<Modalize>(null);
   const addModalRef = useRef<Modalize>(null);
@@ -68,14 +68,14 @@ export const SeenStory = ({route, navigation}: any) => {
       useNativeDriver: false,
     });
 
-    animationRef.current.start(({finished}) => {
+    animationRef.current.start(({finished}: any) => {
       if (finished) {
         navigation.goBack(); // Quay lại sau khi hết thời gian
       }
     });
   };
 
-  const onVideoLoad = data => {
+  const onVideoLoad = (data: any) => {
     setVideoDuration(data.duration);
     startProgressAnimation();
   };

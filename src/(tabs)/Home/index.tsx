@@ -11,12 +11,17 @@ import ItemHome from './components/ItemHome';
 import {Modalize} from 'react-native-modalize';
 import {AppDispatch, RootState} from '../../../services/store';
 import {fetchPostsWithMedia} from '../../../services/postRedux/postSlice';
+import BottomSheetComment, {
+  BottomSheetCommentRef,
+} from '../../../components/CommentSection';
+import {fetchCommentsByPost} from '../../../services/commentRedux/commentSlice';
 
 export const Home = () => {
   const navigation: any = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];
   const isFocused = useIsFocused();
+  const sheetRef: any = useRef<BottomSheetCommentRef>(null);
 
   // fetch api
   const dispatch = useDispatch<AppDispatch>();
@@ -99,6 +104,8 @@ export const Home = () => {
     navigation.navigate('SeenStoryOwner', {selectedItem: user});
   };
 
+  const [selectedPostId, setSelectedPostId] = useState<string>('');
+
   if (loading) {
     return (
       <SafeAreaView
@@ -126,6 +133,11 @@ export const Home = () => {
               isFocused={isFocused}
               currentVisible={shouldPlay}
               modalizeRef={modalizeRef}
+              openComment={() => {
+                setSelectedPostId(item._id);
+                dispatch(fetchCommentsByPost(item._id));
+                sheetRef.current?.open();
+              }}
             />
           );
         }}
@@ -175,6 +187,7 @@ export const Home = () => {
           </View>
         }
       />
+      <BottomSheetComment ref={sheetRef} />
     </SafeAreaView>
   );
 };
