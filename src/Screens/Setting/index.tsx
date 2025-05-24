@@ -40,14 +40,14 @@ export const Setting = () => {
   return (
     <SafeAreaView
       style={[styles.container, {backgroundColor: mColor.background}]}>
-      <Header
-        title="Settings and privacy "
-        iconBack={require('../../../assets/icon/left.png')}
-        iconQR={require('../../../assets/icon/qr.png')}
-        func={() => navigation.goBack()}
-        navigation={navigation}
-      />
       <ScrollView>
+        <Header
+          title="Settings and privacy "
+          iconBack={require('../../../assets/icon/left.png')}
+          iconQR={require('../../../assets/icon/qr.png')}
+          func={() => navigation.goBack()}
+          navigation={navigation}
+        />
         <View style={styles.content}>
           {/* Account Section */}
           <View style={styles.section}>
@@ -124,17 +124,17 @@ export const Setting = () => {
                   borderBottomColor: mColor.border,
                 },
               ]}
-              onPress={() => navigation.navigate('Archive')}>
+              onPress={() => navigation.navigate('BlockedAccounts')}>
               <View
                 style={[
                   styles.settingIconContainer,
                   {backgroundColor: mColor.gray},
                 ]}>
-                <Image source={require('../../../assets/icon/archiveStory.png')} style={{width: 35, height: 35, tintColor: mColor.text}} />
+                <Image source={require('../../../assets/icon/block.png')} style={{width: 20, height: 20, tintColor: mColor.text}} />
               </View>
               <View style={styles.settingContent}>
                 <Text style={[styles.settingTitle, {color: mColor.text}]}>
-                  Archive
+                  Blocked
                 </Text>
               </View>
               <ChevronRight size={20} stroke={mColor.textSecondary} />
@@ -229,6 +229,44 @@ export const Setting = () => {
             {/* Tương tự cho các settingItem khác trong Account Section */}
           </View>
 
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, {color: mColor.text}]}>
+              Notifications
+            </Text>
+
+            <TouchableOpacity
+              style={[
+                styles.settingItem,
+                {
+                  backgroundColor: mColor.background,
+                  borderBottomColor: mColor.border,
+                },
+              ]}
+              onPress={() => navigation.navigate('Notifications')}>
+              <View
+                style={[
+                  styles.settingIconContainer,
+                  {backgroundColor: mColor.gray},
+                ]}>
+                <Lock size={22} stroke={mColor.text} />
+              </View>
+              <View style={styles.settingContent}>
+                <Text style={[styles.settingTitle, {color: mColor.text}]}>
+                  Update you notification settings
+                </Text>
+                <Text
+                  style={[
+                    styles.settingDescription,
+                    {color: mColor.textSecondary},
+                  ]}>
+                  Choose how you want to be notified
+                </Text>
+              </View>
+              <ChevronRight size={20} stroke={mColor.textSecondary} />
+            </TouchableOpacity>
+
+          </View>
+
           {/* Activity Section */}
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, {color: mColor.text}]}>
@@ -241,6 +279,7 @@ export const Setting = () => {
                 {
                   backgroundColor: mColor.background,
                   borderBottomColor: mColor.border,
+                  borderBottomWidth: 0,
                 },
               ]}
               onPress={() => navigation.navigate('LikedScreen')}>
@@ -272,6 +311,34 @@ export const Setting = () => {
                 {
                   backgroundColor: mColor.background,
                   borderBottomColor: mColor.border,
+                  borderBottomWidth: 0,
+                },
+              ]}
+              onPress={() => navigation.navigate('Archive')}>
+              <View
+                style={[
+                  styles.settingIconContainer,
+                  {backgroundColor: mColor.gray},
+                ]}>
+                <Image
+                  source={require('../../../assets/icon/clock.png')}
+                  style={{width: 20, height: 20, tintColor: mColor.text}}
+                />
+              </View>
+              <View style={styles.settingContent}>
+                <Text style={[styles.settingTitle, {color: mColor.text}]}>
+                  Archive
+                </Text>
+              </View>
+              <ChevronRight size={20} stroke={mColor.textSecondary} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.settingItem,
+                {
+                  backgroundColor: mColor.background,
+                  borderBottomColor: mColor.border,
                 },
               ]}
               onPress={() => navigation.navigate('BookmarkScreen')}>
@@ -280,7 +347,10 @@ export const Setting = () => {
                   styles.settingIconContainer,
                   {backgroundColor: mColor.gray},
                 ]}>
-                <Image source={require('../../../assets/icon/bookmark.png')} style={{width: 20, height: 20, tintColor: mColor.text}} />
+                <Image
+                  source={require('../../../assets/icon/bookmark.png')}
+                  style={{width: 20, height: 20, tintColor: mColor.text}}
+                />
               </View>
               <View style={styles.settingContent}>
                 <Text style={[styles.settingTitle, {color: mColor.text}]}>

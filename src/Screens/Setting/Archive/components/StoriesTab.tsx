@@ -56,7 +56,7 @@ const StoriesTab = () => {
 
   const renderItem = ({ item }: { item: any }) => {
     return (
-      <View style={styles.itemContainer}>
+      <View style={[styles.itemContainer, {backgroundColor: color.black}]}>
         {item.videoURL ? (
           <Pressable>
             <Video
@@ -97,7 +97,7 @@ const StoriesTab = () => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, {backgroundColor: color.background}]}>
       {isData ? (
         <FlatList
           data={data}
@@ -132,7 +132,6 @@ const styles = StyleSheet.create({
     height: ITEM_SIZE*2,
     margin: 1,
     position: 'relative',
-    backgroundColor: '#000'
   },
   media: {
     width: '100%',

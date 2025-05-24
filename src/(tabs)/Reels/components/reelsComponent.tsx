@@ -14,7 +14,7 @@ const ReelsComponent = (props: any) => {
     props;
   const {theme} = useTheme();
   const color = Colors[theme];
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
 
   const formatNumber = (num: number): string => {
     if (num >= 1_000_000) {
@@ -90,7 +90,7 @@ const ReelsComponent = (props: any) => {
               source={require('../../../../assets/icon/menu-dots-vertical.png')}
             />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.iconMusicContainer}>
+          <TouchableOpacity style={styles.iconMusicContainer} onPress={() => navigation.navigate('SaveMusic')}>
             <Image
               style={styles.icon}
               source={require('../../../../assets/icon/musical-note.png')}

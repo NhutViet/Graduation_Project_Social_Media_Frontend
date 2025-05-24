@@ -35,6 +35,7 @@ const ItemHome = (props: any) => {
     modalizeRef,
     currentVisible,
     isFocused,
+    openComment,
   } = props;
 
   const {theme} = useTheme();
@@ -458,7 +459,7 @@ const ItemHome = (props: any) => {
             <TouchableOpacity
               style={styles.blockImg}
               onPress={() => {
-                navigation.navigate('InfoUser', {userId: user._id});
+                navigation.navigate('ProfileComp');
               }}>
               <Image
                 style={styles.imgUser}
@@ -542,7 +543,7 @@ const ItemHome = (props: any) => {
               onPress={handleOpenReactionModal}>
               {formatNumber(27000)}
             </Text>
-            <TouchableOpacity style={styles.iconBlock}>
+            <TouchableOpacity style={styles.iconBlock} onPress={openComment}>
               <Image
                 style={[{tintColor: color.text}, styles.icon]}
                 source={require('../../../../assets/icon/comment.png')}

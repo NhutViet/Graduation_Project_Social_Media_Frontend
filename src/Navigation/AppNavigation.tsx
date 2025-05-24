@@ -30,6 +30,8 @@ import {
   PlaylistsScreen,
   BlockUser,
   Privacy,
+  Notifications,
+  NotificationOption,
   PeopleGroupChat,
   AddPeopleToGroupChat,
   QRScanner,
@@ -57,7 +59,7 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="Setting"
+        initialRouteName="BottomTabs"
         screenOptions={{headerShown: false}}>
         <Stack.Screen name="BlockedAccounts" component={BlockedAccounts} />
         <Stack.Screen name="ShowActivity" component={ShowActivity} />
@@ -101,12 +103,17 @@ const AppNavigator = () => {
         <Stack.Screen name="BookmarkScreen" component={BookmarkScreen} />
         <Stack.Screen name="PlaylistsScreen" component={PlaylistsScreen} />
         <Stack.Screen name="Privacy" component={Privacy} />
+        <Stack.Screen name="Notifications" component={Notifications} />
+        <Stack.Screen
+          name="NotificationOption"
+          component={NotificationOption}
+        />
         <Stack.Screen name="QRScanner" component={QRScanner} />
         <Stack.Screen
           name="EditHighlightStory"
           component={EditHighlightScreen}
         />
-        <Stack.Screen name="Archive" component={Archive}/>
+        <Stack.Screen name="Archive" component={Archive} />
         <Stack.Screen name="InforGroupChat" component={InforGroupChat} />
         <Stack.Screen name="AddCollection" component={AddCollectionScreen} />
         <Stack.Screen name="LinkToGroup" component={LinkToGroup} />

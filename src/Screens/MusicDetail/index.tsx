@@ -118,7 +118,7 @@ export const SaveMusic = () => {
     return num.toString();
   };
 
-  const renderReelItem = ({item}) => (
+  const renderReelItem = ({item}: any) => (
     <TouchableOpacity style={styles.reelItem}>
       <Image source={{uri: item.thumbnail}} style={styles.reelThumbnail} />
       <View style={styles.viewCount}>
