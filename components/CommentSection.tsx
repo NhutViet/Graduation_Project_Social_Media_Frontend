@@ -14,8 +14,10 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
-  SafeAreaView,
   ActivityIndicator,
+  Modal,
+  Keyboard,
+  KeyboardEvent,
 } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -26,9 +28,9 @@ import {useTheme} from '../src/util/ThemeContext';
 import {Colors} from '../assets/color/Colors';
 import {FlashList} from '@shopify/flash-list';
 import CommentComponent from '../src/(tabs)/Home/components/commentComponent';
-import {fetchCommentsByPost} from '../services/commentRedux/commentSlice';
-import {useDispatch, useSelector} from 'react-redux';
-import {AppDispatch, RootState} from '../services/store';
+import {useSelector} from 'react-redux';
+import {RootState} from '../services/store';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 const maxHeight = Dimensions.get('window').height;
 const height = Dimensions.get('window').height * 0.85;
@@ -39,19 +41,27 @@ export type BottomSheetCommentRef = {
 };
 
 const BottomSheetComment = forwardRef<BottomSheetCommentRef>(({}, ref) => {
+  const [modalVisible, setModalVisible] = useState(false);
+
   const translateY = useSharedValue(height);
   const isOpen = useSharedValue(false);
 
   const open = () => {
-    translateY.value = withSpring(0, {
-      damping: 20,
-    });
-    isOpen.value = true;
+    setModalVisible(true);
+    setTimeout(() => {
+      translateY.value = withSpring(0, {
+        damping: 20,
+      });
+      isOpen.value = true;
+    }, 50);
   };
 
   const close = () => {
     translateY.value = withSpring(height, {damping: 20});
     isOpen.value = false;
+    setTimeout(() => {
+      setModalVisible(false);
+    }, 300);
   };
 
   useImperativeHandle(ref, () => ({open, close}));
@@ -72,8 +82,32 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef>(({}, ref) => {
 
   const [comment, setComment] = useState('');
 
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener(
+      'keyboardDidShow',
+      (e: KeyboardEvent) => {
+        setKeyboardHeight(e.endCoordinates.height);
+      },
+    );
+
+    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardHeight(0);
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
+
   return (
-    <>
+    <Modal
+      visible={modalVisible}
+      animationType="none"
+      transparent
+      statusBarTranslucent
+      onRequestClose={close}>
       <Animated.View style={[styles.overlay, overlayStyle]}>
         <TouchableWithoutFeedback onPress={close}>
           <View style={StyleSheet.absoluteFill} />
@@ -86,7 +120,7 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef>(({}, ref) => {
           animatedStyle,
           {backgroundColor: color.background},
         ]}>
-        <View style={styles.handle} />
+        <View style={[styles.handle, {backgroundColor: color.text}]} />
         {loading ? (
           <View
             style={{
@@ -98,10 +132,7 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef>(({}, ref) => {
             <ActivityIndicator size="large" color={color.text} />
           </View>
         ) : (
-          <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 80}
-            style={{flex: 1}}>
+          <>
             <View style={{flex: 1, paddingHorizontal: 20}}>
               <FlashList
                 data={comments}
@@ -111,7 +142,8 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef>(({}, ref) => {
                 estimatedItemSize={100}
               />
             </View>
-            <View style={styles.inputContainer}>
+            <View
+              style={[styles.inputContainer, {marginBottom: keyboardHeight}]}>
               <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <View style={styles.blockImg}>
                   <Image
@@ -122,7 +154,7 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef>(({}, ref) => {
                   />
                 </View>
                 <TextInput
-                  placeholder="Searching..."
+                  placeholder="Comment"
                   placeholderTextColor={color.text}
                   style={[styles.input, {color: color.text}]}
                   value={comment}
@@ -136,10 +168,10 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef>(({}, ref) => {
                 />
               </TouchableOpacity>
             </View>
-          </KeyboardAvoidingView>
+          </>
         )}
       </Animated.View>
-    </>
+    </Modal>
   );
 });
 
@@ -151,7 +183,6 @@ const styles = StyleSheet.create({
   },
   sheet: {
     position: 'absolute',
-    top: maxHeight - height,
     left: 0,
     right: 0,
     bottom: 0,
@@ -164,7 +195,6 @@ const styles = StyleSheet.create({
   handle: {
     width: 40,
     height: 5,
-    backgroundColor: Colors.black,
     borderRadius: 2.5,
     alignSelf: 'center',
     marginBottom: 16,
@@ -176,7 +206,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingVertical: 10,
-    marginBottom: 60,
   },
   blockImg: {
     width: 40,

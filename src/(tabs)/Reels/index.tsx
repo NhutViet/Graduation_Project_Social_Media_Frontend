@@ -1,6 +1,7 @@
 import {
   ActivityIndicator,
   Image,
+  Modal,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -21,6 +22,9 @@ import {useTheme} from '../../util/ThemeContext';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../services/store';
 import {fetchReelsWithMedia} from '../../../services/postRedux/postSlice';
+import BottomSheetReels, {
+  BottomSheetReelsRef,
+} from './bottomSheet/reelBottomSheet';
 
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
@@ -30,6 +34,8 @@ const Reels = () => {
   const navigation: any = useNavigation();
   const {theme, toggleTheme} = useTheme();
   const color = Colors[theme];
+
+  const sheetRef: any = useRef<BottomSheetReelsRef>(null);
 
   const initialThemeRef = useRef<'light' | 'dark' | null>(null);
 
@@ -70,19 +76,21 @@ const Reels = () => {
   }, []);
   ///////////////////////////////
 
+  const [modalVisible, setModalVisible] = useState(false);
+
   if (loading) {
-      return (
-        <SafeAreaView
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            backgroundColor: color.background,
-          }}>
-          <ActivityIndicator size="large" color={color.text} />
-        </SafeAreaView>
-      );
-    }
+    return (
+      <SafeAreaView
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: color.background,
+        }}>
+        <ActivityIndicator size="large" color={color.text} />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -114,6 +122,9 @@ const Reels = () => {
               isFocused={isFocused}
               currentVisible={shouldPlay}
               muted={false}
+              showBottomSheet={() => {
+                sheetRef?.current.open();
+              }}
             />
           );
         }}
@@ -125,6 +136,7 @@ const Reels = () => {
         }}
         estimatedItemSize={height}
       />
+      <BottomSheetReels ref={sheetRef} />
     </SafeAreaView>
   );
 };
