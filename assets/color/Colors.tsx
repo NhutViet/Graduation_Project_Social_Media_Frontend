@@ -56,6 +56,8 @@ const CommonColors = {
   blue: '#0095F6',
   orange: '#FFC107',
   input: '#DDDDDD',
+  gray21: '#363636',
+  whiteSmoke: '#F5F5F5',
 };
 
 const LightTheme = {
@@ -68,7 +70,7 @@ const LightTheme = {
   lessBlack: '#f1f1f1',
   search: '#F8F8FF',
   card: '#F8F8F8',
-  secondary: '#8E8E8E'
+  secondary: '#8E8E8E',
 };
 
 const DarkTheme = {
@@ -81,7 +83,7 @@ const DarkTheme = {
   lessBlack: '#141414',
   search: '#222222',
   card: '#121212',
-  secondary: '#A8A8A8'
+  secondary: '#A8A8A8',
 };
 
 export const Colors = {

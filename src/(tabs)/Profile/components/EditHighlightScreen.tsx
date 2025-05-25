@@ -15,6 +15,7 @@ import {ChevronLeft, Check, CircleX} from 'lucide-react-native';
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
 import {launchImageLibrary} from 'react-native-image-picker';
+import { useNavigation } from '@react-navigation/native';
 const DUMMY_STORIES = [
   {id: '1', uri: 'https://picsum.photos/id/1/200'},
   {id: '2', uri: 'https://picsum.photos/id/2/200'},
@@ -27,6 +28,7 @@ const DUMMY_STORIES = [
 const EditHighlightScreen = () => {
   const {theme} = useTheme();
   const color = Colors[theme];
+  const navigation = useNavigation();
 
   const [imageUri, setImageUri] = useState('https://picsum.photos/id/1/200');
   const [selectedTab, setSelectedTab] = useState<'selected' | 'stories'>(
@@ -96,7 +98,7 @@ const EditHighlightScreen = () => {
       style={[styles.container, {backgroundColor: color.background}]}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <ChevronLeft size={30} color={color.text} />
         </TouchableOpacity>
         <Text style={[styles.title, {color: color.text}]}>Sửa tin nổi bật</Text>

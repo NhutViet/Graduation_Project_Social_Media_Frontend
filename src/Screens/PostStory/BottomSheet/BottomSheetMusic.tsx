@@ -14,22 +14,14 @@ import {
   TextInput,
   TouchableOpacity,
   Text,
-  KeyboardEvent,
-  Platform,
   Keyboard,
 } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
-  runOnJS,
-  useAnimatedGestureHandler,
 } from 'react-native-reanimated';
-import {
-  NativeViewGestureHandler,
-  PanGestureHandler,
-  PanGestureHandlerGestureEvent,
-} from 'react-native-gesture-handler';
+import {NativeViewGestureHandler} from 'react-native-gesture-handler';
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
 import {FlashList} from '@shopify/flash-list';
@@ -43,10 +35,6 @@ const width = Dimensions.get('window').width - 100;
 export type BottomSheetRef = {
   open: () => void;
   close: () => void;
-};
-
-type ContextType = {
-  startY: number;
 };
 
 const BottomSheet = forwardRef<BottomSheetRef, {children: React.ReactNode}>(
@@ -67,30 +55,6 @@ const BottomSheet = forwardRef<BottomSheetRef, {children: React.ReactNode}>(
     };
 
     useImperativeHandle(ref, () => ({open, close}));
-
-    // const panGesture = useAnimatedGestureHandler<
-    //   PanGestureHandlerGestureEvent,
-    //   ContextType
-    // >({
-    //   onStart: (_, ctx) => {
-    //     ctx.startY = translateY.value;
-    //   },
-    //   onActive: (event, ctx) => {
-    //     const newY = ctx.startY + event.translationY;
-    //     if (newY >= height - SHEET_HEIGHT) {
-    //       translateY.value = newY;
-    //     }
-    //   },
-    //   onEnd: event => {
-    //     if (event.translationY > 100) {
-    //       runOnJS(close)();
-    //     } else {
-    //       translateY.value = withSpring(height - SHEET_HEIGHT, {
-    //         damping: 20,
-    //       });
-    //     }
-    //   },
-    // });
 
     const animatedStyle = useAnimatedStyle(() => ({
       transform: [{translateY: translateY.value}],
@@ -246,17 +210,13 @@ const BottomSheet = forwardRef<BottomSheetRef, {children: React.ReactNode}>(
           </TouchableWithoutFeedback>
         </Animated.View>
 
-        {/* <PanGestureHandler
-          onGestureEvent={panGesture}
-          simultaneousHandlers={nativeGestureRef}
-          waitFor={nativeGestureRef}> */}
         <Animated.View
           style={[
             styles.sheet,
             animatedStyle,
             {backgroundColor: color.background},
           ]}>
-          <View style={styles.handle} />
+          <View style={[styles.handle, {backgroundColor: color.text}]} />
           <View style={styles.searchContainer}>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
               <View style={styles.blockIcon}>
@@ -380,7 +340,6 @@ const BottomSheet = forwardRef<BottomSheetRef, {children: React.ReactNode}>(
             </View>
           )}
         </Animated.View>
-        {/* </PanGestureHandler> */}
       </>
     );
   },
@@ -401,14 +360,12 @@ const styles = StyleSheet.create({
     height: height,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    opacity: 0.9,
     paddingTop: 16,
     zIndex: 2,
   },
   handle: {
     width: 40,
     height: 5,
-    backgroundColor: Colors.black,
     borderRadius: 2.5,
     alignSelf: 'center',
     marginBottom: 15,
