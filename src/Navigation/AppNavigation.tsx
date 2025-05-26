@@ -52,6 +52,7 @@ import {
 import BottomTabs from './BottomTabs';
 import ProfileComp from '../Screens/Profile';
 import EditHighlightScreen from '../(tabs)/Profile/components/EditHighlightScreen';
+import NewMessage from '../Screens/NewMessage';
 export type RootStackParamList = {
   PendingMessages: undefined;
   MessageScreen: {room: string};
@@ -63,7 +64,7 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="EditNickname"
+        initialRouteName="NewMessage"
         screenOptions={{headerShown: false}}>
         <Stack.Screen name="BlockedAccounts" component={BlockedAccounts} />
         <Stack.Screen name="ShowActivity" component={ShowActivity} />
@@ -72,6 +73,7 @@ const AppNavigator = () => {
           name="AddPeopleToGroupChat"
           component={AddPeopleToGroupChat}
         />
+        <Stack.Screen name="NewMessage" component={NewMessage} />
         <Stack.Screen name="MusicSaved" component={MusicSavedScreen} />
         <Stack.Screen name="HorizontalScreen" component={HorizontalScreen} />
         <Stack.Screen name="ProfileComp" component={ProfileComp} />
