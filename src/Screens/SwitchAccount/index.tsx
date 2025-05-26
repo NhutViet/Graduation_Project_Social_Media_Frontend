@@ -64,7 +64,7 @@ export const SwitchAccount = ({navigation}: any) => {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.buttonLogin}
-            onPress={() => navigation.navigate('BottomTabs')}>
+            onPress={() => navigation.navigate('HorizontalScreen')}>
             <Text style={styles.textBtn}>Login</Text>
           </TouchableOpacity>
           <View style={{alignItems: 'center'}}>

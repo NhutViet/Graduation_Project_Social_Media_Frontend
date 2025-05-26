@@ -10,11 +10,11 @@ const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height - 60;
 
 const ReelsComponent = (props: any) => {
-  const {_id, caption, share, media, user, muted, currentVisible, isFocused} =
+  const {_id, caption, share, media, user, muted, currentVisible, isFocused, showBottomSheet} =
     props;
   const {theme} = useTheme();
   const color = Colors[theme];
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
 
   const formatNumber = (num: number): string => {
     if (num >= 1_000_000) {
@@ -84,13 +84,13 @@ const ReelsComponent = (props: any) => {
             <Text style={styles.textNormal}>{formatNumber(share)}</Text>
           </View>
           <TouchableOpacity
-            style={[styles.containerVertical, styles.iconContainer]}>
+            style={[styles.containerVertical, styles.iconContainer]} onPress={showBottomSheet}>
             <Image
               style={styles.icon}
               source={require('../../../../assets/icon/menu-dots-vertical.png')}
             />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.iconMusicContainer}>
+          <TouchableOpacity style={styles.iconMusicContainer} onPress={() => navigation.navigate('SaveMusic')}>
             <Image
               style={styles.icon}
               source={require('../../../../assets/icon/musical-note.png')}

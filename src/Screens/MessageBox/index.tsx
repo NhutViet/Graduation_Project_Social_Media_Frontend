@@ -7,13 +7,15 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  ActivityIndicator,
 } from 'react-native';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import MessageBoxStyles from '../../StyleSheet/MessageBoxStyles';
 import MessageItem from '../../../components/MessageItem';
 import User from '../../../components/User';
-import {useState} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
+import { messageData, storyUsers, StoryUser, searchMessages, User as UserType, Message } from '../../MockData/message.mock';
 
 export const MessageBox = (props: any) => {
   const navigation: any = useNavigation();
@@ -22,89 +24,22 @@ export const MessageBox = (props: any) => {
   const styles = MessageBoxStyles(theme);
   const {onBack} = props;
 
-  const data = [
-    {
-      id: '1',
-      img: 'https://i.pinimg.com/736x/78/63/88/78638889824ef2f367cf2b40c63a860b.jpg',
-      name: 'User 1',
-      description: 'Hoạt động 3 tiếng trước',
-    },
-    {
-      id: '2',
-      img: 'https://i.pinimg.com/736x/65/98/6e/65986e43f1d5e157dd31b26ee1343508.jpg',
-      name: 'User 2',
-      description: 'Hoạt động 5 phút trước',
-    },
-    {
-      id: '3',
-      img: 'https://i.pinimg.com/736x/bf/d9/56/bfd9563b5a7277df5ca476b4e90a06cb.jpg',
-      name: 'User 3',
-      description: 'Hoat động 1 giờ trước',
-    },
-    {
-      id: '4',
-      img: 'https://i.pinimg.com/736x/08/ee/45/08ee454cf166587337c5e85f7a4c5c27.jpg',
-      name: 'User 4',
-      description: 'Hoat động 17 phút trước',
-    },
-    {
-      id: '5',
-      img: 'https://i.pinimg.com/736x/98/70/5f/98705fd420414eaba0f0c50416a46fef.jpg',
-      name: 'User 5',
-      description: 'Hoat động 9 giờ trước',
-    },
-    {
-      id: '6',
-      img: 'https://i.pinimg.com/736x/13/b2/17/13b21765f93fbdda132c3f056826e203.jpg',
-      name: 'User 6',
-      description: 'Hoat động 2 giờ trước',
-    },
-    {
-      id: '7',
-      img: 'https://i.pinimg.com/736x/8c/7a/b6/8c7ab636cfd256e220a1baf76ac06d4c.jpg',
-      name: 'User 7',
-      description: 'Hoat động 5 phút trước',
-    },
-  ];
+  // State management
+  const [dataUser, setDataUser] = useState<StoryUser[]>(storyUsers);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [isSearching, setIsSearching] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const searchInputRef = useRef<TextInput>(null);
 
-  const [dataUser, setDataUser] = useState([
-    {
-      id: 1,
-      name: 'user1',
-      image:
-        'https://i.pinimg.com/736x/b7/25/61/b72561fd1ec7018c0418c84a3c2d5a57.jpg',
-      status: 1,
-    },
-    {
-      id: 2,
-      name: 'user2',
-      image:
-        'https://i.pinimg.com/736x/c1/70/e8/c170e84663405785c80ba367cd5e3b85.jpg',
-      status: 1,
-    },
-    {
-      id: 3,
-      name: 'user3',
-      image:
-        'https://i.pinimg.com/736x/8b/ae/77/8bae77c63f046f5a307a864a9d230da2.jpg',
-      status: 0,
-    },
-    {
-      id: 4,
-      name: 'user4',
-      image:
-        'https://i.pinimg.com/736x/56/81/64/5681646985e7ddc1b2cd4b826763b541.jpg',
-      status: 0,
-    },
-  ]);
+  // Mock data
+  const data = messageData;
 
-  const handleUserPress = (user: any) => {
+  const handleUserPress = (user: StoryUser) => {
     console.log('Navigating to SeenStory with user:', user);
-    // Cập nhật status của user được nhấn thành 0
     setDataUser(prevData =>
       prevData.map(item => (item.id === user.id ? {...item, status: 0} : item)),
     );
-    // Điều hướng đến SeenStoryOwner
     navigation.navigate('SeenStoryOwner', {selectedItem: user});
   };
 
@@ -137,6 +72,7 @@ export const MessageBox = (props: any) => {
           </TouchableOpacity>
         </View>
       </View>
+      
       <View style={styles.searchContainer}>
         <View style={styles.searchBlock}>
           <View style={styles.iconBlock}>
@@ -146,68 +82,76 @@ export const MessageBox = (props: any) => {
             />
           </View>
           <TextInput
-            placeholder="Tìm kiếm tin nhắn"
+            ref={searchInputRef}
+            placeholder="Search messages"
             placeholderTextColor={color.text}
-            style={{marginHorizontal: 10, color: color.text, height: 40}}
+            style={[
+              styles.searchInput,
+              { paddingRight: searchQuery.length > 0 ? 40 : 0 }
+            ]}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
           />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity
+              style={styles.clearButton}
+            >
+              <Image
+                style={styles.clearIcon}
+                source={require('../../../assets/icon/close_small.png')}
+              />
+            </TouchableOpacity>
+          )}
         </View>
       </View>
-      <View
-        style={{
-          alignItems: 'center',
-          flexDirection: 'row',
-        }}>
-        <FlashList
-          data={dataUser}
-          renderItem={({item}: any) => {
-            return (
-              <User
-                name={item.name}
-                image={item.image}
-                status={item.status}
-                func={() => handleUserPress(item)}
-              />
-            );
-          }}
-          horizontal
-          estimatedItemSize={100}
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{
-            paddingRight: 10,
-          }}
-        />
-      </View>
-      <View
-        style={{
-          flexDirection: 'row',
-          paddingHorizontal: 10,
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          paddingVertical: 10,
-        }}>
-        <Text style={{color: color.text, fontWeight: '600'}}>Tin nhắn</Text>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('PendingMessages')}>
-          <Text style={{color: color.text}}>Tin nhắn đang chờ</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={{flex: 1}}>
-        <FlashList
-          data={data}
-          renderItem={({item}) => {
-            return (
-              <MessageItem
-                img={item.img}
-                name={item.name}
-                description={item.description}
-                isGroup={item.id == '2'}
-              />
-            );
-          }}
-          estimatedItemSize={100}
-          showsVerticalScrollIndicator={false}
-        />
-      </View>
+          {/* Stories Section */}
+          <View style={styles.storiesContainer}>
+            <FlashList
+              data={dataUser}
+              renderItem={({item}: any) => {
+                return (
+                  <User
+                    name={item.name}
+                    image={item.image}
+                    status={item.status}
+                    func={() => handleUserPress(item)}
+                  />
+                );
+              }}
+              horizontal
+              estimatedItemSize={100}
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.storiesContentContainer}
+            />
+          </View>
+          
+          {/* Messages Header */}
+          <View style={styles.messagesHeader}>
+            <Text style={styles.messagesHeaderTitle}>Messages</Text>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('PendingMessages')}>
+              <Text style={styles.messagesHeaderSubtitle}>Pending messages</Text>
+            </TouchableOpacity>
+          </View>
+          
+          {/* Messages List */}
+          <View style={styles.messagesListContainer}>
+            <FlashList
+              data={data}
+              renderItem={({item}) => {
+                return (
+                  <MessageItem
+                    img={item.img}
+                    name={item.name}
+                    description={item.description}
+                    isGroup={item.isGroup || false}
+                  />
+                );
+              }}
+              estimatedItemSize={100}
+              showsVerticalScrollIndicator={false}
+            />
+          </View>
     </SafeAreaView>
   );
 };

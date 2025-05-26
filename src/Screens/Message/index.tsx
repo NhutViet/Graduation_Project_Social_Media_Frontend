@@ -307,10 +307,10 @@ export const MessageScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {chatBackground ? (
+      {/* {chatBackground ? ( */}
         <ImageBackground
-          source={{uri: chatBackground}}
-          style={{flex: 1}}
+          source={{uri: chatBackground ? chatBackground : undefined}}
+          style={{flex: 1, backgroundColor: chatBackground ? color.transparent : color.background}}
           resizeMode="cover"
           onError={() => console.log('Failed to load background image')}>
           <View
@@ -359,12 +359,17 @@ export const MessageScreen = () => {
                     source={require('../../../assets/icon/videoCamera.png')}
                   />
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.blockIcon}>
-                  <Image
-                    style={styles.icon}
-                    source={require('../../../assets/icon/info.png')}
-                  />
-                </TouchableOpacity>
+                <TouchableOpacity
+                style={styles.blockIcon}
+                onPress={() => {
+                  console.log('Info button pressed, opening ModalTheme');
+                  setVisibleThemeModal(true);
+                }}>
+                <Image
+                  style={styles.icon}
+                  source={require('../../../assets/icon/info.png')}
+                />
+              </TouchableOpacity>
               </View>
             </View>
 
@@ -402,6 +407,7 @@ export const MessageScreen = () => {
                     source={require('../../../assets/icon/camera.png')}
                   />
                 </TouchableOpacity>
+                
                 <TextInput
                   value={message}
                   onChangeText={setMessage}
@@ -437,119 +443,119 @@ export const MessageScreen = () => {
             </View>
           </View>
         </ImageBackground>
-      ) : (
-        <View style={{flex: 1}}>
-          <View style={styles.header}>
-            <View style={styles.rowContainer}>
-              <TouchableOpacity
-                style={styles.blockIcon}
-                onPress={() => {
-                  console.log('Back button pressed');
-                  navigation.goBack();
-                }}>
-                <Image
-                  style={styles.icon}
-                  source={require('../../../assets/icon/left.png')}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.blockImg} onPress={() => navigation.navigate(room == 'room2' ? "InforGroupChat" :"InfoUser")}>
-                <Image
-                  style={styles.img}
-                  source={{
-                    uri: 'https://i.pinimg.com/736x/2d/db/ae/2ddbaec1fb3d18f6ce00c4ebc1693193.jpg',
-                  }}
-                />
-              </TouchableOpacity>
-              <Text style={{color: color.text, fontSize: 16}}>{name}</Text>
-            </View>
-            <View style={styles.rowContainer}>
-              <TouchableOpacity
-                style={styles.blockIcon}
-                onPress={() => {
-                  console.log('Video camera button pressed');
-                }}>
-                <Image
-                  style={styles.icon}
-                  source={require('../../../assets/icon/videoCamera.png')}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.blockIcon}
-                onPress={() => {
-                  console.log('Info button pressed, opening ModalTheme');
-                  setVisibleThemeModal(true);
-                }}>
-                <Image
-                  style={styles.icon}
-                  source={require('../../../assets/icon/info.png')}
-                />
-              </TouchableOpacity>
-            </View>
-          </View>
+      {/* // ) : (
+      //   <View style={{flex: 1}}>
+      //     <View style={styles.header}>
+      //       <View style={styles.rowContainer}>
+      //         <TouchableOpacity */}
+      {/* //           style={styles.blockIcon}
+      //           onPress={() => { */}
+      {/* //             console.log('Back button pressed');
+      //             navigation.goBack();
+      //           }}>
+      //           <Image
+      //             style={styles.icon}
+      //             source={require('../../../assets/icon/left.png')}
+      //           />
+      //         </TouchableOpacity>
+      //         <TouchableOpacity style={styles.blockImg} onPress={() => navigation.navigate(room == 'room2' ? "InforGroupChat" :"InfoUser")}>
+      //           <Image
+      //             style={styles.img}
+      //             source={{
+      //               uri: 'https://i.pinimg.com/736x/2d/db/ae/2ddbaec1fb3d18f6ce00c4ebc1693193.jpg',
+      //             }}
+      //           />
+      //         </TouchableOpacity>
+      //         <Text style={{color: color.text, fontSize: 16}}>{name}</Text>
+      //       </View>
+      //       <View style={styles.rowContainer}>
+      //         <TouchableOpacity
+      //           style={styles.blockIcon}
+      //           onPress={() => {
+      //             console.log('Video camera button pressed');
+      //           }}>
+      //           <Image
+      //             style={styles.icon}
+      //             source={require('../../../assets/icon/videoCamera.png')}
+      //           />
+      //         </TouchableOpacity>
+      //         <TouchableOpacity
+      //           style={styles.blockIcon}
+      //           onPress={() => {
+      //             console.log('Info button pressed, opening ModalTheme');
+      //             setVisibleThemeModal(true);
+      //           }}>
+      //           <Image
+      //             style={styles.icon}
+      //             source={require('../../../assets/icon/info.png')}
+      //           />
+      //         </TouchableOpacity>
+      //       </View>
+      //     </View>
 
-          <View
-            style={{
-              flex: 1,
-              paddingBottom: 10,
-              paddingHorizontal: 10,
-            }}>
-            <TouchableOpacity
-              style={{flex: 1, zIndex: 10}}
-              onLongPress={() => {
-                console.log('Long press detected, opening ModalTheme');
-                setVisibleThemeModal(true);
-              }}
-              activeOpacity={1}>
-              <FlatList
-                ref={flatListRef}
-                data={chat}
-                renderItem={renderItem}
-                keyExtractor={(_, i) => i.toString()}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={{paddingVertical: 30}}
-              />
-            </TouchableOpacity>
+      //     <View
+      //       style={{
+      //         flex: 1,
+      //         paddingBottom: 10,
+      //         paddingHorizontal: 10,
+      //       }}>
+      //       <TouchableOpacity
+      //         style={{flex: 1, zIndex: 10}}
+      //         onLongPress={() => {
+      //           console.log('Long press detected, opening ModalTheme');
+      //           setVisibleThemeModal(true);
+      //         }}
+      //         activeOpacity={1}>
+      //         <FlatList
+      //           ref={flatListRef}
+      //           data={chat}
+      //           renderItem={renderItem}
+      //           keyExtractor={(_, i) => i.toString()}
+      //           showsVerticalScrollIndicator={false}
+      //           contentContainerStyle={{paddingVertical: 30}}
+      //         />
+      //       </TouchableOpacity>
 
-            <View style={[styles.inputContainer, {zIndex: 20}]}>
-              <TouchableOpacity style={styles.blockCamera}>
-                <Image
-                  style={{tintColor: color.text, width: 20, height: 20}}
-                  source={require('../../../assets/icon/camera.png')}
-                />
-              </TouchableOpacity>
-              <TextInput
-                value={message}
-                onChangeText={setMessage}
-                placeholder="Type a message..."
-                placeholderTextColor={color.text}
-                style={styles.input}
-                returnKeyType="send"
-                onSubmitEditing={sendMessage}
-              />
-              <View style={styles.rowContainer}>
-                <TouchableOpacity style={styles.blockIcon1}>
-                  <Image
-                    style={styles.icon}
-                    source={require('../../../assets/icon/Microphone.png')}
-                  />
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.blockIcon1} onPress={sendImage}>
-                  <Image
-                    style={styles.icon}
-                    source={require('../../../assets/icon/Picture.png')}
-                  />
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.blockIcon1}>
-                  <Image
-                    style={styles.icon}
-                    source={require('../../../assets/icon/another.png')}
-                  />
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        </View>
-      )}
+      //       <View style={[styles.inputContainer, {zIndex: 20}]}>
+      //         <TouchableOpacity style={styles.blockCamera}>
+      //           <Image
+      //             style={{tintColor: color.text, width: 20, height: 20}}
+      //             source={require('../../../assets/icon/camera.png')}
+      //           />
+      //         </TouchableOpacity>
+      //         <TextInput
+      //           value={message}
+      //           onChangeText={setMessage}
+      //           placeholder="Type a message..."
+      //           placeholderTextColor={color.text}
+      //           style={styles.input}
+      //           returnKeyType="send"
+      //           onSubmitEditing={sendMessage}
+      //         />
+      //         <View style={styles.rowContainer}>
+      //           <TouchableOpacity style={styles.blockIcon1}>
+      //             <Image
+      //               style={styles.icon}
+      //               source={require('../../../assets/icon/Microphone.png')}
+      //             />
+      //           </TouchableOpacity>
+      //           <TouchableOpacity style={styles.blockIcon1} onPress={sendImage}>
+      //             <Image
+      //               style={styles.icon}
+      //               source={require('../../../assets/icon/Picture.png')}
+      //             />
+      //           </TouchableOpacity>
+      //           <TouchableOpacity style={styles.blockIcon1}>
+      //             <Image
+      //               style={styles.icon}
+      //               source={require('../../../assets/icon/another.png')}
+      //             />
+      //           </TouchableOpacity>
+      //         </View>
+      //       </View>
+      //     </View>
+      //   </View>
+      // )} */}
 
       <Modal visible={!!selectedImageUri} transparent={true}>
         <View

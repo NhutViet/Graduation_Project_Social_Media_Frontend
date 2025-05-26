@@ -44,11 +44,17 @@ import {
   AddCollectionScreen,
   Archive,
   ChangePassword,
-  ChangeBirthday
+  ChangeBirthday,
+  YourActivity,
+  LinkToGroup,
+  SearchMessages,
+  EditNickname,
+  ContactInfo,
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 import ProfileComp from '../Screens/Profile';
 import EditHighlightScreen from '../(tabs)/Profile/components/EditHighlightScreen';
+import NewMessage from '../Screens/NewMessage';
 export type RootStackParamList = {
   PendingMessages: undefined;
   MessageScreen: {room: string};
@@ -60,7 +66,7 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="HorizontalScreen"
+        initialRouteName="NewMessage"
         screenOptions={{headerShown: false}}>
         <Stack.Screen name="ChangeBirthday" component={ChangeBirthday} />
         <Stack.Screen name="ChangePassword" component={ChangePassword} />
@@ -71,6 +77,7 @@ const AppNavigator = () => {
           name="AddPeopleToGroupChat"
           component={AddPeopleToGroupChat}
         />
+        <Stack.Screen name="NewMessage" component={NewMessage} />
         <Stack.Screen name="MusicSaved" component={MusicSavedScreen} />
         <Stack.Screen name="HorizontalScreen" component={HorizontalScreen} />
         <Stack.Screen name="ProfileComp" component={ProfileComp} />
@@ -107,15 +114,23 @@ const AppNavigator = () => {
         <Stack.Screen name="PlaylistsScreen" component={PlaylistsScreen} />
         <Stack.Screen name="Privacy" component={Privacy} />
         <Stack.Screen name="Notifications" component={Notifications} />
-        <Stack.Screen name="NotificationOption" component={NotificationOption} />
+        <Stack.Screen
+          name="NotificationOption"
+          component={NotificationOption}
+        />
         <Stack.Screen name="QRScanner" component={QRScanner} />
         <Stack.Screen
           name="EditHighlightStory"
           component={EditHighlightScreen}
         />
-        <Stack.Screen name="Archive" component={Archive}/>
+        <Stack.Screen name="Archive" component={Archive} />
         <Stack.Screen name="InforGroupChat" component={InforGroupChat} />
         <Stack.Screen name="AddCollection" component={AddCollectionScreen} />
+        <Stack.Screen name="YourActivity" component={YourActivity} />
+        <Stack.Screen name="LinkToGroup" component={LinkToGroup} />
+        <Stack.Screen name="SearchMessages" component={SearchMessages} />
+        <Stack.Screen name="EditNickname" component={EditNickname} />
+        <Stack.Screen name="ContactInfo" component={ContactInfo} />
       </Stack.Navigator>
     </NavigationContainer>
   );

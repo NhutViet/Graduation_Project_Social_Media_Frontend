@@ -17,7 +17,6 @@ import User from '../../../components/User';
 import GridMedia from './Components/GridMedia';
 import {Colors} from '../../../assets/color/Colors';
 import SearchResult from './Components/SearchResult';
-import {Key} from 'lucide-react-native';
 import { useIsFocused } from '@react-navigation/native';
 
 const generateImages = (count: number) =>

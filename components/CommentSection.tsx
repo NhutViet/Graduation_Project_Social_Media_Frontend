@@ -1,241 +1,236 @@
-import React, {useState, useCallback} from 'react';
+import React, {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useState,
+} from 'react';
 import {
+  Dimensions,
+  StyleSheet,
   View,
-  Text,
+  TouchableWithoutFeedback,
   Image,
-  TouchableOpacity,
   TextInput,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  ActivityIndicator,
   Modal,
-  Pressable,
+  Keyboard,
+  KeyboardEvent,
 } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+} from 'react-native-reanimated';
 import {useTheme} from '../src/util/ThemeContext';
 import {Colors} from '../assets/color/Colors';
-import {Send, Heart} from 'lucide-react-native';
 import {FlashList} from '@shopify/flash-list';
-import {mockComments, Comment} from '../src/MockData/comments.mock';
-import styles from '../src/StyleSheet/Comment.Styles';
+import CommentComponent from '../src/(tabs)/Home/components/commentComponent';
+import {useSelector} from 'react-redux';
+import {RootState} from '../services/store';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
-interface CommentItemProps {
-  comment: Comment;
-  color: any;
-}
+const maxHeight = Dimensions.get('window').height;
+const height = Dimensions.get('window').height * 0.85;
 
-const CommentItem = React.memo(({comment, color}: CommentItemProps) => {
-  const [isLiked, setIsLiked] = useState(comment.isLiked || false);
-
-  return (
-    <View style={[styles.commentItem, {borderBottomColor: color.border}]}>
-      <Image source={{uri: comment.avatar}} style={styles.avatar} />
-      <View style={styles.commentContent}>
-        <View style={styles.commentHeader}>
-          <Text style={[styles.username, {color: color.text}]}>
-            {comment.username}
-          </Text>
-          <Text style={[styles.content, {color: color.text}]}>
-            {comment.content}
-          </Text>
-        </View>
-        <View style={styles.commentFooter}>
-          <Text style={[styles.timeAgo, {color: color.textSecondary}]}>
-            {comment.timeAgo}
-          </Text>
-          <TouchableOpacity>
-            <Text style={[styles.reply, {color: color.textSecondary}]}>
-              Reply
-            </Text>
-          </TouchableOpacity>
-          {comment.likedBy && (
-            <Text style={[styles.likes, {color: color.textSecondary}]}>
-              {comment.likedBy.text}
-            </Text>
-          )}
-        </View>
-      </View>
-      <TouchableOpacity
-        style={styles.likeButton}
-        onPress={() => setIsLiked(!isLiked)}>
-        <Heart
-          size={16}
-          color={isLiked ? '#FF3B30' : color.textSecondary}
-          fill={isLiked ? '#FF3B30' : 'none'}
-        />
-      </TouchableOpacity>
-    </View>
-  );
-});
-
-const ReactionsList = ({onReactionPress}: any) => {
-  const reactions = [
-    '❤️',
-    '👍',
-    '😂',
-    '😍',
-    '😢',
-    '🤔',
-    '🎉',
-    '🔥',
-    '👏',
-    '💪',
-    '🙏',
-    '💬',
-  ];
-  return (
-    <FlashList
-      data={reactions}
-      renderItem={({item, index}) => (
-        <TouchableOpacity
-          key={index}
-          style={styles.reactionButton}
-          onPress={() => onReactionPress(item)}>
-          <Text style={styles.reactionEmoji}>{item}</Text>
-        </TouchableOpacity>
-      )}
-      estimatedItemSize={40}
-      horizontal
-      showsHorizontalScrollIndicator={false}
-    />
-  );
+export type BottomSheetCommentRef = {
+  open: () => void;
+  close: () => void;
 };
 
-export const CommentSection = ({
-  visible,
-  onClose,
-}: {
-  visible: boolean;
-  onClose: () => void;
-}) => {
+const BottomSheetComment = forwardRef<BottomSheetCommentRef>(({}, ref) => {
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const translateY = useSharedValue(height);
+  const isOpen = useSharedValue(false);
+
+  const open = () => {
+    setModalVisible(true);
+    setTimeout(() => {
+      translateY.value = withSpring(0, {
+        damping: 20,
+      });
+      isOpen.value = true;
+    }, 50);
+  };
+
+  const close = () => {
+    translateY.value = withSpring(height, {damping: 20});
+    isOpen.value = false;
+    setTimeout(() => {
+      setModalVisible(false);
+    }, 300);
+  };
+
+  useImperativeHandle(ref, () => ({open, close}));
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{translateY: translateY.value}],
+  }));
+
+  const overlayStyle = useAnimatedStyle(() => ({
+    opacity: isOpen.value ? 1 : 0,
+    display: isOpen.value ? 'flex' : 'none',
+  }));
+
   const {theme} = useTheme();
   const color = Colors[theme];
-  const [newComment, setNewComment] = useState('');
-  const [expandedComments, setExpandedComments] = useState<{
-    [key: string]: boolean;
-  }>({});
 
-  const handleReactionPress = useCallback(
-    (reaction: string) => {
-      setNewComment(newComment + reaction);
-    },
-    [newComment],
-  );
+  const {comments, loading} = useSelector((state: RootState) => state.comment);
 
-  const toggleReplies = useCallback((commentId: string) => {
-    setExpandedComments(prev => ({
-      ...prev,
-      [commentId]: !prev[commentId],
-    }));
+  const [comment, setComment] = useState('');
+
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener(
+      'keyboardDidShow',
+      (e: KeyboardEvent) => {
+        setKeyboardHeight(e.endCoordinates.height);
+      },
+    );
+
+    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardHeight(0);
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
   }, []);
 
   return (
     <Modal
-      visible={visible}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={onClose}>
-      <Pressable
-        style={[styles.modalContainer, {backgroundColor: 'rgba(0,0,0,0.5)'}]}
-        onPress={onClose}>
-        <Pressable
-          style={[styles.modalContent, {backgroundColor: color.background}]}
-          onPress={e => e.stopPropagation()}>
-          <View style={styles.header}>
-            <Text style={[styles.headerTitle, {color: color.text}]}>
-              Comments
-            </Text>
+      visible={modalVisible}
+      animationType="none"
+      transparent
+      statusBarTranslucent
+      onRequestClose={close}>
+      <Animated.View style={[styles.overlay, overlayStyle]}>
+        <TouchableWithoutFeedback onPress={close}>
+          <View style={StyleSheet.absoluteFill} />
+        </TouchableWithoutFeedback>
+      </Animated.View>
+
+      <Animated.View
+        style={[
+          styles.sheet,
+          animatedStyle,
+          {backgroundColor: color.background},
+        ]}>
+        <View style={[styles.handle, {backgroundColor: color.text}]} />
+        {loading ? (
+          <View
+            style={{
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: color.background,
+            }}>
+            <ActivityIndicator size="large" color={color.text} />
           </View>
-          <View style={{flex: 1}}>
-            <FlashList
-              data={mockComments}
-              contentContainerStyle={{paddingBottom: 100}}
-              estimatedItemSize={100}
-              showsVerticalScrollIndicator={false}
-              scrollEnabled={true}
-              renderItem={({item: comment}) => (
-                <View key={comment.id}>
-                  <CommentItem comment={comment} color={color} />
-                  {comment.replies &&
-                    comment.replies.items &&
-                    comment.replies.items.length > 0 && (
-                      <>
-                        <TouchableOpacity
-                          activeOpacity={0.7}
-                          style={[
-                            styles.viewMoreButton,
-                            {
-                              marginLeft: 20,
-                              padding: 8,
-                              backgroundColor: color.gray + '20',
-                              borderRadius: 4,
-                            },
-                          ]}
-                          onPress={() => toggleReplies(comment.id)}
-                          delayPressIn={0}>
-                          <Text
-                            style={[
-                              styles.viewMoreText,
-                              {color: color.textSecondary},
-                            ]}>
-                            {expandedComments[comment.id]
-                              ? 'Hide replies'
-                              : `View ${comment.replies.count} replies`}
-                          </Text>
-                        </TouchableOpacity>
-                        {expandedComments[comment.id] && (
-                          <View style={{marginTop: 8}}>
-                            {comment.replies.items.map(reply => (
-                              <View key={reply.id} style={{marginLeft: 20}}>
-                                <CommentItem comment={reply} color={color} />
-                              </View>
-                            ))}
-                          </View>
-                        )}
-                      </>
-                    )}
+        ) : (
+          <>
+            <View style={{flex: 1, paddingHorizontal: 20}}>
+              <FlashList
+                data={comments}
+                renderItem={({item}) => {
+                  return <CommentComponent {...item} />;
+                }}
+                estimatedItemSize={100}
+              />
+            </View>
+            <View
+              style={[styles.inputContainer, {marginBottom: keyboardHeight}]}>
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <View style={styles.blockImg}>
+                  <Image
+                    style={styles.img}
+                    source={{
+                      uri: 'https://i.pinimg.com/736x/b4/a3/31/b4a3315d142cad5d2127347315888e82.jpg',
+                    }}
+                  />
                 </View>
-              )}
-            />
-          </View>
-          <View
-            style={[
-              styles.reactionsContainer,
-              {
-                borderTopColor: color.border,
-                backgroundColor: color.background,
-              },
-            ]}>
-            <ReactionsList onReactionPress={handleReactionPress} />
-          </View>
-          <View
-            style={[
-              styles.inputContainer,
-              {
-                backgroundColor: color.background,
-                borderTopColor: color.border,
-              },
-            ]}>
-            <Image
-              source={{uri: 'https://picsum.photos/50/50?random=0'}}
-              style={styles.userAvatar}
-            />
-            <TextInput
-              style={[styles.input, {color: color.text}]}
-              placeholder="Add a comment..."
-              placeholderTextColor={color.textSecondary}
-              value={newComment}
-              onChangeText={setNewComment}
-            />
-            {newComment.length > 0 && (
-              <TouchableOpacity
-                style={styles.sendButton}
-                onPress={() => {
-                  console.log('Sending comment:', newComment);
-                  setNewComment('');
-                }}>
-                <Send size={24} color={color.blue} />
+                <TextInput
+                  placeholder="Comment"
+                  placeholderTextColor={color.text}
+                  style={[styles.input, {color: color.text}]}
+                  value={comment}
+                  onChangeText={setComment}
+                />
+              </View>
+              <TouchableOpacity style={styles.blockIcon}>
+                <Image
+                  style={[styles.icon, {tintColor: color.text}]}
+                  source={require('../assets/icon/sticker.png')}
+                />
               </TouchableOpacity>
-            )}
-          </View>
-        </Pressable>
-      </Pressable>
+            </View>
+          </>
+        )}
+      </Animated.View>
     </Modal>
   );
-};
+});
+
+const styles = StyleSheet.create({
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    zIndex: 1,
+  },
+  sheet: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: height,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingTop: 16,
+    zIndex: 2,
+  },
+  handle: {
+    width: 40,
+    height: 5,
+    borderRadius: 2.5,
+    alignSelf: 'center',
+    marginBottom: 16,
+  },
+  inputContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+  },
+  blockImg: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    overflow: 'hidden',
+    marginRight: 10,
+  },
+  img: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  icon: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
+  },
+  blockIcon: {
+    width: 20,
+    height: 20,
+  },
+  input: {
+    width: '70%',
+  },
+});
+
+export default BottomSheetComment;
