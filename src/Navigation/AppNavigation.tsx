@@ -47,6 +47,7 @@ import {
   LinkToGroup,
   SearchMessages,
   EditNickname,
+  ContactInfo,
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 import ProfileComp from '../Screens/Profile';
@@ -123,6 +124,7 @@ const AppNavigator = () => {
         <Stack.Screen name="LinkToGroup" component={LinkToGroup} />
         <Stack.Screen name="SearchMessages" component={SearchMessages} />
         <Stack.Screen name="EditNickname" component={EditNickname} />
+        <Stack.Screen name="ContactInfo" component={ContactInfo} />
       </Stack.Navigator>
     </NavigationContainer>
   );
