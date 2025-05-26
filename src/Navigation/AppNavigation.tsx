@@ -45,6 +45,8 @@ import {
   Archive,
   YourActivity,
   LinkToGroup,
+  SearchMessages,
+  EditNickname,
   ContactInfo,
 } from '../Screens';
 import BottomTabs from './BottomTabs';
@@ -61,7 +63,7 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="ContactInfo"
+        initialRouteName="EditNickname"
         screenOptions={{headerShown: false}}>
         <Stack.Screen name="BlockedAccounts" component={BlockedAccounts} />
         <Stack.Screen name="ShowActivity" component={ShowActivity} />
@@ -120,6 +122,8 @@ const AppNavigator = () => {
         <Stack.Screen name="AddCollection" component={AddCollectionScreen} />
         <Stack.Screen name="YourActivity" component={YourActivity} />
         <Stack.Screen name="LinkToGroup" component={LinkToGroup} />
+        <Stack.Screen name="SearchMessages" component={SearchMessages} />
+        <Stack.Screen name="EditNickname" component={EditNickname} />
         <Stack.Screen name="ContactInfo" component={ContactInfo} />
       </Stack.Navigator>
     </NavigationContainer>
