@@ -71,6 +71,7 @@ const LightTheme = {
   search: '#F8F8FF',
   card: '#F8F8F8',
   secondary: '#8E8E8E',
+  backgroundSecondary: '#F5F5F5',
 };
 
 const DarkTheme = {
@@ -84,6 +85,7 @@ const DarkTheme = {
   search: '#222222',
   card: '#121212',
   secondary: '#A8A8A8',
+  backgroundSecondary: '#363636',
 };
 
 export const Colors = {
