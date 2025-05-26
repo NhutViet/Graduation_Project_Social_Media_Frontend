@@ -8,6 +8,7 @@ import {
   Image,
   FlatList,
 } from 'react-native';
+import { useTheme } from '../../../util/ThemeContext';
 
 interface ModalThemeProps {
   visible: boolean;

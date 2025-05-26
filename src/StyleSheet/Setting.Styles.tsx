@@ -1,11 +1,12 @@
 import {StyleSheet} from 'react-native';
-import {Colors as theme} from '../../assets/color/Colors';
+import {Colors, Colors as theme} from '../../assets/color/Colors';
 
-export const createStyles = (themeColors: any) =>
-  StyleSheet.create({
+export const createStyles = (themeColors: 'light' | 'dark') =>{
+  const color = Colors[themeColors];
+  return StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: themeColors.background,
+      backgroundColor: color.background,
       position: 'relative',
     },
     content: {
@@ -17,7 +18,7 @@ export const createStyles = (themeColors: any) =>
     sectionTitle: {
       fontSize: theme.typography.fontSizes.m,
       fontWeight: '600',
-      color: themeColors.textSecondary,
+      color: color.textSecondary,
       marginHorizontal: theme.spacing.m,
       marginVertical: theme.spacing.s,
     },
@@ -26,15 +27,15 @@ export const createStyles = (themeColors: any) =>
       alignItems: 'center',
       paddingVertical: theme.spacing.m,
       paddingHorizontal: theme.spacing.m,
-      backgroundColor: themeColors.background,
+      backgroundColor: color.background,
       borderBottomWidth: StyleSheet.hairlineWidth,
-      borderBottomColor: themeColors.border,
+      borderBottomColor: color.border,
     },
     settingIconContainer: {
       width: 40,
       height: 40,
       borderRadius: 20,
-      backgroundColor: themeColors.lightGray,
+      backgroundColor: color.lightGray,
       alignItems: 'center',
       justifyContent: 'center',
       marginRight: theme.spacing.m,
@@ -45,11 +46,11 @@ export const createStyles = (themeColors: any) =>
     settingTitle: {
       fontSize: theme.typography.fontSizes.m,
       fontWeight: '500',
-      color: themeColors.text,
+      color: color.text,
     },
     settingDescription: {
       fontSize: theme.typography.fontSizes.s,
-      color: themeColors.textSecondary,
+      color: color.textSecondary,
       marginTop: 2,
     },
     logoutButton: {
@@ -60,7 +61,7 @@ export const createStyles = (themeColors: any) =>
       marginHorizontal: theme.spacing.m,
       marginVertical: theme.spacing.l,
       borderRadius: theme.radius.m,
-      backgroundColor: themeColors.lightGray,
+      backgroundColor: color.lightGray,
     },
     logoutIcon: {
       marginRight: theme.spacing.s,
@@ -68,7 +69,7 @@ export const createStyles = (themeColors: any) =>
     logoutText: {
       fontSize: theme.typography.fontSizes.m,
       fontWeight: '600',
-      color: themeColors.error,
+      color: color.error,
     },
     privacyContainer: {
       padding: 15,
@@ -112,5 +113,6 @@ export const createStyles = (themeColors: any) =>
       alignItems: 'center',
       fontSize: 18,
       fontWeight: '500',
+      color: color.text,
     },
-  });
+  })};

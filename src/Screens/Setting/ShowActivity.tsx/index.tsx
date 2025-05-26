@@ -17,7 +17,7 @@ export const ShowActivity = () => {
   const navigation: any = useNavigation();
   const {theme} = useTheme();
   const mColor = Colors[theme] || Colors;
-  const styles = createStyles(mColor);
+  const styles = createStyles(theme);
   const [isActive, setIsActive] = useState(false);
 
   const handleShowActivityToogle = async () => {

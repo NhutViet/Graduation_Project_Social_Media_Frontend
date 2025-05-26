@@ -12,39 +12,15 @@ import {
 import Video from 'react-native-video';
 import { Modalize } from "react-native-modalize";
 import {Portal} from 'react-native-portalize';
-import HighlightViewModal from './components/HighlightViewModal';
-import HighlightAddModal from './components/HighlightAddModal';
-
-
-// data mẫu cho modal highlight
-const highlights= [
-  { id: "1", name: "Trip", isAdded: true, imageURL: 'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg'},
-  { id: "2", name: "Food", isAdded: true, imageURL: 'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg'},
-  { id: "3", name: "Friends", isAdded: false, imageURL: 'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg'},
-];
+import HighlightViewModal from '../SeenStoryOwner/component/HighlightViewModal';
+import HighlightAddModal from '../SeenStoryOwner/component/HighlightAddModal';
 
 export const SeenStory = ({route, navigation}: any) => {
   const {selectedItem} = route.params;
   const [videoDuration, setVideoDuration] = useState(null);
   const progressAnim = useRef(new Animated.Value(0)).current;
-  const animationRef = useRef(null);
+  const animationRef: any = useRef(null);
   const videoRef = useRef(null);
-  const viewModalRef = useRef<Modalize>(null);
-  const addModalRef = useRef<Modalize>(null);
-
-  const handleOpenAddModal = () => {
-    viewModalRef.current?.close();
-    setTimeout(() => addModalRef.current?.open(), 300);
-  };
-
-  const handleOnBackAddModal = () => {
-    addModalRef.current?.close();
-    setTimeout(() => viewModalRef.current?.open(), 300);
-  }
-
-  const handleAddHighlight = (name: string) => {
-    // xử lý thêm highlight mới vào danh sách
-  };
 
   const imageDuration = 10000; // 10 seconds for images
 
@@ -68,14 +44,14 @@ export const SeenStory = ({route, navigation}: any) => {
       useNativeDriver: false,
     });
 
-    animationRef.current.start(({finished}) => {
+    animationRef.current.start(({finished}: any) => {
       if (finished) {
         navigation.goBack(); // Quay lại sau khi hết thời gian
       }
     });
   };
 
-  const onVideoLoad = data => {
+  const onVideoLoad = (data: any) => {
     setVideoDuration(data.duration);
     startProgressAnimation();
   };
@@ -182,7 +158,7 @@ export const SeenStory = ({route, navigation}: any) => {
           placeholderTextColor={'#fff'}
         />
         <View style={styles.viewIcon}>
-          <TouchableOpacity onPress={() => viewModalRef.current?.open()}>
+          <TouchableOpacity>
             <Image
               style={styles.icon}
               source={require('../../../assets/icon/heart.png')}
@@ -194,22 +170,6 @@ export const SeenStory = ({route, navigation}: any) => {
           />
         </View>
       </View>
-      <Portal>
-        <HighlightViewModal
-          ref={viewModalRef}
-          data={highlights}
-          onAddNew={handleOpenAddModal}
-        />
-      </Portal>
-      
-      <Portal>
-        <HighlightAddModal
-          ref={addModalRef}
-          onAdd={handleAddHighlight}
-          onBack={handleOnBackAddModal}
-          imageSource={"https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg"}
-        />
-      </Portal>
     </SafeAreaView>
   );
 };
