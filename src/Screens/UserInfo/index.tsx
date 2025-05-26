@@ -124,18 +124,18 @@ export const UserInfo = () => {
             />
           </TouchableOpacity>
           <Text style={styles.text} numberOfLines={1}>
-            Trang cá nhân
+            Profile page
           </Text>
         </View>
         <View style={styles.blockFeature}>
-          <TouchableOpacity style={styles.blockIcon}>
+          <TouchableOpacity style={styles.blockIcon} onPress={() => navigation.navigate('SearchMessages', { userId: 1 })}>
             <Image
               style={styles.icon}
               source={require('../../../assets/icon/search.png')}
             />
           </TouchableOpacity>
           <Text style={styles.text} numberOfLines={1}>
-            Tìm kiếm
+            Search messages
           </Text>
         </View>
         <View style={styles.blockFeature}>
@@ -148,7 +148,7 @@ export const UserInfo = () => {
             />
           </TouchableOpacity>
           <Text style={styles.text} numberOfLines={1}>
-            Tắt thông báo
+            Turn off notifications
           </Text>
         </View>
         <View style={styles.blockFeature}>
@@ -159,7 +159,7 @@ export const UserInfo = () => {
             />
           </TouchableOpacity>
           <Text style={styles.text} numberOfLines={1}>
-            Tuỳ chọn
+            More options
           </Text>
         </View>
       </View>
@@ -167,31 +167,33 @@ export const UserInfo = () => {
         {[
           {
             icon: require('../../../assets/icon/theme.png'),
-            label: 'Chủ đề',
+            label: 'Topic',
           },
           {
             icon: require('../../../assets/icon/nickname.png'),
-            label: 'Biệt danh',
+            label: 'Nickname',
           },
           {
             icon: require('../../../assets/icon/wall-clock.png'),
-            label: 'Tin nhắn tự huỷ',
+            label: 'Self-deleted messages',
           },
           {
             icon: require('../../../assets/icon/lock.png'),
-            label: 'Quyền riêng tư và an toàn',
+            label: 'Privacy and security',
           },
           {
             icon: require('../../../assets/icon/users.png'),
-            label: 'Tạo nhóm chat',
+            label: 'Create chat group',
           },
           {
             icon: require('../../../assets/icon/problem.png'),
-            label: 'Đã xảy ra lỗi',
+            label: 'An error occured',
           },
         ].map((item, i) => (
           <TouchableOpacity style={styles.row} key={i} onPress={() => {
-            if(i == 4){
+            if (i == 1) {
+              navigation.navigate('EditNickname', { userId: 1 }); // default data
+            } else if(i == 4){
               navigation.navigate('CreateGroupScreen');
             }
           }}>
