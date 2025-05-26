@@ -14,6 +14,13 @@ const UserInfoStyles = (theme: ThemeType) => {
       alignItems: 'center',
       backgroundColor: color.background,
     },
+    NNContainer: {
+      width: '100%',
+      height: '100%',
+      position: 'relative',
+      alignItems: 'center',
+      backgroundColor: color.background,
+    },
     iconBack: {
       width: 18,
       height: 18,
@@ -134,6 +141,7 @@ const UserInfoStyles = (theme: ThemeType) => {
       backgroundColor: color.lessBlack,
       padding: Colors.spacing.s,
       alignItems: 'center',
+      minHeight: 80,
       marginBottom: Colors.spacing.m,
     },
     infoText: {
@@ -151,7 +159,7 @@ const UserInfoStyles = (theme: ThemeType) => {
     userRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      padding: Colors.spacing.l,
+      padding: Colors.spacing.s,
       backgroundColor: color.background, 
       width: '100%', 
       justifyContent: 'space-between', 
