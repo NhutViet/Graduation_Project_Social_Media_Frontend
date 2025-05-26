@@ -42,3 +42,5 @@ export * from './MusicSaved';
 export * from './Setting/Archive';
 export * from './AddCollectionScreen';
 export * from './MusicDetail';
+export * from './ChangePassword';
+export * from './ChangeBirthday';

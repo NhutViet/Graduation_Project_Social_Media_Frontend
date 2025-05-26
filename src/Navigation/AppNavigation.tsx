@@ -43,6 +43,8 @@ import {
   MusicSavedScreen,
   AddCollectionScreen,
   Archive,
+  ChangePassword,
+  ChangeBirthday
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 import ProfileComp from '../Screens/Profile';
@@ -60,6 +62,8 @@ const AppNavigator = () => {
       <Stack.Navigator
         initialRouteName="HorizontalScreen"
         screenOptions={{headerShown: false}}>
+        <Stack.Screen name="ChangeBirthday" component={ChangeBirthday} />
+        <Stack.Screen name="ChangePassword" component={ChangePassword} />
         <Stack.Screen name="BlockedAccounts" component={BlockedAccounts} />
         <Stack.Screen name="ShowActivity" component={ShowActivity} />
         <Stack.Screen name="LikedScreen" component={LikedScreen} />
