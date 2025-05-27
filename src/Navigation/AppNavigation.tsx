@@ -66,7 +66,7 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="NewMessage"
+        initialRouteName="Setting"
         screenOptions={{headerShown: false}}>
         <Stack.Screen name="ChangeBirthday" component={ChangeBirthday} />
         <Stack.Screen name="ChangePassword" component={ChangePassword} />
