@@ -45,10 +45,14 @@ import {
   Archive,
   YourActivity,
   LinkToGroup,
+  SearchMessages,
+  EditNickname,
+  ContactInfo,
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 import ProfileComp from '../Screens/Profile';
 import EditHighlightScreen from '../(tabs)/Profile/components/EditHighlightScreen';
+import NewMessage from '../Screens/NewMessage';
 export type RootStackParamList = {
   PendingMessages: undefined;
   MessageScreen: {room: string};
@@ -69,6 +73,7 @@ const AppNavigator = () => {
           name="AddPeopleToGroupChat"
           component={AddPeopleToGroupChat}
         />
+        <Stack.Screen name="NewMessage" component={NewMessage} />
         <Stack.Screen name="MusicSaved" component={MusicSavedScreen} />
         <Stack.Screen name="HorizontalScreen" component={HorizontalScreen} />
         <Stack.Screen name="ProfileComp" component={ProfileComp} />
@@ -119,6 +124,9 @@ const AppNavigator = () => {
         <Stack.Screen name="AddCollection" component={AddCollectionScreen} />
         <Stack.Screen name="YourActivity" component={YourActivity} />
         <Stack.Screen name="LinkToGroup" component={LinkToGroup} />
+        <Stack.Screen name="SearchMessages" component={SearchMessages} />
+        <Stack.Screen name="EditNickname" component={EditNickname} />
+        <Stack.Screen name="ContactInfo" component={ContactInfo} />
       </Stack.Navigator>
     </NavigationContainer>
   );
