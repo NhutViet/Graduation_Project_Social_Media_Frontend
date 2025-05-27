@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React from 'react';
+import React, {useState} from 'react';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {useNavigation} from '@react-navigation/native';
@@ -22,14 +22,21 @@ import {
   User,
   Lock,
   UserRoundCheck,
-  ClockFading 
 } from 'lucide-react-native';
+import PersonalDetails from './PersonalDetail';
+import ContactInfo from './ContactInfo';
 
 export const Setting = () => {
   const navigation: any = useNavigation();
   const {theme, toggleTheme} = useTheme();
   const styles = createStyles(theme);
   const mColor = Colors[theme] || Colors;
+
+  const [showContact, setShowContact] = useState(false);
+  const handleShowContact = () => setShowContact(!showContact);
+  const [showPersonalDetail, setShowPersonalDetail] = useState(false);
+  const handleShowPersonalDetail = () =>
+    setShowPersonalDetail(!showPersonalDetail);
 
   const handleLogout = () => {
     // In a real app, we would clear the auth state
@@ -49,6 +56,83 @@ export const Setting = () => {
           navigation={navigation}
         />
         <View style={styles.content}>
+          <View style={styles.section}>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}>
+              <Text style={[styles.sectionTitle, {color: mColor.text}]}>
+                Account References
+              </Text>
+
+              <Image
+                source={require('../../../assets/icon/logo_row.png')}
+                resizeMode="cover"
+                style={{width: 75, height: 25, tintColor: mColor.text}}
+              />
+            </View>
+
+            <TouchableOpacity
+              onPress={() => handleShowPersonalDetail()}
+              style={[
+                styles.settingItem,
+                {
+                  backgroundColor: mColor.background,
+                  borderBottomColor: mColor.border,
+                  borderBottomWidth: 0,
+                },
+              ]}>
+              <PersonalDetails
+                isVisible={showPersonalDetail}
+                onClose={handleShowPersonalDetail}
+              />
+              <View
+                style={[
+                  styles.settingIconContainer,
+                  {backgroundColor: mColor.gray},
+                ]}>
+                <User size={22} stroke={mColor.text} />
+              </View>
+              <View style={styles.settingContent}>
+                <Text style={[styles.settingTitle, {color: mColor.text}]}>
+                  Personal Details
+                </Text>
+              </View>
+              <ChevronRight size={20} stroke={mColor.textSecondary} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => handleShowContact()}
+              style={[
+                styles.settingItem,
+                {
+                  backgroundColor: mColor.background,
+                  borderBottomColor: mColor.border,
+                  borderBottomWidth: 0,
+                },
+              ]}>
+              <ContactInfo
+                isVisible={showContact}
+                onClose={handleShowContact}
+              />
+              <View
+                style={[
+                  styles.settingIconContainer,
+                  {backgroundColor: mColor.gray},
+                ]}>
+                <User size={22} stroke={mColor.text} />
+              </View>
+              <View style={styles.settingContent}>
+                <Text style={[styles.settingTitle, {color: mColor.text}]}>
+                  Contact Information
+                </Text>
+              </View>
+              <ChevronRight size={20} stroke={mColor.textSecondary} />
+            </TouchableOpacity>
+          </View>
+
           {/* Account Section */}
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, {color: mColor.text}]}>
@@ -56,6 +140,7 @@ export const Setting = () => {
             </Text>
 
             <TouchableOpacity
+              onPress={() => navigation.navigate('EditProfile')}
               style={[
                 styles.settingItem,
                 {
@@ -73,7 +158,7 @@ export const Setting = () => {
               </View>
               <View style={styles.settingContent}>
                 <Text style={[styles.settingTitle, {color: mColor.text}]}>
-                  Personal Information
+                  Profile Information
                 </Text>
                 <Text
                   style={[
@@ -91,7 +176,7 @@ export const Setting = () => {
                 {
                   backgroundColor: mColor.background,
                   borderBottomColor: mColor.border,
-                  borderBottomWidth: 0
+                  borderBottomWidth: 0,
                 },
               ]}
               onPress={() => navigation.navigate('ShowActivity')}>
@@ -122,7 +207,7 @@ export const Setting = () => {
                 {
                   backgroundColor: mColor.background,
                   borderBottomColor: mColor.border,
-                  borderBottomWidth: 0
+                  borderBottomWidth: 0,
                 },
               ]}
               onPress={() => navigation.navigate('YourActivity')}>
@@ -131,7 +216,10 @@ export const Setting = () => {
                   styles.settingIconContainer,
                   {backgroundColor: mColor.gray},
                 ]}>
-                <Image source={require('../../../assets/icon/yourActivity.png')} style={{width: 25, height: 25, tintColor: mColor.text}} />
+                <Image
+                  source={require('../../../assets/icon/yourActivity.png')}
+                  style={{width: 25, height: 25, tintColor: mColor.text}}
+                />
               </View>
               <View style={styles.settingContent}>
                 <Text style={[styles.settingTitle, {color: mColor.text}]}>
@@ -155,7 +243,10 @@ export const Setting = () => {
                   styles.settingIconContainer,
                   {backgroundColor: mColor.gray},
                 ]}>
-                <Image source={require('../../../assets/icon/block.png')} style={{width: 20, height: 20, tintColor: mColor.text}} />
+                <Image
+                  source={require('../../../assets/icon/block.png')}
+                  style={{width: 20, height: 20, tintColor: mColor.text}}
+                />
               </View>
               <View style={styles.settingContent}>
                 <Text style={[styles.settingTitle, {color: mColor.text}]}>
@@ -164,7 +255,7 @@ export const Setting = () => {
               </View>
               <ChevronRight size={20} stroke={mColor.textSecondary} />
             </TouchableOpacity>
-            
+
             {/* Tương tự cho các settingItem khác trong Account Section */}
           </View>
 
@@ -289,7 +380,6 @@ export const Setting = () => {
               </View>
               <ChevronRight size={20} stroke={mColor.textSecondary} />
             </TouchableOpacity>
-
           </View>
 
           {/* Activity Section */}

@@ -896,7 +896,7 @@ PODS:
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
-  - react-native-pager-view (6.7.1):
+  - react-native-pager-view (6.8.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
@@ -1080,6 +1080,8 @@ PODS:
     - React-perflogger (= 0.73.4)
   - RNCAsyncStorage (1.17.11):
     - React-Core
+  - RNCClipboard (1.16.2):
+    - React-Core
   - RNFlashList (1.8.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
@@ -1100,6 +1102,11 @@ PODS:
   - RNScreens (3.27.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
+    - React-Core
+  - RNSound (0.11.2):
+    - React-Core
+    - RNSound/Core (= 0.11.2)
+  - RNSound/Core (0.11.2):
     - React-Core
   - RNSVG (15.12.0):
     - React-Core
@@ -1174,12 +1181,14 @@ DEPENDENCIES:
   - React-utils (from `../node_modules/react-native/ReactCommon/react/utils`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
+  - "RNCClipboard (from `../node_modules/@react-native-clipboard/clipboard`)"
   - "RNFlashList (from `../node_modules/@shopify/flash-list`)"
   - RNFS (from `../node_modules/react-native-fs`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNPermissions (from `../node_modules/react-native-permissions`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
+  - RNSound (from `../node_modules/react-native-sound`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - VisionCamera (from `../node_modules/react-native-vision-camera`)
@@ -1301,6 +1310,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-async-storage/async-storage"
+  RNCClipboard:
+    :path: "../node_modules/@react-native-clipboard/clipboard"
   RNFlashList:
     :path: "../node_modules/@shopify/flash-list"
   RNFS:
@@ -1313,6 +1324,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
     :path: "../node_modules/react-native-screens"
+  RNSound:
+    :path: "../node_modules/react-native-sound"
   RNSVG:
     :path: "../node_modules/react-native-svg"
   RNVectorIcons:
@@ -1355,7 +1368,7 @@ SPEC CHECKSUMS:
   React-Mapbuffer: f7ba4d5459e546d741791a55664388e97b31df7c
   react-native-cameraroll: 7482ae25da3c7d5d261b9c38c054e14282b6bd35
   react-native-image-picker: 030a52ca31f78ab25d01cf2a2898edc82332433c
-  react-native-pager-view: ab31c6976ab8de719a373d3ead5c3ae39aea3e0e
+  react-native-pager-view: bea4c51dfd48028568dbf6cdd5af8e4c78ee403f
   react-native-safe-area-context: 1c298d1cee1e333d3f44ea6dc8dfca086bd06242
   react-native-video: 4a8cf7eb41deeb32288f39ad9cff930211ef23dc
   React-nativeconfig: d7af5bae6da70fa15ce44f045621cf99ed24087c
@@ -1379,12 +1392,14 @@ SPEC CHECKSUMS:
   React-utils: 8439db27c3745f6de9d67eb61f5600c8d624274c
   ReactCommon: cc18bd33c0fab03c67620da6a602dcc1704e66b4
   RNCAsyncStorage: 357676e1dc19095208c80d4271066c407cd02ed1
+  RNCClipboard: e1d17c9d093d8129ef50b39b63a17a0e8ccd0ade
   RNFlashList: 2ba15f42397ad27ad3310ec3852a2eec2cbd6470
   RNFS: 89de7d7f4c0f6bafa05343c578f61118c8282ed8
   RNGestureHandler: 2a76de24abfbdfdc7a7a5fcb4b5e57563ada065e
   RNPermissions: 9cd352285fca2a3c2640a0897936730349c62415
   RNReanimated: 442237ccdfc5f44e3498b6aaa85590b65f968b25
   RNScreens: f1532e279e61b58c73479c63d7b8c967990f1aca
+  RNSound: 314cc5226453ef4a3314a196c65e8a65e5106a7b
   RNSVG: 70d9f7add64092eb33e975b75ee5fa04295318cc
   RNVectorIcons: 36b9fb776f0d0722582af7c5cbde94a4157c6914
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
