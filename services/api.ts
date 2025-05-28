@@ -11,4 +11,9 @@ export const API = {
 
   //// music
   GET_ALL_MUSIC: 'music/find-all',
-};
+
+	//// Login
+	GET_lOGIN_POST: 'auth/login',
+	GET_ME: 'auth/me',
+}
+

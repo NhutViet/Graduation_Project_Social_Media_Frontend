@@ -1,10 +1,9 @@
-import { View, Text, Image, TouchableOpacity, ScrollView, StyleSheet, SafeAreaView } from 'react-native'
+import { View, Text, Image, TouchableOpacity, ScrollView, StyleSheet, SafeAreaView, Alert } from 'react-native'
 import React from 'react'
-import { Heart, MessageCircle, Tag, Smile, Trash2, Archive, Sticker, Share2, Video, Bookmark, ThumbsDown, ThumbsUp, Clock, User, Search, Link, Download, ArrowRightLeft } from 'lucide-react-native';
+import { Heart, MessageCircle, Tag, Smile, Share2, Video, Bookmark, ThumbsDown, ThumbsUp, Clock, User, Search, Link, Download, ArrowRightLeft } from 'lucide-react-native';
 import {Colors} from '../../../../assets/color/Colors';
 import {useTheme} from '../../../util/ThemeContext';
 import {useNavigation} from '@react-navigation/native';
-import Header from '../../../../components/Header'
 
 interface Item {
   label: string;
@@ -35,7 +34,7 @@ const Section: React.FC<SectionProps> = ({ title, items }) => {
             {item.icon}
             <Text style={[styles.itemLabel, {color: color.text}]}>{item.label}</Text>
           </View>
-          <Image source={require('../../../../assets/icon/right.png')}/>
+          <Image source={require('../../../../assets/icon/right.png')} style={{tintColor: color.textSecondary}}/>
         </TouchableOpacity>
       ))}
     </View>
@@ -121,16 +120,14 @@ export const YourActivity = () => {
             <View style={styles.introContainer}>
                 <Text style={[styles.introTitle, {color: color.text}]}>One place to manage your activity</Text>
                 <View style={styles.introSubtitleContainer}>
-                    <Text style={[styles.introSubtitle, {color: color.textSecondary}]}>View and manage your interactions, content and account activity. 
-                        <TouchableOpacity style={styles.introLearnMoreButton} onPress={() => console.log('Learn more pressed')}>
-                            <Text style={styles.introLearnMoreText}>Learn more</Text>
-                        </TouchableOpacity>
+                    <Text style={[styles.introSubtitle, {color: color.textSecondary}]}>
+                      View and manage your interactions, content and account activity. <Text onPress={() => {Alert.alert('navigate')}} style={{fontSize: 16, color: "#007AFF",}}>Learn more</Text>
                     </Text>
                 </View>
             </View>
             {sections.map((section, index) => (
                 <View key={index}>
-                    <View style={[styles.divider, {borderColor: color.border}]}/>
+                    {index !== 0 && <View style={[styles.divider, {borderColor: color.border}]}/>}
                     <Section
                         title={section.title}
                         items={section.items}
@@ -212,13 +209,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
         marginVertical: 16,
         textAlign: 'center',
-    },
-    introLearnMoreButton: {
-        alignItems: 'center'
-    },
-    introLearnMoreText: {
-        color: '#007bff', 
-        fontSize: 16
     },
     divider: {
         width: '100%', 

@@ -77,6 +77,31 @@ const LoginStyles = () => {
       alignItems: 'center',
       marginBottom: 20,
     },
+    modal: {
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    modalContainer: {
+      backgroundColor: Colors.white,
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '80%',
+      height: 150,
+      gap: 15,
+      borderRadius: 15,
+    },
+    textNoti: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: Colors.primary,
+    },
+    textContent: {
+      fontSize: 16,
+      fontWeight: '400',
+      color: Colors.black,
+    },
   });
 };
 

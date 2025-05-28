@@ -50,6 +50,9 @@ import {
   SearchMessages,
   EditNickname,
   ContactInfo,
+  DissapearingMessage,
+  PrivacyAndSafety,
+  Splash,
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 import ProfileComp from '../Screens/Profile';
@@ -66,7 +69,7 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="BottomTabs"
+        initialRouteName="Splash"
         screenOptions={{headerShown: false}}>
         <Stack.Screen name="ChangeBirthday" component={ChangeBirthday} />
         <Stack.Screen name="ChangePassword" component={ChangePassword} />
@@ -130,7 +133,10 @@ const AppNavigator = () => {
         <Stack.Screen name="LinkToGroup" component={LinkToGroup} />
         <Stack.Screen name="SearchMessages" component={SearchMessages} />
         <Stack.Screen name="EditNickname" component={EditNickname} />
+        <Stack.Screen name="Splash" component={Splash} />
         <Stack.Screen name="ContactInfo" component={ContactInfo} />
+        <Stack.Screen name="DissapearingMessage" component={DissapearingMessage} />
+        <Stack.Screen name="PrivacyAndSafety" component={PrivacyAndSafety} />
       </Stack.Navigator>
     </NavigationContainer>
   );
