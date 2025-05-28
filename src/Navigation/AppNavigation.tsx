@@ -43,6 +43,8 @@ import {
   MusicSavedScreen,
   AddCollectionScreen,
   Archive,
+  ChangePassword,
+  ChangeBirthday,
   YourActivity,
   LinkToGroup,
   SearchMessages,
@@ -67,6 +69,8 @@ const AppNavigator = () => {
       <Stack.Navigator
         initialRouteName="Splash"
         screenOptions={{headerShown: false}}>
+        <Stack.Screen name="ChangeBirthday" component={ChangeBirthday} />
+        <Stack.Screen name="ChangePassword" component={ChangePassword} />
         <Stack.Screen name="BlockedAccounts" component={BlockedAccounts} />
         <Stack.Screen name="ShowActivity" component={ShowActivity} />
         <Stack.Screen name="LikedScreen" component={LikedScreen} />
