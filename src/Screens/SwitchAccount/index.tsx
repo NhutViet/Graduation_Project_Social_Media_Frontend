@@ -1,5 +1,6 @@
 import {
   Image,
+  Modal,
   SafeAreaView,
   Text,
   TextInput,
@@ -8,18 +9,48 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import LoginStyles from '../../StyleSheet/LoginStyles';
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import SwitchAccountStyles from '../../StyleSheet/SwitchAccountStyles';
 import {Colors} from '../../../assets/color/Colors';
 import {useTheme} from '../../util/ThemeContext';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../../services/store';
+import { fetchLogin } from '../../../services/userRedux/userSlice';
+import { resetStatus } from '../../../services/userRedux/userReducer';
 
 export const SwitchAccount = ({navigation}: any) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
+  
   const {theme} = useTheme();
   const styles = LoginStyles();
   const SwitchStyles = SwitchAccountStyles(theme);
+  const [showModal, setShowModal] = useState(false);
+
+  //redux
+  const dispatch = useDispatch<AppDispatch>();
+  const {isLoading, isError, errorMessage, user, isSuccess} = useSelector((state: RootState) => state.user);
+
+  const handleLogin = () => {
+    dispatch(fetchLogin({email, password}));
+  };
+
+  useEffect(() => {
+    if(isSuccess || isError){
+      setShowModal(true);
+      const time = setTimeout(() => {
+        setShowModal(false);
+        dispatch(resetStatus());
+
+        if(isSuccess){
+          navigation.navigate('BottomTabs');
+        }
+
+      }, 2000);
+      return () => clearTimeout(time);
+    }
+  }, [isError, isSuccess]);
+
 
   return (
     <View style={styles.page}>
@@ -64,8 +95,8 @@ export const SwitchAccount = ({navigation}: any) => {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.buttonLogin}
-            onPress={() => navigation.navigate('HorizontalScreen')}>
-            <Text style={styles.textBtn}>Login</Text>
+            onPress={handleLogin}>
+            <Text style={styles.textBtn}>{isLoading ? "Is loging..." : "Login"}</Text>
           </TouchableOpacity>
           <View style={{alignItems: 'center'}}>
             <TouchableOpacity>
@@ -93,6 +124,15 @@ export const SwitchAccount = ({navigation}: any) => {
           </TouchableOpacity>
         </View>
       </View>
+      <Modal visible={showModal} transparent animationType='fade'>
+        <View style={styles.modal}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.textNoti}>Notification</Text>
+            {isSuccess && <Text style={styles.textContent}>Login Successfully!!</Text>}
+            {isError && <Text style={styles.textContent}>{errorMessage}</Text>}
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
