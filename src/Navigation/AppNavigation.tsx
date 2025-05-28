@@ -48,6 +48,8 @@ import {
   SearchMessages,
   EditNickname,
   ContactInfo,
+  DissapearingMessage,
+  PrivacyAndSafety
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 import ProfileComp from '../Screens/Profile';
@@ -63,7 +65,7 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="EditNickname"
+        initialRouteName="PrivacyAndSafety"
         screenOptions={{headerShown: false}}>
         <Stack.Screen name="BlockedAccounts" component={BlockedAccounts} />
         <Stack.Screen name="ShowActivity" component={ShowActivity} />
@@ -125,6 +127,8 @@ const AppNavigator = () => {
         <Stack.Screen name="SearchMessages" component={SearchMessages} />
         <Stack.Screen name="EditNickname" component={EditNickname} />
         <Stack.Screen name="ContactInfo" component={ContactInfo} />
+        <Stack.Screen name="DissapearingMessage" component={DissapearingMessage} />
+        <Stack.Screen name="PrivacyAndSafety" component={PrivacyAndSafety} />
       </Stack.Navigator>
     </NavigationContainer>
   );
