@@ -58,7 +58,7 @@ export const LinkToGroup = () => {
             <Text style={{fontSize: 17, color: color.text}}>Invite link</Text>
             <View style={styles.linkRow}>
                 <Text style={styles.linkText}>{inviteLink}</Text>
-                <Switch value={isLinkEnabled} onValueChange={toggleLink} thumbColor={color.background} trackColor={{ false: color.textSecondary, true: color.text }}/>
+                <Switch value={isLinkEnabled} onValueChange={toggleLink} thumbColor={color.text} trackColor={{ false: color.textSecondary, true: color.text }}/>
             </View>
             <View style={{flexDirection: 'row', marginTop: 8,}}>
                 <Text style={{color: color.textSecondary}}>Anyone can join your group chat with this link. <TouchableOpacity><Text style={styles.learnMore}>Learn more</Text></TouchableOpacity></Text>

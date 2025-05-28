@@ -1,5 +1,5 @@
 import { Image, StyleSheet, Text, View, Dimensions, TouchableOpacity } from 'react-native'
-import React, {useRef} from 'react'
+import React, {useRef, useCallback} from 'react'
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 import Header from '../../../../../components/Header';
 import {useNavigation} from '@react-navigation/native';
@@ -19,16 +19,31 @@ const TopTab = createMaterialTopTabNavigator();
     const color = Colors[theme];
     const ModalArchiveRef = useRef<Modalize>(null);
     const ModalOptionRef = useRef<Modalize>(null);
+
+  const openArchiveModal = useCallback((): void => {
+    requestAnimationFrame(() => {
+    ModalArchiveRef.current?.open();
+  });
+  }, []);
+
+  const openOptionModal = useCallback((): void => {
+    ModalOptionRef.current?.open();
+  }, []);
+
+  const goBack = useCallback((): void => {
+    navigation.goBack();
+  }, [navigation]);
+
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
       <View style={{width: '100%', height: 60}}>
         <Header
           pressableTitle="Stories archive"
-          pressableTilFunc={() => ModalArchiveRef.current?.open()}
+          pressableTilFunc={openArchiveModal}
           iconBack={require('../../../../../assets/icon/left.png')}
-          func={() => navigation.goBack()}
+          func={goBack}
           iconLeft={require('../../../../../assets/icon/menu-dots-vertical.png')}
-          funcLeft={() => ModalOptionRef.current?.open()}
+          funcLeft={openOptionModal}
           navigation={navigation}
         />
       </View>
