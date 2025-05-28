@@ -6,5 +6,9 @@ export const API = {
 	GET_REELS_POST: "posts/get-all-reel-media",
 
 	//// comment
-	GET_COMMENT_POST: "comments/post"
+	GET_COMMENT_POST: "comments/post",
+
+	//// Login
+	GET_lOGIN_POST: 'auth/login',
+	GET_ME: 'auth/me',
 }

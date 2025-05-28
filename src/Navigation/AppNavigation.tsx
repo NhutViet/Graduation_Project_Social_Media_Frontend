@@ -43,17 +43,21 @@ import {
   MusicSavedScreen,
   AddCollectionScreen,
   Archive,
+  ChangePassword,
+  ChangeBirthday,
   YourActivity,
   LinkToGroup,
   SearchMessages,
   EditNickname,
   ContactInfo,
   DissapearingMessage,
-  PrivacyAndSafety
+  PrivacyAndSafety,
+  Splash,
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 import ProfileComp from '../Screens/Profile';
 import EditHighlightScreen from '../(tabs)/Profile/components/EditHighlightScreen';
+import NewMessage from '../Screens/NewMessage';
 export type RootStackParamList = {
   PendingMessages: undefined;
   MessageScreen: {room: string};
@@ -65,8 +69,10 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="PrivacyAndSafety"
+        initialRouteName="Splash"
         screenOptions={{headerShown: false}}>
+        <Stack.Screen name="ChangeBirthday" component={ChangeBirthday} />
+        <Stack.Screen name="ChangePassword" component={ChangePassword} />
         <Stack.Screen name="BlockedAccounts" component={BlockedAccounts} />
         <Stack.Screen name="ShowActivity" component={ShowActivity} />
         <Stack.Screen name="LikedScreen" component={LikedScreen} />
@@ -74,6 +80,7 @@ const AppNavigator = () => {
           name="AddPeopleToGroupChat"
           component={AddPeopleToGroupChat}
         />
+        <Stack.Screen name="NewMessage" component={NewMessage} />
         <Stack.Screen name="MusicSaved" component={MusicSavedScreen} />
         <Stack.Screen name="HorizontalScreen" component={HorizontalScreen} />
         <Stack.Screen name="ProfileComp" component={ProfileComp} />
@@ -126,6 +133,7 @@ const AppNavigator = () => {
         <Stack.Screen name="LinkToGroup" component={LinkToGroup} />
         <Stack.Screen name="SearchMessages" component={SearchMessages} />
         <Stack.Screen name="EditNickname" component={EditNickname} />
+        <Stack.Screen name="Splash" component={Splash} />
         <Stack.Screen name="ContactInfo" component={ContactInfo} />
         <Stack.Screen name="DissapearingMessage" component={DissapearingMessage} />
         <Stack.Screen name="PrivacyAndSafety" component={PrivacyAndSafety} />
