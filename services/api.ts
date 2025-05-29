@@ -15,5 +15,8 @@ export const API = {
 	//// Login
 	GET_lOGIN_POST: 'auth/login',
 	GET_ME: 'auth/me',
+  POST_REFRESH: 'auth/refresh',
+  ////Logout
+  POST_LOGOUT: 'auth/logout',
 }
 

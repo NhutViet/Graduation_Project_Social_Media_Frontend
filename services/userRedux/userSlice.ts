@@ -18,3 +18,28 @@ export const fetchLogin = createAsyncThunk<User, {email: string, password: strin
     },
 );
 
+export const fetchRefresh = createAsyncThunk<{success: boolean}, void, {rejectValue: {message: string}}>(
+    'auth/refresh',
+    async(_, {rejectWithValue}) => {
+        try {
+            const res = await axiosInstance.post(API.POST_REFRESH);
+            return res.data;
+        } catch (error: any) {
+            const message = error.response?.data?.message || 'Refresh failed!!!';
+            return rejectWithValue({message});
+        }
+    },
+);
+
+export const fetchLogout = createAsyncThunk<{success: string}, void, {rejectValue: {message: string}}>(
+    'auth/logout',
+    async(_, {rejectWithValue}) => {
+        try {
+            const res = await axiosInstance.post(API.POST_LOGOUT);
+            return res.data;
+        } catch (error: any) {
+            const message = error.response?.data?.message || 'Logout failed!!!';
+            return rejectWithValue({message});
+        }
+    },
+);
