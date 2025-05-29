@@ -4,6 +4,7 @@ import {User} from './userTypes';
 
 interface UserState {
   user: User | null;
+  refreshToken: string;
   isLoading: boolean;
   isSuccess: boolean;
   isError: boolean;
@@ -12,6 +13,7 @@ interface UserState {
 
 const initialState: UserState = {
   user: null,
+  refreshToken: '',
   isLoading: false,
   isSuccess: false,
   isError: false,
@@ -30,7 +32,7 @@ const UserReducer = createSlice({
       state.errorMessage = '';
     },
     setUser: (state, action) => {
-        state.user = action.payload;
+      state.user = action.payload;
     },
   },
   //ngoài app
@@ -45,6 +47,7 @@ const UserReducer = createSlice({
         state.isLoading = false;
         state.isSuccess = true;
         state.user = action.payload;
+        state.user.refreshToken = action.payload.refreshToken;
       })
       .addCase(fetchLogin.rejected, (state, action) => {
         state.isLoading = false;
