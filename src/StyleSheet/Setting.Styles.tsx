@@ -115,4 +115,29 @@ export const createStyles = (themeColors: 'light' | 'dark') =>{
       fontWeight: '500',
       color: color.text,
     },
+    modal: {
+      backgroundColor: themeColors === 'light' ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255,255,255, 0.5)',
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    modalContainer: {
+      backgroundColor: color.background,
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '80%',
+      height: 150,
+      gap: 15,
+      borderRadius: 15,
+    },
+    textNoti: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: Colors.primary,
+    },
+    textContent: {
+      fontSize: 16,
+      fontWeight: '400',
+      color: color.text,
+    },
   })};

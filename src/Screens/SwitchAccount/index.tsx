@@ -43,7 +43,7 @@ export const SwitchAccount = ({navigation}: any) => {
         dispatch(resetStatus());
 
         if(isSuccess){
-          navigation.navigate('BottomTabs');
+          navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
         }
 
       }, 2000);
