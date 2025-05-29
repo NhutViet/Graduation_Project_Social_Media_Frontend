@@ -11,11 +11,11 @@ export const Splash = () => {
   useEffect(() => {
     console.log('user: ', user);
     if (user) {
-      navigation.navigate('BottomTabs');
+      navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
     } else {
-      navigation.navigate('SwitchAccount');
+      navigation.reset({index: 0, routes: [{name: 'SwitchAccount'}]});
     }
-  }, [user]);
+  }, []);
 
   return (
     <SafeAreaView

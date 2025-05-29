@@ -1,5 +1,6 @@
 import {
   Image,
+  Modal,
   SafeAreaView,
   ScrollView,
   Switch,
@@ -7,7 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {useNavigation} from '@react-navigation/native';
@@ -25,6 +26,10 @@ import {
 } from 'lucide-react-native';
 import PersonalDetails from './PersonalDetail';
 import ContactInfo from './ContactInfo';
+import {useDispatch, useSelector} from 'react-redux';
+import {fetchLogout} from '../../../services/userRedux/userSlice';
+import {AppDispatch, RootState} from '../../../services/store';
+import {resetStatus} from '../../../services/userRedux/userReducer';
 
 export const Setting = () => {
   const navigation: any = useNavigation();
@@ -38,11 +43,30 @@ export const Setting = () => {
   const handleShowPersonalDetail = () =>
     setShowPersonalDetail(!showPersonalDetail);
 
+  //redux
+  const dispatch = useDispatch<AppDispatch>();
+  const {isLoading, isError, isSuccess, errorMessage} = useSelector(
+    (state: RootState) => state.user,
+  );
+  const [showModal, setShowModal] = useState(false);
+
   const handleLogout = () => {
-    // In a real app, we would clear the auth state
-    // For now, just navigate back to profile
-    navigation.goBack();
+    dispatch(fetchLogout());
   };
+
+  useEffect(() => {
+    if (isSuccess || isError) {
+      setShowModal(true);
+      setTimeout(() => {
+        setShowModal(false);
+        dispatch(resetStatus());
+        if(isSuccess){
+          navigation.navigate("Splash");
+        }
+      }, 2000);
+    }
+  }, [isError, isSuccess]);
+
 
   return (
     <SafeAreaView
@@ -528,6 +552,17 @@ export const Setting = () => {
           </TouchableOpacity>
         </View>
       </ScrollView>
+      <Modal visible={showModal} transparent animationType="fade">
+        <View style={styles.modal}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.textNoti}>Notification</Text>
+            {isSuccess && (
+              <Text style={styles.textContent}>Logout Successfully!!</Text>
+            )}
+            {isError && <Text style={styles.textContent}>{errorMessage}</Text>}
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
