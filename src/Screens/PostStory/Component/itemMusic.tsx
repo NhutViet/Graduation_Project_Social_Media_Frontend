@@ -13,6 +13,7 @@ const ItemMusic = (props: any) => {
   const color = Colors[theme];
   const soundRef = useRef<Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
     return () => {
@@ -36,8 +37,18 @@ const ItemMusic = (props: any) => {
     if (isPlaying) {
       soundRef.current?.pause();
       setIsPlaying(false);
+      setIsPaused(true);
     } else {
-      if (!soundRef.current) {
+      if (isPaused && soundRef.current) {
+        soundRef.current.play(() => {
+          setIsPlaying(false);
+          setIsPaused(false);
+          soundRef.current?.release();
+          soundRef.current = null;
+          currentSound = null;
+        });
+        setIsPlaying(true);
+      } else if (!soundRef.current) {
         soundRef.current = new Sound(link, undefined, error => {
           if (error) {
             console.log('❌ Failed to load sound', error);
@@ -46,6 +57,7 @@ const ItemMusic = (props: any) => {
 
           soundRef.current?.play(() => {
             setIsPlaying(false);
+            setIsPaused(false);
             soundRef.current?.release();
             soundRef.current = null;
             currentSound = null;
@@ -57,11 +69,11 @@ const ItemMusic = (props: any) => {
       } else {
         soundRef.current.play(() => {
           setIsPlaying(false);
+          setIsPaused(false);
           soundRef.current?.release();
           soundRef.current = null;
           currentSound = null;
         });
-        currentSound = soundRef.current;
         setIsPlaying(true);
       }
 
@@ -71,9 +83,11 @@ const ItemMusic = (props: any) => {
             soundRef.current?.release();
             soundRef.current = null;
             setIsPlaying(false);
+            setIsPaused(false);
           });
         } else {
           setIsPlaying(false);
+          setIsPaused(false);
         }
       };
     }
