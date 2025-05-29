@@ -74,7 +74,7 @@ const CommentComponent = (props: any) => {
             styles.rowContainer,
             {justifyContent: 'space-between', width: width - 46},
           ]}>
-          <View style={{width: '80%'}}>
+          <View style={{width: '70%'}}>
             <View style={[styles.rowContainer, {alignItems: 'center'}]}>
               <Text style={[styles.name, {color: color.text, marginRight: 20}]}>
                 {user?.handleName}

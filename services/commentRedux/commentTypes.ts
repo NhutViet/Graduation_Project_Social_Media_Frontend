@@ -7,7 +7,10 @@ export interface Comment {
   isDeleted: boolean;
   likedBy: string[];
   createdAt: string;
-  reply: [Comment[], UserComment];
+  reply: {
+    comments: Comment[];
+    user: UserComment;
+  };
 }
 
 export interface UserComment {
@@ -19,4 +22,12 @@ export interface UserComment {
 export interface CommentPost {
   comment: Comment;
   user: UserComment;
+}
+
+export interface AddCommentDto {
+  postID: string;
+  userID: string;
+  parentID?: string;
+  content: string;
+  mediaUrl?: string | null;
 }

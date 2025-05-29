@@ -8,12 +8,11 @@ export const API = {
 
   //// comment
   GET_COMMENT_POST: 'comments/post',
-
+  ADD_COMMENT_POST: 'comments/add',
   //// music
   GET_ALL_MUSIC: 'music/find-all',
 
-	//// Login
-	GET_lOGIN_POST: 'auth/login',
-	GET_ME: 'auth/me',
-}
-
+  //// Login
+  GET_lOGIN_POST: 'auth/login',
+  GET_ME: 'auth/me',
+};

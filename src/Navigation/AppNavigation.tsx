@@ -69,7 +69,7 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="Splash"
+        initialRouteName="Login"
         screenOptions={{headerShown: false}}>
         <Stack.Screen name="ChangeBirthday" component={ChangeBirthday} />
         <Stack.Screen name="ChangePassword" component={ChangePassword} />
@@ -135,7 +135,10 @@ const AppNavigator = () => {
         <Stack.Screen name="EditNickname" component={EditNickname} />
         <Stack.Screen name="Splash" component={Splash} />
         <Stack.Screen name="ContactInfo" component={ContactInfo} />
-        <Stack.Screen name="DissapearingMessage" component={DissapearingMessage} />
+        <Stack.Screen
+          name="DissapearingMessage"
+          component={DissapearingMessage}
+        />
         <Stack.Screen name="PrivacyAndSafety" component={PrivacyAndSafety} />
       </Stack.Navigator>
     </NavigationContainer>
