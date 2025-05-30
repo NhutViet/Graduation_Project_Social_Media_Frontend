@@ -1,5 +1,6 @@
 import axios from 'axios';
-import { BASE_URL } from './api';
+import {BASE_URL} from './api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
@@ -10,42 +11,81 @@ const axiosInstance = axios.create({
 });
 
 axiosInstance.interceptors.request.use(
-  (config) => {
-    console.log('📤 Request:', JSON.stringify({
-      url: config.url,
-      method: config.method,
-      params: config.params,
-      data: config.data
-    }, null, 2));
+  async config => {
+    if (!config.headers) {
+      config.headers = {};
+    }
+
+    const needsToken = config.headers?.token === 'true';
+    if (needsToken) {
+      const refreshToken = await AsyncStorage.getItem('refreshToken');
+      if (refreshToken) {
+        config.headers['Cookie'] = `Authentication=${refreshToken}`;
+      }
+      delete config.headers.token;
+    }
+
+    console.log(
+      '📤 Request:',
+      JSON.stringify(
+        {
+          url: config.url,
+          method: config.method,
+          params: config.params,
+          data: config.data,
+          headers: config.headers,
+        },
+        null,
+        2,
+      ),
+    );
+
     return config;
   },
-  (error) => {
+  error => {
     console.error('❌ Request error:', JSON.stringify(error, null, 2));
     return Promise.reject(error);
-  }
+  },
 );
 
 axiosInstance.interceptors.response.use(
-  (response) => {
-    console.log('📥 Response:', JSON.stringify({
-      url: response.config.url,
-      status: response.status,
-      data: response.data
-    }, null, 2));
+  response => {
+    console.log(
+      '📥 Response:',
+      JSON.stringify(
+        {
+          url: response.config.url,
+          status: response.status,
+          data: response.data,
+        },
+        null,
+        2,
+      ),
+    );
     return response;
   },
-  (error) => {
+  error => {
     if (error.response) {
-      console.error('❌ Response error:', JSON.stringify({
-        url: error.config?.url,
-        status: error.response?.status,
-        data: error.response?.data
-      }, null, 2));
+      console.error(
+        '❌ Response error:',
+        JSON.stringify(
+          {
+            url: error.config?.url,
+            status: error.response?.status,
+            data: error.response?.data,
+          },
+          null,
+          2,
+        ),
+      );
     } else {
-      console.error('❌ Response error (no response):', JSON.stringify(error.message, null, 2));
+      console.error(
+        '❌ Response error (no response):',
+        JSON.stringify(error.message, null, 2),
+      );
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export default axiosInstance;

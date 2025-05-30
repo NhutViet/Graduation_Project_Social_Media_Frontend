@@ -1,5 +1,5 @@
 import {createAsyncThunk} from '@reduxjs/toolkit';
-import {PostWithMedia} from './postTypes';
+import {PostWithMedia, UploadPostPayload} from './postTypes';
 import axiosInstance from '../axiosInstance';
 import {API} from '../api';
 
@@ -25,4 +25,24 @@ export const fetchReelsWithMedia = createAsyncThunk<PostWithMedia[]>(
       return rejectWithValue(err.response.data);
     }
   },
+);
+
+export const uploadPostWithMedia = createAsyncThunk<PostWithMedia, UploadPostPayload>(
+  'posts/uploadWithMedia',
+  async (payload, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(
+        API.UPLOAD_POST,
+        payload,
+        {
+          headers: {
+            token: 'true',
+          },
+        }
+      );
+      return response.data;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data || err.message);
+    }
+  }
 );

@@ -1,5 +1,4 @@
 import {
-  StyleSheet,
   Text,
   View,
   PermissionsAndroid,
@@ -41,11 +40,23 @@ export const AddPost = () => {
 
   async function requestPermission() {
     if (Platform.OS === 'android') {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES,
-      );
-
-      return granted === PermissionsAndroid.RESULTS.GRANTED;
+      if (Platform.Version >= 33) {
+        const granted = await PermissionsAndroid.requestMultiple([
+          PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES,
+          PermissionsAndroid.PERMISSIONS.READ_MEDIA_VIDEO,
+        ]);
+        return (
+          granted['android.permission.READ_MEDIA_IMAGES'] ===
+            PermissionsAndroid.RESULTS.GRANTED &&
+          granted['android.permission.READ_MEDIA_VIDEO'] ===
+            PermissionsAndroid.RESULTS.GRANTED
+        );
+      } else {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+        );
+        return granted === PermissionsAndroid.RESULTS.GRANTED;
+      }
     }
     return true;
   }
@@ -150,7 +161,7 @@ export const AddPost = () => {
               style={styles.iconR}
             />
           </TouchableOpacity>
-          <Text style={styles.title}>New Campaign</Text>
+          <Text style={styles.title}>New Post</Text>
           <TouchableOpacity onPress={handleNext}>
             <Text style={[styles.textR, {color: color.primary}]}>Next</Text>
           </TouchableOpacity>
@@ -215,12 +226,14 @@ export const AddPost = () => {
                     }}
                   />
                   {isSelected && (
-                    <View style={{
-                      width: width / 3,
-                      height: width / 3,
-                      position: 'absolute',
-                      backgroundColor: 'rgba(0,0,0,0.6)'
-                    }}/>
+                    <View
+                      style={{
+                        width: width / 3,
+                        height: width / 3,
+                        position: 'absolute',
+                        backgroundColor: 'rgba(0,0,0,0.6)',
+                      }}
+                    />
                   )}
                   {/* Thứ tự chọn */}
                   {indexSelected >= 0 ? (
@@ -240,7 +253,8 @@ export const AddPost = () => {
                         {indexSelected + 1}
                       </Text>
                     </View>
-                  ): (<View
+                  ) : (
+                    <View
                       style={{
                         position: 'absolute',
                         top: 5,
@@ -251,8 +265,8 @@ export const AddPost = () => {
                         backgroundColor: 'rgba(0, 0, 0, 0.4)',
                         borderWidth: 1,
                         borderColor: 'white',
-                      }}>
-                    </View>)}
+                      }}></View>
+                  )}
                   {/* Icon video */}
                   {item.node.type.startsWith('video') && (
                     <Image
@@ -263,7 +277,7 @@ export const AddPost = () => {
                         right: 5,
                         width: 20,
                         height: 20,
-                        tintColor: color.primary
+                        tintColor: color.primary,
                       }}
                     />
                   )}

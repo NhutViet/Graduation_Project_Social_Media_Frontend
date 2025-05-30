@@ -23,7 +23,6 @@ const initialState: UserState = {
 const UserReducer = createSlice({
   name: 'auth',
   initialState,
-  //nội bộ
   reducers: {
     resetStatus: state => {
       state.isLoading = false;
@@ -35,7 +34,6 @@ const UserReducer = createSlice({
       state.user = action.payload;
     },
   },
-  //ngoài app
   extraReducers: builder => {
     builder
       .addCase(fetchLogin.pending, state => {
@@ -46,16 +44,18 @@ const UserReducer = createSlice({
       .addCase(fetchLogin.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isSuccess = true;
-        state.user = action.payload;
-        state.user.refreshToken = action.payload.refreshToken;
+        state.user = action.payload.user;
+        state.refreshToken = action.payload.refreshToken;
       })
       .addCase(fetchLogin.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
-        state.errorMessage = action.payload?.message || 'Login failed';
+        state.errorMessage = 'Login failed';
         state.user = null;
+        state.refreshToken = '';
       });
-      builder
+
+    builder
       .addCase(fetchLogout.pending, state => {
         state.isLoading = true;
         state.isSuccess = false;
@@ -65,14 +65,15 @@ const UserReducer = createSlice({
         state.isLoading = false;
         state.isSuccess = true;
         state.user = null;
+        state.refreshToken = '';
       })
       .addCase(fetchLogout.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.errorMessage = action.payload?.message || 'Logout failed!!!';
-      })
+      });
   },
 });
 
-export const {resetStatus} = UserReducer.actions;
+export const {resetStatus, setUser} = UserReducer.actions;
 export default UserReducer.reducer;
