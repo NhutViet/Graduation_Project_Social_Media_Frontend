@@ -9,7 +9,9 @@ import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import 'fast-text-encoding';
 import {Provider} from 'react-redux';
 import {persistor, store} from '../services/store';
-import { PersistGate } from 'redux-persist/integration/react';
+import {PersistGate} from 'redux-persist/integration/react';
+import {UploadProvider} from '../services/UploadProgressManager';
+import Toast from 'react-native-toast-message';
 
 enableScreens();
 
@@ -21,7 +23,10 @@ const App = () => {
           <ThemeProvider>
             <SafeAreaProvider>
               <Host>
-                <AppNavigator />
+                <UploadProvider>
+                  <AppNavigator />
+                  <Toast />
+                </UploadProvider>
               </Host>
             </SafeAreaProvider>
           </ThemeProvider>

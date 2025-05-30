@@ -1,40 +1,27 @@
 import {
+  Alert,
   Dimensions,
   Image,
   SafeAreaView,
   ScrollView,
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
-import React from 'react';
+import React, {useState} from 'react';
 import {useTheme} from '../../util/ThemeContext';
 import {getAddPostStyles} from '../../StyleSheet/AddPostStyles';
 import {FlashList} from '@shopify/flash-list';
 import {Colors} from '../../../assets/color/Colors';
 import Section from '../../../components/Section';
 import {useNavigation, useRoute} from '@react-navigation/native';
-
-const images = [
-  {
-    id: 1,
-    uri: 'https://th.bing.com/th/id/OIP.o_9EAUaBqVwRENd5iU7-xgAAAA?w=284&h=188&c=7&r=0&o=5&cb=iwc1&dpr=2&pid=1.7',
-  },
-  {
-    id: 2,
-    uri: 'https://th.bing.com/th/id/OIP.o_9EAUaBqVwRENd5iU7-xgAAAA?w=284&h=188&c=7&r=0&o=5&cb=iwc1&dpr=2&pid=1.7',
-  },
-  {
-    id: 3,
-    uri: 'https://th.bing.com/th/id/OIP.o_9EAUaBqVwRENd5iU7-xgAAAA?w=284&h=188&c=7&r=0&o=5&cb=iwc1&dpr=2&pid=1.7',
-  },
-  {
-    id: 4,
-    uri: 'https://th.bing.com/th/id/OIP.o_9EAUaBqVwRENd5iU7-xgAAAA?w=284&h=188&c=7&r=0&o=5&cb=iwc1&dpr=2&pid=1.7',
-  },
-];
+import axios from 'axios';
+import {useUploadProgress} from '../../../services/UploadProgressManager';
+import {useDispatch} from 'react-redux';
+import {AppDispatch} from '../../../services/store';
+import {uploadPostWithMedia} from '../../../services/postRedux/postSlice';
+import Toast from 'react-native-toast-message';
 
 export const PostSetting = () => {
   const {theme} = useTheme();
@@ -42,10 +29,109 @@ export const PostSetting = () => {
   const {width} = Dimensions.get('window');
   const styles = getAddPostStyles(theme);
   const navigation = useNavigation();
+  const dispatch = useDispatch<AppDispatch>();
 
   //lâys dữ liệu
   const route = useRoute();
   const {selectedMedia}: any = route.params || [];
+
+  const {showUploadModal, hideUploadModal, setProgress} = useUploadProgress();
+  const [caption, setCaption] = useState('');
+
+  const uploadToCloudinary = async (uri: string, type: string) => {
+    showUploadModal(uri, type as 'video' | 'image');
+
+    const formData = new FormData();
+    formData.append('file', {
+      uri,
+      type: type === 'video' ? 'video/mp4' : 'image/jpeg',
+      name: `justina.${type === 'video' ? 'mp4' : 'jpg'}`,
+    });
+    formData.append('upload_preset', 'upload_video');
+
+    try {
+      const res = await axios.post(
+        'https://api.cloudinary.com/v1_1/dsvcoywkc/' +
+          (type === 'video' ? 'video' : 'image') +
+          '/upload',
+        formData,
+        {
+          headers: {'Content-Type': 'multipart/form-data'},
+          onUploadProgress: progressEvent => {
+            const progress = progressEvent.loaded / progressEvent.total;
+            setProgress(progress);
+          },
+        },
+      );
+
+      hideUploadModal();
+      return res.data.secure_url;
+    } catch (error) {
+      hideUploadModal();
+      throw error;
+    }
+  };
+
+  const handleUploadAll = async () => {
+    if (!selectedMedia || selectedMedia.length === 0) {
+      Alert.alert('No media selected', 'Please select at least one media file');
+      return;
+    }
+
+    try {
+      const uploadedUrls: string[] = [];
+
+      for (const media of selectedMedia) {
+        const uri = media.node.image.uri;
+        const type = media.node.type.startsWith('video') ? 'video' : 'image';
+
+        try {
+          const url = await uploadToCloudinary(uri, type);
+          uploadedUrls.push(url);
+        } catch (err) {
+          console.log(`Upload failed for ${uri}`);
+          Alert.alert('Upload failed', `Upload failed for ${uri}`);
+          return;
+        }
+      }
+
+      const videoCount = selectedMedia.filter((m: any) =>
+        m.node.type.startsWith('video'),
+      ).length;
+
+      const postType = videoCount === 1 ? 'reel' : 'post';
+
+      const body = {
+        post: {
+          type: postType,
+          caption: caption,
+          isEnable: true,
+        },
+        media: uploadedUrls.map(url => ({
+          videoUrl: url,
+        })),
+      };
+
+      const resultAction = await dispatch(uploadPostWithMedia(body));
+
+      if (uploadPostWithMedia.fulfilled.match(resultAction)) {
+        Toast.show({
+          type: 'success',
+          text1: '🎉 Success',
+          text2: 'Your post has been uploaded!',
+        });
+      } else {
+        Toast.show({
+          type: 'success',
+          text1: 'Failed',
+          text2: 'Upload failed',
+        });
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Something went wrong');
+      console.error(error);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -85,14 +171,21 @@ export const PostSetting = () => {
         </View>
         <TextInput
           placeholder="Thêm chú thích"
-          placeholderTextColor={color.lightDark}
+          placeholderTextColor={color.gray21}
           style={styles.textIn}
           multiline={true}
           textAlignVertical="top"
+          value={caption}
+          onChangeText={setCaption}
         />
         <TouchableOpacity style={styles.btnTD}>
-          <Image source={require('../../../assets/icon/Menu.png')} style={styles.icon}/>
-          <Text style={[styles.textR, {fontWeight: 'normal'}]}>Thăm dò ý kiến</Text>
+          <Image
+            source={require('../../../assets/icon/Menu.png')}
+            style={styles.icon}
+          />
+          <Text style={[styles.textR, {fontWeight: 'normal'}]}>
+            Thăm dò ý kiến
+          </Text>
         </TouchableOpacity>
         <Section
           title={'Gắn thẻ người khác'}
@@ -121,7 +214,7 @@ export const PostSetting = () => {
           iconLeft={require('../../../assets/icon/threedot.png')}
         />
       </ScrollView>
-      <TouchableOpacity style={styles.btnShare}>
+      <TouchableOpacity style={styles.btnShare} onPress={handleUploadAll}>
         <Text style={styles.textBtn}>Share</Text>
       </TouchableOpacity>
     </SafeAreaView>

@@ -32,3 +32,17 @@ export interface PostWithMedia {
   media: Media[];
   user: UserPost;
 }
+
+export interface MediaItem {
+  videoUrl?: string;
+  imageUrl?: string;
+}
+
+export interface UploadPostPayload {
+  post: {
+    type: string;
+    caption: string;
+    isEnable: boolean;
+  };
+  media: MediaItem[];
+}
