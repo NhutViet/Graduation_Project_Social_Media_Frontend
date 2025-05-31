@@ -33,6 +33,14 @@ const UserReducer = createSlice({
     setUser: (state, action) => {
       state.user = action.payload;
     },
+    resetUser: state => {
+      state.user = null;
+      state.refreshToken = '';
+      state.isLoading = false;
+      state.isSuccess = false;
+      state.isError = false;
+      state.errorMessage = '';
+    },
   },
   extraReducers: builder => {
     builder
@@ -53,15 +61,14 @@ const UserReducer = createSlice({
         state.errorMessage = 'Login failed';
         state.user = null;
         state.refreshToken = '';
-      });
+      })
 
-    builder
       .addCase(fetchLogout.pending, state => {
         state.isLoading = true;
-        state.isSuccess = false;
         state.isError = false;
+        state.isSuccess = false;
       })
-      .addCase(fetchLogout.fulfilled, state => {
+      .addCase(fetchLogout.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isSuccess = true;
         state.user = null;
@@ -70,10 +77,10 @@ const UserReducer = createSlice({
       .addCase(fetchLogout.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
-        state.errorMessage = action.payload?.message || 'Logout failed!!!';
+        state.errorMessage = action.payload?.message || 'Logout failed';
       });
   },
 });
 
-export const {resetStatus, setUser} = UserReducer.actions;
+export const {resetStatus, setUser, resetUser} = UserReducer.actions;
 export default UserReducer.reducer;

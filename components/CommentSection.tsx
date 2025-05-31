@@ -12,8 +12,6 @@ import {
   Image,
   TextInput,
   TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
   ActivityIndicator,
   Modal,
   Keyboard,
@@ -28,9 +26,13 @@ import {useTheme} from '../src/util/ThemeContext';
 import {Colors} from '../assets/color/Colors';
 import {FlashList} from '@shopify/flash-list';
 import CommentComponent from '../src/(tabs)/Home/components/commentComponent';
-import {useSelector} from 'react-redux';
-import {RootState} from '../services/store';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '../services/store';
+import {
+  addComment,
+  fetchCommentsByPost,
+} from '../services/commentRedux/commentSlice';
+import Toast from 'react-native-toast-message';
 
 const maxHeight = Dimensions.get('window').height;
 const height = Dimensions.get('window').height * 0.85;
@@ -40,140 +42,174 @@ export type BottomSheetCommentRef = {
   close: () => void;
 };
 
-const BottomSheetComment = forwardRef<BottomSheetCommentRef>(({}, ref) => {
-  const [modalVisible, setModalVisible] = useState(false);
+interface Props {
+  postId: string;
+}
 
-  const translateY = useSharedValue(height);
-  const isOpen = useSharedValue(false);
+const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
+  ({postId}, ref) => {
+    const [modalVisible, setModalVisible] = useState(false);
 
-  const open = () => {
-    setModalVisible(true);
-    setTimeout(() => {
-      translateY.value = withSpring(0, {
-        damping: 20,
-      });
-      isOpen.value = true;
-    }, 50);
-  };
+    const translateY = useSharedValue(height);
+    const isOpen = useSharedValue(false);
+    const dispatch = useDispatch<AppDispatch>();
 
-  const close = () => {
-    translateY.value = withSpring(height, {damping: 20});
-    isOpen.value = false;
-    setTimeout(() => {
-      setModalVisible(false);
-    }, 300);
-  };
+    const open = () => {
+      setModalVisible(true);
+      setTimeout(() => {
+        translateY.value = withSpring(0, {
+          damping: 20,
+        });
+        isOpen.value = true;
+      }, 50);
+    };
 
-  useImperativeHandle(ref, () => ({open, close}));
+    const close = () => {
+      translateY.value = withSpring(height, {damping: 20});
+      isOpen.value = false;
+      setTimeout(() => {
+        setModalVisible(false);
+      }, 300);
+    };
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{translateY: translateY.value}],
-  }));
+    useImperativeHandle(ref, () => ({open, close}));
 
-  const overlayStyle = useAnimatedStyle(() => ({
-    opacity: isOpen.value ? 1 : 0,
-    display: isOpen.value ? 'flex' : 'none',
-  }));
+    const animatedStyle = useAnimatedStyle(() => ({
+      transform: [{translateY: translateY.value}],
+    }));
 
-  const {theme} = useTheme();
-  const color = Colors[theme];
+    const overlayStyle = useAnimatedStyle(() => ({
+      opacity: isOpen.value ? 1 : 0,
+      display: isOpen.value ? 'flex' : 'none',
+    }));
 
-  const {comments, loading} = useSelector((state: RootState) => state.comment);
+    const {theme} = useTheme();
+    const color = Colors[theme];
 
-  const [comment, setComment] = useState('');
-
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
-  useEffect(() => {
-    const showSubscription = Keyboard.addListener(
-      'keyboardDidShow',
-      (e: KeyboardEvent) => {
-        setKeyboardHeight(e.endCoordinates.height);
-      },
+    const {comments, loading} = useSelector(
+      (state: RootState) => state.comment,
     );
 
-    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
-      setKeyboardHeight(0);
-    });
+    const [comment, setComment] = useState('');
 
-    return () => {
-      showSubscription.remove();
-      hideSubscription.remove();
+    const [keyboardHeight, setKeyboardHeight] = useState(0);
+    useEffect(() => {
+      const showSubscription = Keyboard.addListener(
+        'keyboardDidShow',
+        (e: KeyboardEvent) => {
+          setKeyboardHeight(e.endCoordinates.height);
+        },
+      );
+
+      const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+        setKeyboardHeight(0);
+      });
+
+      return () => {
+        showSubscription.remove();
+        hideSubscription.remove();
+      };
+    }, []);
+
+    const handleSendComment = async () => {
+      if (!comment.trim()) return;
+
+      const payload: any = {
+        postId: postId,
+        content: comment.trim(),
+        parentID: '',
+        mediaUrl: null,
+      };
+
+      try {
+        await dispatch(addComment(payload)).unwrap();
+        setComment('');
+        dispatch(fetchCommentsByPost(postId));
+      } catch (error) {
+        Toast.show({
+          type: 'success',
+          text1: 'Failed',
+          text2: 'Failed to add comment!',
+        });
+        console.log('Failed to add comment:', error);
+      }
     };
-  }, []);
 
-  return (
-    <Modal
-      visible={modalVisible}
-      animationType="none"
-      transparent
-      statusBarTranslucent
-      onRequestClose={close}>
-      <Animated.View style={[styles.overlay, overlayStyle]}>
-        <TouchableWithoutFeedback onPress={close}>
-          <View style={StyleSheet.absoluteFill} />
-        </TouchableWithoutFeedback>
-      </Animated.View>
+    return (
+      <Modal
+        visible={modalVisible}
+        animationType="none"
+        transparent
+        statusBarTranslucent
+        onRequestClose={close}>
+        <Animated.View style={[styles.overlay, overlayStyle]}>
+          <TouchableWithoutFeedback onPress={close}>
+            <View style={StyleSheet.absoluteFill} />
+          </TouchableWithoutFeedback>
+        </Animated.View>
 
-      <Animated.View
-        style={[
-          styles.sheet,
-          animatedStyle,
-          {backgroundColor: color.background},
-        ]}>
-        <View style={[styles.handle, {backgroundColor: color.text}]} />
-        {loading ? (
-          <View
-            style={{
-              flex: 1,
-              justifyContent: 'center',
-              alignItems: 'center',
-              backgroundColor: color.background,
-            }}>
-            <ActivityIndicator size="large" color={color.text} />
-          </View>
-        ) : (
-          <>
-            <View style={{flex: 1, paddingHorizontal: 20}}>
-              <FlashList
-                data={comments}
-                renderItem={({item}) => {
-                  return <CommentComponent {...item} />;
-                }}
-                estimatedItemSize={100}
-              />
-            </View>
+        <Animated.View
+          style={[
+            styles.sheet,
+            animatedStyle,
+            {backgroundColor: color.background},
+          ]}>
+          <View style={[styles.handle, {backgroundColor: color.text}]} />
+          {loading ? (
             <View
-              style={[styles.inputContainer, {marginBottom: keyboardHeight}]}>
-              <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <View style={styles.blockImg}>
-                  <Image
-                    style={styles.img}
-                    source={{
-                      uri: 'https://i.pinimg.com/736x/b4/a3/31/b4a3315d142cad5d2127347315888e82.jpg',
-                    }}
-                  />
-                </View>
-                <TextInput
-                  placeholder="Comment"
-                  placeholderTextColor={color.text}
-                  style={[styles.input, {color: color.text}]}
-                  value={comment}
-                  onChangeText={setComment}
+              style={{
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: color.background,
+              }}>
+              <ActivityIndicator size="large" color={color.text} />
+            </View>
+          ) : (
+            <>
+              <View style={{flex: 1, paddingHorizontal: 20}}>
+                <FlashList
+                  data={comments}
+                  renderItem={({item}) => {
+                    return <CommentComponent {...item} />;
+                  }}
+                  estimatedItemSize={100}
                 />
               </View>
-              <TouchableOpacity style={styles.blockIcon}>
-                <Image
-                  style={[styles.icon, {tintColor: color.text}]}
-                  source={require('../assets/icon/sticker.png')}
-                />
-              </TouchableOpacity>
-            </View>
-          </>
-        )}
-      </Animated.View>
-    </Modal>
-  );
-});
+              <View
+                style={[styles.inputContainer, {marginBottom: keyboardHeight}]}>
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                  <View style={styles.blockImg}>
+                    <Image
+                      style={styles.img}
+                      source={{
+                        uri: 'https://i.pinimg.com/736x/b4/a3/31/b4a3315d142cad5d2127347315888e82.jpg',
+                      }}
+                    />
+                  </View>
+                  <TextInput
+                    placeholder="Comment"
+                    placeholderTextColor={color.text}
+                    style={[styles.input, {color: color.text}]}
+                    value={comment}
+                    onChangeText={setComment}
+                    onSubmitEditing={handleSendComment}
+                  />
+                </View>
+                <TouchableOpacity style={styles.blockIcon}>
+                  <Image
+                    style={[styles.icon, {tintColor: color.text}]}
+                    source={require('../assets/icon/sticker.png')}
+                  />
+                </TouchableOpacity>
+              </View>
+            </>
+          )}
+        </Animated.View>
+      </Modal>
+    );
+  },
+);
 
 const styles = StyleSheet.create({
   overlay: {

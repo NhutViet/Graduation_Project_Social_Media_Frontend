@@ -55,18 +55,17 @@ export const Setting = () => {
   };
 
   useEffect(() => {
-    if (isSuccess || isError) {
+    if (isSuccess && !isLoading) {
       setShowModal(true);
       setTimeout(() => {
         setShowModal(false);
         dispatch(resetStatus());
-        if(isSuccess){
-          navigation.navigate("Splash");
+        if (isSuccess) {
+          navigation.reset({index: 0, routes: [{name: 'SwitchAccount'}]});
         }
       }, 2000);
     }
-  }, [isError, isSuccess]);
-
+  }, [isSuccess, isLoading]);
 
   return (
     <SafeAreaView

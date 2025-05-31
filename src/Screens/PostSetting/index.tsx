@@ -26,9 +26,8 @@ import Toast from 'react-native-toast-message';
 export const PostSetting = () => {
   const {theme} = useTheme();
   const color = Colors[theme];
-  const {width} = Dimensions.get('window');
   const styles = getAddPostStyles(theme);
-  const navigation = useNavigation();
+  const navigation: any = useNavigation();
   const dispatch = useDispatch<AppDispatch>();
 
   //lâys dữ liệu
@@ -77,6 +76,11 @@ export const PostSetting = () => {
       Alert.alert('No media selected', 'Please select at least one media file');
       return;
     }
+
+    navigation.reset({
+      index: 0,
+      routes: [{name: 'BottomTabs'}],
+    });
 
     try {
       const uploadedUrls: string[] = [];

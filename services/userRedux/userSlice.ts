@@ -1,10 +1,11 @@
 import {createAsyncThunk} from '@reduxjs/toolkit';
-import {UserRes} from './userTypes';
+import {User, UserRes} from './userTypes';
 import axiosInstance from '../axiosInstance';
 import {API} from '../api';
+import {resetUser} from './userReducer';
 
 export const fetchLogin = createAsyncThunk<
-  UserRes,
+  {user: UserRes['user']; refreshToken: string},
   {email: string; password: string},
   {rejectValue: {message: string}}
 >('auth/login', async ({email, password}, {rejectWithValue}) => {
@@ -15,9 +16,14 @@ export const fetchLogin = createAsyncThunk<
     });
 
     const refreshToken = loginRes.data.refreshToken;
-    const userRes = await axiosInstance.get<UserRes['user']>(API.GET_ME);
-    console.log('token: ', refreshToken);
-    console.log('user: ', userRes.data);
+    const accessToken = loginRes.data.accessToken;
+
+    const userRes = await axiosInstance.get<UserRes['user']>(API.GET_ME, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
     return {
       user: userRes.data,
       refreshToken,
@@ -29,28 +35,45 @@ export const fetchLogin = createAsyncThunk<
   }
 });
 
-export const fetchRefresh = createAsyncThunk<
-  {success: boolean},
+export const fetchCheckRefreshToken = createAsyncThunk<
+  {valid: boolean; message: string},
   void,
   {rejectValue: {message: string}}
->('auth/refresh', async (_, {rejectWithValue}) => {
+>('auth/checkRefreshToken', async (_, {rejectWithValue}) => {
   try {
-    const res = await axiosInstance.post(API.POST_REFRESH);
+    const res = await axiosInstance.post(
+      API.CHECK_REFRESH_TOKEN,
+      {},
+      {
+        headers: {
+          token: 'refresh',
+        },
+      },
+    );
+
     return res.data;
   } catch (error: any) {
-    const message = error.response?.data?.message || 'Refresh failed!!!';
-    return rejectWithValue({message});
+    return rejectWithValue({
+      message: error.response?.data?.message || 'Check refresh token failed',
+    });
   }
 });
 
 export const fetchLogout = createAsyncThunk<
-  {success: string},
+  void,
   void,
   {rejectValue: {message: string}}
->('auth/logout', async (_, {rejectWithValue}) => {
+>('auth/logout', async (_, {dispatch, rejectWithValue}) => {
   try {
-    const res = await axiosInstance.post(API.POST_LOGOUT);
-    return res.data;
+    await axiosInstance.post(API.POST_LOGOUT, {}, {
+      headers: {
+        token: 'refresh',
+      },
+    });
+
+    dispatch(resetUser());
+
+    return;
   } catch (error: any) {
     const message = error.response?.data?.message || 'Logout failed!!!';
     return rejectWithValue({message});

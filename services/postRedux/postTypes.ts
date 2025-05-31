@@ -38,6 +38,13 @@ export interface MediaItem {
   imageUrl?: string;
 }
 
+export interface Music {
+  song: string;
+  link: string;
+  author: string;
+  coverImg: string;
+}
+
 export interface UploadPostPayload {
   post: {
     type: string;
@@ -45,4 +52,5 @@ export interface UploadPostPayload {
     isEnable: boolean;
   };
   media: MediaItem[];
+  music?: Music;
 }
