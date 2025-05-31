@@ -49,10 +49,18 @@ interface Props {
 const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
   ({postId}, ref) => {
     const [modalVisible, setModalVisible] = useState(false);
+    const [currentPostId, setCurrentPostId] = useState(postId);
+
+    useEffect(() => {
+      if (postId) {
+        setCurrentPostId(postId);
+      }
+    }, [postId]);
 
     const translateY = useSharedValue(height);
     const isOpen = useSharedValue(false);
     const dispatch = useDispatch<AppDispatch>();
+    const user = useSelector((state: RootState) => state.user.user);
 
     const open = () => {
       setModalVisible(true);
@@ -115,7 +123,7 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
       if (!comment.trim()) return;
 
       const payload: any = {
-        postId: postId,
+        postID: currentPostId,
         content: comment.trim(),
         parentID: '',
         mediaUrl: null,
@@ -124,10 +132,10 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
       try {
         await dispatch(addComment(payload)).unwrap();
         setComment('');
-        dispatch(fetchCommentsByPost(postId));
+        dispatch(fetchCommentsByPost(currentPostId));
       } catch (error) {
         Toast.show({
-          type: 'success',
+          type: 'error',
           text1: 'Failed',
           text2: 'Failed to add comment!',
         });
@@ -177,13 +185,16 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
                 />
               </View>
               <View
-                style={[styles.inputContainer, {marginBottom: keyboardHeight}]}>
+                style={[
+                  styles.inputContainer,
+                  {marginBottom: keyboardHeight, borderTopColor: color.text},
+                ]}>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                   <View style={styles.blockImg}>
                     <Image
                       style={styles.img}
                       source={{
-                        uri: 'https://i.pinimg.com/736x/b4/a3/31/b4a3315d142cad5d2127347315888e82.jpg',
+                        uri: user?.profilePic,
                       }}
                     />
                   </View>
@@ -242,6 +253,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingVertical: 10,
+    borderTopWidth: 1,
   },
   blockImg: {
     width: 40,
