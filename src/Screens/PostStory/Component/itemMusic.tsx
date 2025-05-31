@@ -8,7 +8,7 @@ let currentSound: Sound | null = null;
 let stopOther: (() => void) | null = null;
 
 const ItemMusic = (props: any) => {
-  const {coverImg, song, link, author, countVideoUsed, time} = props;
+  const {coverImg, song, link, author, countVideoUsed = 0} = props;
   const {theme} = useTheme();
   const color = Colors[theme];
   const soundRef = useRef<Sound | null>(null);
@@ -108,9 +108,8 @@ const ItemMusic = (props: any) => {
           <View style={styles.leftContainer}>
             <Text style={[styles.text, {color: color.text}]}>{author} </Text>
             <Text style={[styles.text, {color: color.text}]}>
-              · {countVideoUsed} reels ·
+              · {countVideoUsed} posts
             </Text>
-            <Text style={[styles.text, {color: color.text}]}> {time}</Text>
           </View>
         </View>
       </View>

@@ -20,3 +20,10 @@ export interface CommentPost {
   comment: Comment;
   user: UserComment;
 }
+
+export interface AddCommentPayload {
+  postID: string;
+  parentID?: string;
+  content: string;
+  mediaUrl?: string | null;
+}

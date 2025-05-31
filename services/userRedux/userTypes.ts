@@ -17,5 +17,4 @@ export interface User {
 
 export interface UserRes {
   user: User;
-  refreshToken: string;
 }

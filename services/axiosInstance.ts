@@ -1,6 +1,6 @@
 import axios from 'axios';
 import {BASE_URL} from './api';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {getRefreshToken} from './getRefreshToken';
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
@@ -16,14 +16,15 @@ axiosInstance.interceptors.request.use(
       config.headers = {};
     }
 
-    const needsToken = config.headers?.token === 'true';
-    if (needsToken) {
-      const refreshToken = await AsyncStorage.getItem('refreshToken');
+    if (config.headers.Authorization) {
+    } else if (config.headers.token === 'refresh') {
+      const refreshToken = await getRefreshToken();
       if (refreshToken) {
-        config.headers['Cookie'] = `Authentication=${refreshToken}`;
+        config.headers.Authorization = `Bearer ${refreshToken}`;
       }
-      delete config.headers.token;
     }
+
+    delete config.headers.token;
 
     console.log(
       '📤 Request:',
@@ -43,7 +44,7 @@ axiosInstance.interceptors.request.use(
     return config;
   },
   error => {
-    console.error('❌ Request error:', JSON.stringify(error, null, 2));
+    console.log('❌ Request error:', JSON.stringify(error, null, 2));
     return Promise.reject(error);
   },
 );
@@ -66,7 +67,7 @@ axiosInstance.interceptors.response.use(
   },
   error => {
     if (error.response) {
-      console.error(
+      console.log(
         '❌ Response error:',
         JSON.stringify(
           {
@@ -79,7 +80,7 @@ axiosInstance.interceptors.response.use(
         ),
       );
     } else {
-      console.error(
+      console.log(
         '❌ Response error (no response):',
         JSON.stringify(error.message, null, 2),
       );

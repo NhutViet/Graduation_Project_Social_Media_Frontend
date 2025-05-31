@@ -32,7 +32,6 @@ const ItemHome = (props: any) => {
     createdAt,
     media,
     user,
-    modalizeRef,
     currentVisible,
     isFocused,
     openComment,

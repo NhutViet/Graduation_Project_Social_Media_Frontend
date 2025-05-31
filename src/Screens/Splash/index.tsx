@@ -1,20 +1,28 @@
 import {useNavigation} from '@react-navigation/native';
 import {Image, SafeAreaView} from 'react-native';
-import {useSelector} from 'react-redux';
-import {RootState} from '../../../services/store';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '../../../services/store';
 import {useEffect} from 'react';
+import {fetchCheckRefreshToken} from '../../../services/userRedux/userSlice';
 
 export const Splash = () => {
   const navigation = useNavigation<any>();
+  const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.user.user);
 
   useEffect(() => {
-    console.log('user: ', user);
-    if (user) {
-      navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
-    } else {
-      navigation.reset({index: 0, routes: [{name: 'SwitchAccount'}]});
-    }
+    dispatch(fetchCheckRefreshToken())
+      .unwrap()
+      .then(() => {
+        if (user) {
+          navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
+        } else {
+          navigation.reset({index: 0, routes: [{name: 'SwitchAccount'}]});
+        }
+      })
+      .catch(() => {
+        navigation.reset({index: 0, routes: [{name: 'SwitchAccount'}]});
+      });
   }, []);
 
   return (

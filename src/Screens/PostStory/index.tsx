@@ -9,175 +9,118 @@ import {
   Platform,
   SafeAreaView,
   Dimensions,
+  ActivityIndicator,
 } from 'react-native';
 import {FlashList} from '@shopify/flash-list';
 import {CameraRoll} from '@react-native-camera-roll/camera-roll';
-import Video from 'react-native-video';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {useNavigation} from '@react-navigation/native';
 import BottomSheet, {BottomSheetRef} from './BottomSheet/BottomSheetMusic';
 
-const width = Dimensions.get('window').width * 0.25 - 1;
+const ITEM_SIZE = Dimensions.get('window').width * 0.25 - 1;
 
-export const PostStory = () => {
+const PostStory = () => {
   const {theme} = useTheme();
   const color = Colors[theme];
   const navigation: any = useNavigation();
+  const sheetRef = useRef<BottomSheetRef>(null);
 
-  const [mediaList, setMediaList] = useState([]);
-  const [videoDurations, setVideoDurations] = useState<Record<string, number>>(
-    {},
-  );
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<String | null>(null);
+  const [mediaList, setMediaList] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const requestPermissions = async () => {
+  const requestPermissions = async (): Promise<boolean> => {
+    if (Platform.OS !== 'android') return true;
     try {
-      if (Platform.OS === 'android') {
-        const permissions = [
-          Platform.Version >= 33
-            ? PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES
-            : PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-          Platform.Version >= 33
-            ? PermissionsAndroid.PERMISSIONS.READ_MEDIA_VIDEO
-            : PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-        ];
-
-        const results = await Promise.all(
-          permissions.map(permission =>
-            PermissionsAndroid.request(permission, {
-              title: 'Media Access Permission',
-              message:
-                'This app needs access to your media library to display photos and videos.',
-              buttonNeutral: 'Ask Later',
-              buttonNegative: 'Cancel',
-              buttonPositive: 'OK',
-            }),
-          ),
-        );
-
-        return results.every(
-          result => result === PermissionsAndroid.RESULTS.GRANTED,
-        );
-      }
-      return true;
-    } catch (err) {
-      setError('Failed to request permissions');
+      const permissions = [
+        Platform.Version >= 33
+          ? PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES
+          : PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+        Platform.Version >= 33
+          ? PermissionsAndroid.PERMISSIONS.READ_MEDIA_VIDEO
+          : PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+      ];
+      const results = await Promise.all(
+        permissions.map(permission => PermissionsAndroid.request(permission)),
+      );
+      return results.every(
+        result => result === PermissionsAndroid.RESULTS.GRANTED,
+      );
+    } catch {
       return false;
     }
   };
 
-  useEffect(() => {
-    const loadMedia = async () => {
+  const loadMedia = async () => {
+    try {
       setIsLoading(true);
-      setError(null);
-      try {
-        const hasPermission = await requestPermissions();
-        if (!hasPermission) {
-          setError('Media access permission denied');
-          return;
-        }
-
-        const result = await CameraRoll.getPhotos({
-          first: 100,
-          assetType: 'All',
-          include: ['playableDuration', 'filename'],
-        });
-
-        const media: any = result.edges.map((edge: any) => ({
-          uri: edge.node.image.uri,
-          type: edge.node.type,
-          duration: edge.node.playableDuration || 0,
-          id: edge.node.image.filename || edge.node.image.uri,
-        }));
-
-        setMediaList(media);
-      } catch (error) {
-        setError('Failed to load media');
-        console.error('Error loading media:', error);
-      } finally {
-        setIsLoading(false);
+      const hasPermission = await requestPermissions();
+      if (!hasPermission) {
+        setError('Không có quyền truy cập media.');
+        return;
       }
-    };
+      const result = await CameraRoll.getPhotos({
+        first: 100,
+        assetType: 'All',
+        include: ['playableDuration', 'filename'],
+      });
 
+      const media = result.edges.map(edge => {
+        const node = edge.node as any;
+        return {
+          uri: node.image.uri,
+          type: node.type,
+          duration: node.playableDuration || 0,
+          id: node.image.filename || node.image.uri,
+        };
+      });
+
+      setMediaList(media);
+    } catch {
+      setError('Lỗi khi tải media');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     loadMedia();
   }, []);
 
-  const handleItemPress = useCallback(
-    (item: any) => {
-      console.log('Navigating to EditStory with item:', item);
-      navigation.navigate('EditStory', {
-        selectedItem: item,
-      });
-    },
-    [navigation],
-  );
-
-  const onLoadVideo = useCallback((data: any, uri: string) => {
-    console.log(`Video loaded for ${uri}, duration: ${data.duration}`);
-    if (data.duration && data.duration > 0) {
-      setVideoDurations(prev => ({
-        ...prev,
-        [uri]: data.duration,
-      }));
-    }
-  }, []);
-
-  const formatDuration = useCallback((duration: number) => {
-    if (!duration || duration <= 0) return '0:00';
+  const formatDuration = (duration: number) => {
+    if (!duration || duration <= 0) return '00:00';
     const minutes = Math.floor(duration / 60);
     const seconds = Math.floor(duration % 60);
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-  }, []);
+  };
 
-  const renderItem = useCallback(
-    ({item}: any) => {
-      const duration = videoDurations[item.uri] || item.duration || 0;
+  const handleItemPress = (item: any) => {
+    navigation.navigate('EditStory', {selectedItem: item});
+  };
 
-      console.log(`Rendering item: ${item.uri}, Duration: ${duration}`);
+  const renderItem = ({item}: any) => {
+    const isVideo = item.type?.includes('video');
 
-      return (
-        <TouchableOpacity
-          onPress={() => handleItemPress(item)}
-          activeOpacity={0.8}>
-          <View style={styles.thumbnailWrapper}>
-            <Image source={{uri: item.uri}} style={styles.thumbnail} />
-            {item.type.includes('video') && (
-              <>
-                <Video
-                  source={{uri: item.uri}}
-                  style={styles.thumbnail}
-                  onLoad={data => onLoadVideo(data, item.uri)}
-                  paused={true}
-                  muted={true}
-                  preload="metadata"
-                />
-                <Text style={styles.videoDuration}>
-                  {formatDuration(duration)}
-                </Text>
-              </>
-            )}
-          </View>
-        </TouchableOpacity>
-      );
-    },
-    [videoDurations, onLoadVideo, handleItemPress],
-  );
-
-  const keyExtractor = useCallback((item: any) => item.id, []);
-
-  if (error) {
     return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>{error}</Text>
-      </View>
+      <TouchableOpacity
+        onPress={() => handleItemPress(item)}
+        activeOpacity={0.8}>
+        <View style={styles.thumbnailWrapper}>
+          <Image source={{uri: item.uri}} style={styles.thumbnail} />
+          {isVideo && (
+            <View style={styles.durationContainer}>
+              <Text style={styles.videoDuration}>
+                {formatDuration(item.duration)}
+              </Text>
+            </View>
+          )}
+        </View>
+      </TouchableOpacity>
     );
-  }
+  };
 
-  console.log('Rendering PostStory');
-
-  const sheetRef = useRef<BottomSheetRef>(null);
+  const keyExtractor = (item: any) => item.id;
 
   return (
     <SafeAreaView
@@ -192,75 +135,69 @@ export const PostStory = () => {
           />
         </TouchableOpacity>
       </View>
+
       <View style={styles.topSection}>
-        <TouchableOpacity style={styles.btnTop}>
-          <View style={styles.iconBlock}>
-            <Image
-              style={[styles.imgTop, {tintColor: color.text}]}
-              source={require('../../../assets/icon/iconAndYou.png')}
-              resizeMode="contain"
-            />
-          </View>
-          <Text style={[styles.txtTop, {color: color.text}]}>Template</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.btnTop}
-          onPress={() => sheetRef.current?.open()}>
-          <View style={styles.iconBlock}>
-            <Image
-              style={[styles.imgTop, {tintColor: color.text}]}
-              source={require('../../../assets/icon/music.png')}
-              resizeMode="contain"
-            />
-          </View>
-          <Text style={[styles.txtTop, {color: color.text}]}>Music</Text>
-        </TouchableOpacity>
+        <TopButton
+          icon={require('../../../assets/icon/iconAndYou.png')}
+          label="Template"
+          color={color.text}
+        />
+        <TopButton
+          icon={require('../../../assets/icon/music.png')}
+          label="Music"
+          color={color.text}
+          onPress={() => sheetRef.current?.open()}
+        />
       </View>
+
       <View style={styles.mid}>
-        <TouchableOpacity>
-          <Text style={[styles.titleMid, {color: color.text}]}>
-            Gần đây {'>'}
-          </Text>
-        </TouchableOpacity>
+        <Text style={[styles.titleMid, {color: color.text}]}>
+          Gần đây {'>'}
+        </Text>
       </View>
-      <View style={styles.bottomSection}>
+
+      {isLoading ? (
+        <ActivityIndicator size="large" color={color.text} style={{flex: 1}} />
+      ) : error ? (
+        <Text style={styles.errorText}>{error}</Text>
+      ) : (
         <FlashList
           data={mediaList}
           renderItem={renderItem}
           keyExtractor={keyExtractor}
           numColumns={4}
-          estimatedItemSize={width}
+          estimatedItemSize={ITEM_SIZE}
           contentContainerStyle={styles.grid}
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
-            !isLoading ? (
-              <Text style={styles.emptyText}>Không tìm thấy media</Text>
-            ) : null
+            <Text style={styles.emptyText}>Không tìm thấy media</Text>
           }
         />
-      </View>
-      <BottomSheet ref={sheetRef} children={undefined} />
+      )}
+
+      <BottomSheet ref={sheetRef} />
     </SafeAreaView>
   );
 };
 
+const TopButton = ({icon, label, onPress, color}: any) => (
+  <TouchableOpacity style={styles.btnTop} onPress={onPress}>
+    <View style={styles.iconBlock}>
+      <Image
+        style={[styles.imgTop, {tintColor: color}]}
+        source={icon}
+        resizeMode="contain"
+      />
+    </View>
+    <Text style={[styles.txtTop, {color}]}>{label}</Text>
+  </TouchableOpacity>
+);
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    margin: 15,
-  },
-  headerIcon: {
-    width: 20,
-    height: 20,
-  },
-  icon: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'contain',
-  },
+  container: {flex: 1},
+  header: {flexDirection: 'row', margin: 15},
+  headerIcon: {width: 20, height: 20},
+  icon: {width: '100%', height: '100%', resizeMode: 'contain'},
   topSection: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -275,61 +212,39 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  iconBlock: {
-    height: 35,
-    width: 60,
-    padding: 2,
+  iconBlock: {height: 35, width: 60, padding: 2},
+  imgTop: {width: '100%', height: '100%'},
+  txtTop: {marginTop: 6, fontSize: 15, fontWeight: '400'},
+  mid: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    margin: 15,
   },
-  imgTop: {
-    width: '100%',
-    height: '100%',
-  },
-  txtTop: {
-    marginTop: 6,
-    fontSize: 15,
-    fontWeight: '400',
-  },
-  bottomSection: {
-    flex: 1,
-    // position: 'relative',
-  },
-  grid: {
-    paddingLeft: 1,
-  },
+  titleMid: {fontSize: 16, fontWeight: '500'},
+  grid: {paddingLeft: 1},
   thumbnailWrapper: {
     position: 'relative',
-    width: width,
-    height: width,
+    width: ITEM_SIZE,
+    height: ITEM_SIZE,
     marginRight: 1,
     marginBottom: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  thumbnail: {
-    width: '100%',
-    height: '100%',
-  },
-  // hiddenVideo: {
-  //   width: '100%',
-  //   height: '100%',
-  // },
-  videoDuration: {
+  thumbnail: {width: '100%', height: '100%'},
+  durationContainer: {
     position: 'absolute',
-    bottom: 5,
-    right: 5,
+    bottom: 4,
+    right: 4,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    paddingHorizontal: 5,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  videoDuration: {
     color: '#fff',
     fontSize: 12,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    paddingHorizontal: 4,
-    paddingVertical: 1,
-    borderRadius: 3,
-    zIndex: 5,
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#000',
+    fontWeight: '500',
   },
   errorText: {
     color: '#ff4444',
@@ -343,14 +258,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     padding: 20,
   },
-  mid: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    margin: 15,
-  },
-  titleMid: {
-    fontSize: 16,
-    fontWeight: '500',
-  },
 });
+
+export default PostStory;

@@ -9,7 +9,6 @@ import {
   Login,
   NotificationsScreen,
   PostSetting,
-  PostStory,
   SeenStory,
   SeenStoryOwner,
   Setting,
@@ -58,6 +57,7 @@ import BottomTabs from './BottomTabs';
 import ProfileComp from '../Screens/Profile';
 import EditHighlightScreen from '../(tabs)/Profile/components/EditHighlightScreen';
 import NewMessage from '../Screens/NewMessage';
+import PostStory from '../Screens/PostStory';
 export type RootStackParamList = {
   PendingMessages: undefined;
   MessageScreen: {room: string};
