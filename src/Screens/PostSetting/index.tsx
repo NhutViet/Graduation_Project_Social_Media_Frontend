@@ -126,7 +126,7 @@ export const PostSetting = () => {
         });
       } else {
         Toast.show({
-          type: 'success',
+          type: 'error',
           text1: 'Failed',
           text2: 'Upload failed',
         });
