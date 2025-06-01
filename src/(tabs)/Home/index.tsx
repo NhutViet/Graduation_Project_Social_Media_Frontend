@@ -11,7 +11,7 @@ import {AppDispatch, RootState} from '../../../services/store';
 import {fetchPostsWithMedia} from '../../../services/postRedux/postSlice';
 import BottomSheetComment, {
   BottomSheetCommentRef,
-} from '../../../components/CommentSection';
+} from './components/CommentSection';
 import {fetchCommentsByPost} from '../../../services/commentRedux/commentSlice';
 import Animated, {
   useAnimatedScrollHandler,
@@ -237,7 +237,7 @@ export const Home = () => {
           </View>
         }
       />
-      <BottomSheetComment ref={sheetRef} postId={selectedPostId}/>
+      <BottomSheetComment ref={sheetRef} postId={selectedPostId} />
     </SafeAreaView>
   );
 };

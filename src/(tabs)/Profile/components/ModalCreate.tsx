@@ -143,8 +143,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 14,
-    borderBottomColor: '#999',
-    borderBottomWidth: 1,
   },
   icon: {
     width: 30,

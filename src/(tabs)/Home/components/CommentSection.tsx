@@ -22,17 +22,18 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
 } from 'react-native-reanimated';
-import {useTheme} from '../src/util/ThemeContext';
-import {Colors} from '../assets/color/Colors';
+import {useTheme} from '../../../../src/util/ThemeContext';
+import {Colors} from '../../../../assets/color/Colors';
 import {FlashList} from '@shopify/flash-list';
-import CommentComponent from '../src/(tabs)/Home/components/commentComponent';
+import CommentComponent from './commentComponent';
 import {useDispatch, useSelector} from 'react-redux';
-import {AppDispatch, RootState} from '../services/store';
+import {AppDispatch, RootState} from '../../../../services/store';
 import {
   addComment,
   fetchCommentsByPost,
-} from '../services/commentRedux/commentSlice';
+} from '../../../../services/commentRedux/commentSlice';
 import Toast from 'react-native-toast-message';
+import {Send} from 'lucide-react-native';
 
 const maxHeight = Dimensions.get('window').height;
 const height = Dimensions.get('window').height * 0.85;
@@ -185,10 +186,7 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
                 />
               </View>
               <View
-                style={[
-                  styles.inputContainer,
-                  {marginBottom: keyboardHeight, borderTopColor: color.text},
-                ]}>
+                style={[styles.inputContainer, {marginBottom: keyboardHeight}]}>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                   <View style={styles.blockImg}>
                     <Image
@@ -200,19 +198,26 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
                   </View>
                   <TextInput
                     placeholder="Comment"
-                    placeholderTextColor={color.text}
+                    placeholderTextColor="#999"
                     style={[styles.input, {color: color.text}]}
                     value={comment}
                     onChangeText={setComment}
                     onSubmitEditing={handleSendComment}
                   />
                 </View>
-                <TouchableOpacity style={styles.blockIcon}>
-                  <Image
-                    style={[styles.icon, {tintColor: color.text}]}
-                    source={require('../assets/icon/sticker.png')}
-                  />
-                </TouchableOpacity>
+
+                {comment.length > 0 ? (
+                  <TouchableOpacity onPress={handleSendComment}>
+                    <Send size={24} color={color.text} />
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity style={styles.blockIcon}>
+                    <Image
+                      style={[styles.icon, {tintColor: color.text}]}
+                      source={require('../../../../assets/icon/sticker.png')}
+                    />
+                  </TouchableOpacity>
+                )}
               </View>
             </>
           )}
@@ -253,7 +258,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingVertical: 10,
-    borderTopWidth: 1,
+    borderWidth: 1,
+    borderColor: '#999',
+    borderRadius: 50,
   },
   blockImg: {
     width: 40,

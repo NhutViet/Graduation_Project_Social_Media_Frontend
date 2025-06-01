@@ -58,22 +58,16 @@ const User = (props: any) => {
         </TouchableOpacity>
       ) : (
         <TouchableOpacity style={[styles.box, {marginTop: 10}]} onPress={func}>
-          <View
-            style={
-              isHashTag
-                ? {
-                    padding: 10,
-                    borderColor: color.gray,
-                    borderWidth: 1,
-                    borderRadius: 50,
-                  }
-                : [
-                    styles.block1,
-                    {width: isStory ? 75 : 50, height: isStory ? 75 : 50},
-                  ]
-            }>
+          <LinearGradient
+            colors={['#CCCCCC', '#E0E0E0', '#F0F0F0']}
+            start={{x: 0, y: 0}}
+            end={{x: 1, y: 1}}
+            style={[
+              styles.block,
+              {width: isStory ? 75 : 50, height: isStory ? 75 : 50},
+            ]}>
             <AvatarContent />
-          </View>
+          </LinearGradient>
           {!isStory && (
             <View style={styles.boxText}>
               <Text style={[styles.nameText, {color: color.text}]}>{name}</Text>
