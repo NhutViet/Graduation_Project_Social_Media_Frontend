@@ -23,6 +23,7 @@ export const SwitchAccount = ({navigation}: any) => {
   const [password, setPassword] = useState('');
   
   const {theme} = useTheme();
+  const color = Colors[theme];
   const styles = LoginStyles();
   const SwitchStyles = SwitchAccountStyles(theme);
   const [showModal, setShowModal] = useState(false);
@@ -85,24 +86,24 @@ export const SwitchAccount = ({navigation}: any) => {
           <TextInput
             value={password}
             onChangeText={setPassword}
-            placeholder="Password"
+            placeholder="Mật khẩu"
             secureTextEntry={true}
             placeholderTextColor={Colors.light.lightDark}
             style={SwitchStyles.input}
           />
           <TouchableOpacity>
-            <Text style={SwitchStyles.textForgot}>Forgot password?</Text>
+            <Text style={SwitchStyles.textForgot}>Quên mật khẩu?</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.buttonLogin}
             onPress={handleLogin}>
-            <Text style={styles.textBtn}>{isLoading ? "Is loging..." : "Login"}</Text>
+            <Text style={styles.textBtn}>{isLoading ? "Đang xử lý..." : "Đăng nhập"}</Text>
           </TouchableOpacity>
           <View style={{alignItems: 'center'}}>
             <TouchableOpacity>
               <Text style={SwitchStyles.textFb}>
-                <Image source={require('../../../assets/icon/fb.png')} /> Log in
-                with Facebook
+                <Image source={require('../../../assets/icon/fb.png')} /> Đăng nhập
+                bằng Facebook
               </Text>
             </TouchableOpacity>
             <Image
@@ -111,24 +112,25 @@ export const SwitchAccount = ({navigation}: any) => {
             />
             <TouchableOpacity>
               <Text style={SwitchStyles.textGoogle}>
-                <Image source={require('../../../assets/icon/gg.png')} /> Log in
-                with Google
+                <Image source={require('../../../assets/icon/gg.png')} /> Đăng nhập
+                bằng Google
               </Text>
             </TouchableOpacity>
           </View>
         </View>
         <View style={styles.textRow}>
-          <Text style={styles.textGray}>Don't have an account?</Text>
+          <Text style={styles.textGray}>Bạn chưa có tài khoản?</Text>
           <TouchableOpacity>
-            <Text style={styles.text}> Sign up</Text>
+            <Text style={styles.text}> Đăng ký</Text>
           </TouchableOpacity>
         </View>
       </View>
       <Modal visible={showModal} transparent animationType='fade'>
         <View style={styles.modal}>
           <View style={styles.modalContainer}>
-            <Text style={styles.textNoti}>Notification</Text>
-            {isSuccess && <Text style={styles.textContent}>Login Successfully!!</Text>}
+            {isSuccess ? <Image source={require('../../../assets/icon/success.png')} style={[styles.iconNoti, {tintColor: color.primary}]}/> : <Image source={require('../../../assets/icon/danger.png')} style={[styles.iconNoti, {tintColor: color.error}]}/>}
+            <Text style={[styles.textNoti, {color: isSuccess ? color.primary : color.error}]}>{isSuccess ? 'Đăng nhập thành công' : 'Đã có lỗi xảy ra'}</Text>
+            {isSuccess && <Text style={styles.textContent}>Chào mừng bạn đã trở lại</Text>}
             {isError && <Text style={styles.textContent}>{errorMessage}</Text>}
           </View>
         </View>

@@ -87,20 +87,24 @@ const LoginStyles = () => {
       backgroundColor: Colors.white,
       alignItems: 'center',
       justifyContent: 'center',
-      width: '80%',
-      height: 150,
-      gap: 15,
+      width: '70%',
       borderRadius: 15,
+      padding: 15,
     },
     textNoti: {
       fontSize: 20,
       fontWeight: 'bold',
-      color: Colors.primary,
+      color: Colors.black,
+      marginTop: 15,
     },
     textContent: {
       fontSize: 16,
       fontWeight: '400',
-      color: Colors.black,
+      color: '#8E8E8E'
+    },
+    iconNoti: {
+      width: 60, height: 60,
+      resizeMode: 'contain',
     },
   });
 };
