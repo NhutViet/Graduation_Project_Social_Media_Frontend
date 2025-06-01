@@ -187,26 +187,27 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
               <View
                 style={[
                   styles.inputContainer,
-                  {marginBottom: keyboardHeight, borderTopColor: color.text},
+                  {
+                    marginBottom: keyboardHeight,
+                    borderTopColor: color.lightDark,
+                  },
                 ]}>
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <View style={styles.blockImg}>
-                    <Image
-                      style={styles.img}
-                      source={{
-                        uri: user?.profilePic,
-                      }}
-                    />
-                  </View>
-                  <TextInput
-                    placeholder="Comment"
-                    placeholderTextColor={color.text}
-                    style={[styles.input, {color: color.text}]}
-                    value={comment}
-                    onChangeText={setComment}
-                    onSubmitEditing={handleSendComment}
+                <View style={styles.blockImg}>
+                  <Image
+                    style={styles.img}
+                    source={{
+                      uri: user?.profilePic,
+                    }}
                   />
                 </View>
+                <TextInput
+                  placeholder="Comment"
+                  placeholderTextColor={color.text}
+                  style={[styles.input, {color: color.text}]}
+                  value={comment}
+                  onChangeText={setComment}
+                  onSubmitEditing={handleSendComment}
+                />
                 <TouchableOpacity style={styles.blockIcon}>
                   <Image
                     style={[styles.icon, {tintColor: color.text}]}
@@ -253,14 +254,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingVertical: 10,
-    borderTopWidth: 1,
+    gap: 10,
+    borderTopWidth: 0.5,
   },
   blockImg: {
     width: 40,
     height: 40,
     borderRadius: 20,
     overflow: 'hidden',
-    marginRight: 10,
   },
   img: {
     width: '100%',
@@ -277,7 +278,11 @@ const styles = StyleSheet.create({
     height: 20,
   },
   input: {
-    width: '70%',
+    flex: 1,
+    backgroundColor: Colors.whiteSmoke,
+    paddingHorizontal: 20,
+    borderRadius: 15,
+    height: 40,
   },
 });
 
