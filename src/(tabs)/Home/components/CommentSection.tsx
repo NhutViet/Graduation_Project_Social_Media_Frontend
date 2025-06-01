@@ -323,8 +323,8 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingHorizontal: 20,
     paddingVertical: 10,
-    borderTopWidth: 1,
-    borderColor: '#ddd',
+    gap: 10,
+    borderTopWidth: 0.5,
   },
 
   inputRow: {
@@ -338,7 +338,6 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
     overflow: 'hidden',
-    marginRight: 10,
   },
 
   img: {
@@ -347,23 +346,21 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
 
-  input: {
-    flex: 1,
-    fontSize: 15,
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-  },
-
-  blockIcon: {
-    width: 24,
-    height: 24,
-    marginLeft: 8,
-  },
-
   icon: {
     width: '100%',
     height: '100%',
     resizeMode: 'contain',
+  },
+  blockIcon: {
+    width: 20,
+    height: 20,
+  },
+  input: {
+    flex: 1,
+    backgroundColor: Colors.whiteSmoke,
+    paddingHorizontal: 20,
+    borderRadius: 15,
+    height: 40,
   },
 });
 
