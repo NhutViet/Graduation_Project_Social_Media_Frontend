@@ -11,7 +11,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
 import {FlashList} from '@shopify/flash-list';
-import User from '../../../../components/User';
+import User from '../../Home/components/Story';
 import Video from 'react-native-video';
 
 const dataUser = [
@@ -147,7 +147,13 @@ const mediasHeight = ((screenWidth - 4) / 3) * 2;
 const mediasWidth = (screenWidth - 4) / 3;
 
 const SearchForYou = (props: any) => {
-  const {searchText, isFocusedPage, currentVisibleIndex, onViewableItemsChanged, isPause} = props;
+  const {
+    searchText,
+    isFocusedPage,
+    currentVisibleIndex,
+    onViewableItemsChanged,
+    isPause,
+  } = props;
 
   const viewabilityConfig = {viewAreaCoveragePercentThreshold: 50};
 
@@ -160,7 +166,8 @@ const SearchForYou = (props: any) => {
         data={posts}
         numColumns={3}
         renderItem={({item, index}: any) => {
-          const isPlaying = index >= currentVisibleIndex && index < (currentVisibleIndex + 3);
+          const isPlaying =
+            index >= currentVisibleIndex && index < currentVisibleIndex + 3;
           return (
             <TouchableOpacity style={{marginBottom: 2}}>
               {item.type === 'video' ? (

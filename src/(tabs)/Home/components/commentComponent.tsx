@@ -13,7 +13,12 @@ import {FlashList} from '@shopify/flash-list';
 
 const width = Dimensions.get('window').width - 96;
 
-const CommentComponent = (props: any) => {
+interface CommentComponentProps {
+  onReply: (id: string, handleName: string) => void;
+  [key: string]: any;
+}
+
+const CommentComponent = ({onReply, ...props}: CommentComponentProps) => {
   const {
     _id,
     user,
@@ -146,7 +151,8 @@ const CommentComponent = (props: any) => {
             </Text>
           </View>
           <View style={[styles.rowContainer, {alignItems: 'center'}]}>
-            <TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => onReply(props._id, props.user?.handleName)}>
               <Text style={[styles.text, {color: color.text, marginRight: 20}]}>
                 Trả lời
               </Text>
@@ -235,7 +241,7 @@ const styles = StyleSheet.create({
   },
   content: {
     fontSize: 15,
-    fontWeight: 'bold',
+    fontWeight: '500',
     marginVertical: 4,
   },
   blockIcon: {

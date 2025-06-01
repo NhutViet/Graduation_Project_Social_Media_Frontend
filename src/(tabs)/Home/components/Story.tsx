@@ -1,10 +1,10 @@
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import {Colors} from '../assets/color/Colors';
-import {useTheme} from '../src/util/ThemeContext';
+import {Colors} from '../../../../assets/color/Colors';
+import {useTheme} from '../../../util/ThemeContext';
 import {useNavigation} from '@react-navigation/native';
 
-const User = (props: any) => {
+const Story = (props: any) => {
   const {name, image, status, func, isStory = true, isHashTag = false} = props;
 
   const {theme} = useTheme();
@@ -23,7 +23,11 @@ const User = (props: any) => {
           style={
             isHashTag ? [styles.imgHash, {tintColor: color.text}] : styles.img
           }
-          source={isHashTag ? require('../assets/icon/hash.png') : {uri: image}}
+          source={
+            isHashTag
+              ? require('../../../../assets/icon/hash.png')
+              : {uri: image}
+          }
         />
       </View>
     </View>
@@ -143,4 +147,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default User;
+export default Story;

@@ -18,18 +18,18 @@ export const fetchCommentsByPost = createAsyncThunk<
   }
 });
 
-export const addComment = createAsyncThunk<
-  any,
-  AddCommentPayload
->('comments/add', async (payload, {rejectWithValue}) => {
-  try {
-    const response = await axiosInstance.post(API.ADD_COMMENT, payload, {
-      headers: {
-        token: 'refresh',
-      },
-    });
-    return response.data;
-  } catch (err: any) {
-    return rejectWithValue(err.response?.data || err.message);
-  }
-});
+export const addComment = createAsyncThunk<any, AddCommentPayload>(
+  'comments/add',
+  async (payload, {rejectWithValue}) => {
+    try {
+      const response = await axiosInstance.post(API.ADD_COMMENT, payload, {
+        headers: {
+          token: 'refresh',
+        },
+      });
+      return response.data;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data || err.message);
+    }
+  },
+);

@@ -5,6 +5,7 @@ import postReducer from '../postRedux/postReducer';
 import commentReducer from '../commentRedux/commentReducer';
 import musicReducer from '../musicRedux/musicReducer';
 import userReducer from '../userRedux/userReducer';
+import storyReducer from '../StoryRedux/StoryReducer';
 
 const persistUserConfig = {
   key: 'user',
@@ -19,6 +20,7 @@ export const store = configureStore({
     comment: commentReducer,
     music: musicReducer,
     user: persistedUserReducer,
+    stories: storyReducer,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({

@@ -13,11 +13,11 @@ import {useTheme} from '../../util/ThemeContext';
 import {SearchStyles} from '../../StyleSheet/SearchStyles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import HistoryItem from './Components/HistoryItem';
-import User from '../../../components/User';
+import User from '../Home/components/Story';
 import GridMedia from './Components/GridMedia';
 import {Colors} from '../../../assets/color/Colors';
 import SearchResult from './Components/SearchResult';
-import { useIsFocused } from '@react-navigation/native';
+import {useIsFocused} from '@react-navigation/native';
 
 const generateImages = (count: number) =>
   Array.from({length: count}, (_, i) => ({
@@ -74,20 +74,24 @@ export const Search = () => {
   const resultOpacity = useRef(new Animated.Value(0)).current;
 
   // Xử lý video
-  const [visibleIndexView1, setVisibleIndexView1] = useState<number | null>(null);
-  const [visibleIndexView2, setVisibleIndexView2] = useState<number | null>(null);
+  const [visibleIndexView1, setVisibleIndexView1] = useState<number | null>(
+    null,
+  );
+  const [visibleIndexView2, setVisibleIndexView2] = useState<number | null>(
+    null,
+  );
 
-  const onViewableItemsChangedView1 = useRef(({ viewableItems }: any) => {
-  if (viewableItems.length > 0) {
-    setVisibleIndexView1(viewableItems[0].index);
-  }
-}).current;
+  const onViewableItemsChangedView1 = useRef(({viewableItems}: any) => {
+    if (viewableItems.length > 0) {
+      setVisibleIndexView1(viewableItems[0].index);
+    }
+  }).current;
 
-const onViewableItemsChangedView2 = useRef(({ viewableItems }: any) => {
-  if (viewableItems.length > 0) {
-    setVisibleIndexView2(viewableItems[0].index);
-  }
-}).current;
+  const onViewableItemsChangedView2 = useRef(({viewableItems}: any) => {
+    if (viewableItems.length > 0) {
+      setVisibleIndexView2(viewableItems[0].index);
+    }
+  }).current;
 
   const viewabilityConfig = {viewAreaCoveragePercentThreshold: 50};
 
@@ -204,7 +208,7 @@ const onViewableItemsChangedView2 = useRef(({ viewableItems }: any) => {
   }, [isFocused, isShowResult]);
 
   useEffect(() => {
-    if(!isFocusedPage){
+    if (!isFocusedPage) {
       setIsFocused(false);
       setIsShowResult(false);
       setSearchText('');
@@ -334,7 +338,12 @@ const onViewableItemsChangedView2 = useRef(({ viewableItems }: any) => {
               bottom: 0,
             },
           ]}>
-          <SearchResult searchText={searchText} currentVisibleIndex={visibleIndexView2} onViewableItemsChanged={onViewableItemsChangedView2} isPause={isShowResult}/>
+          <SearchResult
+            searchText={searchText}
+            currentVisibleIndex={visibleIndexView2}
+            onViewableItemsChanged={onViewableItemsChangedView2}
+            isPause={isShowResult}
+          />
         </Animated.View>
 
         {/* Lưới media (ẩn/hiện bằng display) */}
@@ -361,7 +370,6 @@ const onViewableItemsChangedView2 = useRef(({ viewableItems }: any) => {
             viewabilityConfig={viewabilityConfig}
           />
         </Animated.View>
-        
       </View>
     </SafeAreaView>
   );

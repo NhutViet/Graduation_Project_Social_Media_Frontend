@@ -7,11 +7,11 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, { useRef, useState } from 'react';
+import React, {useRef, useState} from 'react';
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
 import {FlashList} from '@shopify/flash-list';
-import User from '../../../../components/User';
+import User from '../../Home/components/Story';
 import Video from 'react-native-video';
 
 const dataUser = [
@@ -129,32 +129,28 @@ const dataUser = [
   },
 ];
 
-
 const SearchUser = (props: any) => {
-    const {searchText} = props
+  const {searchText} = props;
 
   const {theme} = useTheme();
   const color = Colors[theme];
   return (
-    <View style={{flex: 1,
-        backgroundColor: color.background
-    }}>
-        <FlashList
-          data={dataUser}
-          renderItem={({item}: any) => {
-            return (
-              <User
-                name={item.name}
-                image={item.image}
-                isStory={false}
-                isHashTag={true}
-              />
-            );
-          }}
-          estimatedItemSize={200}
-          showsVerticalScrollIndicator={false}
-        />
-      
+    <View style={{flex: 1, backgroundColor: color.background}}>
+      <FlashList
+        data={dataUser}
+        renderItem={({item}: any) => {
+          return (
+            <User
+              name={item.name}
+              image={item.image}
+              isStory={false}
+              isHashTag={true}
+            />
+          );
+        }}
+        estimatedItemSize={200}
+        showsVerticalScrollIndicator={false}
+      />
     </View>
   );
 };
