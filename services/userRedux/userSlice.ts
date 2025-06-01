@@ -82,13 +82,15 @@ export const fetchLogout = createAsyncThunk<
 
 export const fetchRegister = createAsyncThunk<
   { message: string },
-  { email: string; password: string },
+  { email: string; password: string, username: string, phoneNumber: string },
   { rejectValue: { message: string } }
->('auth/register', async ({ email, password }, { rejectWithValue }) => {
+>('auth/register', async ({ email, password, username, phoneNumber }, { rejectWithValue }) => {
   try {
     const registerRes = await axiosInstance.post(API.REGISTER, {
       email,
       password,
+      username,
+      phoneNumber
     });
 
     return {

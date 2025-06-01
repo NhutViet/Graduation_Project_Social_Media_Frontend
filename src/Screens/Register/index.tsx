@@ -24,7 +24,7 @@ export const Register = ({navigation}: any) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [username, setUsername] = useState('');
-    const [phone, setPhone] = useState('');
+    const [phoneNumber, setPhoneNumber] = useState('');
     const [showModal, setShowModal] = useState(false);
 
     const {theme} = useTheme();
@@ -37,12 +37,12 @@ export const Register = ({navigation}: any) => {
     );
 
     const handleRegister = async () => {
-        if (!email || !password || !username || !phone) {
+        if (!email || !password || !username || !phoneNumber) {
         Alert.alert('Error', 'All fields are required!');
         return;
         }
 
-        await dispatch(fetchRegister({ email, password }));
+        await dispatch(fetchRegister({ email, password, username, phoneNumber }));
     };
 
     useEffect(() => {
@@ -103,8 +103,8 @@ export const Register = ({navigation}: any) => {
                 style={SwitchStyles.input}
             />
             <TextInput
-                value={phone}
-                onChangeText={setPhone}
+                value={phoneNumber}
+                onChangeText={setPhoneNumber}
                 placeholder="Phone Number"
                 placeholderTextColor={Colors.light.lightDark}
                 style={SwitchStyles.input}
