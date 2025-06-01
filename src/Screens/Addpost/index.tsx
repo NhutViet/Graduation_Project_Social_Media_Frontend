@@ -8,6 +8,7 @@ import {
   Image,
   Dimensions,
   Alert,
+  Modal,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {
@@ -20,6 +21,9 @@ import {FlashList} from '@shopify/flash-list';
 import {getAddPostStyles} from '../../StyleSheet/AddPostStyles';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
+import Video from 'react-native-video';
+
+const menu: string[] = ['All', 'Videos', 'Images'];
 
 export const AddPost = () => {
   const {theme} = useTheme();
@@ -33,8 +37,13 @@ export const AddPost = () => {
   const [selectedMedia, setSelectedMedia] = useState<PhotoIdentifier | null>(
     null,
   );
+  const isVideo = selectedMedia?.node.type.startsWith('video');
   const [selectedItems, setSelectedItems] = useState<PhotoIdentifier[]>([]);
   const [isMultiSelect, setIsMultiSelect] = useState(false);
+
+  //phân loại ảnh và video
+  const [filter, setFilter] = useState('All');
+  const [showModalFilter, setShowModalFilter] = useState(false);
 
   const styles = getAddPostStyles(theme);
 
@@ -66,7 +75,8 @@ export const AddPost = () => {
     try {
       const result = await CameraRoll.getPhotos({
         first: 50,
-        assetType: 'All',
+        assetType:
+          filter === 'All' ? 'All' : filter === 'Videos' ? 'Videos' : 'Photos',
       });
 
       setMedias(result.edges);
@@ -88,7 +98,7 @@ export const AddPost = () => {
         console.log('AddPost line 63: Permission denied');
       }
     })();
-  }, []);
+  }, [filter]);
 
   // load thêm ảnh
   const fetchMoreMedia = async () => {
@@ -104,28 +114,64 @@ export const AddPost = () => {
     setPageInfo(result.page_info);
   };
 
-  const handleSelect = (item: PhotoIdentifier) => {
-    if (isMultiSelect) {
+  const handleSelect = (item: any) => {
+    const isVideo = item.node.type.startsWith('video');
+    const isVideoAlreadySelected = selectedItems.length > 0 && selectedItems[0].node.type.startsWith('video');
+    const isImageAlreadySelected = selectedItems.length > 0 && !selectedItems[0].node.type.startsWith('video');
+
+    if(isVideo){
+      if(isImageAlreadySelected){
+        Alert.alert('Notification', 'Cannot select both video and photo at the same time!!!');
+        return;
+      }
+
+      //nếu cchỉ vd
+      const isSelected = selectedItems[0]?.node.image.uri === item.node.image.uri;
+      if(selectedItems.length === 1 && isSelected){
+        setSelectedItems([]);
+        setSelectedMedia(null);
+      }else{
+        setSelectedItems([item]);
+        setSelectedMedia(item);
+      }
+    }else {
+      if(isVideoAlreadySelected){
+        Alert.alert('Notification', 'Cannot select both video and photo at the same time!!!');
+        return;
+      }
+
       const isSelected = selectedItems.some(
         i => i.node.image.uri === item.node.image.uri,
       );
+
+      if (isMultiSelect) {
       if (isSelected) {
         setSelectedItems(prev =>
           prev.filter(i => i.node.image.uri !== item.node.image.uri),
         );
+        setSelectedMedia(selectedItems[selectedItems.length - 2]);
       } else {
         setSelectedItems(prev => [...prev, item]);
+        setSelectedMedia(item);
       }
     } else {
-      // Single mode: chỉ chọn duy nhất 1 item
+      if(isSelected){
+        setSelectedItems([]);
+        setSelectedMedia(null);
+      }else{
+        // Single mode: chỉ chọn duy nhất 1 item
       setSelectedItems([item]);
+      setSelectedMedia(item); // luôn cập nhật ảnh lớn
+      }
+      
     }
-    setSelectedMedia(item); // luôn cập nhật ảnh lớn
+    
+    }
   };
 
   const handleNext = () => {
     if (selectedItems.length === 0) {
-      Alert.alert('Thông báo', 'Vui lòng chọn ít nhất 1 ảnh hoặc video');
+      Alert.alert('Notification', 'Please select at least one photo or video');
       return;
     }
     navigation.navigate('PostSetting', {selectedMedia: selectedItems});
@@ -151,6 +197,11 @@ export const AddPost = () => {
     });
   };
 
+  const handleFilter = (filter: any) => {
+    setFilter(filter);
+    setShowModalFilter(false);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.container}>
@@ -170,20 +221,26 @@ export const AddPost = () => {
         {/* Hiển thị ảnh/video lớn */}
         <View style={styles.showContainer}>
           {selectedMedia ? (
-            <Image
-              source={{uri: selectedMedia.node.image.uri}}
-              style={styles.showImage}
-              resizeMode="contain"
-            />
+              <Image
+                source={{uri: selectedMedia.node.image.uri}}
+                style={styles.showImage}
+                resizeMode="contain"
+              />
           ) : (
             <Text style={styles.placeholderText}>Select a media</Text>
           )}
         </View>
 
         <View style={styles.container}>
-          <View style={styles.rowSpace}>
-            <TouchableOpacity style={styles.row}>
-              <Text style={styles.textR}>Recently</Text>
+          <View
+            style={[
+              styles.rowSpace,
+              {borderBottomColor: color.gray, borderBottomWidth: 1},
+            ]}>
+            <TouchableOpacity
+              style={styles.row}
+              onPress={() => setShowModalFilter(true)}>
+              <Text style={styles.textR}>{filter}</Text>
               <Image
                 source={require('../../../assets/icon/right.png')}
                 style={styles.iconRR}
@@ -201,95 +258,132 @@ export const AddPost = () => {
               />
             </TouchableOpacity>
           </View>
-
-          <FlashList
-            data={medias}
-            numColumns={3}
-            keyExtractor={(item, index) => index.toString()}
-            extraData={selectedItems}
-            renderItem={({item}) => {
-              const isSelected = selectedItems.some(
-                i => i.node.image.uri === item.node.image.uri,
-              );
-              const indexSelected = selectedItems.findIndex(
-                i => i.node.image.uri === item.node.image.uri,
-              );
-              return (
-                <TouchableOpacity
-                  activeOpacity={0.8}
-                  onPress={() => handleSelect(item)}>
-                  <Image
-                    source={{uri: item.node.image.uri}}
-                    style={{
-                      width: width / 3,
-                      height: width / 3,
-                    }}
-                  />
-                  {isSelected && (
-                    <View
-                      style={{
-                        width: width / 3,
-                        height: width / 3,
-                        position: 'absolute',
-                        backgroundColor: 'rgba(0,0,0,0.6)',
-                      }}
-                    />
-                  )}
-                  {/* Thứ tự chọn */}
-                  {indexSelected >= 0 ? (
-                    <View
-                      style={{
-                        position: 'absolute',
-                        top: 5,
-                        right: 5,
-                        width: 24,
-                        height: 24,
-                        borderRadius: 12,
-                        backgroundColor: 'white',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                      }}>
-                      <Text style={{color: 'black', fontSize: 12}}>
-                        {indexSelected + 1}
-                      </Text>
-                    </View>
-                  ) : (
-                    <View
-                      style={{
-                        position: 'absolute',
-                        top: 5,
-                        right: 5,
-                        width: 24,
-                        height: 24,
-                        borderRadius: 12,
-                        backgroundColor: 'rgba(0, 0, 0, 0.4)',
-                        borderWidth: 1,
-                        borderColor: 'white',
-                      }}></View>
-                  )}
-                  {/* Icon video */}
-                  {item.node.type.startsWith('video') && (
+          {medias.length === 0 ? (
+            <View style={styles.emtyContainer}>
+              <Image
+                source={require('../../../assets/icon/no_photo.png')}
+                style={styles.iconEmty}
+              />
+              <Text style={[styles.notFound]}>Not Found 🙂‍↔️!</Text>
+            </View>
+          ) : (
+            <FlashList
+              data={medias}
+              numColumns={3}
+              keyExtractor={(item, index) => index.toString()}
+              extraData={[selectedItems, filter]}
+              renderItem={({item}) => {
+                const isSelected = selectedItems.some(
+                  i => i.node.image.uri === item.node.image.uri,
+                );
+                const indexSelected = selectedItems.findIndex(
+                  i => i.node.image.uri === item.node.image.uri,
+                );
+                return (
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => handleSelect(item)}>
                     <Image
-                      source={require('../../../assets/icon/reels.png')}
+                      source={{uri: item.node.image.uri}}
                       style={{
-                        position: 'absolute',
-                        bottom: 5,
-                        right: 5,
-                        width: 20,
-                        height: 20,
-                        tintColor: color.primary,
+                        width: width/3,
+                        height: width/3,
                       }}
                     />
-                  )}
-                </TouchableOpacity>
-              );
-            }}
-            estimatedItemSize={width / 3}
-            onEndReached={fetchMoreMedia}
-            onEndReachedThreshold={0.5}
-          />
+                    {isSelected && (
+                      <View
+                        style={{
+                          width: width / 3,
+                          height: width / 3,
+                          position: 'absolute',
+                          backgroundColor: 'rgba(0,0,0,0.6)',
+                        }}
+                      />
+                    )}
+                    {/* Thứ tự chọn */}
+                    {indexSelected >= 0 ? (
+                      <View
+                        style={{
+                          position: 'absolute',
+                          top: 5,
+                          right: 5,
+                          width: 24,
+                          height: 24,
+                          borderRadius: 12,
+                          backgroundColor: 'white',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}>
+                        <Text style={{color: 'black', fontSize: 12}}>
+                          {indexSelected + 1}
+                        </Text>
+                      </View>
+                    ) : (
+                      <View
+                        style={{
+                          position: 'absolute',
+                          top: 5,
+                          right: 5,
+                          width: 24,
+                          height: 24,
+                          borderRadius: 12,
+                          backgroundColor: 'rgba(0, 0, 0, 0.4)',
+                          borderWidth: 1,
+                          borderColor: 'white',
+                        }}></View>
+                    )}
+                    {/* Icon video */}
+                    {item.node.type.startsWith('video') && (
+                      <Image
+                        source={require('../../../assets/icon/reels.png')}
+                        style={{
+                          position: 'absolute',
+                          bottom: 5,
+                          right: 5,
+                          width: 20,
+                          height: 20,
+                          tintColor: color.primary,
+                        }}
+                      />
+                    )}
+                  </TouchableOpacity>
+                );
+              }}
+              estimatedItemSize={width / 3}
+              onEndReached={fetchMoreMedia}
+              onEndReachedThreshold={0.5}
+            />
+          )}
         </View>
       </View>
+
+      {/* modal filter ---------------------------------------*/}
+      <Modal visible={showModalFilter} animationType="fade" transparent>
+        <View style={styles.modal}>
+          <View style={styles.modalContainer}>
+            <FlashList
+              data={menu}
+              estimatedItemSize={200}
+              showsVerticalScrollIndicator={false}
+              renderItem={item => {
+                return (
+                  <TouchableOpacity
+                    style={styles.filterContainer}
+                    onPress={() => handleFilter(item.item)}>
+                    <Text style={styles.textR}>{item.item}</Text>
+                    {filter === item.item && (
+                      <Image
+                        source={require('../../../assets/icon/check.png')}
+                        style={styles.iconCheck}
+                      />
+                    )}
+                  </TouchableOpacity>
+                );
+              }}
+            />
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };

@@ -18,7 +18,6 @@ import {useTheme} from '../../util/ThemeContext';
 import {useNavigation} from '@react-navigation/native';
 import {Modalize} from 'react-native-modalize';
 import EditText from './Components/EditText';
-import CheckBox from '@react-native-community/checkbox';
 import {Colors} from '../../../assets/color/Colors';
 
 const {height} = Dimensions.get('window');
