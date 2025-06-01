@@ -79,3 +79,24 @@ export const fetchLogout = createAsyncThunk<
     return rejectWithValue({message});
   }
 });
+
+export const fetchRegister = createAsyncThunk<
+  { message: string },
+  { email: string; password: string },
+  { rejectValue: { message: string } }
+>('auth/register', async ({ email, password }, { rejectWithValue }) => {
+  try {
+    const registerRes = await axiosInstance.post(API.REGISTER, {
+      email,
+      password,
+    });
+
+    return {
+      message: registerRes.data.message,
+    };
+  } catch (error: any) {
+    return rejectWithValue({
+      message: error.response?.data?.message || 'Registration failed',
+    });
+  }
+});

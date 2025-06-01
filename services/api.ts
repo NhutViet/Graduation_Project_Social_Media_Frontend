@@ -22,4 +22,6 @@ export const API = {
   CHECK_REFRESH_TOKEN: 'users/check-refresh-token',
   ////Logout
   POST_LOGOUT: 'users/logout',
+  //// Register
+  REGISTER: 'users/register',
 };

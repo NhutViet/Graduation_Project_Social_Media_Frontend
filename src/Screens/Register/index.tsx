@@ -5,24 +5,60 @@ import {
     TextInput,
     TouchableOpacity,
     View,
-    StyleSheet
+    StyleSheet,
+    Alert,
+    Modal
   } from 'react-native';
   import LinearGradient from 'react-native-linear-gradient';
   import LoginStyles from '../../StyleSheet/LoginStyles';
-  import {useState} from 'react';
+  import {useState, useEffect} from 'react';
   import SwitchAccountStyles from '../../StyleSheet/SwitchAccountStyles';
   import {Colors} from '../../../assets/color/Colors';
   import {useTheme} from '../../util/ThemeContext';
+  import { useDispatch, useSelector } from 'react-redux';
+  import { fetchRegister } from '../../../services/userRedux/userSlice';
+  import { AppDispatch, RootState } from '../../../services/store';
+  import { resetStatus } from '../../../services/userRedux/userReducer';
 
 export const Register = ({navigation}: any) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [username, setUsername] = useState('');
     const [phone, setPhone] = useState('');
+    const [showModal, setShowModal] = useState(false);
 
     const {theme} = useTheme();
     const styles = LoginStyles();
     const SwitchStyles = SwitchAccountStyles(theme);
+
+    const dispatch = useDispatch<AppDispatch>();
+    const { isLoading, isSuccess, isError, errorMessage } = useSelector(
+        (state: RootState) => state.user
+    );
+
+    const handleRegister = async () => {
+        if (!email || !password || !username || !phone) {
+        Alert.alert('Error', 'All fields are required!');
+        return;
+        }
+
+        await dispatch(fetchRegister({ email, password }));
+    };
+
+    useEffect(() => {
+    if (isSuccess || isError) {
+        setShowModal(true);
+        const time = setTimeout(() => {
+            setShowModal(false);
+            dispatch(resetStatus());
+
+            if (isSuccess) {
+                navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
+            }
+        }, 2000);
+        return () => clearTimeout(time);
+    }
+    }, [isError, isSuccess]);
 
     return (
         <SafeAreaView style={styles.page}>
@@ -75,7 +111,7 @@ export const Register = ({navigation}: any) => {
             />
             <TouchableOpacity
                 style={styles.buttonLogin}
-                onPress={() => navigation.navigate('BottomTabs')}>
+                onPress={handleRegister}>
                 <Text style={styles.textBtn}>Sign up</Text>
             </TouchableOpacity>
             <TouchableOpacity>
@@ -103,6 +139,15 @@ export const Register = ({navigation}: any) => {
             </TouchableOpacity>
             </View>
         </View>
+        <Modal visible={showModal} transparent animationType='fade'>
+            <View style={styles.modal}>
+                <View style={styles.modalContainer}>
+                    <Text style={styles.textNoti}>Notification</Text>
+                    {isSuccess && <Text style={styles.textContent}>Account created successfully!</Text>}
+                    {isError && <Text style={styles.textContent}>{errorMessage}</Text>}
+                </View>
+            </View>
+        </Modal>
         </SafeAreaView>
     );
 }

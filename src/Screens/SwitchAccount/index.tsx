@@ -119,7 +119,7 @@ export const SwitchAccount = ({navigation}: any) => {
         </View>
         <View style={styles.textRow}>
           <Text style={styles.textGray}>Don't have an account?</Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('Register')}>
             <Text style={styles.text}> Sign up</Text>
           </TouchableOpacity>
         </View>
