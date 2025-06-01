@@ -11,12 +11,12 @@ import {
 import React, {useEffect, useState} from 'react';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
-import User from '../../../components/User';
+import User from '../../(tabs)/Home/components/Story';
 import ItemList from './Components/ItemList';
 import {Peoples as list} from './Data';
 import {FlashList} from '@shopify/flash-list';
 import {PeopleGroupChatStyles} from '../../StyleSheet/PeopleGroupChatStyles';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 
 export const PeopleGroupChat = () => {
   const {theme} = useTheme();
@@ -45,7 +45,8 @@ export const PeopleGroupChat = () => {
           />
         </TouchableOpacity>
         <Text style={styles.title}>People</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('AddPeopleToGroupChat')}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('AddPeopleToGroupChat')}>
           <Image
             source={require('../../../assets/icon/invite.png')}
             style={styles.icon}

@@ -135,7 +135,10 @@ const AppNavigator = () => {
         <Stack.Screen name="EditNickname" component={EditNickname} />
         <Stack.Screen name="Splash" component={Splash} />
         <Stack.Screen name="ContactInfo" component={ContactInfo} />
-        <Stack.Screen name="DissapearingMessage" component={DissapearingMessage} />
+        <Stack.Screen
+          name="DissapearingMessage"
+          component={DissapearingMessage}
+        />
         <Stack.Screen name="PrivacyAndSafety" component={PrivacyAndSafety} />
       </Stack.Navigator>
     </NavigationContainer>

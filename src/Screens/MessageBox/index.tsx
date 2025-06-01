@@ -13,9 +13,16 @@ import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import MessageBoxStyles from '../../StyleSheet/MessageBoxStyles';
 import MessageItem from '../../../components/MessageItem';
-import User from '../../../components/User';
+import User from '../../(tabs)/Home/components/Story';
 import React, {useState, useEffect, useRef} from 'react';
-import { messageData, storyUsers, StoryUser, searchMessages, User as UserType, Message } from '../../MockData/message.mock';
+import {
+  messageData,
+  storyUsers,
+  StoryUser,
+  searchMessages,
+  User as UserType,
+  Message,
+} from '../../MockData/message.mock';
 
 export const MessageBox = (props: any) => {
   const navigation: any = useNavigation();
@@ -47,9 +54,7 @@ export const MessageBox = (props: any) => {
     <SafeAreaView style={styles.container}>
       <View style={styles.headerContainer}>
         <View style={styles.headerBlock}>
-          <TouchableOpacity
-            style={styles.iconBlock}
-            onPress={onBack}>
+          <TouchableOpacity style={styles.iconBlock} onPress={onBack}>
             <Image
               source={require('../../../assets/icon/left.png')}
               style={styles.icon}
@@ -72,7 +77,7 @@ export const MessageBox = (props: any) => {
           </TouchableOpacity>
         </View>
       </View>
-      
+
       <View style={styles.searchContainer}>
         <View style={styles.searchBlock}>
           <View style={styles.iconBlock}>
@@ -87,15 +92,13 @@ export const MessageBox = (props: any) => {
             placeholderTextColor={color.text}
             style={[
               styles.searchInput,
-              { paddingRight: searchQuery.length > 0 ? 40 : 0 }
+              {paddingRight: searchQuery.length > 0 ? 40 : 0},
             ]}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
           {searchQuery.length > 0 && (
-            <TouchableOpacity
-              style={styles.clearButton}
-            >
+            <TouchableOpacity style={styles.clearButton}>
               <Image
                 style={styles.clearIcon}
                 source={require('../../../assets/icon/close_small.png')}
@@ -104,54 +107,54 @@ export const MessageBox = (props: any) => {
           )}
         </View>
       </View>
-          {/* Stories Section */}
-          <View style={styles.storiesContainer}>
-            <FlashList
-              data={dataUser}
-              renderItem={({item}: any) => {
-                return (
-                  <User
-                    name={item.name}
-                    image={item.image}
-                    status={item.status}
-                    func={() => handleUserPress(item)}
-                  />
-                );
-              }}
-              horizontal
-              estimatedItemSize={100}
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.storiesContentContainer}
-            />
-          </View>
-          
-          {/* Messages Header */}
-          <View style={styles.messagesHeader}>
-            <Text style={styles.messagesHeaderTitle}>Messages</Text>
-            <TouchableOpacity
-              onPress={() => navigation.navigate('PendingMessages')}>
-              <Text style={styles.messagesHeaderSubtitle}>Pending messages</Text>
-            </TouchableOpacity>
-          </View>
-          
-          {/* Messages List */}
-          <View style={styles.messagesListContainer}>
-            <FlashList
-              data={data}
-              renderItem={({item}) => {
-                return (
-                  <MessageItem
-                    img={item.img}
-                    name={item.name}
-                    description={item.description}
-                    isGroup={item.isGroup || false}
-                  />
-                );
-              }}
-              estimatedItemSize={100}
-              showsVerticalScrollIndicator={false}
-            />
-          </View>
+      {/* Stories Section */}
+      <View style={styles.storiesContainer}>
+        <FlashList
+          data={dataUser}
+          renderItem={({item}: any) => {
+            return (
+              <User
+                name={item.name}
+                image={item.image}
+                status={item.status}
+                func={() => handleUserPress(item)}
+              />
+            );
+          }}
+          horizontal
+          estimatedItemSize={100}
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.storiesContentContainer}
+        />
+      </View>
+
+      {/* Messages Header */}
+      <View style={styles.messagesHeader}>
+        <Text style={styles.messagesHeaderTitle}>Messages</Text>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('PendingMessages')}>
+          <Text style={styles.messagesHeaderSubtitle}>Pending messages</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Messages List */}
+      <View style={styles.messagesListContainer}>
+        <FlashList
+          data={data}
+          renderItem={({item}) => {
+            return (
+              <MessageItem
+                img={item.img}
+                name={item.name}
+                description={item.description}
+                isGroup={item.isGroup || false}
+              />
+            );
+          }}
+          estimatedItemSize={100}
+          showsVerticalScrollIndicator={false}
+        />
+      </View>
     </SafeAreaView>
   );
 };
