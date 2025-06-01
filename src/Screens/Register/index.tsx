@@ -23,8 +23,7 @@ import {
 export const Register = ({navigation}: any) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [username, setUsername] = useState('');
-    const [phoneNumber, setPhoneNumber] = useState('');
+    const [rePassword, setRePassword] = useState('')
     const [showModal, setShowModal] = useState(false);
 
     const {theme} = useTheme();
@@ -37,12 +36,15 @@ export const Register = ({navigation}: any) => {
     );
 
     const handleRegister = async () => {
-        if (!email || !password || !username || !phoneNumber) {
-        Alert.alert('Error', 'All fields are required!');
-        return;
+        if (!email || !password || !rePassword) {
+            Alert.alert('Error', 'All fields are required!');
+            return;
+        } else if(password !== rePassword){
+            Alert.alert('Error', 'Re Password not match');
+            return;
+        } else {
+            await dispatch(fetchRegister({ email, password }));
         }
-
-        await dispatch(fetchRegister({ email, password, username, phoneNumber }));
     };
 
     useEffect(() => {
@@ -88,13 +90,6 @@ export const Register = ({navigation}: any) => {
                 style={SwitchStyles.input}
             />
             <TextInput
-                value={username}
-                onChangeText={setUsername}
-                placeholder="Username"
-                placeholderTextColor={Colors.light.lightDark}
-                style={SwitchStyles.input}
-            />
-            <TextInput
                 value={password}
                 onChangeText={setPassword}
                 placeholder="Password"
@@ -103,9 +98,9 @@ export const Register = ({navigation}: any) => {
                 style={SwitchStyles.input}
             />
             <TextInput
-                value={phoneNumber}
-                onChangeText={setPhoneNumber}
-                placeholder="Phone Number"
+                value={rePassword}
+                onChangeText={setRePassword}
+                placeholder="Re Password"
                 placeholderTextColor={Colors.light.lightDark}
                 style={SwitchStyles.input}
             />
