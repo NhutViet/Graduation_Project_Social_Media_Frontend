@@ -79,3 +79,46 @@ export const fetchLogout = createAsyncThunk<
     return rejectWithValue({message});
   }
 });
+
+export const fetchRegister = createAsyncThunk<
+  { message: string },
+  { email: string; password: string},
+  { rejectValue: { message: string } }
+>('auth/register', async ({ email, password }, { rejectWithValue }) => {
+  try {
+    const registerRes = await axiosInstance.post(API.REGISTER, {
+      email,
+      password,
+    });
+
+    return {
+      message: registerRes.data.message,
+    };
+  } catch (error: any) {
+    return rejectWithValue({
+      message: error.response?.data?.message || 'Registration failed',
+    });
+  }
+});
+
+export const fetchCheckEmail = createAsyncThunk<
+  { exists: boolean; message?: string },
+  { email: string },
+  { rejectValue: { message: string } }
+>(
+  'auth/checkEmail',
+  async ({ email }, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.post(
+        API.CHECK_EMAIL,
+        { email }
+      );
+
+      return res.data;
+    } catch (error: any) {
+      return rejectWithValue({
+        message: error.response?.data?.message || 'Check email failed',
+      });
+    }
+  }
+);
