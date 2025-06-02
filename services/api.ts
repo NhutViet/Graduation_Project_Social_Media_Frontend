@@ -20,6 +20,7 @@ export const API = {
   GET_lOGIN_POST: 'users/login',
   GET_ME: 'users/me',
   CHECK_REFRESH_TOKEN: 'users/check-refresh-token',
+  CHECK_EMAIL: "users/check-email",
   ////Logout
   POST_LOGOUT: 'users/logout',
 };

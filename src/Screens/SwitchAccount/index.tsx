@@ -1,7 +1,6 @@
 import {
   Image,
   Modal,
-  SafeAreaView,
   Text,
   TextInput,
   TouchableOpacity,
@@ -13,15 +12,19 @@ import {useEffect, useState} from 'react';
 import SwitchAccountStyles from '../../StyleSheet/SwitchAccountStyles';
 import {Colors} from '../../../assets/color/Colors';
 import {useTheme} from '../../util/ThemeContext';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '../../../services/store';
-import { fetchLogin } from '../../../services/userRedux/userSlice';
-import { resetStatus } from '../../../services/userRedux/userReducer';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '../../../services/store';
+import {
+  fetchCheckEmail,
+  fetchLogin,
+} from '../../../services/userRedux/userSlice';
+import {resetStatus} from '../../../services/userRedux/userReducer';
+import {GoogleSignin} from '@react-native-google-signin/google-signin';
 
 export const SwitchAccount = ({navigation}: any) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  
+
   const {theme} = useTheme();
   const styles = LoginStyles();
   const SwitchStyles = SwitchAccountStyles(theme);
@@ -29,28 +32,81 @@ export const SwitchAccount = ({navigation}: any) => {
 
   //redux
   const dispatch = useDispatch<AppDispatch>();
-  const {isLoading, isError, errorMessage, user, isSuccess} = useSelector((state: RootState) => state.user);
+  const {isLoading, isError, errorMessage, user, isSuccess} = useSelector(
+    (state: RootState) => state.user,
+  );
 
   const handleLogin = () => {
     dispatch(fetchLogin({email, password}));
   };
 
   useEffect(() => {
-    if(isSuccess || isError){
+    if (isSuccess || isError) {
       setShowModal(true);
       const time = setTimeout(() => {
         setShowModal(false);
         dispatch(resetStatus());
 
-        if(isSuccess){
+        if (isSuccess) {
           navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
         }
-
       }, 2000);
       return () => clearTimeout(time);
     }
   }, [isError, isSuccess]);
 
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId:
+        '368528485101-ccrjeejqslg8t7uaokaduposs0c96qne.apps.googleusercontent.com',
+    });
+  }, []);
+
+  const signInWithGoogle = async (): Promise<void> => {
+    try {
+      await GoogleSignin.hasPlayServices();
+      const userInfo: any = await GoogleSignin.signIn();
+      console.log('userInfo:', JSON.stringify(userInfo, null, 2));
+
+      const idToken = userInfo.idToken || userInfo.data?.idToken;
+      const email = userInfo.data.user.email;
+      if (!idToken || !email) {
+        console.log('❌ idToken or email is undefined');
+        return;
+      }
+
+      const tempPassword = userInfo.data.user.id;
+      const checkEmailAction = await dispatch(fetchCheckEmail({email}));
+
+      // if (fetchCheckEmail.fulfilled.match(checkEmailAction)) {
+      //   const {exists} = checkEmailAction.payload;
+
+      //   if (exists) {
+      //     await dispatch(fetchLogin({email, password: tempPassword}));
+      //   } else {
+          // const registerAction = await dispatch(
+          //   fetchRegister({email, password: tempPassword}),
+          // );
+          // if (fetchRegister.fulfilled.match(registerAction)) {
+          //   await dispatch(fetchLogin({email, password: tempPassword}));
+          // } else {
+          //   alert(registerAction.payload?.message || 'Register failed');
+          //   return;
+          // }
+        // }
+      // } else {
+      //   console.log(checkEmailAction.payload?.message || 'Check email failed');
+      //   return;
+      // }
+
+      // navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
+    } catch (error: any) {
+      console.log(
+        'Google sign-in or backend auth error:',
+        error.message || error,
+      );
+    }
+  };
 
   return (
     <View style={styles.page}>
@@ -93,10 +149,10 @@ export const SwitchAccount = ({navigation}: any) => {
           <TouchableOpacity>
             <Text style={SwitchStyles.textForgot}>Forgot password?</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.buttonLogin}
-            onPress={handleLogin}>
-            <Text style={styles.textBtn}>{isLoading ? "Is loging..." : "Login"}</Text>
+          <TouchableOpacity style={styles.buttonLogin} onPress={handleLogin}>
+            <Text style={styles.textBtn}>
+              {isLoading ? 'Is loging...' : 'Login'}
+            </Text>
           </TouchableOpacity>
           <View style={{alignItems: 'center'}}>
             <TouchableOpacity>
@@ -109,7 +165,10 @@ export const SwitchAccount = ({navigation}: any) => {
               style={{width: '100%'}}
               source={require('../../../assets/icon/seperator_or.png')}
             />
-            <TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                signInWithGoogle();
+              }}>
               <Text style={SwitchStyles.textGoogle}>
                 <Image source={require('../../../assets/icon/gg.png')} /> Log in
                 with Google
@@ -124,11 +183,13 @@ export const SwitchAccount = ({navigation}: any) => {
           </TouchableOpacity>
         </View>
       </View>
-      <Modal visible={showModal} transparent animationType='fade'>
+      <Modal visible={showModal} transparent animationType="fade">
         <View style={styles.modal}>
           <View style={styles.modalContainer}>
             <Text style={styles.textNoti}>Notification</Text>
-            {isSuccess && <Text style={styles.textContent}>Login Successfully!!</Text>}
+            {isSuccess && (
+              <Text style={styles.textContent}>Login Successfully!!</Text>
+            )}
             {isError && <Text style={styles.textContent}>{errorMessage}</Text>}
           </View>
         </View>

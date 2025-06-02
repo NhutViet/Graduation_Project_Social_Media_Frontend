@@ -79,3 +79,25 @@ export const fetchLogout = createAsyncThunk<
     return rejectWithValue({message});
   }
 });
+
+export const fetchCheckEmail = createAsyncThunk<
+  { exists: boolean; message?: string },
+  { email: string },
+  { rejectValue: { message: string } }
+>(
+  'auth/checkEmail',
+  async ({ email }, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.post(
+        API.CHECK_EMAIL,
+        { email }
+      );
+
+      return res.data;
+    } catch (error: any) {
+      return rejectWithValue({
+        message: error.response?.data?.message || 'Check email failed',
+      });
+    }
+  }
+);
