@@ -13,6 +13,7 @@ export const API = {
 
   // Story
   GET_STORY_BY_USERID: '/stories/following/',
+  GET_USER_FOLLOW: 'stories/following',
   //// music
   GET_ALL_MUSIC: 'music/find-all',
 
@@ -20,7 +21,7 @@ export const API = {
   GET_lOGIN_POST: 'users/login',
   GET_ME: 'users/me',
   CHECK_REFRESH_TOKEN: 'users/check-refresh-token',
-  CHECK_EMAIL: "users/check-email",
+  CHECK_EMAIL: 'users/check-email',
   ////Logout
   POST_LOGOUT: 'users/logout',
   //// Register

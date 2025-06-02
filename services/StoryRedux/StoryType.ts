@@ -11,3 +11,10 @@ export interface Story {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface userFollow {
+  _id: string;
+  handleName: string;
+  profilePic: string;
+  stories: string[];
+}

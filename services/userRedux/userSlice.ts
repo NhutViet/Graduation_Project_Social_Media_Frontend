@@ -65,11 +65,15 @@ export const fetchLogout = createAsyncThunk<
   {rejectValue: {message: string}}
 >('auth/logout', async (_, {dispatch, rejectWithValue}) => {
   try {
-    await axiosInstance.post(API.POST_LOGOUT, {}, {
-      headers: {
-        token: 'refresh',
+    await axiosInstance.post(
+      API.POST_LOGOUT,
+      {},
+      {
+        headers: {
+          token: 'refresh',
+        },
       },
-    });
+    );
 
     dispatch(resetUser());
 
@@ -81,15 +85,25 @@ export const fetchLogout = createAsyncThunk<
 });
 
 export const fetchRegister = createAsyncThunk<
-  { message: string },
-  { email: string; password: string},
-  { rejectValue: { message: string } }
->('auth/register', async ({ email, password }, { rejectWithValue }) => {
+  {message: string},
+  {email: string; password: string; profilePic?: string},
+  {rejectValue: {message: string}}
+>('auth/register', async ({email, password, profilePic}, {rejectWithValue}) => {
   try {
-    const registerRes = await axiosInstance.post(API.REGISTER, {
+    const payload: {
+      email: string;
+      password: string;
+      profilePic?: string;
+    } = {
       email,
       password,
-    });
+    };
+
+    if (profilePic) {
+      payload.profilePic = profilePic;
+    }
+
+    const registerRes = await axiosInstance.post(API.REGISTER, payload);
 
     return {
       message: registerRes.data.message,
@@ -102,23 +116,17 @@ export const fetchRegister = createAsyncThunk<
 });
 
 export const fetchCheckEmail = createAsyncThunk<
-  { exists: boolean; message?: string },
-  { email: string },
-  { rejectValue: { message: string } }
->(
-  'auth/checkEmail',
-  async ({ email }, { rejectWithValue }) => {
-    try {
-      const res = await axiosInstance.post(
-        API.CHECK_EMAIL,
-        { email }
-      );
+  {exists: boolean; message?: string},
+  {email: string},
+  {rejectValue: {message: string}}
+>('auth/checkEmail', async ({email}, {rejectWithValue}) => {
+  try {
+    const res = await axiosInstance.post(API.CHECK_EMAIL, {email});
 
-      return res.data;
-    } catch (error: any) {
-      return rejectWithValue({
-        message: error.response?.data?.message || 'Check email failed',
-      });
-    }
+    return res.data;
+  } catch (error: any) {
+    return rejectWithValue({
+      message: error.response?.data?.message || 'Check email failed',
+    });
   }
-);
+});
