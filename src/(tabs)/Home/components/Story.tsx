@@ -1,10 +1,10 @@
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import {Colors} from '../assets/color/Colors';
-import {useTheme} from '../src/util/ThemeContext';
+import {Colors} from '../../../../assets/color/Colors';
+import {useTheme} from '../../../util/ThemeContext';
 import {useNavigation} from '@react-navigation/native';
 
-const User = (props: any) => {
+const Story = (props: any) => {
   const {name, image, status, func, isStory = true, isHashTag = false} = props;
 
   const {theme} = useTheme();
@@ -23,7 +23,11 @@ const User = (props: any) => {
           style={
             isHashTag ? [styles.imgHash, {tintColor: color.text}] : styles.img
           }
-          source={isHashTag ? require('../assets/icon/hash.png') : {uri: image}}
+          source={
+            isHashTag
+              ? require('../../../../assets/icon/hash.png')
+              : {uri: image}
+          }
         />
       </View>
     </View>
@@ -58,22 +62,16 @@ const User = (props: any) => {
         </TouchableOpacity>
       ) : (
         <TouchableOpacity style={[styles.box, {marginTop: 10}]} onPress={func}>
-          <View
-            style={
-              isHashTag
-                ? {
-                    padding: 10,
-                    borderColor: color.gray,
-                    borderWidth: 1,
-                    borderRadius: 50,
-                  }
-                : [
-                    styles.block1,
-                    {width: isStory ? 75 : 50, height: isStory ? 75 : 50},
-                  ]
-            }>
+          <LinearGradient
+            colors={['#CCCCCC', '#E0E0E0', '#F0F0F0']}
+            start={{x: 0, y: 0}}
+            end={{x: 1, y: 1}}
+            style={[
+              styles.block,
+              {width: isStory ? 75 : 50, height: isStory ? 75 : 50},
+            ]}>
             <AvatarContent />
-          </View>
+          </LinearGradient>
           {!isStory && (
             <View style={styles.boxText}>
               <Text style={[styles.nameText, {color: color.text}]}>{name}</Text>
@@ -149,4 +147,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default User;
+export default Story;

@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {useTheme} from '../../util/ThemeContext';
 import {getAddPostStyles} from '../../StyleSheet/AddPostStyles';
 import {FlashList} from '@shopify/flash-list';
@@ -22,6 +22,7 @@ import {useDispatch} from 'react-redux';
 import {AppDispatch} from '../../../services/store';
 import {uploadPostWithMedia} from '../../../services/postRedux/postSlice';
 import Toast from 'react-native-toast-message';
+import VideoModal from './Components/VideoModal';
 
 export const PostSetting = () => {
   const {theme} = useTheme();
@@ -36,6 +37,10 @@ export const PostSetting = () => {
 
   const {showUploadModal, hideUploadModal, setProgress} = useUploadProgress();
   const [caption, setCaption] = useState('');
+
+  //modal xem video
+  const [isModal, setIsModal] = useState(false);
+  
 
   const uploadToCloudinary = async (uri: string, type: string) => {
     showUploadModal(uri, type as 'video' | 'image');
@@ -137,6 +142,11 @@ export const PostSetting = () => {
     }
   };
 
+  useEffect(() => {
+    console.log('chọn nè: ', selectedMedia);
+    console.log('VIDEO URI:', selectedMedia[0]?.node?.image?.uri);
+  }, [selectedMedia]);
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.rowSpace}>
@@ -157,8 +167,9 @@ export const PostSetting = () => {
               justifyContent: 'center',
               marginLeft: 20,
             },
+            selectedMedia.length === 1 && {alignItems: 'center'},
           ]}>
-          {selectedMedia && selectedMedia.length > 0 && (
+          {selectedMedia && selectedMedia.length > 1 ? (
             <FlashList
               data={selectedMedia}
               horizontal={true}
@@ -171,6 +182,26 @@ export const PostSetting = () => {
               )}
               estimatedItemSize={200}
             />
+          ) : (
+            <TouchableOpacity
+              onLongPress={() => {
+                if (selectedMedia[0].node.type.startsWith('video')) {
+                  setIsModal(true);
+                }
+              }}>
+              <Image
+                source={{uri: selectedMedia[0].node.image.uri}}
+                style={[styles.imgShow]}
+              />
+              {selectedMedia[0].node.type.startsWith('video') && (
+                <View style={styles.reelsContainer}>
+                  <Image
+                    source={require('../../../assets/icon/clapperboard.png')}
+                    style={styles.iconReels}
+                  />
+                </View>
+              )}
+            </TouchableOpacity>
           )}
         </View>
         <TextInput
@@ -221,6 +252,7 @@ export const PostSetting = () => {
       <TouchableOpacity style={styles.btnShare} onPress={handleUploadAll}>
         <Text style={styles.textBtn}>Share</Text>
       </TouchableOpacity>
+      <VideoModal uri={selectedMedia[0]?.node?.image?.uri} visible={isModal} onClose={() => setIsModal(false)}/>
     </SafeAreaView>
   );
 };

@@ -2,6 +2,7 @@ import React, {
   forwardRef,
   useEffect,
   useImperativeHandle,
+  useRef,
   useState,
 } from 'react';
 import {
@@ -16,23 +17,25 @@ import {
   Modal,
   Keyboard,
   KeyboardEvent,
+  Text,
 } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
 } from 'react-native-reanimated';
-import {useTheme} from '../src/util/ThemeContext';
-import {Colors} from '../assets/color/Colors';
+import {useTheme} from '../../../../src/util/ThemeContext';
+import {Colors} from '../../../../assets/color/Colors';
 import {FlashList} from '@shopify/flash-list';
-import CommentComponent from '../src/(tabs)/Home/components/commentComponent';
+import CommentComponent from './commentComponent';
 import {useDispatch, useSelector} from 'react-redux';
-import {AppDispatch, RootState} from '../services/store';
+import {AppDispatch, RootState} from '../../../../services/store';
 import {
   addComment,
   fetchCommentsByPost,
-} from '../services/commentRedux/commentSlice';
+} from '../../../../services/commentRedux/commentSlice';
 import Toast from 'react-native-toast-message';
+import {Send} from 'lucide-react-native';
 
 const maxHeight = Dimensions.get('window').height;
 const height = Dimensions.get('window').height * 0.85;
@@ -50,6 +53,11 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
   ({postId}, ref) => {
     const [modalVisible, setModalVisible] = useState(false);
     const [currentPostId, setCurrentPostId] = useState(postId);
+    const [replyTo, setReplyTo] = useState<{
+      id: string;
+      handleName: string;
+    } | null>(null);
+    const inputRef = useRef<TextInput>(null);
 
     useEffect(() => {
       if (postId) {
@@ -75,6 +83,8 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
     const close = () => {
       translateY.value = withSpring(height, {damping: 20});
       isOpen.value = false;
+      setReplyTo(null);
+      setComment('');
       setTimeout(() => {
         setModalVisible(false);
       }, 300);
@@ -125,13 +135,14 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
       const payload: any = {
         postID: currentPostId,
         content: comment.trim(),
-        parentID: '',
+        parentID: replyTo?.id || '',
         mediaUrl: null,
       };
 
       try {
         await dispatch(addComment(payload)).unwrap();
         setComment('');
+        setReplyTo(null);
         dispatch(fetchCommentsByPost(currentPostId));
       } catch (error) {
         Toast.show({
@@ -179,17 +190,40 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
                 <FlashList
                   data={comments}
                   renderItem={({item}) => {
-                    return <CommentComponent {...item} />;
+                    return (
+                      <CommentComponent
+                        {...item}
+                        onReply={(id, handleName) => {
+                          setReplyTo({id, handleName});
+                          setTimeout(() => {
+                            inputRef.current?.focus();
+                          }, 200); // nhỏ delay để đảm bảo TextInput đã render
+                        }}
+                      />
+                    );
                   }}
-                  estimatedItemSize={100}
+                  estimatedItemSize={10}
                 />
               </View>
+              {/* View visble reply */}
+              {replyTo && (
+                <View style={styles.visibleReply}>
+                  <Text style={styles.txtReply}>
+                    Đang trả lời{' '}
+                    <Text style={styles.replyName}>{replyTo.handleName}</Text>
+                  </Text>
+                  <TouchableOpacity onPress={() => setReplyTo(null)}>
+                    <Text style={styles.cancelReply}>Hủy</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
               <View
                 style={[
                   styles.inputContainer,
-                  {marginBottom: keyboardHeight, borderTopColor: color.text},
+                  {marginBottom: keyboardHeight},
+                  {backgroundColor: color.background},
                 ]}>
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <View style={styles.inputRow}>
                   <View style={styles.blockImg}>
                     <Image
                       style={styles.img}
@@ -198,21 +232,32 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
                       }}
                     />
                   </View>
+
                   <TextInput
-                    placeholder="Comment"
+                    ref={inputRef}
+                    placeholder={
+                      replyTo ? `Trả lời ${replyTo.handleName}` : 'Bình luận'
+                    }
                     placeholderTextColor={color.text}
                     style={[styles.input, {color: color.text}]}
                     value={comment}
                     onChangeText={setComment}
                     onSubmitEditing={handleSendComment}
                   />
+
+                  {comment.length > 0 ? (
+                    <TouchableOpacity onPress={handleSendComment}>
+                      <Send size={24} color={color.text} />
+                    </TouchableOpacity>
+                  ) : (
+                    <TouchableOpacity style={styles.blockIcon}>
+                      <Image
+                        style={[styles.icon, {tintColor: color.text}]}
+                        source={require('../../../../assets/icon/sticker.png')}
+                      />
+                    </TouchableOpacity>
+                  )}
                 </View>
-                <TouchableOpacity style={styles.blockIcon}>
-                  <Image
-                    style={[styles.icon, {tintColor: color.text}]}
-                    source={require('../assets/icon/sticker.png')}
-                  />
-                </TouchableOpacity>
               </View>
             </>
           )}
@@ -246,27 +291,61 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginBottom: 16,
   },
-  inputContainer: {
-    width: '100%',
+  visibleReply: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    marginTop: 8,
+  },
+
+  txtReply: {
+    fontSize: 14,
+    color: '#666',
+  },
+
+  replyName: {
+    fontWeight: 'bold',
+    color: '#666',
+  },
+
+  cancelReply: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: 'red',
+  },
+
+  inputContainer: {
+    width: '100%',
     paddingHorizontal: 20,
     paddingVertical: 10,
-    borderTopWidth: 1,
+    gap: 10,
+    borderTopWidth: 0.5,
   },
+
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+
   blockImg: {
     width: 40,
     height: 40,
     borderRadius: 20,
     overflow: 'hidden',
-    marginRight: 10,
   },
+
   img: {
     width: '100%',
     height: '100%',
     resizeMode: 'cover',
   },
+
   icon: {
     width: '100%',
     height: '100%',
@@ -277,7 +356,11 @@ const styles = StyleSheet.create({
     height: 20,
   },
   input: {
-    width: '70%',
+    flex: 1,
+    backgroundColor: Colors.whiteSmoke,
+    paddingHorizontal: 20,
+    borderRadius: 15,
+    height: 40,
   },
 });
 

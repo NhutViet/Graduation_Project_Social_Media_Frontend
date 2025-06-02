@@ -1,9 +1,15 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {SafeAreaView, StyleSheet, View, ActivityIndicator} from 'react-native';
+import {
+  SafeAreaView,
+  StyleSheet,
+  View,
+  ActivityIndicator,
+  Text,
+} from 'react-native';
 import {Colors} from '../../../assets/color/Colors';
 import {useTheme} from '../../util/ThemeContext';
 import {useIsFocused, useNavigation} from '@react-navigation/native';
-import User from '../../../components/User';
+import Story from './components/Story';
 import {useDispatch, useSelector} from 'react-redux';
 import ItemHome from './components/ItemHome';
 import {Modalize} from 'react-native-modalize';
@@ -11,7 +17,7 @@ import {AppDispatch, RootState} from '../../../services/store';
 import {fetchPostsWithMedia} from '../../../services/postRedux/postSlice';
 import BottomSheetComment, {
   BottomSheetCommentRef,
-} from '../../../components/CommentSection';
+} from './components/CommentSection';
 import {fetchCommentsByPost} from '../../../services/commentRedux/commentSlice';
 import Animated, {
   useAnimatedScrollHandler,
@@ -20,6 +26,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import Header from '../../../components/Header';
+import {fetchFollowingStories} from '../../../services/StoryRedux/StorySlice';
 
 const AnimatedFlatList = Animated.createAnimatedComponent(Animated.FlatList);
 
@@ -34,11 +41,17 @@ export const Home = () => {
   const dispatch = useDispatch<AppDispatch>();
   const {posts, loading} = useSelector((state: RootState) => state.post);
 
+  const [currentVisible, setCurrentVisible] = useState<string | null>(null);
+  const {
+    followingStories,
+    loading: storyLoading,
+    error: storyError,
+  } = useSelector((state: RootState) => state.stories);
+  const user = useSelector((state: RootState) => state.user);
+
   useEffect(() => {
     dispatch(fetchPostsWithMedia());
   }, [dispatch]);
-
-  const [currentVisible, setCurrentVisible] = useState<string | null>(null);
 
   const onViewRef = useRef(({viewableItems}: {viewableItems: any[]}) => {
     if (viewableItems.length > 0) {
@@ -158,6 +171,20 @@ export const Home = () => {
     );
   }
 
+  if (storyError) {
+    return (
+      <SafeAreaView
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: color.background,
+        }}>
+        <Text style={{color: color.text, fontSize: 16}}>Lỗi: {storyError}</Text>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
       <Animated.View
@@ -219,7 +246,7 @@ export const Home = () => {
               <Animated.FlatList
                 data={dataUser}
                 renderItem={({item}) => (
-                  <User
+                  <Story
                     name={item.name}
                     image={item.image}
                     status={item.status}
@@ -237,7 +264,7 @@ export const Home = () => {
           </View>
         }
       />
-      <BottomSheetComment ref={sheetRef} postId={selectedPostId}/>
+      <BottomSheetComment ref={sheetRef} postId={selectedPostId} />
     </SafeAreaView>
   );
 };

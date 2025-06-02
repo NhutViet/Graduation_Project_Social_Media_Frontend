@@ -1,4 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.graduation_project_social_media_frontend">
 
   <uses-permission android:name="android.permission.INTERNET" />
   <uses-permission android:name="android.permission.CAMERA" />
@@ -15,6 +15,11 @@
       android:roundIcon="@mipmap/ic_launcher_round"
       android:allowBackup="false"
       android:theme="@style/AppTheme">
+
+      <meta-data
+        android:name="com.google.android.gms.auth.api.signin.v2.API_KEY"
+        android:value="@string/default_web_client_id" />
+
       <activity
         android:name=".MainActivity"
         android:label="@string/app_name"
