@@ -554,10 +554,9 @@ export const Setting = () => {
       <Modal visible={showModal} transparent animationType="fade">
         <View style={styles.modal}>
           <View style={styles.modalContainer}>
-            <Text style={styles.textNoti}>Notification</Text>
-            {isSuccess && (
-              <Text style={styles.textContent}>Logout Successfully!!</Text>
-            )}
+            {isSuccess ? <Image source={require('../../../assets/icon/success.png')} style={[styles.iconNoti, {tintColor: mColor.primary}]}/> : <Image source={require('../../../assets/icon/danger.png')} style={[styles.iconNoti, {tintColor: mColor.error}]}/>}
+            <Text style={[styles.textNoti, {color: isSuccess ? mColor.primary : mColor.error}]}>{isSuccess ? 'Đăng xuất thành công' : 'Đã có lỗi xảy ra'}</Text>
+            {isSuccess && <Text style={styles.textContent}>Chào mừng bạn đã trở lại</Text>}
             {isError && <Text style={styles.textContent}>{errorMessage}</Text>}
           </View>
         </View>
