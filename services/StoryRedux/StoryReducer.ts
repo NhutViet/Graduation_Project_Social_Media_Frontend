@@ -1,10 +1,9 @@
-import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
-import {Story} from './StoryType';
-import axiosInstance from '../axiosInstance';
+import {createSlice, PayloadAction} from '@reduxjs/toolkit';
+import {userFollow} from './StoryType';
 import {fetchFollowingStories, seenStory} from './StorySlice';
 
 interface StoryState {
-  followingStories: Story[];
+  followingStories: userFollow[];
   loading: boolean;
   error: string | null;
 }
@@ -25,20 +24,16 @@ const storySlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchFollowingStories.fulfilled, (state, action) => {
-        state.followingStories = action.payload;
-        state.loading = false;
-      })
+      .addCase(
+        fetchFollowingStories.fulfilled,
+        (state, action: PayloadAction<userFollow[]>) => {
+          state.followingStories = Array.isArray(action.payload) ? action.payload : [action.payload];
+          state.loading = false;
+        },
+      )
       .addCase(fetchFollowingStories.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || 'Error';
-      })
-      .addCase(seenStory.fulfilled, (state, action) => {
-        const {storyId, userId} = action.meta.arg;
-        const story = state.followingStories.find(s => s._id === storyId);
-        if (story && !story.viewerId.includes(userId)) {
-          story.viewerId.push(userId);
-        }
+        state.error = action.payload?.message || 'Error';
       });
   },
 });

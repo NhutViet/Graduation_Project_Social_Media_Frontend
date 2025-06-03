@@ -1,4 +1,5 @@
 import {
+  Alert,
   Image,
   Modal,
   Text,
@@ -17,6 +18,7 @@ import {AppDispatch, RootState} from '../../../services/store';
 import {
   fetchCheckEmail,
   fetchLogin,
+  fetchRegister,
 } from '../../../services/userRedux/userSlice';
 import {resetStatus} from '../../../services/userRedux/userReducer';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
@@ -67,40 +69,50 @@ export const SwitchAccount = ({navigation}: any) => {
     try {
       await GoogleSignin.hasPlayServices();
       const userInfo: any = await GoogleSignin.signIn();
-      console.log('userInfo:', JSON.stringify(userInfo, null, 2));
 
-      const idToken = userInfo.idToken || userInfo.data?.idToken;
+      // const idToken = userInfo.idToken || userInfo.data?.idToken;
       const email = userInfo.data.user.email;
-      if (!idToken || !email) {
-        console.log('❌ idToken or email is undefined');
-        return;
-      }
-
       const tempPassword = userInfo.data.user.id;
+      const profilePic = userInfo.data.user.photo;
+
       const checkEmailAction = await dispatch(fetchCheckEmail({email}));
 
-      // if (fetchCheckEmail.fulfilled.match(checkEmailAction)) {
-      //   const {exists} = checkEmailAction.payload;
+      if (fetchCheckEmail.fulfilled.match(checkEmailAction)) {
+        const {exists} = checkEmailAction.payload;
 
-      //   if (exists) {
-      //     await dispatch(fetchLogin({email, password: tempPassword}));
-      //   } else {
-          // const registerAction = await dispatch(
-          //   fetchRegister({email, password: tempPassword}),
-          // );
-          // if (fetchRegister.fulfilled.match(registerAction)) {
-          //   await dispatch(fetchLogin({email, password: tempPassword}));
-          // } else {
-          //   alert(registerAction.payload?.message || 'Register failed');
-          //   return;
-          // }
-        // }
-      // } else {
-      //   console.log(checkEmailAction.payload?.message || 'Check email failed');
-      //   return;
-      // }
+        if (exists) {
+          const loginAction = await dispatch(
+            fetchLogin({email, password: tempPassword}),
+          );
 
-      // navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
+          if (fetchLogin.fulfilled.match(loginAction)) {
+            navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
+          } else {
+            Alert.alert(
+              'Tài khoản này đã được đăng ký bằng hình thức khác.\nVui lòng dùng phương thức ban đầu.',
+            );
+          }
+        } else {
+          const registerAction = await dispatch(
+            fetchRegister({email, password: tempPassword, profilePic: profilePic}),
+          );
+
+          if (fetchRegister.fulfilled.match(registerAction)) {
+            const loginAction = await dispatch(
+              fetchLogin({email, password: tempPassword}),
+            );
+            if (fetchLogin.fulfilled.match(loginAction)) {
+              navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
+            } else {
+              Alert.alert('Đăng nhập thất bại sau khi đăng ký.');
+            }
+          } else {
+            Alert.alert(registerAction.payload?.message || 'Đăng ký thất bại');
+          }
+        }
+      } else {
+        Alert.alert(checkEmailAction.payload?.message || 'Kiểm tra email thất bại');
+      }
     } catch (error: any) {
       console.log(
         'Google sign-in or backend auth error:',
@@ -150,16 +162,16 @@ export const SwitchAccount = ({navigation}: any) => {
           <TouchableOpacity>
             <Text style={SwitchStyles.textForgot}>Quên mật khẩu?</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.buttonLogin}
-            onPress={handleLogin}>
-            <Text style={styles.textBtn}>{isLoading ? "Đang xử lý..." : "Đăng nhập"}</Text>
+          <TouchableOpacity style={styles.buttonLogin} onPress={handleLogin}>
+            <Text style={styles.textBtn}>
+              {isLoading ? 'Đang xử lý...' : 'Đăng nhập'}
+            </Text>
           </TouchableOpacity>
           <View style={{alignItems: 'center'}}>
             <TouchableOpacity>
               <Text style={SwitchStyles.textFb}>
-                <Image source={require('../../../assets/icon/fb.png')} /> Đăng nhập
-                bằng Facebook
+                <Image source={require('../../../assets/icon/fb.png')} /> Đăng
+                nhập bằng Facebook
               </Text>
             </TouchableOpacity>
             <Image
@@ -171,15 +183,15 @@ export const SwitchAccount = ({navigation}: any) => {
                 signInWithGoogle();
               }}>
               <Text style={SwitchStyles.textGoogle}>
-                <Image source={require('../../../assets/icon/gg.png')} /> Đăng nhập
-                bằng Google
+                <Image source={require('../../../assets/icon/gg.png')} /> Đăng
+                nhập bằng Google
               </Text>
             </TouchableOpacity>
           </View>
         </View>
         <View style={styles.textRow}>
           <Text style={styles.textGray}>Bạn chưa có tài khoản?</Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => {navigation.navigate("Register")}}>
             <Text style={styles.text}> Đăng ký</Text>
           </TouchableOpacity>
         </View>
@@ -187,9 +199,27 @@ export const SwitchAccount = ({navigation}: any) => {
       <Modal visible={showModal} transparent animationType="fade">
         <View style={styles.modal}>
           <View style={styles.modalContainer}>
-            {isSuccess ? <Image source={require('../../../assets/icon/success.png')} style={[styles.iconNoti, {tintColor: color.primary}]}/> : <Image source={require('../../../assets/icon/danger.png')} style={[styles.iconNoti, {tintColor: color.error}]}/>}
-            <Text style={[styles.textNoti, {color: isSuccess ? color.primary : color.error}]}>{isSuccess ? 'Đăng nhập thành công' : 'Đã có lỗi xảy ra'}</Text>
-            {isSuccess && <Text style={styles.textContent}>Chào mừng bạn đã trở lại</Text>}
+            {isSuccess ? (
+              <Image
+                source={require('../../../assets/icon/success.png')}
+                style={[styles.iconNoti, {tintColor: color.primary}]}
+              />
+            ) : (
+              <Image
+                source={require('../../../assets/icon/danger.png')}
+                style={[styles.iconNoti, {tintColor: color.error}]}
+              />
+            )}
+            <Text
+              style={[
+                styles.textNoti,
+                {color: isSuccess ? color.primary : color.error},
+              ]}>
+              {isSuccess ? 'Đăng nhập thành công' : 'Đã có lỗi xảy ra'}
+            </Text>
+            {isSuccess && (
+              <Text style={styles.textContent}>Chào mừng bạn đã trở lại</Text>
+            )}
             {isError && <Text style={styles.textContent}>{errorMessage}</Text>}
           </View>
         </View>
