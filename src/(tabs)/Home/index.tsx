@@ -51,6 +51,7 @@ export const Home = () => {
 
   useEffect(() => {
     dispatch(fetchPostsWithMedia());
+    // dispatch(fetchFollowingStories());
   }, [dispatch]);
 
   const onViewRef = useRef(({viewableItems}: {viewableItems: any[]}) => {

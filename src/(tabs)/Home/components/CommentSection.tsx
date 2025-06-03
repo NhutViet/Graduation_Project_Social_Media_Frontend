@@ -218,11 +218,7 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
                 </View>
               )}
               <View
-                style={[
-                  styles.inputContainer,
-                  {marginBottom: keyboardHeight},
-                  {backgroundColor: color.background},
-                ]}>
+                style={[styles.inputContainer, {marginBottom: keyboardHeight}]}>
                 <View style={styles.inputRow}>
                   <View style={styles.blockImg}>
                     <Image
@@ -361,6 +357,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 15,
     height: 40,
+    marginHorizontal: 10,
   },
 });
 

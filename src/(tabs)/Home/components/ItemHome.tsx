@@ -35,6 +35,7 @@ const ItemHome = (props: any) => {
     currentVisible,
     isFocused,
     openComment,
+    likeCount,
   } = props;
 
   const {theme} = useTheme();
@@ -540,7 +541,7 @@ const ItemHome = (props: any) => {
             <Text
               style={{color: color.text, marginLeft: 8, marginRight: 16}}
               onPress={handleOpenReactionModal}>
-              {formatNumber(27000)}
+              {formatNumber(likeCount)}
             </Text>
             <TouchableOpacity style={styles.iconBlock} onPress={openComment}>
               <Image

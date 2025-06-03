@@ -1,5 +1,5 @@
 import {createAsyncThunk} from '@reduxjs/toolkit';
-import {Story, userFollow} from './StoryType';
+import {userFollow} from './StoryType';
 import axiosInstance from '../axiosInstance';
 import {API} from '../api';
 
@@ -36,14 +36,16 @@ export const seenStory = createAsyncThunk<
 });
 
 export const fetchFollowingStories = createAsyncThunk<
-  userFollow,
-  {userId: string},
+  userFollow[],
+  void,
   {rejectValue: {message: string}}
->('stories/fetchFollowing', async ({userId}, {rejectWithValue}) => {
+>('stories/fetchFollowing', async (_, {rejectWithValue}) => {
   try {
-    const response = await axiosInstance.get(
-      `${API.GET_USER_FOLLOW}/${userId}`,
-    );
+    const response = await axiosInstance.get(`${API.GET_USER_FOLLOW}`, {
+      headers: {
+        token: 'refresh',
+      },
+    });
     return response.data;
   } catch (error: any) {
     return rejectWithValue({

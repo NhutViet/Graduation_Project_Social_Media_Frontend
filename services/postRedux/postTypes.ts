@@ -19,6 +19,7 @@ export interface Post {
   share?: number;
   createdAt?: string;
   updatedAt?: string;
+  likeCount?: number;
 }
 
 export interface UserPost {
