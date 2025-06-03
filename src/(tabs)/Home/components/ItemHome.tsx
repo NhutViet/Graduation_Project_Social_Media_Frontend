@@ -1,4 +1,4 @@
-import React, {useRef, useCallback, useState} from 'react';
+import React, {useRef, useCallback, useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -22,6 +22,9 @@ import BottomSheetIntentions, {
 import {useNavigation} from '@react-navigation/native';
 import ModalShare from './ModalShare';
 import ModalReaction from './ModalReaction';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../../../services/store';
+import { fetchLikePost, likePost, unlikePost } from '../../../../services/reactionRedux/reactionSlice';
 
 const ItemHome = (props: any) => {
   const {
@@ -44,6 +47,27 @@ const ItemHome = (props: any) => {
   const [isModalVisible, setIsModalVisible] = React.useState(false);
   const navigation: any = useNavigation();
   const [visibleModalShare, setVisibleModalShare] = useState(false);
+
+  //gọi api like
+  const dispatch = useDispatch<AppDispatch>();
+  const {likePosts, isLoading} = useSelector((state: RootState) => state.reactions);
+  const {refreshToken} = useSelector((state: RootState) => state.user);
+  // const { user: currentUser } = useSelector((state: RootState) => state.user);
+  const [isLiked, setIsLike] = useState(likePosts.includes(_id));
+  useEffect(() => {
+    setIsLike(likePosts.includes(_id));
+  }, [likePosts]);
+
+  const handleLike = () => {
+    // if(!currentUser?._id) return;
+    console.log('Nhaans like nef');
+    if(isLiked){
+      dispatch(unlikePost({postId: _id, refreshToken}));
+    }else {
+      dispatch(likePost({postId: _id, refreshToken}));
+    }
+  };
+
 
   // Modalize bottom sheet reference
   const sheetRef = useRef<Modalize>(null);
@@ -532,10 +556,10 @@ const ItemHome = (props: any) => {
       <View style={{backgroundColor: color.background, padding: 10}}>
         <View style={[styles.rowContainer, {justifyContent: 'space-between'}]}>
           <View style={styles.rowContainer}>
-            <TouchableOpacity style={styles.iconBlock}>
+            <TouchableOpacity style={styles.iconBlock} onPress={handleLike}>
               <Image
-                style={[{tintColor: color.text}, styles.icon]}
-                source={require('../../../../assets/icon/heart.png')}
+                style={[{tintColor: isLiked ? color.error : color.text}, styles.icon]}
+                source={isLiked ? require('../../../../assets/icon/heart_fill.png') : require('../../../../assets/icon/heart.png')}
               />
             </TouchableOpacity>
             <Text

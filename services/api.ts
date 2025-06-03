@@ -24,6 +24,7 @@ export const API = {
   CHECK_EMAIL: 'users/check-email',
   ////Logout
   POST_LOGOUT: 'users/logout',
+
   //// Register
   REGISTER: 'users/register',
 };
