@@ -39,49 +39,30 @@ const Story = (props: any) => {
         styles.container,
         {alignItems: isStory ? 'center' : 'flex-start'},
       ]}>
-      {status === 1 ? (
-        <TouchableOpacity style={[styles.box, {marginTop: 10}]} onPress={func}>
-          <LinearGradient
-            colors={['#D300C4', '#FE393C', '#FED203']}
-            start={{x: 0, y: 0}}
-            end={{x: 1, y: 1}}
-            style={[
-              styles.block,
-              {width: isStory ? 75 : 50, height: isStory ? 75 : 50},
-            ]}>
-            <AvatarContent />
-          </LinearGradient>
-          {!isStory && (
-            <View style={styles.boxText}>
-              <Text style={[styles.nameText, {color: color.text}]}>{name}</Text>
-              <Text style={[styles.namehandleText, {color: color.lightDark}]}>
-                {name}
-              </Text>
-            </View>
-          )}
-        </TouchableOpacity>
-      ) : (
-        <TouchableOpacity style={[styles.box, {marginTop: 10}]} onPress={func}>
-          <LinearGradient
-            colors={['#CCCCCC', '#E0E0E0', '#F0F0F0']}
-            start={{x: 0, y: 0}}
-            end={{x: 1, y: 1}}
-            style={[
-              styles.block,
-              {width: isStory ? 75 : 50, height: isStory ? 75 : 50},
-            ]}>
-            <AvatarContent />
-          </LinearGradient>
-          {!isStory && (
-            <View style={styles.boxText}>
-              <Text style={[styles.nameText, {color: color.text}]}>{name}</Text>
-              <Text style={[styles.namehandleText, {color: color.lightDark}]}>
-                {name}
-              </Text>
-            </View>
-          )}
-        </TouchableOpacity>
-      )}
+      <TouchableOpacity style={[styles.box, {marginTop: 10}]} onPress={func}>
+        <LinearGradient
+          colors={
+            status === 1
+              ? ['#D300C4', '#FE393C', '#FED203']
+              : ['#CCCCCC', '#E0E0E0', '#F0F0F0']
+          }
+          start={{x: 0, y: 0}}
+          end={{x: 1, y: 1}}
+          style={[
+            styles.block,
+            {width: isStory ? 75 : 50, height: isStory ? 75 : 50},
+          ]}>
+          <AvatarContent />
+        </LinearGradient>
+        {!isStory && (
+          <View style={styles.boxText}>
+            <Text style={[styles.nameText, {color: color.text}]}>{name}</Text>
+            <Text style={[styles.namehandleText, {color: color.lightDark}]}>
+              {name}
+            </Text>
+          </View>
+        )}
+      </TouchableOpacity>
       {isStory && (
         <Text style={[styles.text, {color: color.text}]}>{name}</Text>
       )}

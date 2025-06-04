@@ -50,3 +50,27 @@ export const uploadPostWithMedia = createAsyncThunk<
     return rejectWithValue(err.response?.data || err.message);
   }
 });
+
+export const hidePost = createAsyncThunk<
+  {message: string},
+  string,
+  {rejectValue: string}
+>('posts/hidePost', async (postId, {rejectWithValue}) => {
+  try {
+    const response = await axiosInstance.post(
+      `${API.HIDDEN_POST}/${postId}`,
+      {},
+      {
+        headers: {
+          token: 'refresh',
+        },
+      },
+    );
+    return response.data;
+  } catch (err: any) {
+    if (err.response?.status === 409) {
+      return rejectWithValue('Bài viết đã bị ẩn trước đó.');
+    }
+    return rejectWithValue(err.response?.data || err.message);
+  }
+});
