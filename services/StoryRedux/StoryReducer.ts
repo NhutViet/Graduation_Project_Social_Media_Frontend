@@ -3,13 +3,13 @@ import {userFollow} from './StoryType';
 import {fetchFollowingStories, seenStory} from './StorySlice';
 
 interface StoryState {
-  followingStories: userFollow[];
+  followingUsers: userFollow[];
   loading: boolean;
   error: string | null;
 }
 
 const initialState: StoryState = {
-  followingStories: [],
+  followingUsers: [],
   loading: false,
   error: null,
 };
@@ -27,7 +27,9 @@ const storySlice = createSlice({
       .addCase(
         fetchFollowingStories.fulfilled,
         (state, action: PayloadAction<userFollow[]>) => {
-          state.followingStories = Array.isArray(action.payload) ? action.payload : [action.payload];
+          state.followingUsers = Array.isArray(action.payload)
+            ? action.payload
+            : [action.payload];
           state.loading = false;
         },
       )

@@ -1,6 +1,6 @@
 import {createSlice} from '@reduxjs/toolkit';
-import {fetchPostsWithMedia, fetchReelsWithMedia} from './postSlice';
-import { Post, PostWithMedia } from './postTypes';
+import {fetchPostsWithMedia, fetchReelsWithMedia, hidePost} from './postSlice';
+import {Post, PostWithMedia} from './postTypes';
 
 interface PostState {
   posts: PostWithMedia[];
@@ -47,6 +47,12 @@ const postReducer = createSlice({
       .addCase(fetchReelsWithMedia.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+      })
+
+      .addCase(hidePost.fulfilled, (state, action) => {
+        const postId = action.meta.arg;
+        state.posts = state.posts.filter((post: any) => post._id !== postId);
+        state.reels = state.reels.filter((post: any) => post._id !== postId);
       });
   },
 });

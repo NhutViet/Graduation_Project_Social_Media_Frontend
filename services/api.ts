@@ -1,11 +1,11 @@
-export const BASE_URL =
-  'https://graduation-project-be-real-revised.onrender.com';
+export const BASE_URL = 'http://cirla.io.vn';
 
 export const API = {
   //// post
   GET_ALL_POST: 'posts/get-all-with-media',
   GET_REELS_POST: 'posts/get-all-reel-media',
   UPLOAD_POST: 'posts/with-media',
+  HIDDEN_POST: 'user-hidden-post/hide',
 
   //// comment
   GET_COMMENT_POST: 'comments/post',
