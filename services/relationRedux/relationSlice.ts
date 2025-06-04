@@ -18,7 +18,7 @@ export const fetchFollowers = createAsyncThunk<
       });
       return response.data.followers;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || error.message || 'Failed to fetch relations');
+      return rejectWithValue(error.response?.data?.message || error.message || 'Lấy danh sách người theo dõi thất bại');
     }
   }
 );
@@ -38,7 +38,7 @@ export const fetchFollowing = createAsyncThunk<
       });
       return response.data.following;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || error.message || 'Failed to fetch relations');
+      return rejectWithValue(error.response?.data?.message || error.message || 'Lấy danh sách người đang theo dõi thất bại');
     }
   }
 );

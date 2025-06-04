@@ -25,7 +25,7 @@ import ModalReaction from './ModalReaction';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../../../services/store';
 import { fetchFollowers, fetchFollowing } from '../../../../services/relationRedux/relationSlice';
-import { fetchLikePost, likePost, unlikePost } from '../../../../services/reactionRedux/reactionSlice';
+import { likePost, unlikePost } from '../../../../services/reactionRedux/reactionSlice';
 
 const ItemHome = (props: any) => {
   const {
@@ -71,6 +71,7 @@ const ItemHome = (props: any) => {
   
   useEffect(() => {
     if (userID) {
+      // gọi 2 api followers, following
       Promise.all([
         dispatch(fetchFollowers({ userID })),
         dispatch(fetchFollowing({ userID }))

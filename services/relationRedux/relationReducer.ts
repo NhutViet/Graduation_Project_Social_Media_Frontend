@@ -7,9 +7,9 @@ interface RelationState {
   following: UserProfile[];
   
   // Dữ liệu chuẩn bị cho các tính năng tương lai
-  relations: RelationWithUser[];
-  friends: RelationWithUser[];
-  pendingRequests: RelationWithUser[];
+//   relations: RelationWithUser[];
+//   friends: RelationWithUser[];
+//   pendingRequests: RelationWithUser[];
   
   // Trạng thái loading và error
   loading: boolean;
@@ -18,10 +18,10 @@ interface RelationState {
 
 const initialState: RelationState = {
   followers: [],
-  relations: [],
-  friends: [],
+//   relations: [],
+//   friends: [],
   following: [],
-  pendingRequests: [],
+//   pendingRequests: [],
   loading: false,
   error: null,
 };
@@ -32,10 +32,10 @@ const relationReducer = createSlice({
   reducers: {
     clearRelations: state => {
       state.followers = [];
-      state.relations = [];
-      state.friends = [];
+    //   state.relations = [];
+    //   state.friends = [];
       state.following = [];
-      state.pendingRequests = [];
+    //   state.pendingRequests = [];
       state.error = null;
     },
     clearError: state => {
@@ -55,7 +55,7 @@ const relationReducer = createSlice({
       })
       .addCase(fetchFollowers.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || 'Failed to load followers';
+        state.error = action.payload || 'Tải dữ liệu người theo dõi thất bại';
       })
         
         //fetchFollowing
@@ -69,7 +69,7 @@ const relationReducer = createSlice({
       })
       .addCase(fetchFollowing.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || 'Failed to load following';
+        state.error = action.payload || 'Tải dữ liệu người đang theo dõi thất bại';
       });
   },
 });
