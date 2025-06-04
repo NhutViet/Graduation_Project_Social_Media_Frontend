@@ -22,9 +22,13 @@ import BottomSheetIntentions, {
 import {useNavigation} from '@react-navigation/native';
 import ModalShare from './ModalShare';
 import ModalReaction from './ModalReaction';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '../../../../services/store';
-import { fetchLikePost, likePost, unlikePost } from '../../../../services/reactionRedux/reactionSlice';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '../../../../services/store';
+import {
+  likePost,
+  unlikePost,
+} from '../../../../services/reactionRedux/reactionSlice';
+import { hidePost } from '../../../../services/postRedux/postSlice';
 
 const ItemHome = (props: any) => {
   const {
@@ -50,7 +54,9 @@ const ItemHome = (props: any) => {
 
   //gọi api like
   const dispatch = useDispatch<AppDispatch>();
-  const {likePosts, isLoading} = useSelector((state: RootState) => state.reactions);
+  const {likePosts, isLoading} = useSelector(
+    (state: RootState) => state.reactions,
+  );
   const {refreshToken} = useSelector((state: RootState) => state.user);
   // const { user: currentUser } = useSelector((state: RootState) => state.user);
   const [isLiked, setIsLike] = useState(likePosts.includes(_id));
@@ -61,13 +67,12 @@ const ItemHome = (props: any) => {
   const handleLike = () => {
     // if(!currentUser?._id) return;
     console.log('Nhaans like nef');
-    if(isLiked){
+    if (isLiked) {
       dispatch(unlikePost({postId: _id, refreshToken}));
-    }else {
+    } else {
       dispatch(likePost({postId: _id, refreshToken}));
     }
   };
-
 
   // Modalize bottom sheet reference
   const sheetRef = useRef<Modalize>(null);
@@ -126,6 +131,15 @@ const ItemHome = (props: any) => {
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const screenWidth = Dimensions.get('window').width;
+
+  const handleHidePost = async () => {
+    try {
+      await dispatch(hidePost(_id)).unwrap();
+      onSheetClose();
+    } catch (error) {
+      console.log('Ẩn bài viết lỗi:', error);
+    }
+  };
 
   // Bottom sheet options
   const topOptions: OptionItem[] = [
@@ -382,6 +396,7 @@ const ItemHome = (props: any) => {
           <BottomSheetOptions
             topOptions={topOptions}
             listOptionGroups={[firstListOptions, secondListOptions]}
+            handleHidePost={handleHidePost}
             // when an option is pressed, only CLOSE the sheet
             // BottomSheetOptions will call item.onPress(), then onClose()
             onClose={closeSheet}
@@ -558,8 +573,15 @@ const ItemHome = (props: any) => {
           <View style={styles.rowContainer}>
             <TouchableOpacity style={styles.iconBlock} onPress={handleLike}>
               <Image
-                style={[{tintColor: isLiked ? color.error : color.text}, styles.icon]}
-                source={isLiked ? require('../../../../assets/icon/heart_fill.png') : require('../../../../assets/icon/heart.png')}
+                style={[
+                  {tintColor: isLiked ? color.error : color.text},
+                  styles.icon,
+                ]}
+                source={
+                  isLiked
+                    ? require('../../../../assets/icon/heart_fill.png')
+                    : require('../../../../assets/icon/heart.png')
+                }
               />
             </TouchableOpacity>
             <Text

@@ -1,11 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {
-  SafeAreaView,
-  StyleSheet,
-  View,
-  ActivityIndicator,
-  Text,
-} from 'react-native';
+import {SafeAreaView, View, ActivityIndicator, Text} from 'react-native';
 import {Colors} from '../../../assets/color/Colors';
 import {useTheme} from '../../util/ThemeContext';
 import {useIsFocused, useNavigation} from '@react-navigation/native';
@@ -27,6 +21,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import Header from '../../../components/Header';
 import {fetchFollowingStories} from '../../../services/StoryRedux/StorySlice';
+import {userFollow} from '../../../services/StoryRedux/StoryType';
 
 const AnimatedFlatList = Animated.createAnimatedComponent(Animated.FlatList);
 
@@ -44,16 +39,21 @@ export const Home = () => {
 
   const [currentVisible, setCurrentVisible] = useState<string | null>(null);
   const {
-    followingStories,
+    followingUsers,
     loading: storyLoading,
     error: storyError,
   } = useSelector((state: RootState) => state.stories);
   const user = useSelector((state: RootState) => state.user);
+  const [dataUser, setDataUser] = useState<userFollow[]>();
 
   useEffect(() => {
     dispatch(fetchPostsWithMedia());
-    // dispatch(fetchFollowingStories());
+    dispatch(fetchFollowingStories());
   }, [dispatch]);
+
+  useEffect(() => {
+    setDataUser(followingUsers);
+  }, [followingUsers]);
 
   const onViewRef = useRef(({viewableItems}: {viewableItems: any[]}) => {
     if (viewableItems.length > 0) {
@@ -67,54 +67,11 @@ export const Home = () => {
 
   const modalizeRef = useRef<Modalize>(null);
 
-  const [dataUser, setDataUser] = useState([
-    {
-      id: 1,
-      name: 'user1',
-      image:
-        'https://i.pinimg.com/736x/b7/25/61/b72561fd1ec7018c0418c84a3c2d5a57.jpg',
-      status: 1,
-    },
-    {
-      id: 2,
-      name: 'user2',
-      image:
-        'https://i.pinimg.com/736x/c1/70/e8/c170e84663405785c80ba367cd5e3b85.jpg',
-      status: 1,
-    },
-    {
-      id: 3,
-      name: 'user3',
-      image:
-        'https://i.pinimg.com/736x/8b/ae/77/8bae77c63f046f5a307a864a9d230da2.jpg',
-      status: 0,
-    },
-    {
-      id: 4,
-      name: 'user4',
-      image:
-        'https://i.pinimg.com/736x/56/81/64/5681646985e7ddc1b2cd4b826763b541.jpg',
-      status: 0,
-    },
-  ]);
-
-  useEffect(() => {
-    const exists = dataUser.some(user => user.name === 'Tin của tôi');
-    if (!exists) {
-      const newUser = {
-        id: Date.now(),
-        name: 'Tin của tôi',
-        image:
-          'https://i.pinimg.com/736x/07/03/c7/0703c771ceecfd6142ce0ca726c056e7.jpg',
-        status: 1,
-      };
-      setDataUser([newUser, ...dataUser]);
-    }
-  }, []);
-
   const handleUserPress = (user: any) => {
     setDataUser(prevData =>
-      prevData.map(item => (item.id === user.id ? {...item, status: 0} : item)),
+      prevData?.map(item =>
+        item._id === user._id ? {...item, status: 0} : item,
+      ),
     );
     navigation.navigate('SeenStoryOwner', {selectedItem: user});
   };
@@ -249,14 +206,18 @@ export const Home = () => {
                 data={dataUser}
                 renderItem={({item}) => (
                   <Story
-                    name={item.name}
-                    image={item.image}
-                    status={item.status}
+                    name={
+                      item.handleName === user?.user?.handleName
+                        ? 'Tin của tôi'
+                        : item.handleName
+                    }
+                    image={item.profilePic}
+                    status={item.stories.length > 0 ? 1 : 0}
                     func={() => handleUserPress(item)}
                   />
                 )}
                 horizontal
-                keyExtractor={item => item.id.toString()}
+                keyExtractor={item => item._id}
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={{
                   paddingHorizontal: 10,
