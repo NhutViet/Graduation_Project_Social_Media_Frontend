@@ -59,9 +59,6 @@ const ItemHome = (props: any) => {
   const [visibleModalShare, setVisibleModalShare] = useState(false);
 
   const dispatch = useDispatch<AppDispatch>();
-  const {likePosts, isLoading} = useSelector(
-    (state: RootState) => state.reactions,
-  );
   const userID = useSelector((state: RootState) => state.user?.user?._id);
   const {followers, following, loading, error} = useSelector((state: RootState) => state.relation);
 
