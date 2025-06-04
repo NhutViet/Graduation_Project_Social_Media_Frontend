@@ -46,15 +46,15 @@ export const SwitchAccount = ({navigation}: any) => {
   useEffect(() => {
     if (isSuccess || isError) {
       setShowModal(true);
-      const time = setTimeout(() => {
+      setTimeout(() => {
         setShowModal(false);
-        dispatch(resetStatus());
+        
 
         if (isSuccess) {
           navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
         }
+        dispatch(resetStatus());
       }, 2000);
-      return () => clearTimeout(time);
     }
   }, [isError, isSuccess]);
 

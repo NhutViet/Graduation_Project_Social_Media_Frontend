@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Dimensions,
   FlatList,
+  Alert,
 } from 'react-native';
 import Video from 'react-native-video';
 import {Modalize} from 'react-native-modalize';
@@ -29,7 +30,10 @@ import {
   likePost,
   unlikePost,
 } from '../../../../services/reactionRedux/reactionSlice';
+import {Likers} from '../../../../services/likersRedux/likersSlice';
+import { addLikedPost } from '../../../../services/reactionRedux/reactionReducer';
 import { hidePost } from '../../../../services/postRedux/postSlice';
+
 
 const ItemHome = (props: any) => {
   const {
@@ -38,6 +42,7 @@ const ItemHome = (props: any) => {
     caption,
     share,
     createdAt,
+    isLike,
     media,
     user,
     currentVisible,
@@ -54,6 +59,9 @@ const ItemHome = (props: any) => {
   const [visibleModalShare, setVisibleModalShare] = useState(false);
 
   const dispatch = useDispatch<AppDispatch>();
+  const {likePosts, isLoading} = useSelector(
+    (state: RootState) => state.reactions,
+  );
   const userID = useSelector((state: RootState) => state.user?.user?._id);
   const {followers, following, loading, error} = useSelector((state: RootState) => state.relation);
 
@@ -94,19 +102,30 @@ const ItemHome = (props: any) => {
   //gọi api like
   const {likePosts, isLoading} = useSelector((state: RootState) => state.reactions);
   const {refreshToken} = useSelector((state: RootState) => state.user);
-  // const { user: currentUser } = useSelector((state: RootState) => state.user);
   const [isLiked, setIsLike] = useState(likePosts.includes(_id));
+  const [numLike, setNumLike] = useState(likeCount);
+
+  useEffect(() => {
+    if(isLike){
+      dispatch(addLikedPost(_id));
+    }
+  }, [_id]);
+
   useEffect(() => {
     setIsLike(likePosts.includes(_id));
   }, [likePosts]);
 
-  const handleLike = () => {
-    // if(!currentUser?._id) return;
-    console.log('Nhaans like nef');
+  const handleLike = async () => {
     if (isLiked) {
-      dispatch(unlikePost({postId: _id, refreshToken}));
+      const result = await dispatch(unlikePost({postId: _id, refreshToken}));
+      if(unlikePost.fulfilled.match(result)){
+        setNumLike((prev: number) => prev-1);
+      }
     } else {
-      dispatch(likePost({postId: _id, refreshToken}));
+      const result = await dispatch(likePost({postId: _id, refreshToken}));
+      if(likePost.fulfilled.match(result)){
+        setNumLike((prev: number) => prev+1);
+      }
     }
   };
 
@@ -328,97 +347,6 @@ const ItemHome = (props: any) => {
   //   },
   // ];
 
-  const modalReactionData = [
-    {
-      id: '1',
-      username: 'user1',
-      bio: 'abc',
-      profile_pic:
-        'https://i.pinimg.com/736x/8c/71/92/8c7192c084765c076ef33024c0b34406.jpg',
-      is_following: true,
-    },
-    {
-      id: '2',
-      username: 'user2',
-      bio: 'xyz',
-      profile_pic:
-        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-      is_following: false,
-    },
-    {
-      id: '3',
-      username: 'user3',
-      bio: '',
-      profile_pic:
-        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-      is_following: true,
-    },
-    {
-      id: '4',
-      username: 'user3',
-      bio: '',
-      profile_pic:
-        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-      is_following: true,
-    },
-    {
-      id: '5',
-      username: 'user3',
-      bio: '',
-      profile_pic:
-        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-      is_following: true,
-    },
-    {
-      id: '6',
-      username: 'user3',
-      bio: '',
-      profile_pic:
-        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-      is_following: true,
-    },
-    {
-      id: '7',
-      username: 'user3',
-      bio: '',
-      profile_pic:
-        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-      is_following: true,
-    },
-    {
-      id: '8',
-      username: 'user3',
-      bio: '',
-      profile_pic:
-        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-      is_following: true,
-    },
-    {
-      id: '9',
-      username: 'user3',
-      bio: '',
-      profile_pic:
-        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-      is_following: true,
-    },
-    {
-      id: '10',
-      username: 'user3',
-      bio: '',
-      profile_pic:
-        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-      is_following: true,
-    },
-    {
-      id: '11',
-      username: 'user3',
-      bio: '',
-      profile_pic:
-        'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-      is_following: true,
-    },
-  ];
-
   return (
     <View style={styles.wrapper}>
       {/* Single Modalize wrapping only the BottomSheetOptions content */}
@@ -637,7 +565,7 @@ const ItemHome = (props: any) => {
             <Text
               style={{color: color.text, marginLeft: 8, marginRight: 16}}
               onPress={handleOpenReactionModal}>
-              {formatNumber(likeCount)}
+              {formatNumber(numLike)}
             </Text>
             <TouchableOpacity style={styles.iconBlock} onPress={openComment}>
               <Image
@@ -678,7 +606,7 @@ const ItemHome = (props: any) => {
         friends={follows}
       />
       <Portal>
-        <ModalReaction ref={modalReactionRef} data={modalReactionData} />
+        <ModalReaction ref={modalReactionRef} postId={_id} isLiked={isLiked} />
       </Portal>
     </View>
   );
