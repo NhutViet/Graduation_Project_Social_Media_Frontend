@@ -25,6 +25,9 @@ export const API = {
   ////Logout
   POST_LOGOUT: 'users/logout',
 
+  //// Relation
+  GET_FOLLOWERS: 'relations/followers',
+  GET_FOLLOWING: 'relations/following',
   //// Register
   REGISTER: 'users/register',
 };

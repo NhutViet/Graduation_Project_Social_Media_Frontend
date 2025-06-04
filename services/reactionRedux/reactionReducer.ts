@@ -1,5 +1,5 @@
 import {createSlice} from '@reduxjs/toolkit';
-import {fetchLikePost, likePost, unlikePost} from './reactionSlice';
+import {likePost, unlikePost} from './reactionSlice';
 
 interface ReactionState {
   likePosts: string[];
