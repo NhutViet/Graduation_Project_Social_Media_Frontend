@@ -1,5 +1,5 @@
 import {createSlice} from '@reduxjs/toolkit';
-import {fetchLogin, fetchLogout} from './userSlice';
+import {fetchLogin, fetchLogout, fetchRegister} from './userSlice';
 import {User} from './userTypes';
 
 interface UserState {
@@ -78,7 +78,24 @@ const UserReducer = createSlice({
         state.isLoading = false;
         state.isError = true;
         state.errorMessage = action.payload?.message || 'Logout failed';
+      })
+
+      .addCase(fetchRegister.pending, state => {
+        state.isLoading = true;
+        state.isError = false;
+        state.isSuccess = false;
+      })
+      .addCase(fetchRegister.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.errorMessage = '';
+      })
+      .addCase(fetchRegister.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.errorMessage = action.payload?.message || 'Registration failed';
       });
+      
   },
 });
 

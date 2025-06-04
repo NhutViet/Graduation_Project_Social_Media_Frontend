@@ -33,6 +33,8 @@ import {
   ReelsView,
   TaggedView,
 } from './components/PostView.component';
+import {useSelector} from 'react-redux';
+import {RootState} from '../../../services/store';
 
 const HEADER_HEIGHT = 400;
 
@@ -41,6 +43,7 @@ const Profile = () => {
   const {theme} = useTheme();
   const color = Colors[theme];
   const {styles} = Styles;
+  const user = useSelector((state: RootState) => state.user.user);
 
   const [visibleModalCreate, setVisibleModalCreate] = useState(false);
 
@@ -62,7 +65,10 @@ const Profile = () => {
   };
 
   const renderStories = ({item}: {item: HighlightItem}) => (
-    <TouchableOpacity key={item.id} style={styles.highlightItem} onPress={() => handleUserPress(item)}>
+    <TouchableOpacity
+      key={item.id}
+      style={styles.highlightItem}
+      onPress={() => handleUserPress(item)}>
       <View style={styles.highlightImageContainer}>
         <Image source={{uri: item.image}} style={styles.highlightImage} />
       </View>
@@ -73,64 +79,64 @@ const Profile = () => {
   );
 
   // data mẫu
-    const [dataUser, setDataUser] = useState([
-      {
-        id: 1,
-        name: 'user1',
+  const [dataUser, setDataUser] = useState([
+    {
+      id: 1,
+      name: 'user1',
+      image:
+        'https://i.pinimg.com/736x/b7/25/61/b72561fd1ec7018c0418c84a3c2d5a57.jpg',
+      status: 1,
+    },
+    {
+      id: 2,
+      name: 'user2',
+      image:
+        'https://i.pinimg.com/736x/c1/70/e8/c170e84663405785c80ba367cd5e3b85.jpg',
+      status: 1,
+    },
+    {
+      id: 3,
+      name: 'user3',
+      image:
+        'https://i.pinimg.com/736x/8b/ae/77/8bae77c63f046f5a307a864a9d230da2.jpg',
+      status: 0,
+    },
+    {
+      id: 4,
+      name: 'user4',
+      image:
+        'https://i.pinimg.com/736x/56/81/64/5681646985e7ddc1b2cd4b826763b541.jpg',
+      status: 0,
+    },
+  ]);
+
+  useEffect(() => {
+    const exists = dataUser.some(user => user.name === 'Tin của tôi');
+    if (!exists) {
+      const newUser = {
+        id: Date.now(),
+        name: 'Tin của tôi',
         image:
-          'https://i.pinimg.com/736x/b7/25/61/b72561fd1ec7018c0418c84a3c2d5a57.jpg',
+          'https://i.pinimg.com/736x/07/03/c7/0703c771ceecfd6142ce0ca726c056e7.jpg',
         status: 1,
-      },
-      {
-        id: 2,
-        name: 'user2',
-        image:
-          'https://i.pinimg.com/736x/c1/70/e8/c170e84663405785c80ba367cd5e3b85.jpg',
-        status: 1,
-      },
-      {
-        id: 3,
-        name: 'user3',
-        image:
-          'https://i.pinimg.com/736x/8b/ae/77/8bae77c63f046f5a307a864a9d230da2.jpg',
-        status: 0,
-      },
-      {
-        id: 4,
-        name: 'user4',
-        image:
-          'https://i.pinimg.com/736x/56/81/64/5681646985e7ddc1b2cd4b826763b541.jpg',
-        status: 0,
-      },
-    ]);
-  
-    useEffect(() => {
-      const exists = dataUser.some(user => user.name === 'Tin của tôi');
-      if (!exists) {
-        const newUser = {
-          id: Date.now(),
-          name: 'Tin của tôi',
-          image:
-            'https://i.pinimg.com/736x/07/03/c7/0703c771ceecfd6142ce0ca726c056e7.jpg',
-          status: 1,
-        };
-        setDataUser([newUser, ...dataUser]);
-      }
-    }, []);
-  
-    const handleUserPress = (user: any) => {
-      console.log('Navigating to SeenStory with user:', user);
-      // Cập nhật status của user được nhấn thành 0
-      setDataUser(prevData =>
-        prevData.map(item => (item.id === user.id ? {...item, status: 0} : item)),
-      );
-      // Điều hướng đến SeenStoryOwner
-      if(user.id === '1'){
-        navigation.navigate('EditHighlightStory');
-      }else{
-        navigation.navigate('SeenStoryOwner', {selectedItem: user});
-      }
-    };
+      };
+      setDataUser([newUser, ...dataUser]);
+    }
+  }, []);
+
+  const handleUserPress = (user: any) => {
+    console.log('Navigating to SeenStory with user:', user);
+    // Cập nhật status của user được nhấn thành 0
+    setDataUser(prevData =>
+      prevData.map(item => (item.id === user.id ? {...item, status: 0} : item)),
+    );
+    // Điều hướng đến SeenStoryOwner
+    if (user.id === '1') {
+      navigation.navigate('EditHighlightStory');
+    } else {
+      navigation.navigate('SeenStoryOwner', {selectedItem: user});
+    }
+  };
 
   const renderHeader = () => (
     <Animated.View
@@ -143,7 +149,7 @@ const Profile = () => {
           <Lock size={16} color={color.text} />
           <TouchableOpacity onPress={handleUsernamePress}>
             <Text style={[styles.username, {color: color.text}]}>
-              pingenriquez
+              {user?.handleName}
             </Text>
           </TouchableOpacity>
           <ChevronDown size={16} color={color.text} />
@@ -167,7 +173,7 @@ const Profile = () => {
           <View style={styles.avatarContainer}>
             <Image
               source={{
-                uri: 'https://www.smartsight.in/wp-content/uploads/2019/10/golang-1200x900.png',
+                uri: user?.profilePic,
               }}
               style={styles.avatar}
             />
@@ -198,7 +204,9 @@ const Profile = () => {
             <TouchableOpacity
               onPress={() => navigation.naviate('FollowersScreen')}>
               <View style={styles.statItem}>
-                <Text style={[styles.statNumber, {color: color.text}]}>526</Text>
+                <Text style={[styles.statNumber, {color: color.text}]}>
+                  526
+                </Text>
                 <Text style={[styles.statLabel, {color: color.text}]}>
                   following
                 </Text>
@@ -209,7 +217,7 @@ const Profile = () => {
 
         <View style={styles.bioContainer}>
           <Text style={[styles.displayName, {color: color.text}]}>
-            Ping Enriquez
+            {user?.handleName}
           </Text>
           <View style={styles.modeContainer}>
             <Moon size={14} color={color.textSecondary} />

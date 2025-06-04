@@ -7,10 +7,14 @@ export const fetchPostsWithMedia = createAsyncThunk<PostWithMedia[]>(
   'posts/fetchWithMedia',
   async (_, {rejectWithValue}) => {
     try {
-      const response = await axiosInstance.get(API.GET_ALL_POST);
+      const response = await axiosInstance.get(API.GET_ALL_POST, {
+        headers: {
+          token: 'refresh',
+        },
+      });
       return response.data;
     } catch (err: any) {
-      return rejectWithValue(err.response.data);
+      return rejectWithValue(err.response?.data || err.message);
     }
   },
 );
@@ -19,10 +23,14 @@ export const fetchReelsWithMedia = createAsyncThunk<PostWithMedia[]>(
   'posts/fetchReelsWithMedia',
   async (_, {rejectWithValue}) => {
     try {
-      const response = await axiosInstance.get(API.GET_REELS_POST);
+      const response = await axiosInstance.get(API.GET_REELS_POST, {
+        headers: {
+          token: 'refresh',
+        },
+      });
       return response.data;
     } catch (err: any) {
-      return rejectWithValue(err.response.data);
+      return rejectWithValue(err.response?.data || err.message);
     }
   },
 );

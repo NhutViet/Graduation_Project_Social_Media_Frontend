@@ -25,6 +25,7 @@ import ModalReaction from './ModalReaction';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../../../services/store';
 import { fetchFollowers, fetchFollowing } from '../../../../services/relationRedux/relationSlice';
+import { fetchLikePost, likePost, unlikePost } from '../../../../services/reactionRedux/reactionSlice';
 
 const ItemHome = (props: any) => {
   const {
@@ -38,6 +39,7 @@ const ItemHome = (props: any) => {
     currentVisible,
     isFocused,
     openComment,
+    likeCount,
   } = props;
 
   const {theme} = useTheme();
@@ -84,6 +86,25 @@ const ItemHome = (props: any) => {
     console.log('Following:', following.length);
     console.log('Combined follows:', follows.length);
   }, [followers, following, follows]);
+  //gọi api like
+  const {likePosts, isLoading} = useSelector((state: RootState) => state.reactions);
+  const {refreshToken} = useSelector((state: RootState) => state.user);
+  // const { user: currentUser } = useSelector((state: RootState) => state.user);
+  const [isLiked, setIsLike] = useState(likePosts.includes(_id));
+  useEffect(() => {
+    setIsLike(likePosts.includes(_id));
+  }, [likePosts]);
+
+  const handleLike = () => {
+    // if(!currentUser?._id) return;
+    console.log('Nhaans like nef');
+    if(isLiked){
+      dispatch(unlikePost({postId: _id, refreshToken}));
+    }else {
+      dispatch(likePost({postId: _id, refreshToken}));
+    }
+  };
+
 
   // Modalize bottom sheet reference
   const sheetRef = useRef<Modalize>(null);
@@ -586,16 +607,16 @@ const ItemHome = (props: any) => {
       <View style={{backgroundColor: color.background, padding: 10}}>
         <View style={[styles.rowContainer, {justifyContent: 'space-between'}]}>
           <View style={styles.rowContainer}>
-            <TouchableOpacity style={styles.iconBlock}>
+            <TouchableOpacity style={styles.iconBlock} onPress={handleLike}>
               <Image
-                style={[{tintColor: color.text}, styles.icon]}
-                source={require('../../../../assets/icon/heart.png')}
+                style={[{tintColor: isLiked ? color.error : color.text}, styles.icon]}
+                source={isLiked ? require('../../../../assets/icon/heart_fill.png') : require('../../../../assets/icon/heart.png')}
               />
             </TouchableOpacity>
             <Text
               style={{color: color.text, marginLeft: 8, marginRight: 16}}
               onPress={handleOpenReactionModal}>
-              {formatNumber(27000)}
+              {formatNumber(likeCount)}
             </Text>
             <TouchableOpacity style={styles.iconBlock} onPress={openComment}>
               <Image

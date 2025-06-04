@@ -40,6 +40,7 @@ export const Home = () => {
   // redux
   const dispatch = useDispatch<AppDispatch>();
   const {posts, loading} = useSelector((state: RootState) => state.post);
+  const {likePosts} = useSelector((state: RootState) => state.reactions);
 
   const [currentVisible, setCurrentVisible] = useState<string | null>(null);
   const {
@@ -51,6 +52,7 @@ export const Home = () => {
 
   useEffect(() => {
     dispatch(fetchPostsWithMedia());
+    // dispatch(fetchFollowingStories());
   }, [dispatch]);
 
   const onViewRef = useRef(({viewableItems}: {viewableItems: any[]}) => {
