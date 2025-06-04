@@ -22,4 +22,8 @@ export const API = {
   CHECK_REFRESH_TOKEN: 'users/check-refresh-token',
   ////Logout
   POST_LOGOUT: 'users/logout',
+
+  //// Relation
+  GET_FOLLOWERS: 'relations/followers',
+  GET_FOLLOWING: 'relations/following'
 };

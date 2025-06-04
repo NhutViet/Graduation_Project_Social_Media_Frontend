@@ -1,4 +1,4 @@
-import React, {useRef, useCallback, useState} from 'react';
+import React, {useRef, useCallback, useState, useEffect, useMemo} from 'react';
 import {
   View,
   Text,
@@ -22,6 +22,9 @@ import BottomSheetIntentions, {
 import {useNavigation} from '@react-navigation/native';
 import ModalShare from './ModalShare';
 import ModalReaction from './ModalReaction';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../../../services/store';
+import { fetchFollowers, fetchFollowing } from '../../../../services/relationRedux/relationSlice';
 
 const ItemHome = (props: any) => {
   const {
@@ -43,6 +46,44 @@ const ItemHome = (props: any) => {
   const [isModalVisible, setIsModalVisible] = React.useState(false);
   const navigation: any = useNavigation();
   const [visibleModalShare, setVisibleModalShare] = useState(false);
+
+  const dispatch = useDispatch<AppDispatch>();
+  const userID = useSelector((state: RootState) => state.user?.user?._id);
+  const {followers, following, loading, error} = useSelector((state: RootState) => state.relation);
+
+  const follows = useMemo(() => {
+    const allUsers = [...followers, ...following];
+    
+    // Loại bỏ trùng lặp dựa trên id
+    const uniqueUsers = allUsers.filter((user, index, self) => 
+      index === self.findIndex(u => u.id === user.id)
+    );
+    
+    // Chuyển đổi format dữ liệu cho ModalShare
+    return uniqueUsers.map(user => ({
+      id: user.id,
+      name: user.username,
+      avatar: user.profilePic
+    }));
+  }, [followers, following]);
+  
+  useEffect(() => {
+    if (userID) {
+      Promise.all([
+        dispatch(fetchFollowers({ userID })),
+        dispatch(fetchFollowing({ userID }))
+      ]).catch(error => {
+        console.error('Error fetching relations:', error);
+      });
+    }
+  }, [dispatch, userID]);
+
+  // log để debug
+  useEffect(() => {
+    console.log('Followers:', followers.length);
+    console.log('Following:', following.length);
+    console.log('Combined follows:', follows.length);
+  }, [followers, following, follows]);
 
   // Modalize bottom sheet reference
   const sheetRef = useRef<Modalize>(null);
@@ -66,6 +107,20 @@ const ItemHome = (props: any) => {
   const handleOpenReactionModal = useCallback(() => {
     modalReactionRef.current?.open();
   }, []);
+
+  const handleOpenModalShare = useCallback(() => {
+  if (loading) {
+    console.log('Still loading relations...');
+    return;
+  }
+  
+  if (error) {
+    console.error('Error loading relations:', error);
+    return;
+  }
+  
+  setVisibleModalShare(true);
+}, [loading, error]);
 
   // Number formatting utility
   const formatNumber = (num: number): string => {
@@ -214,30 +269,30 @@ const ItemHome = (props: any) => {
   const textColor = type === 'reel' ? Colors.dark.text : color.text;
 
   // data share
-  const friends = [
-    {
-      id: '1',
-      name: 'Huỳnh Duy Linh',
-      avatar: 'https://picsum.photos/seed/1/100',
-    },
-    {id: '2', name: 'Ng.Đức Phi', avatar: 'https://picsum.photos/seed/2/100'},
-    {
-      id: '3',
-      name: 'Hoàng Thị Bảo Trâm',
-      avatar: 'https://picsum.photos/seed/3/100',
-    },
-    {
-      id: '4',
-      name: 'Coraline Hoang',
-      avatar: 'https://picsum.photos/seed/4/100',
-    },
-    {id: '5', name: 'Chu Kim Gun', avatar: 'https://picsum.photos/seed/5/100'},
-    {
-      id: '6',
-      name: 'Huỳnh Duy Linh',
-      avatar: 'https://picsum.photos/seed/1/100',
-    },
-  ];
+  // const friends = [
+  //   {
+  //     id: '1',
+  //     name: 'Huỳnh Duy Linh',
+  //     avatar: 'https://picsum.photos/seed/1/100',
+  //   },
+  //   {id: '2', name: 'Ng.Đức Phi', avatar: 'https://picsum.photos/seed/2/100'},
+  //   {
+  //     id: '3',
+  //     name: 'Hoàng Thị Bảo Trâm',
+  //     avatar: 'https://picsum.photos/seed/3/100',
+  //   },
+  //   {
+  //     id: '4',
+  //     name: 'Coraline Hoang',
+  //     avatar: 'https://picsum.photos/seed/4/100',
+  //   },
+  //   {id: '5', name: 'Chu Kim Gun', avatar: 'https://picsum.photos/seed/5/100'},
+  //   {
+  //     id: '6',
+  //     name: 'Huỳnh Duy Linh',
+  //     avatar: 'https://picsum.photos/seed/1/100',
+  //   },
+  // ];
 
   const modalReactionData = [
     {
@@ -553,7 +608,7 @@ const ItemHome = (props: any) => {
             </Text>
             <TouchableOpacity
               style={styles.iconBlock}
-              onPress={() => setVisibleModalShare(true)}>
+              onPress={handleOpenModalShare}>
               <Image
                 style={[{tintColor: color.text}, styles.icon]}
                 source={require('../../../../assets/icon/share.png')}
@@ -578,7 +633,7 @@ const ItemHome = (props: any) => {
       <ModalShare
         visible={visibleModalShare}
         onClose={() => setVisibleModalShare(false)}
-        friends={friends}
+        friends={follows}
       />
       <Portal>
         <ModalReaction ref={modalReactionRef} data={modalReactionData} />
