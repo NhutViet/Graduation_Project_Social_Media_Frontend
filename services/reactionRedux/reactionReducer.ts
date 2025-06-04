@@ -1,5 +1,5 @@
 import {createSlice} from '@reduxjs/toolkit';
-import {fetchLikePost, likePost, unlikePost} from './reactionSlice';
+import { likePost, unlikePost} from './reactionSlice';
 
 interface ReactionState {
   likePosts: string[];
@@ -20,7 +20,14 @@ const initialState: ReactionState = {
 const reactionReducer = createSlice({
   name: 'reaction',
   initialState,
-  reducers: {},
+  reducers: {
+    addLikedPost: (state, action) => {
+      const postId = action.payload;
+      if(!state.likePosts.includes(postId)){
+        state.likePosts.push(postId);
+      }
+    },
+  },
   extraReducers: builder => {
     builder
       //like post
@@ -66,4 +73,5 @@ const reactionReducer = createSlice({
   },
 });
 
+export const {addLikedPost} = reactionReducer.actions;
 export default reactionReducer.reducer;

@@ -20,6 +20,7 @@ export interface Post {
   createdAt?: string;
   updatedAt?: string;
   likeCount?: number;
+  isLike?: boolean;
 }
 
 export interface UserPost {
