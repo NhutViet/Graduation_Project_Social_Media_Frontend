@@ -17,11 +17,11 @@ const ActionButtons: React.FC<ActionProps> = ({
   return (
     <View style={styles.actionButtons}>
       <TouchableOpacity style={styles.followButton} onPress={onFollowPress}>
-        <Text style={styles.followButtonText}>Follow</Text>
+        <Text style={styles.followButtonText}>Theo dõi</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.messageButton} onPress={onMessagePress}>
         <Text style={[styles.messageButtonText, {color: Colors[theme].text}]}>
-          Message
+          Tin nhắn
         </Text>
       </TouchableOpacity>
     </View>

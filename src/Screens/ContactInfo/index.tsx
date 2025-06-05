@@ -28,19 +28,19 @@ export const ContactInfo = () => {
             <ChevronLeft size={30} color={color.text} />
           </TouchableOpacity>
           <Text style={[styles.textHeader, {color: color.text}]}>
-            Which would you like to add?
+             Bạn muốn thêm gì?
           </Text>
         </View>
         <View style={styles.mid}>
           <TouchableOpacity
             style={styles.viewNumber}
             onPress={() => setVisibleModalPhoneNumber(true)}>
-            <Text style={styles.txtNumber}>Add mobile number</Text>
+            <Text style={styles.txtNumber}>TThêm số điện thoại di động</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.viewEmail}
             onPress={() => setVisibleModalEmail(true)}>
-            <Text style={styles.txtNumber}>Add Email</Text>
+            <Text style={styles.txtNumber}>Thêm email</Text>
           </TouchableOpacity>
         </View>
       </View>

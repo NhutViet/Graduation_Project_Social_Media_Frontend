@@ -31,7 +31,7 @@ export const PrivacyAndSafety = () => {
           <Text style={[styles.sectionTitle, {color: color.text}]}>username...</Text>
           <TouchableOpacity style={styles.row}>
             <Info style={styles.rowIcon} size={24} color={color.text} />
-            <Text style={[styles.rowText, {color: color.text}]}>About this account</Text>
+            <Text style={[styles.rowText, {color: color.text}]}>Về tài khoản này</Text>
             <View style={{flex: 1, alignItems: 'flex-end'}}>
                 <Image style={{tintColor: color.textSecondary}} source={require('../../../assets/icon/right.png')}/>
             </View>
@@ -40,45 +40,45 @@ export const PrivacyAndSafety = () => {
 
 
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, {color: color.text}]}>Keeping your messages secure</Text>
+          <Text style={[styles.sectionTitle, {color: color.text}]}>Giữ cho tin nhắn được bảo mật</Text>
           <TouchableOpacity style={styles.row}>
-            <Text style={[styles.rowText, {color: color.text}]}>Use end-to-end encryption</Text>
+            <Text style={[styles.rowText, {color: color.text}]}>Sử dụng mã hóa đầu cuối</Text>
           </TouchableOpacity>
         </View>
 
 
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, {color: color.text}]}>Who can see your activity</Text>
+          <Text style={[styles.sectionTitle, {color: color.text}]}>Những người thể nhìn thấy hoạt động của bạn</Text>
           <View style={styles.switchRow}>
-            <Text style={[styles.rowText, {color: color.text}]}>Read receipts</Text>
+            <Text style={[styles.rowText, {color: color.text}]}>Hiển thị đã đọc</Text>
             <Switch  value={readReceipts} onValueChange={toggleReadReceipts} thumbColor={color.text} trackColor={{ false: color.textSecondary, true: color.text }} />
           </View>
           <Text style={[styles.note, {color: color.textSecondary}]}>
-            Others can see when you've read their messages. {"\n \n"}
-            Disappearing messages always send read receipts.
+            Người khác có thể nhìn thấy khi bạn đã đọc tin nhắn của họ. {"\n \n"}
+            Tin nhắn biến mất luôn gửi thông báo đã đọc.
           </Text>
           <View style={styles.switchRow}>
-            <Text style={[styles.rowText, {color: color.text}]}>Typing indicator</Text>
+            <Text style={[styles.rowText, {color: color.text}]}>Hiển thị gõ</Text>
             <Switch value={typingIndicator} onValueChange={toggleTypingIndicator} thumbColor={color.text} trackColor={{ false: color.textSecondary, true: color.text }}/>
           </View>
           <Text style={[styles.note, {color: color.textSecondary}]}>
-            Others can see when you're typing.
+            Người khác có thể nhìn thấy khi bạn đang gõ.
           </Text>
         </View>
 
 
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, {color: color.text}]}>Who can reach you</Text>
+          <Text style={[styles.sectionTitle, {color: color.text}]}>Những người có thể liên hệ tới bạn</Text>
           <TouchableOpacity style={styles.row}>
             <Image style={[styles.rowIcon, {tintColor: color.text}]} source={require('../../../assets/icon/block-user.png')}/>
-            <Text style={[styles.rowText, {color: color.text}]}>Restrict</Text>
+            <Text style={[styles.rowText, {color: color.text}]}>Hạn chế</Text>
             <View style={{flex: 1, alignItems: 'flex-end'}}>
                 <Image style={{tintColor: color.textSecondary}} source={require('../../../assets/icon/right.png')}/>
             </View>
           </TouchableOpacity>
           <TouchableOpacity style={styles.row}>
             <Ban style={styles.rowIcon} size={24} color="red" />
-            <Text style={[[styles.rowText, {color: color.text}], { color: 'red' }]}>Block</Text>
+            <Text style={[[styles.rowText, {color: color.text}], { color: 'red' }]}>Chặn</Text>
             <View style={{flex: 1, alignItems: 'flex-end'}}>
                 <Image style={{tintColor: color.textSecondary}} source={require('../../../assets/icon/right.png')}/>
             </View>
@@ -87,10 +87,10 @@ export const PrivacyAndSafety = () => {
 
         
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, {color: color.text}]}>Support</Text>
+          <Text style={[styles.sectionTitle, {color: color.text}]}>Hỗ trợ</Text>
           <TouchableOpacity style={styles.row}>
             <Image style={styles.rowIcon} source={require('../../../assets/icon/report.png')}/>
-            <Text style={[[styles.rowText, {color: color.text}], { color: 'red' }]}>Report</Text>
+            <Text style={[[styles.rowText, {color: color.text}], { color: 'red' }]}>Báo cáo</Text>
             <View style={{flex: 1, alignItems: 'flex-end'}}>
                 <Image style={{tintColor: color.textSecondary}} source={require('../../../assets/icon/right.png')}/>
             </View>

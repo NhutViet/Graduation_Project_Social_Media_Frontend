@@ -121,7 +121,7 @@ export const AddPost = () => {
 
     if(isVideo){
       if(isImageAlreadySelected){
-        Alert.alert('Notification', 'Cannot select both video and photo at the same time!!!');
+        Alert.alert('Thông báo', 'Không thể chọn cả video và ảnh cùng một lúc!!!');
         return;
       }
 
@@ -136,7 +136,7 @@ export const AddPost = () => {
       }
     }else {
       if(isVideoAlreadySelected){
-        Alert.alert('Notification', 'Cannot select both video and photo at the same time!!!');
+        Alert.alert('Thông báo', 'Không thể chọn cả video và ảnh cùng một lúc!!!');
         return;
       }
 
@@ -171,7 +171,7 @@ export const AddPost = () => {
 
   const handleNext = () => {
     if (selectedItems.length === 0) {
-      Alert.alert('Notification', 'Please select at least one photo or video');
+      Alert.alert('Thông báo', 'Hãy chọn ít nhất một video hoặc ảnh');
       return;
     }
     navigation.navigate('PostSetting', {selectedMedia: selectedItems});
@@ -212,9 +212,9 @@ export const AddPost = () => {
               style={styles.iconR}
             />
           </TouchableOpacity>
-          <Text style={styles.title}>New Post</Text>
+          <Text style={styles.title}>Bài đăng mới</Text>
           <TouchableOpacity onPress={handleNext}>
-            <Text style={[styles.textR, {color: color.primary}]}>Next</Text>
+            <Text style={[styles.textR, {color: color.primary}]}>Tiếp theo</Text>
           </TouchableOpacity>
         </View>
 
@@ -227,7 +227,7 @@ export const AddPost = () => {
                 resizeMode="contain"
               />
           ) : (
-            <Text style={styles.placeholderText}>Select a media</Text>
+            <Text style={styles.placeholderText}>Chọn một phương tiện</Text>
           )}
         </View>
 
@@ -264,7 +264,7 @@ export const AddPost = () => {
                 source={require('../../../assets/icon/no_photo.png')}
                 style={styles.iconEmty}
               />
-              <Text style={[styles.notFound]}>Not Found 🙂‍↔️!</Text>
+              <Text style={[styles.notFound]}>Không tìm thấy 🙂‍↔️!</Text>
             </View>
           ) : (
             <FlashList

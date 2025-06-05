@@ -21,7 +21,7 @@ const ItemList = (props: any) => {
         <View style={styles.row}>
           <Image source={require('../../../../assets/icon/ellipsis.png')} style={styles.ellipses}/>
           <TouchableOpacity style={[styles.btnContainer, {borderColor: colors.text}]}>
-            <Text style={[styles.message, {color: colors.text, fontSize: 14}]}>Message</Text>
+            <Text style={[styles.message, {color: colors.text, fontSize: 14}]}>Tin nhắn</Text>
           </TouchableOpacity>
         </View>
       )}

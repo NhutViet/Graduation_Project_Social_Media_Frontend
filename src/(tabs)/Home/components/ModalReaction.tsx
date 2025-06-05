@@ -105,7 +105,7 @@ const ModalReaction = forwardRef<Modalize, ModalReactionProps>(
         onOverlayPress={() => ref && (ref as any).current?.close()}
         HeaderComponent={
           <View style={styles.modalHeader}>
-            <Text style={[styles.title, {color: color.text}]}>Favorites</Text>
+            <Text style={[styles.title, {color: color.text}]}>Lượt thích</Text>
           </View>
         }
         scrollViewProps={{

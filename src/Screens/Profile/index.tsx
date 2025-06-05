@@ -43,10 +43,10 @@ const ProfileComp = () => {
   const toggleFollow = useCallback(() => {
     setIsFollowing(!isFollowing);
     Alert.alert(
-      isFollowing ? 'Unfollowed' : 'Followed',
+      isFollowing ? 'Bỏ theo dõi' : 'Đã theo dõi',
       isFollowing
-        ? 'You have unfollowed this user.'
-        : 'You have followed this user.',
+        ? 'Bạn đã bỏ theo dõi người dùng này.'
+        : 'Bạn đã theo dõi người dùng này.',
     );
   }, [isFollowing]);
 
@@ -56,9 +56,9 @@ const ProfileComp = () => {
         <View style={styles.lockIconContainer}>
           <Lock size={50} color={Colors[theme].text} />
         </View>
-        <Text style={styles.privateTitle}>This account is private</Text>
+        <Text style={styles.privateTitle}>Đây là tài khoản riêng tư</Text>
         <Text style={styles.privateDescription}>
-          Follow this account to see their photos and videos.
+          Theo dõi tài khoản này để thấy ảnh và video của họ.
         </Text>
       </View>
     );

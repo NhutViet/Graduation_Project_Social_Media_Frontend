@@ -50,18 +50,18 @@ export const LinkToGroup = () => {
             </TouchableOpacity>
         </View>
         <View style={{alignItems: 'center'}}>
-            <Text style={[styles.header, {color: color.text}]}>Invite link</Text>
+            <Text style={[styles.header, {color: color.text}]}>Liên kết mời</Text>
         </View>
         <View style={{flexDirection: 'row', alignItems: 'center',}}></View>
       </View>
       <View style={{marginBottom: 16, paddingHorizontal: 20}}>
-            <Text style={{fontSize: 17, color: color.text}}>Invite link</Text>
+            <Text style={{fontSize: 17, color: color.text}}>Liên kết mời</Text>
             <View style={styles.linkRow}>
                 <Text style={styles.linkText}>{inviteLink}</Text>
                 <Switch value={isLinkEnabled} onValueChange={toggleLink} thumbColor={color.text} trackColor={{ false: color.textSecondary, true: color.text }}/>
             </View>
             <View style={{flexDirection: 'row', marginTop: 8,}}>
-                <Text style={{color: color.textSecondary}}>Anyone can join your group chat with this link. <TouchableOpacity><Text style={styles.learnMore}>Learn more</Text></TouchableOpacity></Text>
+                <Text style={{color: color.textSecondary}}>Bất kỳ ai cũng có thể tham gia nhóm chat của bạn bằng liên kết này. <TouchableOpacity><Text style={styles.learnMore}>Tìm hiểu thêm</Text></TouchableOpacity></Text>
             </View>
         </View>
 
@@ -69,29 +69,29 @@ export const LinkToGroup = () => {
 
         <TouchableOpacity style={styles.row} onPress={copyToClipboard}>
             <Image source={require('../../../assets/icon/copy.png')} style={styles.icon} />
-            <Text style={[styles.rowText, {color: color.text}]}>Copy</Text>
+            <Text style={[styles.rowText, {color: color.text}]}>Sao chép</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.row}>
             <Image source={require('../../../assets/icon/share.png')} style={styles.icon} />
-            <Text style={[styles.rowText, {color: color.text}]}>Send in Instagram</Text>
+            <Text style={[styles.rowText, {color: color.text}]}>Gửi trên Cirla</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.row} onPress={() => setModalVisible(true)}>
             <Image source={require('../../../assets/icon/qrlink.png')} style={styles.icon} />
-            <Text style={[styles.rowText, {color: color.text}]}>QR code</Text>
+            <Text style={[styles.rowText, {color: color.text}]}>Mã QR</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.row}>
             <Image source={require('../../../assets/icon/upload.png')} style={styles.icon} />
-            <Text style={[styles.rowText, {color: color.text}]}>Share</Text>
+            <Text style={[styles.rowText, {color: color.text}]}>Chia sẻ</Text>
         </TouchableOpacity>
 
         <View style={{width: '100%', borderWidth: 3, borderColor: color.gray}}/>
 
         <TouchableOpacity style={styles.row}>
             <Image source={require('../../../assets/icon/repost.png')} style={[styles.icon, {tintColor: '#dd0131'}]} />
-            <Text style={styles.resetText}>Reset link</Text>
+            <Text style={styles.resetText}>Đặt lại liên kết</Text>
         </TouchableOpacity>
         <Portal>
             <LinkQRModal

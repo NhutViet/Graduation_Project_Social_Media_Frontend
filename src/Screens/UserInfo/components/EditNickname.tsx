@@ -62,14 +62,14 @@ export const EditNickname = () => {
             style={styles.iconSmall}
           />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Nicknames</Text>
+        <Text style={styles.headerTitle}>Biệt danh</Text>
         <View style={styles.placeholder} />
       </View>
 
       {/* Info container */}
       <View style={styles.infoContainer}>
-        <Text style={styles.infoText}>Nicknames are only visible in this chat.</Text>
-        <Text style={styles.infoLink}>Change who can edit your nickname</Text>
+        <Text style={styles.infoText}>Biệt danh chỉ hiển thị trong cuộc trò chuyện này.</Text>
+        <Text style={styles.infoLink}>Thay đổi người có thể chỉnh sửa biệt danh của bạn</Text>
       </View>
 
       {/* Users list */}
@@ -105,9 +105,9 @@ export const EditNickname = () => {
         >
           <View style={styles.modalHeader}>
             <TouchableOpacity onPress={closeModal}>
-              <Text style={styles.modalCancel}>Cancel</Text>
+              <Text style={styles.modalCancel}>Hủy</Text>
             </TouchableOpacity>
-            <Text style={styles.modalTitle}>Edit nickname</Text>
+            <Text style={styles.modalTitle}>Chỉnh sửa biệt danh</Text>
             <TouchableOpacity
               disabled={!newNickname}
               onPress={handleDone}
@@ -118,7 +118,7 @@ export const EditNickname = () => {
                   !newNickname && styles.modalDoneDisabled,
                 ]}
               >
-                Done
+                Hoàn thành
               </Text>
             </TouchableOpacity>
           </View>
@@ -127,7 +127,7 @@ export const EditNickname = () => {
             
             <View style={{ width: '100%', marginBottom: 20 }}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
-                <Text style={{ color: color.textSecondary, fontSize: 12 }}>Nickname</Text>
+                <Text style={{ color: color.textSecondary, fontSize: 12 }}>Biệt danh</Text>
                 <Text style={{ color: color.textSecondary, fontSize: 12 }}>{newNickname.length}/32</Text>
               </View>
               <TextInput
@@ -139,7 +139,7 @@ export const EditNickname = () => {
               />
             </View>
             
-            <Text style={styles.modalInfo}>Everyone in the chat will see this nickname.</Text>
+            <Text style={styles.modalInfo}>Mọi người trong cuộc trò chuyện sẽ thấy biệt danh này.</Text>
           </View>
         </Modalize>
       </Portal>

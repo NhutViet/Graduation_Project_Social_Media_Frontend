@@ -70,12 +70,12 @@ export const BlockUser = () => {
             style={styles.iconBack}
           />
         </TouchableOpacity>
-        <Text style={styles.title}>Blocked an account</Text>
+        <Text style={styles.title}>Đã chặn một tài khoản</Text>
         <View style={{width: 14}}></View>
       </View>
       <View style={styles.searchContainer}>
         <TextInput
-          placeholder="Search"
+          placeholder="Tìm kiếm"
           ref={inputRef}
           value={searchText}
           onChangeText={setSearchText}
@@ -94,7 +94,7 @@ export const BlockUser = () => {
               setIsFocused(false);
               setSearchText('');
             }}>
-            <Text style={styles.cancel}>Cancel</Text>
+            <Text style={styles.cancel}>Hủy</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -120,7 +120,7 @@ export const BlockUser = () => {
             }}
           />
         ) : (
-          <Text style={[styles.notFound, {color: colors.text}]}>Not Found 🙂‍↔️!</Text>
+          <Text style={[styles.notFound, {color: colors.text}]}>Không tìm thấy 🙂‍↔️!</Text>
         )}
       </View>
       <Modalize

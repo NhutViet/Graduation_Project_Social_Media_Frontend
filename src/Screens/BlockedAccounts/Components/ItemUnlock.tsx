@@ -16,11 +16,11 @@ const ItemUnlock = (props: any) => {
         </View>
         <View style={{flex: 1}} >
           <Text style={[styles.textHandle, {color: colors.text}]} numberOfLines={1} ellipsizeMode='tail'>{handle}</Text>
-          <Text style={[styles.textNote, {color: colors.lightDark}]} numberOfLines={2} ellipsizeMode='tail'>Includes other accounts they may have or create</Text>
+          <Text style={[styles.textNote, {color: colors.lightDark}]} numberOfLines={2} ellipsizeMode='tail'>Bao gồm các tài khoản khác mà họ có hoặc có thể tạo</Text>
         </View>
       </View>
       <TouchableOpacity style={[styles.btn, {backgroundColor: colors.primary}]} onPress={onHandleUnBlock}>
-        <Text style={[styles.textUnBlock, {color: colors.background}]}>Unblock</Text>
+        <Text style={[styles.textUnBlock, {color: colors.background}]}>Bỏ chặn</Text>
       </TouchableOpacity>
     </TouchableOpacity>
   );

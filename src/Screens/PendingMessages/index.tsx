@@ -55,7 +55,7 @@ export const PendingMessages: React.FC = () => {
           <Image source={require('../../../assets/icon/search.png')} style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
-            placeholder="Search"
+            placeholder="Tìm kiếm"
             placeholderTextColor={styles.tabSelected.backgroundColor}
             value={searchText}
             onChangeText={setSearchText}
@@ -89,7 +89,7 @@ export const PendingMessages: React.FC = () => {
             { color: focused ? styles.tabIndicator.backgroundColor : styles.tabText.color },
           ]}
         >
-          {route.key === 'strangers' ? "Strangers' messages" : 'My message requests'}
+          {route.key === 'strangers' ? "Tin nhắn từ người lạ" : 'Yêu cầu tin nhắn của tôi'}
         </Text>
       )}
       pressColor="transparent"

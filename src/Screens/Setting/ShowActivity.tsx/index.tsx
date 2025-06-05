@@ -30,8 +30,8 @@ export const ShowActivity = () => {
       // }
       setIsActive(!isActive);
       Alert.alert(
-        'Success',
-        `Switch to ${!isActive ? 'online' : 'offline'} mode`,
+        'Thành công',
+        `Chuyển sang chế độ ${!isActive ? 'online' : 'offline'}`,
       );
     } catch (error) {
       console.error('Error updating privacy settings:', error);
@@ -46,7 +46,7 @@ export const ShowActivity = () => {
           style={styles.backButton}>
           <ChevronLeft size={30} color={mColor.text} />
         </TouchableOpacity>
-        <Text style={styles.headTitle}>Show activity status</Text>
+        <Text style={styles.headTitle}>Hiện trạng thái hoạt động</Text>
         <View style={styles.backButton} />
       </View>
       <View style={styles.content}>
@@ -57,7 +57,7 @@ export const ShowActivity = () => {
           ]}>
           <View style={styles.privacyHeader}>
             <Text style={[styles.privacyTitle, {color: mColor.text}]}>
-              Show activity status
+              Hiện trạng thái hoạt động
             </Text>
             <Switch
               value={isActive}
@@ -70,14 +70,14 @@ export const ShowActivity = () => {
             />
           </View>
           <Text style={styles.privacyDescription}>
-            Allow accounts you follow and anyone you message to see when you
-            were last active or are currently active on Instagram apps. When
-            this is turned off, you won't be able to see the activity status of
-            other accounts.
-            <Text style={styles.learnMore}>Learn more.{'\n'}</Text>
+            Cho phép các tài khoản bạn theo dõi và bất kỳ ai bạn nhắn tin xem thời gian bạn
+            hoạt động lần cuối hoặc hiện đang hoạt động trên ứng dụng Instagram. Khi
+            tắt tùy chọn này, bạn sẽ không thể xem trạng thái hoạt động của
+            các tài khoản khác.
+            <Text style={styles.learnMore}>Tìm hiểu thêm.{'\n'}</Text>
             {'\n'}
             <Text style={styles.privacyDescription}>
-              You can continue to use our services if active status is off..
+              Bạn vẫn có thể sử dụng ứng dụng khi trang thái hoạt động đang tắt..
             </Text>
           </Text>
         </View>

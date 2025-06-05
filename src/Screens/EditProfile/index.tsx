@@ -68,11 +68,11 @@ export const EditProfile = ({route}: any) => {
     <SafeAreaView style={styles.screen}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.headerText}>Cancel</Text>
+          <Text style={styles.headerText}>Hủy</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Edit Profile</Text>
+        <Text style={styles.headerTitle}>Chỉnh sửa hồ sơ</Text>
         <TouchableOpacity>
-          <Text style={[styles.headerText, {color: '#3897F0'}]}>Done</Text>
+          <Text style={[styles.headerText, {color: '#3897F0'}]}>Hoàn tất</Text>
         </TouchableOpacity>
       </View>
       <ScrollView>
@@ -87,27 +87,27 @@ export const EditProfile = ({route}: any) => {
               style={styles.avatar}
             />
             <TouchableOpacity onPress={() => setModalVisible(true)}>
-              <Text style={styles.changeText}>Change Profile Photo</Text>
+              <Text style={styles.changeText}>Thay đổi ảnh đại diện</Text>
             </TouchableOpacity>
           </View>
 
           <View style={styles.content}>
             <UserInfo
               rows={[
-                {label: 'Username', value: 'Jacob West'},
-                {label: 'Handle', value: '@jacob_w'},
+                {label: 'Tên người dùng', value: 'Jacob West'},
+                {label: 'Tên tài khoản', value: '@jacob_w'},
                 {label: 'Website', value: ''},
-                {label: 'Bio', value: 'Digital goodies designer @pixsellz'},
+                {label: 'Mô tả', value: 'Digital goodies designer @pixsellz'},
               ]}
             />
 
             <UserInfo
-              title="Switch to Professional Account"
-              subtitle="Private Information"
+              title="Chuyển sang Professional Account"
+              subtitle="Thông tin cá nhân"
               rows={[
                 {label: 'Email', value: 'jacob.west@gmail.com'},
-                {label: 'Phone', value: '+1 202 555 0147'},
-                {label: 'Gender', value: 'Male'},
+                {label: 'Số điện thoại', value: '+1 202 555 0147'},
+                {label: 'Giới tính', value: 'Male'},
               ]}
             />
           </View>
@@ -116,7 +116,7 @@ export const EditProfile = ({route}: any) => {
             <View style={styles.modalOverlay}>
               <View style={styles.modalContainer}>
                 <TouchableOpacity style={styles.btnModel} onPress={pickImage}>
-                  <Text style={styles.textModel}>Pick from Gallery</Text>
+                  <Text style={styles.textModel}>Chọn trong Gallery</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[
@@ -128,12 +128,12 @@ export const EditProfile = ({route}: any) => {
                     },
                   ]}
                   onPress={takePhoto}>
-                  <Text style={styles.textModel}>Take Photo</Text>
+                  <Text style={styles.textModel}>Chụp ảnh</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.btnModel}
                   onPress={() => setModalVisible(false)}>
-                  <Text style={styles.textModel}>Cancel</Text>
+                  <Text style={styles.textModel}>Hủy</Text>
                 </TouchableOpacity>
               </View>
             </View>

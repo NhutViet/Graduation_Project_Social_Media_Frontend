@@ -54,7 +54,7 @@ export const ViewMore: React.FC<PostMoreOptionProps> = ({visible, onClose}) => {
                 ]}>
                 <Bookmark size={24} color={color.text} />
                 <Text style={[styles.actionText, {color: color.text}]}>
-                  Bookmark
+                  Lưu
                 </Text>
               </TouchableOpacity>
 
@@ -83,7 +83,7 @@ export const ViewMore: React.FC<PostMoreOptionProps> = ({visible, onClose}) => {
                 style={[styles.actionItem, styles.actionContainer]}>
                 <Star size={24} color={color.text} />
                 <Text style={[styles.actionText, {color: color.text}]}>
-                  Adding to favorite
+                  Thêm vào mục yêu thích
                 </Text>
               </TouchableOpacity>
 
@@ -93,7 +93,7 @@ export const ViewMore: React.FC<PostMoreOptionProps> = ({visible, onClose}) => {
                 style={[styles.actionItem, styles.actionContainer]}>
                 <UserMinus size={24} color={color.text} />
                 <Text style={[styles.actionText, {color: color.text}]}>
-                  Unfollow
+                  Bỏ theo dõi
                 </Text>
               </TouchableOpacity>
             </View>
@@ -108,7 +108,7 @@ export const ViewMore: React.FC<PostMoreOptionProps> = ({visible, onClose}) => {
                 style={[styles.actionItem, styles.actionContainer]}>
                 <User size={24} color={color.text} />
                 <Text style={[styles.actionText, {color: color.text}]}>
-                  This account info
+                  Giới thiệu về tài khoản này
                 </Text>
               </TouchableOpacity>
 
@@ -118,7 +118,7 @@ export const ViewMore: React.FC<PostMoreOptionProps> = ({visible, onClose}) => {
                 style={[styles.actionItem, styles.actionContainer]}>
                 <Info size={24} color={color.text} />
                 <Text style={[styles.actionText, {color: color.text}]}>
-                  Why am I seeing this post
+                  Tại sao tôi thấy bài viết này ?
                 </Text>
               </TouchableOpacity>
 
@@ -128,7 +128,7 @@ export const ViewMore: React.FC<PostMoreOptionProps> = ({visible, onClose}) => {
                 style={[styles.actionItem, styles.actionContainer]}>
                 <Eye size={24} color={color.text} />
                 <Text style={[styles.actionText, {color: color.text}]}>
-                  Hide
+                  Ẩn
                 </Text>
               </TouchableOpacity>
 
@@ -138,7 +138,7 @@ export const ViewMore: React.FC<PostMoreOptionProps> = ({visible, onClose}) => {
                 style={[styles.actionItem, styles.actionContainer]}>
                 <Flag size={24} color={color.error} />
                 <Text style={[styles.actionText, {color: color.error}]}>
-                  Report this post
+                  Báo cáo bài viết
                 </Text>
               </TouchableOpacity>
             </View>

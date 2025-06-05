@@ -100,16 +100,16 @@ interface Notification {
         {actionType === 'request' ? (
           <View style={styles.actionButtonsContainer}>
             <TouchableOpacity style={styles.confirmButton}>
-              <Text style={styles.actionButtonTextConfirm}>Confirm</Text>
+              <Text style={styles.actionButtonTextConfirm}>Xác nhận</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.deleteButton}>
-              <Text style={styles.actionButtonTextDelete}>Delete</Text>
+              <Text style={styles.actionButtonTextDelete}>Xóa</Text>
             </TouchableOpacity>
           </View>
         ) : (
           <TouchableOpacity style={styles.actionButton}>
             <Text style={styles.actionButtonTextConfirm}>
-              {actionType === 'confirm' ? 'Confirm' : 'Follow'}
+              {actionType === 'confirm' ? 'Xác nhận' : 'Theo dõi'}
             </Text>
           </TouchableOpacity>
         )}

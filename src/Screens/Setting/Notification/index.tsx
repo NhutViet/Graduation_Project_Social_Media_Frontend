@@ -20,16 +20,16 @@ export const Notifications = () => {
 
   // options that have detailed screens
   const detailedOptions = [
-    'Following and followers',
-    'Calls',
-    'Birthdays',
+    'Người theo dõi và đang theo dõi',
+    'Cuộc gọi',
+    'Ngày sinh',
   ];
 
   const simpleOptions = [
-    'Posts, stories and comments',
-    'Messages',
-    'Live and reels',
-    'From system',
+    'Bài đăng, tin và bình luận',
+    'Tin nhắn',
+    'Sự kiện trực tiếp và reels',
+    'Từ hệ thống',
   ];
 
   const handleOptionPress = (option: string) => {
@@ -86,7 +86,7 @@ export const Notifications = () => {
               style={[styles.backIcon, { resizeMode: 'contain' }]}
             />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Notifications</Text>
+          <Text style={styles.headerTitle}>Thông báo</Text>
           <View style={styles.headerSpacer} />
         </View>
 
@@ -100,25 +100,25 @@ export const Notifications = () => {
           </View>
           <View style={styles.bannerTextContainer}>
             <Text style={styles.bannerText}>
-              Turn on notifications from your device settings to see updates on your lock screen.
+              Bật thông báo từ cài đặt thiết bị của bạn để xem các cập nhật trên màn hình khóa.
             </Text>
-            <Text style={styles.bannerLink}>Go to device settings</Text>
+            <Text style={styles.bannerLink}>Chuyển đến cài đặt thiết bị</Text>
           </View>
         </View>
 
         {/* Push Notifications Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Push notifications</Text>
+          <Text style={styles.sectionTitle}>Nhận thông báo</Text>
           
           {renderNotificationOption(
-            'Pause all',
-            'temporarily pause notifications',
+            'Tạm dừng tất cả',
+            'tạm thời dừng các thông báo',
             true
           )}
           
           {renderNotificationOption(
-            'Sleep mode',
-            'Automatically mute notifications at night or whenever you need to focus.'
+            'Chế độ ngủ',
+            'Tự động tắt tiếng thông báo khi đã tối hoặc khi bạn cần tập trung.'
           )}
           
           {[...detailedOptions, ...simpleOptions].map(option => renderNotificationOption(option))}

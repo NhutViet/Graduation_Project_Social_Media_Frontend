@@ -45,8 +45,8 @@ const Header: React.FC<{ navigation: any }> = ({ navigation }) => {
           source={require('../../../assets/icon/left.png')}
         />
       </TouchableOpacity>
-      <Text style={styles.headerTitle}>Follower requests</Text>
-      <Text style={styles.headerManageText}>Manage</Text>
+      <Text style={styles.headerTitle}>Yêu cầu theo dõi</Text>
+      <Text style={styles.headerManageText}>Quản lý</Text>
     </View>
   );
 };
@@ -73,7 +73,7 @@ export const FollowerRequests: React.FC<{navigation: any}> = ({navigation}) => {
           <Image style={styles.searchIcon} source={require('../../../assets/icon/search.png')} />
           <TextInput
             style={styles.searchPlaceholderText}
-            placeholder="Search"
+            placeholder="Tìm kiếm"
             placeholderTextColor={styles.searchPlaceholderText.color}
             value={search}
             onChangeText={setSearch}
@@ -89,12 +89,12 @@ export const FollowerRequests: React.FC<{navigation: any}> = ({navigation}) => {
 
         {moreCount > 0 && (
           <TouchableOpacity onPress={handleViewMore}>
-            <Text style={styles.moreText}>View {moreCount} more requests</Text>
+            <Text style={styles.moreText}>Xem thêm {moreCount} yêu cầu</Text>
           </TouchableOpacity>
         )}
 
         <NotificationSection
-          title="Recommended for you"
+          title="Được đề xuất cho bạn"
           notifications={mockRecommended}
         />
       </ScrollView>

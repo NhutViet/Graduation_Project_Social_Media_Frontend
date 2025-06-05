@@ -33,18 +33,18 @@ export const Login = ({navigation}: any) => {
             onPress={() => {
               navigation.navigate('BottomTabs');
             }}>
-            <Text style={styles.textBtn}>Login</Text>
+            <Text style={styles.textBtn}>Đăng nhập</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => navigation.navigate('SwitchAccount')}>
-            <Text style={styles.textSwitchAccount}>Switch accounts</Text>
+            <Text style={styles.textSwitchAccount}>Đổi tài khoản</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.textRow}>
-          <Text style={styles.textGray}>Don't have an account?</Text>
+          <Text style={styles.textGray}>Bạn chưa có tài khoản?</Text>
           <TouchableOpacity 
             onPress={() => navigation.navigate('Register')}>
-            <Text style={styles.text}> Sign up</Text>
+            <Text style={styles.text}> Đăng ký</Text>
           </TouchableOpacity>
         </View>
       </View>

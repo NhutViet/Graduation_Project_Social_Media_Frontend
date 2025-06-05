@@ -65,7 +65,7 @@ export const BlockedAccounts = () => {
         <TouchableOpacity onPress={() => navigation.goBack()} >
           <Image source={require('../../../assets/icon/left.png')} style={styles.icon}/>
         </TouchableOpacity>
-        <Text style={styles.title}>Blocked accounts</Text>
+        <Text style={styles.title}>Tài khoản bị chặn</Text>
         <TouchableOpacity onPress={() => navigation.navigate('BlockUser')}>
             <Image source={require('../../../assets/icon/add.png')} style={styles.icon}/>
         </TouchableOpacity>
@@ -90,9 +90,9 @@ export const BlockedAccounts = () => {
     <View style={styles.modalContainer}>
       {selected && (
         <>
-          <Text style={[styles.notiTitle]}>Unblock {selected.handle}?</Text>
+          <Text style={[styles.notiTitle]}>Bỏ chặn {selected.handle}?</Text>
           <Text style={styles.notiText}>
-            {selected.handle} and other accounts they may have or create will now be able to request to follow and message you on Cirla. They won't be notified that you unblocked them.
+            {selected.handle} và các tài khoản khác mà họ có hoặc có thể tạo sẽ có thể yêu cầu theo dõi và nhắn tin cho bạn trên Cirla. Họ sẽ không được thông báo rằng bạn đã bỏ chặn họ.
           </Text>
           <TouchableOpacity
             style={styles.btnModal}
@@ -100,7 +100,7 @@ export const BlockedAccounts = () => {
               setIsModal(false);
               setSelected(null);
             }}>
-            <Text style={[styles.notiTitle, {color: 'red', marginTop: 0}]}>Unblock</Text>
+            <Text style={[styles.notiTitle, {color: 'red', marginTop: 0}]}>Bỏ chặn</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.btnCance}
@@ -108,7 +108,7 @@ export const BlockedAccounts = () => {
               setIsModal(false);
               setSelected(null);
             }}>
-            <Text style={[styles.notiTitle, {fontWeight: '400', marginTop: 0}]}>Cancel</Text>
+            <Text style={[styles.notiTitle, {fontWeight: '400', marginTop: 0}]}>Hủy</Text>
           </TouchableOpacity>
         </>
       )}

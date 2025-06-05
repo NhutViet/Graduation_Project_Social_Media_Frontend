@@ -72,7 +72,7 @@ export const Setting = () => {
       style={[styles.container, {backgroundColor: mColor.background}]}>
       <ScrollView>
         <Header
-          title="Settings and privacy "
+          title="Cài đặt và hoạt động "
           iconBack={require('../../../assets/icon/left.png')}
           iconQR={require('../../../assets/icon/qr.png')}
           func={() => navigation.goBack()}
@@ -87,7 +87,7 @@ export const Setting = () => {
                 justifyContent: 'space-between',
               }}>
               <Text style={[styles.sectionTitle, {color: mColor.text}]}>
-                Account References
+                Tham chiếu tài khoản
               </Text>
 
               <Image
@@ -120,7 +120,7 @@ export const Setting = () => {
               </View>
               <View style={styles.settingContent}>
                 <Text style={[styles.settingTitle, {color: mColor.text}]}>
-                  Personal Details
+                  Thông tin cá nhân
                 </Text>
               </View>
               <ChevronRight size={20} stroke={mColor.textSecondary} />
@@ -149,7 +149,7 @@ export const Setting = () => {
               </View>
               <View style={styles.settingContent}>
                 <Text style={[styles.settingTitle, {color: mColor.text}]}>
-                  Contact Information
+                  Thông tin liên hệ
                 </Text>
               </View>
               <ChevronRight size={20} stroke={mColor.textSecondary} />
@@ -159,7 +159,7 @@ export const Setting = () => {
           {/* Account Section */}
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, {color: mColor.text}]}>
-              Account
+              Tài khoản
             </Text>
 
             <TouchableOpacity
@@ -181,14 +181,14 @@ export const Setting = () => {
               </View>
               <View style={styles.settingContent}>
                 <Text style={[styles.settingTitle, {color: mColor.text}]}>
-                  Profile Information
+                  Thông tin tài khoản
                 </Text>
                 <Text
                   style={[
                     styles.settingDescription,
                     {color: mColor.textSecondary},
                   ]}>
-                  Update your profile details
+                  Cập nhật thông tin tài khoản
                 </Text>
               </View>
               <ChevronRight size={20} stroke={mColor.textSecondary} />
@@ -212,14 +212,14 @@ export const Setting = () => {
               </View>
               <View style={styles.settingContent}>
                 <Text style={[styles.settingTitle, {color: mColor.text}]}>
-                  Activity Status
+                  Trạng thái hoạt động
                 </Text>
                 <Text
                   style={[
                     styles.settingDescription,
                     {color: mColor.textSecondary},
                   ]}>
-                  Update your activity status
+                  Cập nhật trạng thái hoạt động
                 </Text>
               </View>
               <ChevronRight size={20} stroke={mColor.textSecondary} />
@@ -246,7 +246,7 @@ export const Setting = () => {
               </View>
               <View style={styles.settingContent}>
                 <Text style={[styles.settingTitle, {color: mColor.text}]}>
-                  Your activity
+                  Hoạt động của bạn
                 </Text>
               </View>
               <ChevronRight size={20} stroke={mColor.textSecondary} />
@@ -273,7 +273,7 @@ export const Setting = () => {
               </View>
               <View style={styles.settingContent}>
                 <Text style={[styles.settingTitle, {color: mColor.text}]}>
-                  Blocked
+                  Đã chặn
                 </Text>
               </View>
               <ChevronRight size={20} stroke={mColor.textSecondary} />
@@ -285,7 +285,7 @@ export const Setting = () => {
           {/* Preferences Section */}
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, {color: mColor.text}]}>
-              Preferences
+              Sở thích
             </Text>
 
             <View
@@ -305,14 +305,14 @@ export const Setting = () => {
               </View>
               <View style={styles.settingContent}>
                 <Text style={[styles.settingTitle, {color: mColor.text}]}>
-                  Dark Mode
+                  Chế độ tối
                 </Text>
                 <Text
                   style={[
                     styles.settingDescription,
                     {color: mColor.textSecondary},
                   ]}>
-                  Toggle dark theme
+                  Chuyển chủ đề ứng dụng sang tối
                 </Text>
               </View>
               <Switch
@@ -331,7 +331,7 @@ export const Setting = () => {
 
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, {color: mColor.text}]}>
-              Privacy
+              Riêng tư
             </Text>
 
             <TouchableOpacity
@@ -352,14 +352,14 @@ export const Setting = () => {
               </View>
               <View style={styles.settingContent}>
                 <Text style={[styles.settingTitle, {color: mColor.text}]}>
-                  Privacy and Security
+                  Quyền riêng tư và bảo mật
                 </Text>
                 <Text
                   style={[
                     styles.settingDescription,
                     {color: mColor.textSecondary},
                   ]}>
-                  Settings for privacy and security
+                  Tùy chỉnh cho quyền riêng tư và bảo mật
                 </Text>
               </View>
               <ChevronRight size={20} stroke={mColor.textSecondary} />
@@ -370,7 +370,7 @@ export const Setting = () => {
 
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, {color: mColor.text}]}>
-              Notifications
+              Thông báo
             </Text>
 
             <TouchableOpacity
@@ -391,14 +391,14 @@ export const Setting = () => {
               </View>
               <View style={styles.settingContent}>
                 <Text style={[styles.settingTitle, {color: mColor.text}]}>
-                  Update you notification settings
+                  Cập nhật cài đặt thông báo
                 </Text>
                 <Text
                   style={[
                     styles.settingDescription,
                     {color: mColor.textSecondary},
                   ]}>
-                  Choose how you want to be notified
+                  Chọn cách bạn muốn được thông báo
                 </Text>
               </View>
               <ChevronRight size={20} stroke={mColor.textSecondary} />
@@ -408,7 +408,7 @@ export const Setting = () => {
           {/* Activity Section */}
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, {color: mColor.text}]}>
-              Activity
+              Hoạt động
             </Text>
 
             <TouchableOpacity
@@ -430,14 +430,14 @@ export const Setting = () => {
               </View>
               <View style={styles.settingContent}>
                 <Text style={[styles.settingTitle, {color: mColor.text}]}>
-                  Likes
+                  Thích
                 </Text>
                 <Text
                   style={[
                     styles.settingDescription,
                     {color: mColor.textSecondary},
                   ]}>
-                  Posts you've liked
+                  Các bài đăng bạn đã thích
                 </Text>
               </View>
               <ChevronRight size={20} stroke={mColor.textSecondary} />
@@ -465,7 +465,7 @@ export const Setting = () => {
               </View>
               <View style={styles.settingContent}>
                 <Text style={[styles.settingTitle, {color: mColor.text}]}>
-                  Archive
+                  Kho lưu trữ
                 </Text>
               </View>
               <ChevronRight size={20} stroke={mColor.textSecondary} />
@@ -492,7 +492,7 @@ export const Setting = () => {
               </View>
               <View style={styles.settingContent}>
                 <Text style={[styles.settingTitle, {color: mColor.text}]}>
-                  Saved
+                  Đã lưu
                 </Text>
               </View>
               <ChevronRight size={20} stroke={mColor.textSecondary} />
@@ -504,7 +504,7 @@ export const Setting = () => {
           {/* Support Section */}
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, {color: mColor.text}]}>
-              Support
+              Hỗ trợ
             </Text>
 
             <TouchableOpacity
@@ -524,14 +524,14 @@ export const Setting = () => {
               </View>
               <View style={styles.settingContent}>
                 <Text style={[styles.settingTitle, {color: mColor.text}]}>
-                  Help Center
+                  Trung tâm trợ giúp
                 </Text>
                 <Text
                   style={[
                     styles.settingDescription,
                     {color: mColor.textSecondary},
                   ]}>
-                  Get help with Instagram
+                  Nhận trợ giúp với Cirla
                 </Text>
               </View>
               <ChevronRight size={20} stroke={mColor.textSecondary} />
@@ -546,7 +546,7 @@ export const Setting = () => {
             onPress={handleLogout}>
             <LogOut size={22} stroke={mColor.error} />
             <Text style={[styles.logoutText, {color: mColor.error}]}>
-              Log Out
+              Đăng xuất
             </Text>
           </TouchableOpacity>
         </View>

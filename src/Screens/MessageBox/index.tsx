@@ -88,7 +88,7 @@ export const MessageBox = (props: any) => {
           </View>
           <TextInput
             ref={searchInputRef}
-            placeholder="Search messages"
+            placeholder="Tìm kiếm tin nhắn"
             placeholderTextColor={color.text}
             style={[
               styles.searchInput,
@@ -130,10 +130,10 @@ export const MessageBox = (props: any) => {
 
       {/* Messages Header */}
       <View style={styles.messagesHeader}>
-        <Text style={styles.messagesHeaderTitle}>Messages</Text>
+        <Text style={styles.messagesHeaderTitle}>Tin nhắn</Text>
         <TouchableOpacity
           onPress={() => navigation.navigate('PendingMessages')}>
-          <Text style={styles.messagesHeaderSubtitle}>Pending messages</Text>
+          <Text style={styles.messagesHeaderSubtitle}>Tin nhắn chờ xử lý</Text>
         </TouchableOpacity>
       </View>
 

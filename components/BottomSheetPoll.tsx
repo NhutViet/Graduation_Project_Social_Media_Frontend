@@ -76,18 +76,18 @@ const BottomSheetPoll: React.FC<BottomSheetPollProps> = ({ onClose, onSubmit }) 
 
   return (
     <View style={styles.sectionContainer}>
-      <Text style={styles.intentionTitle}>Question</Text>
+      <Text style={styles.intentionTitle}>Câu hỏi</Text>
       <TextInput
         style={styles.textInput}
         value={question}
         onChangeText={setQuestion}
-        placeholder="Type your question here"
+        placeholder="Nhập câu hỏi của bạn tại đây"
         placeholderTextColor={palette.lightDark}
         returnKeyType="done"
         onSubmitEditing={Keyboard.dismiss}
       />
 
-      <Text style={[styles.intentionTitle, { marginTop: 0 }]}>Options</Text>
+      <Text style={[styles.intentionTitle, { marginTop: 0 }]}>Các lựa chọn</Text>
       {options.map((opt, idx) => (
         <TextInput
           key={opt.id}
@@ -95,7 +95,7 @@ const BottomSheetPoll: React.FC<BottomSheetPollProps> = ({ onClose, onSubmit }) 
           style={styles.textInput}
           value={opt.value}
           onChangeText={text => handleOptionChange(opt.id, text)}
-          placeholder={`Option ${idx + 1}`}
+          placeholder={`Lựa chọn ${idx + 1}`}
           placeholderTextColor={palette.lightDark}
           returnKeyType="done"
           onSubmitEditing={Keyboard.dismiss}
@@ -104,7 +104,7 @@ const BottomSheetPoll: React.FC<BottomSheetPollProps> = ({ onClose, onSubmit }) 
 
       <TouchableOpacity onPress={addOption} activeOpacity={0.7}>
         <Text style={[styles.intentionChoiceText, { color: palette.primary }]}>
-          + Add more options
+          + Thêm lựa chọn khác
         </Text>
       </TouchableOpacity>
 
@@ -113,7 +113,7 @@ const BottomSheetPoll: React.FC<BottomSheetPollProps> = ({ onClose, onSubmit }) 
         activeOpacity={0.7}
         style={{ marginTop: 24 }}
       >
-        <Text style={[styles.intentionChoiceText, { textAlign: 'center', color: palette.blue }]}>Create Poll</Text>
+        <Text style={[styles.intentionChoiceText, { textAlign: 'center', color: palette.blue }]}>Tạo bình chọn</Text>
       </TouchableOpacity>
     </View>
   );

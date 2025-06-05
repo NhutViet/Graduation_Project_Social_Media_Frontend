@@ -78,7 +78,7 @@ export const PostSetting = () => {
 
   const handleUploadAll = async () => {
     if (!selectedMedia || selectedMedia.length === 0) {
-      Alert.alert('No media selected', 'Please select at least one media file');
+      Alert.alert('Chưa chọn phương tiện', 'Hãy chọn ít nhất một tập phương tiện');
       return;
     }
 
@@ -99,7 +99,7 @@ export const PostSetting = () => {
           uploadedUrls.push(url);
         } catch (err) {
           console.log(`Upload failed for ${uri}`);
-          Alert.alert('Upload failed', `Upload failed for ${uri}`);
+          Alert.alert('Tải lên thất bại', `Tải lên thất bại với đường dẫn ${uri}`);
           return;
         }
       }
@@ -125,15 +125,15 @@ export const PostSetting = () => {
 
       if (uploadPostWithMedia.fulfilled.match(resultAction)) {
         Toast.show({
-          type: 'success',
-          text1: '🎉 Success',
-          text2: 'Your post has been uploaded!',
+          type: 'Thành công',
+          text1: '🎉 Thành công',
+          text2: 'Bài viết của bạn đã được tải lên!',
         });
       } else {
         Toast.show({
           type: 'error',
-          text1: 'Failed',
-          text2: 'Upload failed',
+          text1: 'Thất bại',
+          text2: 'Tải lên thất bại',
         });
       }
     } catch (error) {
@@ -156,7 +156,7 @@ export const PostSetting = () => {
             style={styles.iconR}
           />
         </TouchableOpacity>
-        <Text style={styles.title}>New Campain</Text>
+        <Text style={styles.title}>Bài viết mới</Text>
         <View style={styles.iconR}></View>
       </View>
       <ScrollView style={styles.container}>
@@ -250,7 +250,7 @@ export const PostSetting = () => {
         />
       </ScrollView>
       <TouchableOpacity style={styles.btnShare} onPress={handleUploadAll}>
-        <Text style={styles.textBtn}>Share</Text>
+        <Text style={styles.textBtn}>Chia sẻ</Text>
       </TouchableOpacity>
       <VideoModal uri={selectedMedia[0]?.node?.image?.uri} visible={isModal} onClose={() => setIsModal(false)}/>
     </SafeAreaView>

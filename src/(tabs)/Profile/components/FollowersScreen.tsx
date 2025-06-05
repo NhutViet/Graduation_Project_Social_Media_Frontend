@@ -47,12 +47,12 @@ const FollowersScreen = () => {
           <TopTab.Screen
             name="FollowersTab"
             component={FollowersTab}
-            options={{title: 'followers'}}
+            options={{title: 'Người theo dõi'}}
           />
           <TopTab.Screen
             name="FollowingTab"
             component={FollowingTab}
-            options={{title: 'following'}}
+            options={{title: 'Đang theo dõi'}}
           />
         </TopTab.Navigator>
       </View>

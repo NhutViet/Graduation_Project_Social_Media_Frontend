@@ -48,22 +48,22 @@ export const UserInfo = () => {
   const notificationOptions: SwitchOption[] = [
     {
       id: 'msg',
-      label: 'Turn off message notifications',
+      label: 'Tắt thông báo tin nhắn',
       description: '',
       value: msgNotif,
       onValueChange: setMsgNotif,
     },
     {
       id: 'call',
-      label: 'Turn off call notifications',
+      label: 'Tắt thông báo cuộc gọi',
       description: '',
       value: callNotif,
       onValueChange: setCallNotif,
     },
     {
       id: 'preview',
-      label: 'Notification previews',
-      description: 'Show name and message on notifications',
+      label: 'Xem trước thông báo',
+      description: 'Hiển thị tên và tin nhắn trên thông báo',
       value: previewNotif,
       onValueChange: setPreviewNotif,
     },
@@ -124,7 +124,7 @@ export const UserInfo = () => {
             />
           </TouchableOpacity>
           <Text style={styles.text} numberOfLines={1}>
-            Profile page
+            Trang tài khoản
           </Text>
         </View>
         <View style={styles.blockFeature}>
@@ -135,7 +135,7 @@ export const UserInfo = () => {
             />
           </TouchableOpacity>
           <Text style={styles.text} numberOfLines={1}>
-            Search messages
+            Tìm kiếm tin nhắn
           </Text>
         </View>
         <View style={styles.blockFeature}>
@@ -148,7 +148,7 @@ export const UserInfo = () => {
             />
           </TouchableOpacity>
           <Text style={styles.text} numberOfLines={1}>
-            Turn off notifications
+            Tắt thông báo
           </Text>
         </View>
         <View style={styles.blockFeature}>
@@ -159,7 +159,7 @@ export const UserInfo = () => {
             />
           </TouchableOpacity>
           <Text style={styles.text} numberOfLines={1}>
-            More options
+            Thêm tùy chọn
           </Text>
         </View>
       </View>
@@ -167,27 +167,27 @@ export const UserInfo = () => {
         {[
           {
             icon: require('../../../assets/icon/theme.png'),
-            label: 'Topic',
+            label: 'Chủ đề',
           },
           {
             icon: require('../../../assets/icon/nickname.png'),
-            label: 'Nickname',
+            label: 'Biệt danh',
           },
           {
             icon: require('../../../assets/icon/wall-clock.png'),
-            label: 'Self-deleted messages',
+            label: 'Tin nhắn tự xóa',
           },
           {
             icon: require('../../../assets/icon/lock.png'),
-            label: 'Privacy and security',
+            label: 'Quyền riêng tư và bảo mật',
           },
           {
             icon: require('../../../assets/icon/users.png'),
-            label: 'Create chat group',
+            label: 'Tạo nhóm trò chuyện',
           },
           {
             icon: require('../../../assets/icon/problem.png'),
-            label: 'An error occured',
+            label: 'Có lỗi xảy ra',
           },
         ].map((item, i) => (
           <TouchableOpacity style={styles.row} key={i} onPress={() => {
@@ -334,7 +334,7 @@ export const UserInfo = () => {
           panGestureEnabled
           adjustToContentHeight>
           <BottomSheetNotification
-            title="Notification"
+            title="Thông báo"
             options={notificationOptions}
             onClose={closeNotifications}
           />

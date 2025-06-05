@@ -5,11 +5,11 @@ import ActionBar from '../../../components/CameraActionBar';
 import ModeSelector from '../../../components/CameraModeSelector';
 import { useCameraStyles } from '../../../src/StyleSheet/CameraStyles';
 
-const modes = ['Normal', 'Portrait', 'Video', 'Pano'];
+const modes = ['Bình thường', 'Chân dung', 'Video', 'Toàn cảnh'];
 
 export const CameraScreen = ({ navigation, onBack }: any) => {
   const cameraRef = useRef<CameraVisionHandle>(null);
-  const [mode, setMode] = useState<string>('Normal');
+  const [mode, setMode] = useState<string>('Bình thường');
   const [previewUri, setPreviewUri] = useState<string | null>(null);
   const styles = useCameraStyles();
 

@@ -80,7 +80,7 @@ export const Swipe = () => {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.box}>
           <Image source={require('../../../assets/icon/left.png')} style={styles.back}/>
         </TouchableOpacity>
-        <Text style={styles.title}>Matching</Text>
+        <Text style={styles.title}>Kết bạn</Text>
         <View style={styles.box}></View>
       </View>
       <View style={[styles.container, {justifyContent: 'center'}]}>

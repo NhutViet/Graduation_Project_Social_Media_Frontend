@@ -72,12 +72,10 @@ export const AddEmailModal: React.FC<AddEmailProps> = ({
                 {backgroundColor: color.background},
               ]}>
               <Text style={[styles.title, {color: color.text}]}>
-                Add an email address
+                Thêm địa chỉ email
               </Text>
               <Text style={styles.description}>
-                We'll use this email address across all of your accounts in
-                Accounts Center to personalize experiences, like connecting
-                people and improving ads on our products.
+                Chúng tôi sẽ sử dụng địa chỉ email này cho tất cả tài khoản của bạn trong Trung tâm Tài khoản để cá nhân hóa trải nghiệm, như kết nối mọi người và cải thiện quảng cáo trên các sản phẩm của chúng tôi.
               </Text>
 
               <TextInput
@@ -89,15 +87,14 @@ export const AddEmailModal: React.FC<AddEmailProps> = ({
                 onChangeText={setEmail}
               />
               <Text style={styles.note}>
-                You may receive WhatsApp and SMS notifications from us.
+                Bạn có thể nhận được thông báo qua WhatsApp và SMS từ chúng tôi.
               </Text>
 
               <Text style={[styles.label, {marginTop: 20}]}>
-                Choose accounts for this number
+                Chọn tài khoản cho số này
               </Text>
               <Text style={styles.description}>
-                Accounts you choose to add this email to will use it to help you
-                log in and receive notifications from us.
+                Các tài khoản bạn chọn thêm email này sẽ sử dụng nó để giúp bạn đăng nhập và nhận thông báo từ chúng tôi.
               </Text>
               <View style={{flex: 1}}>
                 <FlashList
@@ -130,7 +127,7 @@ export const AddEmailModal: React.FC<AddEmailProps> = ({
               </View>
 
               <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-                <Text style={styles.buttonText}>Next</Text>
+                <Text style={styles.buttonText}>Tiếp theo</Text>
               </TouchableOpacity>
             </View>
           </TouchableWithoutFeedback>

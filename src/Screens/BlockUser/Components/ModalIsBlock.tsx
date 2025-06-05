@@ -12,30 +12,28 @@ const ModalIsBlock = (props: any) => {
         <View style={{alignItems: 'center'}}><View style={[styles.indicator, {backgroundColor: color.lightDark}]}/></View>
       <View style={styles.topContainer}>
         <Image source={{uri: uri}} style={styles.image}/>
-        <Text style={[styles.question, {color: color.text}]}>Block {handle}?</Text>
+        <Text style={[styles.question, {color: color.text}]}>Chặn {handle}?</Text>
         <Text style={[styles.note, {color: color.lessBlack}]}>
-          This will also block any other accounts they may have or create in the
-          future
+          Điều này cũng sẽ chặn bất kỳ tài khoản nào khác mà họ có hoặc có thể tạo trong tương lai.
         </Text>
         <View style={styles.notiContainer}>
           <Image source={require('../../../../assets/icon/no_comment.png')} style={styles.icon}/>
           <Text style={[styles.noti, {color: color.text}]}>
-            They won't be able to message you or find your profile or content on
-            Instagram.
+            Họ sẽ không thể nhắn tin cho bạn hoặc tìm thấy hồ sơ hay nội dung của bạn trên Cirla.
           </Text>
         </View>
         <View style={styles.notiContainer}>
           <Image source={require('../../../../assets/icon/no_notification.png')} style={styles.icon}/>
-          <Text style={[styles.noti, {color: color.text}]}>They won't be notified that you blocked them.</Text>
+          <Text style={[styles.noti, {color: color.text}]}>Họ sẽ không được thông báo rằng bạn đã chặn họ.</Text>
         </View>
         <View style={styles.notiContainer}>
           <Image source={require('../../../../assets/icon/setting.png')} style={styles.icon}/>
-          <Text style={[styles.noti, {color: color.text}]}>You can unblock them anytime in Settings.</Text>
+          <Text style={[styles.noti, {color: color.text}]}>Bạn có thể bỏ chặn họ bất cứ lúc nào trong phần Cài đặt.</Text>
         </View>
       </View>
       <View style={[styles.btnContainer, {borderTopColor: color.gray}]}>
         <TouchableOpacity style={[styles.btn, {backgroundColor: color.primary}]} onPress={onHandleBlock}>
-          <Text style={[styles.noti, {color: color.background, fontWeight: 'bold'}]}>Block</Text>
+          <Text style={[styles.noti, {color: color.background, fontWeight: 'bold'}]}>Chặn</Text>
         </TouchableOpacity>
       </View>
     </View>

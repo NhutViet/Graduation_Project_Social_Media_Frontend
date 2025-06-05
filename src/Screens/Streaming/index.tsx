@@ -105,7 +105,7 @@ export const Streaming = () => {
                 />
                 <View style={styles.viewerContent}>
                   <Text style={styles.viewerName}>{item.name}</Text>
-                  <Text style={styles.joinedText}>joined</Text>
+                  <Text style={styles.joinedText}>đã tham gia</Text>
                 </View>
               </View>
             )}
@@ -177,7 +177,7 @@ export const Streaming = () => {
           </TouchableOpacity>
           <View style={styles.headerMid}>
             <View style={styles.liveIndicator}>
-              <Text style={styles.liveText}>LIVE</Text>
+              <Text style={styles.liveText}>Trực tiếp</Text>
             </View>
             <View style={styles.viewerCount}>
               <Eye size={16} color="white" style={{marginRight: 4}} />
@@ -185,7 +185,7 @@ export const Streaming = () => {
             </View>
           </View>
           <TouchableOpacity style={styles.endButton}>
-            <Text style={styles.endButtonText}>End</Text>
+            <Text style={styles.endButtonText}>Kết thúc</Text>
           </TouchableOpacity>
         </View>
         {/* Main Content */}
@@ -197,7 +197,7 @@ export const Streaming = () => {
             <View style={styles.inputField}>
               <TextInput
                 style={styles.input}
-                placeholder="Type a comment..."
+                placeholder="Bình luận..."
                 placeholderTextColor={color.textSecondary}
                 value={message}
                 onChangeText={setMessage}

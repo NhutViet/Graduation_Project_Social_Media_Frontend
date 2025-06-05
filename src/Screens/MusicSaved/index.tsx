@@ -185,7 +185,7 @@ export const MusicSavedScreen = () => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <ChevronLeft size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, {color: colors.text}]}>Audio</Text>
+        <Text style={[styles.headerTitle, {color: colors.text}]}>Âm thanh</Text>
         <TouchableOpacity
           onPress={() => navigation.navigate('LikedScreen' as never)}>
           <Share2 size={24} color={colors.text} />

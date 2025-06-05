@@ -104,7 +104,7 @@ const Header: React.FC<{onBackPress: () => void}> = ({onBackPress}) => {
           source={require('../../../assets/icon/left.png')}
         />
       </TouchableOpacity>
-      <Text style={styles.headerTitle}>Notifications</Text>
+      <Text style={styles.headerTitle}>Thông báo</Text>
     </View>
   );
 };
@@ -132,7 +132,7 @@ export const NotificationsScreen = ({navigation}: any) => {
           </View>
 
           <View style={styles.textContainer}>
-            <Text style={styles.contentText}>Follower requests</Text>
+            <Text style={styles.contentText}>Yêu cầu theo dõi</Text>
             <Text style={styles.timeText}>{username}</Text>
           </View>
 
@@ -145,15 +145,15 @@ export const NotificationsScreen = ({navigation}: any) => {
         </TouchableOpacity>
 
         <NotificationSection
-          title="This month"
+          title="Trong tháng này"
           notifications={notificationData.thisMonth}
         />
         <NotificationSection
-          title="Earlier"
+          title="Trước đó"
           notifications={notificationData.earlier}
         />
         <NotificationSection
-          title="Suggested for you"
+          title="Đề xuất cho bạn"
           notifications={notificationData.suggested}
         />
       </ScrollView>
