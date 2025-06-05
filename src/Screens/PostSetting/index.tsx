@@ -1,7 +1,7 @@
 import {
   Alert,
-  Dimensions,
   Image,
+  Platform,
   SafeAreaView,
   ScrollView,
   Text,
@@ -23,6 +23,8 @@ import {AppDispatch} from '../../../services/store';
 import {uploadPostWithMedia} from '../../../services/postRedux/postSlice';
 import Toast from 'react-native-toast-message';
 import VideoModal from './Components/VideoModal';
+import {BASE_URL} from '../../../services/api';
+import RNFS from 'react-native-fs';
 
 export const PostSetting = () => {
   const {theme} = useTheme();
@@ -34,44 +36,49 @@ export const PostSetting = () => {
   //lâys dữ liệu
   const route = useRoute();
   const {selectedMedia}: any = route.params || [];
-
   const {showUploadModal, hideUploadModal, setProgress} = useUploadProgress();
   const [caption, setCaption] = useState('');
-
   //modal xem video
   const [isModal, setIsModal] = useState(false);
-  
 
-  const uploadToCloudinary = async (uri: string, type: string) => {
-    showUploadModal(uri, type as 'video' | 'image');
-
-    const formData = new FormData();
-    formData.append('file', {
-      uri,
-      type: type === 'video' ? 'video/mp4' : 'image/jpeg',
-      name: `justina.${type === 'video' ? 'mp4' : 'jpg'}`,
-    });
-    formData.append('upload_preset', 'upload_video');
+  const uploadToCloudflare = async (uri: string) => {
+    showUploadModal(uri, 'video');
 
     try {
-      const res = await axios.post(
-        'https://api.cloudinary.com/v1_1/dsvcoywkc/' +
-          (type === 'video' ? 'video' : 'image') +
-          '/upload',
-        formData,
-        {
-          headers: {'Content-Type': 'multipart/form-data'},
-          onUploadProgress: progressEvent => {
-            const progress = progressEvent.loaded / progressEvent.total;
-            setProgress(progress);
-          },
+      // 1. Lấy upload URL và uid từ backend
+      const res = await axios.get(`${BASE_URL}/stream/upload-url`);
+      const {uploadURL, key} = res.data.uploadURL; // <- nhớ lấy từ .uploadURL nếu BE trả kiểu object
+
+      // 2. Tạo FormData để upload video
+      const formData = new FormData();
+      formData.append('file', {
+        uri: Platform.OS === 'ios' ? uri.replace('file://', '') : uri,
+        type: 'video/mp4',
+        name: 'video.mp4',
+      });
+
+      // 3. Gửi POST request tới Cloudflare uploadURL
+      await axios.post(uploadURL, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
         },
-      );
+        onUploadProgress: progressEvent => {
+          const progress = progressEvent.loaded / progressEvent.total;
+          setProgress(progress);
+        },
+      });
 
       hideUploadModal();
-      return res.data.secure_url;
+      return key;
     } catch (error) {
       hideUploadModal();
+
+      if (axios.isAxiosError(error)) {
+        console.error('Upload failed:', error.response?.data || error.message);
+      } else {
+        console.error('Unknown upload error:', error);
+      }
+
       throw error;
     }
   };
@@ -88,27 +95,25 @@ export const PostSetting = () => {
     });
 
     try {
-      const uploadedUrls: string[] = [];
+      const uploadedVideoIds: string[] = [];
 
       for (const media of selectedMedia) {
         const uri = media.node.image.uri;
-        const type = media.node.type.startsWith('video') ? 'video' : 'image';
+        const isVideo = media.node.type.startsWith('video');
 
-        try {
-          const url = await uploadToCloudinary(uri, type);
-          uploadedUrls.push(url);
-        } catch (err) {
-          console.log(`Upload failed for ${uri}`);
-          Alert.alert('Upload failed', `Upload failed for ${uri}`);
-          return;
+        if (isVideo) {
+          try {
+            const uid = await uploadToCloudflare(uri);
+            uploadedVideoIds.push(uid);
+          } catch (err) {
+            console.log(`Upload failed for ${uri}`);
+            Alert.alert('Upload failed', `Upload failed for ${uri}`);
+            return;
+          }
         }
       }
 
-      const videoCount = selectedMedia.filter((m: any) =>
-        m.node.type.startsWith('video'),
-      ).length;
-
-      const postType = videoCount === 1 ? 'reel' : 'post';
+      const postType = uploadedVideoIds.length === 1 ? 'reel' : 'post';
 
       const body = {
         post: {
@@ -116,8 +121,8 @@ export const PostSetting = () => {
           caption: caption,
           isEnable: true,
         },
-        media: uploadedUrls.map(url => ({
-          videoUrl: url,
+        media: uploadedVideoIds.map(uid => ({
+          videoUrl: `https://videodelivery.net/${uid}/manifest/video.m3u8`,
         })),
       };
 
@@ -252,7 +257,11 @@ export const PostSetting = () => {
       <TouchableOpacity style={styles.btnShare} onPress={handleUploadAll}>
         <Text style={styles.textBtn}>Share</Text>
       </TouchableOpacity>
-      <VideoModal uri={selectedMedia[0]?.node?.image?.uri} visible={isModal} onClose={() => setIsModal(false)}/>
+      <VideoModal
+        uri={selectedMedia[0]?.node?.image?.uri}
+        visible={isModal}
+        onClose={() => setIsModal(false)}
+      />
     </SafeAreaView>
   );
 };
