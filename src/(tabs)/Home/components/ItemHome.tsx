@@ -23,7 +23,10 @@ import BottomSheetIntentions, {
 import {useNavigation} from '@react-navigation/native';
 import ModalShare from './ModalShare';
 import ModalReaction from './ModalReaction';
-import { fetchFollowers, fetchFollowing } from '../../../../services/relationRedux/relationSlice';
+import {
+  fetchFollowers,
+  fetchFollowing,
+} from '../../../../services/relationRedux/relationSlice';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../../services/store';
 import {
@@ -31,9 +34,8 @@ import {
   unlikePost,
 } from '../../../../services/reactionRedux/reactionSlice';
 import {Likers} from '../../../../services/likersRedux/likersSlice';
-import { addLikedPost } from '../../../../services/reactionRedux/reactionReducer';
-import { hidePost } from '../../../../services/postRedux/postSlice';
-
+import {addLikedPost} from '../../../../services/reactionRedux/reactionReducer';
+import {hidePost} from '../../../../services/postRedux/postSlice';
 
 const ItemHome = (props: any) => {
   const {
@@ -49,6 +51,7 @@ const ItemHome = (props: any) => {
     isFocused,
     openComment,
     likeCount,
+    commentCount,
   } = props;
 
   const {theme} = useTheme();
@@ -60,30 +63,32 @@ const ItemHome = (props: any) => {
 
   const dispatch = useDispatch<AppDispatch>();
   const userID = useSelector((state: RootState) => state.user?.user?._id);
-  const {followers, following, loading, error} = useSelector((state: RootState) => state.relation);
+  const {followers, following, loading, error} = useSelector(
+    (state: RootState) => state.relation,
+  );
 
   const follows = useMemo(() => {
     const allUsers = [...followers, ...following];
-    
+
     // Loại bỏ trùng lặp dựa trên id
-    const uniqueUsers = allUsers.filter((user, index, self) => 
-      index === self.findIndex(u => u.id === user.id)
+    const uniqueUsers = allUsers.filter(
+      (user, index, self) => index === self.findIndex(u => u.id === user.id),
     );
-    
+
     // Chuyển đổi format dữ liệu cho ModalShare
     return uniqueUsers.map(user => ({
       id: user.id,
       name: user.username,
-      avatar: user.profilePic
+      avatar: user.profilePic,
     }));
   }, [followers, following]);
-  
+
   useEffect(() => {
     if (userID) {
       // gọi 2 api followers, following
       Promise.all([
-        dispatch(fetchFollowers({ userID })),
-        dispatch(fetchFollowing({ userID }))
+        dispatch(fetchFollowers({userID})),
+        dispatch(fetchFollowing({userID})),
       ]).catch(error => {
         console.error('Error fetching relations:', error);
       });
@@ -98,6 +103,7 @@ const ItemHome = (props: any) => {
   }, [followers, following, follows]);
   //gọi api like
   const {likePosts} = useSelector((state: RootState) => state.reactions);
+
   const {refreshToken} = useSelector((state: RootState) => state.user);
   const isLiked = likePosts.includes(_id);
   const [numLike, setNumLike] = useState(likeCount);
@@ -111,13 +117,13 @@ const ItemHome = (props: any) => {
   const handleLike = async () => {
     if (isLiked) {
       const result = await dispatch(unlikePost({postId: _id, refreshToken}));
-      if(unlikePost.fulfilled.match(result)){
-        setNumLike((prev: number) => prev-1);
+      if (unlikePost.fulfilled.match(result)) {
+        setNumLike((prev: number) => prev - 1);
       }
     } else {
       const result = await dispatch(likePost({postId: _id, refreshToken}));
-      if(likePost.fulfilled.match(result)){
-        setNumLike((prev: number) => prev+1);
+      if (likePost.fulfilled.match(result)) {
+        setNumLike((prev: number) => prev + 1);
       }
     }
   };
@@ -146,18 +152,18 @@ const ItemHome = (props: any) => {
   }, []);
 
   const handleOpenModalShare = useCallback(() => {
-  if (loading) {
-    console.log('Still loading relations...');
-    return;
-  }
-  
-  if (error) {
-    console.error('Error loading relations:', error);
-    return;
-  }
-  
-  setVisibleModalShare(true);
-}, [loading, error]);
+    if (loading) {
+      console.log('Still loading relations...');
+      return;
+    }
+
+    if (error) {
+      console.error('Error loading relations:', error);
+      return;
+    }
+
+    setVisibleModalShare(true);
+  }, [loading, error]);
 
   // Number formatting utility
   const formatNumber = (num: number): string => {
@@ -567,7 +573,7 @@ const ItemHome = (props: any) => {
               />
             </TouchableOpacity>
             <Text style={{color: color.text, marginLeft: 8, marginRight: 16}}>
-              {formatNumber(5)}
+              {formatNumber(commentCount)}
             </Text>
             <TouchableOpacity
               style={styles.iconBlock}

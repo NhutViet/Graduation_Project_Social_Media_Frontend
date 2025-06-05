@@ -48,7 +48,6 @@ export const SwitchAccount = ({navigation}: any) => {
       setShowModal(true);
       setTimeout(() => {
         setShowModal(false);
-        
 
         if (isSuccess) {
           navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
@@ -70,10 +69,11 @@ export const SwitchAccount = ({navigation}: any) => {
       await GoogleSignin.hasPlayServices();
       const userInfo: any = await GoogleSignin.signIn();
 
-      // const idToken = userInfo.idToken || userInfo.data?.idToken;
       const email = userInfo.data.user.email;
       const tempPassword = userInfo.data.user.id;
       const profilePic = userInfo.data.user.photo;
+
+      await GoogleSignin.signOut();
 
       const checkEmailAction = await dispatch(fetchCheckEmail({email}));
 
@@ -94,7 +94,11 @@ export const SwitchAccount = ({navigation}: any) => {
           }
         } else {
           const registerAction = await dispatch(
-            fetchRegister({email, password: tempPassword, profilePic: profilePic}),
+            fetchRegister({
+              email,
+              password: tempPassword,
+              profilePic: profilePic,
+            }),
           );
 
           if (fetchRegister.fulfilled.match(registerAction)) {
@@ -111,7 +115,9 @@ export const SwitchAccount = ({navigation}: any) => {
           }
         }
       } else {
-        Alert.alert(checkEmailAction.payload?.message || 'Kiểm tra email thất bại');
+        Alert.alert(
+          checkEmailAction.payload?.message || 'Kiểm tra email thất bại',
+        );
       }
     } catch (error: any) {
       console.log(
@@ -191,7 +197,10 @@ export const SwitchAccount = ({navigation}: any) => {
         </View>
         <View style={styles.textRow}>
           <Text style={styles.textGray}>Bạn chưa có tài khoản?</Text>
-          <TouchableOpacity onPress={() => {navigation.navigate("Register")}}>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('Register');
+            }}>
             <Text style={styles.text}> Đăng ký</Text>
           </TouchableOpacity>
         </View>
