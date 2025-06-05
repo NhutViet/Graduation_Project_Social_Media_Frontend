@@ -37,15 +37,16 @@ const ModalReaction = forwardRef<Modalize, ModalReactionProps>(
 
     //redux
     const dispatch = useDispatch<AppDispatch>();
-    const {listLikers, isSuccess} = useSelector(
+    const {listLikers, isLoading} = useSelector(
       (state: RootState) => state.likers,
     );
     const {refreshToken} = useSelector((state: RootState) => state.user);
     const [users, setUsers] = useState<any[]>([]);
     const {user} = useSelector((state: RootState) => state.user);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
-      if (postId) {
+      if (postId && isModalOpen) {
         const fetchLikers = async () => {
           try {
             const resultAction = await dispatch(
@@ -58,7 +59,7 @@ const ModalReaction = forwardRef<Modalize, ModalReactionProps>(
         };
         fetchLikers();
       }
-    }, [postId, isLiked]);
+    }, [isModalOpen]);
 
     const renderItem = ({item}: {item: any}) => (
       <View style={[styles.userItem, {backgroundColor: color.modal}]}>
@@ -101,6 +102,8 @@ const ModalReaction = forwardRef<Modalize, ModalReactionProps>(
         modalStyle={[styles.modal, {backgroundColor: color.modal}]}
         handleStyle={styles.modalHandle}
         handlePosition="inside"
+        onOpen={() => setIsModalOpen(true)}
+        onClose={() => setIsModalOpen(false)}
         panGestureEnabled={true}
         onOverlayPress={() => ref && (ref as any).current?.close()}
         HeaderComponent={
@@ -113,7 +116,18 @@ const ModalReaction = forwardRef<Modalize, ModalReactionProps>(
           nestedScrollEnabled: true,
         }}>
         <View style={{flex: 1, minHeight: 200}}>
-          {listLikers.length > 0 ? (
+          {isLoading ? (
+            <Text
+              style={{
+                textAlign: 'center',
+                fontSize: 18,
+                margin: 30,
+                color: color.textSecondary,
+                fontWeight: '400',
+              }}>
+              Đang tải...
+            </Text>
+          ) : listLikers.length > 0 ? (
             <FlashList
               data={users}
               keyExtractor={item => item.userId}
@@ -123,13 +137,16 @@ const ModalReaction = forwardRef<Modalize, ModalReactionProps>(
               nestedScrollEnabled
             />
           ) : (
-            <Text style={{
-              textAlign: 'center',
-              fontSize: 18,
-              margin: 30,
-              color: color.textSecondary,
-              fontWeight: '400',
-            }}>Hãy trở thành người đầu tiên yêu thích bài viết nhé!</Text>
+            <Text
+              style={{
+                textAlign: 'center',
+                fontSize: 18,
+                margin: 30,
+                color: color.textSecondary,
+                fontWeight: '400',
+              }}>
+              Hãy trở thành người đầu tiên yêu thích bài viết nhé!
+            </Text>
           )}
         </View>
       </Modalize>

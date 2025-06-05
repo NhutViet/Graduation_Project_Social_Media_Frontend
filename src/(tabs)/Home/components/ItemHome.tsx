@@ -102,22 +102,17 @@ const ItemHome = (props: any) => {
     console.log('Combined follows:', follows.length);
   }, [followers, following, follows]);
   //gọi api like
-  const {likePosts, isLoading} = useSelector(
-    (state: RootState) => state.reactions,
-  );
+  const {likePosts} = useSelector((state: RootState) => state.reactions);
+
   const {refreshToken} = useSelector((state: RootState) => state.user);
-  const [isLiked, setIsLike] = useState(likePosts.includes(_id));
+  const isLiked = likePosts.includes(_id);
   const [numLike, setNumLike] = useState(likeCount);
 
   useEffect(() => {
-    if (isLike) {
+    if(isLike && !likePosts.includes(_id)){
       dispatch(addLikedPost(_id));
     }
-  }, [_id]);
-
-  useEffect(() => {
-    setIsLike(likePosts.includes(_id));
-  }, [likePosts]);
+  }, [_id, isLike]);
 
   const handleLike = async () => {
     if (isLiked) {
