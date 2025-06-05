@@ -1,5 +1,4 @@
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
 import {useNavigation} from '@react-navigation/native';
 import Video from 'react-native-video';
@@ -10,10 +9,18 @@ const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height - 60;
 
 const ReelsComponent = (props: any) => {
-  const {_id, caption, share, media, user, muted, currentVisible, isFocused, showBottomSheet} =
-    props;
-  const {theme} = useTheme();
-  const color = Colors[theme];
+  const {
+    _id,
+    caption,
+    share,
+    media,
+    user,
+    muted,
+    currentVisible,
+    isFocused,
+    showBottomSheet,
+    likeCount,
+  } = props;
   const navigation = useNavigation<any>();
 
   const formatNumber = (num: number): string => {
@@ -63,7 +70,7 @@ const ReelsComponent = (props: any) => {
                 source={require('../../../../assets/icon/heart.png')}
               />
             </TouchableOpacity>
-            <Text style={styles.textNormal}>{formatNumber(27000)}</Text>
+            <Text style={styles.textNormal}>{formatNumber(likeCount)}</Text>
           </View>
           <View style={styles.containerVertical}>
             <TouchableOpacity style={styles.iconContainer}>
@@ -84,13 +91,16 @@ const ReelsComponent = (props: any) => {
             <Text style={styles.textNormal}>{formatNumber(share)}</Text>
           </View>
           <TouchableOpacity
-            style={[styles.containerVertical, styles.iconContainer]} onPress={showBottomSheet}>
+            style={[styles.containerVertical, styles.iconContainer]}
+            onPress={showBottomSheet}>
             <Image
               style={styles.icon}
               source={require('../../../../assets/icon/menu-dots-vertical.png')}
             />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.iconMusicContainer} onPress={() => navigation.navigate('SaveMusic')}>
+          <TouchableOpacity
+            style={styles.iconMusicContainer}
+            onPress={() => navigation.navigate('SaveMusic')}>
             <Image
               style={styles.icon}
               source={require('../../../../assets/icon/musical-note.png')}

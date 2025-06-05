@@ -39,17 +39,20 @@ export const fetchFollowingStories = createAsyncThunk<
   userFollow[],
   void,
   {rejectValue: {message: string}}
->('stories/fetchFollowing', async (_, {rejectWithValue}) => {
-  try {
-    const response = await axiosInstance.get(`${API.GET_USER_FOLLOW}`, {
-      headers: {
-        token: 'refresh',
-      },
-    });
-    return response.data;
-  } catch (error: any) {
-    return rejectWithValue({
-      message: error.response?.data?.message || 'Lấy stories thất bại',
-    });
+>(
+  'stories/fetchFollowing',
+  async (_, {rejectWithValue}) => {
+    try {
+      const response = await axiosInstance.get(`${API.GET_USER_FOLLOW}`, {
+        headers: {
+          token: 'refresh',
+        },
+      });
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue({
+        message: error.response?.data?.message || 'Lấy stories thất bại',
+      });
+    }
   }
-});
+);
