@@ -21,7 +21,6 @@ import {FlashList} from '@shopify/flash-list';
 import {getAddPostStyles} from '../../StyleSheet/AddPostStyles';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
-import Video from 'react-native-video';
 
 const menu: string[] = ['All', 'Videos', 'Images'];
 

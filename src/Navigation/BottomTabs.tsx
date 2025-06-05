@@ -7,8 +7,10 @@ import {Search} from '../(tabs)/Search';
 import ProfileNavigation from '../(tabs)/Profile/ProfileNavigation';
 import Reels from '../(tabs)/Reels';
 import {Home} from '../(tabs)/Home';
-import BottomSheetReels, { BottomSheetReelsRef } from '../(tabs)/Reels/bottomSheet/reelBottomSheet';
-import { useRef } from 'react';
+import BottomSheetReels, {
+  BottomSheetReelsRef,
+} from '../(tabs)/Reels/bottomSheet/reelBottomSheet';
+import {useRef} from 'react';
 
 const Tab = createBottomTabNavigator();
 
