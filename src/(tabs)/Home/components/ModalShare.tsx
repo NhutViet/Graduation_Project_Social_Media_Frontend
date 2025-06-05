@@ -17,6 +17,8 @@ import {
   CheckCircle2,
 } from 'lucide-react-native';
 import {FlashList} from '@shopify/flash-list';
+import {Colors} from '../../../../assets/color/Colors';
+import {useTheme} from '../../../util/ThemeContext';
 
 interface Friend {
   id: string;
@@ -31,6 +33,8 @@ interface ModalShareProps {
 }
 
 const ModalShare: React.FC<ModalShareProps> = ({visible, onClose, friends}) => {
+  const {theme} = useTheme();
+  const color = Colors[theme];
   const [selectedFriendIds, setSelectedFriendIds] = useState<string[]>([]);
   const [message, setMessage] = useState('');
 
@@ -63,7 +67,8 @@ const ModalShare: React.FC<ModalShareProps> = ({visible, onClose, friends}) => {
             <UserPlus size={20} color="#aaa" />
           </View>
 
-          {/* Danh sách bạn bè */}
+          {friends.length > 0 ? (
+            // Danh sách bạn bè
           <FlashList
             data={friends}
             numColumns={3}
@@ -99,6 +104,17 @@ const ModalShare: React.FC<ModalShareProps> = ({visible, onClose, friends}) => {
               );
             }}
           />
+          ) : (
+            <Text style={{
+              height: 200,
+              textAlign: 'center',
+              fontSize: 18,
+              margin: 30,
+              color: color.textSecondary,
+              fontWeight: '400',
+              verticalAlign: 'middle'
+            }}>Bạn không có người theo dõi hay đang theo dõi bất kỳ ai</Text>
+          )}
 
           {/* Gửi tin nhắn nếu có người được chọn */}
           {selectedFriendIds.length > 0 ? (

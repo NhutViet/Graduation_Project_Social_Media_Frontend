@@ -40,20 +40,20 @@ const FilterModal: React.FC<FilterModalProps> = ({
     switch (type) {
       case 'date':
         return [
-          {id: 'all', label: 'All dates'},
-          {id: 'week', label: 'Past week'},
-          {id: 'month', label: 'Past month'},
-          {id: 'year', label: 'Past year'},
-          {id: 'range', label: 'Date range'},
+          {id: 'all', label: 'Tất cả các ngày'},
+          {id: 'week', label: 'Tuần trước'},
+          {id: 'month', label: 'Tháng trước'},
+          {id: 'year', label: 'Năm trước'},
+          {id: 'range', label: 'Khoảng thời gian'},
         ];
       case 'sort':
         return [
-          {id: 'newest', label: 'Newest to oldest'},
-          {id: 'oldest', label: 'Oldest to newest'},
+          {id: 'newest', label: 'Mới nhất đến cũ nhất'},
+          {id: 'oldest', label: 'Cũ nhất đến mới nhất'},
         ];
       case 'content':
         return [
-          {id: 'posts', label: 'Posts'},
+          {id: 'posts', label: 'Bài đăng'},
           {id: 'reels', label: 'Reels'},
           {id: 'threads', label: 'Threads'},
         ];
@@ -119,17 +119,17 @@ const FilterModal: React.FC<FilterModalProps> = ({
               <View style={styles.handleBar} />
               <Text style={[styles.modalTitle, {color: colors.text}]}>
                 {type === 'date'
-                  ? 'Filter by date'
+                  ? 'Lọc theo kỳ'
                   : type === 'sort'
-                  ? 'Sort by'
-                  : 'Filter by content type'}
+                  ? 'Sắp xếp theo'
+                  : 'Lọc theo loại nội dung'}
               </Text>
               {type === 'content' && (
                 <TouchableOpacity
                   style={styles.clearButton}
                   onPress={() => onSelectFilter('')}>
                   <Text style={[styles.clearText, {color: colors.primary}]}>
-                    Clear
+                    Xóa
                   </Text>
                 </TouchableOpacity>
               )}
@@ -186,7 +186,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
                   onApply?.(selectedItems);
                   onClose();
                 }}>
-                <Text style={styles.applyButtonText}>Apply</Text>
+                <Text style={styles.applyButtonText}>Áp dụng</Text>
               </TouchableOpacity>
             )}
           </TouchableOpacity>

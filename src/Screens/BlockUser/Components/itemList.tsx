@@ -15,7 +15,7 @@ const ItemList = (props: any) => {
             <Text style={[styles.name, {color: colors.lightDark}]} numberOfLines={1} ellipsizeMode='tail'>{name}</Text>
         </View>
         <TouchableOpacity onPress={onhandleBlock} style={styles.blockBox}>
-            <Text style={[styles.handle, {color: colors.text}]}>Block</Text>
+            <Text style={[styles.handle, {color: colors.text}]}>Chặn</Text>
         </TouchableOpacity>
     </TouchableOpacity>
   )

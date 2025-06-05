@@ -88,8 +88,7 @@ const ContactInformation: React.FC<ContactInformationProps> = ({
         <View style={styles.content}>
           <Text style={styles.title}>Contact information</Text>
           <Text style={styles.description}>
-            Manage your mobile numbers and emails to make sure your contact info
-            is accurate and up to date.
+            Quản lý số điện thoại di động và email của bạn để đảm bảo thông tin liên lạc của bạn chính xác và cập nhật.
           </Text>
 
           <View style={styles.section}>
@@ -99,7 +98,7 @@ const ContactInformation: React.FC<ContactInformationProps> = ({
                 <Text style={styles.menuText}>
                   100017152606855-14977793@gmail.com
                 </Text>
-                <Text style={styles.pendingText}>Pending confirmation</Text>
+                <Text style={styles.pendingText}>Đang chờ xác nhận</Text>
               </View>
               <ChevronRight
                 size={20}
@@ -112,7 +111,7 @@ const ContactInformation: React.FC<ContactInformationProps> = ({
               <Mail size={24} color={colors.text} style={styles.menuIcon} />
               <View>
                 <Text style={styles.menuText}>HughCrw@gmail.com</Text>
-                <Text style={styles.pendingText}>Pending confirmation</Text>
+                <Text style={styles.pendingText}>Đang chờ xác nhận</Text>
               </View>
               <ChevronRight
                 size={20}
@@ -153,7 +152,7 @@ const ContactInformation: React.FC<ContactInformationProps> = ({
             ]}>
             <Text
               style={[styles.menuText, {color: '#fff', textAlign: 'center'}]}>
-              Add new contact
+              Thêm liên hệ mới
             </Text>
           </TouchableOpacity>
         </View>

@@ -233,7 +233,7 @@ export const Search = () => {
         <View style={styles.row}>
           <TextInput
             ref={inputRef}
-            placeholder="Searching..."
+            placeholder="Tìm kiếm..."
             placeholderTextColor={color.text}
             style={styles.search}
             onFocus={() => {

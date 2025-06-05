@@ -68,7 +68,7 @@ export const SearchMessages = () => {
         <TouchableOpacity onPress={() => navigation.goBack()} style={{ width: 24, height: 24, marginRight: 16 }}>
           <Image source={require('../../../../assets/icon/left.png')} style={{ width: '100%', height: '100%', tintColor: color.text, resizeMode: 'contain' }} />
         </TouchableOpacity>
-        <Text style={{ flex: 1, textAlign: 'center', fontSize: 16, fontWeight: '600', color: color.text }}>Search text messages</Text>
+        <Text style={{ flex: 1, textAlign: 'center', fontSize: 16, fontWeight: '600', color: color.text }}>Tìm kiếm tin nhắn</Text>
         <View style={{ width: 24 }} />
       </View>
 
@@ -77,7 +77,7 @@ export const SearchMessages = () => {
         <View style={styles.searchBlock}>
           <TextInput
             ref={inputRef}
-            placeholder="Search messages"
+            placeholder="Tìm kiếm tin nhắn"
             placeholderTextColor={color.text}
             style={[styles.searchInput, { flex: 1 }]}
             value={query}
@@ -90,7 +90,7 @@ export const SearchMessages = () => {
       {!loading && results.length > 0 && (
         <View style={styles.resultsHeader}>
           <Text style={styles.resultsHeaderText}>
-            {results.length} result{results.length !== 1 ? 's' : ''} found
+            {results.length} kết quả{results.length !== 1 ? 's' : ''} tìm thấy
           </Text>
         </View>
       )}
@@ -99,7 +99,7 @@ export const SearchMessages = () => {
       <View style={styles.searchResultContent}>
         {loading ? (
           <View style={styles.loadingContainer}>
-            <Text style={styles.loadingText}>Searching...</Text>
+            <Text style={styles.loadingText}>Đang tìm kiếm...</Text>
           </View>
         ) : (
           <FlashList

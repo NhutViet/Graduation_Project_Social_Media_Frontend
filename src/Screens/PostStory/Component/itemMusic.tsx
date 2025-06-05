@@ -108,7 +108,7 @@ const ItemMusic = (props: any) => {
           <View style={styles.leftContainer}>
             <Text style={[styles.text, {color: color.text}]}>{author} </Text>
             <Text style={[styles.text, {color: color.text}]}>
-              · {countVideoUsed} posts
+              · {countVideoUsed} bài đăng
             </Text>
           </View>
         </View>

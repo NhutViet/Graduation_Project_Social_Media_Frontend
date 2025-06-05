@@ -29,7 +29,7 @@ const MessageThumbnail: React.FC<MessageThumbnailProps> = ({
   onPress,
 }) => {
   const styles = useProfileEditingStyles();
-  const displayText = isMine ? `You: ${message}` : message;
+  const displayText = isMine ? `Bạn: ${message}` : message;
   // take up to 18 characters, then ellipsize manually if needed
   const snippet =
     displayText.length > 18

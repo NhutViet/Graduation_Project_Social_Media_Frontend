@@ -77,7 +77,7 @@ const NewMessage = () => {
             source={require('../../../assets/icon/left.png')}
           />
         </TouchableOpacity>
-        <Text style={[styles.title, {color: color.text}]}>New Message</Text>
+        <Text style={[styles.title, {color: color.text}]}>Tin nhắn mới</Text>
         <View style={styles.block}></View>
       </View>
       <FlashList
@@ -97,7 +97,7 @@ const NewMessage = () => {
           <>
             <View style={styles.rowContainer}>
               <Text style={[styles.textNormal, {color: color.gray21}]}>
-                To:
+                Đến:
               </Text>
               <TextInput
                 value={search}
@@ -123,7 +123,7 @@ const NewMessage = () => {
                 styles.title,
                 {color: color.text, marginHorizontal: 16, marginBottom: 22},
               ]}>
-              Suggested
+              Đề xuất
             </Text>
           </>
         }

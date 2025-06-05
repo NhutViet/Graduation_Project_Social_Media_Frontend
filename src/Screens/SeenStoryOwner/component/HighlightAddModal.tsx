@@ -40,7 +40,7 @@ const HighlightAddModal = forwardRef<Modalize, HighlightAddModalProps>(({ onAdd,
         <TouchableOpacity onPress={onBack} style={{position: 'absolute', width: 30, height: 30,justifyContent: 'center', alignItems: 'center', zIndex: 1}}>
             <Image source={require('../../../../assets/icon/left.png')} style={{resizeMode: 'contain', width: '70%', height: '70%'}}/>
         </TouchableOpacity>
-        <Text style={[styles.modalTitle, {color: color.text}]}>New highlight</Text>
+        <Text style={[styles.modalTitle, {color: color.text}]}>Thêm tin nổi bật</Text>
       </View>
       
       <View style={styles.imageContainer}>
@@ -56,14 +56,14 @@ const HighlightAddModal = forwardRef<Modalize, HighlightAddModalProps>(({ onAdd,
       
       <TextInput
         style={[styles.input, { borderColor: color.border, borderWidth: 1, color: color.text }]}
-        placeholder="Highlights"
+        placeholder="Tin nổi bật"
         placeholderTextColor={color.secondary}
         value={highlightName}
         onChangeText={setHighlightName}
       />
       
       <TouchableOpacity style={styles.addButton} onPress={handleAdd}>
-        <Text style={styles.addButtonText}>Add</Text>
+        <Text style={styles.addButtonText}>Thêm</Text>
       </TouchableOpacity>
     </Modalize>
   );

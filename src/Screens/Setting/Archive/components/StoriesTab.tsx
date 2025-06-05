@@ -112,8 +112,8 @@ const StoriesTab = () => {
           <View style={{width: 100, height: 100, borderWidth: 1, borderRadius: 80, borderColor: color.text, justifyContent: 'center', alignItems: 'center'}}>
             <Image style={{width: 70, height: 70, resizeMode: 'contain', tintColor: color.text}} source={require('../../../../../assets/icon/archiveStory.png')}/>
           </View>
-          <Text style={{fontSize: 19, fontWeight: 'bold', color: color.text, marginVertical: 10}}>Add to your story</Text>
-          <Text style={{fontSize: 15, color: color.secondary, textAlign:"center"}}>Keep your stories in your archive after they disappear, so you can look back on your memories. Only you can see what's in your archive.</Text>
+          <Text style={{fontSize: 19, fontWeight: 'bold', color: color.text, marginVertical: 10}}>Thêm vào tin của bạn</Text>
+          <Text style={{fontSize: 15, color: color.secondary, textAlign:"center"}}>Sử dụng kho lưu trữ để giữ lại các tin của bạn khi chúng biến mất để sau này có thể ôn lại kỷ niệm. Chỉ bạn mới xem được nội dung trong kho lưu trữ của mình.</Text>
         </View>
       )}
       </SafeAreaView>

@@ -14,21 +14,21 @@ import {useTheme} from '../../../util/ThemeContext';
 const categoriesData = [
   {
     id: '1',
-    title: 'Least Interaction',
+    title: 'Ít tương tác',
     description: 'abc',
     multiImage:
       'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
   },
   {
     id: '2',
-    title: 'Most Shown on Feed',
+    title: 'Hiển thị nhiều trên feed',
     description: 'abc',
     multiImage:
       'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
   },
   {
     id: '3',
-    title: 'Creators and Entrepreneurs',
+    title: 'Các nhà sáng tạo và doanh nhân',
     description: 'abc',
     multiImage:
       'https://i.pinimg.com/736x/8c/71/92/8c7192c084765c076ef33024c0b34406.jpg',
@@ -96,7 +96,7 @@ const FollowingTab = () => {
       </TouchableOpacity>
       <TouchableOpacity
         style={[styles.messageButton, {borderColor: color.text}]}>
-        <Text style={[styles.messageText, {color: color.text}]}>Message</Text>
+        <Text style={[styles.messageText, {color: color.text}]}>Nhắn tin</Text>
       </TouchableOpacity>
       <TouchableOpacity>
         <Image
@@ -121,7 +121,7 @@ const FollowingTab = () => {
         </View>
       </TouchableOpacity>
       <TouchableOpacity style={styles.followButton}>
-        <Text style={styles.followText}>Follow</Text>
+        <Text style={styles.followText}>Theo dõi</Text>
       </TouchableOpacity>
       <TouchableOpacity>
         <Image
@@ -142,7 +142,7 @@ const FollowingTab = () => {
         estimatedItemSize={10}
         ListHeaderComponent={
           <Text style={[styles.sectionHeader, {color: color.text}]}>
-            Categories
+            Danh mục
           </Text>
         }
       />
@@ -160,8 +160,8 @@ const FollowingTab = () => {
               justifyContent: 'space-between',
               marginTop: 10,
             }}>
-            <Text style={{color: color.text, fontSize: 18, fontWeight: 'bold'}}>
-              Sort by Default
+            <Text style={{color: color.text, fontSize: 18}}>
+              Sắp xếp theo <Text style={{color: color.text, fontSize: 18, fontWeight: 'bold'}}>Mặc định</Text>
             </Text>
             <Image
               source={require('../../../../assets/icon/icon_sort.png')}
@@ -178,7 +178,7 @@ const FollowingTab = () => {
         estimatedItemSize={10}
         ListHeaderComponent={
           <Text style={[styles.sectionHeader, {color: color.text}]}>
-            Suggested for You
+            Gợi ý cho bạn
           </Text>
         }
       />

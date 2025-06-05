@@ -29,7 +29,7 @@ export const AddPeopleToGroupChat = () => {
 
   const copyToClipboard = (text: string) => {
     Clipboard.setString(text);
-    Alert.alert('Copied Successfully!');
+    Alert.alert('Đã sao chép văn bản');
   };
 
   useEffect(() => {
@@ -80,7 +80,7 @@ export const AddPeopleToGroupChat = () => {
         <TouchableOpacity style={styles.iconBack} onPress={() => navigation.goBack()}>
           <Image source={require('../../../assets/icon/left.png')} />
         </TouchableOpacity>
-        <Text style={styles.title}>Add People</Text>
+        <Text style={styles.title}>Thêm người</Text>
         <View style={styles.iconBack} />
       </View>
       <View style={styles.header}>
@@ -89,7 +89,7 @@ export const AddPeopleToGroupChat = () => {
           style={styles.icon}
         />
         <View style={styles.max}>
-          <Text style={styles.invite}>Invite link</Text>
+          <Text style={styles.invite}>Liên kết mời</Text>
           <Text
             numberOfLines={1}
             ellipsizeMode="tail"
@@ -101,12 +101,12 @@ export const AddPeopleToGroupChat = () => {
           </Text>
         </View>
         <TouchableOpacity style={styles.btnCopy} onPress={() => copyToClipboard('htts: //ig.me/ksjhdkjskbjhsbjkbvsjbvksjhdkjskbjhsbjkbvsjbv')}>
-          <Text style={styles.textName}>Copy</Text>
+          <Text style={styles.textName}>Sao chép</Text>
         </TouchableOpacity>
       </View>
       <View style={styles.header}>
         <TextInput
-          placeholder="Search"
+          placeholder="Tìm kiếm"
           placeholderTextColor={colors.lightDark}
           value={searchText}
           onChangeText={setSearchText}
@@ -164,7 +164,7 @@ export const AddPeopleToGroupChat = () => {
           />
         </View>
       )}
-      <Text style={[styles.title, styles.header]}>Suggested</Text>
+      <Text style={[styles.title, styles.header]}>Gợi ý</Text>
       <View style={styles.constainer}>
         <FlashList
           data={users}
@@ -210,7 +210,7 @@ export const AddPeopleToGroupChat = () => {
       </View>
       {selected.length > 0 && (
         <TouchableOpacity style={styles.btnAdd}>
-          <Text style={[styles.title, {color: colors.background}]}>Add</Text>
+          <Text style={[styles.title, {color: colors.background}]}>Thêm</Text>
         </TouchableOpacity>
       )}
     </SafeAreaView>

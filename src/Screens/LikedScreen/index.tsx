@@ -16,9 +16,9 @@ import FilterModal from './Components/filter';
 import {useNavigation} from '@react-navigation/native';
 
 const Filter = [
-  {id: 'sort', label: 'Newest to oldest'},
-  {id: 'date', label: 'All dates'},
-  {id: 'content', label: 'All content types'},
+  {id: 'sort', label: 'Mới nhất đến cũ nhất'},
+  {id: 'date', label: 'Tất cả các ngày'},
+  {id: 'content', label: 'Tất cả loại nội dung'},
 ];
 
 export const LikedScreen = () => {
@@ -72,9 +72,9 @@ export const LikedScreen = () => {
             style={styles.iconBack}
           />
         </TouchableOpacity>
-        <Text style={styles.title}>Likes</Text>
+        <Text style={styles.title}>Lượt thích</Text>
         <TouchableOpacity onPress={() => setSelected([])}>
-          <Text style={styles.cancel}>Cancel</Text>
+          <Text style={styles.cancel}>Hủy</Text>
         </TouchableOpacity>
       </View>
 
@@ -143,7 +143,7 @@ export const LikedScreen = () => {
 
       {selected.length > 0 && (
         <TouchableOpacity style={styles.horiContainer}>
-          <Text style={styles.unlike}>Unlike ({selected.length})</Text>
+          <Text style={styles.unlike}>Bỏ thích ({selected.length})</Text>
         </TouchableOpacity>
       )}
     </SafeAreaView>

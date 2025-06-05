@@ -133,8 +133,8 @@ const BottomSheet = forwardRef<BottomSheetRef>(({}, ref) => {
 
   const [index, setIndex] = useState(0);
   const [routes] = useState([
-    {key: 'first', title: 'Original audio'},
-    {key: 'second', title: 'Music'},
+    {key: 'first', title: 'Âm thanh gốc'},
+    {key: 'second', title: 'Nhạc'},
   ]);
 
   const renderScene = SceneMap({
@@ -207,7 +207,7 @@ const BottomSheet = forwardRef<BottomSheetRef>(({}, ref) => {
                 />
               </TouchableOpacity>
               <Text style={[styles.textNormal, {color: color.text}]}>
-                Saved
+                Đã lưu
               </Text>
               <View style={styles.blockIcon}></View>
             </View>
@@ -247,7 +247,7 @@ const BottomSheet = forwardRef<BottomSheetRef>(({}, ref) => {
                   styles.textNormal,
                   {color: color.text, fontWeight: 'bold'},
                 ]}>
-                Saved
+                Đã lưu
               </Text>
             </TouchableOpacity>
             <View style={styles.rowContainer}>
@@ -256,11 +256,11 @@ const BottomSheet = forwardRef<BottomSheetRef>(({}, ref) => {
                   styles.textNormal,
                   {fontWeight: 'bold', color: color.text},
                 ]}>
-                For you
+                Dành cho bạn
               </Text>
               <TouchableOpacity>
                 <Text style={[styles.textNormal, {color: color.text}]}>
-                  See more
+                  Xem thêm
                 </Text>
               </TouchableOpacity>
             </View>

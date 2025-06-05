@@ -59,7 +59,7 @@ export const ChangeBirthday = () => {
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Image source={require('../../../assets/icon/left.png')} style={styles.iconBack}/>
         </TouchableOpacity>
-      <Text style={styles.title}>Edit your birthday</Text>
+      <Text style={styles.title}>Chỉnh sửa ngày sinh của bạn</Text>
 
       <View style={styles.pickerRow}>
         <Picker selectedValue={day} style={styles.picker} onValueChange={setDay}>
@@ -77,7 +77,7 @@ export const ChangeBirthday = () => {
       </View>
 
       <TouchableOpacity style={styles.button} onPress={handleSave}>
-        <Text style={styles.buttonText}>Save</Text>
+        <Text style={styles.buttonText}>Lưu</Text>
       </TouchableOpacity>
     </View>
   );

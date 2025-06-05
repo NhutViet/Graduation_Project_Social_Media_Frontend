@@ -44,7 +44,7 @@ const LinkQRModal: React.FC<LinkQRModalProps> = ({isVisible, onClose, qrCodeValu
             style={styles.groupAvatar}
           />
           <Text style={styles.groupName}>{groupName}</Text>
-          <Text style={styles.membersCount}>{membersCount} members</Text>
+          <Text style={styles.membersCount}>{membersCount} thành viên</Text>
           <QRCode
             value={qrCodeValue}
             size={150}
@@ -69,19 +69,19 @@ const LinkQRModal: React.FC<LinkQRModalProps> = ({isVisible, onClose, qrCodeValu
         </View>
 
         <Text style={styles.description}>
-          People can scan this QR code with their smartphone camera to join this group chat.
+          Mọi người có thể quét mã QR này bằng camera điện thoại để tham gia nhóm chat này.
         </Text>
 
         <TouchableOpacity style={styles.shareButton}>
-          <Text style={styles.shareButtonText}>Share QR Code</Text>
+          <Text style={styles.shareButtonText}>Chia sẻ mã QR</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.saveButton}>
-          <Text style={styles.saveButtonText}>Save to Camera Roll</Text>
+          <Text style={styles.saveButtonText}>Lưu vào thư viện ảnh</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={{width: '100%', borderTopWidth: 1, borderColor: '#F0F0F0', alignItems: 'center',}} onPress={onClose}>
-          <Text style={styles.doneText}>Done</Text>
+          <Text style={styles.doneText}>Xong</Text>
         </TouchableOpacity>
       </View>
     </Modal>

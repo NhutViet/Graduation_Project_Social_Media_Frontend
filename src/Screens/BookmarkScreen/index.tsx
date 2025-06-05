@@ -27,8 +27,8 @@ export const BookmarkScreen = () => {
   }
 
   const playlists: Playlist[] = [
-    {id: '1', title: 'All posts', type: 'post', items: posts},
-    {id: '2', title: 'Sounds', type: 'music', items: musics},
+    {id: '1', title: 'Tất cả bài đăng', type: 'post', items: posts},
+    {id: '2', title: 'Âm thanh', type: 'music', items: musics},
   ];
 
   const handlePlaylistPress = (title: string, type: 'post' | 'music') => {
@@ -39,7 +39,7 @@ export const BookmarkScreen = () => {
     <TouchableOpacity
       style={styles.columnItem}
       onPress={() => {
-        if(item.title == 'Sounds'){
+        if(item.title == 'Âm thanh'){
           navigation.navigate('MusicSaved');
         }else{
           handlePlaylistPress(item.title, item.type)
@@ -58,7 +58,7 @@ export const BookmarkScreen = () => {
             style={styles.icon}
           />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Saved</Text>
+        <Text style={styles.headerTitle}>Đã lưu</Text>
         <TouchableOpacity
           onPress={() => {
             navigation.navigate('AddCollection');

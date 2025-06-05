@@ -93,7 +93,7 @@ const BottomSheetVote: React.FC<BottomSheetVoteProps> = ({
             activeOpacity={0.7}
             onPress={onAddOption}
           >
-            <Text style={[styles.optionText, { color: palette.primary }]}>+ Add options</Text>
+            <Text style={[styles.optionText, { color: palette.primary }]}>+ Thêm các lựa chọn</Text>
           </TouchableOpacity>
         </ScrollView>
 
@@ -107,7 +107,7 @@ const BottomSheetVote: React.FC<BottomSheetVoteProps> = ({
             styles.intentionChoiceText,
             { textAlign: 'center', color: palette.text }
           ]}>
-            Submit Vote
+            Lưu bình chọn
           </Text>
         </TouchableOpacity>
       </View>

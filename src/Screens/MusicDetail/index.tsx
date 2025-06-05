@@ -176,7 +176,7 @@ export const SaveMusic = () => {
                 resizeMode="cover"
                 source={require('../../../assets/icon/spotify.png')}
               />
-              <Text style={[styles.statText, {color: colors.text}]}>Add</Text>
+              <Text style={[styles.statText, {color: colors.text}]}>Thêm</Text>
             </View>
           </View>
         </View>
@@ -199,7 +199,7 @@ export const SaveMusic = () => {
       {/* Use Audio Button */}
       <TouchableOpacity
         style={[styles.useAudioButton, {backgroundColor: colors.blue}]}>
-        <Text style={styles.useAudioText}>Use audio</Text>
+        <Text style={styles.useAudioText}>Sử dụng âm thanh</Text>
       </TouchableOpacity>
 
       {/* Reels Grid */}

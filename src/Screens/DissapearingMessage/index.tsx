@@ -12,10 +12,10 @@ export const DissapearingMessage = () => {
     const [selectedOption, setSelectedOption] = useState("Off");
 
     const options = [
-        { label: "Off", value: "Off", onPress: () => Alert.alert("Option selected: Off") },
-        { label: "Once they're seen", value: "OnceThey'reSeen", onPress: () => Alert.alert("Option selected: Once they're seen") },
-        { label: "24 hours", value: "24Hours", onPress: () => Alert.alert("Option selected: 24 hours") },
-        { label: "7 days", value: "7Days", onPress: () => Alert.alert("Option selected: 7 days") },
+        { label: "Tắt", value: "Off", onPress: () => Alert.alert("Option selected: Off") },
+        { label: "Sau khi đã xem", value: "OnceThey'reSeen", onPress: () => Alert.alert("Option selected: OnceThey'reSeen") },
+        { label: "24 giờ", value: "24Hours", onPress: () => Alert.alert("Option selected: 24 hours") },
+        { label: "7 ngày", value: "7Days", onPress: () => Alert.alert("Option selected: 7 days") },
     ];
 
     const handleSelectOption = (option: { value: string; onPress: () => void }) => {
@@ -51,10 +51,7 @@ export const DissapearingMessage = () => {
             renderItem={renderOption}
             ListFooterComponent={
                 <Text style={[styles.description, {color: color.textSecondary}]}>
-                Set messages and reactions to disappear once you've seen them and closed
-                the chat, or keep them a bit longer. Messages and reactions can be kept
-                in chat up to 7 days after the message is sent. If screenshots are
-                detected, the chat will get a notification. <Text onPress={() => {Alert.alert('navigate')}} style={{fontSize: 14, color: "#007AFF",}}>Learn more</Text>
+                Đặt tin nhắn và phản hồi biến mất sau khi bạn đã xem và đóng trò chuyện hoặc giữ chúng lâu hơn một chút. Tin nhắn và phản hồi có thể được giữ lại trong trò chuyện tối đa 7 ngày sau khi tin nhắn được gửi. Nếu phát hiện ảnh chụp màn hình, trò chuyện sẽ nhận được thông báo. <Text onPress={() => {Alert.alert('navigate')}} style={{fontSize: 14, color: "#007AFF",}}>Tìm hiểu thêm</Text>
                 </Text>
             }
             />

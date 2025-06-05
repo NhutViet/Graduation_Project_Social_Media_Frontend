@@ -38,7 +38,7 @@ const TopTab = createMaterialTopTabNavigator();
     <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
       <View style={{width: '100%', height: 60}}>
         <Header
-          pressableTitle="Stories archive"
+          pressableTitle="Kho lưu trữ tin"
           pressableTilFunc={openArchiveModal}
           iconBack={require('../../../../../assets/icon/left.png')}
           func={goBack}
@@ -106,13 +106,13 @@ const TopTab = createMaterialTopTabNavigator();
               }}>
                 <View style={{marginTop: 35}}>
                   <TouchableOpacity style={styles.modalPressable}>
-                    <Text style={[styles.modalText, {color: color.text}]}>Stories Archive</Text>
+                    <Text style={[styles.modalText, {color: color.text}]}>Kho lưu trữ tin</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.modalPressable}>
-                    <Text style={[styles.modalText, {color: color.text}]}>Posts Archive</Text>
+                    <Text style={[styles.modalText, {color: color.text}]}>Kho lưu trữ bài viết</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.modalPressable}>
-                    <Text style={[styles.modalText, {color: color.text}]}>Live Archive</Text>
+                    <Text style={[styles.modalText, {color: color.text}]}>Kho lưu trữ buổi phát trực tiếp</Text>
                   </TouchableOpacity>
                 </View>
             </Modalize>
@@ -132,14 +132,14 @@ const TopTab = createMaterialTopTabNavigator();
               }}>
                 <View style={{marginTop: 35}}>
                   <View style={{paddingVertical: 20, justifyContent: 'center'}}>
-                    <Text style={{fontSize: 15, fontWeight: "500", color: color.text}}>More options</Text>
+                    <Text style={{fontSize: 15, fontWeight: "500", color: color.text}}>Lựa chọn khác</Text>
                   </View>
                   <View style={{flex: 1, borderWidth: 1, borderColor: color.gray}}/>
                   <TouchableOpacity style={styles.modalPressable}>
-                    <Text style={[styles.modalText, {color: color.text}]}>Create highlight</Text>
+                    <Text style={[styles.modalText, {color: color.text}]}>Tạo tin nổi bật</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.modalPressable}>
-                    <Text style={[styles.modalText, {color: color.text}]}>Settings</Text>
+                    <Text style={[styles.modalText, {color: color.text}]}>Cài đặt</Text>
                   </TouchableOpacity>
                 </View>
             </Modalize>

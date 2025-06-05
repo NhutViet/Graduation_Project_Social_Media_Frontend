@@ -37,10 +37,10 @@ export const Register = ({navigation}: any) => {
 
     const handleRegister = async () => {
         if (!email || !password || !rePassword) {
-            Alert.alert('Error', 'All fields are required!');
+            Alert.alert('Lỗi', 'Phải điền tất cả các trường!');
             return;
         } else if(password !== rePassword){
-            Alert.alert('Error', 'Re Password not match');
+            Alert.alert('Error', 'Mật khẩu nhập lại không khớp');
             return;
         } else {
             await dispatch(fetchRegister({ email, password }));
@@ -92,7 +92,7 @@ export const Register = ({navigation}: any) => {
             <TextInput
                 value={password}
                 onChangeText={setPassword}
-                placeholder="Password"
+                placeholder="Mật khẩu"
                 secureTextEntry={true}
                 placeholderTextColor={Colors.light.lightDark}
                 style={SwitchStyles.input}
@@ -100,19 +100,18 @@ export const Register = ({navigation}: any) => {
             <TextInput
                 value={rePassword}
                 onChangeText={setRePassword}
-                placeholder="Re Password"
+                placeholder="Nhập lại mật khẩu"
                 placeholderTextColor={Colors.light.lightDark}
                 style={SwitchStyles.input}
             />
             <TouchableOpacity
                 style={styles.buttonLogin}
                 onPress={handleRegister}>
-                <Text style={styles.textBtn}>Sign up</Text>
+                <Text style={styles.textBtn}>Đăng ký</Text>
             </TouchableOpacity>
             <TouchableOpacity>
                 <Text style={SwitchStyles.textFb}>
-                <Image source={require('../../../assets/icon/fb.png')} /> Sign up
-                with Facebook
+                <Image source={require('../../../assets/icon/fb.png')} /> Đăng nhập với Facebook
                 </Text>
             </TouchableOpacity>
             <Image
@@ -121,24 +120,23 @@ export const Register = ({navigation}: any) => {
             />
             <TouchableOpacity>
                 <Text style={SwitchStyles.textGoogle}>
-                <Image source={require('../../../assets/icon/gg.png')} /> Sign up
-                with Google
+                <Image source={require('../../../assets/icon/gg.png')} /> Đăng nhập với Google
                 </Text>
             </TouchableOpacity>
             </View>
             <View style={styles.textRow}>
-            <Text style={styles.textGray}>Already have an account?</Text>
+            <Text style={styles.textGray}>Đã đăng ký tài khoản?</Text>
             <TouchableOpacity
                 onPress={() => navigation.navigate("SwitchAccount")}>
-                <Text style={styles.text}> Sign in</Text>
+                <Text style={styles.text}> Đăng nhập</Text>
             </TouchableOpacity>
             </View>
         </View>
         <Modal visible={showModal} transparent animationType='fade'>
             <View style={styles.modal}>
                 <View style={styles.modalContainer}>
-                    <Text style={styles.textNoti}>Notification</Text>
-                    {isSuccess && <Text style={styles.textContent}>Account created successfully!</Text>}
+                    <Text style={styles.textNoti}>Thông báo</Text>
+                    {isSuccess && <Text style={styles.textContent}>Đăng ký tài khoản thành công!</Text>}
                     {isError && <Text style={styles.textContent}>{errorMessage}</Text>}
                 </View>
             </View>

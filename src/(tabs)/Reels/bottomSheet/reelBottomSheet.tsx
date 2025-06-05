@@ -75,7 +75,7 @@ const BottomSheetReels = forwardRef<BottomSheetReelsRef>(({}, ref) => {
                   source={require('../../../../assets/icon/bookmark.png')}
                 />
               </View>
-              <Text style={styles.textHeader}>Save</Text>
+              <Text style={styles.textHeader}>Lưu</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.headerBlock}>
               <View style={styles.blockIcon}>
@@ -87,13 +87,13 @@ const BottomSheetReels = forwardRef<BottomSheetReelsRef>(({}, ref) => {
               <Text style={styles.textHeader}>Remix</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.headerBlock}>
-              <View style={styles.blockIcon}>
+              <View style={styles.blockIcon}> 
                 <Image
                   style={styles.icon}
                   source={require('../../../../assets/icon/sequence.png')}
                 />
               </View>
-              <Text style={styles.textHeader}>Sequence</Text>
+              <Text style={styles.textHeader}>Sequence</Text> 
             </TouchableOpacity>
           </View>
 
@@ -104,7 +104,7 @@ const BottomSheetReels = forwardRef<BottomSheetReelsRef>(({}, ref) => {
                 source={require('../../../../assets/icon/translation.png')}
               />
             </View>
-            <Text style={styles.textNormal}>Translations</Text>
+            <Text style={styles.textNormal}>Bản dịch</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.buttonFeature}>
             <View style={styles.blockIcon}>
@@ -113,7 +113,7 @@ const BottomSheetReels = forwardRef<BottomSheetReelsRef>(({}, ref) => {
                 source={require('../../../../assets/icon/cc.png')}
               />
             </View>
-            <Text style={styles.textNormal}>Closed captions</Text>
+            <Text style={styles.textNormal}>Phụ đề</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.buttonFeature}>
             <View style={styles.blockIcon}>
@@ -122,7 +122,7 @@ const BottomSheetReels = forwardRef<BottomSheetReelsRef>(({}, ref) => {
                 source={require('../../../../assets/icon/full_screen.png')}
               />
             </View>
-            <Text style={styles.textNormal}>View fullscreen</Text>
+            <Text style={styles.textNormal}>Xem toàn màn hình</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.buttonFeature}>
             <View style={styles.blockIcon}>
@@ -131,7 +131,7 @@ const BottomSheetReels = forwardRef<BottomSheetReelsRef>(({}, ref) => {
                 source={require('../../../../assets/icon/qrlink.png')}
               />
             </View>
-            <Text style={styles.textNormal}>QR code</Text>
+            <Text style={styles.textNormal}>Mã QR</Text>
           </TouchableOpacity>
           <View style={styles.feelingContainer}>
             <TouchableOpacity style={styles.buttonFeeling}>
@@ -141,7 +141,7 @@ const BottomSheetReels = forwardRef<BottomSheetReelsRef>(({}, ref) => {
                   source={require('../../../../assets/icon/view.png')}
                 />
               </View>
-              <Text style={styles.textNormal}>Interested</Text>
+              <Text style={styles.textNormal}>Quan tâm</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.buttonFeeling}>
               <View style={styles.blockIcon}>
@@ -150,7 +150,7 @@ const BottomSheetReels = forwardRef<BottomSheetReelsRef>(({}, ref) => {
                   source={require('../../../../assets/icon/hide.png')}
                 />
               </View>
-              <Text style={styles.textNormal}>Not interested</Text>
+              <Text style={styles.textNormal}>Không quan tâm</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.buttonFeeling}>
               <View style={styles.blockIcon}>
@@ -159,7 +159,7 @@ const BottomSheetReels = forwardRef<BottomSheetReelsRef>(({}, ref) => {
                   source={require('../../../../assets/icon/report.png')}
                 />
               </View>
-              <Text style={[styles.textNormal, {color: 'red'}]}>Report</Text>
+              <Text style={[styles.textNormal, {color: 'red'}]}>Báo cáo</Text>
             </TouchableOpacity>
           </View>
           <TouchableOpacity style={styles.buttonFeature}>
@@ -169,7 +169,7 @@ const BottomSheetReels = forwardRef<BottomSheetReelsRef>(({}, ref) => {
                 source={require('../../../../assets/icon/equalizer.png')}
               />
             </View>
-            <Text style={styles.textNormal}>Manage content preferences</Text>
+            <Text style={styles.textNormal}>Quản lý tùy chọn về nội dung</Text>
           </TouchableOpacity>
         </Animated.View>
       </View>

@@ -41,19 +41,19 @@ const UserInfo: React.FC<UserInfoProps> = ({
             <Text style={[styles.statNumber, {color: color.text}]}>
               {posts.length}
             </Text>
-            <Text style={styles.statLabel}>posts</Text>
+            <Text style={styles.statLabel}>bài đăng</Text>
           </View>
           <View style={styles.statItem}>
             <Text style={[styles.statNumber, {color: color.text}]}>
               {formatFollowers(followers)}
             </Text>
-            <Text style={styles.statLabel}>followers</Text>
+            <Text style={styles.statLabel}>người theo dõi</Text>
           </View>
           <View style={styles.statItem}>
             <Text style={[styles.statNumber, {color: color.text}]}>
               {following}
             </Text>
-            <Text style={styles.statLabel}>following</Text>
+            <Text style={styles.statLabel}>người đang theo dõi</Text>
           </View>
         </View>
       </View>

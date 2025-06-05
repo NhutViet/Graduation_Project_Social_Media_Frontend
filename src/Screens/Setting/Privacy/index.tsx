@@ -30,8 +30,8 @@ export const Privacy = () => {
       // }
       setIsPrivate(!isPrivate);
       Alert.alert(
-        'Success',
-        `Switch to ${!isPrivate ? 'private' : 'public'} mode`,
+        'Thành công',
+        `Chuyển sang chế độ ${!isPrivate ? 'riêng tư' : 'công khai'}`,
       );
     } catch (error) {
       console.error('Error updating privacy settings:', error);
@@ -46,7 +46,7 @@ export const Privacy = () => {
           style={styles.backButton}>
           <ChevronLeft size={30} color={mColor.text} />
         </TouchableOpacity>
-        <Text style={styles.headTitle}>Account Privacy</Text>
+        <Text style={styles.headTitle}>Quyền riêng tư của tài khoản</Text>
         <View style={styles.backButton} />
       </View>
       <View style={styles.content}>
@@ -57,7 +57,7 @@ export const Privacy = () => {
           ]}>
           <View style={styles.privacyHeader}>
             <Text style={[styles.privacyTitle, {color: mColor.text}]}>
-              Private Account
+              Tài khoản riêng tư
             </Text>
             <Switch
               value={isPrivate}
@@ -70,10 +70,10 @@ export const Privacy = () => {
             />
           </View>
           <Text style={styles.privacyDescription}>
-            When your account is private, only people you approve can see your
-            photos and videos. Your existing followers won't be affected.{' '}
+            Khi tài khoản của bạn ở chế độ riêng tư, chỉ những người bạn chấp thuận mới có thể xem
+            ảnh và video của bạn. Những người theo dõi hiện tại của bạn sẽ không bị ảnh hưởng.{' '}
             <TouchableOpacity onPress={() => console.log('VIEW MORE')}>
-              <Text style={styles.learnMore}>Learn more</Text>
+              <Text style={styles.learnMore}>Tìm hiều thêm</Text>
             </TouchableOpacity>
           </Text>
         </View>

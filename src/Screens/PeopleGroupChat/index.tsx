@@ -44,7 +44,7 @@ export const PeopleGroupChat = () => {
             style={styles.icon}
           />
         </TouchableOpacity>
-        <Text style={styles.title}>People</Text>
+        <Text style={styles.title}>Mọi người</Text>
         <TouchableOpacity
           onPress={() => navigation.navigate('AddPeopleToGroupChat')}>
           <Image
@@ -56,7 +56,7 @@ export const PeopleGroupChat = () => {
       <ScrollView style={styles.container}>
         <View style={styles.rowSpace}>
           <Text style={[styles.title, {fontWeight: '400'}]}>
-            Require approval to join
+            Cần phải được phê duyệt để tham gia
           </Text>
           <Switch
             value={isReqired}
@@ -68,7 +68,7 @@ export const PeopleGroupChat = () => {
             thumbColor={colors.white}
           />
         </View>
-        <Text style={styles.titleS}>Adminitrator</Text>
+        <Text style={styles.titleS}>Quản lý</Text>
         {admin && (
           <View style={{marginHorizontal: 24}}>
             <ItemList
@@ -80,7 +80,7 @@ export const PeopleGroupChat = () => {
             />
           </View>
         )}
-        <Text style={styles.titleS}>Following</Text>
+        <Text style={styles.titleS}>Đang theo dõi</Text>
         <View style={[styles.container, {marginHorizontal: 24}]}>
           <FlashList
             data={user}

@@ -75,8 +75,8 @@ export const ChangePassword = () => {
           />
         </TouchableOpacity>
         <View style={styles.textContainer}>
-          <Text style={styles.textXL}>Change password</Text>
-          <Text style={styles.textL}>Choose an account to make changes.</Text>
+          <Text style={styles.textXL}>Đổi mật khẩu</Text>
+          <Text style={styles.textL}>Chọn tài khoản để thay đổi.</Text>
         </View>
         <View style={styles.listContainer}>
           {list.map((item, index) => {
@@ -126,37 +126,35 @@ export const ChangePassword = () => {
               {selectAccount && (
                 <Text style={styles.textM}>{selectAccount.handle}</Text>
               )}
-              <Text style={styles.textXL}>Change password</Text>
+              <Text style={styles.textXL}>Đổi mật khẩu</Text>
               <Text style={styles.textL}>
-                Your password must be at least 6 characters and should include a
-                combination of numbers, letters and special characters (!$@%).
+                Mật khẩu phải có ít nhất 6 ký tự và bao gồm chữ, số và ký tự đặc biệt (!$@%).
               </Text>
             </View>
             <View style={styles.inputContainer}>
               <View>
                 <EditText
-                  placeholder={'Current password'}
+                  placeholder={'Mật khẩu hiện tại'}
                   password={true}
                   value={currentPass}
                   valueChange={setCurrentPass}
                 />
                 {!isEnter && (
                   <Text style={styles.error}>
-                    Please enter your current password
+                    Vui lòng nhập mật khẩu hiện tại
                   </Text>
                 )}
               </View>
               <View>
                 <EditText
-                  placeholder={'New password'}
+                  placeholder={'Mật khẩu mới'}
                   password={true}
                   value={newPass}
                   valueChange={setNewPass}
                 />
                 {!isValid && (
                   <Text style={styles.error}>
-                    Password must be at least 6 character and include letters,
-                    numbers, and special characters (!$@%).
+                    Mật khẩu phải có ít nhất 6 ký tự và bao gồm chữ, số và ký tự đặc biệt (!$@%).
                   </Text>
                 )}
               </View>
@@ -169,7 +167,7 @@ export const ChangePassword = () => {
                 />
                 {!isMatch && (
                   <Text style={styles.error}>
-                    New password and re-typed password do not match.
+                    Mật khẩu mới và mật khẩu nhập lại không khớp.
                   </Text>
                 )}
               </View>
@@ -190,8 +188,7 @@ export const ChangePassword = () => {
                   styles.textM,
                   {color: color.text, flex: 1, textAlign: 'justify'},
                 ]}>
-                Log out of other devices. Choose this if someone else used your
-                account.
+                Đăng xuất khỏi các thiết bị khác. Chọn mục này nếu có người khác đã sử dụng tài khoản của bạn.
               </Text>
             </View>
           </ScrollView>
@@ -220,11 +217,11 @@ export const ChangePassword = () => {
                   setIsMatch(true);
                 }
 
-                Alert.alert('Password changed successfully!');
+                Alert.alert('Đổi mật khẩu thành công!');
                 modalRef.current?.close();
               }}>
               <Text style={[styles.textL, {color: color.background}]}>
-                Change password
+                Đổi mật khẩu
               </Text>
             </TouchableOpacity>
           </View>

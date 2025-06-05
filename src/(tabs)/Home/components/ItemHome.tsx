@@ -82,7 +82,7 @@ const ItemHome = (props: any) => {
       avatar: user.profilePic,
     }));
   }, [followers, following]);
-
+  
   useEffect(() => {
     if (userID) {
       // gọi 2 api followers, following
@@ -95,12 +95,6 @@ const ItemHome = (props: any) => {
     }
   }, [dispatch, userID]);
 
-  // log để debug
-  useEffect(() => {
-    console.log('Followers:', followers.length);
-    console.log('Following:', following.length);
-    console.log('Combined follows:', follows.length);
-  }, [followers, following, follows]);
   //gọi api like
   const {likePosts} = useSelector((state: RootState) => state.reactions);
 
@@ -151,19 +145,34 @@ const ItemHome = (props: any) => {
     modalReactionRef.current?.open();
   }, []);
 
-  const handleOpenModalShare = useCallback(() => {
-    if (loading) {
-      console.log('Still loading relations...');
-      return;
+  const handleOpenModalShare = useCallback(async () => {
+  if (loading) {
+    console.log('Still loading relations...');
+    return;
+  }
+  
+  try{
+    if (userID) {
+      await Promise.all([
+        dispatch(fetchFollowers({ userID })),
+        dispatch(fetchFollowing({ userID }))
+      ]);
     }
-
-    if (error) {
-      console.error('Error loading relations:', error);
-      return;
-    }
-
+    
+    // Mở modal sau khi đã load xong data
     setVisibleModalShare(true);
-  }, [loading, error]);
+
+    console.log('Followers:', followers.length);
+    console.log('Following:', following.length);
+    console.log('Combined follows:', follows.length);
+
+  } catch(error) {
+    console.error('Error fetching relations:', error);
+    // Hiển thị thông báo lỗi cho user
+    Alert.alert('Lỗi', 'Không thể tải danh sách bạn bè. Vui lòng thử lại.');
+  }
+  
+}, [dispatch, userID, loading]);
 
   // Number formatting utility
   const formatNumber = (num: number): string => {
@@ -214,7 +223,7 @@ const ItemHome = (props: any) => {
     {
       id: 'bookmark',
       icon: require('../../../../assets/icon/bookmark.png'),
-      label: 'Bookmark',
+      label: 'Lưu',
       onPress: () => {
         closeSheet();
       },
@@ -232,7 +241,7 @@ const ItemHome = (props: any) => {
     {
       id: 'favorite',
       icon: require('../../../../assets/icon/star.png'),
-      label: 'Adding to favorite',
+      label: 'Thêm vào mục yêu thích',
       onPress: () => {
         closeSheet();
       },
@@ -240,7 +249,7 @@ const ItemHome = (props: any) => {
     {
       id: 'unfollow',
       icon: require('../../../../assets/icon/unfollow.png'),
-      label: 'Unfollow',
+      label: 'Bỏ theo dõi',
       onPress: () => {
         closeSheet();
       },
@@ -250,7 +259,7 @@ const ItemHome = (props: any) => {
     {
       id: 'accountInfo',
       icon: require('../../../../assets/icon/account.png'),
-      label: 'This account info',
+      label: 'Giới thiệu về tài khoản này',
       onPress: () => {
         closeSheet();
       },
@@ -258,7 +267,7 @@ const ItemHome = (props: any) => {
     {
       id: 'whySee',
       icon: require('../../../../assets/icon/info.png'),
-      label: 'Why am I seeing this post',
+      label: 'Tại sao tôi thấy bài viết này ?',
       onPress: () => {
         closeSheet();
       },
@@ -266,7 +275,7 @@ const ItemHome = (props: any) => {
     {
       id: 'hide',
       icon: require('../../../../assets/icon/blind.png'),
-      label: 'Hide',
+      label: 'Ẩn',
       onPress: () => {
         closeSheet();
       },
@@ -274,7 +283,7 @@ const ItemHome = (props: any) => {
     {
       id: 'report',
       icon: require('../../../../assets/icon/report.png'),
-      label: 'Report this post',
+      label: 'Báo cáo',
       onPress: () => {
         closeSheet();
         openIntentions();
@@ -286,65 +295,39 @@ const ItemHome = (props: any) => {
   const reportChoices: IntentionOption[] = [
     {
       id: 'bullying',
-      label: 'Bullying or unwanted contact',
+      label: 'Bắt nạt hoặc liên hệ theo cách không mong muốn',
       onPress: closeIntentions,
     },
     {
       id: 'selfHarm',
-      label: 'Suicide, self-injury or eating disorders',
+      label: 'Tự tử, tự gậy thương tích hoặc chứng rối loạn ăn uống',
       onPress: closeIntentions,
     },
     {
       id: 'violence',
-      label: 'Violence, hate or exploitation',
+      label: 'Bạo lực, thù ghét hoặc bóc lột',
       onPress: closeIntentions,
     },
     {
       id: 'restricted',
-      label: 'Selling or promoting restricted items',
+      label: 'Bán hoặc quảng cáo mặt hàng bị hạn chế',
       onPress: closeIntentions,
     },
     {
       id: 'nudity',
-      label: 'Nudity or sexual activity',
+      label: 'Ảnh khỏa thân hoặc hoạt động tình dục',
       onPress: closeIntentions,
     },
-    {id: 'spam', label: 'Scam, fraud or spam', onPress: closeIntentions},
-    {id: 'false', label: 'False information', onPress: closeIntentions},
+    {id: 'spam', label: 'Lừa đảo, gian lận hoặc spam', onPress: closeIntentions},
+    {id: 'false', label: 'Thông tin sai sự thật', onPress: closeIntentions},
     {
       id: 'copyright',
-      label: 'Vandalism of intellectual property',
+      label: 'Quyền sở hữu trí tuệ',
       onPress: closeIntentions,
     },
   ];
 
   const textColor = type === 'reel' ? Colors.dark.text : color.text;
-
-  // data share
-  // const friends = [
-  //   {
-  //     id: '1',
-  //     name: 'Huỳnh Duy Linh',
-  //     avatar: 'https://picsum.photos/seed/1/100',
-  //   },
-  //   {id: '2', name: 'Ng.Đức Phi', avatar: 'https://picsum.photos/seed/2/100'},
-  //   {
-  //     id: '3',
-  //     name: 'Hoàng Thị Bảo Trâm',
-  //     avatar: 'https://picsum.photos/seed/3/100',
-  //   },
-  //   {
-  //     id: '4',
-  //     name: 'Coraline Hoang',
-  //     avatar: 'https://picsum.photos/seed/4/100',
-  //   },
-  //   {id: '5', name: 'Chu Kim Gun', avatar: 'https://picsum.photos/seed/5/100'},
-  //   {
-  //     id: '6',
-  //     name: 'Huỳnh Duy Linh',
-  //     avatar: 'https://picsum.photos/seed/1/100',
-  //   },
-  // ];
 
   return (
     <View style={styles.wrapper}>
@@ -402,9 +385,9 @@ const ItemHome = (props: any) => {
           adjustToContentHeight
           onClose={onIntentionsClose}>
           <BottomSheetIntentions
-            title="Report"
-            subtitle="Why are you reporting this post?"
-            content="Your report is anonymous. If someone is in immediate danger, call the local emergency services - don’t wait."
+            title="Báo cáo"
+            subtitle="Tại sao bạn báo cáo bài viết này?"
+            content="Báo cáo của bạn sẽ được ẩn danh. Nếu ai đó đang gặp nguy hiểm, đừng chần chừ mà hãy báo ngay cho dịch vụ khẩn cấp tại địa phương."
             options={reportChoices}
             onClose={closeIntentions}
           />

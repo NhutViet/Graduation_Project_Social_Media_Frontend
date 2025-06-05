@@ -139,7 +139,7 @@ const FollowersTab = () => {
               ? [styles.messageText, {color: color.text}]
               : styles.followText,
           ]}>
-          {item.isFollowing ? 'Messaging' : 'Follow'}
+          {item.isFollowing ? 'Nhắn tin' : 'Theo dõi'}
         </Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.cancelButton}>

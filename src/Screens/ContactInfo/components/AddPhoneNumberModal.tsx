@@ -41,7 +41,7 @@ const dummyAccounts: AccountItem[] = [
     platform: 'Instagram',
     image: 'https://randomuser.me/api/portraits/women/2.jpg',
     warning:
-      'Adding this number will replace +8123456789 on this Instagram account.',
+      'Nếu thêm số này vào sẽ thay thế số +8123456789 trên tài khoản Cirla này.',
   },
 ];
 
@@ -75,19 +75,17 @@ export const AddPhoneModal: React.FC<AddPhoneModalProps> = ({
                 {backgroundColor: color.background},
               ]}>
               <Text style={[styles.title, {color: color.text}]}>
-                Add a mobile number
+                Thêm số điện thoại di động
               </Text>
               <Text style={[styles.description]}>
-                We’ll use this number across all of your accounts in Accounts
-                Center to personalize experiences, like connecting people and
-                improving ads on our products.
+                Chúng tôi sẽ sử dụng số này cho tất cả tài khoản của bạn trong Trung tâm Tài khoản để cá nhân hóa trải nghiệm, như kết nối mọi người và cải thiện quảng cáo trên các sản phẩm của chúng tôi.
               </Text>
 
               <Text style={[styles.label, {color: color.text}]}>
                 Vietnam(+84)
               </Text>
               <TextInput
-                placeholder="Enter mobile number"
+                placeholder="Nhập số điện thoại di động"
                 placeholderTextColor={color.text}
                 style={[styles.input, {color: color.text}]}
                 keyboardType="numeric"
@@ -96,11 +94,11 @@ export const AddPhoneModal: React.FC<AddPhoneModalProps> = ({
                 onChangeText={text => setPhone(text.replace(/[^0-9]/g, ''))}
               />
               <Text style={[styles.note, {color: color.text}]}>
-                You may receive WhatsApp and SMS notifications from us.
+                Bạn có thể nhận được thông báo qua WhatsApp và SMS từ chúng tôi.
               </Text>
 
               <Text style={[styles.label, {color: color.text}]}>
-                Choose accounts for this number
+                Chọn tài khoản cho số này
               </Text>
               <View style={{flex: 1}}>
                 <FlashList
@@ -136,7 +134,7 @@ export const AddPhoneModal: React.FC<AddPhoneModalProps> = ({
               </View>
 
               <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-                <Text style={styles.buttonText}>Next</Text>
+                <Text style={styles.buttonText}>Tiếp theo</Text>
               </TouchableOpacity>
             </View>
           </TouchableWithoutFeedback>

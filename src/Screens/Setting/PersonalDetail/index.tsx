@@ -76,36 +76,33 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
         </View>
 
         <View style={styles.content}>
-          <Text style={styles.title}>Personal details</Text>
+          <Text style={styles.title}>Thông tin cá nhân</Text>
           <Text style={styles.description}>
-            Cirla uses this information to verify your identity and to keep our
-            community safe. You decide what personal details you make visible to
-            others.
+            Cirla ​​sử dụng thông tin này để xác minh danh tính của bạn và giữ cho cộng đồng của chúng tôi an toàn. Bạn quyết định thông tin cá nhân nào bạn có thể hiển thị cho người khác.
           </Text>
 
           <View style={styles.section}>
             <TouchableOpacity style={styles.menuItem}>
-              <Text style={styles.menuText}>Contact info</Text>
+              <Text style={styles.menuText}>Thông tin liên hệ</Text>
               <Text style={styles.menuValue}>Hugh@gmail.com</Text>
               <ChevronRight size={16} color={colors.text} />
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.menuItem}>
-              <Text style={styles.menuText}>Birthday</Text>
+              <Text style={styles.menuText}>Ngày sinh</Text>
               <Text style={styles.menuValue}>January 1, 1990</Text>
               <ChevronRight size={16} color={colors.text} />
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.menuItem}>
-              <Text style={styles.menuText}>Identity confirmation</Text>
+              <Text style={styles.menuText}>Xác nhận danh tính</Text>
               <ChevronRight size={16} color={colors.text} />
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.menuItem}>
-              <Text style={styles.menuText}>Account ownership and control</Text>
+              <Text style={styles.menuText}>Quyền sở hữu và kiểm soát tài khoản</Text>
               <Text style={styles.menuValue} numberOfLines={2}>
-                Manage your data, modify your legacy contact, deactivate or
-                delete your accounts and profiles.
+                Quản lý dữ liệu của bạn, sửa đổi danh bạ cũ, hủy kích hoạt hoặc xóa tài khoản và hồ sơ của bạn.
               </Text>
               <ChevronRight size={16} color={colors.text} />
             </TouchableOpacity>

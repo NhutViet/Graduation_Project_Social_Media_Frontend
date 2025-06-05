@@ -188,7 +188,7 @@ const Profile = () => {
           <View style={styles.statsContainer}>
             <View style={styles.statItem}>
               <Text style={[styles.statNumber, {color: color.text}]}>66</Text>
-              <Text style={[styles.statLabel, {color: color.text}]}>posts</Text>
+              <Text style={[styles.statLabel, {color: color.text}]}>bài viết</Text>
             </View>
             <TouchableOpacity
               onPress={() => navigation.navigate('FollowersScreen')}>
@@ -197,7 +197,7 @@ const Profile = () => {
                   589
                 </Text>
                 <Text style={[styles.statLabel, {color: color.text}]}>
-                  followers
+                  người theo dõi
                 </Text>
               </View>
             </TouchableOpacity>
@@ -208,7 +208,7 @@ const Profile = () => {
                   526
                 </Text>
                 <Text style={[styles.statLabel, {color: color.text}]}>
-                  following
+                  đang theo dõi
                 </Text>
               </View>
             </TouchableOpacity>
@@ -221,13 +221,13 @@ const Profile = () => {
           </Text>
           <View style={styles.modeContainer}>
             <Moon size={14} color={color.textSecondary} />
-            <Text style={[styles.modeText, {color: color.textSecondary}]}>
+            <Text style={[styles.modeText, {color: color.textSecondary}]}> {/* in quiet mode */}
               {' '}
-              In quiet mode
+              Ở chế độ lặng
             </Text>
           </View>
           <Text style={[styles.bioText, {color: color.text}]}>
-            Bio written here
+            Xem mô tả của tôi ở
           </Text>
           <Text style={[styles.website, {color: color.blue}]}>
             dott.bio/pingenriquez
@@ -238,15 +238,15 @@ const Profile = () => {
           <TouchableOpacity
             style={[styles.editButton, {backgroundColor: color.gray}]}
             onPress={() => navigation.navigate('EditProfile')}>
-            <Text style={[styles.buttonText, {color: color.text}]}>
-              Edit Profile
+            <Text numberOfLines={1} ellipsizeMode='tail' style={[styles.buttonText, {color: color.text}]}>
+              Chỉnh sửa trang cá nhân
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.shareButton, {backgroundColor: color.gray}]}
             onPress={() => navigation.navigate('QRCode')}>
-            <Text style={[styles.buttonText, {color: color.text}]}>
-              Share Profile
+            <Text numberOfLines={1} ellipsizeMode='tail' style={[styles.buttonText, {color: color.text}]}>
+              Chia sẻ trang cá nhân
             </Text>
           </TouchableOpacity>
           <TouchableOpacity

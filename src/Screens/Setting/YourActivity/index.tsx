@@ -47,44 +47,44 @@ export const YourActivity = () => {
     const navigation: any = useNavigation();
     const sections: { title: string; items: Item[] }[] = [
     {
-      title: 'Interactions',
+      title: 'Lượt tương tác',
       items: [
-        { label: 'Likes', icon: <Heart size={20} color={color.text} />, onPress: () => console.log('Navigate to Likes') },
-        { label: 'Comments', icon: <MessageCircle size={20} color={color.text} />, onPress: () => console.log('Navigate to Comments') },
-        { label: 'Tags', icon: <Tag size={20} color={color.text} />, onPress: () => console.log('Navigate to Tags') },
-        { label: 'Sticker responses', icon: <Smile size={20} color={color.text} />, onPress: () => console.log('Navigate to Sticker responses') },
-        { label: 'Reviews', icon: <Smile size={20} color={color.text} />, onPress: () => console.log('Navigate to Reviews') },
+        { label: 'Lượt thích', icon: <Heart size={20} color={color.text} />, onPress: () => console.log('Navigate to Likes') },
+        { label: 'Bình luận', icon: <MessageCircle size={20} color={color.text} />, onPress: () => console.log('Navigate to Comments') },
+        { label: 'Thẻ', icon: <Tag size={20} color={color.text} />, onPress: () => console.log('Navigate to Tags') },
+        { label: 'Phản hồi bằng nhãn dán', icon: <Smile size={20} color={color.text} />, onPress: () => console.log('Navigate to Sticker responses') },
+        { label: 'Bài đánh giá', icon: <Smile size={20} color={color.text} />, onPress: () => console.log('Navigate to Reviews') },
       ],
     },
     {
-      title: 'Content you shared',
+      title: 'Nội dung bạn chia sẻ',
       items: [
-        { label: 'Posts', icon: <Share2 size={20} color={color.text} />, onPress: () => console.log('Navigate to Posts') },
+        { label: 'Bài viết', icon: <Share2 size={20} color={color.text} />, onPress: () => console.log('Navigate to Posts') },
         { label: 'Reels', icon: <Video size={20} color={color.text} />, onPress: () => console.log('Navigate to Reels') },
-        { label: 'Highlights', icon: <Bookmark size={20} color={color.text} />, onPress: () => console.log('Navigate to Highlights') },
+        { label: 'Tin nổi bật', icon: <Bookmark size={20} color={color.text} />, onPress: () => console.log('Navigate to Highlights') },
       ],
     },
     {
-      title: 'Suggested content',
+      title: 'Nội dung gợi ý',
       items: [
-        { label: 'Not interested', icon: <ThumbsDown size={20} color={color.text} />, onPress: () => console.log('Navigate to Not interested') },
-        { label: 'Interested', icon: <ThumbsUp size={20} color={color.text} />, onPress: () => console.log('Navigate to Interested') },
+        { label: 'Không quan tâm', icon: <ThumbsDown size={20} color={color.text} />, onPress: () => console.log('Navigate to Not interested') },
+        { label: 'Quan tâm', icon: <ThumbsUp size={20} color={color.text} />, onPress: () => console.log('Navigate to Interested') },
       ],
     },
     {
-      title: 'How you use Cirla',
+      title: 'Cách bạn dùng Cirla',
       items: [
-        { label: 'Time spent', icon: <Clock size={20} color={color.text} />, onPress: () => console.log('Navigate to Time spent') },
-        { label: 'Account history', icon: <User size={20} color={color.text} />, onPress: () => console.log('Navigate to Account history') },
-        { label: 'Recent searches', icon: <Search size={20} color={color.text} />, onPress: () => console.log('Navigate to Recent searches') },
-        { label: 'Link History', icon: <Link size={20} color={color.text} />, onPress: () => console.log('Navigate to Link History') },
+        { label: 'Thời gian sử dụng', icon: <Clock size={20} color={color.text} />, onPress: () => console.log('Navigate to Time spent') },
+        { label: 'Lịch sử tài khoản', icon: <User size={20} color={color.text} />, onPress: () => console.log('Navigate to Account history') },
+        { label: 'Tìm kiếm gần đây', icon: <Search size={20} color={color.text} />, onPress: () => console.log('Navigate to Recent searches') },
+        { label: 'Lịch sử liên kết', icon: <Link size={20} color={color.text} />, onPress: () => console.log('Navigate to Link History') },
       ],
     },
     {
-      title: 'Information you shared with Cirla',
+      title: 'Thông tin bạn đã chia sẻ với Cirla',
       items: [
-        { label: 'Transfer your information', icon: <ArrowRightLeft size={20} color={color.text} />, onPress: () => console.log('Navigate to Transfer your information') },
-        { label: 'Download your information', icon: <Download size={20} color={color.text} />, onPress: () => console.log('Navigate to Download your information') },
+        { label: 'Chuyển thông tin của bạn', icon: <ArrowRightLeft size={20} color={color.text} />, onPress: () => console.log('Navigate to Transfer your information') },
+        { label: 'Tải thông tin của bạn xuống', icon: <Download size={20} color={color.text} />, onPress: () => console.log('Navigate to Download your information') },
       ],
     },
   ];
@@ -106,7 +106,7 @@ export const YourActivity = () => {
           </View>
 
           <View style={styles.headerCenterSection}>
-            <Text style={[styles.headerTitle, {color: color.text}]}>Your activity</Text>
+            <Text style={[styles.headerTitle, {color: color.text}]}>Hoạt động của bạn</Text>
           </View>
 
           <View style={styles.headerRightSection}></View>
@@ -118,10 +118,10 @@ export const YourActivity = () => {
             contentContainerStyle={styles.scrollContent}
         >
             <View style={styles.introContainer}>
-                <Text style={[styles.introTitle, {color: color.text}]}>One place to manage your activity</Text>
+                <Text style={[styles.introTitle, {color: color.text}]}>Một nơi để quản lý hoạt động của bạn</Text>
                 <View style={styles.introSubtitleContainer}>
                     <Text style={[styles.introSubtitle, {color: color.textSecondary}]}>
-                      View and manage your interactions, content and account activity. <Text onPress={() => {Alert.alert('navigate')}} style={{fontSize: 16, color: "#007AFF",}}>Learn more</Text>
+                      Xem và quản lý lượt tương tác, nội dung cũng như hoạt động của tài khoản. <Text onPress={() => {Alert.alert('navigate')}} style={{fontSize: 16, color: "#007AFF",}}>Tìm hiểu thêm</Text>
                     </Text>
                 </View>
             </View>

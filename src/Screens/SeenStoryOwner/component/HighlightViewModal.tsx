@@ -72,12 +72,12 @@ const HighlightViewModal = forwardRef<Modalize, HighlightViewModalProps>(({ data
         nestedScrollEnabled: true,
       }}
     >
-      <Text style={[styles.modalTitle, { color: color.text }]}>Add to highlights</Text>
+      <Text style={[styles.modalTitle, { color: color.text }]}>Thêm vào tin nổi bật</Text>
       <View style={{ width: '100%', borderColor: color.border, borderWidth: 1, marginVertical: 20 }} />
       {renderList()}
       <View style={{ width: '100%', borderColor: color.border, borderWidth: 1, marginVertical: 20 }} />
       <TouchableOpacity style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }} onPress={() => (ref as any).current?.close()}>
-        <Text style={{ fontSize: 18, color: color.text }}>Cancel</Text>
+        <Text style={{ fontSize: 18, color: color.text }}>Hủy</Text>
       </TouchableOpacity>
     </Modalize>
   );

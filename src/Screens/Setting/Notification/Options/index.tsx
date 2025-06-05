@@ -30,7 +30,7 @@ export const NotificationOption = () => {
   if (!config) {
     return (
       <SafeAreaView style={styles.container}>
-        <Text>Configuration not found for {optionKey}</Text>
+        <Text>Chỉnh sửa không tìm thấy cho {optionKey}</Text>
       </SafeAreaView>
     );
   }
