@@ -59,9 +59,6 @@ const ItemHome = (props: any) => {
   const [visibleModalShare, setVisibleModalShare] = useState(false);
 
   const dispatch = useDispatch<AppDispatch>();
-  const {likePosts} = useSelector(
-    (state: RootState) => state.reactions,
-  );
   const userID = useSelector((state: RootState) => state.user?.user?._id);
   const {followers, following, loading, error} = useSelector((state: RootState) => state.relation);
 
@@ -100,7 +97,7 @@ const ItemHome = (props: any) => {
     console.log('Combined follows:', follows.length);
   }, [followers, following, follows]);
   //gọi api like
-  const {likePosts, isLoading} = useSelector((state: RootState) => state.reactions);
+  const {likePosts} = useSelector((state: RootState) => state.reactions);
   const {refreshToken} = useSelector((state: RootState) => state.user);
   const isLiked = likePosts.includes(_id);
   const [numLike, setNumLike] = useState(likeCount);
