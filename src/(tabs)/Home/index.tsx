@@ -130,20 +130,6 @@ export const Home = () => {
     );
   }
 
-  if (storyError) {
-    return (
-      <SafeAreaView
-        style={{
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: color.background,
-        }}>
-        <Text style={{color: color.text, fontSize: 16}}>Lỗi: {storyError}</Text>
-      </SafeAreaView>
-    );
-  }
-
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
       <Animated.View
