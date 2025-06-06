@@ -12,13 +12,8 @@ const Story = (props: any) => {
   const navigation = useNavigation();
 
   const AvatarContent = () => (
-    <View
-      style={
-        status === 1
-          ? [styles.bgWhite, {backgroundColor: color.background}]
-          : null
-      }>
-      <View style={styles.imgContainer}>
+    <View style={[styles.bgWhite, {backgroundColor: color.background}]}>
+      <View style={[styles.imgContainer, {backgroundColor: color.background}]}>
         <Image
           style={
             isHashTag ? [styles.imgHash, {tintColor: color.text}] : styles.img

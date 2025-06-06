@@ -8,7 +8,7 @@ let currentSound: Sound | null = null;
 let stopOther: (() => void) | null = null;
 
 const ItemMusic = (props: any) => {
-  const {coverImg, song, link, author, countVideoUsed = 0} = props;
+  const {coverImg, song, link, author, countVideoUsed = 0, onPress} = props;
   const {theme} = useTheme();
   const color = Colors[theme];
   const soundRef = useRef<Sound | null>(null);
@@ -94,7 +94,7 @@ const ItemMusic = (props: any) => {
   };
 
   return (
-    <View style={styles.container}>
+    <TouchableOpacity style={styles.container} onPress={onPress}>
       <View style={styles.leftContainer}>
         <View style={styles.imageContainer}>
           <Image style={styles.img} source={{uri: coverImg}} />
@@ -126,7 +126,7 @@ const ItemMusic = (props: any) => {
           }
         />
       </TouchableOpacity>
-    </View>
+    </TouchableOpacity>
   );
 };
 

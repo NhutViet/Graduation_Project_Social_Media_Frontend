@@ -20,6 +20,8 @@ const ReelsComponent = (props: any) => {
     isFocused,
     showBottomSheet,
     likeCount,
+    commentCount,
+    openComment,
   } = props;
   const navigation = useNavigation<any>();
 
@@ -81,13 +83,15 @@ const ReelsComponent = (props: any) => {
             <Text style={styles.textNormal}>{formatNumber(likeCount)}</Text>
           </View>
           <View style={styles.containerVertical}>
-            <TouchableOpacity style={styles.iconContainer}>
+            <TouchableOpacity
+              style={styles.iconContainer}
+              onPress={openComment}>
               <Image
                 style={styles.icon}
                 source={require('../../../../assets/icon/comment.png')}
               />
             </TouchableOpacity>
-            <Text style={styles.textNormal}>{formatNumber(5)}</Text>
+            <Text style={styles.textNormal}>{formatNumber(commentCount)}</Text>
           </View>
           <View style={styles.containerVertical}>
             <TouchableOpacity style={styles.iconContainer}>

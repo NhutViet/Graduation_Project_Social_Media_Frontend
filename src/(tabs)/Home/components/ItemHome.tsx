@@ -33,7 +33,6 @@ import {
   likePost,
   unlikePost,
 } from '../../../../services/reactionRedux/reactionSlice';
-import {Likers} from '../../../../services/likersRedux/likersSlice';
 import {addLikedPost} from '../../../../services/reactionRedux/reactionReducer';
 import {hidePost} from '../../../../services/postRedux/postSlice';
 
@@ -328,8 +327,6 @@ const ItemHome = (props: any) => {
       onPress: closeIntentions,
     },
   ];
-
-  const textColor = type === 'reel' ? Colors.dark.text : color.text;
 
   return (
     <View style={styles.wrapper}>

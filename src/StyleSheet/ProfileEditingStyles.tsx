@@ -60,7 +60,7 @@ export const useProfileEditingStyles = () => {
           backgroundColor: palette.background,
         },
         header: {
-          height: 44,
+          height: 50,
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -70,7 +70,6 @@ export const useProfileEditingStyles = () => {
         },
         headerText: {
           fontSize: 16,
-          fontWeight: '400',
           color: palette.text,
         },
         headerTitle: {
