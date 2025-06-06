@@ -1,25 +1,7 @@
 import {createAsyncThunk} from '@reduxjs/toolkit';
-import {userFollow} from './StoryType';
+import {Story, userFollow} from './StoryType';
 import axiosInstance from '../axiosInstance';
 import {API} from '../api';
-
-// export const fetchFollowingStories = createAsyncThunk<
-//   Story[],
-//   string,
-//   {rejectValue: string}
-// >('stories/fetchFollowingStories', async (userId, {rejectWithValue}) => {
-//   try {
-//     const response = await axiosInstance.get(
-//       `${API.GET_STORY_BY_USERID}/${userId}`,
-//     );
-//     console.log('Story', response);
-//     return response.data;
-//   } catch (err: any) {
-//     return rejectWithValue(
-//       err.response?.data?.message || 'Failed to fetch stories',
-//     );
-//   }
-// });
 
 export const seenStory = createAsyncThunk<
   void,
@@ -27,7 +9,15 @@ export const seenStory = createAsyncThunk<
   {rejectValue: string}
 >('stories/seenStory', async ({storyId, userId}, {rejectWithValue}) => {
   try {
-    await axiosInstance.patch('/stories/seen', {storyId, userId});
+    await axiosInstance.patch(
+      '/stories/seen',
+      {_id: storyId, userId},
+      {
+        headers: {
+          token: 'refresh',
+        },
+      },
+    );
   } catch (err: any) {
     return rejectWithValue(
       err.response?.data?.message || 'Failed to mark story as seen',
@@ -39,20 +29,38 @@ export const fetchFollowingStories = createAsyncThunk<
   userFollow[],
   void,
   {rejectValue: {message: string}}
->(
-  'stories/fetchFollowing',
-  async (_, {rejectWithValue}) => {
-    try {
-      const response = await axiosInstance.get(`${API.GET_USER_FOLLOW}`, {
-        headers: {
-          token: 'refresh',
-        },
-      });
-      return response.data;
-    } catch (error: any) {
-      return rejectWithValue({
-        message: error.response?.data?.message || 'Lấy stories thất bại',
-      });
-    }
+>('stories/fetchFollowing', async (_, {rejectWithValue}) => {
+  try {
+    const response = await axiosInstance.get(`${API.GET_USER_FOLLOW}`, {
+      headers: {
+        token: 'refresh',
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    return rejectWithValue({
+      message: error.response?.data?.message || 'Lấy stories thất bại',
+    });
   }
-);
+});
+
+export const fetchStoriesByIds = createAsyncThunk<
+  Story[],
+  string[],
+  {rejectValue: string}
+>('stories/fetchStoriesByIds', async (storyIds, {rejectWithValue}) => {
+  try {
+    const response = await axiosInstance.post(
+      '/stories/by-ids',
+      {storyIds},
+      {
+        headers: {token: 'refresh'},
+      },
+    );
+    return response.data;
+  } catch (error: any) {
+    return rejectWithValue(
+      error.response?.data?.message || 'Failed to fetch story details',
+    );
+  }
+});
