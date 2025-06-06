@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   Image,
   Modal,
-  Button,
   SafeAreaView,
   ScrollView,
 } from 'react-native';
@@ -13,33 +12,38 @@ import {useProfileEditingStyles} from '../../../src/StyleSheet/ProfileEditingSty
 import {UserInfo} from '../../../components/UserInfo';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {PermissionsAndroid, Platform} from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
+import {useSelector} from 'react-redux';
+import {RootState} from '../../../services/store';
 
 async function requestCameraPermission() {
   if (Platform.OS !== 'android') return true;
   const granted = await PermissionsAndroid.request(
     PermissionsAndroid.PERMISSIONS.CAMERA,
     {
-      title: 'Camera Access Required',
-      message: 'This app needs to access your camera to take photos.',
-      buttonNeutral: 'Ask Me Later',
-      buttonNegative: 'Cancel',
-      buttonPositive: 'OK',
+      title: 'Quyền truy cập Camera',
+      message: 'Bạn cần cho phép ứng dụng sử dụng hình ảnh từ thiết bị',
+      buttonNeutral: 'Hỏi lại sau',
+      buttonNegative: 'Huỷ',
+      buttonPositive: 'Đồng ý',
     },
   );
   return granted === PermissionsAndroid.RESULTS.GRANTED;
 }
 
-export const EditProfile = ({route}: any) => {
+export const EditProfile = () => {
   const navigation = useNavigation();
+  const user = useSelector((state: RootState) => state.user.user);
   const styles = useProfileEditingStyles();
-  const [avatarUri, setAvatarUri] = useState<string | null>(null);
+  const [avatarUri, setAvatarUri] = useState<string | undefined>(
+    user?.profilePic,
+  );
   const [modalVisible, setModalVisible] = useState(false);
 
   const pickImage = () => {
     launchImageLibrary({mediaType: 'photo'}, response => {
       if (response.assets && response.assets.length > 0) {
-        setAvatarUri(response.assets[0].uri ?? null);
+        setAvatarUri(response.assets[0].uri);
       }
       setModalVisible(false);
     });
@@ -48,7 +52,7 @@ export const EditProfile = ({route}: any) => {
   const takePhoto = async () => {
     const hasPermission = await requestCameraPermission();
     if (!hasPermission) {
-      console.warn('Camera permission denied');
+      console.log('Camera permission denied');
       return;
     }
 
@@ -56,9 +60,9 @@ export const EditProfile = ({route}: any) => {
       if (response.didCancel) {
         console.log('User cancelled camera');
       } else if (response.errorCode) {
-        console.error('Camera error: ', response.errorMessage);
+        console.log('Camera error: ', response.errorMessage);
       } else if (response.assets && response.assets.length > 0) {
-        setAvatarUri(response.assets[0].uri ?? null);
+        setAvatarUri(response.assets[0].uri);
       }
       setModalVisible(false);
     });
@@ -68,7 +72,7 @@ export const EditProfile = ({route}: any) => {
     <SafeAreaView style={styles.screen}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.headerText}>Hủy</Text>
+          <Text style={styles.headerText}>Hủy bỏ</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Chỉnh sửa hồ sơ</Text>
         <TouchableOpacity>
@@ -78,14 +82,7 @@ export const EditProfile = ({route}: any) => {
       <ScrollView>
         <View>
           <View style={styles.profileSection}>
-            <Image
-              source={
-                avatarUri
-                  ? {uri: avatarUri}
-                  : require('../../../assets/icon/account.png')
-              }
-              style={styles.avatar}
-            />
+            <Image source={{uri: avatarUri}} style={styles.avatar} />
             <TouchableOpacity onPress={() => setModalVisible(true)}>
               <Text style={styles.changeText}>Thay đổi ảnh đại diện</Text>
             </TouchableOpacity>
@@ -94,10 +91,10 @@ export const EditProfile = ({route}: any) => {
           <View style={styles.content}>
             <UserInfo
               rows={[
-                {label: 'Tên người dùng', value: 'Jacob West'},
-                {label: 'Tên tài khoản', value: '@jacob_w'},
-                {label: 'Website', value: ''},
-                {label: 'Mô tả', value: 'Digital goodies designer @pixsellz'},
+                {label: 'Tên người dùng', value: user?.username},
+                {label: 'Tên tài khoản', value: user?.username},
+                {label: 'Mô tả', value: user?.bio},
+                {label: 'Ngày sinh', value: user?.dateOfBirth},
               ]}
             />
 
@@ -105,9 +102,10 @@ export const EditProfile = ({route}: any) => {
               title="Chuyển sang Professional Account"
               subtitle="Thông tin cá nhân"
               rows={[
-                {label: 'Email', value: 'jacob.west@gmail.com'},
-                {label: 'Số điện thoại', value: '+1 202 555 0147'},
-                {label: 'Giới tính', value: 'Male'},
+                {label: 'Email', value: user?.email},
+                {label: 'Số điện thoại', value: user?.phoneNumber},
+                {label: 'Giới tính', value: user?.gender},
+                {label: 'Địa chỉ', value: user?.address},
               ]}
             />
           </View>
@@ -116,7 +114,7 @@ export const EditProfile = ({route}: any) => {
             <View style={styles.modalOverlay}>
               <View style={styles.modalContainer}>
                 <TouchableOpacity style={styles.btnModel} onPress={pickImage}>
-                  <Text style={styles.textModel}>Chọn trong Gallery</Text>
+                  <Text style={styles.textModel}>Chọn trong thư viện</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[

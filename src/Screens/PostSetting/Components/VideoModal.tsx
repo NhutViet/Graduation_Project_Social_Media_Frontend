@@ -12,7 +12,6 @@ import React, {useEffect, useRef, useState} from 'react';
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
 import Video from 'react-native-video';
-import LinearGradient from 'react-native-linear-gradient';
 
 const VideoModal = (props: any) => {
   const {uri, visible, onClose} = props;
@@ -43,7 +42,7 @@ const VideoModal = (props: any) => {
   };
 
   useEffect(() => {
-    if(isVisible){
+    if (isVisible) {
       setTimeout(() => {
         setIsVisible(false);
       }, 2000);

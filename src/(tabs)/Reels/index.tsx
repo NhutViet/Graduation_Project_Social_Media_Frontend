@@ -25,6 +25,10 @@ import {fetchReelsWithMedia} from '../../../services/postRedux/postSlice';
 import BottomSheetReels, {
   BottomSheetReelsRef,
 } from './bottomSheet/reelBottomSheet';
+import {fetchCommentsByPost} from '../../../services/commentRedux/commentSlice';
+import BottomSheetComment, {
+  BottomSheetCommentRef,
+} from '../Home/components/CommentSection';
 
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
@@ -36,6 +40,7 @@ const Reels = () => {
   const color = Colors[theme];
 
   const sheetRef: any = useRef<BottomSheetReelsRef>(null);
+  const sheetRefComment: any = useRef<BottomSheetCommentRef>(null);
 
   const initialThemeRef = useRef<'light' | 'dark' | null>(null);
 
@@ -76,7 +81,7 @@ const Reels = () => {
   }, []);
   ///////////////////////////////
 
-  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedPostId, setSelectedPostId] = useState<string>('');
 
   if (loading) {
     return (
@@ -125,6 +130,11 @@ const Reels = () => {
               showBottomSheet={() => {
                 sheetRef?.current.open();
               }}
+              openComment={() => {
+                setSelectedPostId(item._id);
+                dispatch(fetchCommentsByPost(item._id));
+                sheetRefComment.current?.open();
+              }}
             />
           );
         }}
@@ -137,6 +147,7 @@ const Reels = () => {
         estimatedItemSize={height}
       />
       <BottomSheetReels ref={sheetRef} />
+      <BottomSheetComment ref={sheetRefComment} postId={selectedPostId} />
     </SafeAreaView>
   );
 };

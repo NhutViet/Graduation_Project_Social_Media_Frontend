@@ -11,6 +11,8 @@ import {
 import {useTheme} from '../src/util/ThemeContext';
 import {Colors} from '../assets/color/Colors';
 import {Check, Plus} from 'lucide-react-native';
+import {useSelector} from 'react-redux';
+import {RootState} from '../services/store';
 
 interface SwitchAccountProps {
   visible: boolean;
@@ -23,6 +25,7 @@ export const SwitchAccount: React.FC<SwitchAccountProps> = ({
 }) => {
   const {theme} = useTheme();
   const color = Colors[theme];
+  const user = useSelector((state: RootState) => state.user.user);
 
   return (
     <Modal
@@ -48,13 +51,13 @@ export const SwitchAccount: React.FC<SwitchAccountProps> = ({
               <View style={styles.accountItem}>
                 <Image
                   source={{
-                    uri: 'https://www.smartsight.in/wp-content/uploads/2019/10/golang-1200x900.png',
+                    uri: user?.profilePic,
                   }}
                   style={styles.avatar}
                 />
                 <View style={styles.accountInfo}>
                   <Text style={[styles.username, {color: color.text}]}>
-                    Mimi11_0
+                    {user?.handleName}
                   </Text>
                 </View>
                 <View
@@ -92,7 +95,7 @@ export const SwitchAccount: React.FC<SwitchAccountProps> = ({
                   <Plus size={24} color={color.text} />
                 </View>
                 <Text style={[styles.addAccountText, {color: color.text}]}>
-                  Thêm tài khoản Instagram
+                  Thêm tài khoản Cirla
                 </Text>
               </TouchableOpacity>
             </View>

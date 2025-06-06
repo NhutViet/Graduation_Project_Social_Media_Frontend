@@ -25,6 +25,9 @@ import Toast from 'react-native-toast-message';
 import VideoModal from './Components/VideoModal';
 import {BASE_URL} from '../../../services/api';
 import RNFS from 'react-native-fs';
+import BottomSheet, {
+  BottomSheetRef,
+} from '../PostStory/BottomSheet/BottomSheetMusic';
 
 export const PostSetting = () => {
   const {theme} = useTheme();
@@ -32,6 +35,7 @@ export const PostSetting = () => {
   const styles = getAddPostStyles(theme);
   const navigation: any = useNavigation();
   const dispatch = useDispatch<AppDispatch>();
+  const sheetRef = useRef<BottomSheetRef>(null);
 
   //lâys dữ liệu
   const route = useRoute();
@@ -45,11 +49,9 @@ export const PostSetting = () => {
     showUploadModal(uri, 'video');
 
     try {
-      // 1. Lấy upload URL và uid từ backend
       const res = await axios.get(`${BASE_URL}/stream/upload-url`);
-      const {uploadURL, key} = res.data.uploadURL; // <- nhớ lấy từ .uploadURL nếu BE trả kiểu object
+      const {uploadURL, key} = res.data.uploadURL;
 
-      // 2. Tạo FormData để upload video
       const formData = new FormData();
       formData.append('file', {
         uri: Platform.OS === 'ios' ? uri.replace('file://', '') : uri,
@@ -57,7 +59,6 @@ export const PostSetting = () => {
         name: 'video.mp4',
       });
 
-      // 3. Gửi POST request tới Cloudflare uploadURL
       await axios.post(uploadURL, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -85,7 +86,10 @@ export const PostSetting = () => {
 
   const handleUploadAll = async () => {
     if (!selectedMedia || selectedMedia.length === 0) {
-      Alert.alert('Chưa chọn phương tiện', 'Hãy chọn ít nhất một tập phương tiện');
+      Alert.alert(
+        'Chưa chọn phương tiện',
+        'Hãy chọn ít nhất một tập phương tiện',
+      );
       return;
     }
 
@@ -130,7 +134,7 @@ export const PostSetting = () => {
 
       if (uploadPostWithMedia.fulfilled.match(resultAction)) {
         Toast.show({
-          type: 'Thành công',
+          type: 'success',
           text1: '🎉 Thành công',
           text2: 'Bài viết của bạn đã được tải lên!',
         });
@@ -241,6 +245,7 @@ export const PostSetting = () => {
           title={'Thêm nhạc'}
           iconRight={require('../../../assets/icon/right.png')}
           iconLeft={require('../../../assets/icon/music.png')}
+          func={() => sheetRef.current?.open()}
         />
         <Section
           title={'Đối tượng'}
@@ -262,6 +267,7 @@ export const PostSetting = () => {
         visible={isModal}
         onClose={() => setIsModal(false)}
       />
+      <BottomSheet ref={sheetRef} />
     </SafeAreaView>
   );
 };
