@@ -30,4 +30,11 @@ export const API = {
   GET_FOLLOWING: 'relations/following',
   //// Register
   REGISTER: 'users/register',
+
+  ////bookmark
+  POST_SAVE_BOOKMARK: 'bookmark-playlists/add-bookmark',
+  DELETE_BOOKMARK: 'bookmark-playlists/remove-bookmark',
+  POST_CREATE_PLAYLIST: 'bookmark-playlists/add',
+  GET_ALL_PLAYLIST: 'bookmark-playlists/all',
+  GET_ITEM_PLAYLIST: 'bookmark-items/all',
 };

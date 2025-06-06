@@ -9,6 +9,7 @@ import storyReducer from '../StoryRedux/StoryReducer';
 import relationReducer from '../relationRedux/relationReducer'
 import reactionReducer from '../reactionRedux/reactionReducer';
 import LikerReducer from '../likersRedux/likersReducer';
+import bookmarkReducer from '../bookmarkRedux/bookmarkReducer';
 
 
 const persistUserConfig = {
@@ -28,6 +29,7 @@ export const store = configureStore({
     relation: relationReducer,
     reactions: reactionReducer,
     likers: LikerReducer,
+    bookmark: bookmarkReducer,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({

@@ -35,6 +35,14 @@ import {
 } from '../../../../services/reactionRedux/reactionSlice';
 import {addLikedPost} from '../../../../services/reactionRedux/reactionReducer';
 import {hidePost} from '../../../../services/postRedux/postSlice';
+import {
+  createPlaylist,
+  getAllPlaylists,
+  getItemsOfPlaylist,
+  removeBookmark,
+  saveBookmark,
+} from '../../../../services/bookmarkRedux/bookmarkSlice';
+
 
 const ItemHome = (props: any) => {
   const {
@@ -91,6 +99,7 @@ const ItemHome = (props: any) => {
 
   useEffect(() => {
     if (isLike && !likePosts.includes(_id)) {
+
       dispatch(addLikedPost(_id));
     }
   }, [_id, isLike]);
@@ -133,6 +142,7 @@ const ItemHome = (props: any) => {
   }, []);
 
   const handleOpenModalShare = useCallback(async () => {
+
     if (loading) {
       console.log('Still loading relations...');
       return;
@@ -158,6 +168,7 @@ const ItemHome = (props: any) => {
       Alert.alert('Lỗi', 'Không thể tải danh sách bạn bè. Vui lòng thử lại.');
     }
   }, [dispatch, userID, loading]);
+
 
   // Number formatting utility
   const formatNumber = (num: number): string => {
@@ -316,6 +327,45 @@ const ItemHome = (props: any) => {
     },
   ];
 
+  const textColor = type === 'reel' ? Colors.dark.text : color.text;
+
+  //bookmark
+  const {itemsByPlaylist, playlists} = useSelector(
+    (state: RootState) => state.bookmark,
+  );
+  const isPostBookmark = useMemo(() => {
+  return Object.values(itemsByPlaylist)
+    .flat()
+    .some(item => item.itemID === _id);
+}, [itemsByPlaylist, _id]);
+
+
+  const handleBookmark = () => {
+    if (!isPostBookmark) {
+        dispatch(
+          saveBookmark({
+            postId: _id,
+            playlistId: playlists[0].id,
+            refreshToken,
+          }),
+        );
+    } else {
+      //lấy playlist
+      const playlistID = Object.entries(itemsByPlaylist).find(
+        ([_, items]) => items.some(item => item.itemID === _id),
+      )?.[0];
+      if (playlistID) {
+        dispatch(
+          removeBookmark({
+            postId: [_id],
+            playlistId: playlistID,
+            refreshToken,
+          }),
+        );
+      }
+    }
+  };
+    
   return (
     <View style={styles.wrapper}>
       {/* Single Modalize wrapping only the BottomSheetOptions content */}
@@ -565,10 +615,17 @@ const ItemHome = (props: any) => {
               {formatNumber(share)}
             </Text>
           </View>
-          <TouchableOpacity style={styles.iconBlock}>
+          <TouchableOpacity style={styles.iconBlock} onPress={handleBookmark}>
             <Image
-              style={[{tintColor: color.text}, styles.icon]}
-              source={require('../../../../assets/icon/bookmark.png')}
+              style={[
+                {tintColor: isPostBookmark ? '#F2C641' : color.text},
+                styles.icon,
+              ]}
+              source={
+                isPostBookmark
+                  ? require('../../../../assets/icon/bookmark_fill.png')
+                  : require('../../../../assets/icon/bookmark.png')
+              }
             />
           </TouchableOpacity>
         </View>
