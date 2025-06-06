@@ -33,7 +33,6 @@ import {
   likePost,
   unlikePost,
 } from '../../../../services/reactionRedux/reactionSlice';
-import {Likers} from '../../../../services/likersRedux/likersSlice';
 import {addLikedPost} from '../../../../services/reactionRedux/reactionReducer';
 import {hidePost} from '../../../../services/postRedux/postSlice';
 import {
@@ -90,18 +89,6 @@ const ItemHome = (props: any) => {
       avatar: user.profilePic,
     }));
   }, [followers, following]);
-
-  useEffect(() => {
-    if (userID) {
-      // gọi 2 api followers, following
-      Promise.all([
-        dispatch(fetchFollowers({userID})),
-        dispatch(fetchFollowing({userID})),
-      ]).catch(error => {
-        console.error('Error fetching relations:', error);
-      });
-    }
-  }, [dispatch, userID]);
 
   //gọi api like
   const {likePosts} = useSelector((state: RootState) => state.reactions);
@@ -378,7 +365,7 @@ const ItemHome = (props: any) => {
       }
     }
   };
-
+    
   return (
     <View style={styles.wrapper}>
       {/* Single Modalize wrapping only the BottomSheetOptions content */}

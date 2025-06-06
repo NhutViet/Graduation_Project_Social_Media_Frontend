@@ -7,6 +7,7 @@ export interface User {
   handleName: string;
   bio: string;
   address: string;
+  dateOfBirth: string;
   gender: string;
   profilePic: string;
   isVip: boolean;

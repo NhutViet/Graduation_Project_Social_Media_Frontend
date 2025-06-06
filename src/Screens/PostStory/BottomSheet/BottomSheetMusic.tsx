@@ -15,12 +15,10 @@ import {
   TouchableOpacity,
   Text,
   Keyboard,
+  Modal,
+  Animated,
+  Easing,
 } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-} from 'react-native-reanimated';
 import {NativeViewGestureHandler} from 'react-native-gesture-handler';
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
@@ -30,6 +28,8 @@ import {SceneMap, TabBar, TabView} from 'react-native-tab-view';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../../services/store';
 import {fetchAllMusic} from '../../../../services/musicRedux/musicSlice';
+import AudioTrimModal from '../../PostSetting/Components/MusicModal';
+import {Music} from '../../../../services/musicRedux/musicType';
 
 const maxHeight = Dimensions.get('window').height;
 const height = Dimensions.get('window').height * 0.8;
@@ -41,31 +41,48 @@ export type BottomSheetRef = {
 };
 
 const BottomSheet = forwardRef<BottomSheetRef>(({}, ref) => {
-  const translateY = useSharedValue(height);
-  const isOpen = useSharedValue(false);
+  const [visible, setVisible] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const translateY = useRef(new Animated.Value(height)).current;
+  const opacity = useRef(new Animated.Value(0)).current;
 
   const open = () => {
-    translateY.value = withSpring(0, {
-      damping: 20,
-    });
-    isOpen.value = true;
+    setVisible(true);
+    Animated.parallel([
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+        easing: Easing.out(Easing.ease),
+      }),
+      Animated.spring(translateY, {
+        toValue: 0,
+        damping: 20,
+        useNativeDriver: true,
+      }),
+    ]).start();
   };
 
   const close = () => {
-    translateY.value = withSpring(height, {damping: 20});
-    isOpen.value = false;
+    Animated.parallel([
+      Animated.timing(opacity, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+        easing: Easing.in(Easing.ease),
+      }),
+      Animated.timing(translateY, {
+        toValue: height,
+        duration: 300,
+        useNativeDriver: true,
+        easing: Easing.in(Easing.ease),
+      }),
+    ]).start(() => {
+      setVisible(false);
+    });
   };
 
   useImperativeHandle(ref, () => ({open, close}));
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{translateY: translateY.value}],
-  }));
-
-  const overlayStyle = useAnimatedStyle(() => ({
-    opacity: isOpen.value ? 1 : 0,
-    display: isOpen.value ? 'flex' : 'none',
-  }));
 
   const {theme} = useTheme();
   const color = Colors[theme];
@@ -73,6 +90,7 @@ const BottomSheet = forwardRef<BottomSheetRef>(({}, ref) => {
 
   const dispatch = useDispatch<AppDispatch>();
   const {musicList, loading} = useSelector((state: RootState) => state.music);
+  const [music, setMusic] = useState<Music>();
 
   useEffect(() => {
     dispatch(fetchAllMusic());
@@ -90,7 +108,7 @@ const BottomSheet = forwardRef<BottomSheetRef>(({}, ref) => {
       );
       setFilteredData(filtered);
     }
-  }, [search]);
+  }, [search, musicList]);
 
   const nativeGestureRef = useRef(null);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
@@ -142,22 +160,40 @@ const BottomSheet = forwardRef<BottomSheetRef>(({}, ref) => {
     second: SecondRoute,
   });
 
+  if (!visible) return null;
+
   return (
-    <>
-      <Animated.View style={[styles.overlay, overlayStyle]}>
-        <TouchableWithoutFeedback onPress={close}>
-          <View style={StyleSheet.absoluteFill} />
-        </TouchableWithoutFeedback>
-      </Animated.View>
+    <Modal
+      visible={visible}
+      transparent
+      animationType="none"
+      onRequestClose={close}
+      statusBarTranslucent>
+      <TouchableWithoutFeedback onPress={close}>
+        <Animated.View
+          style={[
+            styles.overlay,
+            {
+              opacity: opacity,
+            },
+          ]}
+        />
+      </TouchableWithoutFeedback>
 
       <Animated.View
         style={[
           styles.sheet,
-          animatedStyle,
-          {backgroundColor: color.background},
+          {
+            backgroundColor: color.background,
+            transform: [{translateY}],
+          },
         ]}>
         <View style={[styles.handle, {backgroundColor: color.text}]} />
-        <View style={styles.searchContainer}>
+        <View
+          style={[
+            styles.searchContainer,
+            {backgroundColor: color.backgroundSecondary},
+          ]}>
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <View style={styles.blockIcon}>
               <Image
@@ -173,7 +209,7 @@ const BottomSheet = forwardRef<BottomSheetRef>(({}, ref) => {
               style={[styles.input, {color: color.text}]}
             />
           </View>
-          {search && (
+          {search ? (
             <TouchableOpacity
               style={[styles.blockIcon, {padding: 5}]}
               onPress={() => setSearch('')}>
@@ -182,7 +218,7 @@ const BottomSheet = forwardRef<BottomSheetRef>(({}, ref) => {
                 source={require('../../../../assets/icon/closer.png')}
               />
             </TouchableOpacity>
-          )}
+          ) : null}
         </View>
 
         {keyboardVisible || search ? (
@@ -190,7 +226,15 @@ const BottomSheet = forwardRef<BottomSheetRef>(({}, ref) => {
             <FlashList
               data={filteredData}
               bounces={false}
-              renderItem={({item}) => <ItemMusic {...item} />}
+              renderItem={({item}) => (
+                <ItemMusic
+                  {...item}
+                  onPress={() => {
+                    setIsModalOpen(true);
+                    setMusic(item);
+                  }}
+                />
+              )}
               showsVerticalScrollIndicator={false}
               estimatedItemSize={50}
             />
@@ -209,7 +253,7 @@ const BottomSheet = forwardRef<BottomSheetRef>(({}, ref) => {
               <Text style={[styles.textNormal, {color: color.text}]}>
                 Đã lưu
               </Text>
-              <View style={styles.blockIcon}></View>
+              <View style={styles.blockIcon} />
             </View>
             <TabView
               navigationState={{index, routes}}
@@ -234,7 +278,10 @@ const BottomSheet = forwardRef<BottomSheetRef>(({}, ref) => {
         ) : (
           <View style={{flex: 1}}>
             <TouchableOpacity
-              style={styles.saveButton}
+              style={[
+                styles.saveButton,
+                {backgroundColor: color.backgroundSecondary},
+              ]}
               onPress={() => setShowSavedView(true)}>
               <View style={styles.blockIcon}>
                 <Image
@@ -270,7 +317,15 @@ const BottomSheet = forwardRef<BottomSheetRef>(({}, ref) => {
                   data={musicList}
                   bounces={false}
                   renderItem={({item}) => {
-                    return <ItemMusic {...item} />;
+                    return (
+                      <ItemMusic
+                        {...item}
+                        onPress={() => {
+                          setIsModalOpen(true);
+                          setMusic(item);
+                        }}
+                      />
+                    );
                   }}
                   showsVerticalScrollIndicator={false}
                   estimatedItemSize={50}
@@ -280,7 +335,17 @@ const BottomSheet = forwardRef<BottomSheetRef>(({}, ref) => {
           </View>
         )}
       </Animated.View>
-    </>
+      <AudioTrimModal
+        visible={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        audioUrl={music?.link}
+        songInfo={{
+          image: music?.coverImg,
+          title: music?.song,
+          artist: music?.author,
+        }}
+      />
+    </Modal>
   );
 });
 
@@ -292,7 +357,6 @@ const styles = StyleSheet.create({
   },
   sheet: {
     position: 'absolute',
-    top: maxHeight - height,
     left: 0,
     right: 0,
     bottom: 0,
@@ -315,7 +379,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 10,
     paddingVertical: 8,
-    backgroundColor: Colors.input,
     marginHorizontal: 16,
     borderRadius: 7,
   },
@@ -346,7 +409,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginVertical: 10,
     paddingVertical: 7,
-    backgroundColor: Colors.input,
   },
   rowContainer: {
     flexDirection: 'row',

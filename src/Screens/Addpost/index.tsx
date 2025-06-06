@@ -22,7 +22,7 @@ import {getAddPostStyles} from '../../StyleSheet/AddPostStyles';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 
-const menu: string[] = ['All', 'Videos', 'Images'];
+const menu: string[] = ['Tất cả', 'Băng hình', 'Hình ảnh'];
 
 export const AddPost = () => {
   const {theme} = useTheme();
@@ -41,7 +41,7 @@ export const AddPost = () => {
   const [isMultiSelect, setIsMultiSelect] = useState(false);
 
   //phân loại ảnh và video
-  const [filter, setFilter] = useState('All');
+  const [filter, setFilter] = useState('Tất cả');
   const [showModalFilter, setShowModalFilter] = useState(false);
 
   const styles = getAddPostStyles(theme);
@@ -75,7 +75,11 @@ export const AddPost = () => {
       const result = await CameraRoll.getPhotos({
         first: 50,
         assetType:
-          filter === 'All' ? 'All' : filter === 'Videos' ? 'Videos' : 'Photos',
+          filter === 'Tất cả'
+            ? 'All'
+            : filter === 'Videos'
+            ? 'Videos'
+            : 'Photos',
       });
 
       setMedias(result.edges);
@@ -115,27 +119,38 @@ export const AddPost = () => {
 
   const handleSelect = (item: any) => {
     const isVideo = item.node.type.startsWith('video');
-    const isVideoAlreadySelected = selectedItems.length > 0 && selectedItems[0].node.type.startsWith('video');
-    const isImageAlreadySelected = selectedItems.length > 0 && !selectedItems[0].node.type.startsWith('video');
+    const isVideoAlreadySelected =
+      selectedItems.length > 0 &&
+      selectedItems[0].node.type.startsWith('video');
+    const isImageAlreadySelected =
+      selectedItems.length > 0 &&
+      !selectedItems[0].node.type.startsWith('video');
 
-    if(isVideo){
-      if(isImageAlreadySelected){
-        Alert.alert('Thông báo', 'Không thể chọn cả video và ảnh cùng một lúc!!!');
+    if (isVideo) {
+      if (isImageAlreadySelected) {
+        Alert.alert(
+          'Thông báo',
+          'Không thể chọn cả video và ảnh cùng một lúc!!!',
+        );
         return;
       }
 
       //nếu cchỉ vd
-      const isSelected = selectedItems[0]?.node.image.uri === item.node.image.uri;
-      if(selectedItems.length === 1 && isSelected){
+      const isSelected =
+        selectedItems[0]?.node.image.uri === item.node.image.uri;
+      if (selectedItems.length === 1 && isSelected) {
         setSelectedItems([]);
         setSelectedMedia(null);
-      }else{
+      } else {
         setSelectedItems([item]);
         setSelectedMedia(item);
       }
-    }else {
-      if(isVideoAlreadySelected){
-        Alert.alert('Thông báo', 'Không thể chọn cả video và ảnh cùng một lúc!!!');
+    } else {
+      if (isVideoAlreadySelected) {
+        Alert.alert(
+          'Thông báo',
+          'Không thể chọn cả video và ảnh cùng một lúc!!!',
+        );
         return;
       }
 
@@ -144,27 +159,25 @@ export const AddPost = () => {
       );
 
       if (isMultiSelect) {
-      if (isSelected) {
-        setSelectedItems(prev =>
-          prev.filter(i => i.node.image.uri !== item.node.image.uri),
-        );
-        setSelectedMedia(selectedItems[selectedItems.length - 2]);
+        if (isSelected) {
+          setSelectedItems(prev =>
+            prev.filter(i => i.node.image.uri !== item.node.image.uri),
+          );
+          setSelectedMedia(selectedItems[selectedItems.length - 2]);
+        } else {
+          setSelectedItems(prev => [...prev, item]);
+          setSelectedMedia(item);
+        }
       } else {
-        setSelectedItems(prev => [...prev, item]);
-        setSelectedMedia(item);
+        if (isSelected) {
+          setSelectedItems([]);
+          setSelectedMedia(null);
+        } else {
+          // Single mode: chỉ chọn duy nhất 1 item
+          setSelectedItems([item]);
+          setSelectedMedia(item); // luôn cập nhật ảnh lớn
+        }
       }
-    } else {
-      if(isSelected){
-        setSelectedItems([]);
-        setSelectedMedia(null);
-      }else{
-        // Single mode: chỉ chọn duy nhất 1 item
-      setSelectedItems([item]);
-      setSelectedMedia(item); // luôn cập nhật ảnh lớn
-      }
-      
-    }
-    
     }
   };
 
@@ -213,18 +226,20 @@ export const AddPost = () => {
           </TouchableOpacity>
           <Text style={styles.title}>Bài đăng mới</Text>
           <TouchableOpacity onPress={handleNext}>
-            <Text style={[styles.textR, {color: color.primary}]}>Tiếp theo</Text>
+            <Text style={[styles.textR, {color: color.primary}]}>
+              Tiếp theo
+            </Text>
           </TouchableOpacity>
         </View>
 
         {/* Hiển thị ảnh/video lớn */}
         <View style={styles.showContainer}>
           {selectedMedia ? (
-              <Image
-                source={{uri: selectedMedia.node.image.uri}}
-                style={styles.showImage}
-                resizeMode="contain"
-              />
+            <Image
+              source={{uri: selectedMedia.node.image.uri}}
+              style={styles.showImage}
+              resizeMode="contain"
+            />
           ) : (
             <Text style={styles.placeholderText}>Chọn một phương tiện</Text>
           )}
@@ -285,8 +300,8 @@ export const AddPost = () => {
                     <Image
                       source={{uri: item.node.image.uri}}
                       style={{
-                        width: width/3,
-                        height: width/3,
+                        width: width / 3,
+                        height: width / 3,
                       }}
                     />
                     {isSelected && (
