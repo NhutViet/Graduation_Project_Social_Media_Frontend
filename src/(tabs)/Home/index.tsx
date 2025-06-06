@@ -26,6 +26,10 @@ import {
   seenStory,
 } from '../../../services/StoryRedux/StorySlice';
 import {userFollow} from '../../../services/StoryRedux/StoryType';
+import {
+  getAllPlaylists,
+  getItemsOfPlaylist,
+} from '../../../services/bookmarkRedux/bookmarkSlice';
 
 const AnimatedFlatList = Animated.createAnimatedComponent(Animated.FlatList);
 
@@ -48,11 +52,30 @@ export const Home = () => {
   } = useSelector((state: RootState) => state.stories);
   const user = useSelector((state: RootState) => state.user);
   const [dataUser, setDataUser] = useState<userFollow[]>();
+  const {refreshToken} = useSelector((state: RootState) => state.user);
+  const {playlists} = useSelector((state: RootState) => state.bookmark);
 
   useEffect(() => {
     dispatch(fetchPostsWithMedia());
     dispatch(fetchFollowingStories());
   }, [dispatch]);
+
+  useEffect(() => {
+  dispatch(getAllPlaylists({refreshToken}))
+    .unwrap()
+    .then(res => {
+      console.log('✅ getAllPlaylists thành công', res);
+    })
+  }, [dispatch, refreshToken]);
+
+  useEffect(() => {
+    // khi playlists đã có thì mới gọi lấy items
+    if (playlists.length > 0) {
+      playlists.forEach(playlist => {
+        dispatch(getItemsOfPlaylist({playlistId: playlist.id, refreshToken}));
+      });
+    }
+  }, [playlists, dispatch, refreshToken]);
 
   useEffect(() => {
     setDataUser(followingUsers);
