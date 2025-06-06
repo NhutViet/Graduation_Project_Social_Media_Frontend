@@ -20,7 +20,11 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import Header from '../../../components/Header';
-import {fetchFollowingStories} from '../../../services/StoryRedux/StorySlice';
+import {
+  fetchFollowingStories,
+  fetchStoriesByIds,
+  seenStory,
+} from '../../../services/StoryRedux/StorySlice';
 import {userFollow} from '../../../services/StoryRedux/StoryType';
 
 const AnimatedFlatList = Animated.createAnimatedComponent(Animated.FlatList);
@@ -35,7 +39,6 @@ export const Home = () => {
   // redux
   const dispatch = useDispatch<AppDispatch>();
   const {posts, loading} = useSelector((state: RootState) => state.post);
-  const {likePosts} = useSelector((state: RootState) => state.reactions);
 
   const [currentVisible, setCurrentVisible] = useState<string | null>(null);
   const {
@@ -67,15 +70,36 @@ export const Home = () => {
 
   const modalizeRef = useRef<Modalize>(null);
 
-  const handleUserPress = (user: any) => {
-    setDataUser(prevData =>
-      prevData?.map(item =>
-        item._id === user._id ? {...item, status: 0} : item,
-      ),
-    );
-    navigation.navigate('SeenStoryOwner', {selectedItem: user});
-  };
+  const handleUserPress = async (user: userFollow) => {
+    if (user.stories.length === 0) return;
 
+    const firstStoryId = user.stories[0];
+    try {
+      // 1. Fetch story detail
+      const storyDetailResult = await dispatch(
+        fetchStoriesByIds([firstStoryId]),
+      ).unwrap();
+      const storyDetail = storyDetailResult[0];
+
+      // 2. Đánh dấu đã xem
+      await dispatch(seenStory({storyId: firstStoryId, userId: user._id}));
+
+      // 3. Navigate và truyền story chi tiết
+      navigation.navigate('SeenStory', {
+        selectedItem: {
+          _id: storyDetail._id,
+          uriVideo: storyDetail.mediaUrl.endsWith('.m3u8')
+            ? storyDetail.mediaUrl
+            : null,
+          image: storyDetail.mediaUrl.endsWith('.m3u8')
+            ? null
+            : storyDetail.mediaUrl,
+        },
+      });
+    } catch (err) {
+      console.error('Error fetching or marking story:', err);
+    }
+  };
   const [selectedPostId, setSelectedPostId] = useState<string>('');
 
   const HEADER_HEIGHT = 100;
@@ -152,6 +176,9 @@ export const Home = () => {
         />
       </Animated.View>
       <AnimatedFlatList
+        initialNumToRender={5}
+        maxToRenderPerBatch={5}
+        windowSize={5}
         data={posts}
         extraData={[currentVisible, isFocused]}
         renderItem={({item}: any) => {
