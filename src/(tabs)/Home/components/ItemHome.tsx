@@ -82,18 +82,6 @@ const ItemHome = (props: any) => {
       avatar: user.profilePic,
     }));
   }, [followers, following]);
-  
-  useEffect(() => {
-    if (userID) {
-      // gọi 2 api followers, following
-      Promise.all([
-        dispatch(fetchFollowers({userID})),
-        dispatch(fetchFollowing({userID})),
-      ]).catch(error => {
-        console.error('Error fetching relations:', error);
-      });
-    }
-  }, [dispatch, userID]);
 
   //gọi api like
   const {likePosts} = useSelector((state: RootState) => state.reactions);
