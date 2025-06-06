@@ -82,7 +82,7 @@ const ItemHome = (props: any) => {
       avatar: user.profilePic,
     }));
   }, [followers, following]);
-  
+
   useEffect(() => {
     if (userID) {
       // gọi 2 api followers, following
@@ -103,7 +103,7 @@ const ItemHome = (props: any) => {
   const [numLike, setNumLike] = useState(likeCount);
 
   useEffect(() => {
-    if(isLike && !likePosts.includes(_id)){
+    if (isLike && !likePosts.includes(_id)) {
       dispatch(addLikedPost(_id));
     }
   }, [_id, isLike]);
@@ -146,33 +146,31 @@ const ItemHome = (props: any) => {
   }, []);
 
   const handleOpenModalShare = useCallback(async () => {
-  if (loading) {
-    console.log('Still loading relations...');
-    return;
-  }
-  
-  try{
-    if (userID) {
-      await Promise.all([
-        dispatch(fetchFollowers({ userID })),
-        dispatch(fetchFollowing({ userID }))
-      ]);
+    if (loading) {
+      console.log('Still loading relations...');
+      return;
     }
-    
-    // Mở modal sau khi đã load xong data
-    setVisibleModalShare(true);
 
-    console.log('Followers:', followers.length);
-    console.log('Following:', following.length);
-    console.log('Combined follows:', follows.length);
+    try {
+      if (userID) {
+        await Promise.all([
+          dispatch(fetchFollowers({userID})),
+          dispatch(fetchFollowing({userID})),
+        ]);
+      }
 
-  } catch(error) {
-    console.error('Error fetching relations:', error);
-    // Hiển thị thông báo lỗi cho user
-    Alert.alert('Lỗi', 'Không thể tải danh sách bạn bè. Vui lòng thử lại.');
-  }
-  
-}, [dispatch, userID, loading]);
+      // Mở modal sau khi đã load xong data
+      setVisibleModalShare(true);
+
+      console.log('Followers:', followers.length);
+      console.log('Following:', following.length);
+      console.log('Combined follows:', follows.length);
+    } catch (error) {
+      console.error('Error fetching relations:', error);
+      // Hiển thị thông báo lỗi cho user
+      Alert.alert('Lỗi', 'Không thể tải danh sách bạn bè. Vui lòng thử lại.');
+    }
+  }, [dispatch, userID, loading]);
 
   // Number formatting utility
   const formatNumber = (num: number): string => {
@@ -318,7 +316,11 @@ const ItemHome = (props: any) => {
       label: 'Ảnh khỏa thân hoặc hoạt động tình dục',
       onPress: closeIntentions,
     },
-    {id: 'spam', label: 'Lừa đảo, gian lận hoặc spam', onPress: closeIntentions},
+    {
+      id: 'spam',
+      label: 'Lừa đảo, gian lận hoặc spam',
+      onPress: closeIntentions,
+    },
     {id: 'false', label: 'Thông tin sai sự thật', onPress: closeIntentions},
     {
       id: 'copyright',
@@ -414,6 +416,14 @@ const ItemHome = (props: any) => {
                     repeat
                     paused={!currentVisible || !isFocused}
                     muted={muted}
+                    bufferConfig={{
+                      minBufferMs: 15000,
+                      maxBufferMs: 50000,
+                      bufferForPlaybackMs: 2500,
+                      bufferForPlaybackAfterRebufferMs: 5000,
+                    }}
+                    maxBitRate={1500000}
+                    progressUpdateInterval={500} 
                   />
                 );
               } else {
