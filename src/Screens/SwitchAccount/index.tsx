@@ -26,6 +26,8 @@ import {GoogleSignin} from '@react-native-google-signin/google-signin';
 export const SwitchAccount = ({navigation}: any) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errorEmail, setErrorEmail] = useState('');
+  const [errorPassword, setErrorPassword] = useState('');
 
   const {theme} = useTheme();
   const color = Colors[theme];
@@ -40,7 +42,17 @@ export const SwitchAccount = ({navigation}: any) => {
   );
 
   const handleLogin = () => {
-    dispatch(fetchLogin({email, password}));
+    if(email === '' || password === ''){
+      if(email === '') setErrorEmail('Vui lòng nhập đầy đủ thông tin.');
+      if(password === '') setErrorPassword('Vui lòng nhập đầy đủ thông tin.');
+    }else if(!email.includes('.') || !email.includes('@')) {
+      setErrorEmail('Email không đúng định dạng');
+      setErrorPassword('');
+    }else{
+      setErrorEmail('');
+      setErrorPassword('');
+      dispatch(fetchLogin({email, password}));
+    }
   };
 
   useEffect(() => {
@@ -157,14 +169,16 @@ export const SwitchAccount = ({navigation}: any) => {
             placeholderTextColor={Colors.light.lightDark}
             style={SwitchStyles.input}
           />
+          {!(errorEmail === '') && <Text style={styles.errorText}>{errorEmail}</Text>}
           <TextInput
             value={password}
             onChangeText={setPassword}
             placeholder="Mật khẩu"
             secureTextEntry={true}
             placeholderTextColor={Colors.light.lightDark}
-            style={SwitchStyles.input}
+            style={[SwitchStyles.input, {marginTop: 20,}]}
           />
+          {!(errorPassword === '') && <Text style={styles.errorText}>{errorPassword}</Text>}
           <TouchableOpacity>
             <Text style={SwitchStyles.textForgot}>Quên mật khẩu?</Text>
           </TouchableOpacity>

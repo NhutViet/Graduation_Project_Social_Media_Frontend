@@ -61,6 +61,10 @@ const UserReducer = createSlice({
         state.errorMessage = 'Login failed';
         state.user = null;
         state.refreshToken = '';
+
+        if(action.payload?.message === 'Invalid credentials'){
+          state.errorMessage = 'Sai tài khoản hoặc mật khẩu.';
+        }
       })
 
       .addCase(fetchLogout.pending, state => {
