@@ -25,7 +25,6 @@ const SwitchAccountStyles = (theme: ThemeType) => {
       color: Colors.light.text,
       borderRadius: 8,
       paddingHorizontal: 10,
-      marginBottom: 20,
     },
     textForgot: {
       color: color.primary,

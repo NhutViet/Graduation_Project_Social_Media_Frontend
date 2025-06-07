@@ -106,6 +106,11 @@ const LoginStyles = () => {
       width: 60, height: 60,
       resizeMode: 'contain',
     },
+    errorText: {
+      fontSize: 12,
+      color: Colors.error,
+      marginTop: 5,
+    },
   });
 };
 
