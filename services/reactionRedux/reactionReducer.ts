@@ -27,6 +27,7 @@ const reactionReducer = createSlice({
         state.likePosts.push(postId);
       }
     },
+    resetReaction: () => initialState,
   },
   extraReducers: builder => {
     builder
@@ -73,5 +74,5 @@ const reactionReducer = createSlice({
   },
 });
 
-export const {addLikedPost} = reactionReducer.actions;
+export const {addLikedPost, resetReaction} = reactionReducer.actions;
 export default reactionReducer.reducer;

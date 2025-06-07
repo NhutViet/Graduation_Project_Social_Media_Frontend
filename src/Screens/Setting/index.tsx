@@ -31,7 +31,7 @@ import {fetchLogout} from '../../../services/userRedux/userSlice';
 import {AppDispatch, RootState} from '../../../services/store';
 import {resetStatus} from '../../../services/userRedux/userReducer';
 import { resetBookmarkState } from '../../../services/bookmarkRedux/bookmarkReducer';
-import { resetLikerStatus } from '../../../services/likersRedux/likersReducer';
+import { resetReaction } from '../../../services/reactionRedux/reactionReducer';
 
 export const Setting = () => {
   const navigation: any = useNavigation();
@@ -65,7 +65,7 @@ export const Setting = () => {
         if (isSuccess) {
           navigation.reset({index: 0, routes: [{name: 'SwitchAccount'}]});
           dispatch(resetBookmarkState());
-          dispatch(resetLikerStatus());
+          dispatch(resetReaction());
         }
       }, 2000);
     }
