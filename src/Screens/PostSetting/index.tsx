@@ -29,6 +29,9 @@ import BottomSheet, {
   BottomSheetRef,
 } from '../PostStory/BottomSheet/BottomSheetMusic';
 
+const R2_PUBLIC_BASE_URL =
+  'https://pub-ad59fb2f0d474d27b87956b4048028d8.r2.dev';
+
 export const PostSetting = () => {
   const {theme} = useTheme();
   const color = Colors[theme];
@@ -36,6 +39,11 @@ export const PostSetting = () => {
   const navigation: any = useNavigation();
   const dispatch = useDispatch<AppDispatch>();
   const sheetRef = useRef<BottomSheetRef>(null);
+  const [selectedMusic, setSelectedMusic] = useState<{
+    musicId: string;
+    timeStart: number;
+    timeEnd: number;
+  } | null>(null);
 
   //lâys dữ liệu
   const route = useRoute();
@@ -44,7 +52,7 @@ export const PostSetting = () => {
   const [caption, setCaption] = useState('');
   //modal xem video
   const [isModal, setIsModal] = useState(false);
-
+  /////////// video
   const uploadToCloudflare = async (uri: string) => {
     showUploadModal(uri, 'video');
 
@@ -83,12 +91,49 @@ export const PostSetting = () => {
       throw error;
     }
   };
+  ///////////// image
+  const uploadImageToR2 = async (uri: string): Promise<string> => {
+    showUploadModal(uri, 'image');
+
+    try {
+      const fileName = uri.split('/').pop() || `image_${Date.now()}.jpg`;
+
+      const {data} = await axios.post(`${BASE_URL}/r2/presigned-url`, {
+        fileName,
+        contentType: 'image/jpeg',
+      });
+
+      const {url: signedUrl} = data;
+
+      const fileUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
+      const fileData = await RNFS.readFile(fileUri, 'base64');
+      const fileBuffer = Buffer.from(fileData, 'base64');
+
+      await axios.put(signedUrl, fileBuffer, {
+        headers: {
+          'Content-Type': 'image/jpeg',
+        },
+        onUploadProgress: progressEvent => {
+          const progress = progressEvent.loaded / progressEvent.total;
+          setProgress(progress);
+        },
+      });
+
+      const publicUrl = `${R2_PUBLIC_BASE_URL}/${fileName}`;
+      hideUploadModal();
+      return publicUrl;
+    } catch (error) {
+      hideUploadModal();
+      console.error('Upload ảnh thất bại:', error);
+      throw error;
+    }
+  };
 
   const handleUploadAll = async () => {
     if (!selectedMedia || selectedMedia.length === 0) {
       Alert.alert(
         'Chưa chọn phương tiện',
-        'Hãy chọn ít nhất một tập phương tiện',
+        'Hãy chọn ít nhất một ảnh hoặc video',
       );
       return;
     }
@@ -99,36 +144,52 @@ export const PostSetting = () => {
     });
 
     try {
-      const uploadedVideoIds: string[] = [];
+      const uploadedMedia: {imageUrl?: string; videoUrl?: string}[] = [];
 
       for (const media of selectedMedia) {
         const uri = media.node.image.uri;
         const isVideo = media.node.type.startsWith('video');
 
-        if (isVideo) {
-          try {
-            const uid = await uploadToCloudflare(uri);
-            uploadedVideoIds.push(uid);
-          } catch (err) {
-            console.log(`Upload failed for ${uri}`);
-            Alert.alert('Upload failed', `Upload failed for ${uri}`);
-            return;
+        try {
+          if (isVideo) {
+            const videoUrl = await uploadToCloudflare(uri);
+            uploadedMedia.push({
+              videoUrl: `https://videodelivery.net/${videoUrl}/manifest/video.m3u8`,
+            });
+          } else {
+            const imageUrl = await uploadImageToR2(uri);
+            uploadedMedia.push({imageUrl});
           }
+        } catch (err) {
+          Alert.alert(
+            'Upload thất bại',
+            `Không thể upload ${isVideo ? 'video' : 'ảnh'}: ${uri}`,
+          );
+          return;
         }
       }
 
-      const postType = uploadedVideoIds.length === 1 ? 'reel' : 'post';
+      const postType =
+        uploadedMedia.length === 1 && uploadedMedia[0].videoUrl
+          ? 'reel'
+          : 'post';
 
       const body = {
         post: {
           type: postType,
-          caption: caption,
+          caption,
           isEnable: true,
         },
-        media: uploadedVideoIds.map(uid => ({
-          videoUrl: `https://videodelivery.net/${uid}/manifest/video.m3u8`,
-        })),
+        media: uploadedMedia,
+        music: selectedMusic
+          ? {
+              musicId: selectedMusic.musicId,
+              timeStart: selectedMusic.timeStart,
+              timeEnd: selectedMusic.timeEnd,
+            }
+          : undefined,
       };
+      console.log('body: ', JSON.stringify(body, null, 2));
 
       const resultAction = await dispatch(uploadPostWithMedia(body));
 
@@ -146,15 +207,10 @@ export const PostSetting = () => {
         });
       }
     } catch (error) {
-      Alert.alert('Error', 'Something went wrong');
+      Alert.alert('Lỗi', 'Đã có lỗi xảy ra khi upload');
       console.error(error);
     }
   };
-
-  useEffect(() => {
-    console.log('chọn nè: ', selectedMedia);
-    console.log('VIDEO URI:', selectedMedia[0]?.node?.image?.uri);
-  }, [selectedMedia]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -267,7 +323,12 @@ export const PostSetting = () => {
         visible={isModal}
         onClose={() => setIsModal(false)}
       />
-      <BottomSheet ref={sheetRef} />
+      <BottomSheet
+        ref={sheetRef}
+        onDoneSelect={(musicInfo: any) => {
+          setSelectedMusic(musicInfo);
+        }}
+      />
     </SafeAreaView>
   );
 };

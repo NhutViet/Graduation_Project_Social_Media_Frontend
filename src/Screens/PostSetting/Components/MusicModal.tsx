@@ -14,7 +14,7 @@ import Sound from 'react-native-sound';
 import {Colors} from '../../../../assets/color/Colors';
 
 const AudioTrimModal = (props: any) => {
-  const {visible, onClose, audioUrl, songInfo} = props;
+  const {visible, onClose, audioUrl, songInfo, onDoneSelect} = props;
   const [sound, setSound] = useState<Sound | null>(null);
   const [duration, setDuration] = useState(0);
   const [selectedRange, setSelectedRange] = useState({start: 0, end: 30});
@@ -206,7 +206,16 @@ const AudioTrimModal = (props: any) => {
             <TouchableOpacity>
               <Text style={styles.bottomText}>Âm thanh</Text>
             </TouchableOpacity>
-            <TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                console.log('id: ', songInfo._id);
+                onDoneSelect?.({
+                  musicId: songInfo._id,
+                  timeStart: selectedRange.start,
+                  timeEnd: selectedRange.end,
+                });
+                onClose();
+              }}>
               <Text style={styles.bottomText}>Xong</Text>
             </TouchableOpacity>
           </View>

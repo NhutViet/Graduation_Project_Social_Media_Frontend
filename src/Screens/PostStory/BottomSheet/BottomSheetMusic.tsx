@@ -40,7 +40,11 @@ export type BottomSheetRef = {
   close: () => void;
 };
 
-const BottomSheet = forwardRef<BottomSheetRef>(({}, ref) => {
+export type Props = {
+  onDoneSelect: any;
+};
+
+const BottomSheet = forwardRef<BottomSheetRef, Props>(({onDoneSelect}, ref) => {
   const [visible, setVisible] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const translateY = useRef(new Animated.Value(height)).current;
@@ -340,10 +344,12 @@ const BottomSheet = forwardRef<BottomSheetRef>(({}, ref) => {
         onClose={() => setIsModalOpen(false)}
         audioUrl={music?.link}
         songInfo={{
+          _id: music?._id,
           image: music?.coverImg,
           title: music?.song,
           artist: music?.author,
         }}
+        onDoneSelect={onDoneSelect}
       />
     </Modal>
   );

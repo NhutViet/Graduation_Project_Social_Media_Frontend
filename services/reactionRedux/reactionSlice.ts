@@ -1,9 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../axiosInstance";
-import { API } from "../api";
-import { ResLikePost } from "./reactionTypes";
-import { useSelector } from "react-redux";
-import { RootState } from "../store";
 
 
 export const likePost = createAsyncThunk(
