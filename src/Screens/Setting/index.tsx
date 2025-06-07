@@ -30,6 +30,8 @@ import {useDispatch, useSelector} from 'react-redux';
 import {fetchLogout} from '../../../services/userRedux/userSlice';
 import {AppDispatch, RootState} from '../../../services/store';
 import {resetStatus} from '../../../services/userRedux/userReducer';
+import { resetBookmarkState } from '../../../services/bookmarkRedux/bookmarkReducer';
+import { resetLikerStatus } from '../../../services/likersRedux/likersReducer';
 
 export const Setting = () => {
   const navigation: any = useNavigation();
@@ -62,6 +64,8 @@ export const Setting = () => {
         dispatch(resetStatus());
         if (isSuccess) {
           navigation.reset({index: 0, routes: [{name: 'SwitchAccount'}]});
+          dispatch(resetBookmarkState());
+          dispatch(resetLikerStatus());
         }
       }, 2000);
     }
@@ -556,7 +560,7 @@ export const Setting = () => {
           <View style={styles.modalContainer}>
             {isSuccess ? <Image source={require('../../../assets/icon/success.png')} style={[styles.iconNoti, {tintColor: mColor.primary}]}/> : <Image source={require('../../../assets/icon/danger.png')} style={[styles.iconNoti, {tintColor: mColor.error}]}/>}
             <Text style={[styles.textNoti, {color: isSuccess ? mColor.primary : mColor.error}]}>{isSuccess ? 'Đăng xuất thành công' : 'Đã có lỗi xảy ra'}</Text>
-            {isSuccess && <Text style={styles.textContent}>Chào mừng bạn đã trở lại</Text>}
+            {isSuccess && <Text style={styles.textContent}>Hẹn gặp lại</Text>}
             {isError && <Text style={styles.textContent}>{errorMessage}</Text>}
           </View>
         </View>

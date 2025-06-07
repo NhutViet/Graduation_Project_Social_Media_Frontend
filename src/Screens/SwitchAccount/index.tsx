@@ -31,11 +31,12 @@ export const SwitchAccount = ({navigation}: any) => {
   const color = Colors[theme];
   const styles = LoginStyles();
   const SwitchStyles = SwitchAccountStyles(theme);
-  const [showModal, setShowModal] = useState(false);
+  const [successModal, setSuccessModal] = useState(false);
+  const [errorModal, setErrorModal] = useState(false);
 
   //redux
   const dispatch = useDispatch<AppDispatch>();
-  const {isLoading, isError, errorMessage, user, isSuccess} = useSelector(
+  const {isLoading, isError, errorMessage, isSuccess} = useSelector(
     (state: RootState) => state.user,
   );
 
@@ -44,14 +45,19 @@ export const SwitchAccount = ({navigation}: any) => {
   };
 
   useEffect(() => {
-    if (isSuccess || isError) {
-      setShowModal(true);
+    if (isSuccess && !isLoading) {
+      setSuccessModal(true);
       setTimeout(() => {
-        setShowModal(false);
-
+        setSuccessModal(false);
         if (isSuccess) {
           navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
         }
+        dispatch(resetStatus());
+      }, 2000);
+    } else if (!isSuccess && isError && !isLoading) {
+      setErrorModal(true)
+      setTimeout(() => {
+        setErrorModal(false);
         dispatch(resetStatus());
       }, 2000);
     }
@@ -66,6 +72,7 @@ export const SwitchAccount = ({navigation}: any) => {
 
   const signInWithGoogle = async (): Promise<void> => {
     try {
+      dispatch(resetStatus());
       await GoogleSignin.hasPlayServices();
       const userInfo: any = await GoogleSignin.signIn();
 
@@ -77,22 +84,23 @@ export const SwitchAccount = ({navigation}: any) => {
 
       const checkEmailAction = await dispatch(fetchCheckEmail({email}));
 
+      
       if (fetchCheckEmail.fulfilled.match(checkEmailAction)) {
         const {exists} = checkEmailAction.payload;
 
         if (exists) {
+          dispatch(resetStatus());
           const loginAction = await dispatch(
             fetchLogin({email, password: tempPassword}),
           );
 
-          if (fetchLogin.fulfilled.match(loginAction)) {
-            navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
-          } else {
+          if (!fetchLogin.fulfilled.match(loginAction)) {
             Alert.alert(
               'Tài khoản này đã được đăng ký bằng hình thức khác.\nVui lòng dùng phương thức ban đầu.',
             );
           }
         } else {
+          dispatch(resetStatus());
           const registerAction = await dispatch(
             fetchRegister({
               email,
@@ -102,12 +110,11 @@ export const SwitchAccount = ({navigation}: any) => {
           );
 
           if (fetchRegister.fulfilled.match(registerAction)) {
+            dispatch(resetStatus());
             const loginAction = await dispatch(
               fetchLogin({email, password: tempPassword}),
             );
-            if (fetchLogin.fulfilled.match(loginAction)) {
-              navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
-            } else {
+            if (!fetchLogin.fulfilled.match(loginAction)) {
               Alert.alert('Đăng nhập thất bại sau khi đăng ký.');
             }
           } else {
@@ -205,30 +212,36 @@ export const SwitchAccount = ({navigation}: any) => {
           </TouchableOpacity>
         </View>
       </View>
-      <Modal visible={showModal} transparent animationType="fade">
+      <Modal visible={successModal} transparent animationType="fade">
         <View style={styles.modal}>
           <View style={styles.modalContainer}>
-            {isSuccess ? (
               <Image
                 source={require('../../../assets/icon/success.png')}
                 style={[styles.iconNoti, {tintColor: color.primary}]}
               />
-            ) : (
+            <Text
+              style={[
+                styles.textNoti,
+                {color: color.primary},
+              ]}>Đăng nhập thành công
+            </Text>
+              <Text style={styles.textContent}>Chào mừng bạn đã trở lại</Text>
+          </View>
+        </View>
+      </Modal>
+      <Modal visible={errorModal} transparent animationType="fade">
+        <View style={styles.modal}>
+          <View style={styles.modalContainer}>
               <Image
                 source={require('../../../assets/icon/danger.png')}
                 style={[styles.iconNoti, {tintColor: color.error}]}
               />
-            )}
             <Text
               style={[
                 styles.textNoti,
-                {color: isSuccess ? color.primary : color.error},
-              ]}>
-              {isSuccess ? 'Đăng nhập thành công' : 'Đã có lỗi xảy ra'}
+                {color: color.error},
+              ]}>Đã có lỗi xảy ra
             </Text>
-            {isSuccess && (
-              <Text style={styles.textContent}>Chào mừng bạn đã trở lại</Text>
-            )}
             {isError && <Text style={styles.textContent}>{errorMessage}</Text>}
           </View>
         </View>

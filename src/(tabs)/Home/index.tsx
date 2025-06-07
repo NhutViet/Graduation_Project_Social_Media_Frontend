@@ -64,9 +64,9 @@ export const Home = () => {
   dispatch(getAllPlaylists({refreshToken}))
     .unwrap()
     .then(res => {
-      console.log('✅ getAllPlaylists thành công', res);
+      console.log('✅ getAllPlaylists thành công');
     })
-  }, [dispatch, refreshToken]);
+  }, []);
 
   useEffect(() => {
     // khi playlists đã có thì mới gọi lấy items
@@ -75,7 +75,7 @@ export const Home = () => {
         dispatch(getItemsOfPlaylist({playlistId: playlist.id, refreshToken}));
       });
     }
-  }, [playlists, dispatch, refreshToken]);
+  }, [playlists]);
 
   useEffect(() => {
     setDataUser(followingUsers);

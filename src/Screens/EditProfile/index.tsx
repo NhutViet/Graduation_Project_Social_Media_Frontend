@@ -82,7 +82,7 @@ export const EditProfile = () => {
       <ScrollView>
         <View>
           <View style={styles.profileSection}>
-            <Image source={{uri: avatarUri}} style={styles.avatar} />
+            {avatarUri && <Image source={{uri: avatarUri}} style={styles.avatar} />}
             <TouchableOpacity onPress={() => setModalVisible(true)}>
               <Text style={styles.changeText}>Thay đổi ảnh đại diện</Text>
             </TouchableOpacity>

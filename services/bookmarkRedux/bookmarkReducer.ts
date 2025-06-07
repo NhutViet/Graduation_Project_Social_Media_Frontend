@@ -6,7 +6,7 @@ import {
   removeBookmark,
   saveBookmark,
 } from './bookmarkSlice';
-import {ResAllPlaylist, ResCreatePlaylist} from './bookmarkTypes';
+import { ResCreatePlaylist} from './bookmarkTypes';
 
 interface Playlist {
   id: string;
@@ -46,6 +46,7 @@ const bookmarkReducer = createSlice({
   name: 'bookmark',
   initialState,
   reducers: {
+    resetBookmarkState: () => initialState,
   },
   extraReducers: builder => {
     builder
@@ -147,8 +148,6 @@ const bookmarkReducer = createSlice({
           name: playlist.playlistName,
         }));
 
-        console.log('new Playlist 🤡: ', newPlaylist);
-
         newPlaylist?.forEach(newItem => {
           const exists = state.playlists.some(p => p.id === newItem.id);
           if (!exists) {
@@ -192,4 +191,5 @@ const bookmarkReducer = createSlice({
   },
 });
 
+export const {resetBookmarkState} = bookmarkReducer.actions;
 export default bookmarkReducer.reducer;

@@ -3,6 +3,7 @@ export interface Liker {
     username: string;
     handleName: string;
     profilePic: string;
+    userFollowing?: boolean;
 }
 
 export interface ResLikersAPost {

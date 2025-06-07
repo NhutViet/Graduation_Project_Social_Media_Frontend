@@ -22,13 +22,7 @@ const LikersReducer = createSlice({
     name: 'likers',
     initialState,
     reducers: {
-        resetStatus: (state) => {
-            state.errorMessage = '';
-            state.isError = false;
-            state.isLoading = true;
-            state.isSuccess = false;
-            state.listLikers = [];
-        },
+        resetLikerStatus: () => initialState,
     },
     extraReducers: (builder) => {
         builder
@@ -52,5 +46,5 @@ const LikersReducer = createSlice({
     },
 });
 
-export const {resetStatus} = LikersReducer.actions;
+export const {resetLikerStatus} = LikersReducer.actions;
 export default LikersReducer.reducer;

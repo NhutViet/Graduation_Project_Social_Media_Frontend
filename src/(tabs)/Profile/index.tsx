@@ -193,12 +193,12 @@ const Profile = () => {
       <View>
         <View style={styles.profileInfo}>
           <View style={styles.avatarContainer}>
-            <Image
+            {user?.profilePic && <Image
               source={{
                 uri: user?.profilePic,
               }}
               style={styles.avatar}
-            />
+            />}
             <TouchableOpacity
               style={styles.addStoryButton}
               onPress={() => {
