@@ -138,7 +138,7 @@ export const createStyles = (themeColors: 'light' | 'dark') =>{
     textContent: {
       fontSize: 16,
       fontWeight: '400',
-      color: color.gray,
+      color: color.textSecondary,
     },
     iconNoti: {
       width: 60, height: 60,

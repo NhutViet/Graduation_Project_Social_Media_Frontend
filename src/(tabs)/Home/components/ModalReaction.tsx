@@ -15,20 +15,11 @@ import {useNavigation} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../../services/store';
 import {Likers} from '../../../../services/likersRedux/likersSlice';
-import {resetStatus} from '../../../../services/likersRedux/likersReducer';
 
 interface ModalReactionProps {
   postId: string;
   isLiked: boolean;
 }
-
-type UserItem = {
-  id: string;
-  username: string;
-  profile_pic: string;
-  bio: string;
-  is_following: boolean;
-};
 
 const ModalReaction = forwardRef<Modalize, ModalReactionProps>(
   ({postId, isLiked}, ref) => {
@@ -42,7 +33,6 @@ const ModalReaction = forwardRef<Modalize, ModalReactionProps>(
     );
     const {refreshToken} = useSelector((state: RootState) => state.user);
     const [users, setUsers] = useState<any[]>([]);
-    const {user} = useSelector((state: RootState) => state.user);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
@@ -72,25 +62,25 @@ const ModalReaction = forwardRef<Modalize, ModalReactionProps>(
             {item.handleName}
           </Text>
         </View>
-        <TouchableOpacity
-          style={[
-            styles.followButton,
-            false
-              ? [styles.disabledButton, {borderColor: color.text}]
-              : styles.activeButton,
-          ]}
-          disabled={false}>
-          {item.userId !== user?._id && (
+        {typeof item.userFollowing !== 'undefined' && (
+          <TouchableOpacity
+            style={[
+              styles.followButton,
+              item.userFollowing
+                ? [styles.disabledButton, {borderColor: color.text}]
+                : styles.activeButton,
+            ]}
+            disabled={item.userFollowing}>
             <Text
               style={[
-                false
+                item.userFollowing
                   ? [styles.followButtonText, {color: color.text}]
                   : styles.followButtonText,
               ]}>
-              {false ? 'Followed' : 'Follow'}
+              {item.userFollowing ? 'Followed' : 'Follow'}
             </Text>
-          )}
-        </TouchableOpacity>
+          </TouchableOpacity>
+        )}
       </View>
     );
 

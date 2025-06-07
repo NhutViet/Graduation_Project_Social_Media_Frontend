@@ -99,7 +99,6 @@ const ItemHome = (props: any) => {
 
   useEffect(() => {
     if (isLike && !likePosts.includes(_id)) {
-
       dispatch(addLikedPost(_id));
     }
   }, [_id, isLike]);
