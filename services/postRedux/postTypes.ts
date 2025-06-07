@@ -47,6 +47,12 @@ export interface Music {
   coverImg: string;
 }
 
+export interface MusicPost {
+  musicId: string;
+  timeStart: number;
+  timeEnd: number;
+}
+
 export interface UploadPostPayload {
   post: {
     type: string;
@@ -54,5 +60,6 @@ export interface UploadPostPayload {
     isEnable: boolean;
   };
   media: MediaItem[];
-  music?: Music;
+  music?: MusicPost;
+  musicInfo?: Music;
 }
