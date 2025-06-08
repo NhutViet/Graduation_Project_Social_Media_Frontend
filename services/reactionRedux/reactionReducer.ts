@@ -27,7 +27,13 @@ const reactionReducer = createSlice({
         state.likePosts.push(postId);
       }
     },
-    resetReaction: () => initialState,
+    resetReaction: (state) => {
+      state.likePosts = [];
+  state.isLoading = false;
+  state.isSuccess = false;
+  state.isError = false;
+  state.errorMessage = null;
+    },
   },
   extraReducers: builder => {
     builder

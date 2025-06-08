@@ -39,6 +39,10 @@ import {
   fetchFollowers,
   fetchFollowing,
 } from '../../../services/relationRedux/relationSlice';
+import {
+  getPostsOfUser,
+  getReelsOfUser,
+} from '../../../services/postUserRedux/postUserSlice';
 
 const HEADER_HEIGHT = 400;
 
@@ -54,6 +58,14 @@ const Profile = () => {
   const {followers, following, loading, error} = useSelector(
     (state: RootState) => state.relation,
   );
+  const {refreshToken} = useSelector((state: RootState) => state.user);
+  const {items: PostsItem}: any | null = useSelector(
+    (state: RootState) => state.postUser.posts,
+  );
+  const {items: ReelsItem}: any | null = useSelector(
+    (state: RootState) => state.postUser.reels,
+  );
+  const {isSuccess} = useSelector((state: RootState) => state.postUser);
 
   const [visibleModalCreate, setVisibleModalCreate] = useState(false);
 
@@ -121,16 +133,16 @@ const Profile = () => {
   ]);
 
   useEffect(() => {
-      if (userID) {
-        // gọi 2 api followers, following
-        Promise.all([
-          dispatch(fetchFollowers({userID})),
-          dispatch(fetchFollowing({userID})),
-        ]).catch(error => {
-          console.error('Error fetching relations:', error);
-        });
-      }
-    }, [dispatch, userID]);
+    if (userID) {
+      // gọi 2 api followers, following
+      Promise.all([
+        dispatch(fetchFollowers({userID})),
+        dispatch(fetchFollowing({userID})),
+      ]).catch(error => {
+        console.error('Error fetching relations:', error);
+      });
+    }
+  }, [dispatch, userID]);
 
   useEffect(() => {
     const exists = dataUser.some(user => user.name === 'Tin của tôi');
@@ -343,15 +355,49 @@ const Profile = () => {
   const renderContent = () => {
     switch (activeTab) {
       case 'grid':
-        return <PostsView data={PostData} />;
+        return isSuccess && PostsItem ? (
+          <PostsView data={PostsItem} />
+        ) : (
+          <View style={[styles.content, styles.centerItem, {height: 50}]}>
+            <Text style={styles.textno}>Đang tải...</Text>
+          </View>
+        );
       case 'reels':
-        return <ReelsView data={PostData} />;
+        return isSuccess && ReelsItem ? (
+          <ReelsView data={ReelsItem} />
+        ) : (
+          <View style={[styles.content, styles.centerItem, {height: 50}]}>
+            <Text style={styles.textno}>Đang tải...</Text>
+          </View>
+        );
       case 'tagged':
-        return <TaggedView data={PostData} />;
+        return isSuccess ? (
+          <PostsView data={PostsItem} />
+        ) : (
+          <View style={[styles.content, styles.centerItem, {height: 50}]}>
+            <Text style={styles.textno}>Đang tải...</Text>
+          </View>
+        );
       default:
-        return <PostsView data={PostData} />;
+        return isSuccess ? (
+          <PostsView data={PostsItem} />
+        ) : (
+          <View style={[styles.content, styles.centerItem, {height: 50}]}>
+            <Text style={styles.textno}>Đang tải...</Text>
+          </View>
+        );
     }
   };
+
+  // useEffect(() => {
+  //   console.log('PostsItem:', PostsItem);
+  //   console.log('ReelsItem:', ReelsItem);
+  // }, [PostsItem, ReelsItem]);
+
+  useEffect(() => {
+    dispatch(getPostsOfUser({refreshToken}));
+    dispatch(getReelsOfUser({refreshToken}));
+  }, [activeTab]);
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
