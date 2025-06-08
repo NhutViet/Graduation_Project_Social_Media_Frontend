@@ -45,12 +45,6 @@ const ReelsComponent = (props: any) => {
           repeat
           paused={!currentVisible || !isFocused}
           muted={muted}
-          bufferConfig={{
-            minBufferMs: 15000,
-            maxBufferMs: 50000,
-            bufferForPlaybackMs: 2500,
-            bufferForPlaybackAfterRebufferMs: 5000,
-          }}
           maxBitRate={1500000}
           progressUpdateInterval={500}
         />

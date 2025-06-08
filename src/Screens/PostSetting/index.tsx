@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {useTheme} from '../../util/ThemeContext';
 import {getAddPostStyles} from '../../StyleSheet/AddPostStyles';
 import {FlashList} from '@shopify/flash-list';
@@ -43,6 +43,8 @@ export const PostSetting = () => {
     musicId: string;
     timeStart: number;
     timeEnd: number;
+    song: string;
+    songImage: string;
   } | null>(null);
 
   //lâys dữ liệu
@@ -298,7 +300,7 @@ export const PostSetting = () => {
           iconLeft={require('../../../assets/icon/location.png')}
         />
         <Section
-          title={'Thêm nhạc'}
+          title={selectedMusic?.song ? selectedMusic.song : 'Thêm nhạc'}
           iconRight={require('../../../assets/icon/right.png')}
           iconLeft={require('../../../assets/icon/music.png')}
           func={() => sheetRef.current?.open()}
