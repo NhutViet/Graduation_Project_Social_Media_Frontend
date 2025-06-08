@@ -84,7 +84,7 @@ const ItemHome = (props: any) => {
   };
 
   useEffect(() => {
-    if (!currentVisible || !musicInfo?.link) {
+    if (!currentVisible || !musicInfo?.link || !isFocused) {
       stopPlayback();
       return;
     }
@@ -95,16 +95,15 @@ const ItemHome = (props: any) => {
         return;
       }
 
-      sound.setCurrentTime(music?.timeStart);
+      sound.setCurrentTime(music?.timeStart || 0);
       sound.setVolume(muted ? 0 : 1);
       sound.play();
 
       intervalRef.current = setInterval(() => {
         sound.getCurrentTime(seconds => {
-          if (seconds >= music?.timeEnd) {
+          if (seconds >= (music?.timeEnd || 0)) {
             sound.stop();
-            clearInterval(intervalRef.current!);
-            sound.setCurrentTime(music?.timeStart);
+            sound.setCurrentTime(music?.timeStart || 0);
             sound.play();
           }
         });
@@ -115,15 +114,20 @@ const ItemHome = (props: any) => {
 
     return () => {
       stopPlayback();
-      soundRef.current?.release();
     };
-  }, [currentVisible, musicInfo]);
+  }, [currentVisible, musicInfo, isFocused]);
 
   useEffect(() => {
     if (soundRef.current) {
       soundRef.current.setVolume(muted ? 0 : 1);
     }
   }, [muted]);
+
+  useEffect(() => {
+    if (!isFocused) {
+      stopPlayback();
+    }
+  }, [isFocused]);
 
   const follows = useMemo(() => {
     const allUsers = [...followers, ...following];
