@@ -23,7 +23,6 @@ const AudioTrimModal = (props: any) => {
   const scrollRef = useRef<ScrollView>(null);
   const [scrollX, setScrollX] = useState(0);
   const progressAnim = useRef(new Animated.Value(0)).current;
-  const [progressInRangeIndex, setProgressInRangeIndex] = useState(0);
 
   // Config
   const waveformWidth = 1000;
@@ -208,11 +207,12 @@ const AudioTrimModal = (props: any) => {
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
-                console.log('id: ', songInfo._id);
                 onDoneSelect?.({
                   musicId: songInfo._id,
                   timeStart: selectedRange.start,
                   timeEnd: selectedRange.end,
+                  song: songInfo.title,
+                  songImage: songInfo.image,
                 });
                 onClose();
               }}>
