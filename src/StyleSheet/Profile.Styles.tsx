@@ -258,5 +258,19 @@ export const Styles = {
       marginTop: 4,
       textAlign: 'center',
     },
+    centerItem: {
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    imgNoPhoto: {
+      width: 100, height: 150,
+      resizeMode: 'contain',
+      tintColor: Colors.textSecondary,
+    },
+    textno: {
+      fontSize: 18,
+      fontWeight: '500',
+      color: Colors.textSecondary,
+    },
   }),
 };

@@ -6,6 +6,7 @@ export const API = {
   GET_REELS_POST: 'posts/get-all-reel-media',
   UPLOAD_POST: 'posts/with-media',
   HIDDEN_POST: 'user-hidden-post/hide',
+  GET_POST: 'posts/user/all',
 
   //// comment
   GET_COMMENT_POST: 'comments/post',
