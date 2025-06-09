@@ -61,11 +61,11 @@ export const Home = () => {
   }, [dispatch]);
 
   useEffect(() => {
-  dispatch(getAllPlaylists({refreshToken}))
-    .unwrap()
-    .then(res => {
-      console.log('✅ getAllPlaylists thành công');
-    })
+    dispatch(getAllPlaylists({refreshToken}))
+      .unwrap()
+      .then(res => {
+        console.log('✅ getAllPlaylists thành công');
+      });
   }, []);
 
   useEffect(() => {
@@ -117,6 +117,7 @@ export const Home = () => {
           image: storyDetail.mediaUrl.endsWith('.m3u8')
             ? null
             : storyDetail.mediaUrl,
+          likedByUsers: storyDetail.likedByUsers,
         },
       });
     } catch (err) {

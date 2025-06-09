@@ -1,5 +1,10 @@
 import {createSlice} from '@reduxjs/toolkit';
-import {fetchLogin, fetchLogout, fetchRegister} from './userSlice';
+import {
+  fetchEditUser,
+  fetchLogin,
+  fetchLogout,
+  fetchRegister,
+} from './userSlice';
 import {User} from './userTypes';
 
 interface UserState {
@@ -62,7 +67,7 @@ const UserReducer = createSlice({
         state.user = null;
         state.refreshToken = '';
 
-        if(action.payload?.message === 'Invalid credentials'){
+        if (action.payload?.message === 'Invalid credentials') {
           state.errorMessage = 'Sai tài khoản hoặc mật khẩu.';
         }
       })
@@ -98,8 +103,18 @@ const UserReducer = createSlice({
         state.isLoading = false;
         state.isError = true;
         state.errorMessage = action.payload?.message || 'Registration failed';
+      })
+      .addCase(fetchEditUser.pending, state => {
+        state.isLoading = true;
+      })
+      .addCase(fetchEditUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = action.payload;
+      })
+      .addCase(fetchEditUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.errorMessage = action.payload || 'Update failed';
       });
-      
   },
 });
 

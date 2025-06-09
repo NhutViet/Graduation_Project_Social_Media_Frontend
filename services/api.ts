@@ -23,6 +23,7 @@ export const API = {
   GET_ME: 'users/me',
   CHECK_REFRESH_TOKEN: 'users/check-refresh-token',
   CHECK_EMAIL: 'users/check-email',
+  EDIT_USER: '/users/edit-me',
   ////Logout
   POST_LOGOUT: 'users/logout',
 

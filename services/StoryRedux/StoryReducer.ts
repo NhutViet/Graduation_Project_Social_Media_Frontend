@@ -4,6 +4,7 @@ import {
   fetchFollowingStories,
   fetchStoriesByIds,
   seenStory,
+  toggleLikeStory,
 } from './StorySlice';
 
 interface StoryState {
@@ -57,6 +58,20 @@ const storySlice = createSlice({
       .addCase(fetchStoriesByIds.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Lấy chi tiết story thất bại';
+      })
+      .addCase(toggleLikeStory.fulfilled, (state, action) => {
+        const {storyId, userId} = action.payload;
+        for (const user of state.followingUsers) {
+          const story = user.storyDetails?.find((s: any) => s._id === storyId);
+          if (story) {
+            const index = story.likedByUsers.indexOf(userId);
+            if (index > -1) {
+              story.likedByUsers.splice(index, 1);
+            } else {
+              story.likedByUsers.push(userId);
+            }
+          }
+        }
       });
   },
 });

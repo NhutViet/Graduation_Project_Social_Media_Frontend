@@ -19,3 +19,14 @@ export interface User {
 export interface UserRes {
   user: User;
 }
+
+export interface EditUserDto {
+  username?: string;
+  bio?: string;
+  email?: string;
+  phoneNumber?: string;
+  gender?: string;
+  address?: string;
+  dateOfBirth?: string;
+  profilePic?: string;
+}

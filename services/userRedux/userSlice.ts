@@ -1,5 +1,5 @@
 import {createAsyncThunk} from '@reduxjs/toolkit';
-import {User, UserRes} from './userTypes';
+import {EditUserDto, User, UserRes} from './userTypes';
 import axiosInstance from '../axiosInstance';
 import {API} from '../api';
 import {resetUser} from './userReducer';
@@ -130,3 +130,25 @@ export const fetchCheckEmail = createAsyncThunk<
     });
   }
 });
+
+export const fetchEditUser = createAsyncThunk<
+  any,
+  EditUserDto,
+  {rejectValue: string}
+>(
+  'user/fetchEdituser',
+  async (fromData: EditUserDto, {rejectWithValue, getState}) => {
+    try {
+      const state: any = getState();
+      const response = await axiosInstance.patch(API.EDIT_USER, fromData, {
+        headers: {
+          token: 'refresh',
+        },
+      });
+
+      return response.data.user;
+    } catch (error) {
+      console.log('Edit user line 152:', error);
+    }
+  },
+);
