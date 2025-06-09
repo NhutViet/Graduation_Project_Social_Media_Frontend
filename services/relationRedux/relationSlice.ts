@@ -42,3 +42,32 @@ export const fetchFollowing = createAsyncThunk<
     }
   }
 );
+
+export const relationAction = createAsyncThunk<
+  any,
+  { targetId: string; action: 'follow' | 'unfollow' | 'block' | 'unblock' },
+  { rejectValue: string }
+>(
+  'relations/relationAction',
+  async ({ targetId, action }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.put(
+        API.RELATION_ACTION,
+        {
+          targetId,
+          action,
+        },
+        {
+          headers: {
+            token: 'refresh',
+          },
+        }
+      );
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || 'Thao tác quan hệ thất bại'
+      );
+    }
+  }
+);

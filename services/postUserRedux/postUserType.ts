@@ -18,22 +18,22 @@ export interface MediaR {
 }
 
 export interface Item {
-    _id: string;
-    userID: string;
-    type: string;
-    caption: string;
-    isFlagged: boolean;
-    nsfw: boolean;
-    isEnable: boolean;
-    location: string;
-    isArchived: string;
-    viewCount: number,
-    createdAt: string;
-    updatedAt: string;
+    _id?: string;
+    userID?: string;
+    type?: string;
+    caption?: string;
+    isFlagged?: boolean;
+    nsfw?: boolean;
+    isEnable?: boolean;
+    location?: string;
+    isArchived?: string;
+    viewCount?: number,
+    createdAt?: string;
+    updatedAt?: string;
     share?: number;
-    media: Media[] | MediaR[];
-    likeCount: number;
-    isLike: boolean;
+    media?: Media[] | MediaR[];
+    likeCount?: number;
+    isLike?: boolean;
 }
 
 export interface Pagination {

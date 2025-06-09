@@ -57,7 +57,7 @@ export const Home = () => {
 
   useEffect(() => {
     dispatch(fetchPostsWithMedia());
-    dispatch(fetchFollowingStories());
+    dispatch(fetchFollowingStories({page: 1}));
   }, [dispatch]);
 
   useEffect(() => {
