@@ -21,6 +21,7 @@ export interface Post {
   updatedAt?: string;
   likeCount?: number;
   isLike?: boolean;
+  isFollow: boolean;
 }
 
 export interface UserPost {

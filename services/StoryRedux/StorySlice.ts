@@ -27,11 +27,11 @@ export const seenStory = createAsyncThunk<
 
 export const fetchFollowingStories = createAsyncThunk<
   userFollow[],
-  void,
+  { page: number },
   {rejectValue: {message: string}}
->('stories/fetchFollowing', async (_, {rejectWithValue}) => {
+>('stories/fetchFollowing', async ({ page }, {rejectWithValue}) => {
   try {
-    const response = await axiosInstance.get(`${API.GET_USER_FOLLOW}`, {
+    const response = await axiosInstance.get(`${API.GET_USER_FOLLOW}?page=${page}`, {
       headers: {
         token: 'refresh',
       },
