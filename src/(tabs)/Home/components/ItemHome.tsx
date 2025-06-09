@@ -25,6 +25,7 @@ import ModalReaction from './ModalReaction';
 import {
   fetchFollowers,
   fetchFollowing,
+  relationAction,
 } from '../../../../services/relationRedux/relationSlice';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../../services/store';
@@ -60,6 +61,7 @@ const ItemHome = (props: any) => {
     commentCount,
     music,
     musicInfo,
+    isFollow,
   } = props;
 
   const {theme} = useTheme();
@@ -68,6 +70,7 @@ const ItemHome = (props: any) => {
   const [isModalVisible, setIsModalVisible] = React.useState(false);
   const navigation: any = useNavigation();
   const [visibleModalShare, setVisibleModalShare] = useState(false);
+  const [follow, setFollow] = useState(isFollow);
 
   const dispatch = useDispatch<AppDispatch>();
   const userID = useSelector((state: RootState) => state.user?.user?._id);
@@ -166,6 +169,39 @@ const ItemHome = (props: any) => {
       if (likePost.fulfilled.match(result)) {
         setNumLike((prev: number) => prev + 1);
       }
+    }
+  };
+
+  const handleFollowPress = async () => {
+    if (follow) return;
+
+    setFollow(true);
+
+    try {
+      await dispatch(
+        relationAction({
+          targetId: user._id || '',
+          action: 'follow',
+        }),
+      ).unwrap();
+    } catch (error) {
+      console.error('Follow thất bại:', error);
+      setFollow(false);
+    }
+  };
+
+  const handleUnFollowPress = async () => {
+    setFollow(false);
+    try {
+      await dispatch(
+        relationAction({
+          targetId: user._id || '',
+          action: 'unfollow',
+        }),
+      ).unwrap();
+    } catch (error) {
+      console.error('Unfollow thất bại:', error);
+      setFollow(true);
     }
   };
 
@@ -292,6 +328,7 @@ const ItemHome = (props: any) => {
       label: 'Bỏ theo dõi',
       onPress: () => {
         closeSheet();
+        handleUnFollowPress();
       },
     },
   ];
@@ -559,13 +596,16 @@ const ItemHome = (props: any) => {
                   borderColor:
                     type === 'reel' ? Colors.light.background : color.text,
                 },
-              ]}>
+              ]}
+              onPress={() => {
+                handleFollowPress();
+              }}>
               <Text
                 style={[
                   ItemHomeStyles.textNormal,
                   {color: type === 'reel' ? Colors.dark.text : color.text},
                 ]}>
-                Theo dõi
+                {follow ? 'Đã theo dõi' : 'Theo dõi'}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity

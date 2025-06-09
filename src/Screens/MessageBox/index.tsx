@@ -34,9 +34,6 @@ export const MessageBox = (props: any) => {
   // State management
   const [dataUser, setDataUser] = useState<StoryUser[]>(storyUsers);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [isSearching, setIsSearching] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const searchInputRef = useRef<TextInput>(null);
 
   // Mock data

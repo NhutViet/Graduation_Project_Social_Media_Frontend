@@ -29,6 +29,7 @@ export const API = {
   //// Relation
   GET_FOLLOWERS: 'relations/followers',
   GET_FOLLOWING: 'relations/following',
+  RELATION_ACTION: 'relations/relation-action',
   //// Register
   REGISTER: 'users/register',
 

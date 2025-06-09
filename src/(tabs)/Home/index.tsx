@@ -57,15 +57,15 @@ export const Home = () => {
 
   useEffect(() => {
     dispatch(fetchPostsWithMedia());
-    dispatch(fetchFollowingStories());
+    dispatch(fetchFollowingStories({page: 1}));
   }, [dispatch]);
 
   useEffect(() => {
-  dispatch(getAllPlaylists({refreshToken}))
-    .unwrap()
-    .then(res => {
-      console.log('✅ getAllPlaylists thành công');
-    })
+    dispatch(getAllPlaylists({refreshToken}))
+      .unwrap()
+      .then(res => {
+        console.log('✅ getAllPlaylists thành công');
+      });
   }, []);
 
   useEffect(() => {
