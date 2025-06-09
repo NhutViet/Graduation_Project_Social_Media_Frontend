@@ -9,7 +9,7 @@ export const getPostsOfUser = createAsyncThunk<
     {rejectValue: {message: string}}
 >(
     'posts/user/getPost',
-    async ({type = 'posts', page = 2, limit = 10, refreshToken}, {rejectWithValue}) => {
+    async ({type = 'posts', page = 1, limit = 10, refreshToken}, {rejectWithValue}) => {
         try {
             const res = await axiosInstance.get(API.GET_POST, {
                 params: {
