@@ -1,22 +1,17 @@
-import React, {forwardRef, useImperativeHandle, useState} from 'react';
+import React, {forwardRef, useImperativeHandle, useRef} from 'react';
 import {
   Dimensions,
-  Modal,
   StyleSheet,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
   Image,
   Text,
 } from 'react-native';
+import {Modalize} from 'react-native-modalize';
 import {Colors} from '../../../../assets/color/Colors';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-} from 'react-native-reanimated';
+import {Portal} from 'react-native-portalize';
 
-const height = Dimensions.get('window').height * 0.8;
+const height = Dimensions.get('window').height * 0.7;
 
 export type BottomSheetReelsRef = {
   open: () => void;
@@ -24,49 +19,34 @@ export type BottomSheetReelsRef = {
 };
 
 const BottomSheetReels = forwardRef<BottomSheetReelsRef>(({}, ref) => {
-  const [modalVisible, setModalVisible] = useState(false);
-  const translateY = useSharedValue(height);
-  const isOpen = useSharedValue(false);
-
-  const open = () => {
-    setModalVisible(true);
-    setTimeout(() => {
-      translateY.value = withSpring(0, {damping: 20});
-      isOpen.value = true;
-    }, 50);
-  };
-
-  const close = () => {
-    translateY.value = withSpring(height, {damping: 20});
-    isOpen.value = false;
-    setTimeout(() => {
-      setModalVisible(false);
-    }, 300);
-  };
+  const modalRef = useRef<Modalize>(null);
 
   useImperativeHandle(ref, () => ({
-    open,
-    close,
-  }));
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{translateY: translateY.value}],
+    open: () => modalRef.current?.open(),
+    close: () => modalRef.current?.close(),
   }));
 
   return (
-    <Modal
-      visible={modalVisible}
-      animationType="none"
-      transparent
-      onRequestClose={close}
-      statusBarTranslucent>
-      <View style={styles.modalOverlay}>
-        <TouchableWithoutFeedback onPress={close}>
-          <View style={styles.overlay} />
-        </TouchableWithoutFeedback>
-
-        <Animated.View style={[styles.sheet, animatedStyle]}>
-          <View style={styles.handle} />
+    <Portal>
+      <Modalize
+        ref={modalRef}
+        modalStyle={{
+          backgroundColor: Colors.white,
+          borderTopLeftRadius: 16,
+          borderTopRightRadius: 16,
+          paddingHorizontal: 16,
+        }}
+        handleStyle={{
+          backgroundColor: Colors.black,
+          height: 6,
+          width: 40,
+          marginBottom: 8,
+        }}
+        handlePosition="inside"
+        panGestureEnabled
+        scrollViewProps={{scrollEnabled: false}}
+        adjustToContentHeight>
+        <View style={{height: height, marginTop: 40}}>
           <View style={styles.headerContainer}>
             <TouchableOpacity style={styles.headerBlock}>
               <View style={styles.blockIcon}>
@@ -87,13 +67,13 @@ const BottomSheetReels = forwardRef<BottomSheetReelsRef>(({}, ref) => {
               <Text style={styles.textHeader}>Remix</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.headerBlock}>
-              <View style={styles.blockIcon}> 
+              <View style={styles.blockIcon}>
                 <Image
                   style={styles.icon}
                   source={require('../../../../assets/icon/sequence.png')}
                 />
               </View>
-              <Text style={styles.textHeader}>Sequence</Text> 
+              <Text style={styles.textHeader}>Sequence</Text>
             </TouchableOpacity>
           </View>
 
@@ -106,6 +86,7 @@ const BottomSheetReels = forwardRef<BottomSheetReelsRef>(({}, ref) => {
             </View>
             <Text style={styles.textNormal}>Bản dịch</Text>
           </TouchableOpacity>
+
           <TouchableOpacity style={styles.buttonFeature}>
             <View style={styles.blockIcon}>
               <Image
@@ -115,6 +96,7 @@ const BottomSheetReels = forwardRef<BottomSheetReelsRef>(({}, ref) => {
             </View>
             <Text style={styles.textNormal}>Phụ đề</Text>
           </TouchableOpacity>
+
           <TouchableOpacity style={styles.buttonFeature}>
             <View style={styles.blockIcon}>
               <Image
@@ -124,6 +106,7 @@ const BottomSheetReels = forwardRef<BottomSheetReelsRef>(({}, ref) => {
             </View>
             <Text style={styles.textNormal}>Xem toàn màn hình</Text>
           </TouchableOpacity>
+
           <TouchableOpacity style={styles.buttonFeature}>
             <View style={styles.blockIcon}>
               <Image
@@ -133,6 +116,7 @@ const BottomSheetReels = forwardRef<BottomSheetReelsRef>(({}, ref) => {
             </View>
             <Text style={styles.textNormal}>Mã QR</Text>
           </TouchableOpacity>
+
           <View style={styles.feelingContainer}>
             <TouchableOpacity style={styles.buttonFeeling}>
               <View style={styles.blockIcon}>
@@ -162,6 +146,7 @@ const BottomSheetReels = forwardRef<BottomSheetReelsRef>(({}, ref) => {
               <Text style={[styles.textNormal, {color: 'red'}]}>Báo cáo</Text>
             </TouchableOpacity>
           </View>
+
           <TouchableOpacity style={styles.buttonFeature}>
             <View style={styles.blockIcon}>
               <Image
@@ -171,36 +156,13 @@ const BottomSheetReels = forwardRef<BottomSheetReelsRef>(({}, ref) => {
             </View>
             <Text style={styles.textNormal}>Quản lý tùy chọn về nội dung</Text>
           </TouchableOpacity>
-        </Animated.View>
-      </View>
-    </Modal>
+        </View>
+      </Modalize>
+    </Portal>
   );
 });
 
 const styles = StyleSheet.create({
-  modalOverlay: {
-    flex: 1,
-    justifyContent: 'flex-end',
-  },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-  sheet: {
-    height: height,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 16,
-    backgroundColor: Colors.white,
-  },
-  handle: {
-    width: 40,
-    height: 5,
-    borderRadius: 2.5,
-    alignSelf: 'center',
-    marginBottom: 16,
-    backgroundColor: Colors.black,
-  },
   headerContainer: {
     width: '100%',
     flexDirection: 'row',
