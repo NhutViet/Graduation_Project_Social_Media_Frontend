@@ -1,5 +1,5 @@
 import {createAsyncThunk} from '@reduxjs/toolkit';
-import {User, UserRes} from './userTypes';
+import {User, UserRes, PublicUserRes} from './userTypes';
 import axiosInstance from '../axiosInstance';
 import {API} from '../api';
 import {resetUser} from './userReducer';
@@ -127,6 +127,26 @@ export const fetchCheckEmail = createAsyncThunk<
   } catch (error: any) {
     return rejectWithValue({
       message: error.response?.data?.message || 'Check email failed',
+    });
+  }
+});
+
+export const getPublicProfile  = createAsyncThunk<
+  PublicUserRes,
+  {userId: string},
+  {rejectValue: {message: string}}
+>('users/public', async ({userId}, {rejectWithValue}) => {
+  try{
+    const res = await axiosInstance.get(`${API.GET_PUBLIC_PROFILE}/${userId}`, {
+      headers: {
+        token: 'refresh'
+      },
+    });
+
+    return res.data;
+  } catch (error: any){
+    return rejectWithValue({
+      message: error.response?.data?.message || 'Failed to get public profile',
     });
   }
 });
