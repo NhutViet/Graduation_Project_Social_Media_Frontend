@@ -30,6 +30,17 @@ const PostStory = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  //chọn nhạc 
+  const [selectedMusic, setSelectedMusic] = useState<{
+      musicId: string;
+      timeStart: number;
+      timeEnd: number;
+      song: string;
+      songImage: string;
+    } | null>(null);
+    const [songUrl, setSongUrl] = useState<any | null>(null);
+
+    //lấy ảnh của máy
   const requestPermissions = async (): Promise<boolean> => {
     if (Platform.OS !== 'android') return true;
     try {
@@ -96,7 +107,7 @@ const PostStory = () => {
   };
 
   const handleItemPress = (item: any) => {
-    navigation.navigate('EditStory', {selectedItem: item});
+    navigation.navigate('EditStory', {selectedItem: item, selectedMusic: selectedMusic, songUrl: songUrl?.url || songUrl});
   };
 
   const renderItem = ({item}: any) => {
@@ -175,7 +186,12 @@ const PostStory = () => {
         />
       )}
 
-      <BottomSheet ref={sheetRef} />
+      <BottomSheet ref={sheetRef} onDoneSelect={(musicInfo: any) => {
+          setSelectedMusic(musicInfo);
+        }}
+        songUrl={(url: any) => {
+          setSongUrl(url);
+        }}/>
     </SafeAreaView>
   );
 };

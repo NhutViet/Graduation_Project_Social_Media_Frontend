@@ -17,9 +17,10 @@ import Video from 'react-native-video';
 import Draggable from 'react-native-draggable';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {Colors} from '../../../assets/color/Colors';
+import Sound from 'react-native-sound';
 
 export const EditStory = ({route, navigation}: any) => {
-  const {selectedItem} = route.params;
+  const {selectedItem, selectedMusic, songUrl } = route.params;
   const [videoDuration, setVideoDuration] = useState<number | null>(null);
   const [videoCurrentTime, setVideoCurrentTime] = useState(0);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -28,6 +29,7 @@ export const EditStory = ({route, navigation}: any) => {
   const progressAnim = useRef(new Animated.Value(0)).current;
   const animationRef = useRef<Animated.CompositeAnimation | null>(null);
   const videoRef = useRef<any>(null);
+  const audioRef = useRef<Sound | null>(null); // ref cho âm thanh
 
   const imageDuration = 10000; // 10 seconds for images
 
@@ -55,6 +57,11 @@ export const EditStory = ({route, navigation}: any) => {
       if (finished) {
         progressAnim.setValue(0); // Reset progress for loop
         startProgressAnimation(); // Restart animation
+        //nếu có nhạc thì chuyển audio vể timeStart
+        if(selectedMusic && audioRef.current){
+          audioRef.current.setCurrentTime(selectedMusic.timeStart || 0);
+          audioRef.current.play();
+        }
       }
     });
   };
@@ -80,7 +87,47 @@ export const EditStory = ({route, navigation}: any) => {
     if (videoRef.current) {
       videoRef.current.seek(0); // Restart video
     }
+    if(selectedMusic && audioRef.current){
+      audioRef.current.setCurrentTime(selectedMusic.timeStart || 0); // restart audio nếu có chọn
+      audioRef.current.play();
+    }
   };
+
+  useEffect(() => {
+    console.log('múic mè: ', selectedMusic);
+    console.log('ủl: ', songUrl);
+    console.log('route.params nè: ', route.params);
+  }, [songUrl, selectedMusic]);
+  //chạy audio nêys có selectedMusic 
+  useEffect(() => {
+    if(selectedMusic && songUrl){
+      const sound = new Sound(songUrl, undefined, (error) =>{
+        if(error) {
+          console.log('Không thể tải âm thanh: ', error);
+          return;
+        }
+        audioRef.current = sound;
+        sound.setCurrentTime(selectedMusic.timeStart || 0);
+        sound.setVolume(1.0);
+        sound.play((success) => {
+          if(success){
+            //lặp lại audio
+            sound.setCurrentTime(selectedMusic.timeStart || 0);
+            sound.play();
+          }else{
+            console.log('Phát âm thanh thất bại.');
+          }
+        });
+      });
+    }
+
+    //clean audio khi component unmout
+    return () => {
+      if(audioRef.current){
+        audioRef.current.release();
+      }
+    };
+  }, [selectedMusic, songUrl]);
 
   useEffect(() => {
     setVideoDuration(null);

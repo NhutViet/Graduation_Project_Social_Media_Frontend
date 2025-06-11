@@ -31,7 +31,6 @@ import ModalCreate from './components/ModalCreate';
 import {
   PostsView,
   ReelsView,
-  TaggedView,
 } from './components/PostView.component';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../services/store';
