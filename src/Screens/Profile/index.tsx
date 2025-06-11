@@ -1,4 +1,4 @@
-import React, {useState, useCallback} from 'react';
+import React, {useState, useCallback, useRef} from 'react';
 import {
   StyleSheet,
   Text,
@@ -28,12 +28,25 @@ import ActionButtons from './components/actionButton.component';
 import UserInfo from './components/userInfo.component';
 import {FlashList} from '@shopify/flash-list';
 import {Styles} from '../../StyleSheet/Profile.Styles';
+import { Modalize } from "react-native-modalize";
+import { Portal } from 'react-native-portalize';
+import OptionModal from "./components/optionModal"
 
-const ProfileComp = () => {
+const ProfileComp = ({route}: any) => {
   const navigation: any = useNavigation();
   const {theme} = useTheme();
   const styles = createStyles(theme);
+  const userID: string = route.params?.userID;
+  const modalOptionRef = useRef<Modalize>(null);
 
+  const openOptionModal = () => {
+    modalOptionRef.current?.open();
+  };
+
+  const closeOptionModal = () => {
+    modalOptionRef.current?.close();
+  };
+  
   const [isPrivate, setIsPrivate] = useState(UserMock.isPrivate);
   const togglePrivacy = useCallback(() => {
     setIsPrivate(prevState => !prevState);
@@ -116,7 +129,7 @@ const ProfileComp = () => {
           </TouchableOpacity>
           <Text style={styles.headTitle}>{UserMock.handleName}</Text>
           <View style={styles.SectionRight}>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={openOptionModal}>
               <Ellipsis size={24} color={Colors[theme].text} />
             </TouchableOpacity>
           </View>
@@ -201,6 +214,10 @@ const ProfileComp = () => {
         </View>
         {/* Posts Grid */}
         {renderTabContent()}
+
+        <Portal>
+          <OptionModal ref={modalOptionRef} userID={userID}/>
+        </Portal>
       </ScrollView>
     </SafeAreaView>
   );
