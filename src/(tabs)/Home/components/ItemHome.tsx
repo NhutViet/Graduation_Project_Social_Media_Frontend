@@ -598,7 +598,7 @@ const ItemHome = (props: any) => {
             <TouchableOpacity
               style={ItemHomeStyles.blockImg}
               onPress={() => {
-                navigation.navigate('ProfileComp');
+                navigation.navigate('ProfileComp', {userID: user._id});
               }}>
               <Image
                 style={ItemHomeStyles.imgUser}

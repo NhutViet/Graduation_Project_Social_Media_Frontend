@@ -19,3 +19,15 @@ export interface User {
 export interface UserRes {
   user: User;
 }
+
+export interface PublicUserRes {
+  username: string;
+  phoneNumber: string;
+  handleName: string;
+  bio: string;
+  address: string;
+  gender: string;
+  profilePic: string;
+  isVip: boolean;
+  userFollowing: boolean;
+}
