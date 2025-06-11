@@ -149,7 +149,7 @@ const ItemHome = (props: any) => {
   const {likePosts} = useSelector((state: RootState) => state.reactions);
 
   const {refreshToken} = useSelector((state: RootState) => state.user);
-  const [isLiked, setIsLiked] = useState(likePosts.includes(_id));
+  const [isLiked, setIsLiked] = useState(isLike);
   const [numLike, setNumLike] = useState(likeCount);
 
   useEffect(() => {
