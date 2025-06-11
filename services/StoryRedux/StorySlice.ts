@@ -88,3 +88,18 @@ export const fetchGetPostedSotry = createAsyncThunk<
     );
   }
 });
+
+export const toggleLikeStory = createAsyncThunk(
+  'stories/toggleLikeStory',
+  async ({storyId}: {storyId: string}) => {
+    const res = await axiosInstance.patch(
+      `/stories/like`,
+      {_id: storyId}, // ✅ Đây là điểm quan trọng
+      {
+        headers: {token: 'refresh'},
+      },
+    );
+    return res.data;
+  },
+);
+

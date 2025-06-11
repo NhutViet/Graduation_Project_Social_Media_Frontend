@@ -117,6 +117,7 @@ export const Home = () => {
           image: storyDetail.mediaUrl.endsWith('.m3u8')
             ? null
             : storyDetail.mediaUrl,
+          likedByUsers: storyDetail.likedByUsers,
         },
       });
     } catch (err) {
