@@ -40,7 +40,7 @@ export const fetchFollowingStories = createAsyncThunk<
         },
       },
     );
-    return response.data;
+    return response.data.data;
   } catch (error: any) {
     return rejectWithValue({
       message: error.response?.data?.message || 'Lấy stories thất bại',

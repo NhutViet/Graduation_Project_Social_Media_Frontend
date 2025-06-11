@@ -7,22 +7,22 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  ActivityIndicator,
 } from 'react-native';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import MessageBoxStyles from '../../StyleSheet/MessageBoxStyles';
-import MessageItem from '../../../components/MessageItem';
 import User from '../../(tabs)/Home/components/Story';
 import React, {useState, useEffect, useRef} from 'react';
 import {
   messageData,
   storyUsers,
   StoryUser,
-  searchMessages,
   User as UserType,
-  Message,
 } from '../../MockData/message.mock';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '../../../services/store';
+import {fetchMyRooms} from '../../../services/roomRedux/roomSlice';
+import ItemNewMessage from '../NewMessage/component/itemNewMessage';
 
 export const MessageBox = (props: any) => {
   const navigation: any = useNavigation();
@@ -30,6 +30,15 @@ export const MessageBox = (props: any) => {
   const color = Colors[theme];
   const styles = MessageBoxStyles(theme);
   const {onBack} = props;
+
+  const dispatch = useDispatch<AppDispatch>();
+  const {rooms, loading, error} = useSelector(
+    (state: RootState) => state.rooms,
+  );
+
+  useEffect(() => {
+    dispatch(fetchMyRooms());
+  }, []);
 
   // State management
   const [dataUser, setDataUser] = useState<StoryUser[]>(storyUsers);
@@ -137,14 +146,23 @@ export const MessageBox = (props: any) => {
       {/* Messages List */}
       <View style={styles.messagesListContainer}>
         <FlashList
-          data={data}
+          data={rooms}
           renderItem={({item}) => {
+            const filteredUsers = item.user_ids.filter(
+              user => user._id !== item.created_by,
+            );
+
+            const user1 = filteredUsers[0];
+            const user2 = filteredUsers[1];
+
             return (
-              <MessageItem
-                img={item.img}
-                name={item.name}
-                description={item.description}
-                isGroup={item.isGroup || false}
+              <ItemNewMessage
+                roomId={item._id}
+                nameChat={item.name}
+                userHandle1={user1?.handleName || ''}
+                userHandle2={user2?.handleName || ''}
+                img1={user1?.profilePic || ''}
+                img2={user2?.profilePic || ''}
               />
             );
           }}
