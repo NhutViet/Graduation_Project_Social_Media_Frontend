@@ -35,6 +35,7 @@ export const MessageBox = (props: any) => {
   const {rooms, loading, error} = useSelector(
     (state: RootState) => state.rooms,
   );
+  const user = useSelector((state: RootState) => state.user?.user);
 
   useEffect(() => {
     dispatch(fetchMyRooms());
@@ -60,13 +61,18 @@ export const MessageBox = (props: any) => {
     <SafeAreaView style={styles.container}>
       <View style={styles.headerContainer}>
         <View style={styles.headerBlock}>
-          <TouchableOpacity style={styles.iconBlock} onPress={onBack}>
+          <TouchableOpacity
+            style={styles.iconBlock}
+            onPress={() => {
+              navigation.goBack();
+              onBack && onBack();
+            }}>
             <Image
               source={require('../../../assets/icon/left.png')}
               style={styles.icon}
             />
           </TouchableOpacity>
-          <Text style={styles.name}>mimi11_o</Text>
+          <Text style={styles.name}>{user?.handleName}</Text>
         </View>
         <View style={styles.headerBlock}>
           <TouchableOpacity style={styles.iconBlock}>
