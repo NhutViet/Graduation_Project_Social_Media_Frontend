@@ -6,12 +6,11 @@ import commentReducer from '../commentRedux/commentReducer';
 import musicReducer from '../musicRedux/musicReducer';
 import userReducer from '../userRedux/userReducer';
 import storyReducer from '../StoryRedux/StoryReducer';
-import relationReducer from '../relationRedux/relationReducer'
+import relationReducer from '../relationRedux/relationReducer';
 import reactionReducer from '../reactionRedux/reactionReducer';
 import LikerReducer from '../likersRedux/likersReducer';
 import bookmarkReducer from '../bookmarkRedux/bookmarkReducer';
 import PostUserReducer from '../postUserRedux/postUserReducer';
-
 
 const persistUserConfig = {
   key: 'user',

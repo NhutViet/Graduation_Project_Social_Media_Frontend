@@ -1,5 +1,6 @@
 import {
   Animated,
+  Dimensions,
   Image,
   SafeAreaView,
   Text,
@@ -14,16 +15,16 @@ import {SearchStyles} from '../../StyleSheet/SearchStyles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import HistoryItem from './Components/HistoryItem';
 import User from '../Home/components/Story';
-import GridMedia from './Components/GridMedia';
+// import GridMedia from './Components/GridMedia';
 import {Colors} from '../../../assets/color/Colors';
 import SearchResult from './Components/SearchResult';
 import {useIsFocused} from '@react-navigation/native';
-
-const generateImages = (count: number) =>
-  Array.from({length: count}, (_, i) => ({
-    id: `${i}`,
-    uri: 'https://kimipet.vn/wp-content/uploads/2021/06/husky-ngao-.jpg',
-  }));
+import {RootState} from '../../../services/store';
+import {useDispatch, useSelector} from 'react-redux';
+import {fetchPostsWithMedia} from '../../../services/postRedux/postSlice';
+import {AppDispatch} from '../../../services/store';
+import {Media} from '../../../services/postRedux/postTypes';
+import ExploreSection from './Components/ExploreTile';
 
 const dataUser = [
   {
@@ -59,9 +60,18 @@ const dataUser = [
 const SEARCH_HISTORY_KEY = 'search_history';
 
 export const Search = () => {
+  const dispatch = useDispatch<AppDispatch>();
+
+  const {posts} = useSelector((state: RootState) => state.post);
+  const [postMedia, setPostMedia] = useState<Media[]>([]);
+
+  useEffect(() => {
+    dispatch(fetchPostsWithMedia());
+    setPostMedia(posts.flatMap(post => post.media));
+  }, [dispatch, posts]);
+
   const theme = useTheme();
   const color = Colors[theme.theme];
-  const [images, setImages] = useState(generateImages(20));
   const styles = SearchStyles(theme.theme);
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<TextInput>(null);
@@ -95,15 +105,6 @@ export const Search = () => {
 
   const viewabilityConfig = {viewAreaCoveragePercentThreshold: 50};
 
-  // Tải thêm ảnh
-  const loadMore = () => {
-    const newImages = generateImages(images.length + 20);
-    setImages(newImages);
-  };
-
-  const numBlocks = Math.ceil(images.length / 3);
-  const data = Array.from({length: numBlocks}, (_, index) => index);
-
   // Xử lý tìm kiếm
   const [searchText, setSearchText] = useState('');
   const [combinedResults, setCombinedResults] = useState<any[]>([]);
@@ -126,7 +127,9 @@ export const Search = () => {
 
   // Lưu lịch sử tìm kiếm
   const saveSearchHistory = async (query: string) => {
-    if (!query.trim()) return;
+    if (!query.trim()) {
+      return;
+    }
 
     let updatedHistory = [
       query,
@@ -205,7 +208,7 @@ export const Search = () => {
         useNativeDriver: false,
       }),
     ]).start();
-  }, [isFocused, isShowResult]);
+  }, [isFocused, isShowResult, mediaOpacity, resultOpacity, searchOpacity]);
 
   useEffect(() => {
     if (!isFocusedPage) {
@@ -214,6 +217,17 @@ export const Search = () => {
       setSearchText('');
     }
   }, [isFocusedPage]);
+
+  // DO NOT CHANGE ANYTHING BELOW THIS LINE
+  // All these things below is for ExploreSection
+  const mediaGroups: Media[][] = [];
+  for (let i = 0; i < postMedia.length; i += 5) {
+    mediaGroups.push(postMedia.slice(i, i + 5));
+  }
+
+  const screenWidth = Dimensions.get('window').width;
+  const SMALL = (screenWidth - 2 * 3) / 3;
+  const BIG = SMALL * 2 + 2;
 
   return (
     <SafeAreaView style={[styles.container]}>
@@ -350,12 +364,12 @@ export const Search = () => {
         <Animated.View
           style={[styles.container, {opacity: mediaOpacity}]}
           pointerEvents={isFocused || isShowResult ? 'none' : 'auto'}>
-          <FlashList
-            data={data}
-            keyExtractor={item => item.toString()}
+          {/* <FlashList
+            data={mediaBlocks}
+            keyExtractor={(_, index) => index.toString()}
             renderItem={({item, index}) => (
               <GridMedia
-                images={images}
+                block={item}
                 index={index}
                 isPause={isFocused || isShowResult}
                 isFocused={isFocused}
@@ -363,9 +377,24 @@ export const Search = () => {
                 currentVisibleIndex={visibleIndexView1}
               />
             )}
-            onEndReached={loadMore}
-            onEndReachedThreshold={0.5}
-            estimatedItemSize={200}
+            estimatedItemSize={BIG_IMAGE_HEIGHT + 2} // chính xác chiều cao 1 block
+            onViewableItemsChanged={onViewableItemsChangedView1}
+            viewabilityConfig={viewabilityConfig}
+          /> */}
+          <FlashList
+            data={mediaGroups}
+            keyExtractor={(_, index) => index.toString()}
+            renderItem={({item, index}) => (
+              <ExploreSection
+                media={item}
+                index={index}
+                isPause={isFocused || isShowResult}
+                isFocused={isFocused}
+                isFocusedPage={isFocusedPage}
+                currentVisibleIndex={visibleIndexView1}
+              />
+            )}
+            estimatedItemSize={BIG + 4}
             onViewableItemsChanged={onViewableItemsChangedView1}
             viewabilityConfig={viewabilityConfig}
           />
