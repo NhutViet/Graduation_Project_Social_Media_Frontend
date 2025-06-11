@@ -149,7 +149,7 @@ const ItemHome = (props: any) => {
   const {likePosts} = useSelector((state: RootState) => state.reactions);
 
   const {refreshToken} = useSelector((state: RootState) => state.user);
-  const isLiked = likePosts.includes(_id);
+  const [isLiked, setIsLiked] = useState(likePosts.includes(_id));
   const [numLike, setNumLike] = useState(likeCount);
 
   useEffect(() => {
@@ -160,15 +160,23 @@ const ItemHome = (props: any) => {
 
   const handleLike = async () => {
     if (isLiked) {
-      const result = await dispatch(unlikePost({postId: _id, refreshToken}));
-      if (unlikePost.fulfilled.match(result)) {
-        setNumLike((prev: number) => prev - 1);
-      }
+      setIsLiked(!isLiked);
+      setNumLike((prev: number) => prev - 1);
+      dispatch(unlikePost({postId: _id, refreshToken}))
+        .unwrap()
+        .catch(res => {
+          setNumLike(likeCount);
+          setIsLiked(likePosts.includes(_id));
+        });
     } else {
-      const result = await dispatch(likePost({postId: _id, refreshToken}));
-      if (likePost.fulfilled.match(result)) {
-        setNumLike((prev: number) => prev + 1);
-      }
+      setIsLiked(!isLiked);
+      setNumLike((prev: number) => prev + 1);
+      dispatch(likePost({postId: _id, refreshToken}))
+        .unwrap()
+        .catch(res => {
+          setNumLike(likeCount);
+          setIsLiked(likePosts.includes(_id));
+        });
     }
   };
 
@@ -412,25 +420,45 @@ const ItemHome = (props: any) => {
   const {itemsByPlaylist, playlists} = useSelector(
     (state: RootState) => state.bookmark,
   );
-  const isPostBookmark = useMemo(() => {
-    return Object.values(itemsByPlaylist)
+  const [isBookmarked, setIsBookmarked] = useState(() =>
+    Object.values(itemsByPlaylist)
+      .flat()
+      .some(item => item.itemID === _id),
+  );
+
+  // Nếu có thể thay đổi dữ liệu bên ngoài, nên sync lại khi props thay đổi:
+  useEffect(() => {
+    const bookmarked = Object.values(itemsByPlaylist)
       .flat()
       .some(item => item.itemID === _id);
+    setIsBookmarked(bookmarked);
   }, [itemsByPlaylist, _id]);
 
   const handleBookmark = () => {
-    if (!isPostBookmark) {
+    if (!isBookmarked) {
+      setIsBookmarked(true);
       dispatch(
         saveBookmark({
           postId: _id,
           playlistId: playlists[0].id,
           refreshToken,
         }),
-      );
+      )
+        .unwrap()
+        .catch(res =>
+          setIsBookmarked(
+            Object.values(itemsByPlaylist)
+              .flat()
+              .some(item => item.itemID === _id),
+          ),
+        );
     } else {
       const playlistID = Object.entries(itemsByPlaylist).find(([_, items]) =>
-        items.some(item => item.itemID === _id),
+        items.some(item => {
+          return item.itemID.toString() === _id.toString();
+        }),
       )?.[0];
+      setIsBookmarked(false);
       if (playlistID) {
         dispatch(
           removeBookmark({
@@ -438,7 +466,15 @@ const ItemHome = (props: any) => {
             playlistId: playlistID,
             refreshToken,
           }),
-        );
+        )
+          .unwrap()
+          .catch(res =>
+            setIsBookmarked(
+              Object.values(itemsByPlaylist)
+                .flat()
+                .some(item => item.itemID === _id),
+            ),
+          );
       }
     }
   };
@@ -696,11 +732,11 @@ const ItemHome = (props: any) => {
             onPress={handleBookmark}>
             <Image
               style={[
-                {tintColor: isPostBookmark ? '#F2C641' : color.text},
+                {tintColor: isBookmarked ? '#F2C641' : color.text},
                 ItemHomeStyles.icon,
               ]}
               source={
-                isPostBookmark
+                isBookmarked
                   ? require('../../../../assets/icon/bookmark_fill.png')
                   : require('../../../../assets/icon/bookmark.png')
               }

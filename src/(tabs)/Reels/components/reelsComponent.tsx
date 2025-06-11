@@ -4,6 +4,15 @@ import {useNavigation} from '@react-navigation/native';
 import Video from 'react-native-video';
 
 import {Dimensions} from 'react-native';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '../../../../services/store';
+import {useEffect, useState} from 'react';
+import {addLikedPost} from '../../../../services/reactionRedux/reactionReducer';
+import {
+  likePost,
+  unlikePost,
+} from '../../../../services/reactionRedux/reactionSlice';
+import {useTheme} from '../../../util/ThemeContext';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height - 60;
@@ -20,6 +29,7 @@ const ReelsComponent = (props: any) => {
     isFocused,
     showBottomSheet,
     likeCount,
+    isLike,
     commentCount,
     openComment,
   } = props;
@@ -33,6 +43,45 @@ const ReelsComponent = (props: any) => {
       return (num / 1_000).toFixed(1).replace(/\.0$/, '') + 'k';
     }
     return num?.toString();
+  };
+
+  const {theme} = useTheme();
+  const color = Colors[theme];
+
+  //like
+  const dispatch = useDispatch<AppDispatch>();
+  const {likePosts} = useSelector((state: RootState) => state.reactions);
+
+  const {refreshToken} = useSelector((state: RootState) => state.user);
+  const [isLiked, setIsLiked] = useState(likePosts.includes(_id));
+  const [numLike, setNumLike] = useState(likeCount);
+
+  useEffect(() => {
+    if (isLike && !likePosts.includes(_id)) {
+      dispatch(addLikedPost(_id));
+    }
+  }, [_id, isLike]);
+
+  const handleLike = async () => {
+    if (isLiked) {
+      setIsLiked(!isLiked);
+      setNumLike((prev: number) => prev - 1);
+      dispatch(unlikePost({postId: _id, refreshToken}))
+        .unwrap()
+        .catch(res => {
+          setNumLike(likeCount);
+          setIsLiked(likePosts.includes(_id));
+        });
+    } else {
+      setIsLiked(!isLiked);
+      setNumLike((prev: number) => prev + 1);
+      dispatch(likePost({postId: _id, refreshToken}))
+        .unwrap()
+        .catch(res => {
+          setNumLike(likeCount);
+          setIsLiked(likePosts.includes(_id));
+        });
+    }
   };
 
   return (
@@ -68,13 +117,20 @@ const ReelsComponent = (props: any) => {
         </View>
         <View style={styles.block2}>
           <View style={styles.containerVertical}>
-            <TouchableOpacity style={styles.iconContainer}>
+            <TouchableOpacity style={styles.iconContainer} onPress={handleLike}>
               <Image
-                style={styles.icon}
-                source={require('../../../../assets/icon/heart.png')}
+                style={[
+                  styles.icon,
+                  {tintColor: isLiked ? color.error : color.text},
+                ]}
+                source={
+                  isLiked
+                    ? require('../../../../assets/icon/heart_fill.png')
+                    : require('../../../../assets/icon/heart.png')
+                }
               />
             </TouchableOpacity>
-            <Text style={styles.textNormal}>{formatNumber(likeCount)}</Text>
+            <Text style={styles.textNormal}>{formatNumber(numLike)}</Text>
           </View>
           <View style={styles.containerVertical}>
             <TouchableOpacity

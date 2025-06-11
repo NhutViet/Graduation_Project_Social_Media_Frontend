@@ -61,18 +61,18 @@ const bookmarkReducer = createSlice({
         state.isloading = false;
         state.isSuccess = true;
 
-        const {playlistId, itemID, itemType} = action.payload;
+        const {playlistID, itemID, itemType} = action.payload;
 
-        if (!state.itemsByPlaylist[playlistId]) {
-          state.itemsByPlaylist[playlistId] = [];
+        if (!state.itemsByPlaylist[playlistID]) {
+          state.itemsByPlaylist[playlistID] = [];
         }
 
-        const exists = state.itemsByPlaylist[playlistId].some(
+        const exists = state.itemsByPlaylist[playlistID].some(
           item => item.itemID === itemID && item.itemType === itemType,
         );
 
         if (!exists) {
-          state.itemsByPlaylist[playlistId].push({itemID, itemType});
+          state.itemsByPlaylist[playlistID].push({itemID, itemType});
         }
       })
       .addCase(saveBookmark.rejected, (state, action) => {

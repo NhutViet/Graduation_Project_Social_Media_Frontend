@@ -7,14 +7,18 @@ import {
   Modal,
   SafeAreaView,
   ScrollView,
+  Alert,
 } from 'react-native';
 import {useProfileEditingStyles} from '../../../src/StyleSheet/ProfileEditingStyles';
-import {UserInfo} from '../../../components/UserInfo';
+import {UserInfo} from './components/UserInfo';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {PermissionsAndroid, Platform} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import {useSelector} from 'react-redux';
-import {RootState} from '../../../services/store';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '../../../services/store';
+import {fetchEditUser} from '../../../services/userRedux/userSlice';
+import {ChevronLeft, SquarePen, Check} from 'lucide-react-native';
+import {SEX, VN_PROVINCES} from './DataAddress/VN_PROVINCES';
 
 async function requestCameraPermission() {
   if (Platform.OS !== 'android') return true;
@@ -31,22 +35,47 @@ async function requestCameraPermission() {
   return granted === PermissionsAndroid.RESULTS.GRANTED;
 }
 
-export const EditProfile = () => {
-  const navigation = useNavigation();
+export const EditProfile = ({navigation}: any) => {
   const user = useSelector((state: RootState) => state.user.user);
   const styles = useProfileEditingStyles();
-  const [avatarUri, setAvatarUri] = useState<string | undefined>(
-    user?.profilePic,
-  );
+  const dispatch = useDispatch<AppDispatch>();
+
+  const [username, setUsername] = useState(user?.username);
+  const [bio, setBio] = useState(user?.bio);
+  const [email, setEmail] = useState(user?.email);
+  const [phoneNumber, setPhoneNumber] = useState(user?.phoneNumber);
+  const [gender, setGender] = useState(user?.gender);
+  const [address, setAddress] = useState(user?.address);
+  const [dateOfBirth, setDateOfBirth] = useState(user?.dateOfBirth);
+  const [edit, setEdit] = useState(false);
+  const [handleName, setHandleName] = useState(user?.handleName);
+  const [profilePic, setProfilePic] = useState(user?.profilePic);
   const [modalVisible, setModalVisible] = useState(false);
 
-  const pickImage = () => {
+  const pickImage = ({navigation}: any) => {
     launchImageLibrary({mediaType: 'photo'}, response => {
       if (response.assets && response.assets.length > 0) {
-        setAvatarUri(response.assets[0].uri);
+        setProfilePic(response.assets[0].uri);
       }
       setModalVisible(false);
     });
+  };
+
+  const handleSave = () => {
+    dispatch(
+      fetchEditUser({
+        username,
+        bio,
+        email,
+        phoneNumber,
+        gender,
+        address,
+        dateOfBirth,
+        profilePic,
+      }),
+    );
+    Alert.alert('Thông báo', 'Sửa thông tin của bạn thành công');
+    setEdit(false);
   };
 
   const takePhoto = async () => {
@@ -62,7 +91,7 @@ export const EditProfile = () => {
       } else if (response.errorCode) {
         console.log('Camera error: ', response.errorMessage);
       } else if (response.assets && response.assets.length > 0) {
-        setAvatarUri(response.assets[0].uri);
+        setProfilePic(response.assets[0].uri);
       }
       setModalVisible(false);
     });
@@ -72,29 +101,65 @@ export const EditProfile = () => {
     <SafeAreaView style={styles.screen}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.headerText}>Hủy bỏ</Text>
+          <ChevronLeft size={30} color={'#000'} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Chỉnh sửa hồ sơ</Text>
-        <TouchableOpacity>
-          <Text style={[styles.headerText, {color: '#3897F0'}]}>Hoàn tất</Text>
+        <TouchableOpacity
+          onPress={edit ? handleSave : () => setEdit(true)}
+          style={{flexDirection: 'row', alignItems: 'center'}}>
+          <Text style={[styles.headerText, {color: '#3897F0'}]}>
+            {edit ? 'Hoàn tất' : 'Sửa'}
+          </Text>
+          {edit ? (
+            <Check size={20} color={'#3897F0'} />
+          ) : (
+            <SquarePen size={20} color={'#3897F0'} />
+          )}
         </TouchableOpacity>
       </View>
       <ScrollView>
         <View>
           <View style={styles.profileSection}>
-            {avatarUri && <Image source={{uri: avatarUri}} style={styles.avatar} />}
+            {profilePic && (
+              <Image source={{uri: profilePic}} style={styles.avatar} />
+            )}
             <TouchableOpacity onPress={() => setModalVisible(true)}>
-              <Text style={styles.changeText}>Thay đổi ảnh đại diện</Text>
+              {edit && (
+                <Text style={styles.changeText}>Thay đổi ảnh đại diện</Text>
+              )}
             </TouchableOpacity>
           </View>
 
           <View style={styles.content}>
             <UserInfo
               rows={[
-                {label: 'Tên người dùng', value: user?.username},
-                {label: 'Tên tài khoản', value: user?.username},
-                {label: 'Mô tả', value: user?.bio},
-                {label: 'Ngày sinh', value: user?.dateOfBirth},
+                {
+                  label: 'Tên người dùng',
+                  value: username,
+                  onChangeText: setUsername,
+                  editable: edit,
+                  type: 'text',
+                },
+                {
+                  label: 'Tên tài khoản *',
+                  value: handleName,
+                  editable: false,
+                  type: 'text',
+                },
+                {
+                  label: 'Mô tả',
+                  value: bio,
+                  onChangeText: setBio,
+                  editable: edit,
+                  type: 'text',
+                },
+                {
+                  label: 'Ngày sinh',
+                  value: dateOfBirth,
+                  onDateChange: setDateOfBirth,
+                  editable: edit,
+                  type: 'date',
+                },
               ]}
             />
 
@@ -102,10 +167,36 @@ export const EditProfile = () => {
               title="Chuyển sang Professional Account"
               subtitle="Thông tin cá nhân"
               rows={[
-                {label: 'Email', value: user?.email},
-                {label: 'Số điện thoại', value: user?.phoneNumber},
-                {label: 'Giới tính', value: user?.gender},
-                {label: 'Địa chỉ', value: user?.address},
+                {
+                  label: 'Email *',
+                  value: email,
+                  onChangeText: setEmail,
+                  editable: false,
+                  type: 'text',
+                },
+                {
+                  label: 'Số điện thoại',
+                  value: phoneNumber,
+                  onChangeText: setPhoneNumber,
+                  editable: edit,
+                  type: 'text',
+                },
+                {
+                  label: 'Giới tính',
+                  value: gender,
+                  onChangeText: setGender,
+                  editable: edit,
+                  type: 'dropdown',
+                  options: SEX,
+                },
+                {
+                  label: 'Địa chỉ',
+                  value: address,
+                  onChangeText: setAddress,
+                  editable: edit,
+                  type: 'dropdown',
+                  options: VN_PROVINCES,
+                },
               ]}
             />
           </View>

@@ -1,5 +1,5 @@
 import {createAsyncThunk} from '@reduxjs/toolkit';
-import {User, UserRes} from './userTypes';
+import {User, UserRes, PublicUserRes, EditUserDto} from './userTypes';
 import axiosInstance from '../axiosInstance';
 import {API} from '../api';
 import {resetUser} from './userReducer';
@@ -127,6 +127,48 @@ export const fetchCheckEmail = createAsyncThunk<
   } catch (error: any) {
     return rejectWithValue({
       message: error.response?.data?.message || 'Check email failed',
+    });
+  }
+});
+
+export const fetchEditUser = createAsyncThunk<
+  any,
+  EditUserDto,
+  {rejectValue: string}
+>(
+  'user/fetchEdituser',
+  async (fromData: EditUserDto, {rejectWithValue, getState}) => {
+    try {
+      const state: any = getState();
+      const response = await axiosInstance.patch(API.EDIT_USER, fromData, {
+        headers: {
+          token: 'refresh',
+        },
+      });
+
+      return response.data.user;
+    } catch (error) {
+      console.log('Edit user line 152:', error);
+    }
+  },
+);
+
+export const getPublicProfile  = createAsyncThunk<
+  PublicUserRes,
+  {userId: string},
+  {rejectValue: {message: string}}
+>('users/public', async ({userId}, {rejectWithValue}) => {
+  try{
+    const res = await axiosInstance.get(`${API.GET_PUBLIC_PROFILE}/${userId}`, {
+      headers: {
+        token: 'refresh'
+      },
+    });
+
+    return res.data;
+  } catch (error: any){
+    return rejectWithValue({
+      message: error.response?.data?.message || 'Failed to get public profile',
     });
   }
 });
