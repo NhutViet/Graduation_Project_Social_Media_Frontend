@@ -11,7 +11,7 @@ export interface ReqRemoveBookmark {
 };
 
 export interface ResBookmark {
-    playlistId: string;
+    playlistID: string;
     itemID: string;
     itemType: string;
     isDeleted: boolean;

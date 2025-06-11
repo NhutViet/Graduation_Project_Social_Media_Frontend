@@ -2,6 +2,7 @@ import {createAsyncThunk} from '@reduxjs/toolkit';
 import {Story, userFollow} from './StoryType';
 import axiosInstance from '../axiosInstance';
 import {API} from '../api';
+import {rejectValue} from '../likersRedux/likersType';
 
 export const seenStory = createAsyncThunk<
   void,
@@ -67,3 +68,38 @@ export const fetchStoriesByIds = createAsyncThunk<
     );
   }
 });
+
+// lấy story đã đăng
+export const fetchGetPostedSotry = createAsyncThunk<
+  Story[],
+  void,
+  {rejectValue: string}
+>('stories/fetchPostedSotry', async (_, {rejectWithValue}) => {
+  try {
+    const response = await axiosInstance.get(`/stories/me`, {
+      headers: {
+        token: 'refresh',
+      },
+    });
+    return response.data?.data || [];
+  } catch (error: any) {
+    return rejectWithValue(
+      error.response?.data?.message || 'Không lấy được story đã đăng',
+    );
+  }
+});
+
+export const toggleLikeStory = createAsyncThunk(
+  'stories/toggleLikeStory',
+  async ({storyId}: {storyId: string}) => {
+    const res = await axiosInstance.patch(
+      `/stories/like`,
+      {_id: storyId}, // ✅ Đây là điểm quan trọng
+      {
+        headers: {token: 'refresh'},
+      },
+    );
+    return res.data;
+  },
+);
+
