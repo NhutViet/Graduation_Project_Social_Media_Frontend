@@ -24,6 +24,7 @@ export const API = {
   GET_ME: 'users/me',
   CHECK_REFRESH_TOKEN: 'users/check-refresh-token',
   CHECK_EMAIL: 'users/check-email',
+  EDIT_USER: '/users/edit-me',
   ////Logout
   POST_LOGOUT: 'users/logout',
 
@@ -33,11 +34,25 @@ export const API = {
   RELATION_ACTION: 'relations/relation-action',
   //// Register
   REGISTER: 'users/register',
-
+  /// User
+  GET_PUBLIC_PROFILE: '/users/public',
   ////bookmark
   POST_SAVE_BOOKMARK: 'bookmark-playlists/add-bookmark',
   DELETE_BOOKMARK: 'bookmark-playlists/remove-bookmark',
   POST_CREATE_PLAYLIST: 'bookmark-playlists/add',
   GET_ALL_PLAYLIST: 'bookmark-playlists/all',
   GET_ITEM_PLAYLIST: 'bookmark-items/all',
+
+  //// Room
+  GET_MY_ROOMS: 'rooms/my',
+
+  //// Auth
+  GET_ACCESS_TOKEN: 'users/refresh-access-token',
+
+  //// Message
+  MESSAGES_URL: 'messages',
+  
+  ////Search
+  POST_SEARCH_POST: 'posts/search',
+  POST_SEARCH_USER: 'users/search',
 };

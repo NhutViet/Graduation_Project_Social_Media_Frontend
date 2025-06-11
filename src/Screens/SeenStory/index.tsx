@@ -10,10 +10,13 @@ import {
   TextInput,
 } from 'react-native';
 import Video from 'react-native-video';
-import { Modalize } from "react-native-modalize";
+import {Modalize} from 'react-native-modalize';
 import {Portal} from 'react-native-portalize';
 import HighlightViewModal from '../SeenStoryOwner/component/HighlightViewModal';
 import HighlightAddModal from '../SeenStoryOwner/component/HighlightAddModal';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '../../../services/store';
+import {toggleLikeStory} from '../../../services/StoryRedux/StorySlice';
 
 export const SeenStory = ({route, navigation}: any) => {
   const {selectedItem} = route.params;
@@ -21,6 +24,9 @@ export const SeenStory = ({route, navigation}: any) => {
   const progressAnim = useRef(new Animated.Value(0)).current;
   const animationRef: any = useRef(null);
   const videoRef = useRef(null);
+  const dispatch = useDispatch<AppDispatch>();
+  const user = useSelector((state: RootState) => state.user.user);
+  const [isLiked, setIsLiked] = useState<boolean>(false);
 
   const imageDuration = 10000; // 10 seconds for images
 
@@ -78,6 +84,22 @@ export const SeenStory = ({route, navigation}: any) => {
       }
     };
   }, [selectedItem]);
+
+  useEffect(() => {
+    const isLikedByUser = selectedItem?.likedByUsers?.includes(user._id);
+    setIsLiked(!!isLikedByUser);
+  }, [selectedItem, user._id]);
+
+  const handleLike = async () => {
+    try {
+      await dispatch(
+        toggleLikeStory({storyId: selectedItem._id, userId: user._id}),
+      );
+      setIsLiked(prev => !prev);
+    } catch (err) {
+      console.error('Error liking story:', err);
+    }
+  };
 
   const handleCloserPress = () => {
     navigation.goBack();
@@ -158,12 +180,17 @@ export const SeenStory = ({route, navigation}: any) => {
           placeholderTextColor={'#fff'}
         />
         <View style={styles.viewIcon}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={handleLike}>
             <Image
-              style={styles.icon}
-              source={require('../../../assets/icon/heart.png')}
+              source={require('../../../assets/icon/heartred.png')}
+              style={{
+                width: 30,
+                height: 30,
+                tintColor: isLiked ? 'red' : '#fff',
+              }}
             />
           </TouchableOpacity>
+
           <Image
             style={styles.icon}
             source={require('../../../assets/icon/share.png')}

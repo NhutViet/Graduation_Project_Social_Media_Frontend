@@ -1,17 +1,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const getThemeKey = (userId: string) => `APP_THEME_${userId}`;
+const THEME_KEY = 'APP_THEME';
 
-export const saveThemeForUser = async (
-  userId: string,
-  theme: 'light' | 'dark',
-) => {
-  await AsyncStorage.setItem(getThemeKey(userId), theme);
+export const saveTheme = async (theme: 'light' | 'dark') => {
+  await AsyncStorage.setItem(THEME_KEY, theme);
 };
 
-export const loadThemeForUser = async (
-  userId: string,
-): Promise<'light' | 'dark' | null> => {
-  const theme = await AsyncStorage.getItem(getThemeKey(userId));
+export const loadTheme = async (): Promise<'light' | 'dark' | null> => {
+  const theme = await AsyncStorage.getItem(THEME_KEY);
   return theme === 'dark' || theme === 'light' ? theme : null;
 };

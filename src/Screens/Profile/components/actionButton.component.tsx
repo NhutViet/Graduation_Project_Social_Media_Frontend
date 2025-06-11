@@ -7,21 +7,23 @@ interface ActionProps {
   onFollowPress: () => void;
   onMessagePress: () => void;
   theme: Theme;
+  isFollowing?: boolean;
 }
 
 const ActionButtons: React.FC<ActionProps> = ({
   onFollowPress,
   onMessagePress,
   theme,
+  isFollowing = false,
 }) => {
   return (
     <View style={styles.actionButtons}>
-      <TouchableOpacity style={styles.followButton} onPress={onFollowPress}>
-        <Text style={styles.followButtonText}>Theo dõi</Text>
+      <TouchableOpacity style={[styles.followButton, isFollowing && styles.followingButton]} onPress={onFollowPress}>
+        <Text style={[styles.followButtonText, isFollowing && styles.followingButtonText]}>{isFollowing ? 'Đang theo dõi' : 'Theo dõi'}</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.messageButton} onPress={onMessagePress}>
         <Text style={[styles.messageButtonText, {color: Colors[theme].text}]}>
-          Tin nhắn
+          Nhắn tin
         </Text>
       </TouchableOpacity>
     </View>
@@ -56,6 +58,14 @@ const styles = StyleSheet.create({
   },
   messageButtonText: {
     fontWeight: '600',
+  },
+  followingButton: {
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  followingButtonText: {
+    color: Colors.textSecondary,
   },
 });
 
