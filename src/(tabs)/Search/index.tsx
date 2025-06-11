@@ -18,6 +18,10 @@ import GridMedia from './Components/GridMedia';
 import {Colors} from '../../../assets/color/Colors';
 import SearchResult from './Components/SearchResult';
 import {useIsFocused} from '@react-navigation/native';
+import {useDebounce} from 'use-debounce';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../../services/store';
+import { fetchSearchPost, fetchSearchUser } from '../../../services/searchRedux/searchSlice';
 
 const generateImages = (count: number) =>
   Array.from({length: count}, (_, i) => ({
@@ -108,6 +112,19 @@ export const Search = () => {
   const [searchText, setSearchText] = useState('');
   const [combinedResults, setCombinedResults] = useState<any[]>([]);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
+  const dispatch = useDispatch<AppDispatch>();
+
+  const [debouncedSearchText] = useDebounce(searchText, 500);
+  const {refreshToken} = useSelector((state: RootState) => state.user);
+  const {users, isLoading, isError} = useSelector((state: RootState) => state.search);
+
+  //gọi Api sử lý tìm kiếm
+  useEffect(() => {
+    if(debouncedSearchText.trim().length > 0){
+      dispatch(fetchSearchUser({refreshToken, keyword: debouncedSearchText, mode: 'username'}));
+      dispatch(fetchSearchPost({refreshToken, keyword: debouncedSearchText}));
+    }
+  }, [debouncedSearchText]);
 
   // Tải lịch sử tìm kiếm
   const loadSearchHistory = async () => {
@@ -160,19 +177,17 @@ export const Search = () => {
 
   // Logic tìm kiếm
   useEffect(() => {
-    const handler = setTimeout(() => {
-      if (searchText.trim().length > 0) {
-        const filteredUsers = dataUser.filter((user: any) =>
-          user.name.toLowerCase().includes(searchText.trim().toLowerCase()),
-        );
+      if (debouncedSearchText.trim().length > 0 && !isLoading && !isError) {
 
         const filteredHistory = searchHistory.filter((historyItem: string) =>
-          historyItem.toLowerCase().includes(searchText.trim().toLowerCase()),
+          historyItem.toLowerCase().includes(debouncedSearchText.trim().toLowerCase()),
         );
+
+        const userItems = (users as any)?.items || [];
 
         const combined = [
           ...filteredHistory.map(item => ({type: 'history', value: item})),
-          ...filteredUsers.map(item => ({type: 'user', value: item})),
+          ...userItems.map((item: any) => ({type: 'user', value: item})),
         ];
 
         setCombinedResults(combined);
@@ -181,10 +196,7 @@ export const Search = () => {
           searchHistory.map(item => ({type: 'history', value: item})),
         );
       }
-    }, 500);
-
-    return () => clearTimeout(handler);
-  }, [searchText, searchHistory]);
+  }, [debouncedSearchText, users, searchHistory]);
 
   // hiệu ứng opacity khi focused thay đổi
   useEffect(() => {
@@ -312,8 +324,8 @@ export const Search = () => {
               } else {
                 return (
                   <User
-                    name={item.value.name}
-                    image={item.value.image}
+                    name={item.value.username}
+                    image={item.value.profilePic}
                     status={item.value.status}
                     isStory={false}
                   />
@@ -322,6 +334,7 @@ export const Search = () => {
             }}
             estimatedItemSize={100}
             showsVerticalScrollIndicator={false}
+            extraData={[searchHistory]}
           />
         </Animated.View>
         {/* kêts quả tìm kiếmkiếm (ẩn/hiện bằng display) */}
@@ -339,7 +352,7 @@ export const Search = () => {
             },
           ]}>
           <SearchResult
-            searchText={searchText}
+            searchText={debouncedSearchText}
             currentVisibleIndex={visibleIndexView2}
             onViewableItemsChanged={onViewableItemsChangedView2}
             isPause={isShowResult}
