@@ -39,4 +39,13 @@ export const API = {
   POST_CREATE_PLAYLIST: 'bookmark-playlists/add',
   GET_ALL_PLAYLIST: 'bookmark-playlists/all',
   GET_ITEM_PLAYLIST: 'bookmark-items/all',
+
+  //// Room
+  GET_MY_ROOMS: 'rooms/my',
+
+  //// Auth
+  GET_ACCESS_TOKEN: 'users/refresh-access-token',
+
+  //// Message
+  MESSAGES_URL: 'messages',
 };

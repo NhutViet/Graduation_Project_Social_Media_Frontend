@@ -6,12 +6,13 @@ import commentReducer from '../commentRedux/commentReducer';
 import musicReducer from '../musicRedux/musicReducer';
 import userReducer from '../userRedux/userReducer';
 import storyReducer from '../StoryRedux/StoryReducer';
-import relationReducer from '../relationRedux/relationReducer'
+import relationReducer from '../relationRedux/relationReducer';
 import reactionReducer from '../reactionRedux/reactionReducer';
 import LikerReducer from '../likersRedux/likersReducer';
 import bookmarkReducer from '../bookmarkRedux/bookmarkReducer';
 import PostUserReducer from '../postUserRedux/postUserReducer';
-
+import RoomReducer from '../roomRedux/roomReducer';
+import messagesReducer from '../messageRedux/messageReducer';
 
 const persistUserConfig = {
   key: 'user',
@@ -32,6 +33,8 @@ export const store = configureStore({
     likers: LikerReducer,
     bookmark: bookmarkReducer,
     postUser: PostUserReducer,
+    rooms: RoomReducer,
+    messages: messagesReducer,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
