@@ -1,7 +1,5 @@
 import React, {createContext, useContext, useEffect, useState} from 'react';
-import {useSelector} from 'react-redux';
-import {loadThemeForUser, saveThemeForUser} from './themeStorage'; // hàm ở trên
-import {RootState} from '../../services/store';
+import {loadTheme, saveTheme} from './themeStorage';
 
 export type Theme = 'light' | 'dark';
 
@@ -15,24 +13,19 @@ const ThemeContext = createContext<{
 
 export const ThemeProvider = ({children}: {children: React.ReactNode}) => {
   const [theme, setTheme] = useState<Theme>('light');
-  const userId = useSelector((state: RootState) => state.user.user?._id);
 
   useEffect(() => {
-    const loadTheme = async () => {
-      if (userId) {
-        const savedTheme = await loadThemeForUser(userId);
-        if (savedTheme) setTheme(savedTheme);
-      }
+    const loadSavedTheme = async () => {
+      const saved = await loadTheme();
+      if (saved) setTheme(saved);
     };
-    loadTheme();
-  }, [userId]);
+    loadSavedTheme();
+  }, []);
 
   const toggleTheme = async () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
-    if (userId) {
-      await saveThemeForUser(userId, newTheme);
-    }
+    await saveTheme(newTheme);
   };
 
   return (
