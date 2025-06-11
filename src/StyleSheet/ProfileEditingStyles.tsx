@@ -37,13 +37,15 @@ export const useProfileEditingStyles = () => {
           flexDirection: 'row',
           alignItems: 'center',
           marginBottom: 16,
+          flex: 1,
         },
         label: {
-          flex: 1,
           fontSize: 15,
           fontWeight: '400',
           color: palette.text,
           textAlign: 'left',
+          marginRight: 15,
+          width: '30%',
         },
         input: {
           flex: 3,
@@ -71,6 +73,7 @@ export const useProfileEditingStyles = () => {
         headerText: {
           fontSize: 16,
           color: palette.text,
+          marginRight: 5,
         },
         headerTitle: {
           position: 'absolute',
@@ -105,6 +108,8 @@ export const useProfileEditingStyles = () => {
           backgroundColor: palette.card,
           width: SCREEN_WIDTH * 0.8,
           borderRadius: 8,
+          padding: 15,
+          gap: 5,
         },
         modalOverlay: {
           flex: 1,
@@ -119,7 +124,9 @@ export const useProfileEditingStyles = () => {
           padding: 15,
         },
         textModel: {
+          fontSize: 16,
           color: palette.text,
+          fontWeight: '500',
         },
         headerRow: {
           flexDirection: 'row',
