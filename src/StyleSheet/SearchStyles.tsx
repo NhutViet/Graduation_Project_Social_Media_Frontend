@@ -81,7 +81,7 @@ export const SearchStyles = (theme: 'light' | 'dark') => {
       color: color.primary,
     },
     icon: {
-      width: 24,
+      width: 14,
       resizeMode: 'contain',
       tintColor: color.text,
     },

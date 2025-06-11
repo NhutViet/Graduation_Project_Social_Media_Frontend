@@ -1,146 +1,11 @@
-import {
-  Dimensions,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import React, {useEffect, useRef, useState} from 'react';
+import {Dimensions, Image, Text, TouchableOpacity, View} from 'react-native';
+import React, {useMemo} from 'react';
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
 import {FlashList} from '@shopify/flash-list';
-import User from '../../Home/components/Story';
 import Video from 'react-native-video';
-
-const dataUser = [
-  {
-    id: 1,
-    name: 'user1',
-    image:
-      'https://i.pinimg.com/736x/b7/25/61/b72561fd1ec7018c0418c84a3c2d5a57.jpg',
-    status: 1,
-  },
-  {
-    id: 2,
-    name: 'user2',
-    image:
-      'https://i.pinimg.com/736x/c1/70/e8/c170e84663405785c80ba367cd5e3b85.jpg',
-    status: 1,
-  },
-  {
-    id: 3,
-    name: 'user3',
-    image:
-      'https://i.pinimg.com/736x/8b/ae/77/8bae77c63f046f5a307a864a9d230da2.jpg',
-    status: 0,
-  },
-  {
-    id: 4,
-    name: 'user4',
-    image:
-      'https://i.pinimg.com/736x/56/81/64/5681646985e7ddc1b2cd4b826763b541.jpg',
-    status: 0,
-  },
-];
-
-const posts = [
-  {
-    type: 'image',
-    uri: 'https://kimipet.vn/wp-content/uploads/2021/06/husky-ngao-.jpg',
-  },
-  {
-    type: 'video',
-    uri: 'https://res.cloudinary.com/dsvcoywkc/video/upload/v1746718746/my_video/ncd28sjnze0wfaqti2hm.mp4',
-    seen: 1000,
-  },
-  {
-    type: 'image',
-    uri: 'https://kimipet.vn/wp-content/uploads/2021/06/husky-ngao-.jpg',
-  },
-  {
-    type: 'image',
-    uri: [
-      'https://kimipet.vn/wp-content/uploads/2021/06/husky-ngao-.jpg',
-      'https://kimipet.vn/wp-content/uploads/2021/06/husky-ngao-.jpg',
-      'https://kimipet.vn/wp-content/uploads/2021/06/husky-ngao-.jpg',
-    ],
-  },
-  {
-    type: 'image',
-    uri: 'https://kimipet.vn/wp-content/uploads/2021/06/husky-ngao-.jpg',
-  },
-  {
-    type: 'video',
-    uri: 'https://res.cloudinary.com/dsvcoywkc/video/upload/v1746718746/my_video/ncd28sjnze0wfaqti2hm.mp4',
-    seen: 1000,
-  },
-  {
-    type: 'video',
-    uri: 'https://res.cloudinary.com/dsvcoywkc/video/upload/v1746718746/my_video/ncd28sjnze0wfaqti2hm.mp4',
-    seen: 1000,
-  },
-  {
-    type: 'image',
-    uri: 'https://kimipet.vn/wp-content/uploads/2021/06/husky-ngao-.jpg',
-  },
-  {
-    type: 'image',
-    uri: [
-      'https://kimipet.vn/wp-content/uploads/2021/06/husky-ngao-.jpg',
-      'https://kimipet.vn/wp-content/uploads/2021/06/husky-ngao-.jpg',
-      'https://kimipet.vn/wp-content/uploads/2021/06/husky-ngao-.jpg',
-    ],
-  },
-  {
-    type: 'image',
-    uri: 'https://kimipet.vn/wp-content/uploads/2021/06/husky-ngao-.jpg',
-  },
-  {
-    type: 'video',
-    uri: 'https://res.cloudinary.com/dsvcoywkc/video/upload/v1746718746/my_video/ncd28sjnze0wfaqti2hm.mp4',
-    seen: 1000,
-  },
-  {
-    type: 'image',
-    uri: 'https://kimipet.vn/wp-content/uploads/2021/06/husky-ngao-.jpg',
-  },
-  {
-    type: 'image',
-    uri: [
-      'https://kimipet.vn/wp-content/uploads/2021/06/husky-ngao-.jpg',
-      'https://kimipet.vn/wp-content/uploads/2021/06/husky-ngao-.jpg',
-      'https://kimipet.vn/wp-content/uploads/2021/06/husky-ngao-.jpg',
-    ],
-  },
-  {
-    type: 'image',
-    uri: 'https://kimipet.vn/wp-content/uploads/2021/06/husky-ngao-.jpg',
-  },
-  {
-    type: 'video',
-    uri: 'https://res.cloudinary.com/dsvcoywkc/video/upload/v1746718746/my_video/ncd28sjnze0wfaqti2hm.mp4',
-    seen: 1000,
-  },
-  {
-    type: 'video',
-    uri: 'https://res.cloudinary.com/dsvcoywkc/video/upload/v1746718746/my_video/ncd28sjnze0wfaqti2hm.mp4',
-    seen: 1000,
-  },
-  {
-    type: 'image',
-    uri: 'https://kimipet.vn/wp-content/uploads/2021/06/husky-ngao-.jpg',
-  },
-  {
-    type: 'image',
-    uri: [
-      'https://kimipet.vn/wp-content/uploads/2021/06/husky-ngao-.jpg',
-      'https://kimipet.vn/wp-content/uploads/2021/06/husky-ngao-.jpg',
-      'https://kimipet.vn/wp-content/uploads/2021/06/husky-ngao-.jpg',
-    ],
-  },
-];
+import {useSelector} from 'react-redux';
+import {RootState} from '../../../../services/store';
 
 const screenWidth = Dimensions.get('window').width;
 const mediasHeight = ((screenWidth - 4) / 3) * 2;
@@ -160,96 +25,174 @@ const SearchForYou = (props: any) => {
   const {theme} = useTheme();
   const color = Colors[theme];
 
+  const {posts, reels, isLoading} = useSelector(
+    (state: RootState) => state.search,
+  );
+
+  const postItems = (posts as any)?.items || [];
+  const reelItems = (reels as any)?.items || [];
+
+  //trộn ngẫu nhiên
+  const randomList = useMemo(() => {
+    return [...postItems, ...reelItems].sort(() => Math.random() - 0.5);
+  }, [postItems, reelItems]);
+
+  if (isLoading) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          padding: 20,
+          backgroundColor: color.background,
+        }}>
+        <Text
+          style={{
+            fontSize: 18,
+            fontWeight: '500',
+            color: color.textSecondary,
+          }}>
+          Đang tải...
+        </Text>
+      </View>
+    );
+  }
+
   return (
     <View style={{flex: 1, backgroundColor: color.background}}>
-      <FlashList
-        data={posts}
-        numColumns={3}
-        renderItem={({item, index}: any) => {
-          const isPlaying =
-            index >= currentVisibleIndex && index < currentVisibleIndex + 3;
-          return (
-            <TouchableOpacity style={{marginBottom: 2}}>
-              {item.type === 'video' ? (
-                <View>
-                  <Video
-                    source={{uri: item.uri}}
-                    resizeMode="cover"
-                    style={{
-                      width: mediasWidth,
-                      height: mediasHeight,
-                      marginRight: (index + 1) % 3 == 0 ? 0 : 2,
-                    }}
-                    repeat
-                    muted={true}
-                    paused={!isPlaying || !isPause || !isFocusedPage}
-                  />
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      gap: 5,
-                      alignItems: 'center',
-                      position: 'absolute',
-                      bottom: 8,
-                      left: 8,
-                    }}>
-                    <Image
-                      source={require('../../../../assets/icon/eye.png')}
+      {randomList.length > 0 ? (
+        <FlashList
+          data={randomList}
+          numColumns={3}
+          renderItem={({item, index}: any) => {
+            const media = item.media?.[0];
+            if (!media) return null;
+            const isPlaying =
+              index >= currentVisibleIndex && index < currentVisibleIndex + 3;
+            return (
+              <TouchableOpacity style={{marginBottom: 2}}>
+                {item.media[0]?.videoUrl ? (
+                  <View>
+                    <Video
+                      source={{uri: item.media[0].videoUrl}}
+                      resizeMode="contain"
                       style={{
-                        width: 20,
-                        height: 20,
-                        resizeMode: 'contain',
-                        tintColor: color.background,
+                        width: mediasWidth,
+                        height: mediasHeight,
+                        marginRight: (index + 1) % 3 == 0 ? 0 : 2,
+                        overflow: 'hidden',
+                        backgroundColor: color.black,
                       }}
+                      repeat
+                      muted={true}
+                      paused={!isPlaying || !isPause || !isFocusedPage}
                     />
-                    <Text
+                    <View
                       style={{
-                        fontSize: 12,
-                        color: color.background,
-                      }}>
-                      {item.seen}
-                    </Text>
-                  </View>
-                </View>
-              ) : (
-                <View>
-                  <Image
-                    source={{
-                      uri: Array.isArray(item.uri) ? item.uri[0] : item.uri,
-                    }}
-                    style={{
-                      width: mediasWidth,
-                      height: mediasHeight,
-                      marginRight: (index + 1) % 3 == 0 ? 0 : 2,
-                    }}
-                  />
-                  {Array.isArray(item.uri) && (
-                    <Image
-                      source={require('../../../../assets/icon/gallery.png')}
-                      style={{
-                        width: 20,
-                        height: 20,
-                        tintColor: color.background,
+                        flexDirection: 'row',
+                        gap: 5,
+                        alignItems: 'center',
                         position: 'absolute',
-                        right: 12,
-                        top: 10,
+                        bottom: 8,
+                        left: 8,
+                      }}>
+                      <Image
+                        source={require('../../../../assets/icon/eye.png')}
+                        style={{
+                          width: 20,
+                          height: 20,
+                          resizeMode: 'contain',
+                          tintColor: color.background,
+                        }}
+                      />
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          color: color.background,
+                        }}>
+                        {item.viewCount}
+                      </Text>
+                    </View>
+                    <View
+                      style={{
+                        position: 'absolute',
+                        top: 5,
+                        left: 5,
+                        backgroundColor:
+                          theme === 'dark'
+                            ? 'rgba(255, 255, 255, 0.5)'
+                            : 'rgba(0, 0, 0, 0.5)',
+                        padding: 5,
+                        borderRadius: 50,
+                        borderColor: color.background,
+                      }}>
+                      <Image
+                        source={require('../../../../assets/icon/clapperboard.png')}
+                        style={{
+                          width: 18,
+                          height: 18,
+                          resizeMode: 'contain',
+                          tintColor: color.background,
+                        }}
+                      />
+                    </View>
+                  </View>
+                ) : (
+                  <View>
+                    <Image
+                      source={{
+                        uri: item.media[0].imageUrl,
+                      }}
+                      style={{
+                        width: mediasWidth,
+                        height: mediasHeight,
+                        marginRight: (index + 1) % 3 == 0 ? 0 : 2,
                       }}
                     />
-                  )}
-                </View>
-              )}
-            </TouchableOpacity>
-          );
-        }}
-        estimatedItemSize={200}
-        onViewableItemsChanged={onViewableItemsChanged}
-        viewabilityConfig={viewabilityConfig}
-        extraData={[currentVisibleIndex, isFocusedPage]}
-      />
+                    {item.media.length > 1 && (
+                      <Image
+                        source={require('../../../../assets/icon/gallery.png')}
+                        style={{
+                          width: 20,
+                          height: 20,
+                          tintColor: color.background,
+                          position: 'absolute',
+                          right: 12,
+                          top: 10,
+                        }}
+                      />
+                    )}
+                  </View>
+                )}
+              </TouchableOpacity>
+            );
+          }}
+          estimatedItemSize={200}
+          onViewableItemsChanged={onViewableItemsChanged}
+          viewabilityConfig={viewabilityConfig}
+          extraData={[currentVisibleIndex, isFocusedPage]}
+        />
+      ) : (
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: 20,
+          }}>
+          <Text
+            style={{
+              fontSize: 18,
+              fontWeight: '500',
+              color: color.textSecondary,
+            }}>
+            Không có kết quả phù hợp.
+          </Text>
+        </View>
+      )}
     </View>
   );
 };
 
 export default SearchForYou;
-
-const styles = StyleSheet.create({});

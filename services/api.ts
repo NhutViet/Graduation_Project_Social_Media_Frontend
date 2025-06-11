@@ -41,4 +41,8 @@ export const API = {
   POST_CREATE_PLAYLIST: 'bookmark-playlists/add',
   GET_ALL_PLAYLIST: 'bookmark-playlists/all',
   GET_ITEM_PLAYLIST: 'bookmark-items/all',
+
+  ////Search
+  POST_SEARCH_POST: 'posts/search',
+  POST_SEARCH_USER: 'users/search',
 };

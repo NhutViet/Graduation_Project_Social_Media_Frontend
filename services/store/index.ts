@@ -11,6 +11,7 @@ import reactionReducer from '../reactionRedux/reactionReducer';
 import LikerReducer from '../likersRedux/likersReducer';
 import bookmarkReducer from '../bookmarkRedux/bookmarkReducer';
 import PostUserReducer from '../postUserRedux/postUserReducer';
+import SearchReducer from '../searchRedux/searchReducer';
 
 
 const persistUserConfig = {
@@ -32,6 +33,7 @@ export const store = configureStore({
     likers: LikerReducer,
     bookmark: bookmarkReducer,
     postUser: PostUserReducer,
+    search: SearchReducer,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
