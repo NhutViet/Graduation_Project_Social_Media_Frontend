@@ -30,3 +30,16 @@ export interface EditUserDto {
   dateOfBirth?: string;
   profilePic?: string;
 }
+
+export interface PublicUserRes {
+  username: string;
+  phoneNumber: string;
+  handleName: string;
+  bio: string;
+  address: string;
+  gender: string;
+  profilePic: string;
+  isVip: boolean;
+  userFollowing: boolean;
+}
+

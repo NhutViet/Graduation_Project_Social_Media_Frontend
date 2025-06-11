@@ -5,7 +5,6 @@ import {
   ReqCreatePlaylist,
   ReqGetItemPlaylist,
   ReqRemoveBookmark,
-  ResAllPlaylist,
   ResBookmark,
   ResCreatePlaylist,
   ResGetItemPlaylist,

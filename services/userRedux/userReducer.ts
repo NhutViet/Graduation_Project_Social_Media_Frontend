@@ -1,28 +1,33 @@
 import {createSlice} from '@reduxjs/toolkit';
-import {
-  fetchEditUser,
-  fetchLogin,
-  fetchLogout,
-  fetchRegister,
-} from './userSlice';
-import {User} from './userTypes';
+import {fetchLogin, fetchLogout, fetchRegister, getPublicProfile, fetchEditUser} from './userSlice';
+import {User, PublicUserRes} from './userTypes';
 
 interface UserState {
   user: User | null;
+  publicProfile: PublicUserRes | null;
   refreshToken: string;
   isLoading: boolean;
   isSuccess: boolean;
   isError: boolean;
   errorMessage: string;
+  isLoadingPublicProfile: boolean;
+  isSuccessPublicProfile: boolean;
+  isErrorPublicProfile: boolean;
+  errorMessagePublicProfile: string;
 }
 
 const initialState: UserState = {
   user: null,
+  publicProfile: null,
   refreshToken: '',
   isLoading: false,
   isSuccess: false,
   isError: false,
   errorMessage: '',
+  isLoadingPublicProfile: false,
+  isSuccessPublicProfile: false,
+  isErrorPublicProfile: false,
+  errorMessagePublicProfile: '',
 };
 
 const UserReducer = createSlice({
@@ -45,6 +50,19 @@ const UserReducer = createSlice({
       state.isSuccess = false;
       state.isError = false;
       state.errorMessage = '';
+    },
+    resetPublicProfileStatus: state => {
+      state.isLoadingPublicProfile = false;
+      state.isErrorPublicProfile = false;
+      state.isSuccessPublicProfile = false;
+      state.errorMessagePublicProfile = '';
+    },
+    clearPublicProfile: state => {
+      state.publicProfile = null;
+      state.isLoadingPublicProfile = false;
+      state.isSuccessPublicProfile = false;
+      state.isErrorPublicProfile = false;
+      state.errorMessagePublicProfile = '';
     },
   },
   extraReducers: builder => {
@@ -104,6 +122,7 @@ const UserReducer = createSlice({
         state.isError = true;
         state.errorMessage = action.payload?.message || 'Registration failed';
       })
+    
       .addCase(fetchEditUser.pending, state => {
         state.isLoading = true;
       })
@@ -114,9 +133,28 @@ const UserReducer = createSlice({
       .addCase(fetchEditUser.rejected, (state, action) => {
         state.isLoading = false;
         state.errorMessage = action.payload || 'Update failed';
+      })
+
+      /// public profile cases
+      .addCase(getPublicProfile.pending, state => {
+        state.isLoadingPublicProfile = true;
+        state.isErrorPublicProfile = false;
+        state.isSuccessPublicProfile = false;
+        state.errorMessagePublicProfile = '';
+      })
+      .addCase(getPublicProfile.fulfilled, (state, action) => {
+        state.isLoadingPublicProfile = false;
+        state.isSuccessPublicProfile = true;
+        state.publicProfile = action.payload;
+      })
+      .addCase(getPublicProfile.rejected, (state, action) => {
+        state.isLoadingPublicProfile = false;
+        state.isErrorPublicProfile = true;
+        state.errorMessagePublicProfile = action.payload?.message || 'Failed to get public profile';
+        state.publicProfile = null;
       });
   },
 });
 
-export const {resetStatus, setUser, resetUser} = UserReducer.actions;
+export const {resetStatus, setUser, resetUser, resetPublicProfileStatus, clearPublicProfile} = UserReducer.actions;
 export default UserReducer.reducer;

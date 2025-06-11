@@ -33,7 +33,8 @@ export const API = {
   RELATION_ACTION: 'relations/relation-action',
   //// Register
   REGISTER: 'users/register',
-
+  /// User
+  GET_PUBLIC_PROFILE: '/users/public',
   ////bookmark
   POST_SAVE_BOOKMARK: 'bookmark-playlists/add-bookmark',
   DELETE_BOOKMARK: 'bookmark-playlists/remove-bookmark',
