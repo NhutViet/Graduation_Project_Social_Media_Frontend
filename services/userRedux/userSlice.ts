@@ -131,6 +131,27 @@ export const fetchCheckEmail = createAsyncThunk<
   }
 });
 
+export const getAccessTokenFromRefresh = async (): Promise<string | null> => {
+  try {
+    const response = await axiosInstance.post(
+      API.GET_ACCESS_TOKEN,
+      {},
+      {
+        headers: {
+          token: 'refresh',
+        },
+      },
+    );
+
+    const { accessToken } = response.data;
+
+    return accessToken;
+  } catch (error) {
+    console.error('Failed to refresh access token', error);
+    return null;
+  }
+};
+
 export const fetchEditUser = createAsyncThunk<
   any,
   EditUserDto,
