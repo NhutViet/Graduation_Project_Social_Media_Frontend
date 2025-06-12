@@ -1,6 +1,6 @@
 import {createSlice} from '@reduxjs/toolkit';
 import {fetchPostsWithMedia, fetchReelsWithMedia, hidePost} from './postSlice';
-import {Post, PostWithMedia} from './postTypes';
+import {PostWithMedia} from './postTypes';
 
 interface PostState {
   posts: PostWithMedia[];
