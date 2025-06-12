@@ -234,8 +234,6 @@ export const Home = () => {
           <View style={{position: 'relative', height: 160}}>
             <View
               style={{
-                alignItems: 'center',
-                flexDirection: 'row',
                 position: 'absolute',
                 top: 50,
               }}>
