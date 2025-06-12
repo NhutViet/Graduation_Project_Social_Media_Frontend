@@ -205,12 +205,14 @@ const Profile = () => {
       <View>
         <View style={styles.profileInfo}>
           <View style={styles.avatarContainer}>
-            {user?.profilePic && <Image
-              source={{
-                uri: user?.profilePic,
-              }}
-              style={styles.avatar}
-            />}
+            {user?.profilePic && (
+              <Image
+                source={{
+                  uri: user?.profilePic,
+                }}
+                style={styles.avatar}
+              />
+            )}
             <TouchableOpacity
               style={styles.addStoryButton}
               onPress={() => {
@@ -221,7 +223,11 @@ const Profile = () => {
           </View>
           <View style={styles.statsContainer}>
             <View style={styles.statItem}>
-              <Text style={[styles.statNumber, {color: color.text}]}>66</Text>
+              <Text style={[styles.statNumber, {color: color.text}]}>
+                {isSuccess && (PostsItem?.length || ReelsItem?.length)
+                  ? PostsItem?.length + ReelsItem?.length
+                  : 0}
+              </Text>
               <Text style={[styles.statLabel, {color: color.text}]}>
                 bài viết
               </Text>
@@ -389,14 +395,18 @@ const Profile = () => {
     }
   };
 
-  // useEffect(() => {
-  //   console.log('PostsItem:', PostsItem);
-  //   console.log('ReelsItem:', ReelsItem);
-  // }, [PostsItem, ReelsItem]);
-
   useEffect(() => {
+    // Lần đầu tiên: gọi cả hai API
     dispatch(getPostsOfUser({refreshToken}));
     dispatch(getReelsOfUser({refreshToken}));
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === 'grid') {
+      dispatch(getPostsOfUser({refreshToken}));
+    } else if (activeTab === 'reels') {
+      dispatch(getReelsOfUser({refreshToken}));
+    }
   }, [activeTab]);
 
   return (
