@@ -5,23 +5,13 @@ import {fetchFollowers, fetchFollowing} from './relationSlice';
 interface RelationState {
   followers: UserProfile[];
   following: UserProfile[];
-  
-  // Dữ liệu chuẩn bị cho các tính năng tương lai
-//   relations: RelationWithUser[];
-//   friends: RelationWithUser[];
-//   pendingRequests: RelationWithUser[];
-  
-  // Trạng thái loading và error
   loading: boolean;
   error: string | null;
 };
 
 const initialState: RelationState = {
   followers: [],
-//   relations: [],
-//   friends: [],
   following: [],
-//   pendingRequests: [],
   loading: false,
   error: null,
 };
@@ -32,10 +22,7 @@ const relationReducer = createSlice({
   reducers: {
     clearRelations: state => {
       state.followers = [];
-    //   state.relations = [];
-    //   state.friends = [];
       state.following = [];
-    //   state.pendingRequests = [];
       state.error = null;
     },
     clearError: state => {

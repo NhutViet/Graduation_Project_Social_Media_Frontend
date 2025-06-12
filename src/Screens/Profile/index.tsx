@@ -1,4 +1,4 @@
-import React, {useState, useCallback, useEffect} from 'react';
+import React, {useState, useCallback, useEffect, useRef} from 'react';
 import {
   StyleSheet,
   Text,
@@ -29,6 +29,9 @@ import ActionButtons from './components/actionButton.component';
 import UserInfo from './components/userInfo.component';
 import {FlashList} from '@shopify/flash-list';
 import {Styles} from '../../StyleSheet/Profile.Styles';
+import { Modalize } from "react-native-modalize";
+import { Portal } from 'react-native-portalize';
+import OptionModal from "./components/optionModal"
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../services/store';
 import {
@@ -43,7 +46,16 @@ const ProfileComp = ({route}: any) => {
   const {theme} = useTheme();
   const styles = createStyles(theme);
   const userID: string = route.params?.userID;
+  const modalOptionRef = useRef<Modalize>(null);
 
+  const openOptionModal = () => {
+    modalOptionRef.current?.open();
+  };
+
+  const closeOptionModal = () => {
+    modalOptionRef.current?.close();
+  };
+  
   const [isPrivate, setIsPrivate] = useState(UserMock.isPrivate);
   const togglePrivacy = useCallback(() => {
     setIsPrivate(prevState => !prevState);
@@ -72,6 +84,8 @@ const ProfileComp = ({route}: any) => {
     errorMessagePublicProfile
   } = useSelector((state: RootState) => state.user);
 
+  const [isBlock, setIsBlock] = useState(false);
+
   useEffect(() => {
     if (userID) {
       // Clear previous profile data
@@ -97,6 +111,7 @@ const ProfileComp = ({route}: any) => {
   useEffect(() => {
     if (publicProfile) {
       setIsFollowing(publicProfile.userFollowing);
+      setIsBlock(publicProfile.userBlocked);
     }
   }, [publicProfile]);
 
@@ -228,7 +243,7 @@ const ProfileComp = ({route}: any) => {
           </TouchableOpacity>
           <Text style={styles.headTitle}>{profileData.handleName}</Text>
           <View style={styles.SectionRight}>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={openOptionModal}>
               <Ellipsis size={24} color={Colors[theme].text} />
             </TouchableOpacity>
           </View>
@@ -252,67 +267,82 @@ const ProfileComp = ({route}: any) => {
           theme={theme}
         />
         {/* Story Highlights */}
-        <StoryComponent isPrivate={isPrivate} highlights={highlights} />
+        {!isBlock && (
+          <StoryComponent isPrivate={isPrivate} highlights={highlights} />
+        )}
         {/* Posts Grid/Video Tabs */}
-        <View style={{flexDirection: 'row'}}>
-          <TouchableOpacity
-            disabled={!isPrivate}
-            onPress={() => {
-              setActiveTab('grid');
-            }}
-            style={[
-              styles.tab,
-              activeTab === 'grid' && styles.activeTab,
-              !isPrivate && {opacity: 0.5},
-            ]}>
-            <Grid
-              size={26}
-              color={
-                activeTab === 'grid' ? Colors[theme].text : Colors.textSecondary
-              }
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            disabled={!isPrivate}
-            onPress={() => {
-              setActiveTab('reels');
-            }}
-            style={[
-              styles.tab,
-              activeTab === 'reels' && styles.activeTab,
-              !isPrivate && {opacity: 0.5},
-            ]}>
-            <Video
-              size={26}
-              color={
-                activeTab === 'reels'
-                  ? Colors[theme].text
-                  : Colors.textSecondary
-              }
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            disabled={!isPrivate}
-            onPress={() => {
-              setActiveTab('tagged');
-            }}
-            style={[
-              styles.tab,
-              activeTab === 'tagged' && styles.activeTab,
-              !isPrivate && {opacity: 0.5},
-            ]}>
-            <UserSquare2
-              size={26}
-              color={
-                activeTab === 'tagged'
-                  ? Colors[theme].text
-                  : Colors.textSecondary
-              }
-            />
-          </TouchableOpacity>
-        </View>
-        {/* Posts Grid */}
-        {renderTabContent()}
+        {!isBlock && (
+          <>
+            <View style={{flexDirection: 'row'}}>
+            <TouchableOpacity
+              disabled={!isPrivate}
+              onPress={() => {
+                setActiveTab('grid');
+              }}
+              style={[
+                styles.tab,
+                activeTab === 'grid' && styles.activeTab,
+                !isPrivate && {opacity: 0.5},
+              ]}>
+              <Grid
+                size={26}
+                color={
+                  activeTab === 'grid' ? Colors[theme].text : Colors.textSecondary
+                }
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              disabled={!isPrivate}
+              onPress={() => {
+                setActiveTab('reels');
+              }}
+              style={[
+                styles.tab,
+                activeTab === 'reels' && styles.activeTab,
+                !isPrivate && {opacity: 0.5},
+              ]}>
+              <Video
+                size={26}
+                color={
+                  activeTab === 'reels'
+                    ? Colors[theme].text
+                    : Colors.textSecondary
+                }
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              disabled={!isPrivate}
+              onPress={() => {
+                setActiveTab('tagged');
+              }}
+              style={[
+                styles.tab,
+                activeTab === 'tagged' && styles.activeTab,
+                !isPrivate && {opacity: 0.5},
+              ]}>
+              <UserSquare2
+                size={26}
+                color={
+                  activeTab === 'tagged'
+                    ? Colors[theme].text
+                    : Colors.textSecondary
+                }
+              />
+            </TouchableOpacity>
+          </View>
+          {/* Posts Grid */}
+          {renderTabContent()}
+          </>
+        )}
+
+        <Portal>
+          <OptionModal 
+          ref={modalOptionRef} 
+          userID={userID} 
+          isBlock={isBlock} 
+          onBlockChange={(newState) => setIsBlock(newState)}
+          />
+        </Portal>
       </ScrollView>
     </SafeAreaView>
   );
