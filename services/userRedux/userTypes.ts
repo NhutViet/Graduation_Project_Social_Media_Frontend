@@ -41,5 +41,6 @@ export interface PublicUserRes {
   profilePic: string;
   isVip: boolean;
   userFollowing: boolean;
+  userBlocked: boolean;
 }
 
