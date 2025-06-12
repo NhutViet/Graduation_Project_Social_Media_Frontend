@@ -196,7 +196,7 @@ export const MessageScreen = () => {
               <Image
                 style={styles.img}
                 source={{
-                  uri: 'https://i.pinimg.com/736x/2d/db/ae/2ddbaec1fb3d18f6ce00c4ebc1693193.jpg',
+                  uri: user.user?.profilePic,
                 }}
               />
             </TouchableOpacity>

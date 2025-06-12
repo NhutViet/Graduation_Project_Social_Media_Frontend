@@ -1,12 +1,6 @@
 import React from 'react';
-import {
-  Image,
-  Linking,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import { Message } from '../../../../services/messageRedux/messageType';
+import {Image, Linking, Text, TouchableOpacity, View} from 'react-native';
+import {Message} from '../../../../services/messageRedux/messageType';
 
 interface MessageItemProps {
   item: Message;
@@ -35,7 +29,8 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
 }) => {
   const isMe = item.sender.handleName === userHandleName;
   const prevMsg = chat[index - 1];
-  const showAvatar = !prevMsg || prevMsg.sender.handleName !== item.sender.handleName;
+  const showAvatar =
+    !prevMsg || prevMsg.sender.handleName !== item.sender.handleName;
   const isSelected = selectedMessageIndex === index;
 
   return (
@@ -50,7 +45,8 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
         </TouchableOpacity>
       )}
 
-      <View style={[styles.row, {alignItems: isMe ? 'flex-end' : 'flex-start'}]}>
+      <View
+        style={[styles.row, {alignItems: isMe ? 'flex-end' : 'flex-start'}]}>
         {!isMe && showAvatar && (
           <Text style={styles.name}>{item.sender.handleName}</Text>
         )}
@@ -62,7 +58,7 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
             style={[
               styles.message,
               {
-                marginLeft: isMe || showAvatar ? 0 : 60,
+                marginLeft: isMe || showAvatar ? 0 : 50,
                 marginRight: isMe ? 0 : 40,
                 backgroundColor: item.media
                   ? 'transparent'
@@ -73,7 +69,8 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
               },
             ]}>
             {item.media ? (
-              <TouchableOpacity onPress={() => setSelectedImageUri(item.media ?? null)}>
+              <TouchableOpacity
+                onPress={() => setSelectedImageUri(item.media ?? null)}>
                 <Image
                   source={{uri: item.media}}
                   style={{width: 150, height: 150, borderRadius: 8}}

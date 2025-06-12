@@ -26,8 +26,6 @@ import {AppDispatch} from '../../../services/store';
 import {Media} from '../../../services/postRedux/postTypes';
 import ExploreSection from './Components/ExploreTile';
 import {useDebounce} from 'use-debounce';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '../../../services/store';
 import { fetchSearchPost, fetchSearchUser } from '../../../services/searchRedux/searchSlice';
 
 const generateImages = (count: number) =>
@@ -119,7 +117,6 @@ export const Search = () => {
   const [searchText, setSearchText] = useState('');
   const [combinedResults, setCombinedResults] = useState<any[]>([]);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
-  const dispatch = useDispatch<AppDispatch>();
 
   const [debouncedSearchText] = useDebounce(searchText, 500);
   const {refreshToken} = useSelector((state: RootState) => state.user);
