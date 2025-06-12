@@ -8,6 +8,7 @@ export interface Story {
   viewerId: string[];
   collectionName?: string;
   storyId?: string[];
+  likedByUsers: string[];
   createdAt: string;
   updatedAt: string;
 }

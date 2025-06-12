@@ -1,66 +1,70 @@
-import { Image, StyleSheet, Text, View, Dimensions, TouchableOpacity, FlatList, Pressable, ActivityIndicator  } from 'react-native'
-import React, { useState } from 'react'
+import {
+  Image,
+  StyleSheet,
+  Text,
+  View,
+  Dimensions,
+  TouchableOpacity,
+  FlatList,
+  Pressable,
+  ActivityIndicator,
+} from 'react-native';
+import React, {useEffect, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {Colors} from '../../../../../assets/color/Colors';
 import {useTheme} from '../../../../util/ThemeContext';
 import Video from 'react-native-video';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '../../../../../services/store';
+import {fetchGetPostedSotry} from '../../../../../services/StoryRedux/StorySlice';
 
-const data = [
-  {
-    id: '1',
-    date: '2023-10-18',
-    imageURL: 'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-    saved: true,
-  },
-  {
-    id: '2',
-    date: '2023-12-15',
-    videoURL: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    saved: false,
-  },
-  {
-    id: '3',
-    date: '2024-03-26',
-    videoURL: 'https://www.w3schools.com/html/movie.mp4',
-    saved: true,
-  },
-  {
-    id: '4',
-    date: '2024-05-07',
-    imageURL: 'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-    saved: false,
-  },
-];
+const formatMonthText = (dateString?: string): string => {
+  if (!dateString) return '--\n--';
 
-const formatMonthText = (dateString: string): string => {
-    const date = new Date(dateString);
-    const months = [
-      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-    ];
-    const day = date.getDate();
-    const month = months[date.getMonth()];
-    return `${day}\n${month}`;
-  };
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return '--\n--';
 
-const { width } = Dimensions.get('window');
+  const months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+  return `${date.getDate()}\n${months[date.getMonth()]}`;
+};
+
+const {width} = Dimensions.get('window');
 const ITEM_SIZE = width / 3;
 
 const StoriesTab = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const {myStories, loading} = useSelector((state: RootState) => state.stories);
   const navigation: any = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];
-  const [isData, setIsData] = useState(true);
-  const [loading, setLoading] = useState(false);
 
-  const renderItem = ({ item }: { item: any }) => {
+  useEffect(() => {
+    dispatch(fetchGetPostedSotry());
+  }, []);
+
+  const renderItem = ({item}: {item: any}) => {
+    console.log('🟢 item:', item);
+
     return (
       <View style={[styles.itemContainer, {backgroundColor: color.black}]}>
         {item.videoURL ? (
           <Pressable>
             <Video
-              source={{ uri: item.videoURL }}
+              source={{uri: item.mediaUrl}}
               style={styles.media}
               resizeMode="contain"
               paused={true}
@@ -68,12 +72,12 @@ const StoriesTab = () => {
           </Pressable>
         ) : (
           <Pressable onPress={() => navigation.navigate('SeenStoryOwner')}>
-            <Image source={{ uri: item.imageURL }} style={styles.media} />
+            <Image source={{uri: item.mediaUrl}} style={styles.media} />
           </Pressable>
         )}
 
         <View style={styles.dateBadge}>
-          <Text style={styles.dateText}>{formatMonthText(item.date)}</Text>
+          <Text style={styles.dateText}>{formatMonthText(item.createdAt)}</Text>
         </View>
 
         {item.saved && (
@@ -97,30 +101,68 @@ const StoriesTab = () => {
   }
 
   return (
-    <SafeAreaView style={[styles.container, {backgroundColor: color.background}]}>
-      {isData ? (
+    <SafeAreaView
+      style={[styles.container, {backgroundColor: color.background}]}>
+      {myStories.length > 0 ? (
         <FlatList
-          data={data}
+          data={myStories}
           renderItem={renderItem}
-          keyExtractor={(item) => item.id}
+          keyExtractor={item => item._id}
           numColumns={3}
-          contentContainerStyle={{ paddingBottom: 16 }}
+          contentContainerStyle={{paddingBottom: 16}}
           showsVerticalScrollIndicator={false}
         />
       ) : (
-        <View style={{height: '90%', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 65, backgroundColor: color.background}}>
-          <View style={{width: 100, height: 100, borderWidth: 1, borderRadius: 80, borderColor: color.text, justifyContent: 'center', alignItems: 'center'}}>
-            <Image style={{width: 70, height: 70, resizeMode: 'contain', tintColor: color.text}} source={require('../../../../../assets/icon/archiveStory.png')}/>
+        <View
+          style={{
+            height: '90%',
+            justifyContent: 'center',
+            alignItems: 'center',
+            paddingHorizontal: 65,
+            backgroundColor: color.background,
+          }}>
+          <View
+            style={{
+              width: 100,
+              height: 100,
+              borderWidth: 1,
+              borderRadius: 80,
+              borderColor: color.text,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <Image
+              style={{
+                width: 70,
+                height: 70,
+                resizeMode: 'contain',
+                tintColor: color.text,
+              }}
+              source={require('../../../../../assets/icon/archiveStory.png')}
+            />
           </View>
-          <Text style={{fontSize: 19, fontWeight: 'bold', color: color.text, marginVertical: 10}}>Thêm vào tin của bạn</Text>
-          <Text style={{fontSize: 15, color: color.secondary, textAlign:"center"}}>Sử dụng kho lưu trữ để giữ lại các tin của bạn khi chúng biến mất để sau này có thể ôn lại kỷ niệm. Chỉ bạn mới xem được nội dung trong kho lưu trữ của mình.</Text>
+          <Text
+            style={{
+              fontSize: 19,
+              fontWeight: 'bold',
+              color: color.text,
+              marginVertical: 10,
+            }}>
+            Thêm vào tin của bạn
+          </Text>
+          <Text
+            style={{fontSize: 15, color: color.secondary, textAlign: 'center'}}>
+            Sử dụng kho lưu trữ để giữ lại các tin của bạn khi chúng biến mất để
+            sau này có thể ôn lại kỷ niệm. Chỉ bạn mới xem được nội dung trong
+            kho lưu trữ của mình.
+          </Text>
         </View>
       )}
-      </SafeAreaView>
-  )
-}
+    </SafeAreaView>
+  );
+};
 
-export default StoriesTab
+export default StoriesTab;
 
 const styles = StyleSheet.create({
   container: {
@@ -129,7 +171,7 @@ const styles = StyleSheet.create({
   },
   itemContainer: {
     width: ITEM_SIZE,
-    height: ITEM_SIZE*2,
+    height: ITEM_SIZE * 2,
     margin: 1,
     position: 'relative',
   },
@@ -151,7 +193,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#000',
     lineHeight: 17,
-    textAlign: 'center'
+    textAlign: 'center',
   },
   heartIcon: {
     position: 'absolute',
@@ -176,4 +218,4 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-})
+});

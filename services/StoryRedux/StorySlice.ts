@@ -2,6 +2,7 @@ import {createAsyncThunk} from '@reduxjs/toolkit';
 import {Story, userFollow} from './StoryType';
 import axiosInstance from '../axiosInstance';
 import {API} from '../api';
+import {rejectValue} from '../likersRedux/likersType';
 
 export const seenStory = createAsyncThunk<
   void,
@@ -27,16 +28,19 @@ export const seenStory = createAsyncThunk<
 
 export const fetchFollowingStories = createAsyncThunk<
   userFollow[],
-  { page: number },
+  {page: number},
   {rejectValue: {message: string}}
->('stories/fetchFollowing', async ({ page }, {rejectWithValue}) => {
+>('stories/fetchFollowing', async ({page}, {rejectWithValue}) => {
   try {
-    const response = await axiosInstance.get(`${API.GET_USER_FOLLOW}?page=${page}`, {
-      headers: {
-        token: 'refresh',
+    const response = await axiosInstance.get(
+      `${API.GET_USER_FOLLOW}?page=${page}`,
+      {
+        headers: {
+          token: 'refresh',
+        },
       },
-    });
-    return response.data;
+    );
+    return response.data.data;
   } catch (error: any) {
     return rejectWithValue({
       message: error.response?.data?.message || 'Lấy stories thất bại',
@@ -64,3 +68,38 @@ export const fetchStoriesByIds = createAsyncThunk<
     );
   }
 });
+
+// lấy story đã đăng
+export const fetchGetPostedSotry = createAsyncThunk<
+  Story[],
+  void,
+  {rejectValue: string}
+>('stories/fetchPostedSotry', async (_, {rejectWithValue}) => {
+  try {
+    const response = await axiosInstance.get(`/stories/me`, {
+      headers: {
+        token: 'refresh',
+      },
+    });
+    return response.data?.data || [];
+  } catch (error: any) {
+    return rejectWithValue(
+      error.response?.data?.message || 'Không lấy được story đã đăng',
+    );
+  }
+});
+
+export const toggleLikeStory = createAsyncThunk(
+  'stories/toggleLikeStory',
+  async ({storyId}: {storyId: string}) => {
+    const res = await axiosInstance.patch(
+      `/stories/like`,
+      {_id: storyId}, // ✅ Đây là điểm quan trọng
+      {
+        headers: {token: 'refresh'},
+      },
+    );
+    return res.data;
+  },
+);
+

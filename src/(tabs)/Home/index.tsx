@@ -42,7 +42,7 @@ export const Home = () => {
 
   // redux
   const dispatch = useDispatch<AppDispatch>();
-  const {posts, loading} = useSelector((state: RootState) => state.post);
+  const {posts} = useSelector((state: RootState) => state.post);
 
   const [currentVisible, setCurrentVisible] = useState<string | null>(null);
   const {
@@ -117,6 +117,7 @@ export const Home = () => {
           image: storyDetail.mediaUrl.endsWith('.m3u8')
             ? null
             : storyDetail.mediaUrl,
+          likedByUsers: storyDetail.likedByUsers,
         },
       });
     } catch (err) {
@@ -163,7 +164,7 @@ export const Home = () => {
     };
   });
 
-  if (loading) {
+  if (storyLoading) {
     return (
       <SafeAreaView
         style={{
@@ -239,19 +240,23 @@ export const Home = () => {
                 top: 50,
               }}>
               <Animated.FlatList
-                data={dataUser}
-                renderItem={({item}) => (
-                  <Story
-                    name={
-                      item.handleName === user?.user?.handleName
-                        ? 'Tin của tôi'
-                        : item.handleName
-                    }
-                    image={item.profilePic}
-                    status={item.stories.length > 0 ? 1 : 0}
-                    func={() => handleUserPress(item)}
-                  />
-                )}
+                data={(dataUser || []).filter(item => item && item._id)}
+                renderItem={({item}) => {
+                  if (!item || !item._id) return null;
+
+                  return (
+                    <Story
+                      name={
+                        item.handleName === user?.user?.handleName
+                          ? 'Tin của tôi'
+                          : item.handleName
+                      }
+                      image={item.profilePic}
+                      status={item.stories.length > 0 ? 1 : 0}
+                      func={() => handleUserPress(item)}
+                    />
+                  );
+                }}
                 horizontal
                 keyExtractor={item => item._id}
                 showsHorizontalScrollIndicator={false}

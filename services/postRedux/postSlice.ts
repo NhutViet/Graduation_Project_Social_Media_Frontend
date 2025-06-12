@@ -74,3 +74,19 @@ export const hidePost = createAsyncThunk<
     return rejectWithValue(err.response?.data || err.message);
   }
 });
+
+export const fetchTaggingPost = createAsyncThunk<PostWithMedia[]>(
+  'posts/tags',
+  async (_, {rejectWithValue}) => {
+    try {
+      const response = await axiosInstance.get(API.GET_TAGGING_POST, {
+        headers: {
+          token: 'refresh',
+        },
+      });
+      return response.data;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data || err.message);
+    }
+  },
+);

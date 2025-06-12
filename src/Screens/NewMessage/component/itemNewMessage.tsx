@@ -1,13 +1,22 @@
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Colors} from '../../../../assets/color/Colors';
 import {useTheme} from '../../../util/ThemeContext';
+import {useNavigation} from '@react-navigation/native';
 
 const ItemNewMessage = (props: any) => {
-  const {nameChat, userHandle1, userHandle2, img1, img2, icon} = props;
+  const {roomId, nameChat, userHandle1, userHandle2, img1, img2, icon} = props;
   const {theme} = useTheme();
   const color = Colors[theme];
+  const navigation: any = useNavigation();
+
   return (
-    <TouchableOpacity style={styles.container}>
+    <TouchableOpacity
+      style={styles.container}
+      onPress={() => {
+        navigation.navigate('MessageScreen', {
+          room: roomId,
+        });
+      }}>
       <View style={styles.rowContainer}>
         <View
           style={[
@@ -28,6 +37,7 @@ const ItemNewMessage = (props: any) => {
                   styles.iconF,
                   {
                     borderColor: color.background,
+                    backgroundColor: color.backgroundSecondary,
                   },
                 ]}
                 source={{uri: img2}}

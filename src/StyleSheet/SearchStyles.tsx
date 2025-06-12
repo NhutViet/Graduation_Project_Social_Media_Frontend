@@ -1,4 +1,4 @@
-import {Dimensions, StyleSheet, Text, View} from 'react-native';
+import {Dimensions, StyleSheet} from 'react-native';
 import {Colors} from '../../assets/color/Colors';
 
 export const SearchStyles = (theme: 'light' | 'dark') => {
@@ -81,7 +81,7 @@ export const SearchStyles = (theme: 'light' | 'dark') => {
       color: color.primary,
     },
     icon: {
-      width: 24,
+      width: 14,
       resizeMode: 'contain',
       tintColor: color.text,
     },
