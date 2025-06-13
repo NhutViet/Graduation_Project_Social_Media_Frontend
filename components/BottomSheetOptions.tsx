@@ -4,41 +4,31 @@ import {useBottomSheetStyles} from '../src/StyleSheet/BottomSheetStyles';
 import {useTheme} from '../src/util/ThemeContext';
 import {Colors} from '../assets/color/Colors';
 
-export interface OptionItem {
+export interface ConfigOption {
   id: string;
   icon: any;
   label: string;
-  onPress: () => void;
   labelColor?: string;
 }
 
 export interface BottomSheetOptionsProps {
-  topOptions: OptionItem[];
-  // array of groups for vertical lists
-  listOptionGroups: OptionItem[][];
-  handleHidePost: () => void;
-  onClose: () => void;
+  topOptions: ConfigOption[];
+  listOptionGroups: ConfigOption[][];
+  onSelect: (id: string) => void;
 }
 
-export const BottomSheetOptions: React.FC<BottomSheetOptionsProps> = ({
+const BottomSheetOptions: React.FC<BottomSheetOptionsProps> = ({
   topOptions,
   listOptionGroups,
-  handleHidePost,
-  onClose,
+  onSelect,
 }) => {
-  const {theme} = useTheme();
-  const color = Colors[theme];
+  const { theme } = useTheme();
   const palette = Colors[theme];
   const styles = useBottomSheetStyles();
   const spacing = Colors.spacing;
 
-  const handlePress = (item: OptionItem) => {
-    if (item.id === 'hide') {
-      handleHidePost();
-    } else {
-      item.onPress();
-    }
-    onClose();
+  const handlePress = (id: string) => {
+    onSelect(id);
   };
 
   return (
@@ -46,56 +36,55 @@ export const BottomSheetOptions: React.FC<BottomSheetOptionsProps> = ({
       {/* Horizontal row */}
       {topOptions.length > 0 && (
         <View style={styles.horizontalContainer}>
-          {topOptions.map((item, idx) => (
-            <React.Fragment key={item.id}>
+          {topOptions.map((opt, idx) => (
+            <React.Fragment key={opt.id}>
               <TouchableOpacity
                 style={styles.horizontalButton}
-                onPress={() => handlePress(item)}>
+                onPress={() => handlePress(opt.id)}>
                 <Image
-                  source={item.icon}
-                  style={[styles.topIcon, {tintColor: color.text}]}
+                  source={opt.icon}
+                  style={[styles.topIcon, { tintColor: palette.text }]}
                   resizeMode="contain"
                 />
-                <Text style={[styles.topLabel, {color: palette.text}]}>
-                  {item.label}
+                <Text style={[styles.topLabel, { color: palette.text }]}>  
+                  {opt.label}
                 </Text>
               </TouchableOpacity>
-
-              {/* only render an invisible spacer if this isn’t the last item */}
-              {idx < topOptions.length - 1 && (
-                <View style={{width: spacing.s}} />
-              )}
+              {/* only render an invisible spacer if this ain't the last item */}
+              {idx < topOptions.length - 1 && <View style={{ width: spacing.s }} />}
             </React.Fragment>
           ))}
         </View>
       )}
 
       {/* Vertical lists */}
-      {listOptionGroups.map((group, idx) => (
-        <View key={idx} style={styles.verticalSectionContainer}>
-          {group.map((item, i) => (
-            <React.Fragment key={item.id}>
+      {listOptionGroups.map((group, gIdx) => (
+        <View key={gIdx} style={styles.verticalSectionContainer}>
+          {group.map((opt, idx) => (
+            <React.Fragment key={opt.id}>
               <TouchableOpacity
                 style={styles.listItem}
-                onPress={() => handlePress(item)}>
+                onPress={() => handlePress(opt.id)}>
                 <Image
-                  source={item.icon}
+                  source={opt.icon}
                   style={[
                     styles.listIcon,
-                    {tintColor: item.labelColor ?? color.text},
+                    { tintColor: opt.labelColor ?? palette.text },
                   ]}
                   resizeMode="contain"
                 />
                 <Text
                   style={[
                     styles.listLabel,
-                    {color: item.labelColor || palette.text},
+                    { color: opt.labelColor || palette.text },
                   ]}>
-                  {item.label}
+                  {opt.label}
                 </Text>
               </TouchableOpacity>
-              {/* Separator except after last item */}
-              {i < group.length - 1 && <View style={styles.listSeparator} />}
+              {/* separator if not last item */}
+              {idx < group.length - 1 && (
+                <View style={styles.listSeparator} />
+              )}
             </React.Fragment>
           ))}
         </View>
@@ -104,4 +93,4 @@ export const BottomSheetOptions: React.FC<BottomSheetOptionsProps> = ({
   );
 };
 
-export default BottomSheetOptions;
+export default React.memo(BottomSheetOptions);

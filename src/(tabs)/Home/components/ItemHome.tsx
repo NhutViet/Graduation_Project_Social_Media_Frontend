@@ -1,4 +1,4 @@
-import React, {useRef, useCallback, useState, useEffect, useMemo} from 'react';
+import React, {useRef, useCallback, useState, useEffect, useMemo, Suspense} from 'react';
 import {
   View,
   Text,
@@ -13,12 +13,6 @@ import {Modalize} from 'react-native-modalize';
 import {Colors} from '../../../../assets/color/Colors';
 import {useTheme} from '../../../util/ThemeContext';
 import {Portal} from 'react-native-portalize';
-import BottomSheetOptions, {
-  OptionItem,
-} from '../../../../components/BottomSheetOptions';
-import BottomSheetIntentions, {
-  IntentionOption,
-} from '../../../../components/BottomSheetIntentions';
 import {useNavigation} from '@react-navigation/native';
 import ModalShare from './ModalShare';
 import ModalReaction from './ModalReaction';
@@ -41,6 +35,16 @@ import {
 } from '../../../../services/bookmarkRedux/bookmarkSlice';
 import {ItemHomeStyles} from '../component_styles/ItemHomeStyles';
 import Sound from 'react-native-sound';
+import {
+  postTopOptions,
+  postFirstList,
+  postSecondList,
+  reportChoices
+} from '../../../config/postOptions';
+
+// lazy‑load the bottom‑sheet components
+const BottomSheetOptions    = React.lazy(() => import('../../../../components/BottomSheetOptions'));
+const BottomSheetIntentions = React.lazy(() => import('../../../../components/BottomSheetIntentions'));
 
 Sound.setCategory('Playback');
 
@@ -212,21 +216,28 @@ const ItemHome = (props: any) => {
       setFollow(true);
     }
   };
-
+  const intentRef = useRef<Modalize>(null);
   const sheetRef = useRef<Modalize>(null);
   const openOptions = useCallback(() => {
     sheetRef.current?.open();
   }, []);
-  const closeSheet = useCallback(() => {
-    sheetRef.current?.close();
+
+  const openIntentions = useCallback(() => {
+    intentRef.current?.open();
   }, []);
+
+
+  const closeSheet = useCallback(() => {
+    // sheetRef.current?.close();
+  }, []);
+
+  const closeIntentions = useCallback(() => {
+  }, []);
+
   const onSheetClose = useCallback(() => {
     setIsModalVisible(false);
   }, []);
 
-  const intentRef = useRef<Modalize>(null);
-  const openIntentions = useCallback(() => intentRef.current?.open(), []);
-  const closeIntentions = useCallback(() => intentRef.current?.close(), []);
   const onIntentionsClose = useCallback(() => {}, []);
 
   const modalReactionRef = useRef<Modalize>(null);
@@ -300,119 +311,66 @@ const ItemHome = (props: any) => {
     }
   };
 
-  // Bottom sheet options
-  const topOptions: OptionItem[] = [
-    {
-      id: 'bookmark',
-      icon: require('../../../../assets/icon/bookmark.png'),
-      label: 'Lưu',
-      onPress: () => {
-        closeSheet();
-      },
-    },
-    {
-      id: 'remix',
-      icon: require('../../../../assets/icon/remix.png'),
-      label: 'Remix',
-      onPress: () => {
-        closeSheet();
-      },
-    },
-  ];
-  const firstListOptions: OptionItem[] = [
-    {
-      id: 'favorite',
-      icon: require('../../../../assets/icon/star.png'),
-      label: 'Thêm vào mục yêu thích',
-      onPress: () => {
-        closeSheet();
-      },
-    },
-    {
-      id: 'unfollow',
-      icon: require('../../../../assets/icon/unfollow.png'),
-      label: 'Bỏ theo dõi',
-      onPress: () => {
-        closeSheet();
-        handleUnFollowPress();
-      },
-    },
-  ];
-  const secondListOptions: OptionItem[] = [
-    {
-      id: 'accountInfo',
-      icon: require('../../../../assets/icon/account.png'),
-      label: 'Giới thiệu về tài khoản này',
-      onPress: () => {
-        closeSheet();
-      },
-    },
-    {
-      id: 'whySee',
-      icon: require('../../../../assets/icon/info.png'),
-      label: 'Tại sao tôi thấy bài viết này ?',
-      onPress: () => {
-        closeSheet();
-      },
-    },
-    {
-      id: 'hide',
-      icon: require('../../../../assets/icon/blind.png'),
-      label: 'Ẩn',
-      onPress: () => {
-        closeSheet();
-      },
-    },
-    {
-      id: 'report',
-      icon: require('../../../../assets/icon/report.png'),
-      label: 'Báo cáo',
-      onPress: () => {
-        closeSheet();
-        openIntentions();
-      },
-      labelColor: '#FF0000',
-    },
-  ];
+  // Unified select‑by‑ID handler (memoized)
+  const handleOptionSelect = useCallback((id: string) => {
+    sheetRef.current?.close();
+    switch (id) {
+      case 'hide':
+        sheetRef.current?.close();
+        return handleHidePost();
+      case 'unfollow':
+        sheetRef.current?.close();
+        return handleUnFollowPress();
+      case 'report':
+        sheetRef.current?.close();
+        return openIntentions();       
+      default:
+        return sheetRef.current?.close();
+    }
+  }, [handleHidePost, handleUnFollowPress, openIntentions]);
 
-  const reportChoices: IntentionOption[] = [
-    {
-      id: 'bullying',
-      label: 'Bắt nạt hoặc liên hệ theo cách không mong muốn',
-      onPress: closeIntentions,
-    },
-    {
-      id: 'selfHarm',
-      label: 'Tự tử, tự gậy thương tích hoặc chứng rối loạn ăn uống',
-      onPress: closeIntentions,
-    },
-    {
-      id: 'violence',
-      label: 'Bạo lực, thù ghét hoặc bóc lột',
-      onPress: closeIntentions,
-    },
-    {
-      id: 'restricted',
-      label: 'Bán hoặc quảng cáo mặt hàng bị hạn chế',
-      onPress: closeIntentions,
-    },
-    {
-      id: 'nudity',
-      label: 'Ảnh khỏa thân hoặc hoạt động tình dục',
-      onPress: closeIntentions,
-    },
-    {
-      id: 'spam',
-      label: 'Lừa đảo, gian lận hoặc spam',
-      onPress: closeIntentions,
-    },
-    {id: 'false', label: 'Thông tin sai sự thật', onPress: closeIntentions},
-    {
-      id: 'copyright',
-      label: 'Quyền sở hữu trí tuệ',
-      onPress: closeIntentions,
-    },
-  ];
+  const handleIntentionSelect = useCallback((id: string) => {
+    intentRef.current?.close();
+
+    console.log('Intent chosen:', id);
+  }, []);
+
+  // Memoized option arrays
+  const topOptions = useMemo(
+    () => postTopOptions.map(opt => ({
+      ...opt,
+      onPress: () => handleOptionSelect(opt.id),
+    })),
+    [handleOptionSelect]
+  );
+
+  const firstListOptions = useMemo(
+    () => postFirstList.map(opt => ({
+      ...opt,
+      onPress: () => handleOptionSelect(opt.id),
+    })),
+    [handleOptionSelect]
+  );
+
+  const secondListOptions = useMemo(
+    () => postSecondList.map(opt => ({
+      ...opt,
+      onPress: () => handleOptionSelect(opt.id),
+    })),
+    [handleOptionSelect]
+  );
+
+  // For the intentions sheet we also call onClose after select
+  const intentionOptions = useMemo(
+    () => reportChoices.map(opt => ({
+      ...opt,
+      onPress: () => {
+        handleOptionSelect(opt.id);
+        onIntentionsClose();
+      },
+    })),
+    [handleOptionSelect, onIntentionsClose]
+  );
 
   //bookmark
   const {itemsByPlaylist, playlists} = useSelector(
@@ -479,56 +437,45 @@ const ItemHome = (props: any) => {
 
   return (
     <View style={ItemHomeStyles.wrapper}>
-      <Portal>
+    <Portal>
+      <Suspense fallback={null}>
         <Modalize
           ref={sheetRef}
-          modalStyle={[
-            {backgroundColor: color.background},
-            ItemHomeStyles.modalStyle,
-          ]}
-          handleStyle={[
-            {backgroundColor: color.text},
-            ItemHomeStyles.handleStyle,
-          ]}
-          handlePosition="inside"
-          panGestureEnabled
-          scrollViewProps={{scrollEnabled: false}}
           adjustToContentHeight
-          onClose={onSheetClose}>
+          handlePosition="inside"
+          modalStyle={{ backgroundColor: color.background, borderTopLeftRadius: 16, borderTopRightRadius: 16, overflow: 'hidden', paddingTop: 24,}}
+          handleStyle={{ backgroundColor: color.text, width: 40, height: 5, borderRadius: 2.5, marginVertical: 8,alignSelf: 'center', top: 8 }}
+          // onClose={() => sheetRef.current?.close()}
+        >
           <BottomSheetOptions
             topOptions={topOptions}
             listOptionGroups={[firstListOptions, secondListOptions]}
-            handleHidePost={handleHidePost}
-            onClose={closeSheet}
+            onSelect={handleOptionSelect}
           />
         </Modalize>
-      </Portal>
+      </Suspense>
+    </Portal>
 
-      <Portal>
+    <Portal>
+      <Suspense fallback={null}>
         <Modalize
           ref={intentRef}
-          modalStyle={[
-            {backgroundColor: color.background},
-            ItemHomeStyles.modalStyle,
-          ]}
-          handleStyle={[
-            {backgroundColor: color.text},
-            ItemHomeStyles.handleStyle,
-          ]}
-          handlePosition="inside"
-          panGestureEnabled
-          scrollViewProps={{scrollEnabled: false}}
           adjustToContentHeight
-          onClose={onIntentionsClose}>
+          handlePosition="inside"
+          modalStyle={{ backgroundColor: color.background, borderTopLeftRadius: 16, borderTopRightRadius: 16, overflow: 'hidden', paddingTop: 24,}}
+          handleStyle={{ backgroundColor: color.text, width: 40, height: 5, borderRadius: 2.5, marginVertical: 8,alignSelf: 'center', top: 8 }}
+          // onClose={() => intentRef.current?.close()}
+        >
           <BottomSheetIntentions
             title="Báo cáo"
             subtitle="Tại sao bạn báo cáo bài viết này?"
             content="Báo cáo của bạn sẽ được ẩn danh. Nếu ai đó đang gặp nguy hiểm, đừng chần chừ mà hãy báo ngay cho dịch vụ khẩn cấp tại địa phương."
-            options={reportChoices}
-            onClose={closeIntentions}
+            options={intentionOptions}
+            onSelect={handleIntentionSelect}
           />
         </Modalize>
-      </Portal>
+      </Suspense>
+    </Portal>
 
       <View style={ItemHomeStyles.container}>
         {type != 'reel' && <View style={ItemHomeStyles.blockWhite}></View>}
