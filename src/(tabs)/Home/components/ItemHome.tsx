@@ -231,9 +231,7 @@ const ItemHome = (props: any) => {
 
   const modalReactionRef = useRef<Modalize>(null);
 
-  const handleOpenReactionModal = useCallback(() => {
-    modalReactionRef.current?.open();
-  }, []);
+  const handleOpenReactionModal = useCallback(() => modalReactionRef.current?.open(), []);
 
   const handleOpenModalShare = useCallback(async () => {
     if (loading) {
