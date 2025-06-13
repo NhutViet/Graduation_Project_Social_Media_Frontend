@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect, useMemo, useCallback} from 'react';
 import {
   Modal,
   View,
@@ -8,6 +8,7 @@ import {
   TextInput,
   Image,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import {
   Search,
@@ -19,20 +20,19 @@ import {
 import {FlashList} from '@shopify/flash-list';
 import {Colors} from '../../../../assets/color/Colors';
 import {useTheme} from '../../../util/ThemeContext';
-
-interface Friend {
-  id: string;
-  name: string;
-  avatar: string;
-}
+import {
+  fetchFollowers,
+  fetchFollowing,
+} from '../../../../services/relationRedux/relationSlice';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '../../../../services/store';
 
 interface ModalShareProps {
   visible: boolean;
   onClose: () => void;
-  friends: Friend[];
 }
 
-const ModalShare: React.FC<ModalShareProps> = ({visible, onClose, friends}) => {
+const ModalShare: React.FC<ModalShareProps> = ({visible, onClose}) => {
   const {theme} = useTheme();
   const color = Colors[theme];
   const [selectedFriendIds, setSelectedFriendIds] = useState<string[]>([]);
@@ -43,6 +43,47 @@ const ModalShare: React.FC<ModalShareProps> = ({visible, onClose, friends}) => {
       prev.includes(id) ? prev.filter(fid => fid !== id) : [...prev, id],
     );
   };
+
+  const dispatch = useDispatch<AppDispatch>();
+  const userID = useSelector((state: RootState) => state.user?.user?._id);
+  const {followers, following, loading, error} = useSelector(
+    (state: RootState) => state.relation,
+  );
+
+  const follows = useMemo(() => {
+    const allUsers = [...followers, ...following];
+    return allUsers.filter(
+      (user, index, self) => index === self.findIndex(u => u.id === user.id),
+    ).map(user => ({
+      id: user.id,
+      name: user.username,
+      avatar: user.profilePic,
+    }));
+  }, [followers, following]);
+
+  const fetchRelations = useCallback(async () => {
+    if (!userID) return;
+
+    try {
+      await Promise.all([
+        dispatch(fetchFollowers({userID})),
+        dispatch(fetchFollowing({userID})),
+
+        console.log("followers",followers.length),
+        console.log("following",following.length),
+        console.log("follows",follows.length),
+      ]);
+    } catch (error) {
+      console.error('Error fetching relations:', error);
+      Alert.alert('Lỗi', 'Không thể tải danh sách bạn bè. Vui lòng thử lại.');
+    }
+  }, [dispatch, userID]);
+
+  useEffect(() => {
+    if (visible) {
+      fetchRelations();
+    }
+  }, [visible, fetchRelations]);
 
   return (
     <Modal visible={visible} animationType="slide" transparent>
@@ -67,10 +108,10 @@ const ModalShare: React.FC<ModalShareProps> = ({visible, onClose, friends}) => {
             <UserPlus size={20} color="#aaa" />
           </View>
 
-          {friends.length > 0 ? (
+          {follows.length > 0 ? (
             // Danh sách bạn bè
           <FlashList
-            data={friends}
+            data={follows}
             numColumns={3}
             estimatedItemSize={80}
             showsVerticalScrollIndicator={false}

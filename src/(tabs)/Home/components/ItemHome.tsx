@@ -233,30 +233,9 @@ const ItemHome = (props: any) => {
 
   const handleOpenReactionModal = useCallback(() => modalReactionRef.current?.open(), []);
 
-  const handleOpenModalShare = useCallback(async () => {
-    if (loading) {
-      console.log('Still loading relations...');
-      return;
-    }
-
-    try {
-      if (userID) {
-        await Promise.all([
-          dispatch(fetchFollowers({userID})),
-          dispatch(fetchFollowing({userID})),
-        ]);
-      }
-
-      setVisibleModalShare(true);
-
-      console.log('Followers:', followers.length);
-      console.log('Following:', following.length);
-      console.log('Combined follows:', follows.length);
-    } catch (error) {
-      console.error('Error fetching relations:', error);
-      Alert.alert('Lỗi', 'Không thể tải danh sách bạn bè. Vui lòng thử lại.');
-    }
-  }, [dispatch, userID, loading]);
+  const handleOpenModalShare = useCallback(() => {
+    setVisibleModalShare(true);
+  }, []);
 
   const formatNumber = (num: number): string => {
     if (num >= 1_000_000) {
@@ -751,7 +730,6 @@ const ItemHome = (props: any) => {
       <ModalShare
         visible={visibleModalShare}
         onClose={() => setVisibleModalShare(false)}
-        friends={follows}
       />
       <Portal>
         <ModalReaction ref={modalReactionRef} postId={_id} isLiked={isLiked} />
