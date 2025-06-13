@@ -1,4 +1,5 @@
-import React, {useEffect, useRef, useState} from 'react';
+/* eslint-disable react-native/no-inline-styles */
+import React, {useEffect, useState} from 'react';
 import {
   TouchableOpacity,
   View,
@@ -11,7 +12,6 @@ import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {useNavigation} from '@react-navigation/native';
 import {FlashList} from '@shopify/flash-list';
-import {PostData} from '../../MockData/posts.mock';
 import {highlights, HighlightItem} from '../../MockData/story.mock';
 import {
   PlusSquare,
@@ -28,11 +28,7 @@ import {Styles} from '../../StyleSheet/Profile.Styles';
 import {SwitchAccount} from '../../../components/SwitchAccount';
 import {ViewMore} from '../../../components/ViewMore';
 import ModalCreate from './components/ModalCreate';
-import {
-  PostsView,
-  ReelsView,
-  TaggedView,
-} from './components/PostView.component';
+import {PostsView} from './components/PostView.component';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../services/store';
 import {
@@ -44,8 +40,6 @@ import {
   getReelsOfUser,
 } from '../../../services/postUserRedux/postUserSlice';
 
-const HEADER_HEIGHT = 400;
-
 const Profile = () => {
   const navigation: any = useNavigation();
   const {theme} = useTheme();
@@ -55,7 +49,7 @@ const Profile = () => {
 
   const dispatch = useDispatch<AppDispatch>();
   const userID = useSelector((state: RootState) => state.user?.user?._id);
-  const {followers, following, loading, error} = useSelector(
+  const {followers, following} = useSelector(
     (state: RootState) => state.relation,
   );
   const {refreshToken} = useSelector((state: RootState) => state.user);
@@ -69,22 +63,12 @@ const Profile = () => {
 
   const [visibleModalCreate, setVisibleModalCreate] = useState(false);
 
-  const scrollY = useRef(new Animated.Value(0)).current;
-  const translateY = scrollY.interpolate({
-    inputRange: [0, HEADER_HEIGHT],
-    outputRange: [0, -HEADER_HEIGHT],
-    extrapolate: 'clamp',
-  });
-
   const [isSwitchAccountVisible, setSwitchAccountVisible] = useState(false);
   const handleUsernamePress = () => {
     setSwitchAccountVisible(true);
   };
 
   const [isViewMoreVisible, setViewMoreVisible] = useState(false);
-  const handlePlusSquarePress = () => {
-    setViewMoreVisible(true);
-  };
 
   const renderStories = ({item}: {item: HighlightItem}) => (
     <TouchableOpacity
@@ -156,7 +140,7 @@ const Profile = () => {
       };
       setDataUser([newUser, ...dataUser]);
     }
-  }, []);
+  }, [dataUser]);
 
   const handleUserPress = (user: any) => {
     console.log('Navigating to SeenStory with user:', user);
@@ -172,12 +156,14 @@ const Profile = () => {
     }
   };
 
+  const [activeTab, setActiveTab] = useState('grid');
+
   const renderHeader = () => (
-    <Animated.View
-      style={{
-        transform: [{translateY}],
-        zIndex: 0.6,
-      }}>
+    <Animated.View>
+      {/* // style={{
+      //   // transform: [{translateY}],
+      //   // zIndex: 1,
+      // }}> */}
       <View style={styles.header}>
         <View style={styles.usernameContainer}>
           <Lock size={16} color={color.text} />
@@ -357,49 +343,48 @@ const Profile = () => {
     </View>
   );
 
-  const [activeTab, setActiveTab] = useState('grid');
-  const renderContent = () => {
-    switch (activeTab) {
-      case 'grid':
-        return isSuccess && PostsItem ? (
-          <PostsView data={PostsItem} />
-        ) : (
-          <View style={[styles.content, styles.centerItem, {height: 50}]}>
-            <Text style={styles.textno}>Đang tải...</Text>
-          </View>
-        );
-      case 'reels':
-        return isSuccess && ReelsItem ? (
-          <ReelsView data={ReelsItem} />
-        ) : (
-          <View style={[styles.content, styles.centerItem, {height: 50}]}>
-            <Text style={styles.textno}>Đang tải...</Text>
-          </View>
-        );
-      case 'tagged':
-        return isSuccess ? (
-          <PostsView data={PostsItem} />
-        ) : (
-          <View style={[styles.content, styles.centerItem, {height: 50}]}>
-            <Text style={styles.textno}>Đang tải...</Text>
-          </View>
-        );
-      default:
-        return isSuccess ? (
-          <PostsView data={PostsItem} />
-        ) : (
-          <View style={[styles.content, styles.centerItem, {height: 50}]}>
-            <Text style={styles.textno}>Đang tải...</Text>
-          </View>
-        );
-    }
-  };
+  // const renderContent = () => {
+  //   switch (activeTab) {
+  //     case 'grid':
+  //       return isSuccess && PostsItem ? (
+  //         <PostsView data={PostsItem} />
+  //       ) : (
+  //         <View style={[styles.content, styles.centerItem, {height: 50}]}>
+  //           <Text style={styles.textno}>Đang tải...</Text>
+  //         </View>
+  //       );
+  //     case 'reels':
+  //       return isSuccess && ReelsItem ? (
+  //         <ReelsView data={ReelsItem} />
+  //       ) : (
+  //         <View style={[styles.content, styles.centerItem, {height: 50}]}>
+  //           <Text style={styles.textno}>Đang tải...</Text>
+  //         </View>
+  //       );
+  //     case 'tagged':
+  //       return isSuccess ? (
+  //         <PostsView data={PostsItem} />
+  //       ) : (
+  //         <View style={[styles.content, styles.centerItem, {height: 50}]}>
+  //           <Text style={styles.textno}>Đang tải...</Text>
+  //         </View>
+  //       );
+  //     default:
+  //       return isSuccess ? (
+  //         <PostsView data={PostsItem} />
+  //       ) : (
+  //         <View style={[styles.content, styles.centerItem, {height: 50}]}>
+  //           <Text style={styles.textno}>Đang tải...</Text>
+  //         </View>
+  //       );
+  //   }
+  // };
 
   useEffect(() => {
     // Lần đầu tiên: gọi cả hai API
     dispatch(getPostsOfUser({refreshToken}));
     dispatch(getReelsOfUser({refreshToken}));
-  }, []);
+  }, [dispatch, refreshToken]);
 
   useEffect(() => {
     if (activeTab === 'grid') {
@@ -407,20 +392,25 @@ const Profile = () => {
     } else if (activeTab === 'reels') {
       dispatch(getReelsOfUser({refreshToken}));
     }
-  }, [activeTab]);
+  }, [activeTab, dispatch, refreshToken]);
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
-      <Animated.ScrollView
-        onScroll={Animated.event(
-          [{nativeEvent: {contentOffset: {y: scrollY}}}],
-          {useNativeDriver: true},
-        )}
-        scrollEventThrottle={16}>
-        {renderHeader()}
-        {renderTabBar()}
-        {renderContent()}
-      </Animated.ScrollView>
+      <FlashList
+        data={activeTab === 'grid' ? PostsItem : ReelsItem}
+        renderItem={({item}) => <PostsView data={[item]} />}
+        ListHeaderComponent={
+          <>
+            {renderHeader()}
+            {renderTabBar()}
+          </>
+        }
+        estimatedItemSize={200}
+        showsVerticalScrollIndicator={false}
+        keyboardDismissMode="on-drag"
+        numColumns={3}
+        keyboardShouldPersistTaps="handled"
+      />
       <SwitchAccount
         visible={isSwitchAccountVisible}
         onClose={() => setSwitchAccountVisible(false)}
