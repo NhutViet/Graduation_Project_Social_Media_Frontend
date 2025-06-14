@@ -42,8 +42,8 @@ const MessageStyles = (theme: ThemeType) => {
       tintColor: color.text,
     },
     blockImg: {
-      width: 50,
-      height: 50,
+      width: 40,
+      height: 40,
       borderRadius: 25,
       overflow: 'hidden',
       marginRight: 10,
