@@ -107,13 +107,13 @@ const MessageStyles = (theme: ThemeType) => {
       width: '100%',
       height: '100%',
     },
-    row: {
-      // width: '80%',
-    },
     message: {
       position: 'relative',
-      padding: 10,
+      paddingHorizontal: 10,
       borderRadius: 10,
+      height: 40,
+      alignItems: 'center',
+      justifyContent: 'center',
     },
     name: {
       fontSize: 16,

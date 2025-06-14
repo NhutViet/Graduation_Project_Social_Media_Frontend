@@ -42,10 +42,6 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
 
       <View
         style={[styles.row, {alignItems: isMe ? 'flex-end' : 'flex-start'}]}>
-        {!isMe && showAvatar && (
-          <Text style={styles.name}>{item.sender.handleName}</Text>
-        )}
-
         <TouchableOpacity activeOpacity={0.7}>
           <View
             style={[
@@ -57,7 +53,7 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
                   ? 'transparent'
                   : isMe
                   ? '#00BFFF'
-                  : '#A9A9A9',
+                  : color.backgroundSecondary,
                 padding: item.media ? 0 : 10,
               },
             ]}>
