@@ -10,6 +10,7 @@ import {
   SafeAreaView,
   Dimensions,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import {FlashList} from '@shopify/flash-list';
 import {CameraRoll} from '@react-native-camera-roll/camera-roll';
@@ -20,102 +21,124 @@ import BottomSheet, {BottomSheetRef} from './BottomSheet/BottomSheetMusic';
 
 const ITEM_SIZE = Dimensions.get('window').width * 0.25 - 1;
 
+interface MediaItem {
+  uri: string;
+  type: string;
+  duration: number;
+  id: string;
+}
+
+interface MusicInfo {
+  musicId: string;
+  timeStart: number;
+  timeEnd: number;
+  song: string;
+  songImage: string;
+}
+
 const PostStory = () => {
   const {theme} = useTheme();
   const color = Colors[theme];
   const navigation: any = useNavigation();
   const sheetRef = useRef<BottomSheetRef>(null);
 
-  const [mediaList, setMediaList] = useState<any[]>([]);
+  const [mediaList, setMediaList] = useState<MediaItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  //chọn nhạc 
-  const [selectedMusic, setSelectedMusic] = useState<{
-      musicId: string;
-      timeStart: number;
-      timeEnd: number;
-      song: string;
-      songImage: string;
-    } | null>(null);
-    const [songUrl, setSongUrl] = useState<any | null>(null);
+  //chọn nhạc
+  const [selectedMusic, setSelectedMusic] = useState<MusicInfo | null>(null);
+  const [songUrl, setSongUrl] = useState<string | null>(null);
 
-    //lấy ảnh của máy
-  const requestPermissions = async (): Promise<boolean> => {
+  //lấy ảnh của máy
+  const requestPermissions = useCallback(async (): Promise<boolean> => {
     if (Platform.OS !== 'android') return true;
     try {
-      const permissions = [
+      const permissions =
         Platform.Version >= 33
           ? PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES
-          : PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-        Platform.Version >= 33
-          ? PermissionsAndroid.PERMISSIONS.READ_MEDIA_VIDEO
-          : PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-      ];
-      const results = await Promise.all(
-        permissions.map(permission => PermissionsAndroid.request(permission)),
-      );
-      return results.every(
-        result => result === PermissionsAndroid.RESULTS.GRANTED,
-      );
+          : PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE;
+      const results = await PermissionsAndroid.request(permissions);
+      return results === PermissionsAndroid.RESULTS.GRANTED;
     } catch {
+      Alert.alert('Thông báo', 'Không thể yêu cầu quyền truy cập.');
       return false;
     }
-  };
-
-  const loadMedia = async () => {
-    try {
-      setIsLoading(true);
-      const hasPermission = await requestPermissions();
-      if (!hasPermission) {
-        setError('Không có quyền truy cập media.');
-        return;
-      }
-      const result = await CameraRoll.getPhotos({
-        first: 100,
-        assetType: 'All',
-        include: ['playableDuration', 'filename'],
-      });
-
-      const media = result.edges.map(edge => {
-        const node = edge.node as any;
-        return {
-          uri: node.image.uri,
-          type: node.type,
-          duration: node.playableDuration || 0,
-          id: node.image.filename || node.image.uri,
-        };
-      });
-
-      setMediaList(media);
-    } catch {
-      setError('Lỗi khi tải media');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadMedia();
   }, []);
 
-  const formatDuration = (duration: number) => {
+  const loadMedia = useCallback(async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const hasPermission = await requestPermissions();
+        if(!hasPermission){
+          setError('Không có quyền truy cập thư viện media.');
+          return;
+        }
+
+        const result = await CameraRoll.getPhotos({
+          first: 50,
+          assetType: 'All',
+          include: ['playableDuration', 'filename'],
+        });
+
+        const media: MediaItem[] = result.edges.map(edge => ({
+          uri: edge.node.image.uri,
+          type: edge.node.type,
+          duration: edge.node.image?.playableDuration || 0,
+          id: edge.node.image.filename || edge.node.image.uri,
+        }));
+
+        setMediaList(media);
+      } catch {
+        setError('Lỗi khi tải media.')
+      }finally{
+        setIsLoading(false);
+      }
+  }, [requestPermissions]);
+
+  //kiểm tra dữ liệu trước khi điều hướng
+  const validateNavigationData = useCallback((item: MediaItem): boolean => {
+    if(!item?.uri){
+      setError('Không thể chọn media này.');
+      return false;
+    }
+    if(selectedMusic && (!selectedMusic.musicId || !selectedMusic.song)){
+      setError('Dữ liệu nhạc không hợp lệ.');
+      return false;
+    }
+    if(songUrl && typeof songUrl !== 'string'){
+      setError('URL bài hát không hợp lệ.');
+      return false;
+    }
+    return true;
+  }, [selectedMusic, songUrl]);
+
+  const formatDuration = useCallback((duration: number) => {
     if (!duration || duration <= 0) return '00:00';
     const minutes = Math.floor(duration / 60);
     const seconds = Math.floor(duration % 60);
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-  };
+  },[]);
 
-  const handleItemPress = (item: any) => {
-    navigation.navigate('EditStory', {selectedItem: item, selectedMusic: selectedMusic, songUrl: songUrl?.url || songUrl});
-  };
+  //khi nhấm vào item media
+  const handleItemPress = useCallback((item: MediaItem, selectedMusic?: MusicInfo, songUrl?: string) => {
+    if(!validateNavigationData){
+      return;
+    }
+    navigation.navigate('EditStory', {
+      selectedItem: item,
+      selectedMusic: selectedMusic || undefined,
+      songUrl: songUrl || undefined,
+    });
+  }, [navigation, selectedMusic, songUrl, validateNavigationData]);
 
-  const renderItem = ({item}: any) => {
+  const renderItem = useCallback(({item}: {item: MediaItem}) => {
     const isVideo = item.type?.includes('video');
 
     return (
       <TouchableOpacity
-        onPress={() => handleItemPress(item)}
+        onPress={() => handleItemPress(item, selectedMusic || undefined, songUrl || undefined)}
         activeOpacity={0.8}>
         <View style={styles.thumbnailWrapper}>
           <Image source={{uri: item.uri}} style={styles.thumbnail} />
@@ -129,9 +152,14 @@ const PostStory = () => {
         </View>
       </TouchableOpacity>
     );
-  };
+  }, [formatDuration, handleItemPress, selectedMusic, songUrl]);
 
   const keyExtractor = (item: any) => item.id;
+
+  //tải media khi component được mount
+  useEffect(() => {
+    loadMedia();
+  }, [loadMedia]);
 
   return (
     <SafeAreaView
@@ -177,6 +205,7 @@ const PostStory = () => {
           renderItem={renderItem}
           keyExtractor={keyExtractor}
           numColumns={4}
+          extraData={[selectedMusic]}
           estimatedItemSize={ITEM_SIZE}
           contentContainerStyle={styles.grid}
           showsVerticalScrollIndicator={false}
@@ -186,17 +215,28 @@ const PostStory = () => {
         />
       )}
 
-      <BottomSheet ref={sheetRef} onDoneSelect={(musicInfo: any) => {
+      <BottomSheet
+        ref={sheetRef}
+        onDoneSelect={(musicInfo: any) => {
           setSelectedMusic(musicInfo);
         }}
         songUrl={(url: any) => {
           setSongUrl(url);
-        }}/>
+        }}
+      />
     </SafeAreaView>
   );
 };
 
-const TopButton = ({icon, label, onPress, color}: any) => (
+//component TopButton
+interface TopButtonProps {
+  icon: any,
+  label: string,
+  color: string,
+  onPress?: () => void;
+}
+
+const TopButton = ({icon, label, onPress, color}: TopButtonProps) => (
   <TouchableOpacity style={styles.btnTop} onPress={onPress}>
     <View style={styles.iconBlock}>
       <Image

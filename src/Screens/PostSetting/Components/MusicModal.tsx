@@ -214,7 +214,7 @@ const AudioTrimModal = (props: any) => {
                   song: songInfo.title,
                   songImage: songInfo.image,
                 });
-                songUrl?.({url: audioUrl});
+                songUrl?.(audioUrl);
                 onClose();
               }}>
               <Text style={styles.bottomText}>Xong</Text>

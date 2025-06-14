@@ -237,9 +237,6 @@ const BottomSheet = forwardRef<BottomSheetRef, Props>(({onDoneSelect, songUrl}, 
                   onPress={() => {
                     setIsModalOpen(true);
                     setMusic(item);
-                    songUrl?.({
-                      url: music?.link,
-                    });
                   }}
                 />
               )}
