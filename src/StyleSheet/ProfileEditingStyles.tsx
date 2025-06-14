@@ -132,7 +132,7 @@ export const useProfileEditingStyles = () => {
           flexDirection: 'row',
           alignItems: 'center',
           height: 44,
-          paddingHorizontal: 16,
+          paddingHorizontal: 10,
           backgroundColor: palette.background,
         },
         headerIcon: {
@@ -150,7 +150,7 @@ export const useProfileEditingStyles = () => {
           resizeMode: 'contain',
         },
         headerUsername: {
-          fontSize: 24,
+          fontSize: 18,
           fontWeight: '700',
           color: palette.text,
           marginLeft: 8,
@@ -186,7 +186,7 @@ export const useProfileEditingStyles = () => {
           height: 40,
           width: SCREEN_WIDTH * 0.9,
           alignSelf: 'center',
-          backgroundColor: palette.gray,
+          backgroundColor: palette.backgroundSecondary,
           borderRadius: 8,
           paddingHorizontal: 8,
           marginVertical: 12,

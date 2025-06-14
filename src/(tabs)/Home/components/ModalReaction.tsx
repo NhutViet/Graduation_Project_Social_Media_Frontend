@@ -6,7 +6,7 @@ import {
   Image,
   Dimensions,
 } from 'react-native';
-import React, {forwardRef, useEffect, useRef, useState} from 'react';
+import React, {forwardRef, useEffect, useRef, useState, useCallback} from 'react';
 import {Modalize} from 'react-native-modalize';
 import {FlashList} from '@shopify/flash-list';
 import {Colors} from '../../../../assets/color/Colors';
@@ -35,6 +35,8 @@ const ModalReaction = forwardRef<Modalize, ModalReactionProps>(
     const [users, setUsers] = useState<any[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
+    const modalContentHeight = Dimensions.get('window').height * 0.7;
+
     useEffect(() => {
       if (postId && isModalOpen) {
         const fetchLikers = async () => {
@@ -50,6 +52,14 @@ const ModalReaction = forwardRef<Modalize, ModalReactionProps>(
         fetchLikers();
       }
     }, [isModalOpen]);
+
+    const handleOpen = useCallback(() => {
+      setIsModalOpen(true);
+    }, []);
+
+    const handleClose = useCallback(() => {
+      setIsModalOpen(false);
+    }, []);
 
     const renderItem = ({item}: {item: any}) => (
       <View style={[styles.userItem, {backgroundColor: color.modal}]}>
@@ -86,60 +96,54 @@ const ModalReaction = forwardRef<Modalize, ModalReactionProps>(
 
     return (
       <Modalize
-        ref={ref}
-        adjustToContentHeight={false}
-        modalHeight={Dimensions.get('window').height * 0.7}
-        modalStyle={[styles.modal, {backgroundColor: color.modal}]}
-        handleStyle={styles.modalHandle}
-        handlePosition="inside"
-        onOpen={() => setIsModalOpen(true)}
-        onClose={() => setIsModalOpen(false)}
-        panGestureEnabled={true}
-        onOverlayPress={() => ref && (ref as any).current?.close()}
-        HeaderComponent={
-          <View style={styles.modalHeader}>
-            <Text style={[styles.title, {color: color.text}]}>Lượt thích</Text>
+          ref={ref}
+          adjustToContentHeight
+          modalStyle={[styles.modal, {backgroundColor: color.modal}]}
+          handleStyle={styles.modalHandle}
+          handlePosition="inside"
+          onOpen={handleOpen}
+          onClose={handleClose}
+          panGestureEnabled={true}
+          onOverlayPress={() => ref && (ref as any).current?.close()}
+          HeaderComponent={
+            <View style={styles.modalHeader}>
+              <Text style={[styles.title, {color: color.text}]}>Lượt thích</Text>
+            </View>
+          }
+          scrollViewProps={{
+            showsVerticalScrollIndicator: false,
+            nestedScrollEnabled: true,
+          }}
+          >
+          <View style={{height: modalContentHeight}}>
+
+          {/* Content với chiều cao còn lại */}
+          <View style={[styles.contentContainer, {height: modalContentHeight}]}>
+            {isLoading ? (
+              <View style={styles.centerContent}>
+                <Text style={[styles.loadingText, {color: color.textSecondary}]}>
+                  Đang tải...
+                </Text>
+              </View>
+            ) : users.length > 0 ? (
+              <FlashList
+                data={users}
+                keyExtractor={item => item.userId}
+                renderItem={renderItem}
+                estimatedItemSize={70}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.listContainer}
+              />
+            ) : (
+              <View style={styles.centerContent}>
+                <Text style={[styles.emptyText, {color: color.textSecondary}]}>
+                  Hãy trở thành người đầu tiên yêu thích bài viết nhé!
+                </Text>
+              </View>
+            )}
           </View>
-        }
-        scrollViewProps={{
-          showsVerticalScrollIndicator: false,
-          nestedScrollEnabled: true,
-        }}>
-        <View style={{flex: 1, minHeight: 200}}>
-          {isLoading ? (
-            <Text
-              style={{
-                textAlign: 'center',
-                fontSize: 18,
-                margin: 30,
-                color: color.textSecondary,
-                fontWeight: '400',
-              }}>
-              Đang tải...
-            </Text>
-          ) : listLikers.length > 0 ? (
-            <FlashList
-              data={users}
-              keyExtractor={item => item.userId}
-              renderItem={renderItem}
-              estimatedItemSize={500}
-              showsVerticalScrollIndicator={false}
-              nestedScrollEnabled
-            />
-          ) : (
-            <Text
-              style={{
-                textAlign: 'center',
-                fontSize: 18,
-                margin: 30,
-                color: color.textSecondary,
-                fontWeight: '400',
-              }}>
-              Hãy trở thành người đầu tiên yêu thích bài viết nhé!
-            </Text>
-          )}
         </View>
-      </Modalize>
+        </Modalize>
     );
   },
 );
@@ -151,7 +155,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    paddingHorizontal: 16,
   },
   modalHandle: {
     backgroundColor: '#ccc',
@@ -161,36 +164,50 @@ const styles = StyleSheet.create({
     borderRadius: 2,
   },
   modalHeader: {
-    padding: 15,
+    paddingHorizontal: 16,
+    paddingVertical: 15,
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
-    marginTop: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
     fontSize: 18,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 10,
   },
-  searchInput: {
-    height: 40,
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    borderWidth: 1,
-    borderColor: '#ddd',
+  contentContainer: {
+    flex: 1, // Này sẽ bị override bởi height inline
+    paddingHorizontal: 16,
+  },
+  centerContent: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    fontSize: 16,
+    fontWeight: '400',
+  },
+  emptyText: {
+    fontSize: 16,
+    fontWeight: '400',
+    textAlign: 'center',
+  },
+  listContainer: {
+    paddingVertical: 10,
   },
   userItem: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 15,
-    paddingTop: 10,
+    paddingVertical: 10,
   },
   avatar: {
     width: 50,
     height: 50,
     borderRadius: 25,
-    marginRight: 10,
+    marginRight: 12,
   },
   userInfo: {
     flex: 1,
@@ -198,16 +215,17 @@ const styles = StyleSheet.create({
   username: {
     fontWeight: 'bold',
     fontSize: 16,
+    marginBottom: 2,
   },
   bio: {
-    color: '#888',
     fontSize: 14,
+    opacity: 0.7,
   },
   followButton: {
     width: 89,
-    paddingVertical: 5,
+    paddingVertical: 6,
     paddingHorizontal: 15,
-    borderRadius: 10,
+    borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -216,10 +234,11 @@ const styles = StyleSheet.create({
   },
   disabledButton: {
     borderWidth: 1,
-    borderRadius: 10,
+    borderRadius: 8,
   },
   followButtonText: {
     color: '#fff',
-    fontWeight: 'bold',
+    fontWeight: '600',
+    fontSize: 14,
   },
 });

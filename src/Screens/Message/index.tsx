@@ -33,15 +33,17 @@ export const MessageScreen = () => {
   const styles = MessageStyles(theme);
   const dispatch = useDispatch<AppDispatch>();
   const [message, setMessage] = useState('');
-  const {messages, loading, error} = useSelector(
-    (state: RootState) => state.messages,
-  );
+  const {messages, loading} = useSelector((state: RootState) => state.messages);
   const [chat, setChat] = useState<Message[]>([]);
   const user = useSelector((state: RootState) => state.user);
   const flatListRef = useRef<FlatList>(null);
 
   const route = useRoute<RouteProp<RootStackParamList, 'MessageScreen'>>();
   const room = route?.params?.room;
+  const img1 = route?.params?.img1;
+  const img2 = route?.params?.img2;
+  const nameChat = route?.params?.nameChat;
+  const themeFromParams = route?.params?.theme;
 
   const [selectedMessageIndex, setSelectedMessageIndex] = useState<
     number | null
@@ -60,6 +62,12 @@ export const MessageScreen = () => {
   useEffect(() => {
     setChat(messages);
   }, [messages, room]);
+
+  useEffect(() => {
+    if (themeFromParams) {
+      setChatBackground(themeFromParams);
+    }
+  }, [themeFromParams]);
 
   useEffect(() => {
     if (!user.user?._id || !room) return;
@@ -128,8 +136,6 @@ export const MessageScreen = () => {
       index={index}
       userHandleName={user.user?.handleName ?? ''}
       chat={chat}
-      selectedMessageIndex={selectedMessageIndex}
-      setSelectedMessageIndex={setSelectedMessageIndex}
       setSelectedImageUri={setSelectedImageUri}
       linkPreviews={linkPreviews}
       styles={styles}
@@ -153,28 +159,35 @@ export const MessageScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* {chatBackground ? ( */}
-      {/* <ImageBackground
-        source={{uri: chatBackground ? chatBackground : undefined}}
-        style={{
-          flex: 1,
-          backgroundColor: chatBackground
-            ? color.transparent
-            : color.background,
-        }}
-        resizeMode="cover"
-        onError={() => console.log('Failed to load background image')}> */}
+      {chatBackground && (
+        <ImageBackground
+          source={{uri: chatBackground}}
+          style={{
+            flex: 1,
+            backgroundColor: 'transparent',
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            zIndex: 0,
+          }}
+          resizeMode="cover"
+          onError={() =>
+            console.log('❌ Failed to load chat background')
+          }></ImageBackground>
+      )}
       <View
         style={{
           flex: 1,
-          backgroundColor: 'rgba(0, 0, 0, 0.3)',
+          backgroundColor: chatBackground
+            ? 'rgba(0, 0, 0, 0.2)'
+            : color.background,
+          position: 'absolute',
+          width: '100%',
+          height: '100%',
+          zIndex: 1,
         }}>
-        <View
-          style={[
-            styles.header,
-            {backgroundColor: 'rgba(255, 255, 255, 0.9)'},
-          ]}>
-          <View style={styles.rowContainer}>
+        <View style={[styles.header, {backgroundColor: color.background}]}>
+          <View style={styles.rowContainer2}>
             <TouchableOpacity
               style={styles.blockIcon}
               onPress={() => {
@@ -186,22 +199,31 @@ export const MessageScreen = () => {
               />
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.blockImg}
-              onPress={() => {
-                console.log('avatar');
-                navigation.navigate(
-                  room == 'room2' ? 'InforGroupChat' : 'InfoUser',
-                );
-              }}>
-              <Image
-                style={styles.img}
-                source={{
-                  uri: 'https://i.pinimg.com/736x/2d/db/ae/2ddbaec1fb3d18f6ce00c4ebc1693193.jpg',
-                }}
-              />
+              style={[
+                styles.imgContainer,
+                {overflow: img1 && !img2 ? 'hidden' : undefined},
+              ]}>
+              {img2 && (
+                <>
+                  <Image style={styles.iconW} source={{uri: img1}} />
+                  <Image
+                    style={[
+                      styles.iconF,
+                      {
+                        borderColor: color.background,
+                        backgroundColor: color.backgroundSecondary,
+                      },
+                    ]}
+                    source={{uri: img2}}
+                  />
+                </>
+              )}
+              {!img2 && img1 && (
+                <Image style={styles.img} source={{uri: img1}} />
+              )}
             </TouchableOpacity>
-            <Text style={{color: color.text, fontSize: 16}}>
-              {user.user?.handleName}
+            <Text style={{color: color.text, fontSize: 16}} numberOfLines={1}>
+              {nameChat}
             </Text>
           </View>
           <View style={styles.rowContainer}>
@@ -218,7 +240,6 @@ export const MessageScreen = () => {
             <TouchableOpacity
               style={styles.blockIcon}
               onPress={() => {
-                console.log('Info button pressed, opening ModalTheme');
                 setVisibleThemeModal(true);
               }}>
               <Image
@@ -235,27 +256,19 @@ export const MessageScreen = () => {
             paddingBottom: 10,
             paddingHorizontal: 10,
           }}>
-          <TouchableOpacity
-            style={{flex: 1, zIndex: 10}}
-            onLongPress={() => {
-              console.log('Long press detected, opening ModalTheme');
-              setVisibleThemeModal(true);
-            }}
-            activeOpacity={1}>
-            <FlatList
-              ref={flatListRef}
-              data={chat}
-              renderItem={renderItem}
-              keyExtractor={item => item._id}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={{paddingVertical: 30}}
-            />
-          </TouchableOpacity>
+          <FlatList
+            ref={flatListRef}
+            data={chat}
+            renderItem={renderItem}
+            keyExtractor={item => item._id}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{paddingVertical: 30}}
+          />
 
           <View
             style={[
               styles.inputContainer,
-              {backgroundColor: 'rgba(255, 255, 255, 0.8)', zIndex: 20},
+              {backgroundColor: color.backgroundSecondary, zIndex: 20},
             ]}>
             <TouchableOpacity style={styles.blockCamera}>
               <Image
@@ -296,7 +309,6 @@ export const MessageScreen = () => {
           </View>
         </View>
       </View>
-      {/* </ImageBackground> */}
 
       <Modal visible={!!selectedImageUri} transparent={true}>
         <View
@@ -323,18 +335,16 @@ export const MessageScreen = () => {
         </View>
       </Modal>
 
-      {/* <ModalTheme
+      <ModalTheme
         visible={visibleThemeModal}
         onClose={() => {
-          console.log('Closing ModalTheme');
           setVisibleThemeModal(false);
         }}
         onSelect={selectedBackground => {
-          console.log('Selected background:', selectedBackground);
           setChatBackground(selectedBackground);
           setVisibleThemeModal(false);
         }}
-      /> */}
+      />
     </SafeAreaView>
   );
 };

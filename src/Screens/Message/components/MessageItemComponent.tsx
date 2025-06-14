@@ -1,20 +1,12 @@
 import React from 'react';
-import {
-  Image,
-  Linking,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import { Message } from '../../../../services/messageRedux/messageType';
+import {Image, Linking, Text, TouchableOpacity, View} from 'react-native';
+import {Message} from '../../../../services/messageRedux/messageType';
 
 interface MessageItemProps {
   item: Message;
   index: number;
   userHandleName: string;
   chat: Message[];
-  selectedMessageIndex: number | null;
-  setSelectedMessageIndex: (index: number | null) => void;
   setSelectedImageUri: (uri: string | null) => void;
   linkPreviews: {[key: number]: any};
   styles: any;
@@ -26,8 +18,6 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
   index,
   userHandleName,
   chat,
-  selectedMessageIndex,
-  setSelectedMessageIndex,
   setSelectedImageUri,
   linkPreviews,
   styles,
@@ -35,8 +25,8 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
 }) => {
   const isMe = item.sender.handleName === userHandleName;
   const prevMsg = chat[index - 1];
-  const showAvatar = !prevMsg || prevMsg.sender.handleName !== item.sender.handleName;
-  const isSelected = selectedMessageIndex === index;
+  const showAvatar =
+    !prevMsg || prevMsg.sender.handleName !== item.sender.handleName;
 
   return (
     <View
@@ -50,30 +40,26 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
         </TouchableOpacity>
       )}
 
-      <View style={[styles.row, {alignItems: isMe ? 'flex-end' : 'flex-start'}]}>
-        {!isMe && showAvatar && (
-          <Text style={styles.name}>{item.sender.handleName}</Text>
-        )}
-
-        <TouchableOpacity
-          activeOpacity={0.7}
-          onLongPress={() => setSelectedMessageIndex(index)}>
+      <View
+        style={[styles.row, {alignItems: isMe ? 'flex-end' : 'flex-start'}]}>
+        <TouchableOpacity activeOpacity={0.7}>
           <View
             style={[
               styles.message,
               {
-                marginLeft: isMe || showAvatar ? 0 : 60,
+                marginLeft: isMe || showAvatar ? 0 : 50,
                 marginRight: isMe ? 0 : 40,
                 backgroundColor: item.media
                   ? 'transparent'
                   : isMe
                   ? '#00BFFF'
-                  : '#A9A9A9',
+                  : color.backgroundSecondary,
                 padding: item.media ? 0 : 10,
               },
             ]}>
             {item.media ? (
-              <TouchableOpacity onPress={() => setSelectedImageUri(item.media ?? null)}>
+              <TouchableOpacity
+                onPress={() => setSelectedImageUri(item.media ?? null)}>
                 <Image
                   source={{uri: item.media}}
                   style={{width: 150, height: 150, borderRadius: 8}}
@@ -138,22 +124,6 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
                   </TouchableOpacity>
                 )}
               </>
-            )}
-            {isSelected && (
-              <View
-                style={{
-                  width: 190,
-                  flexDirection: 'row',
-                  position: 'absolute',
-                  top: -30,
-                  backgroundColor: 'white',
-                  padding: 6,
-                  borderRadius: 30,
-                  alignSelf: isMe ? 'flex-end' : 'flex-start',
-                  elevation: 3,
-                  zIndex: 1,
-                }}
-              />
             )}
           </View>
         </TouchableOpacity>

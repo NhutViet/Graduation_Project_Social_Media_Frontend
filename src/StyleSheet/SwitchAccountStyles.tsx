@@ -43,6 +43,11 @@ const SwitchAccountStyles = (theme: ThemeType) => {
       textAlign: 'center',
       marginTop: 20,
     },
+    icon: {
+      width: 20,
+      height: 20,
+      resizeMode: 'contain',
+    },
   });
 };
 
