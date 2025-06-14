@@ -43,7 +43,11 @@ export const MessageScreen = () => {
   const img1 = route?.params?.img1;
   const img2 = route?.params?.img2;
   const nameChat = route?.params?.nameChat;
+  const themeFromParams = route?.params?.theme;
 
+  const [selectedMessageIndex, setSelectedMessageIndex] = useState<
+    number | null
+  >(null);
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
   const [linkPreviews, setLinkPreviews] = useState<{[key: number]: any}>({});
   const [visibleThemeModal, setVisibleThemeModal] = useState(false);
@@ -58,6 +62,12 @@ export const MessageScreen = () => {
   useEffect(() => {
     setChat(messages);
   }, [messages, room]);
+
+  useEffect(() => {
+    if (themeFromParams) {
+      setChatBackground(themeFromParams);
+    }
+  }, [themeFromParams]);
 
   useEffect(() => {
     if (!user.user?._id || !room) return;
@@ -149,27 +159,34 @@ export const MessageScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* {chatBackground ? ( */}
-      {/* <ImageBackground
-        source={{uri: chatBackground ? chatBackground : undefined}}
-        style={{
-          flex: 1,
-          backgroundColor: chatBackground
-            ? color.transparent
-            : color.background,
-        }}
-        resizeMode="cover"
-        onError={() => console.log('Failed to load background image')}> */}
+      {chatBackground && (
+        <ImageBackground
+          source={{uri: chatBackground}}
+          style={{
+            flex: 1,
+            backgroundColor: 'transparent',
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            zIndex: 0,
+          }}
+          resizeMode="cover"
+          onError={() =>
+            console.log('❌ Failed to load chat background')
+          }></ImageBackground>
+      )}
       <View
         style={{
           flex: 1,
-          backgroundColor: 'rgba(0, 0, 0, 0.3)',
+          backgroundColor: chatBackground
+            ? 'rgba(0, 0, 0, 0.2)'
+            : color.background,
+          position: 'absolute',
+          width: '100%',
+          height: '100%',
+          zIndex: 1,
         }}>
-        <View
-          style={[
-            styles.header,
-            {backgroundColor: 'rgba(255, 255, 255, 0.9)'},
-          ]}>
+        <View style={[styles.header, {backgroundColor: color.background}]}>
           <View style={styles.rowContainer2}>
             <TouchableOpacity
               style={styles.blockIcon}
@@ -223,7 +240,6 @@ export const MessageScreen = () => {
             <TouchableOpacity
               style={styles.blockIcon}
               onPress={() => {
-                console.log('Info button pressed, opening ModalTheme');
                 setVisibleThemeModal(true);
               }}>
               <Image
@@ -240,27 +256,19 @@ export const MessageScreen = () => {
             paddingBottom: 10,
             paddingHorizontal: 10,
           }}>
-          <TouchableOpacity
-            style={{flex: 1, zIndex: 10}}
-            onLongPress={() => {
-              console.log('Long press detected, opening ModalTheme');
-              setVisibleThemeModal(true);
-            }}
-            activeOpacity={1}>
-            <FlatList
-              ref={flatListRef}
-              data={chat}
-              renderItem={renderItem}
-              keyExtractor={item => item._id}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={{paddingVertical: 30}}
-            />
-          </TouchableOpacity>
+          <FlatList
+            ref={flatListRef}
+            data={chat}
+            renderItem={renderItem}
+            keyExtractor={item => item._id}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{paddingVertical: 30}}
+          />
 
           <View
             style={[
               styles.inputContainer,
-              {backgroundColor: 'rgba(255, 255, 255, 0.8)', zIndex: 20},
+              {backgroundColor: color.backgroundSecondary, zIndex: 20},
             ]}>
             <TouchableOpacity style={styles.blockCamera}>
               <Image
@@ -301,7 +309,6 @@ export const MessageScreen = () => {
           </View>
         </View>
       </View>
-      {/* </ImageBackground> */}
 
       <Modal visible={!!selectedImageUri} transparent={true}>
         <View
@@ -328,18 +335,16 @@ export const MessageScreen = () => {
         </View>
       </Modal>
 
-      {/* <ModalTheme
+      <ModalTheme
         visible={visibleThemeModal}
         onClose={() => {
-          console.log('Closing ModalTheme');
           setVisibleThemeModal(false);
         }}
         onSelect={selectedBackground => {
-          console.log('Selected background:', selectedBackground);
           setChatBackground(selectedBackground);
           setVisibleThemeModal(false);
         }}
-      /> */}
+      />
     </SafeAreaView>
   );
 };

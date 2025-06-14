@@ -4,7 +4,8 @@ import {useTheme} from '../../../util/ThemeContext';
 import {useNavigation} from '@react-navigation/native';
 
 const ItemNewMessage = (props: any) => {
-  const {roomId, nameChat, userHandle1, userHandle2, img1, img2} = props;
+  const {roomId, roomTheme, nameChat, userHandle1, userHandle2, img1, img2} =
+    props;
   const {theme} = useTheme();
   const color = Colors[theme];
   const navigation: any = useNavigation();
@@ -15,6 +16,7 @@ const ItemNewMessage = (props: any) => {
       onPress={() => {
         navigation.navigate('MessageScreen', {
           room: roomId,
+          theme: roomTheme,
           img1: img1,
           img2: img2,
           nameChat: nameChat,
