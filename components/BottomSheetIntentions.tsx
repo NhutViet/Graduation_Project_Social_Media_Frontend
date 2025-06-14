@@ -1,72 +1,65 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { useBottomSheetStyles } from '../src/StyleSheet/BottomSheetStyles';
 import { useTheme } from '../src/util/ThemeContext';
 import { Colors } from '../assets/color/Colors';
-import { Modalize } from 'react-native-modalize';
-import { Portal } from 'react-native-portalize';
 
-export interface IntentionOption {
+export interface IntentionOptionConfig {
   id: string;
   label: string;
-  onPress: () => void;
 }
 
-export interface BottomSheetIntentionProps {
+export interface BottomSheetIntentionsProps {
   title: string;
   subtitle: string;
   content: string;
-  options: IntentionOption[];
-  onClose: () => void;
+  options: IntentionOptionConfig[];
+  onSelect: (id: string) => void;
 }
 
-const BottomSheetIntention: React.FC<BottomSheetIntentionProps> = ({
+const BottomSheetIntentions: React.FC<BottomSheetIntentionsProps> = ({
   title,
   subtitle,
   content,
   options,
-  onClose,
+  onSelect,
 }) => {
   const { theme } = useTheme();
   const palette = Colors[theme];
   const styles = useBottomSheetStyles();
 
-  const handlePress = (option: IntentionOption) => {
-    option.onPress();
-    onClose();
+  const handlePress = (id: string) => {
+    onSelect(id);
   };
 
   return (
     <View style={styles.intentionContainer}>
-      <Text style={styles.intentionTitle}>
-        {title}
-      </Text>
+      <Text style={styles.intentionTitle}>{title}</Text>
       <View style={styles.intentionBorder} />
       <View style={styles.innerContainer}>
-        <Text style={styles.intentionSubtitle}>
-            {subtitle}
-        </Text>
-        <Text style={styles.intentionContent}>
-            {content}
-        </Text>
+        <Text style={styles.intentionSubtitle}>{subtitle}</Text>
+        <Text style={styles.intentionContent}>{content}</Text>
 
-        {options.map((option, idx) => (
+        {options.map((opt, idx) => (
+          <React.Fragment key={opt.id}>
             <TouchableOpacity
-            key={option.id}
-            onPress={() => handlePress(option)}
-            activeOpacity={0.7}
-            >
-            <Text style={[styles.intentionChoiceText, { color: palette.text }]}>  
-                {option.label}
-            </Text>
-            {idx < options.length - 1 && (
-                <View style={[ styles.intentionChoiceSpacing ]} />
-            )}
+              onPress={() => handlePress(opt.id)}
+              activeOpacity={0.7}>
+              <Text style={[
+                styles.intentionChoiceText,
+                { color: palette.text }
+              ]}>
+                {opt.label}
+              </Text>
             </TouchableOpacity>
+            {idx < options.length - 1 && (
+              <View style={styles.intentionChoiceSpacing} />
+            )}
+          </React.Fragment>
         ))}
       </View>
     </View>
   );
 };
 
-export default BottomSheetIntention;
+export default React.memo(BottomSheetIntentions);
