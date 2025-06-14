@@ -23,7 +23,7 @@ const LoginStyles = () => {
     },
     btnBack: {
       position: 'absolute',
-      top: 40,
+      top: 20,
     },
     logo: {
       width: 180,
@@ -100,10 +100,11 @@ const LoginStyles = () => {
     textContent: {
       fontSize: 16,
       fontWeight: '400',
-      color: '#8E8E8E'
+      color: '#8E8E8E',
     },
     iconNoti: {
-      width: 60, height: 60,
+      width: 60,
+      height: 60,
       resizeMode: 'contain',
     },
     errorText: {

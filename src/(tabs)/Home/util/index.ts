@@ -6,6 +6,7 @@ import {
   saveBookmark,
 } from '../../../../services/bookmarkRedux/bookmarkSlice';
 import {HandleBookmarkParams} from '../types';
+import { fetchStoriesByIds, seenStory } from '../../../../services/StoryRedux/StorySlice';
 
 export const handleBookmark = async ({
   isBookmarked,
@@ -113,5 +114,31 @@ export const handleFollowToggle = async ({
       'Vui lòng thử lại sau.',
     );
     setFollow(isFollowing);
+  }
+};
+
+export const handleUserPress = async (item: any, dispatch: any, navigation: any) => {
+  if (!item.stories.length) return;
+  const firstStoryId = item.stories[0];
+
+  try {
+    const res = await dispatch(fetchStoriesByIds([firstStoryId])).unwrap();
+    const storyDetail = res[0];
+
+    await dispatch(seenStory({storyId: firstStoryId, userId: item._id}));
+    navigation.navigate('SeenStory', {
+      selectedItem: {
+        _id: storyDetail._id,
+        uriVideo: storyDetail.mediaUrl.endsWith('.m3u8')
+          ? storyDetail.mediaUrl
+          : null,
+        image: storyDetail.mediaUrl.endsWith('.m3u8')
+          ? null
+          : storyDetail.mediaUrl,
+        likedByUsers: storyDetail.likedByUsers,
+      },
+    });
+  } catch (err) {
+    console.error('❌ Error viewing story:', err);
   }
 };
