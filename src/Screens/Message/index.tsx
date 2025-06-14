@@ -33,9 +33,7 @@ export const MessageScreen = () => {
   const styles = MessageStyles(theme);
   const dispatch = useDispatch<AppDispatch>();
   const [message, setMessage] = useState('');
-  const {messages, loading, error} = useSelector(
-    (state: RootState) => state.messages,
-  );
+  const {messages, loading} = useSelector((state: RootState) => state.messages);
   const [chat, setChat] = useState<Message[]>([]);
   const user = useSelector((state: RootState) => state.user);
   const flatListRef = useRef<FlatList>(null);
@@ -128,8 +126,6 @@ export const MessageScreen = () => {
       index={index}
       userHandleName={user.user?.handleName ?? ''}
       chat={chat}
-      selectedMessageIndex={selectedMessageIndex}
-      setSelectedMessageIndex={setSelectedMessageIndex}
       setSelectedImageUri={setSelectedImageUri}
       linkPreviews={linkPreviews}
       styles={styles}
