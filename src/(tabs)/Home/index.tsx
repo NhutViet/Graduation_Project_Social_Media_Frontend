@@ -91,8 +91,6 @@ export const Home = () => {
     }
   });
 
-  const modalizeRef = useRef<Modalize>(null);
-
   const handleUserPress = async (user: userFollow) => {
     if (user.stories.length === 0) return;
 
@@ -212,7 +210,6 @@ export const Home = () => {
               {...item}
               isFocused={isFocused}
               currentVisible={shouldPlay}
-              modalizeRef={modalizeRef}
               openComment={() => {
                 setSelectedPostId(item._id);
                 dispatch(fetchCommentsByPost(item._id));
