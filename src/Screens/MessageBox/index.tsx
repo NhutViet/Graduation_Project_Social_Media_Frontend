@@ -165,6 +165,7 @@ export const MessageBox = (props: any) => {
               <ItemNewMessage
                 roomId={item._id}
                 nameChat={item.name}
+                roomTheme={item?.theme}
                 userHandle1={user1?.handleName || ''}
                 userHandle2={user2?.handleName || ''}
                 img1={user1?.profilePic || ''}

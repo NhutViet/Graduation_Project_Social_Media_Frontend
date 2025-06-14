@@ -60,7 +60,7 @@ import NewMessage from '../Screens/NewMessage';
 import PostStory from '../Screens/PostStory';
 export type RootStackParamList = {
   PendingMessages: undefined;
-  MessageScreen: {room: string};
+  MessageScreen: {room: string; theme?: string};
 };
 
 const Stack = createStackNavigator();
