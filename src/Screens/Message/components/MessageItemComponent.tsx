@@ -7,8 +7,6 @@ interface MessageItemProps {
   index: number;
   userHandleName: string;
   chat: Message[];
-  selectedMessageIndex: number | null;
-  setSelectedMessageIndex: (index: number | null) => void;
   setSelectedImageUri: (uri: string | null) => void;
   linkPreviews: {[key: number]: any};
   styles: any;
@@ -20,8 +18,6 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
   index,
   userHandleName,
   chat,
-  selectedMessageIndex,
-  setSelectedMessageIndex,
   setSelectedImageUri,
   linkPreviews,
   styles,
@@ -31,7 +27,6 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
   const prevMsg = chat[index - 1];
   const showAvatar =
     !prevMsg || prevMsg.sender.handleName !== item.sender.handleName;
-  const isSelected = selectedMessageIndex === index;
 
   return (
     <View
@@ -47,13 +42,7 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
 
       <View
         style={[styles.row, {alignItems: isMe ? 'flex-end' : 'flex-start'}]}>
-        {!isMe && showAvatar && (
-          <Text style={styles.name}>{item.sender.handleName}</Text>
-        )}
-
-        <TouchableOpacity
-          activeOpacity={0.7}
-          onLongPress={() => setSelectedMessageIndex(index)}>
+        <TouchableOpacity activeOpacity={0.7}>
           <View
             style={[
               styles.message,
@@ -64,7 +53,7 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
                   ? 'transparent'
                   : isMe
                   ? '#00BFFF'
-                  : '#A9A9A9',
+                  : color.backgroundSecondary,
                 padding: item.media ? 0 : 10,
               },
             ]}>
@@ -135,22 +124,6 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
                   </TouchableOpacity>
                 )}
               </>
-            )}
-            {isSelected && (
-              <View
-                style={{
-                  width: 190,
-                  flexDirection: 'row',
-                  position: 'absolute',
-                  top: -30,
-                  backgroundColor: 'white',
-                  padding: 6,
-                  borderRadius: 30,
-                  alignSelf: isMe ? 'flex-end' : 'flex-start',
-                  elevation: 3,
-                  zIndex: 1,
-                }}
-              />
             )}
           </View>
         </TouchableOpacity>

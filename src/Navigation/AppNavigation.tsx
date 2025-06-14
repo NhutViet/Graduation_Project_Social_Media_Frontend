@@ -59,8 +59,14 @@ import EditHighlightScreen from '../(tabs)/Profile/components/EditHighlightScree
 import NewMessage from '../Screens/NewMessage';
 import PostStory from '../Screens/PostStory';
 export type RootStackParamList = {
-  PendingMessages: undefined;
-  MessageScreen: {room: string; theme?: string};
+  PendingMessages: {handleName: string};
+  MessageScreen: {
+    room: string;
+    img1?: string;
+    img2?: string;
+    nameChat?: string;
+    theme?: string;
+  };
 };
 
 const Stack = createStackNavigator();

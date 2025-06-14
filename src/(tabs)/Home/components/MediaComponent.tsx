@@ -1,0 +1,114 @@
+import React, {useEffect, useMemo, useState} from 'react';
+import {View, Image, TouchableOpacity, Dimensions} from 'react-native';
+import Video from 'react-native-video';
+import {Colors} from '../../../../assets/color/Colors';
+import {ItemHomeStyles} from '../component_styles/ItemHomeStyles';
+import {Media} from '../../../../services/postRedux/postTypes';
+
+const screenWidth = Dimensions.get('window').width;
+
+interface RenderMediaItemProps {
+  item: Media;
+  currentVisible: boolean;
+  isFocused: boolean;
+  muted: boolean;
+}
+
+interface RenderPaginationProps {
+  media: Media[];
+  currentIndex: number;
+}
+
+interface RenderMuteButtonProps {
+  muted: boolean;
+  setMuted: React.Dispatch<React.SetStateAction<boolean>>;
+  isPostWithoutMusic: boolean;
+}
+
+export const RenderMediaItem: React.FC<RenderMediaItemProps> = ({
+  item,
+  currentVisible,
+  isFocused,
+  muted,
+}) => {
+  const [videoSize, setVideoSize] = useState({width: 0, height: 0});
+
+  const videoResizeMode = useMemo(() => {
+    if (videoSize.height > videoSize.width) return 'cover';
+    return 'contain';
+  }, [videoSize]);
+
+  if (item.videoUrl) {
+    return (
+      <Video
+        source={{uri: item.videoUrl}}
+        resizeMode={videoResizeMode}
+        style={{width: screenWidth, height: '100%'}}
+        repeat
+        paused={!currentVisible || !isFocused}
+        muted={muted}
+        maxBitRate={1500000}
+        progressUpdateInterval={500}
+        onLoad={({naturalSize}) => {
+          setVideoSize({
+            width: naturalSize.width,
+            height: naturalSize.height,
+          });
+        }}
+      />
+    );
+  }
+
+  return (
+    <Image
+      source={{uri: item.imageUrl ?? ''}}
+      style={{width: screenWidth, height: '100%'}}
+      resizeMode="contain"
+    />
+  );
+};
+
+export const RenderPagination: React.FC<RenderPaginationProps> = ({
+  media,
+  currentIndex,
+}) => {
+  if (media.length <= 1) return null;
+  return (
+    <View style={ItemHomeStyles.pagination}>
+      {media.map((_, index) => (
+        <View
+          key={index}
+          style={[
+            ItemHomeStyles.dot,
+            {
+              backgroundColor:
+                index === currentIndex ? '#fff' : 'rgba(255,255,255,0.5)',
+            },
+          ]}
+        />
+      ))}
+    </View>
+  );
+};
+
+export const RenderMuteButton: React.FC<RenderMuteButtonProps> = ({
+  muted,
+  setMuted,
+  isPostWithoutMusic,
+}) => {
+  if (isPostWithoutMusic) return null;
+  return (
+    <TouchableOpacity
+      style={ItemHomeStyles.muteButton}
+      onPress={() => setMuted(!muted)}>
+      <Image
+        source={
+          muted
+            ? require('../../../../assets/icon/mute.png')
+            : require('../../../../assets/icon/volume.png')
+        }
+        style={[{tintColor: Colors.dark.text}, ItemHomeStyles.icon]}
+      />
+    </TouchableOpacity>
+  );
+};

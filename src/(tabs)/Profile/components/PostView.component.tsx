@@ -5,7 +5,7 @@ import {Video as Icon, Tag} from 'lucide-react-native';
 import {Styles} from '../../../StyleSheet/Profile.Styles';
 import Video from 'react-native-video';
 import {Colors} from '../../../../assets/color/Colors';
-import { useNavigation } from '@react-navigation/native';
+// import {useNavigation} from '@react-navigation/native';
 
 interface GridViewProps {
   data: any[];
@@ -13,15 +13,15 @@ interface GridViewProps {
 }
 
 const GridView: React.FC<GridViewProps> = ({data, renderOverlay}) => {
-  const navigate = useNavigation<any>();
+  // const navigate = useNavigation<any>();
   return (
     <>
       {data.length > 0 ? (
         <FlashList
           data={data}
-          numColumns={3}
+          // numColumns={3}
           estimatedItemSize={Styles.itemSize}
-          scrollEnabled={true}
+          // scrollEnabled={true}
           extraData={data}
           renderItem={({item}) => {
             const media = item.media?.[0];
@@ -36,7 +36,7 @@ const GridView: React.FC<GridViewProps> = ({data, renderOverlay}) => {
               isVideo = false;
             }
             return (
-              <TouchableOpacity style={Styles.styles.gridItem} >
+              <TouchableOpacity style={Styles.styles.gridItem}>
                 {isVideo ? (
                   <Video
                     source={{uri: uri}}

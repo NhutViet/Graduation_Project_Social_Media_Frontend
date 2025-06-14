@@ -1,3 +1,8 @@
 {
-  "extends": "@react-native/typescript-config/tsconfig.json"
+  "extends": "@react-native/typescript-config/tsconfig.json",
+  "compilerOptions": {
+    "module": "esnext", // or "es2022"
+    "target": "esnext", 
+    "moduleResolution": "bundler",
+  }
 }
