@@ -3,6 +3,7 @@ import {FlashList} from '@shopify/flash-list';
 import {
   Image,
   SafeAreaView,
+  ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
@@ -14,7 +15,6 @@ import MessageBoxStyles from '../../StyleSheet/MessageBoxStyles';
 import User from '../../(tabs)/Home/components/Story';
 import React, {useState, useEffect, useRef} from 'react';
 import {
-  messageData,
   storyUsers,
   StoryUser,
   User as UserType,
@@ -23,6 +23,8 @@ import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../services/store';
 import {fetchMyRooms} from '../../../services/roomRedux/roomSlice';
 import ItemNewMessage from '../NewMessage/component/itemNewMessage';
+import Story from '../../(tabs)/Home/components/Story';
+import {handleUserPress} from '../../(tabs)/Home/util';
 
 export const MessageBox = (props: any) => {
   const navigation: any = useNavigation();
@@ -35,6 +37,9 @@ export const MessageBox = (props: any) => {
   const {rooms, loading, error} = useSelector(
     (state: RootState) => state.rooms,
   );
+  const followingUsers = useSelector(
+    (state: RootState) => state.stories.followingUsers,
+  );
   const user = useSelector((state: RootState) => state.user?.user);
 
   useEffect(() => {
@@ -45,17 +50,6 @@ export const MessageBox = (props: any) => {
   const [dataUser, setDataUser] = useState<StoryUser[]>(storyUsers);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const searchInputRef = useRef<TextInput>(null);
-
-  // Mock data
-  const data = messageData;
-
-  const handleUserPress = (user: StoryUser) => {
-    console.log('Navigating to SeenStory with user:', user);
-    setDataUser(prevData =>
-      prevData.map(item => (item.id === user.id ? {...item, status: 0} : item)),
-    );
-    navigation.navigate('SeenStoryOwner', {selectedItem: user});
-  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -121,30 +115,37 @@ export const MessageBox = (props: any) => {
       </View>
       {/* Stories Section */}
       <View style={styles.storiesContainer}>
-        <FlashList
-          data={dataUser}
-          renderItem={({item}: any) => {
-            return (
-              <User
-                name={item.name}
-                image={item.image}
-                status={item.status}
-                func={() => handleUserPress(item)}
-              />
-            );
-          }}
+        <ScrollView
           horizontal
-          estimatedItemSize={100}
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.storiesContentContainer}
-        />
+          contentContainerStyle={{paddingHorizontal: 10}}>
+          {followingUsers
+            .filter(item => item !== undefined && item !== null)
+            .map(item => (
+              <Story
+                key={item._id}
+                name={
+                  item.handleName === user?.handleName
+                    ? 'Tin của tôi'
+                    : item.handleName
+                }
+                image={item.profilePic}
+                status={item.stories.length > 0 ? 1 : 0}
+                func={() => handleUserPress(item, dispatch, navigation)}
+              />
+            ))}
+        </ScrollView>
       </View>
 
       {/* Messages Header */}
       <View style={styles.messagesHeader}>
         <Text style={styles.messagesHeaderTitle}>Tin nhắn</Text>
         <TouchableOpacity
-          onPress={() => navigation.navigate('PendingMessages')}>
+          onPress={() =>
+            navigation.navigate('PendingMessages', {
+              handleName: user?.handleName,
+            })
+          }>
           <Text style={styles.messagesHeaderSubtitle}>Tin nhắn chờ xử lý</Text>
         </TouchableOpacity>
       </View>

@@ -4,7 +4,6 @@ import {
   fetchFollowingStories,
   fetchGetPostedSotry,
   fetchStoriesByIds,
-  seenStory,
   toggleLikeStory,
 } from './StorySlice';
 
@@ -18,7 +17,7 @@ interface StoryState {
 
 const initialState: StoryState = {
   followingUsers: [],
-  storyDetails: [], // Khởi tạo storyDetails
+  storyDetails: [],
   myStories: [],
   loading: false,
   error: null,

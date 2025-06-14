@@ -5,7 +5,7 @@ type ThemeType = 'light' | 'dark';
 
 const MessageBoxStyles = (theme: ThemeType) => {
   const color = Colors[theme];
-  
+
   return StyleSheet.create({
     container: {
       flex: 1,
@@ -44,7 +44,7 @@ const MessageBoxStyles = (theme: ThemeType) => {
       paddingHorizontal: Colors.spacing.m,
     },
     searchBlock: {
-      backgroundColor: color.search,
+      backgroundColor: color.backgroundSecondary,
       flexDirection: 'row',
       alignItems: 'center',
       borderRadius: Colors.radius.m,
