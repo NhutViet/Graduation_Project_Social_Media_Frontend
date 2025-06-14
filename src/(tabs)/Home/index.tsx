@@ -15,8 +15,6 @@ import {AppDispatch, RootState} from '../../../services/store';
 import {fetchPostsWithMedia} from '../../../services/postRedux/postSlice';
 import {
   fetchFollowingStories,
-  fetchStoriesByIds,
-  seenStory,
 } from '../../../services/StoryRedux/StorySlice';
 import {
   getAllPlaylists,
@@ -29,7 +27,6 @@ import ItemHome from './components/ItemHome';
 import BottomSheetComment, {
   BottomSheetCommentRef,
 } from './components/CommentSection';
-import {userFollow} from '../../../services/StoryRedux/StoryType';
 import { handleUserPress } from './util';
 
 const HEADER_HEIGHT = 100;

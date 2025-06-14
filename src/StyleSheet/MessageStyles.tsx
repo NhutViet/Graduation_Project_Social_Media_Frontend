@@ -1,8 +1,8 @@
-import {StyleSheet} from 'react-native';
+import {Dimensions, StyleSheet} from 'react-native';
 import {Colors} from '../../assets/color/Colors';
-import {Palette} from 'lucide-react-native';
 
 type ThemeType = 'light' | 'dark';
+const screenWidth = Dimensions.get('window').width - 20;
 
 const MessageStyles = (theme: ThemeType) => {
   const color = Colors[theme];
@@ -11,14 +11,13 @@ const MessageStyles = (theme: ThemeType) => {
     container: {
       flex: 1,
       justifyContent: 'flex-end',
-      backgroundColor: color.background,
     },
     header: {
       flexDirection: 'row',
       alignItems: 'center',
-      padding: 10,
+      height: 60,
+      paddingHorizontal: 10,
       justifyContent: 'space-between',
-      backgroundColor: color.background,
     },
     rowContainer: {
       width: '25%',
@@ -34,7 +33,7 @@ const MessageStyles = (theme: ThemeType) => {
     blockIcon: {
       width: 20,
       height: 20,
-      marginHorizontal: 10,
+      marginRight: 10,
     },
     blockIcon1: {
       width: 20,
@@ -107,13 +106,12 @@ const MessageStyles = (theme: ThemeType) => {
       width: '100%',
       height: '100%',
     },
+    row: {
+      width: '80%',
+    },
     message: {
       position: 'relative',
-      paddingHorizontal: 10,
       borderRadius: 10,
-      height: 40,
-      alignItems: 'center',
-      justifyContent: 'center',
     },
     name: {
       fontSize: 16,
@@ -121,14 +119,14 @@ const MessageStyles = (theme: ThemeType) => {
       color: color.text,
     },
     inputContainer: {
-      width: '100%',
+      width: screenWidth,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
       borderRadius: 30,
       paddingHorizontal: 10,
       paddingVertical: 2,
-      marginVertical: 10,
+      margin: 10,
       backgroundColor: color.gray,
       position: 'relative',
     },

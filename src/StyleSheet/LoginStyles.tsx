@@ -21,10 +21,6 @@ const LoginStyles = () => {
       justifyContent: 'space-between',
       alignItems: 'center',
     },
-    btnBack: {
-      position: 'absolute',
-      top: 20,
-    },
     logo: {
       width: 180,
       height: 180,
