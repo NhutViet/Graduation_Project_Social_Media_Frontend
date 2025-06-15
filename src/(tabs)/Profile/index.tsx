@@ -6,7 +6,7 @@ import {
   Text,
   SafeAreaView,
   Image,
-  Animated,
+  // Animated,
 } from 'react-native';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
@@ -143,7 +143,6 @@ const Profile = () => {
   }, [dataUser]);
 
   const handleUserPress = (user: any) => {
-    console.log('Navigating to SeenStory with user:', user);
     // Cập nhật status của user được nhấn thành 0
     setDataUser(prevData =>
       prevData.map(item => (item.id === user.id ? {...item, status: 0} : item)),
@@ -159,11 +158,7 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState('grid');
 
   const renderHeader = () => (
-    <Animated.View>
-      {/* // style={{
-      //   // transform: [{translateY}],
-      //   // zIndex: 1,
-      // }}> */}
+    <View>
       <View style={styles.header}>
         <View style={styles.usernameContainer}>
           <Lock size={16} color={color.text} />
@@ -290,6 +285,7 @@ const Profile = () => {
             data={highlights}
             renderItem={({item}) => renderStories({item})}
             estimatedItemSize={50}
+            keyExtractor={item => item.id.toString()}
             showsHorizontalScrollIndicator={false}
           />
         </View>
@@ -299,7 +295,7 @@ const Profile = () => {
           onSelect={id => console.log('Selected:', id)}
         />
       </View>
-    </Animated.View>
+    </View>
   );
 
   const renderTabBar = () => (
@@ -343,43 +339,6 @@ const Profile = () => {
     </View>
   );
 
-  // const renderContent = () => {
-  //   switch (activeTab) {
-  //     case 'grid':
-  //       return isSuccess && PostsItem ? (
-  //         <PostsView data={PostsItem} />
-  //       ) : (
-  //         <View style={[styles.content, styles.centerItem, {height: 50}]}>
-  //           <Text style={styles.textno}>Đang tải...</Text>
-  //         </View>
-  //       );
-  //     case 'reels':
-  //       return isSuccess && ReelsItem ? (
-  //         <ReelsView data={ReelsItem} />
-  //       ) : (
-  //         <View style={[styles.content, styles.centerItem, {height: 50}]}>
-  //           <Text style={styles.textno}>Đang tải...</Text>
-  //         </View>
-  //       );
-  //     case 'tagged':
-  //       return isSuccess ? (
-  //         <PostsView data={PostsItem} />
-  //       ) : (
-  //         <View style={[styles.content, styles.centerItem, {height: 50}]}>
-  //           <Text style={styles.textno}>Đang tải...</Text>
-  //         </View>
-  //       );
-  //     default:
-  //       return isSuccess ? (
-  //         <PostsView data={PostsItem} />
-  //       ) : (
-  //         <View style={[styles.content, styles.centerItem, {height: 50}]}>
-  //           <Text style={styles.textno}>Đang tải...</Text>
-  //         </View>
-  //       );
-  //   }
-  // };
-
   useEffect(() => {
     // Lần đầu tiên: gọi cả hai API
     dispatch(getPostsOfUser({refreshToken}));
@@ -405,7 +364,7 @@ const Profile = () => {
             {renderTabBar()}
           </>
         }
-        estimatedItemSize={200}
+        estimatedItemSize={20}
         showsVerticalScrollIndicator={false}
         keyboardDismissMode="on-drag"
         numColumns={3}

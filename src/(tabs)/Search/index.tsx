@@ -1,6 +1,7 @@
+/* eslint-disable react-native/no-inline-styles */
 import {
   Animated,
-  Dimensions,
+  // Dimensions,
   Image,
   SafeAreaView,
   Text,
@@ -23,47 +24,49 @@ import {RootState} from '../../../services/store';
 import {useDispatch, useSelector} from 'react-redux';
 import {fetchPostsWithMedia} from '../../../services/postRedux/postSlice';
 import {AppDispatch} from '../../../services/store';
-import {Media} from '../../../services/postRedux/postTypes';
-import ExploreSection from './Components/ExploreTile';
 import {useDebounce} from 'use-debounce';
-import { fetchSearchPost, fetchSearchUser } from '../../../services/searchRedux/searchSlice';
+import {
+  fetchSearchPost,
+  fetchSearchUser,
+} from '../../../services/searchRedux/searchSlice';
+import ExploreMasonryFeed from './Components/ExploreTile';
 
-const generateImages = (count: number) =>
-  Array.from({length: count}, (_, i) => ({
-    id: `${i}`,
-    uri: 'https://kimipet.vn/wp-content/uploads/2021/06/husky-ngao-.jpg',
-  }));
+// const generateImages = (count: number) =>
+//   Array.from({length: count}, (_, i) => ({
+//     id: `${i}`,
+//     uri: 'https://kimipet.vn/wp-content/uploads/2021/06/husky-ngao-.jpg',
+//   }));
 
-const dataUser = [
-  {
-    id: 1,
-    name: 'user1',
-    image:
-      'https://i.pinimg.com/736x/b7/25/61/b72561fd1ec7018c0418c84a3c2d5a57.jpg',
-    status: 1,
-  },
-  {
-    id: 2,
-    name: 'user2',
-    image:
-      'https://i.pinimg.com/736x/c1/70/e8/c170e84663405785c80ba367cd5e3b85.jpg',
-    status: 1,
-  },
-  {
-    id: 3,
-    name: 'user3',
-    image:
-      'https://i.pinimg.com/736x/8b/ae/77/8bae77c63f046f5a307a864a9d230da2.jpg',
-    status: 0,
-  },
-  {
-    id: 4,
-    name: 'user4',
-    image:
-      'https://i.pinimg.com/736x/56/81/64/5681646985e7ddc1b2cd4b826763b541.jpg',
-    status: 0,
-  },
-];
+// const dataUser = [
+//   {
+//     id: 1,
+//     name: 'user1',
+//     image:
+//       'https://i.pinimg.com/736x/b7/25/61/b72561fd1ec7018c0418c84a3c2d5a57.jpg',
+//     status: 1,
+//   },
+//   {
+//     id: 2,
+//     name: 'user2',
+//     image:
+//       'https://i.pinimg.com/736x/c1/70/e8/c170e84663405785c80ba367cd5e3b85.jpg',
+//     status: 1,
+//   },
+//   {
+//     id: 3,
+//     name: 'user3',
+//     image:
+//       'https://i.pinimg.com/736x/8b/ae/77/8bae77c63f046f5a307a864a9d230da2.jpg',
+//     status: 0,
+//   },
+//   {
+//     id: 4,
+//     name: 'user4',
+//     image:
+//       'https://i.pinimg.com/736x/56/81/64/5681646985e7ddc1b2cd4b826763b541.jpg',
+//     status: 0,
+//   },
+// ];
 
 const SEARCH_HISTORY_KEY = 'search_history';
 
@@ -71,11 +74,9 @@ export const Search = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   const {posts} = useSelector((state: RootState) => state.post);
-  const [postMedia, setPostMedia] = useState<Media[]>([]);
 
   useEffect(() => {
     dispatch(fetchPostsWithMedia());
-    setPostMedia(posts.flatMap(post => post.media));
   }, [dispatch, posts]);
 
   const theme = useTheme();
@@ -120,15 +121,23 @@ export const Search = () => {
 
   const [debouncedSearchText] = useDebounce(searchText, 500);
   const {refreshToken} = useSelector((state: RootState) => state.user);
-  const {users, isLoading, isError} = useSelector((state: RootState) => state.search);
+  const {users, isLoading, isError} = useSelector(
+    (state: RootState) => state.search,
+  );
 
   //gọi Api sử lý tìm kiếm
   useEffect(() => {
-    if(debouncedSearchText.trim().length > 0){
-      dispatch(fetchSearchUser({refreshToken, keyword: debouncedSearchText, mode: 'username'}));
+    if (debouncedSearchText.trim().length > 0) {
+      dispatch(
+        fetchSearchUser({
+          refreshToken,
+          keyword: debouncedSearchText,
+          mode: 'username',
+        }),
+      );
       dispatch(fetchSearchPost({refreshToken, keyword: debouncedSearchText}));
     }
-  }, [debouncedSearchText]);
+  }, [debouncedSearchText, dispatch, refreshToken]);
 
   // Tải lịch sử tìm kiếm
   const loadSearchHistory = async () => {
@@ -183,26 +192,27 @@ export const Search = () => {
 
   // Logic tìm kiếm
   useEffect(() => {
-      if (debouncedSearchText.trim().length > 0 && !isLoading && !isError) {
+    if (debouncedSearchText.trim().length > 0 && !isLoading && !isError) {
+      const filteredHistory = searchHistory.filter((historyItem: string) =>
+        historyItem
+          .toLowerCase()
+          .includes(debouncedSearchText.trim().toLowerCase()),
+      );
 
-        const filteredHistory = searchHistory.filter((historyItem: string) =>
-          historyItem.toLowerCase().includes(debouncedSearchText.trim().toLowerCase()),
-        );
+      const userItems = (users as any)?.items || [];
 
-        const userItems = (users as any)?.items || [];
+      const combined = [
+        ...filteredHistory.map(item => ({type: 'history', value: item})),
+        ...userItems.map((item: any) => ({type: 'user', value: item})),
+      ];
 
-        const combined = [
-          ...filteredHistory.map(item => ({type: 'history', value: item})),
-          ...userItems.map((item: any) => ({type: 'user', value: item})),
-        ];
-
-        setCombinedResults(combined);
-      } else {
-        setCombinedResults(
-          searchHistory.map(item => ({type: 'history', value: item})),
-        );
-      }
-  }, [debouncedSearchText, users, searchHistory]);
+      setCombinedResults(combined);
+    } else {
+      setCombinedResults(
+        searchHistory.map(item => ({type: 'history', value: item})),
+      );
+    }
+  }, [debouncedSearchText, users, searchHistory, isLoading, isError]);
 
   // hiệu ứng opacity khi focused thay đổi
   useEffect(() => {
@@ -235,14 +245,10 @@ export const Search = () => {
 
   // DO NOT CHANGE ANYTHING BELOW THIS LINE
   // All these things below is for ExploreSection
-  const mediaGroups: Media[][] = [];
-  for (let i = 0; i < postMedia.length; i += 5) {
-    mediaGroups.push(postMedia.slice(i, i + 5));
-  }
 
-  const screenWidth = Dimensions.get('window').width;
-  const SMALL = (screenWidth - 2 * 3) / 3;
-  const BIG = SMALL * 2 + 2;
+  // const screenWidth = Dimensions.get('window').width;
+  // const SMALL = (screenWidth - 2 * 3) / 3;
+  // const BIG = SMALL * 2 + 2;
 
   return (
     <SafeAreaView style={[styles.container]}>
@@ -377,44 +383,12 @@ export const Search = () => {
         </Animated.View>
 
         {/* Lưới media (ẩn/hiện bằng display) */}
-        <Animated.View
+        {/* <Animated.View
           style={[styles.container, {opacity: mediaOpacity}]}
-          pointerEvents={isFocused || isShowResult ? 'none' : 'auto'}>
-          {/* <FlashList
-            data={mediaBlocks}
-            keyExtractor={(_, index) => index.toString()}
-            renderItem={({item, index}) => (
-              <GridMedia
-                block={item}
-                index={index}
-                isPause={isFocused || isShowResult}
-                isFocused={isFocused}
-                isFocusedPage={isFocusedPage}
-                currentVisibleIndex={visibleIndexView1}
-              />
-            )}
-            estimatedItemSize={BIG_IMAGE_HEIGHT + 2} // chính xác chiều cao 1 block
-            onViewableItemsChanged={onViewableItemsChangedView1}
-            viewabilityConfig={viewabilityConfig}
-          /> */}
-          <FlashList
-            data={mediaGroups}
-            keyExtractor={(_, index) => index.toString()}
-            renderItem={({item, index}) => (
-              <ExploreSection
-                media={item}
-                index={index}
-                isPause={isFocused || isShowResult}
-                isFocused={isFocused}
-                isFocusedPage={isFocusedPage}
-                currentVisibleIndex={visibleIndexView1}
-              />
-            )}
-            estimatedItemSize={BIG + 4}
-            onViewableItemsChanged={onViewableItemsChangedView1}
-            viewabilityConfig={viewabilityConfig}
-          />
-        </Animated.View>
+          // pointerEvents={isFocused || isShowResult ? 'none' : 'auto'}>
+        >
+          <ExploreMasonryFeed posts={posts} />
+        </Animated.View> */}
       </View>
     </SafeAreaView>
   );

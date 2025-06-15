@@ -92,9 +92,7 @@ export const SeenStory = ({route, navigation}: any) => {
 
   const handleLike = async () => {
     try {
-      await dispatch(
-        toggleLikeStory({storyId: selectedItem._id, userId: user._id}),
-      );
+      await dispatch(toggleLikeStory({storyId: selectedItem._id}));
       setIsLiked(prev => !prev);
     } catch (err) {
       console.error('Error liking story:', err);

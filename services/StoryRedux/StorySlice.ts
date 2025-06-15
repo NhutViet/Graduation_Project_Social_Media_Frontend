@@ -2,17 +2,17 @@ import {createAsyncThunk} from '@reduxjs/toolkit';
 import {Story, userFollow} from './StoryType';
 import axiosInstance from '../axiosInstance';
 import {API} from '../api';
-import {rejectValue} from '../likersRedux/likersType';
+// import {rejectValue} from '../likersRedux/likersType';
 
 export const seenStory = createAsyncThunk<
   void,
-  {storyId: string; userId: string},
+  {storyId: string},
   {rejectValue: string}
->('stories/seenStory', async ({storyId, userId}, {rejectWithValue}) => {
+>('stories/seenStory', async ({storyId}, {rejectWithValue}) => {
   try {
     await axiosInstance.patch(
       '/stories/seen',
-      {_id: storyId, userId},
+      {_id: storyId},
       {
         headers: {
           token: 'refresh',
@@ -26,6 +26,7 @@ export const seenStory = createAsyncThunk<
   }
 });
 
+// lấy story's following
 export const fetchFollowingStories = createAsyncThunk<
   userFollow[],
   {page: number},
@@ -48,20 +49,21 @@ export const fetchFollowingStories = createAsyncThunk<
   }
 });
 
+// Lấy thông tin chi tiết của stories
 export const fetchStoriesByIds = createAsyncThunk<
   Story[],
   string[],
   {rejectValue: string}
->('stories/fetchStoriesByIds', async (storyIds, {rejectWithValue}) => {
+>('stories/fetchStoriesByIds', async (storyId, {rejectWithValue}) => {
   try {
     const response = await axiosInstance.post(
-      '/stories/by-ids',
-      {storyIds},
+      '/stories',
+      {storyId},
       {
         headers: {token: 'refresh'},
       },
     );
-    return response.data;
+    return response.data.data;
   } catch (error: any) {
     return rejectWithValue(
       error.response?.data?.message || 'Failed to fetch story details',
@@ -102,4 +104,3 @@ export const toggleLikeStory = createAsyncThunk(
     return res.data;
   },
 );
-

@@ -1,119 +1,135 @@
-/* eslint-disable react-native/no-inline-styles */
-import {Dimensions, Image, TouchableOpacity, View} from 'react-native';
 import React from 'react';
+import {Image, TouchableOpacity, StyleSheet, Dimensions} from 'react-native';
+import MasonryList from 'react-native-masonry-list';
 import Video from 'react-native-video';
-import {Media} from '../../../../services/postRedux/postTypes';
+import {PostWithMedia} from '@services/postRedux/postTypes';
 
-const screenWidth = Dimensions.get('window').width;
-const GAP = 2;
-const SMALL = (screenWidth - GAP * 3) / 3;
-const BIG = SMALL * 2 + GAP;
+const SCREEN_WIDTH = Dimensions.get('window').width;
+const GAP = 1.5;
+const NUM_COLUMNS = 3;
+const ITEM_SIZE = (SCREEN_WIDTH - GAP * (NUM_COLUMNS + 1)) / NUM_COLUMNS;
 
-interface ExploreSectionProps {
-  media: Media[];
-  index: number;
-  currentVisibleIndex: number | null;
-  isPause: boolean;
-  isFocused: boolean;
-  isFocusedPage: boolean;
+interface ExploreMasonryFeedProps {
+  posts: PostWithMedia[];
+  onPressPost?: (post: PostWithMedia) => void;
 }
 
-const ExploreSection: React.FC<ExploreSectionProps> = ({
-  media,
-  index,
-  currentVisibleIndex,
-  isPause,
-  isFocused,
-  isFocusedPage,
+const ExploreMasonryFeed: React.FC<ExploreMasonryFeedProps> = ({
+  posts,
+  onPressPost,
 }) => {
-  if (media.length === 0) {
-    return null;
-  }
+  const data = posts.map(post => {
+    const firstMedia = post.media[0];
+    const isVideo = !!firstMedia.videoUrl;
+    const isMulti = post.media.length > 1;
+    const imageUrl = firstMedia.imageUrl;
+    return {
+      imageUrl,
+      videoUrl: firstMedia.videoUrl,
+      isVideo,
+      isMulti,
+      // post,
+      dimensions: {width: ITEM_SIZE, height: ITEM_SIZE},
+    };
+  });
 
-  const isReversed = index % 2 === 0;
-
-  // chọn 1 media có videoUrl để làm video lớn, nếu không có thì lấy media[0]
-  const bigMedia = media.find(m => !!m.videoUrl) || media[0];
-
-  const smallMedias = media.filter(m => m._id !== bigMedia._id);
-  const isPlaying = currentVisibleIndex === index;
+  const renderItem = (item: any) => (
+    <TouchableOpacity
+      activeOpacity={0.85}
+      style={styles.item}
+      onPress={() => onPressPost?.(item.post)}>
+      {item.isVideo && item.videoUrl ? (
+        <Video
+          source={{uri: item.videoUrl}}
+          style={styles.media}
+          resizeMode="cover"
+          paused
+        />
+      ) : (
+        <Image
+          source={{uri: item.imageUrl}}
+          style={styles.media}
+          resizeMode="cover"
+        />
+      )}
+    </TouchableOpacity>
+  );
+  console.log(data[4]);
 
   return (
-    <View
-      style={{
-        flexDirection: isReversed ? 'row' : 'row-reverse',
-        marginBottom: GAP,
-        gap: GAP,
-        paddingHorizontal: 1,
-      }}>
-      {/* Media lớn (video hoặc image) */}
-      <TouchableOpacity
-        onPress={() => console.log(`${bigMedia._id}`)}
-        style={{
-          width: SMALL,
-          height: BIG,
-          backgroundColor: '#ccc',
-          borderRadius: 4,
-          overflow: 'hidden',
-        }}>
-        {bigMedia.videoUrl ? (
-          <Video
-            source={{uri: bigMedia.videoUrl}}
-            style={{flex: 1}}
-            resizeMode="cover"
-            repeat
-            muted
-            paused={!isPlaying || isPause || isFocused || !isFocusedPage}
-          />
-        ) : (
-          <Image
-            source={{uri: bigMedia.imageUrl}}
-            style={{flex: 1}}
-            resizeMode="cover"
-          />
-        )}
-      </TouchableOpacity>
-
-      {/* 4 ô ảnh nhỏ */}
-      <View
-        style={{
-          width: SMALL * 2 + GAP,
-          flexDirection: 'row',
-          flexWrap: 'wrap',
-          gap: GAP,
-        }}>
-        {smallMedias.map(item => (
-          <TouchableOpacity
-            onPress={() => console.log(`${item._id}`)}
-            key={item._id}
-            style={{
-              width: SMALL,
-              height: SMALL,
-              backgroundColor: '#eee',
-              borderRadius: 2,
-              overflow: 'hidden',
-            }}>
-            {item.videoUrl ? (
-              <Video
-                source={{uri: item.videoUrl}}
-                style={{width: '100%', height: '100%'}}
-                resizeMode="cover"
-                repeat
-                muted
-                paused={!isPlaying || isPause || isFocused || !isFocusedPage}
-              />
-            ) : (
-              <Image
-                source={{uri: item.imageUrl}}
-                style={{width: '100%', height: '100%'}}
-                resizeMode="cover"
-              />
-            )}
-          </TouchableOpacity>
-        ))}
-      </View>
-    </View>
+    // <MasonryList
+    //   images={data}
+    //   columns={NUM_COLUMNS}
+    //   spacing={GAP}
+    //   renderItem={renderItem}
+    //   keyExtractor={item => item._id}
+    //   imageContainerStyle={styles.imageContainer}
+    // />
+    <TouchableOpacity
+      onPress={() => console.log(data[4].isVideo)}
+      style={styles.item}>
+      {data[4].isVideo && data[4].videoUrl !== undefined ? (
+        <Video
+          source={{uri: data[4].videoUrl}}
+          style={styles.media}
+          resizeMode="cover"
+          paused
+        />
+      ) : (
+        <Image
+          source={{uri: data[4].imageUrl}}
+          style={styles.media}
+          resizeMode="cover"
+        />
+      )}
+    </TouchableOpacity>
   );
 };
 
-export default React.memo(ExploreSection);
+const styles = StyleSheet.create({
+  item: {
+    width: ITEM_SIZE,
+    height: ITEM_SIZE,
+    borderWidth: GAP,
+    borderColor: '#000',
+    backgroundColor: '#111',
+    borderRadius: 0,
+    overflow: 'hidden',
+  },
+  imageContainer: {
+    width: ITEM_SIZE,
+    height: ITEM_SIZE,
+    borderWidth: GAP,
+    borderColor: '#000',
+    backgroundColor: '#111',
+    borderRadius: 0,
+    overflow: 'hidden',
+  },
+  media: {
+    width: '100%',
+    height: '100%',
+    aspectRatio: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  placeholder: {
+    backgroundColor: '#222',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  overlayIcon: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+    backgroundColor: 'rgba(0,0,0,0.55)',
+    borderRadius: 12,
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+  },
+  iconText: {
+    color: '#fff',
+    fontSize: 15,
+  },
+});
+
+export default ExploreMasonryFeed;

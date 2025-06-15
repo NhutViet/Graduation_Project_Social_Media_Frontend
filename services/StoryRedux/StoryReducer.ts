@@ -77,7 +77,6 @@ const storySlice = createSlice({
         state.loading = false;
         state.error = action.payload || 'Không thể lấy story đã đăng';
       })
-
       .addCase(toggleLikeStory.fulfilled, (state, action) => {
         const {storyId, userId} = action.payload;
         for (const user of state.followingUsers) {

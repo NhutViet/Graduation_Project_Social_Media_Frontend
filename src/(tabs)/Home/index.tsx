@@ -80,7 +80,7 @@ export const Home = () => {
       const res = await dispatch(fetchStoriesByIds([firstStoryId])).unwrap();
       const storyDetail = res[0];
 
-      await dispatch(seenStory({storyId: firstStoryId, userId: item._id}));
+      await dispatch(seenStory({storyId: firstStoryId}));
       navigation.navigate('SeenStory', {
         selectedItem: {
           _id: storyDetail._id,
