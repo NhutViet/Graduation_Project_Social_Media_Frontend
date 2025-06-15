@@ -12,13 +12,7 @@ import {
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import MessageBoxStyles from '../../StyleSheet/MessageBoxStyles';
-import User from '../../(tabs)/Home/components/Story';
 import React, {useState, useEffect, useRef} from 'react';
-import {
-  storyUsers,
-  StoryUser,
-  User as UserType,
-} from '../../MockData/message.mock';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../services/store';
 import {fetchMyRooms} from '../../../services/roomRedux/roomSlice';
@@ -47,7 +41,6 @@ export const MessageBox = (props: any) => {
   }, []);
 
   // State management
-  const [dataUser, setDataUser] = useState<StoryUser[]>(storyUsers);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const searchInputRef = useRef<TextInput>(null);
 
