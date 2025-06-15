@@ -42,24 +42,6 @@ const Reels = () => {
   const sheetRef: any = useRef<BottomSheetReelsRef>(null);
   const sheetRefComment: any = useRef<BottomSheetCommentRef>(null);
 
-  const initialThemeRef = useRef<'light' | 'dark' | null>(null);
-
-  useFocusEffect(
-    useCallback(() => {
-      if (initialThemeRef.current === null) {
-        initialThemeRef.current = theme;
-      }
-      if (theme !== 'dark') {
-        toggleTheme();
-      }
-      return () => {
-        if (initialThemeRef.current === 'light' && theme === 'dark') {
-          toggleTheme();
-        }
-      };
-    }, [theme]),
-  );
-
   const [currentVisible, setCurrentVisible] = useState<string | null>(null);
 
   const onViewRef = useRef(({viewableItems}: {viewableItems: any[]}) => {

@@ -4,7 +4,8 @@ import {useTheme} from '../../../util/ThemeContext';
 import {useNavigation} from '@react-navigation/native';
 
 const ItemNewMessage = (props: any) => {
-  const {roomId, nameChat, userHandle1, userHandle2, img1, img2, icon} = props;
+  const {roomId, roomTheme, nameChat, userHandle1, userHandle2, img1, img2} =
+    props;
   const {theme} = useTheme();
   const color = Colors[theme];
   const navigation: any = useNavigation();
@@ -15,19 +16,17 @@ const ItemNewMessage = (props: any) => {
       onPress={() => {
         navigation.navigate('MessageScreen', {
           room: roomId,
+          theme: roomTheme,
+          img1: img1,
+          img2: img2,
+          nameChat: nameChat,
         });
       }}>
       <View style={styles.rowContainer}>
         <View
           style={[
             styles.imgContainer,
-            {
-              padding: icon ? 2 : 0,
-              backgroundColor: icon
-                ? color.backgroundSecondary
-                : color.transparent,
-              overflow: img1 && !img2 ? 'hidden' : undefined,
-            },
+            {overflow: img1 && !img2 ? 'hidden' : undefined},
           ]}>
           {img2 && (
             <>
@@ -45,12 +44,6 @@ const ItemNewMessage = (props: any) => {
             </>
           )}
           {!img2 && img1 && <Image style={styles.img} source={{uri: img1}} />}
-          {icon && (
-            <Image
-              style={[styles.icon, {tintColor: color.text}]}
-              source={icon}
-            />
-          )}
         </View>
         <View>
           <Text style={[styles.nameChat, {color: color.text}]}>{nameChat}</Text>

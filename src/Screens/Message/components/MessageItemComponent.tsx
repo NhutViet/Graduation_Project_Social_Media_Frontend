@@ -1,20 +1,12 @@
 import React from 'react';
-import {
-  Image,
-  Linking,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import { Message } from '../../../../services/messageRedux/messageType';
+import {Image, Linking, Text, TouchableOpacity, View} from 'react-native';
+import {Message} from '../../../../services/messageRedux/messageType';
 
 interface MessageItemProps {
   item: Message;
   index: number;
   userHandleName: string;
   chat: Message[];
-  selectedMessageIndex: number | null;
-  setSelectedMessageIndex: (index: number | null) => void;
   setSelectedImageUri: (uri: string | null) => void;
   linkPreviews: {[key: number]: any};
   styles: any;
@@ -26,8 +18,6 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
   index,
   userHandleName,
   chat,
-  selectedMessageIndex,
-  setSelectedMessageIndex,
   setSelectedImageUri,
   linkPreviews,
   styles,
@@ -35,8 +25,8 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
 }) => {
   const isMe = item.sender.handleName === userHandleName;
   const prevMsg = chat[index - 1];
-  const showAvatar = !prevMsg || prevMsg.sender.handleName !== item.sender.handleName;
-  const isSelected = selectedMessageIndex === index;
+  const showAvatar =
+    !prevMsg || prevMsg.sender.handleName !== item.sender.handleName;
 
   return (
     <View
@@ -50,35 +40,41 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
         </TouchableOpacity>
       )}
 
-      <View style={[styles.row, {alignItems: isMe ? 'flex-end' : 'flex-start'}]}>
-        {!isMe && showAvatar && (
-          <Text style={styles.name}>{item.sender.handleName}</Text>
-        )}
-
-        <TouchableOpacity
-          activeOpacity={0.7}
-          onLongPress={() => setSelectedMessageIndex(index)}>
+      <View
+        style={[styles.row, {alignItems: isMe ? 'flex-end' : 'flex-start'}]}>
+        <TouchableOpacity activeOpacity={0.7}>
           <View
             style={[
               styles.message,
               {
-                marginLeft: isMe || showAvatar ? 0 : 60,
+                marginLeft: isMe || showAvatar ? 0 : 50,
                 marginRight: isMe ? 0 : 40,
                 backgroundColor: item.media
                   ? 'transparent'
-                  : isMe
+                  : !isMe
+                  ? color.backgroundSecondary
+                  : !linkPreviews[index] && !item.media
                   ? '#00BFFF'
-                  : '#A9A9A9',
+                  : color.backgroundSecondary,
                 padding: item.media ? 0 : 10,
               },
             ]}>
-            {item.media ? (
-              <TouchableOpacity onPress={() => setSelectedImageUri(item.media ?? null)}>
-                <Image
-                  source={{uri: item.media}}
-                  style={{width: 150, height: 150, borderRadius: 8}}
-                  resizeMode="cover"
-                />
+            {item.media != '' ? (
+              <TouchableOpacity
+                onPress={() => setSelectedImageUri(item.media ?? null)}>
+                <View
+                  style={{
+                    width: 150,
+                    height: 200,
+                    borderRadius: 10,
+                    overflow: 'hidden',
+                  }}>
+                  <Image
+                    source={{uri: item.media}}
+                    style={{width: '100%', height: '100%'}}
+                    resizeMode="cover"
+                  />
+                </View>
               </TouchableOpacity>
             ) : (
               <>
@@ -86,7 +82,12 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
                   .split(/(\s+)/)
                   .filter(part => !/^https?:\/\/\S+$/i.test(part))
                   .join('') !== '' && (
-                  <Text style={{color: color.text}}>
+                  <Text
+                    style={{
+                      color: color.text,
+                      textAlign: linkPreviews[index] && 'right',
+                      fontSize: 14,
+                    }}>
                     {item.content
                       .split(/(\s+)/)
                       .filter(part => !/^https?:\/\/\S+$/i.test(part))
@@ -98,9 +99,8 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
                     onPress={() => Linking.openURL(linkPreviews[index].url)}
                     style={{
                       borderRadius: 8,
-                      backgroundColor: '#f0f0f0',
+                      backgroundColor: color.backgroundSecondary,
                       marginTop: 5,
-                      padding: 8,
                       maxWidth: 200,
                     }}>
                     {linkPreviews[index].images?.length > 0 && (
@@ -108,7 +108,7 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
                         source={{uri: linkPreviews[index].images[0]}}
                         style={{
                           width: '100%',
-                          height: 120,
+                          height: 140,
                           borderRadius: 6,
                           marginBottom: 6,
                         }}
@@ -116,7 +116,12 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
                       />
                     )}
                     <Text
-                      style={{fontWeight: 'bold', color: 'black'}}
+                      style={{
+                        fontWeight: 'bold',
+                        color: color.text,
+                        fontSize: 14,
+                        marginBottom: 4,
+                      }}
                       numberOfLines={2}
                       ellipsizeMode="tail">
                       {linkPreviews[index].title}
@@ -138,22 +143,6 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
                   </TouchableOpacity>
                 )}
               </>
-            )}
-            {isSelected && (
-              <View
-                style={{
-                  width: 190,
-                  flexDirection: 'row',
-                  position: 'absolute',
-                  top: -30,
-                  backgroundColor: 'white',
-                  padding: 6,
-                  borderRadius: 30,
-                  alignSelf: isMe ? 'flex-end' : 'flex-start',
-                  elevation: 3,
-                  zIndex: 1,
-                }}
-              />
             )}
           </View>
         </TouchableOpacity>

@@ -1,7 +1,6 @@
 import {
   Alert,
   Image,
-  Platform,
   SafeAreaView,
   ScrollView,
   Text,
@@ -16,22 +15,16 @@ import {FlashList} from '@shopify/flash-list';
 import {Colors} from '../../../assets/color/Colors';
 import Section from '../../../components/Section';
 import {useNavigation, useRoute} from '@react-navigation/native';
-import axios from 'axios';
-import {useUploadProgress} from '../../../services/UploadProgressManager';
 import {useDispatch} from 'react-redux';
 import {AppDispatch} from '../../../services/store';
 import {uploadPostWithMedia} from '../../../services/postRedux/postSlice';
 import Toast from 'react-native-toast-message';
 import VideoModal from './Components/VideoModal';
-import {BASE_URL} from '../../../services/api';
-import RNFS from 'react-native-fs';
 import BottomSheet, {
   BottomSheetRef,
 } from '../PostStory/BottomSheet/BottomSheetMusic';
-
-const R2_PUBLIC_BASE_URL =
-  'https://pub-ad59fb2f0d474d27b87956b4048028d8.r2.dev';
-
+import {uploadImageToR2, uploadToCloudflare} from '../../core/upload';
+import {useUploadProgress} from '../../../services/UploadProgressManager';
 export const PostSetting = () => {
   const {theme} = useTheme();
   const color = Colors[theme];
@@ -50,86 +43,10 @@ export const PostSetting = () => {
   //lâys dữ liệu
   const route = useRoute();
   const {selectedMedia}: any = route.params || [];
-  const {showUploadModal, hideUploadModal, setProgress} = useUploadProgress();
   const [caption, setCaption] = useState('');
   //modal xem video
   const [isModal, setIsModal] = useState(false);
-  /////////// video
-  const uploadToCloudflare = async (uri: string) => {
-    showUploadModal(uri, 'video');
-
-    try {
-      const res = await axios.get(`${BASE_URL}/stream/upload-url`);
-      const {uploadURL, key} = res.data.uploadURL;
-
-      const formData = new FormData();
-      formData.append('file', {
-        uri: Platform.OS === 'ios' ? uri.replace('file://', '') : uri,
-        type: 'video/mp4',
-        name: 'video.mp4',
-      });
-
-      await axios.post(uploadURL, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        onUploadProgress: progressEvent => {
-          const progress = progressEvent.loaded / progressEvent.total;
-          setProgress(progress);
-        },
-      });
-
-      hideUploadModal();
-      return key;
-    } catch (error) {
-      hideUploadModal();
-
-      if (axios.isAxiosError(error)) {
-        console.error('Upload failed:', error.response?.data || error.message);
-      } else {
-        console.error('Unknown upload error:', error);
-      }
-
-      throw error;
-    }
-  };
-  ///////////// image
-  const uploadImageToR2 = async (uri: string): Promise<string> => {
-    showUploadModal(uri, 'image');
-
-    try {
-      const fileName = uri.split('/').pop() || `image_${Date.now()}.jpg`;
-
-      const {data} = await axios.post(`${BASE_URL}/r2/presigned-url`, {
-        fileName,
-        contentType: 'image/jpeg',
-      });
-
-      const {url: signedUrl} = data;
-
-      const fileUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
-      const fileData = await RNFS.readFile(fileUri, 'base64');
-      const fileBuffer = Buffer.from(fileData, 'base64');
-
-      await axios.put(signedUrl, fileBuffer, {
-        headers: {
-          'Content-Type': 'image/jpeg',
-        },
-        onUploadProgress: progressEvent => {
-          const progress = progressEvent.loaded / progressEvent.total;
-          setProgress(progress);
-        },
-      });
-
-      const publicUrl = `${R2_PUBLIC_BASE_URL}/${fileName}`;
-      hideUploadModal();
-      return publicUrl;
-    } catch (error) {
-      hideUploadModal();
-      console.error('Upload ảnh thất bại:', error);
-      throw error;
-    }
-  };
+  const {showUploadModal, hideUploadModal, setProgress} = useUploadProgress();
 
   const handleUploadAll = async () => {
     if (!selectedMedia || selectedMedia.length === 0) {
@@ -154,12 +71,20 @@ export const PostSetting = () => {
 
         try {
           if (isVideo) {
-            const videoUrl = await uploadToCloudflare(uri);
+            const videoUrl = await uploadToCloudflare(uri, {
+              showUploadModal,
+              hideUploadModal,
+              setProgress,
+            });
             uploadedMedia.push({
               videoUrl: `https://videodelivery.net/${videoUrl}/manifest/video.m3u8`,
             });
           } else {
-            const imageUrl = await uploadImageToR2(uri);
+            const imageUrl = await uploadImageToR2(uri, {
+              showUploadModal,
+              hideUploadModal,
+              setProgress,
+            });
             uploadedMedia.push({imageUrl});
           }
         } catch (err) {

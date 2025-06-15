@@ -7,6 +7,7 @@ export const API = {
   UPLOAD_POST: 'posts/with-media',
   HIDDEN_POST: 'user-hidden-post/hide',
   GET_POST: 'posts/user/all',
+  GET_TAGGING_POST: 'posts/tags',
 
   //// comment
   GET_COMMENT_POST: 'comments/post',

@@ -1,36 +1,35 @@
-import React, {useEffect, useRef, useState} from 'react';
-import {SafeAreaView, View, ActivityIndicator, Text} from 'react-native';
-import {Colors} from '../../../assets/color/Colors';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
+import {SafeAreaView, View, ActivityIndicator, ScrollView} from 'react-native';
 import {useTheme} from '../../util/ThemeContext';
+import {Colors} from '../../../assets/color/Colors';
 import {useIsFocused, useNavigation} from '@react-navigation/native';
-import Story from './components/Story';
 import {useDispatch, useSelector} from 'react-redux';
-import ItemHome from './components/ItemHome';
-import {Modalize} from 'react-native-modalize';
-import {AppDispatch, RootState} from '../../../services/store';
-import {fetchPostsWithMedia} from '../../../services/postRedux/postSlice';
-import BottomSheetComment, {
-  BottomSheetCommentRef,
-} from './components/CommentSection';
-import {fetchCommentsByPost} from '../../../services/commentRedux/commentSlice';
 import Animated, {
   useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import Header from '../../../components/Header';
+
+import {AppDispatch, RootState} from '../../../services/store';
+import {fetchPostsWithMedia} from '../../../services/postRedux/postSlice';
 import {
   fetchFollowingStories,
-  fetchStoriesByIds,
-  seenStory,
 } from '../../../services/StoryRedux/StorySlice';
-import {userFollow} from '../../../services/StoryRedux/StoryType';
 import {
   getAllPlaylists,
   getItemsOfPlaylist,
 } from '../../../services/bookmarkRedux/bookmarkSlice';
+import {fetchCommentsByPost} from '../../../services/commentRedux/commentSlice';
+import Header from '../../../components/Header';
+import Story from './components/Story';
+import ItemHome from './components/ItemHome';
+import BottomSheetComment, {
+  BottomSheetCommentRef,
+} from './components/CommentSection';
+import { handleUserPress } from './util';
 
+const HEADER_HEIGHT = 100;
 const AnimatedFlatList = Animated.createAnimatedComponent(Animated.FlatList);
 
 export const Home = () => {
@@ -38,95 +37,40 @@ export const Home = () => {
   const {theme} = useTheme();
   const color = Colors[theme];
   const isFocused = useIsFocused();
-  const sheetRef: any = useRef<BottomSheetCommentRef>(null);
-
-  // redux
   const dispatch = useDispatch<AppDispatch>();
-  const {posts} = useSelector((state: RootState) => state.post);
 
+  const sheetRef = useRef<BottomSheetCommentRef>(null);
   const [currentVisible, setCurrentVisible] = useState<string | null>(null);
-  const {
-    followingUsers,
-    loading: storyLoading,
-    error: storyError,
-  } = useSelector((state: RootState) => state.stories);
-  const user = useSelector((state: RootState) => state.user);
-  const [dataUser, setDataUser] = useState<userFollow[]>();
-  const {refreshToken} = useSelector((state: RootState) => state.user);
-  const {playlists} = useSelector((state: RootState) => state.bookmark);
+  const [selectedPostId, setSelectedPostId] = useState<string>('');
+
+  const posts = useSelector((state: RootState) => state.post.posts);
+  const followingUsers = useSelector(
+    (state: RootState) => state.stories.followingUsers,
+  );
+  const storyLoading = useSelector((state: RootState) => state.stories.loading);
+  const user = useSelector((state: RootState) => state.user.user);
+  const refreshToken = useSelector(
+    (state: RootState) => state.user.refreshToken,
+  );
+  const playlists = useSelector((state: RootState) => state.bookmark.playlists);
 
   useEffect(() => {
     dispatch(fetchPostsWithMedia());
     dispatch(fetchFollowingStories({page: 1}));
-  }, [dispatch]);
-
-  useEffect(() => {
-    dispatch(getAllPlaylists({refreshToken}))
-      .unwrap()
-      .then(res => {
-        console.log('✅ getAllPlaylists thành công');
-      });
+    dispatch(getAllPlaylists({refreshToken}));
   }, []);
 
   useEffect(() => {
-    // khi playlists đã có thì mới gọi lấy items
-    if (playlists.length > 0) {
-      playlists.forEach(playlist => {
-        dispatch(getItemsOfPlaylist({playlistId: playlist.id, refreshToken}));
-      });
-    }
+    playlists.forEach(playlist => {
+      dispatch(getItemsOfPlaylist({playlistId: playlist.id, refreshToken}));
+    });
   }, [playlists]);
 
-  useEffect(() => {
-    setDataUser(followingUsers);
-  }, [followingUsers]);
+  const onViewRef = useCallback(({viewableItems}: {viewableItems: any[]}) => {
+    const id = viewableItems[0]?.item?._id;
+    if (id) setCurrentVisible(id);
+  }, []);
 
-  const onViewRef = useRef(({viewableItems}: {viewableItems: any[]}) => {
-    if (viewableItems.length > 0) {
-      const visibleItem = viewableItems[0];
-      const id = visibleItem?.item?._id;
-      if (id) {
-        setCurrentVisible(id);
-      }
-    }
-  });
-
-  const handleUserPress = async (user: userFollow) => {
-    if (user.stories.length === 0) return;
-
-    const firstStoryId = user.stories[0];
-    try {
-      // 1. Fetch story detail
-      const storyDetailResult = await dispatch(
-        fetchStoriesByIds([firstStoryId]),
-      ).unwrap();
-      const storyDetail = storyDetailResult[0];
-
-      // 2. Đánh dấu đã xem
-      await dispatch(seenStory({storyId: firstStoryId, userId: user._id}));
-
-      // 3. Navigate và truyền story chi tiết
-      navigation.navigate('SeenStory', {
-        selectedItem: {
-          _id: storyDetail._id,
-          uriVideo: storyDetail.mediaUrl.endsWith('.m3u8')
-            ? storyDetail.mediaUrl
-            : null,
-          image: storyDetail.mediaUrl.endsWith('.m3u8')
-            ? null
-            : storyDetail.mediaUrl,
-          likedByUsers: storyDetail.likedByUsers,
-        },
-      });
-    } catch (err) {
-      console.error('Error fetching or marking story:', err);
-    }
-  };
-  const [selectedPostId, setSelectedPostId] = useState<string>('');
-
-  const HEADER_HEIGHT = 100;
-
-  const scrollY = useSharedValue(0);
   const prevScrollY = useSharedValue(0);
   const headerTranslateY = useSharedValue(0);
   const scrolledUpDistance = useSharedValue(0);
@@ -140,8 +84,8 @@ export const Home = () => {
         headerTranslateY.value = withTiming(0, {duration: 200});
         scrolledUpDistance.value = 0;
       } else if (delta > 0) {
-        scrolledUpDistance.value = 0;
         headerTranslateY.value = withTiming(-HEADER_HEIGHT, {duration: 200});
+        scrolledUpDistance.value = 0;
       } else {
         scrolledUpDistance.value = Math.min(
           scrolledUpDistance.value - delta,
@@ -156,11 +100,18 @@ export const Home = () => {
     },
   });
 
-  const animatedHeaderStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{translateY: headerTranslateY.value}],
-    };
-  });
+  const animatedHeaderStyle = useAnimatedStyle(() => ({
+    transform: [{translateY: headerTranslateY.value}],
+  }));
+
+  const handleOpenComment = useCallback(
+    (postId: string) => {
+      setSelectedPostId(postId);
+      dispatch(fetchCommentsByPost(postId));
+      sheetRef.current?.open();
+    },
+    [dispatch],
+  );
 
   if (storyLoading) {
     return (
@@ -180,13 +131,7 @@ export const Home = () => {
     <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
       <Animated.View
         style={[
-          {
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            zIndex: 10,
-          },
+          {position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10},
           animatedHeaderStyle,
         ]}>
         <Header
@@ -198,69 +143,50 @@ export const Home = () => {
         />
       </Animated.View>
       <AnimatedFlatList
-        initialNumToRender={5}
-        maxToRenderPerBatch={5}
-        windowSize={5}
         data={posts}
-        extraData={[currentVisible, isFocused]}
-        renderItem={({item}: any) => {
-          const shouldPlay = item?._id === currentVisible;
+        keyExtractor={item => item._id}
+        extraData={isFocused}
+        renderItem={({item}) => {
+          const shouldPlay = item._id === currentVisible;
           return (
             <ItemHome
               {...item}
               isFocused={isFocused}
               currentVisible={shouldPlay}
-              openComment={() => {
-                setSelectedPostId(item._id);
-                dispatch(fetchCommentsByPost(item._id));
-                sheetRef.current?.open();
-              }}
+              openComment={handleOpenComment}
             />
           );
         }}
-        keyExtractor={item => item._id}
-        showsVerticalScrollIndicator={false}
-        nestedScrollEnabled={true}
-        onViewableItemsChanged={onViewRef.current}
-        viewabilityConfig={{
-          itemVisiblePercentThreshold: 70,
-        }}
-        onScroll={scrollHandler}
+        onViewableItemsChanged={onViewRef}
+        viewabilityConfig={{itemVisiblePercentThreshold: 70}}
         scrollEventThrottle={16}
+        removeClippedSubviews={true}
+        onScroll={scrollHandler}
+        showsVerticalScrollIndicator={false}
+        nestedScrollEnabled
         ListHeaderComponent={
           <View style={{position: 'relative', height: 160}}>
-            <View
-              style={{
-                alignItems: 'center',
-                flexDirection: 'row',
-                position: 'absolute',
-                top: 50,
-              }}>
-              <Animated.FlatList
-                data={(dataUser || []).filter(item => item && item._id)}
-                renderItem={({item}) => {
-                  if (!item || !item._id) return null;
-
-                  return (
+            <View style={{position: 'absolute', top: 50}}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{paddingHorizontal: 10}}>
+                {followingUsers
+                  .filter(item => item !== undefined && item !== null)
+                  .map(item => (
                     <Story
+                      key={item._id}
                       name={
-                        item.handleName === user?.user?.handleName
+                        item.handleName === user?.handleName
                           ? 'Tin của tôi'
                           : item.handleName
                       }
                       image={item.profilePic}
                       status={item.stories.length > 0 ? 1 : 0}
-                      func={() => handleUserPress(item)}
+                      func={() => handleUserPress(item, dispatch, navigation)}
                     />
-                  );
-                }}
-                horizontal
-                keyExtractor={item => item._id}
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{
-                  paddingHorizontal: 10,
-                }}
-              />
+                  ))}
+              </ScrollView>
             </View>
           </View>
         }
@@ -269,3 +195,5 @@ export const Home = () => {
     </SafeAreaView>
   );
 };
+
+export default Home;

@@ -7,11 +7,6 @@ const SwitchAccountStyles = (theme: ThemeType) => {
   const color = Colors[theme];
 
   return StyleSheet.create({
-    iconBack: {
-      position: 'absolute',
-      top: 20,
-      left: 20,
-    },
     body: {
       width: '100%',
       marginBottom: 50,
@@ -42,6 +37,11 @@ const SwitchAccountStyles = (theme: ThemeType) => {
       fontSize: 16,
       textAlign: 'center',
       marginTop: 20,
+    },
+    icon: {
+      width: 20,
+      height: 20,
+      resizeMode: 'contain',
     },
   });
 };

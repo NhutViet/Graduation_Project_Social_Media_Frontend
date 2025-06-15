@@ -1,8 +1,8 @@
-import {StyleSheet} from 'react-native';
+import {Dimensions, StyleSheet} from 'react-native';
 import {Colors} from '../../assets/color/Colors';
-import { Palette } from 'lucide-react-native';
 
 type ThemeType = 'light' | 'dark';
+const screenWidth = Dimensions.get('window').width - 20;
 
 const MessageStyles = (theme: ThemeType) => {
   const color = Colors[theme];
@@ -11,14 +11,13 @@ const MessageStyles = (theme: ThemeType) => {
     container: {
       flex: 1,
       justifyContent: 'flex-end',
-      backgroundColor: color.background,
     },
     header: {
       flexDirection: 'row',
       alignItems: 'center',
-      padding: 10,
+      height: 60,
+      paddingHorizontal: 10,
       justifyContent: 'space-between',
-      backgroundColor: color.background,
     },
     rowContainer: {
       width: '25%',
@@ -26,10 +25,15 @@ const MessageStyles = (theme: ThemeType) => {
       alignItems: 'center',
       justifyContent: 'space-between',
     },
+    rowContainer2: {
+      width: '40%',
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
     blockIcon: {
       width: 20,
       height: 20,
-      marginHorizontal: 10,
+      marginRight: 10,
     },
     blockIcon1: {
       width: 20,
@@ -42,15 +46,45 @@ const MessageStyles = (theme: ThemeType) => {
       tintColor: color.text,
     },
     blockImg: {
-      width: 50,
-      height: 50,
+      width: 40,
+      height: 40,
       borderRadius: 25,
       overflow: 'hidden',
       marginRight: 10,
     },
+    imgContainer: {
+      position: 'relative',
+      width: 46,
+      height: 46,
+      borderRadius: 23,
+      marginRight: 10,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    iconW: {
+      width: '75%',
+      height: '75%',
+      resizeMode: 'contain',
+      borderRadius: 25,
+      top: 0,
+      left: 0,
+      position: 'absolute',
+    },
+    iconF: {
+      width: '85%',
+      height: '85%',
+      resizeMode: 'contain',
+      borderRadius: 25,
+      zIndex: 1,
+      bottom: 0,
+      right: 0,
+      borderWidth: 2,
+      position: 'absolute',
+    },
     img: {
       width: '100%',
       height: '100%',
+      resizeMode: 'contain',
     },
     input: {
       width: '60%',
@@ -63,8 +97,8 @@ const MessageStyles = (theme: ThemeType) => {
       paddingVertical: 2,
     },
     blockAvatar: {
-      width: 50,
-      height: 50,
+      width: 40,
+      height: 40,
       borderRadius: 25,
       overflow: 'hidden',
     },
@@ -73,11 +107,10 @@ const MessageStyles = (theme: ThemeType) => {
       height: '100%',
     },
     row: {
-      // width: '80%',
+      width: '80%',
     },
     message: {
       position: 'relative',
-      padding: 10,
       borderRadius: 10,
     },
     name: {
@@ -86,14 +119,14 @@ const MessageStyles = (theme: ThemeType) => {
       color: color.text,
     },
     inputContainer: {
-      width: '100%',
+      width: screenWidth,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
       borderRadius: 30,
       paddingHorizontal: 10,
       paddingVertical: 2,
-      marginVertical: 10,
+      margin: 10,
       backgroundColor: color.gray,
       position: 'relative',
     },
@@ -119,14 +152,14 @@ const MessageStyles = (theme: ThemeType) => {
     },
     menu: {
       position: 'absolute',
-      bottom: '100%',        
-      right: 0,              
+      bottom: '100%',
+      right: 0,
       backgroundColor: color.background,
       borderRadius: 8,
       elevation: 10,
-      zIndex: 2,   
+      zIndex: 2,
       shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
+      shadowOffset: {width: 0, height: 2},
       shadowOpacity: 0.2,
       shadowRadius: 4,
       paddingVertical: 4,
@@ -143,11 +176,11 @@ const MessageStyles = (theme: ThemeType) => {
       width: 20,
       height: 20,
       marginRight: 10,
-      tintColor: color.text,    
+      tintColor: color.text,
     },
     menuText: {
       fontSize: 16,
-      color: color.text,        
+      color: color.text,
     },
     backdrop: {
       ...StyleSheet.absoluteFillObject,
@@ -164,7 +197,7 @@ const MessageStyles = (theme: ThemeType) => {
     ongoingText: {
       fontSize: 16,
       fontWeight: '600',
-      color: color.text,  
+      color: color.text,
     },
   });
 };

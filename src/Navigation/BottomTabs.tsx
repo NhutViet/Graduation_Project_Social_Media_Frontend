@@ -7,10 +7,7 @@ import {Search} from '../(tabs)/Search';
 import ProfileNavigation from '../(tabs)/Profile/ProfileNavigation';
 import Reels from '../(tabs)/Reels';
 import {Home} from '../(tabs)/Home';
-import BottomSheetReels, {
-  BottomSheetReelsRef,
-} from '../(tabs)/Reels/bottomSheet/reelBottomSheet';
-import {useRef} from 'react';
+import {useState} from 'react';
 
 const Tab = createBottomTabNavigator();
 
@@ -43,13 +40,18 @@ const TabIcon = ({
 const BottomTabs = ({onTabChange}: {onTabChange?: (index: number) => void}) => {
   const {theme} = useTheme();
   const color = Colors[theme];
+  const [tabIndex, setTabIndex] = useState(0);
+
+  const isReelsTab = tabIndex === 3;
+  const barBackground = isReelsTab ? '#000000' : color.background;
+  const iconTint = isReelsTab ? '#888888' : color.text;
 
   return (
     <Tab.Navigator
       screenOptions={{
         tabBarShowLabel: false,
         tabBarStyle: {
-          backgroundColor: color.background, // đổi theo theme
+          backgroundColor: barBackground,
           borderTopWidth: 0,
           height: 60,
           shadowColor: 'gray',
@@ -61,6 +63,7 @@ const BottomTabs = ({onTabChange}: {onTabChange?: (index: number) => void}) => {
       screenListeners={{
         state: e => {
           const index = e.data.state.index;
+          setTabIndex(index); // cập nhật tab hiện tại
           onTabChange?.(index);
         },
       }}>
@@ -73,7 +76,7 @@ const BottomTabs = ({onTabChange}: {onTabChange?: (index: number) => void}) => {
               source={require('../../assets/icon/home.png')}
               focused={focused}
               size={20}
-              tintColor={color.text} // đổi theo theme
+              tintColor={iconTint}
             />
           ),
         }}
@@ -87,7 +90,7 @@ const BottomTabs = ({onTabChange}: {onTabChange?: (index: number) => void}) => {
               source={require('../../assets/icon/search.png')}
               focused={focused}
               size={20}
-              tintColor={color.text}
+              tintColor={iconTint}
             />
           ),
         }}
@@ -101,7 +104,7 @@ const BottomTabs = ({onTabChange}: {onTabChange?: (index: number) => void}) => {
               source={require('../../assets/icon/post.png')}
               focused={focused}
               size={20}
-              tintColor={color.text}
+              tintColor={iconTint}
             />
           ),
         }}
@@ -115,7 +118,7 @@ const BottomTabs = ({onTabChange}: {onTabChange?: (index: number) => void}) => {
               source={require('../../assets/icon/reels.png')}
               focused={focused}
               size={20}
-              tintColor={color.text}
+              tintColor={iconTint}
             />
           ),
         }}
@@ -129,7 +132,7 @@ const BottomTabs = ({onTabChange}: {onTabChange?: (index: number) => void}) => {
               source={require('../../assets/icon/account.png')}
               focused={focused}
               size={20}
-              tintColor={color.text}
+              tintColor={iconTint}
             />
           ),
         }}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -6,18 +6,23 @@ import {
   Image,
   TextInput,
   FlatList,
-  useWindowDimensions
+  useWindowDimensions,
 } from 'react-native';
-import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
-import MessageThumbnail, { MessageThumbnailProps } from '../../../components/MessageThumbnail';
-import { useProfileEditingStyles } from '../../../src/StyleSheet/ProfileEditingStyles';
-import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../../Navigation/AppNavigation';
+import {TabView, SceneMap, TabBar} from 'react-native-tab-view';
+import MessageThumbnail, {
+  MessageThumbnailProps,
+} from '../../../components/MessageThumbnail';
+import {useProfileEditingStyles} from '../../../src/StyleSheet/ProfileEditingStyles';
+import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {RootStackParamList} from '../../Navigation/AppNavigation';
 
 const rooms = ['room1', 'room2'];
 
-type RoomSelectorProp = StackNavigationProp<RootStackParamList, 'PendingMessages'>;
+type RoomSelectorProp = StackNavigationProp<
+  RootStackParamList,
+  'PendingMessages'
+>;
 
 export const PendingMessages: React.FC = () => {
   const styles = useProfileEditingStyles();
@@ -25,34 +30,53 @@ export const PendingMessages: React.FC = () => {
   const [index, setIndex] = useState(0);
   const [searchText, setSearchText] = useState('');
   const nav = useNavigation<RoomSelectorProp>();
+  const route = useRoute<RouteProp<RootStackParamList, 'PendingMessages'>>();
+  const handleName = route.params?.handleName;
 
-  const enterRoom = (room: string) => nav.navigate('MessageScreen', { room });
+  const enterRoom = (room: string) => nav.navigate('MessageScreen', {room});
 
   const strangersData: MessageThumbnailProps[] = [
-    { id: 's1', username: 'alice99', message: 'Hey there! Loved your profile.', time: 'Just now', avatarUri: 'https://i.pravatar.cc/150?img=1' },
-    { id: 's2', username: 'bob_the_builder', message: 'Wanna collaborate on a project?', time: '12 min ago', avatarUri: 'https://i.pravatar.cc/150?img=2' },
+    {
+      id: 's1',
+      username: 'alice99',
+      message: 'Hey there! Loved your profile.',
+      time: 'Just now',
+      avatarUri: 'https://i.pravatar.cc/150?img=1',
+    },
+    {
+      id: 's2',
+      username: 'bob_the_builder',
+      message: 'Wanna collaborate on a project?',
+      time: '12 min ago',
+      avatarUri: 'https://i.pravatar.cc/150?img=2',
+    },
   ];
-  const mineData: MessageThumbnailProps[] = strangersData.map(item => ({ ...item, id: `m-${item.id}`, isMine: true }));
+  const mineData: MessageThumbnailProps[] = strangersData.map(item => ({
+    ...item,
+    id: `m-${item.id}`,
+    isMine: true,
+  }));
 
   const filtered = (data: MessageThumbnailProps[]) =>
     data.filter(
-      item => item.username.includes(searchText) || item.message.includes(searchText)
+      item =>
+        item.username.includes(searchText) || item.message.includes(searchText),
     );
 
   const renderList = (data: MessageThumbnailProps[]) => (
     <FlatList
       data={filtered(data)}
       keyExtractor={item => item.id}
-      renderItem={({ item }) => (
-        <MessageThumbnail
-          {...item}
-          onPress={() => enterRoom(rooms[0])}
-        />
+      renderItem={({item}) => (
+        <MessageThumbnail {...item} onPress={() => enterRoom(rooms[0])} />
       )}
       contentContainerStyle={styles.listContent}
       ListHeaderComponent={() => (
         <View style={styles.searchContainer}>
-          <Image source={require('../../../assets/icon/search.png')} style={styles.searchIcon} />
+          <Image
+            source={require('../../../assets/icon/search.png')}
+            style={styles.searchIcon}
+          />
           <TextInput
             style={styles.searchInput}
             placeholder="Tìm kiếm"
@@ -76,20 +100,25 @@ export const PendingMessages: React.FC = () => {
   const renderTabBar = (props: any) => (
     <TabBar
       {...props}
-      style={{ backgroundColor: styles.screen.backgroundColor }}
-      tabStyle={{ flex: 1 }}
+      style={{backgroundColor: styles.screen.backgroundColor}}
+      tabStyle={{flex: 1}}
       indicatorStyle={{
         backgroundColor: styles.tabIndicator.backgroundColor,
         height: styles.tabIndicator.height,
       }}
-      renderLabel={({ route, focused }) => (
+      renderLabel={({route, focused}) => (
         <Text
           style={[
             styles.tabText,
-            { color: focused ? styles.tabIndicator.backgroundColor : styles.tabText.color },
-          ]}
-        >
-          {route.key === 'strangers' ? "Tin nhắn từ người lạ" : 'Yêu cầu tin nhắn của tôi'}
+            {
+              color: focused
+                ? styles.tabIndicator.backgroundColor
+                : styles.tabText.color,
+            },
+          ]}>
+          {route.key === 'strangers'
+            ? 'Tin nhắn từ người lạ'
+            : 'Yêu cầu tin nhắn của tôi'}
         </Text>
       )}
       pressColor="transparent"
@@ -105,7 +134,7 @@ export const PendingMessages: React.FC = () => {
             style={styles.headerIcon}
           />
         </TouchableOpacity>
-        <Text style={styles.headerUsername}>jacob_w</Text>
+        <Text style={styles.headerUsername}>{handleName}</Text>
         <TouchableOpacity>
           <Image
             source={require('../../../assets/icon/down.png')}
@@ -113,7 +142,7 @@ export const PendingMessages: React.FC = () => {
           />
         </TouchableOpacity>
         <View style={styles.headerRightIcons}>
-          <TouchableOpacity style={{ marginRight: 16 }}>
+          <TouchableOpacity style={{marginRight: 16}}>
             <Image
               source={require('../../../assets/icon/videoCamera.png')}
               style={styles.headerIcon}
@@ -129,10 +158,10 @@ export const PendingMessages: React.FC = () => {
       </View>
 
       <TabView
-        navigationState={{ index, routes: [{ key: 'strangers' }, { key: 'mine' }] }}
+        navigationState={{index, routes: [{key: 'strangers'}, {key: 'mine'}]}}
         renderScene={renderScene}
         onIndexChange={setIndex}
-        initialLayout={{ width: layout.width }}
+        initialLayout={{width: layout.width}}
         renderTabBar={renderTabBar}
       />
     </View>

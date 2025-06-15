@@ -43,13 +43,13 @@ export const SwitchAccount = ({navigation}: any) => {
   );
 
   const handleLogin = () => {
-    if(email === '' || password === ''){
-      if(email === '') setErrorEmail('Vui lòng nhập đầy đủ thông tin.');
-      if(password === '') setErrorPassword('Vui lòng nhập đầy đủ thông tin.');
-    }else if(!email.includes('.') || !email.includes('@')) {
+    if (email === '' || password === '') {
+      if (email === '') setErrorEmail('Vui lòng nhập đầy đủ thông tin.');
+      if (password === '') setErrorPassword('Vui lòng nhập đầy đủ thông tin.');
+    } else if (!email.includes('.') || !email.includes('@')) {
       setErrorEmail('Email không đúng định dạng');
       setErrorPassword('');
-    }else{
+    } else {
       setErrorEmail('');
       setErrorPassword('');
       dispatch(fetchLogin({email, password}));
@@ -67,7 +67,7 @@ export const SwitchAccount = ({navigation}: any) => {
         dispatch(resetStatus());
       }, 2000);
     } else if (!isSuccess && isError && !isLoading) {
-      setErrorModal(true)
+      setErrorModal(true);
       setTimeout(() => {
         setErrorModal(false);
         dispatch(resetStatus());
@@ -96,7 +96,6 @@ export const SwitchAccount = ({navigation}: any) => {
 
       const checkEmailAction = await dispatch(fetchCheckEmail({email}));
 
-      
       if (fetchCheckEmail.fulfilled.match(checkEmailAction)) {
         const {exists} = checkEmailAction.payload;
 
@@ -155,14 +154,6 @@ export const SwitchAccount = ({navigation}: any) => {
         end={{x: 1, y: 0}}
         style={styles.linear}
       />
-      <TouchableOpacity
-        style={styles.btnBack}
-        onPress={() => navigation.goBack()}>
-        <Image
-          style={SwitchStyles.iconBack}
-          source={require('../../../assets/icon/left.png')}
-        />
-      </TouchableOpacity>
       <View style={styles.container}>
         <Image
           style={styles.logo}
@@ -176,16 +167,20 @@ export const SwitchAccount = ({navigation}: any) => {
             placeholderTextColor={Colors.light.lightDark}
             style={SwitchStyles.input}
           />
-          {!(errorEmail === '') && <Text style={styles.errorText}>{errorEmail}</Text>}
+          {!(errorEmail === '') && (
+            <Text style={styles.errorText}>{errorEmail}</Text>
+          )}
           <TextInput
             value={password}
             onChangeText={setPassword}
             placeholder="Mật khẩu"
             secureTextEntry={true}
             placeholderTextColor={Colors.light.lightDark}
-            style={[SwitchStyles.input, {marginTop: 20,}]}
+            style={[SwitchStyles.input, {marginTop: 20}]}
           />
-          {!(errorPassword === '') && <Text style={styles.errorText}>{errorPassword}</Text>}
+          {!(errorPassword === '') && (
+            <Text style={styles.errorText}>{errorPassword}</Text>
+          )}
           <TouchableOpacity>
             <Text style={SwitchStyles.textForgot}>Quên mật khẩu?</Text>
           </TouchableOpacity>
@@ -195,23 +190,16 @@ export const SwitchAccount = ({navigation}: any) => {
             </Text>
           </TouchableOpacity>
           <View style={{alignItems: 'center'}}>
-            <TouchableOpacity>
-              <Text style={SwitchStyles.textFb}>
-                <Image source={require('../../../assets/icon/fb.png')} /> Đăng
-                nhập bằng Facebook
-              </Text>
-            </TouchableOpacity>
-            <Image
-              style={{width: '100%'}}
-              source={require('../../../assets/icon/seperator_or.png')}
-            />
             <TouchableOpacity
               onPress={() => {
                 signInWithGoogle();
               }}>
               <Text style={SwitchStyles.textGoogle}>
-                <Image source={require('../../../assets/icon/gg.png')} /> Đăng
-                nhập bằng Google
+                <Image
+                  style={SwitchStyles.icon}
+                  source={require('../../../assets/icon/gg.png')}
+                />{' '}
+                Đăng nhập bằng Google
               </Text>
             </TouchableOpacity>
           </View>
@@ -229,32 +217,26 @@ export const SwitchAccount = ({navigation}: any) => {
       <Modal visible={successModal} transparent animationType="fade">
         <View style={styles.modal}>
           <View style={styles.modalContainer}>
-              <Image
-                source={require('../../../assets/icon/success.png')}
-                style={[styles.iconNoti, {tintColor: color.primary}]}
-              />
-            <Text
-              style={[
-                styles.textNoti,
-                {color: color.primary},
-              ]}>Đăng nhập thành công
+            <Image
+              source={require('../../../assets/icon/success.png')}
+              style={[styles.iconNoti, {tintColor: color.primary}]}
+            />
+            <Text style={[styles.textNoti, {color: color.primary}]}>
+              Đăng nhập thành công
             </Text>
-              <Text style={styles.textContent}>Chào mừng bạn đã trở lại</Text>
+            <Text style={styles.textContent}>Chào mừng bạn đã trở lại</Text>
           </View>
         </View>
       </Modal>
       <Modal visible={errorModal} transparent animationType="fade">
         <View style={styles.modal}>
           <View style={styles.modalContainer}>
-              <Image
-                source={require('../../../assets/icon/danger.png')}
-                style={[styles.iconNoti, {tintColor: color.error}]}
-              />
-            <Text
-              style={[
-                styles.textNoti,
-                {color: color.error},
-              ]}>Đã có lỗi xảy ra
+            <Image
+              source={require('../../../assets/icon/danger.png')}
+              style={[styles.iconNoti, {tintColor: color.error}]}
+            />
+            <Text style={[styles.textNoti, {color: color.error}]}>
+              Đã có lỗi xảy ra
             </Text>
             {isError && <Text style={styles.textContent}>{errorMessage}</Text>}
           </View>
