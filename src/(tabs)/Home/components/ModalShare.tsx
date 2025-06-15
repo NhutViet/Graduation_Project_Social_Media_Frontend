@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useMemo, useCallback} from 'react';
+import React, {useState} from 'react';
 import {
   Modal,
   View,
@@ -8,7 +8,6 @@ import {
   TextInput,
   Image,
   TouchableOpacity,
-  Alert,
 } from 'react-native';
 import {
   Search,
@@ -20,19 +19,20 @@ import {
 import {FlashList} from '@shopify/flash-list';
 import {Colors} from '../../../../assets/color/Colors';
 import {useTheme} from '../../../util/ThemeContext';
-import {
-  fetchFollowers,
-  fetchFollowing,
-} from '../../../../services/relationRedux/relationSlice';
-import {useDispatch, useSelector} from 'react-redux';
-import {AppDispatch, RootState} from '../../../../services/store';
+
+interface Friend {
+  id: string;
+  name: string;
+  avatar: string;
+}
 
 interface ModalShareProps {
   visible: boolean;
   onClose: () => void;
+  friends: Friend[];
 }
 
-const ModalShare: React.FC<ModalShareProps> = ({visible, onClose}) => {
+const ModalShare: React.FC<ModalShareProps> = ({visible, onClose, friends}) => {
   const {theme} = useTheme();
   const color = Colors[theme];
   const [selectedFriendIds, setSelectedFriendIds] = useState<string[]>([]);
@@ -44,54 +44,13 @@ const ModalShare: React.FC<ModalShareProps> = ({visible, onClose}) => {
     );
   };
 
-  const dispatch = useDispatch<AppDispatch>();
-  const userID = useSelector((state: RootState) => state.user?.user?._id);
-  const {followers, following, loading, error} = useSelector(
-    (state: RootState) => state.relation,
-  );
-
-  const follows = useMemo(() => {
-    const allUsers = [...followers, ...following];
-    return allUsers.filter(
-      (user, index, self) => index === self.findIndex(u => u.id === user.id),
-    ).map(user => ({
-      id: user.id,
-      name: user.username,
-      avatar: user.profilePic,
-    }));
-  }, [followers, following]);
-
-  const fetchRelations = useCallback(async () => {
-    if (!userID) return;
-
-    try {
-      await Promise.all([
-        dispatch(fetchFollowers({userID})),
-        dispatch(fetchFollowing({userID})),
-
-        console.log("followers",followers.length),
-        console.log("following",following.length),
-        console.log("follows",follows.length),
-      ]);
-    } catch (error) {
-      console.error('Error fetching relations:', error);
-      Alert.alert('Lỗi', 'Không thể tải danh sách bạn bè. Vui lòng thử lại.');
-    }
-  }, [dispatch, userID]);
-
-  useEffect(() => {
-    if (visible) {
-      fetchRelations();
-    }
-  }, [visible, fetchRelations]);
-
   return (
     <Modal visible={visible} animationType="slide" transparent>
       <Pressable style={styles.overlay} onPress={onClose}>
-        <Pressable style={styles.modalContainer} onPress={() => {}}>
+        <Pressable style={[styles.modalContainer, {backgroundColor: color.background}]} onPress={() => {}}>
           <View style={styles.handleBar} />
 
-          <Text style={styles.description}>
+          <Text style={[styles.description, {color: color.text}]}>
             Liên kết mà bạn chia sẻ là dành riêng cho bạn và có thể được dùng để
             cải thiện gợi ý cũng như quảng cáo bạn nhìn thấy.{' '}
             <Text style={{color: '#0095f6'}}>Tìm hiểu thêm</Text>
@@ -102,16 +61,16 @@ const ModalShare: React.FC<ModalShareProps> = ({visible, onClose}) => {
             <Search size={20} color="#aaa" />
             <TextInput
               placeholder="Tìm kiếm"
-              style={styles.searchInput}
+              style={[styles.searchInput, {color: color.text}]}
               placeholderTextColor="#888"
             />
             <UserPlus size={20} color="#aaa" />
           </View>
 
-          {follows.length > 0 ? (
+          {friends.length > 0 ? (
             // Danh sách bạn bè
           <FlashList
-            data={follows}
+            data={friends}
             numColumns={3}
             estimatedItemSize={80}
             showsVerticalScrollIndicator={false}
@@ -163,11 +122,11 @@ const ModalShare: React.FC<ModalShareProps> = ({visible, onClose}) => {
               <TextInput
                 placeholder="Soạn tin nhắn..."
                 placeholderTextColor="#888"
-                style={styles.messageInput}
+                style={[styles.messageInput, {color: color.text}]}
                 value={message}
                 onChangeText={setMessage}
               />
-              <TouchableOpacity style={styles.sendButton}>
+              <TouchableOpacity style={[styles.sendButton, {backgroundColor: color.background}]}>
                 <Text style={styles.sendButtonText}>Gửi</Text>
               </TouchableOpacity>
             </>
