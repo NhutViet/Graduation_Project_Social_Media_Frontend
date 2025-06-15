@@ -13,9 +13,7 @@ import Animated, {
 
 import {AppDispatch, RootState} from '../../../services/store';
 import {fetchPostsWithMedia} from '../../../services/postRedux/postSlice';
-import {
-  fetchFollowingStories,
-} from '../../../services/StoryRedux/StorySlice';
+import {fetchFollowingStories} from '../../../services/StoryRedux/StorySlice';
 import {
   getAllPlaylists,
   getItemsOfPlaylist,
@@ -27,7 +25,7 @@ import ItemHome from './components/ItemHome';
 import BottomSheetComment, {
   BottomSheetCommentRef,
 } from './components/CommentSection';
-import { handleUserPress } from './util';
+import {handleUserPress} from './util';
 
 const HEADER_HEIGHT = 100;
 const AnimatedFlatList = Animated.createAnimatedComponent(Animated.FlatList);

@@ -43,7 +43,7 @@ const MessageStyles = (theme: ThemeType) => {
       width: '100%',
       height: '100%',
       resizeMode: 'contain',
-      tintColor: color.text,
+      tintColor: Colors.black,
     },
     blockImg: {
       width: 40,
@@ -87,8 +87,10 @@ const MessageStyles = (theme: ThemeType) => {
       resizeMode: 'contain',
     },
     input: {
-      width: '60%',
+      flex: 1,
       color: color.text,
+      height: 46,
+      textAlignVertical: 'center',
     },
     containerMessage: {
       width: '100%',
@@ -127,7 +129,6 @@ const MessageStyles = (theme: ThemeType) => {
       paddingHorizontal: 10,
       paddingVertical: 2,
       margin: 10,
-      backgroundColor: color.gray,
       position: 'relative',
     },
     blockCamera: {

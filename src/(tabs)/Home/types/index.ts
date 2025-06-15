@@ -12,7 +12,7 @@ export interface ItemHomeProps {
   user: User;
   currentVisible: boolean;
   isFocused: boolean;
-  openComment: () => void;
+  openComment: (postId: string) => void;
   likeCount: number;
   commentCount: number;
   music?: MusicInfo;

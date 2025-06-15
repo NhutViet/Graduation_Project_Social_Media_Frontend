@@ -64,8 +64,15 @@ export type RootStackParamList = {
     room: string;
     img1?: string;
     img2?: string;
-    nameChat?: string;
-    theme?: string;
+  };
+  InforGroupChat: {
+    roomId: string;
+    img1?: string;
+    img2?: string;
+  };
+  InfoUser: {
+    roomId: string;
+    img1?: string;
   };
 };
 

@@ -87,7 +87,7 @@ const UserInfoStyles = (theme: ThemeType) => {
     },
     tab2Container: {
       paddingTop: 10,
-      paddingHorizontal: 30,
+      paddingHorizontal: 20,
     },
     image: {
       width: '100%',
@@ -114,7 +114,7 @@ const UserInfoStyles = (theme: ThemeType) => {
       flexDirection: 'row',
       alignItems: 'center',
       padding: Colors.spacing.s,
-      backgroundColor: color.background, 
+      backgroundColor: color.background,
     },
     backIcon: {
       width: 24,
@@ -153,16 +153,16 @@ const UserInfoStyles = (theme: ThemeType) => {
     },
     listContainer: {
       flex: 1,
-      width: '100%', 
+      width: '100%',
       backgroundColor: color.background,
     },
     userRow: {
       flexDirection: 'row',
       alignItems: 'center',
       padding: Colors.spacing.s,
-      backgroundColor: color.background, 
-      width: '100%', 
-      justifyContent: 'space-between', 
+      backgroundColor: color.background,
+      width: '100%',
+      justifyContent: 'space-between',
     },
     avatarSmall: {
       width: 40,
@@ -172,20 +172,20 @@ const UserInfoStyles = (theme: ThemeType) => {
     },
     userTextContainer: {
       flex: 1,
-      justifyContent: 'center', 
+      justifyContent: 'center',
       minHeight: 50,
-      marginRight: Colors.spacing.m, 
+      marginRight: Colors.spacing.m,
     },
     userName: {
       color: color.text,
       fontWeight: Colors.typography.fontWeights.medium as FontWeight,
-      fontSize: Colors.typography.fontSizes.m, 
-      marginBottom: 2, 
+      fontSize: Colors.typography.fontSizes.m,
+      marginBottom: 2,
       borderColor: 'blue',
     },
     userNickname: {
       color: color.lightDark,
-      fontSize: Colors.typography.fontSizes.s, 
+      fontSize: Colors.typography.fontSizes.s,
     },
     rightArrowSmall: {
       width: 16,
@@ -259,14 +259,14 @@ const UserInfoStyles = (theme: ThemeType) => {
       borderRadius: Colors.radius.m,
       padding: Colors.spacing.m,
       paddingTop: Colors.spacing.l,
-      color: color.text, 
-      backgroundColor: color.background, 
+      color: color.text,
+      backgroundColor: color.background,
     },
     clearInput: {
       position: 'absolute',
       right: Colors.spacing.s,
       top: '50%',
-      transform: [{ translateY: -12 }],
+      transform: [{translateY: -12}],
     },
     clearIcon: {
       width: 16,

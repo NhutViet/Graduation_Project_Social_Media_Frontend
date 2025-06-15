@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useMemo, useState} from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,8 @@ import {
   TouchableOpacity,
   Platform,
   PermissionsAndroid,
+  SafeAreaView,
+  Alert,
 } from 'react-native';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
@@ -25,15 +27,33 @@ import {
   LogOut,
   ChevronLeft,
 } from 'lucide-react-native';
-import {useNavigation} from '@react-navigation/native';
+import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {launchImageLibrary} from 'react-native-image-picker';
+import {RootStackParamList} from '../../Navigation/AppNavigation';
+import ModalTheme from '../Message/components/ModalTheme';
+import {
+  updateRoomName,
+  updateRoomTheme,
+} from '../../../services/roomRedux/roomSlice';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '../../../services/store';
+import {ModalRenameRoom} from '../../../components/ModalRenameRoom';
 
 export const InforGroupChat = () => {
   const {theme} = useTheme();
   const color = Colors[theme];
   const navigation: any = useNavigation();
-  const [imageUri, setImageUri] = useState(
-    'https://i.pinimg.com/736x/2d/db/ae/2ddbaec1fb3d18f6ce00c4ebc1693193.jpg',
+  const dispatch = useDispatch<AppDispatch>();
+  const route = useRoute<RouteProp<RootStackParamList, 'InforGroupChat'>>();
+  const roomId = route?.params?.roomId;
+  const img1 = route?.params?.img1;
+  const img2 = route?.params?.img2;
+  const [visibleThemeModal, setVisibleThemeModal] = useState(false);
+  const [visibleRenameModal, setVisibleRenameModal] = useState(false);
+  const rooms = useSelector((state: RootState) => state.rooms.rooms);
+  const room = useMemo(
+    () => rooms.find(r => r._id === roomId),
+    [rooms, roomId],
   );
 
   const requestPermissionAndPickImage = async () => {
@@ -52,36 +72,61 @@ export const InforGroupChat = () => {
         }
       }
 
-      launchImageLibrary({mediaType: 'photo'}, response => {
-        if (response.didCancel) return;
-        if (response.assets && response.assets.length > 0) {
-          setImageUri(response.assets[0].uri || '');
-        }
-      });
+      // launchImageLibrary({mediaType: 'photo'}, response => {
+      //   if (response.didCancel) return;
+      //   if (response.assets && response.assets.length > 0) {
+      //     setImageUri(response.assets[0].uri || '');
+      //   }
+      // });
     } catch (error) {
       console.error('Error:', error);
     }
   };
   return (
-    <View style={[styles.container, {backgroundColor: color.background}]}>
+    <SafeAreaView
+      style={[styles.container, {backgroundColor: color.background}]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <ChevronLeft size={24} color={color.text} />
+          <Image
+            source={require('../../../assets/icon/left.png')}
+            style={{width: 20, height: 20, tintColor: color.text}}
+          />
         </TouchableOpacity>
       </View>
 
       <View style={styles.avatarBlock}>
-        <Image source={{uri: imageUri}} style={styles.avatar} />
-        <Text style={[styles.name, {color: color.text}]}>
-          vang vang vang vang
-        </Text>
+        <TouchableOpacity
+          style={[
+            styles.imgContainer,
+            {overflow: img1 && !img2 ? 'hidden' : undefined},
+          ]}>
+          {img2 && (
+            <>
+              <Image style={styles.iconW} source={{uri: img1}} />
+              <Image
+                style={[
+                  styles.iconF,
+                  {
+                    borderColor: color.background,
+                    backgroundColor: color.backgroundSecondary,
+                  },
+                ]}
+                source={{uri: img2}}
+              />
+            </>
+          )}
+          {!img2 && img1 && <Image style={styles.img} source={{uri: img1}} />}
+        </TouchableOpacity>
+        <Text style={[styles.name, {color: color.text}]}>{room?.name}</Text>
         <TouchableOpacity onPress={requestPermissionAndPickImage}>
           <Text style={styles.edit}>Đổi hình ảnh</Text>
         </TouchableOpacity>
       </View>
 
       <View style={styles.actionRow}>
-        <TouchableOpacity style={styles.actionItem} onPress={() => navigation.navigate('AddPeopleToGroupChat')}>
+        <TouchableOpacity
+          style={styles.actionItem}
+          onPress={() => navigation.navigate('AddPeopleToGroupChat')}>
           <UserPlus size={20} color={color.text} />
           <Text style={[styles.actionText, {color: color.text}]}>Thêm</Text>
         </TouchableOpacity>
@@ -95,7 +140,9 @@ export const InforGroupChat = () => {
             Tắt thông báo
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.actionItem}>
+        <TouchableOpacity
+          style={styles.actionItem}
+          onPress={() => setVisibleRenameModal(true)}>
           <PenLine size={20} color={color.text} />
           <Text style={[styles.actionText, {color: color.text}]}>
             Đổi tên nhóm
@@ -112,7 +159,11 @@ export const InforGroupChat = () => {
           flex: 1,
           padding: 24,
         }}>
-        <TouchableOpacity style={styles.btn}>
+        <TouchableOpacity
+          style={styles.btn}
+          onPress={() => {
+            setVisibleThemeModal(true);
+          }}>
           <View style={styles.menuItem}>
             <View style={styles.menuIcon}>
               <UserCheck size={24} color={color.text} />
@@ -142,7 +193,9 @@ export const InforGroupChat = () => {
           <ChevronRight size={24} color={color.text} />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.btn} onPress={() => navigation.navigate('PeopleGroupChat')}>
+        <TouchableOpacity
+          style={styles.btn}
+          onPress={() => navigation.navigate('PeopleGroupChat')}>
           <View style={styles.menuItem}>
             <View style={styles.menuIcon}>
               <Users size={24} color={color.text} />
@@ -150,9 +203,6 @@ export const InforGroupChat = () => {
             <View style={styles.menuTextBlock}>
               <Text style={[styles.menuTitle, {color: color.text}]}>
                 Mọi người
-              </Text>
-              <Text style={styles.menuSubtitle}>
-                alexiexx2487, 7tzwxie_ và 1 người khác
               </Text>
             </View>
           </View>
@@ -215,7 +265,41 @@ export const InforGroupChat = () => {
           <ChevronRight size={24} color={color.text} />
         </TouchableOpacity>
       </View>
-    </View>
+      <ModalTheme
+        visible={visibleThemeModal}
+        onClose={() => {
+          setVisibleThemeModal(false);
+        }}
+        onSelect={selectedBackground => {
+          dispatch(updateRoomTheme({roomId: roomId, theme: selectedBackground}))
+            .unwrap()
+            .then(() => {
+              Alert.alert('Thành công', 'Đã cập nhật chủ đề');
+            })
+            .catch(() => {
+              Alert.alert('Thất bại', 'Cập nhật chủ đề thất bại');
+            });
+          setVisibleThemeModal(false);
+        }}
+      />
+      <ModalRenameRoom
+        visible={visibleRenameModal}
+        onClose={() => setVisibleRenameModal(false)}
+        currentName={room?.name || ''}
+        theme={theme}
+        onSubmit={(newName: string) => {
+          dispatch(updateRoomName({roomId: roomId, name: newName}))
+            .unwrap()
+            .then(() => {
+              Alert.alert('Thành công', 'Đã đổi tên nhóm');
+              setVisibleRenameModal(false);
+            })
+            .catch(() => {
+              Alert.alert('Lỗi', 'Không thể đổi tên nhóm');
+            });
+        }}
+      />
+    </SafeAreaView>
   );
 };
 
@@ -248,7 +332,7 @@ const styles = StyleSheet.create({
   actionRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    paddingVertical: 12,
+    padding: 12,
   },
   actionItem: {
     alignItems: 'center',
@@ -281,5 +365,39 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#999',
     marginTop: 2,
+  },
+  imgContainer: {
+    position: 'relative',
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    marginRight: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconW: {
+    width: '75%',
+    height: '75%',
+    resizeMode: 'contain',
+    borderRadius: 40,
+    top: 0,
+    left: 0,
+    position: 'absolute',
+  },
+  iconF: {
+    width: '85%',
+    height: '85%',
+    resizeMode: 'contain',
+    borderRadius: 40,
+    zIndex: 1,
+    bottom: 0,
+    right: 0,
+    borderWidth: 2,
+    position: 'absolute',
+  },
+  img: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
   },
 });

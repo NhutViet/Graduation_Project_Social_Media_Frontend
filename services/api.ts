@@ -1,4 +1,5 @@
-export const BASE_URL = 'http://cirla.io.vn';
+// export const BASE_URL = 'http://cirla.io.vn';
+export const BASE_URL = 'http://192.168.137.1:4001';
 
 export const API = {
   //// post
@@ -45,13 +46,14 @@ export const API = {
 
   //// Room
   GET_MY_ROOMS: 'rooms/my',
+  ROOM: 'rooms',
 
   //// Auth
   GET_ACCESS_TOKEN: 'users/refresh-access-token',
 
   //// Message
   MESSAGES_URL: 'messages',
-  
+
   ////Search
   POST_SEARCH_POST: 'posts/search',
   POST_SEARCH_USER: 'users/search',
