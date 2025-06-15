@@ -2,7 +2,6 @@ import {createAsyncThunk} from '@reduxjs/toolkit';
 import {Story, userFollow} from './StoryType';
 import axiosInstance from '../axiosInstance';
 import {API} from '../api';
-// import {rejectValue} from '../likersRedux/likersType';
 
 export const seenStory = createAsyncThunk<
   void,

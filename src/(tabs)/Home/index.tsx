@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {SafeAreaView, View, ActivityIndicator} from 'react-native';
+import {SafeAreaView, View, ActivityIndicator, ScrollView} from 'react-native';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {useIsFocused, useNavigation} from '@react-navigation/native';
@@ -29,6 +29,8 @@ import ItemHome from './components/ItemHome';
 import BottomSheetComment, {
   BottomSheetCommentRef,
 } from './components/CommentSection';
+import {userFollow} from '../../../services/StoryRedux/StoryType';
+import { handleUserPress } from './util';
 
 const HEADER_HEIGHT = 100;
 const AnimatedFlatList = Animated.createAnimatedComponent(Animated.FlatList);
@@ -71,32 +73,6 @@ export const Home = () => {
     const id = viewableItems[0]?.item?._id;
     if (id) setCurrentVisible(id);
   }, []);
-
-  const handleUserPress = async (item: any) => {
-    if (!item.stories.length) return;
-    const firstStoryId = item.stories[0];
-
-    try {
-      const res = await dispatch(fetchStoriesByIds([firstStoryId])).unwrap();
-      const storyDetail = res[0];
-
-      await dispatch(seenStory({storyId: firstStoryId}));
-      navigation.navigate('SeenStory', {
-        selectedItem: {
-          _id: storyDetail._id,
-          uriVideo: storyDetail.mediaUrl.endsWith('.m3u8')
-            ? storyDetail.mediaUrl
-            : null,
-          image: storyDetail.mediaUrl.endsWith('.m3u8')
-            ? null
-            : storyDetail.mediaUrl,
-          likedByUsers: storyDetail.likedByUsers,
-        },
-      });
-    } catch (err) {
-      console.error('❌ Error viewing story:', err);
-    }
-  };
 
   const prevScrollY = useSharedValue(0);
   const headerTranslateY = useSharedValue(0);
@@ -194,25 +170,26 @@ export const Home = () => {
         ListHeaderComponent={
           <View style={{position: 'relative', height: 160}}>
             <View style={{position: 'absolute', top: 50}}>
-              <Animated.FlatList
-                data={followingUsers.filter(item => !!item?._id)}
-                keyExtractor={item => item._id}
+              <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{paddingHorizontal: 10}}
-                renderItem={({item}) => (
-                  <Story
-                    name={
-                      item.handleName === user?.handleName
-                        ? 'Tin của tôi'
-                        : item.handleName
-                    }
-                    image={item.profilePic}
-                    status={item.stories.length > 0 ? 1 : 0}
-                    func={() => handleUserPress(item)}
-                  />
-                )}
-              />
+                contentContainerStyle={{paddingHorizontal: 10}}>
+                {followingUsers
+                  .filter(item => item !== undefined && item !== null)
+                  .map(item => (
+                    <Story
+                      key={item._id}
+                      name={
+                        item.handleName === user?.handleName
+                          ? 'Tin của tôi'
+                          : item.handleName
+                      }
+                      image={item.profilePic}
+                      status={item.stories.length > 0 ? 1 : 0}
+                      func={() => handleUserPress(item, dispatch, navigation)}
+                    />
+                  ))}
+              </ScrollView>
             </View>
           </View>
         }

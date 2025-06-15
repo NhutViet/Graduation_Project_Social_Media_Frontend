@@ -40,10 +40,10 @@ export const MessageScreen = () => {
 
   const route = useRoute<RouteProp<RootStackParamList, 'MessageScreen'>>();
   const room = route?.params?.room;
+  const img1 = route?.params?.img1;
+  const img2 = route?.params?.img2;
+  const nameChat = route?.params?.nameChat;
 
-  const [selectedMessageIndex, setSelectedMessageIndex] = useState<
-    number | null
-  >(null);
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
   const [linkPreviews, setLinkPreviews] = useState<{[key: number]: any}>({});
   const [visibleThemeModal, setVisibleThemeModal] = useState(false);
@@ -170,7 +170,7 @@ export const MessageScreen = () => {
             styles.header,
             {backgroundColor: 'rgba(255, 255, 255, 0.9)'},
           ]}>
-          <View style={styles.rowContainer}>
+          <View style={styles.rowContainer2}>
             <TouchableOpacity
               style={styles.blockIcon}
               onPress={() => {
@@ -182,22 +182,31 @@ export const MessageScreen = () => {
               />
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.blockImg}
-              onPress={() => {
-                console.log('avatar');
-                navigation.navigate(
-                  room == 'room2' ? 'InforGroupChat' : 'InfoUser',
-                );
-              }}>
-              <Image
-                style={styles.img}
-                source={{
-                  uri: user.user?.profilePic,
-                }}
-              />
+              style={[
+                styles.imgContainer,
+                {overflow: img1 && !img2 ? 'hidden' : undefined},
+              ]}>
+              {img2 && (
+                <>
+                  <Image style={styles.iconW} source={{uri: img1}} />
+                  <Image
+                    style={[
+                      styles.iconF,
+                      {
+                        borderColor: color.background,
+                        backgroundColor: color.backgroundSecondary,
+                      },
+                    ]}
+                    source={{uri: img2}}
+                  />
+                </>
+              )}
+              {!img2 && img1 && (
+                <Image style={styles.img} source={{uri: img1}} />
+              )}
             </TouchableOpacity>
-            <Text style={{color: color.text, fontSize: 16}}>
-              {user.user?.handleName}
+            <Text style={{color: color.text, fontSize: 16}} numberOfLines={1}>
+              {nameChat}
             </Text>
           </View>
           <View style={styles.rowContainer}>

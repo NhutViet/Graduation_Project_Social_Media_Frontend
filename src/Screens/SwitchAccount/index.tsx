@@ -195,22 +195,12 @@ export const SwitchAccount = ({navigation}: any) => {
             </Text>
           </TouchableOpacity>
           <View style={{alignItems: 'center'}}>
-            <TouchableOpacity>
-              <Text style={SwitchStyles.textFb}>
-                <Image source={require('../../../assets/icon/fb.png')} /> Đăng
-                nhập bằng Facebook
-              </Text>
-            </TouchableOpacity>
-            <Image
-              style={{width: '100%'}}
-              source={require('../../../assets/icon/seperator_or.png')}
-            />
             <TouchableOpacity
               onPress={() => {
                 signInWithGoogle();
               }}>
               <Text style={SwitchStyles.textGoogle}>
-                <Image source={require('../../../assets/icon/gg.png')} /> Đăng
+                <Image style={SwitchStyles.icon} source={require('../../../assets/icon/gg.png')} /> Đăng
                 nhập bằng Google
               </Text>
             </TouchableOpacity>
