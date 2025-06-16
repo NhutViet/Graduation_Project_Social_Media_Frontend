@@ -1,5 +1,5 @@
 import {Dimensions, Image, Text, TouchableOpacity, View} from 'react-native';
-import React, {useMemo} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
 import {FlashList} from '@shopify/flash-list';
@@ -10,6 +10,15 @@ import {RootState} from '../../../../services/store';
 const screenWidth = Dimensions.get('window').width;
 const mediasHeight = ((screenWidth - 4) / 3) * 2;
 const mediasWidth = (screenWidth - 4) / 3;
+//trộn ngẫu nhiên
+function shuffle<T>(array: T[]): T[] {
+  const arr = array.slice();
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
 
 const SearchForYou = (props: any) => {
   const {
@@ -20,7 +29,7 @@ const SearchForYou = (props: any) => {
     isPause,
   } = props;
 
-  const viewabilityConfig = {viewAreaCoveragePercentThreshold: 50};
+  const viewabilityConfig = useMemo(() => ({ viewAreaCoveragePercentThreshold: 50 }), []);
 
   const {theme} = useTheme();
   const color = Colors[theme];
@@ -32,10 +41,51 @@ const SearchForYou = (props: any) => {
   const postItems = (posts as any)?.items || [];
   const reelItems = (reels as any)?.items || [];
 
-  //trộn ngẫu nhiên
-  const randomList = useMemo(() => {
-    return [...postItems, ...reelItems].sort(() => Math.random() - 0.5);
-  }, [postItems, reelItems]);
+    // only reshuffle when source arrays change
+  const randomList = useMemo(() => shuffle([...postItems, ...reelItems]), [postItems, reelItems]);
+
+  // extraData memo to avoid inline arrays
+  const extra = useMemo(
+    () => ({ currentVisibleIndex, isFocusedPage }),
+    [currentVisibleIndex, isFocusedPage]
+  );
+
+  // memoized renderItem
+  const renderMediaItem = useCallback(({item, index}: any) => {
+    const media = item.media?.[0];
+    if (!media) return null;
+
+    const isActiveVideo =
+      !!media.videoUrl &&
+      index === currentVisibleIndex &&
+      isPause &&
+      isFocusedPage;
+
+    const commonStyle = {
+      width: mediasWidth,
+      height: mediasHeight,
+      marginRight: (index + 1) % 3 === 0 ? 0 : 2,
+    };
+        return (
+      <TouchableOpacity style={{marginBottom: 2}}>
+        {isActiveVideo ? (
+          <Video
+            source={{uri: media.videoUrl}}
+            resizeMode="contain"
+            style={[commonStyle, {backgroundColor: color.black}]}
+            repeat
+            muted
+            paused={false}
+          />
+        ) : (
+          <Image
+            source={{ uri: media.imageUrl }}
+            style={commonStyle}
+          />
+        )}
+      </TouchableOpacity>
+    );
+  }, [currentVisibleIndex, isFocusedPage, isPause, color.black]);
 
   if (isLoading) {
     return (
@@ -65,128 +115,16 @@ const SearchForYou = (props: any) => {
         <FlashList
           data={randomList}
           numColumns={3}
-          renderItem={({item, index}: any) => {
-            const media = item.media?.[0];
-            if (!media) return null;
-            const isPlaying =
-              index >= currentVisibleIndex && index < currentVisibleIndex + 3;
-            return (
-              <TouchableOpacity style={{marginBottom: 2}}>
-                {item.media[0]?.videoUrl ? (
-                  <View>
-                    <Video
-                      source={{uri: item.media[0].videoUrl}}
-                      resizeMode="contain"
-                      style={{
-                        width: mediasWidth,
-                        height: mediasHeight,
-                        marginRight: (index + 1) % 3 == 0 ? 0 : 2,
-                        overflow: 'hidden',
-                        backgroundColor: color.black,
-                      }}
-                      repeat
-                      muted={true}
-                      paused={!isPlaying || !isPause || !isFocusedPage}
-                    />
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        gap: 5,
-                        alignItems: 'center',
-                        position: 'absolute',
-                        bottom: 8,
-                        left: 8,
-                      }}>
-                      <Image
-                        source={require('../../../../assets/icon/eye.png')}
-                        style={{
-                          width: 20,
-                          height: 20,
-                          resizeMode: 'contain',
-                          tintColor: color.background,
-                        }}
-                      />
-                      <Text
-                        style={{
-                          fontSize: 12,
-                          color: color.background,
-                        }}>
-                        {item.viewCount}
-                      </Text>
-                    </View>
-                    <View
-                      style={{
-                        position: 'absolute',
-                        top: 5,
-                        left: 5,
-                        backgroundColor:
-                          theme === 'dark'
-                            ? 'rgba(255, 255, 255, 0.5)'
-                            : 'rgba(0, 0, 0, 0.5)',
-                        padding: 5,
-                        borderRadius: 50,
-                        borderColor: color.background,
-                      }}>
-                      <Image
-                        source={require('../../../../assets/icon/clapperboard.png')}
-                        style={{
-                          width: 18,
-                          height: 18,
-                          resizeMode: 'contain',
-                          tintColor: color.background,
-                        }}
-                      />
-                    </View>
-                  </View>
-                ) : (
-                  <View>
-                    <Image
-                      source={{
-                        uri: item.media[0].imageUrl,
-                      }}
-                      style={{
-                        width: mediasWidth,
-                        height: mediasHeight,
-                        marginRight: (index + 1) % 3 == 0 ? 0 : 2,
-                      }}
-                    />
-                    {item.media.length > 1 && (
-                      <Image
-                        source={require('../../../../assets/icon/gallery.png')}
-                        style={{
-                          width: 20,
-                          height: 20,
-                          tintColor: color.background,
-                          position: 'absolute',
-                          right: 12,
-                          top: 10,
-                        }}
-                      />
-                    )}
-                  </View>
-                )}
-              </TouchableOpacity>
-            );
-          }}
-          estimatedItemSize={200}
+          renderItem={renderMediaItem}
+          estimatedItemSize={mediasHeight + 2}
           onViewableItemsChanged={onViewableItemsChanged}
           viewabilityConfig={viewabilityConfig}
-          extraData={[currentVisibleIndex, isFocusedPage]}
+          extraData={extra}
+          removeClippedSubviews={true}
         />
       ) : (
-        <View
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: 20,
-          }}>
-          <Text
-            style={{
-              fontSize: 18,
-              fontWeight: '500',
-              color: color.textSecondary,
-            }}>
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20}}>
+          <Text style={{fontSize: 18, fontWeight: '500', color: color.textSecondary}}>
             Không có kết quả phù hợp.
           </Text>
         </View>
@@ -195,4 +133,4 @@ const SearchForYou = (props: any) => {
   );
 };
 
-export default SearchForYou;
+export default React.memo(SearchForYou);

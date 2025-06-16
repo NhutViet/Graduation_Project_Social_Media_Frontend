@@ -40,6 +40,8 @@ const SearchResult = (props: any) => {
   return (
     <TabView
       navigationState={{index, routes}}
+      lazy
+      lazyPreloadDistance={0}  
       renderScene={renderScene}
       onIndexChange={setIndex}
       initialLayout={{width: layout.width}}
