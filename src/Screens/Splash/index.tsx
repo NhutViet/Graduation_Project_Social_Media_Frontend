@@ -15,13 +15,13 @@ export const Splash = () => {
       .unwrap()
       .then(() => {
         if (user) {
-          navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
+          navigation.navigate('BottomTabs');
         } else {
-          navigation.reset({index: 0, routes: [{name: 'SwitchAccount'}]});
+          navigation.navigate('SwitchAccount');
         }
       })
       .catch(() => {
-        navigation.reset({index: 0, routes: [{name: 'SwitchAccount'}]});
+        navigation.navigate('SwitchAccount');
       });
   }, []);
 
