@@ -47,22 +47,12 @@ export const Home = () => {
   );
   const storyLoading = useSelector((state: RootState) => state.stories.loading);
   const user = useSelector((state: RootState) => state.user.user);
-  const refreshToken = useSelector(
-    (state: RootState) => state.user.refreshToken,
-  );
-  const playlists = useSelector((state: RootState) => state.bookmark.playlists);
+
 
   useEffect(() => {
     dispatch(fetchPostsWithMedia());
     dispatch(fetchFollowingStories({page: 1}));
-    dispatch(getAllPlaylists({refreshToken}));
   }, []);
-
-  useEffect(() => {
-    playlists.forEach(playlist => {
-      dispatch(getItemsOfPlaylist({playlistId: playlist.id, refreshToken}));
-    });
-  }, [playlists]);
 
   const onViewRef = useCallback(({viewableItems}: {viewableItems: any[]}) => {
     const id = viewableItems[0]?.item?._id;
