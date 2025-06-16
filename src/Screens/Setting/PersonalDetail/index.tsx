@@ -2,6 +2,8 @@ import React from 'react';
 import {View, Text, TouchableOpacity, StyleSheet, Modal} from 'react-native';
 import {useTheme} from '@react-navigation/native';
 import {X, ChevronRight} from 'lucide-react-native';
+import {useSelector} from 'react-redux';
+import {RootState} from '../../../../services/store';
 
 interface PersonalDetailsProps {
   isVisible: boolean;
@@ -62,6 +64,8 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
     },
   });
 
+  const user = useSelector((state: RootState) => state.user?.user);
+
   return (
     <Modal
       visible={isVisible}
@@ -78,32 +82,50 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
         <View style={styles.content}>
           <Text style={styles.title}>Thông tin cá nhân</Text>
           <Text style={styles.description}>
-            Cirla ​​sử dụng thông tin này để xác minh danh tính của bạn và giữ cho cộng đồng của chúng tôi an toàn. Bạn quyết định thông tin cá nhân nào bạn có thể hiển thị cho người khác.
+            Cirla ​​sử dụng thông tin này để xác minh danh tính của bạn và giữ
+            cho cộng đồng của chúng tôi an toàn. Bạn quyết định thông tin cá
+            nhân nào bạn có thể hiển thị cho người khác.
           </Text>
 
           <View style={styles.section}>
             <TouchableOpacity style={styles.menuItem}>
+              <Text style={styles.menuText}>Tên tài khoản</Text>
+              <Text style={styles.menuValue}>{user?.username}</Text>
+              <ChevronRight size={16} color={colors.text} />
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.menuItem}>
               <Text style={styles.menuText}>Thông tin liên hệ</Text>
-              <Text style={styles.menuValue}>Hugh@gmail.com</Text>
+              <Text style={styles.menuValue}>{user?.email}</Text>
+              <ChevronRight size={16} color={colors.text} />
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.menuItem}>
+              <Text style={styles.menuText}>Số điện thoại</Text>
+              <Text style={styles.menuValue}>{user?.phoneNumber}</Text>
+              <ChevronRight size={16} color={colors.text} />
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.menuItem}>
+              <Text style={styles.menuText}>Giới tính</Text>
+              <Text style={styles.menuValue}>{user?.gender}</Text>
               <ChevronRight size={16} color={colors.text} />
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.menuItem}>
               <Text style={styles.menuText}>Ngày sinh</Text>
-              <Text style={styles.menuValue}>January 1, 1990</Text>
+              <Text style={styles.menuValue}>{user?.dateOfBirth}</Text>
+              <ChevronRight size={16} color={colors.text} />
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.menuItem}>
+              <Text style={styles.menuText}>Địa chỉ</Text>
+              <Text style={styles.menuValue}>{user?.address}</Text>
               <ChevronRight size={16} color={colors.text} />
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.menuItem}>
               <Text style={styles.menuText}>Xác nhận danh tính</Text>
-              <ChevronRight size={16} color={colors.text} />
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.menuItem}>
-              <Text style={styles.menuText}>Quyền sở hữu và kiểm soát tài khoản</Text>
-              <Text style={styles.menuValue} numberOfLines={2}>
-                Quản lý dữ liệu của bạn, sửa đổi danh bạ cũ, hủy kích hoạt hoặc xóa tài khoản và hồ sơ của bạn.
-              </Text>
               <ChevronRight size={16} color={colors.text} />
             </TouchableOpacity>
           </View>
