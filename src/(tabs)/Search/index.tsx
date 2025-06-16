@@ -26,6 +26,7 @@ import {Media} from '../../../services/postRedux/postTypes';
 import ExploreSection from './Components/ExploreTile';
 import {useDebounce} from 'use-debounce';
 import { fetchSearchPost, fetchSearchUser } from '../../../services/searchRedux/searchSlice';
+import { PostData } from '../../MockData/posts.mock';
 
 const SEARCH_HISTORY_KEY = 'search_history';
 
@@ -74,7 +75,7 @@ export const Search = () => {
       dispatch(fetchPostsWithMedia());
     }
   }, [dispatch]);
-
+  console.log(PostData.length)
   // FIXED: Update initialization state when posts arrive
   useEffect(() => {
     if (postsData && postsData.length > 0 && isInitializing) {

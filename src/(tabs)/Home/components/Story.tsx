@@ -10,6 +10,9 @@ const Story = (props: any) => {
   const {theme} = useTheme();
   const color = Colors[theme];
   const navigation = useNavigation();
+  const userSource = image
+  ? { uri: image }
+  : require('../../../../assets/icon/account.png');
 
   const AvatarContent = () => (
     <View style={[styles.bgWhite, {backgroundColor: color.background}]}>
@@ -21,7 +24,7 @@ const Story = (props: any) => {
           source={
             isHashTag
               ? require('../../../../assets/icon/hash.png')
-              : {uri: image}
+              : userSource
           }
         />
       </View>

@@ -66,23 +66,45 @@ const SearchForYou = (props: any) => {
       height: mediasHeight,
       marginRight: (index + 1) % 3 === 0 ? 0 : 2,
     };
-        return (
-      <TouchableOpacity style={{marginBottom: 2}}>
-        {isActiveVideo ? (
-          <Video
-            source={{uri: media.videoUrl}}
-            resizeMode="contain"
-            style={[commonStyle, {backgroundColor: color.black}]}
-            repeat
-            muted
-            paused={true}
-          />
-        ) : (
-          <Image
-            source={{ uri: media.imageUrl }}
-            style={commonStyle}
-          />
-        )}
+    // Determine the right thing to render:
+    let content = null;
+
+    if (isActiveVideo && media.videoUrl) {
+      content = (
+        <Video
+          source={{ uri: media.videoUrl }}
+          resizeMode="contain"
+          style={[commonStyle, { backgroundColor: color.black }]}
+          repeat
+          muted
+          paused={true}
+        />
+      );
+    } else if (media.imageUrl) {
+      content = <Image source={{ uri: media.imageUrl }} style={commonStyle} />;
+    } else if (media.videoUrl) {
+      // fallback to a muted thumbnail if you want
+      content = (
+        <Video
+          source={{ uri: media.videoUrl }}
+          resizeMode="cover"
+          style={commonStyle}
+          muted
+          paused={true}
+        />
+      );
+    } else {
+      content = (
+        <Image
+          source={require('../../../../assets/icon/account.png')}
+          style={commonStyle}
+        />
+      );
+    }
+
+    return (
+      <TouchableOpacity style={{ marginBottom: 2 }}>
+        {content}
       </TouchableOpacity>
     );
   }, [currentVisibleIndex, isFocusedPage, isPause, color.black]);
