@@ -1,5 +1,5 @@
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {Image, StyleSheet, View} from 'react-native';
+import {ActivityIndicator, Image, StyleSheet, View} from 'react-native';
 import {Colors} from '../../assets/color/Colors';
 import {useTheme} from '../util/ThemeContext';
 import Post from '../(tabs)/Post';
@@ -7,7 +7,8 @@ import {Search} from '../(tabs)/Search';
 import ProfileNavigation from '../(tabs)/Profile/ProfileNavigation';
 import Reels from '../(tabs)/Reels';
 import {Home} from '../(tabs)/Home';
-import {useState} from 'react';
+import {useRef, useState} from 'react';
+import {useTabLoading} from '../../services/TabLoadingContext';
 
 const Tab = createBottomTabNavigator();
 
@@ -16,24 +17,30 @@ const TabIcon = ({
   focused,
   size,
   tintColor,
+  loading,
 }: {
   source: any;
   focused: boolean;
   size: number;
   tintColor: string;
+  loading?: boolean;
 }) => (
   <View style={styles.iconWrapper}>
-    <Image
-      source={source}
-      style={[
-        styles.icon,
-        {
-          tintColor: focused ? tintColor : `${tintColor}66`,
-          width: size,
-          height: size,
-        },
-      ]}
-    />
+    {loading ? (
+      <ActivityIndicator size="small" color={tintColor} />
+    ) : (
+      <Image
+        source={source}
+        style={[
+          styles.icon,
+          {
+            tintColor: focused ? tintColor : `${tintColor}66`,
+            width: size,
+            height: size,
+          },
+        ]}
+      />
+    )}
   </View>
 );
 
@@ -41,6 +48,9 @@ const BottomTabs = ({onTabChange}: {onTabChange?: (index: number) => void}) => {
   const {theme} = useTheme();
   const color = Colors[theme];
   const [tabIndex, setTabIndex] = useState(0);
+  const {loadingTabs, setTabLoading} = useTabLoading();
+  const homeRef = useRef<{reload: () => void}>(null);
+  const reelsRef = useRef<{reload: () => void}>(null);
 
   const isReelsTab = tabIndex === 3;
   const barBackground = isReelsTab ? '#000000' : color.background;
@@ -63,13 +73,23 @@ const BottomTabs = ({onTabChange}: {onTabChange?: (index: number) => void}) => {
       screenListeners={{
         state: e => {
           const index = e.data.state.index;
-          setTabIndex(index); // cập nhật tab hiện tại
+          setTabIndex(index);
           onTabChange?.(index);
         },
       }}>
       <Tab.Screen
         name="Home"
-        component={Home}
+        children={() => <Home ref={homeRef} />}
+        listeners={{
+          tabPress: async e => {
+            setTabLoading('Home', true);
+            try {
+              await homeRef.current?.reload();
+            } finally {
+              setTabLoading('Home', false);
+            }
+          },
+        }}
         options={{
           tabBarIcon: ({focused}) => (
             <TabIcon
@@ -77,6 +97,7 @@ const BottomTabs = ({onTabChange}: {onTabChange?: (index: number) => void}) => {
               focused={focused}
               size={20}
               tintColor={iconTint}
+              loading={loadingTabs['Home']}
             />
           ),
         }}
@@ -111,7 +132,17 @@ const BottomTabs = ({onTabChange}: {onTabChange?: (index: number) => void}) => {
       />
       <Tab.Screen
         name="Reels"
-        component={Reels}
+        children={() => <Reels ref={reelsRef} />}
+        listeners={{
+          tabPress: async () => {
+            setTabLoading('Reels', true);
+            try {
+              await reelsRef.current?.reload();
+            } finally {
+              setTabLoading('Reels', false);
+            }
+          },
+        }}
         options={{
           tabBarIcon: ({focused}) => (
             <TabIcon
@@ -119,6 +150,7 @@ const BottomTabs = ({onTabChange}: {onTabChange?: (index: number) => void}) => {
               focused={focused}
               size={20}
               tintColor={iconTint}
+              loading={loadingTabs['Reels']}
             />
           ),
         }}
