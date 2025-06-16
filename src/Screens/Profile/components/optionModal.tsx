@@ -13,6 +13,8 @@ interface OptionModalProps {
   onBlockChange: (newState: boolean) => void;
 }
 
+const modalContentHeight = Dimensions.get('window').height * 0.4;
+
 const optionModal = forwardRef<Modalize, OptionModalProps>(
     ({ userID, isBlock: initialIsBlock, onBlockChange }, ref) => {
         const {theme} = useTheme();
@@ -54,18 +56,18 @@ const optionModal = forwardRef<Modalize, OptionModalProps>(
         return (
         <Modalize
             ref={ref}
-            modalHeight={Dimensions.get('window').height * 0.4}
+            adjustToContentHeight
             handleStyle={[styles.handle, {backgroundColor: color.backgroundSecondary}]}
             modalStyle={[styles.modal, {backgroundColor: color.modal}]}
             handlePosition="inside"
             panGestureEnabled={true}
         >
-            <View style={styles.content}>
+            <View style={[styles.content, {height: modalContentHeight}]}>
             <TouchableOpacity style={styles.option}>
                 <Text style={styles.optionText}>Hạn chế</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.option} onPress={isBlock ? handleBlock : handleUnblock}>
-                <Text style={styles.optionText}>{isBlock ? "Chặn" : "Bỏ chặn"}</Text>
+            <TouchableOpacity style={styles.option} onPress={isBlock ? handleUnblock : handleBlock}>
+                <Text style={styles.optionText}>{isBlock ? "Bỏ chặn" : "Chặn"}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.option}>
                 <Text style={styles.optionText}>Báo cáo</Text>
@@ -96,7 +98,6 @@ const styles = StyleSheet.create({
     },
     option: {
         paddingVertical: 15,
-        borderBottomWidth: 1,
     },
     optionText: {
         fontSize: 16,

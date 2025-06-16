@@ -17,14 +17,12 @@ const FollowersScreen = () => {
   const navigation: any = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];
-  const username = useSelector((state: RootState) => {
-    state.user.user?.username
-  })
+  const user = useSelector((state: RootState) => state.user.user);
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
       <View style={{width: '100%', height: 60}}>
         <Header
-          title= {username}
+          title= {user?.username}
           iconBack={require('../../../../assets/icon/left.png')}
           func={() => navigation.goBack()}
           navigation={navigation}

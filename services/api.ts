@@ -1,5 +1,5 @@
-// export const BASE_URL = 'http://cirla.io.vn';
-export const BASE_URL = 'http://192.168.137.1:4001';
+export const BASE_URL = 'http://cirla.io.vn';
+// export const BASE_URL = 'http://192.168.137.1:4001';
 
 export const API = {
   //// post
