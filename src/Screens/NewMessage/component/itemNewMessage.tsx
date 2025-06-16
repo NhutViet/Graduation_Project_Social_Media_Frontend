@@ -16,10 +16,6 @@ const ItemNewMessage = (props: any) => {
       onPress={() => {
         navigation.navigate('MessageScreen', {
           room: roomId,
-          theme: roomTheme,
-          img1: img1,
-          img2: img2,
-          nameChat: nameChat,
         });
       }}>
       <View style={styles.rowContainer}>
@@ -57,7 +53,7 @@ const ItemNewMessage = (props: any) => {
       </View>
       <View style={styles.blockIcon}>
         <Image
-          style={styles.img}
+          style={[styles.img, {tintColor: color.text}]}
           source={require('../../../../assets/icon/rightArrow.png')}
         />
       </View>

@@ -28,6 +28,10 @@ const backgroundOptions = [
   'https://i.pinimg.com/736x/bd/4b/a8/bd4ba884117a69f04b82bbea41609935.jpg',
   'https://i.pinimg.com/736x/68/b5/e0/68b5e0e14d51b6646e79ba1e7a8efe71.jpg',
   'https://i.pinimg.com/736x/38/3b/22/383b22f6c69a5c0b437c6fa6d942ee1b.jpg',
+  'https://i.pinimg.com/736x/a4/ba/df/a4badfdd908857ac5f3a0246a5b76791.jpg',
+  'https://i.pinimg.com/736x/85/05/fc/8505fcde48698821c0e29c130ed88a3c.jpg',
+  'https://i.pinimg.com/736x/28/21/ba/2821ba1cab65b39122bf77cb8a293981.jpg',
+  'https://i.pinimg.com/736x/8f/be/04/8fbe04b72d7aaf5417bb146951c45530.jpg',
 ];
 
 const screenWidth = Dimensions.get('window').width;
@@ -45,7 +49,7 @@ const ModalTheme: React.FC<ModalThemeProps> = ({
       <TouchableOpacity
         style={styles.overlay}
         activeOpacity={1}
-        onPressOut={onClose}></TouchableOpacity>
+        onPress={onClose}></TouchableOpacity>
 
       <View style={styles.container}>
         <Text style={styles.title}>Đổi nền khung chat</Text>
@@ -80,13 +84,20 @@ const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'flex-end',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   container: {
+    position: 'absolute',
+    bottom: 0,
     backgroundColor: '#fff',
-    borderRadius: 12,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
     width: '100%',
-    height: '70%',
+    height: '80%',
     paddingVertical: space,
   },
   title: {

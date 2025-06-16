@@ -20,6 +20,7 @@ import {toggleLikeStory} from '../../../services/StoryRedux/StorySlice';
 
 export const SeenStory = ({route, navigation}: any) => {
   const {selectedItem} = route.params;
+  console.log('SeenStory - selectedItem:', selectedItem);
   const [videoDuration, setVideoDuration] = useState(null);
   const progressAnim = useRef(new Animated.Value(0)).current;
   const animationRef: any = useRef(null);
@@ -28,7 +29,11 @@ export const SeenStory = ({route, navigation}: any) => {
   const user = useSelector((state: RootState) => state.user.user);
   const [isLiked, setIsLiked] = useState<boolean>(false);
 
-  const imageDuration = 10000; // 10 seconds for images
+  const imageDuration = 15000;
+
+  useEffect(() => {
+    console.log('selectedItem:', selectedItem);
+  }, [selectedItem]);
 
   const getItemDuration = () => {
     if (selectedItem?.uriVideo && videoDuration) {

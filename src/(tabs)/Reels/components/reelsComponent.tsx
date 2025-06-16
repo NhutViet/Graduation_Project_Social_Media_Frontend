@@ -121,7 +121,7 @@ const ReelsComponent = (props: any) => {
               <Image
                 style={[
                   styles.icon,
-                  {tintColor: isLiked ? color.error : color.text},
+                  {tintColor: isLiked ? color.error : '#fff'},
                 ]}
                 source={
                   isLiked

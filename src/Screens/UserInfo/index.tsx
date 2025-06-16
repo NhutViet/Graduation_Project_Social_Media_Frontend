@@ -1,5 +1,7 @@
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, useMemo} from 'react';
 import {
+  ActivityIndicator,
+  Alert,
   Animated,
   Dimensions,
   FlatList,
@@ -13,12 +15,21 @@ import {TabView, SceneMap} from 'react-native-tab-view';
 import {useTheme} from '../../util/ThemeContext';
 import UserInfoStyles from '../../StyleSheet/UserInfoStyles';
 import {Colors} from '../../../assets/color/Colors';
-import {useNavigation} from '@react-navigation/native';
+import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import BottomSheetNotification, {
   SwitchOption,
 } from '../../../components/BottomSheetNotification';
 import {Modalize} from 'react-native-modalize';
 import {Portal} from 'react-native-portalize';
+import {RootStackParamList} from '../../Navigation/AppNavigation';
+import ModalTheme from '../Message/components/ModalTheme';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '../../../services/store';
+import {
+  updateRoomName,
+  updateRoomTheme,
+} from '../../../services/roomRedux/roomSlice';
+import {ModalRenameRoom} from '../../../components/ModalRenameRoom';
 
 const screenWidth = Dimensions.get('window').width - 8;
 const initialLayout = {width: Dimensions.get('window').width};
@@ -27,7 +38,18 @@ export const UserInfo = () => {
   const [index, setIndex] = useState(0);
   const {theme} = useTheme();
   const navigation: any = useNavigation();
+  const route = useRoute<RouteProp<RootStackParamList, 'InfoUser'>>();
+  const roomId = route?.params?.roomId;
+  const img1 = route?.params?.img1;
+  const dispatch = useDispatch<AppDispatch>();
   const animatedLeftValue = React.useRef(new Animated.Value(0)).current;
+  const [visibleThemeModal, setVisibleThemeModal] = useState(false);
+  const [visibleRenameModal, setVisibleRenameModal] = useState(false);
+  const rooms = useSelector((state: RootState) => state.rooms.rooms);
+  const room = useMemo(
+    () => rooms.find(r => r._id === roomId),
+    [rooms, roomId],
+  );
 
   React.useEffect(() => {
     Animated.timing(animatedLeftValue, {
@@ -95,12 +117,12 @@ export const UserInfo = () => {
         <TouchableOpacity style={styles.blockImg}>
           <Image
             source={{
-              uri: 'https://i.pinimg.com/736x/a3/c0/9d/a3c09d1911a3f67e6a85972f746503e3.jpg',
+              uri: img1,
             }}
             style={styles.imgUser}
           />
         </TouchableOpacity>
-        <Text style={styles.nameUser}>Mimii11_o</Text>
+        <Text style={styles.nameUser}>{room?.name}</Text>
       </View>
       <TouchableOpacity
         style={styles.iconBack}
@@ -128,7 +150,9 @@ export const UserInfo = () => {
           </Text>
         </View>
         <View style={styles.blockFeature}>
-          <TouchableOpacity style={styles.blockIcon} onPress={() => navigation.navigate('SearchMessages', { userId: 1 })}>
+          <TouchableOpacity
+            style={styles.blockIcon}
+            onPress={() => navigation.navigate('SearchMessages', {userId: 1})}>
             <Image
               style={styles.icon}
               source={require('../../../assets/icon/search.png')}
@@ -174,10 +198,6 @@ export const UserInfo = () => {
             label: 'Biệt danh',
           },
           {
-            icon: require('../../../assets/icon/wall-clock.png'),
-            label: 'Tin nhắn tự xóa',
-          },
-          {
             icon: require('../../../assets/icon/lock.png'),
             label: 'Quyền riêng tư và bảo mật',
           },
@@ -186,17 +206,24 @@ export const UserInfo = () => {
             label: 'Tạo nhóm trò chuyện',
           },
           {
-            icon: require('../../../assets/icon/problem.png'),
-            label: 'Có lỗi xảy ra',
+            icon: require('../../../assets/icon/edit.png'),
+            label: 'Đổi tên đoạn hội thoại',
           },
         ].map((item, i) => (
-          <TouchableOpacity style={styles.row} key={i} onPress={() => {
-            if (i == 1) {
-              navigation.navigate('EditNickname', { userId: 1 }); // default data
-            } else if(i == 4){
-              navigation.navigate('CreateGroupScreen');
-            }
-          }}>
+          <TouchableOpacity
+            style={styles.row}
+            key={i}
+            onPress={() => {
+              if (i == 0) {
+                setVisibleThemeModal(true);
+              } else if (i == 1) {
+                navigation.navigate('EditNickname', {userId: 1});
+              } else if (i == 3) {
+                navigation.navigate('CreateGroupScreen');
+              } else if (i == 4) {
+                setVisibleRenameModal(true);
+              }
+            }}>
             <View style={styles.infoRowContainer}>
               <Image
                 style={[
@@ -314,6 +341,23 @@ export const UserInfo = () => {
           </View>
         )}
       />
+      <ModalTheme
+        visible={visibleThemeModal}
+        onClose={() => {
+          setVisibleThemeModal(false);
+        }}
+        onSelect={selectedBackground => {
+          dispatch(updateRoomTheme({roomId: roomId, theme: selectedBackground}))
+            .unwrap()
+            .then(() => {
+              Alert.alert('Thành công', 'Đã cập nhật chủ đề');
+            })
+            .catch(() => {
+              Alert.alert('Thất bại', 'Cập nhật chủ đề thất bại');
+            });
+          setVisibleThemeModal(false);
+        }}
+      />
       {/* --- notification bottom sheet --- */}
       <Portal>
         <Modalize
@@ -340,6 +384,23 @@ export const UserInfo = () => {
           />
         </Modalize>
       </Portal>
+      <ModalRenameRoom
+        visible={visibleRenameModal}
+        onClose={() => setVisibleRenameModal(false)}
+        currentName={room?.name || ''}
+        theme={theme}
+        onSubmit={(newName: string) => {
+          dispatch(updateRoomName({roomId: roomId, name: newName}))
+            .unwrap()
+            .then(() => {
+              Alert.alert('Thành công', 'Đã đổi tên nhóm');
+              setVisibleRenameModal(false);
+            })
+            .catch(() => {
+              Alert.alert('Lỗi', 'Không thể đổi tên nhóm');
+            });
+        }}
+      />
     </SafeAreaView>
   );
 };

@@ -20,14 +20,10 @@ import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import Sound from 'react-native-sound';
 import axios from 'axios';
 import {BASE_URL} from '../../../services/api';
-import RNFS from 'react-native-fs';
 import {useUploadProgress} from '../../../services/UploadProgressManager';
 import {useSelector} from 'react-redux';
 import {RootState} from '../../../services/store';
-import {Buffer} from 'buffer';
-
-const R2_PUBLIC_BASE_URL =
-  'https://pub-ad59fb2f0d474d27b87956b4048028d8.r2.dev';
+import {uploadImageToR2, uploadToCloudflare} from '../../core/upload';
 
 export const EditStory = ({route, navigation}: any) => {
   const {selectedItem, selectedMusic, songUrl} = route.params;
@@ -204,81 +200,6 @@ export const EditStory = ({route, navigation}: any) => {
     );
   };
 
-  ///////////upload video lên cloudfare
-  const uploadToCloudFlare = async (uri: string) => {
-    try {
-      const res = await axios.get(`${BASE_URL}/stream/upload-url`);
-      const {uploadURL, key} = res.data.uploadURL;
-
-      const formData = new FormData();
-      formData.append('file', {
-        uri: Platform.OS === 'ios' ? uri.replace('file://', '') : uri,
-        type: 'video/mp4',
-        name: 'video.mp4',
-      });
-
-      await axios.post(uploadURL, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        onUploadProgress: progressEvent => {
-          const progress = progressEvent.loaded / progressEvent.total;
-          setProgress(progress);
-        },
-      });
-      return key;
-    } catch (error: any) {
-      if (axios.isAxiosError(error)) {
-        console.error(
-          'Tải ảnh thất bại: ',
-          error?.response?.data || error.message,
-        );
-      } else {
-        console.error('Lỗi tải: ', error);
-      }
-
-      throw error;
-    }
-  };
-
-  ////đẩy ảnh
-  const uploadImageToR2 = async (uri: string): Promise<string> => {
-    showUploadModal(uri, 'image');
-
-    try {
-      const fileName = uri.split('/').pop() || `image_${Date.now()}.jpg`;
-
-      const {data} = await axios.post(`${BASE_URL}/r2/presigned-url`, {
-        fileName,
-        contentType: 'image/jpeg',
-      });
-
-      const {url: signedUrl} = data;
-
-      const fileUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
-      const fileData = await RNFS.readFile(fileUri, 'base64');
-      const fileBuffer = Buffer.from(fileData, 'base64');
-
-      await axios.put(signedUrl, fileBuffer, {
-        headers: {
-          'Content-Type': 'image/jpeg',
-        },
-        onUploadProgress: progressEvent => {
-          const progress = progressEvent.loaded / progressEvent.total;
-          setProgress(progress);
-        },
-      });
-
-      const publicUrl = `${R2_PUBLIC_BASE_URL}/${fileName}`;
-      hideUploadModal();
-      return publicUrl;
-    } catch (error) {
-      hideUploadModal();
-      console.error('Upload ảnh thất bại:', error);
-      throw error;
-    }
-  };
-
   const handleUploadStory = async () => {
     try {
       setProgress(0); // Reset tiến độ
@@ -293,10 +214,18 @@ export const EditStory = ({route, navigation}: any) => {
       //xử lý loại
       try {
         if (selectedItem?.type.includes('video')) {
-          const videoKey = await uploadToCloudFlare(selectedItem.uri);
+          const videoKey = await uploadToCloudflare(selectedItem.uri, {
+            showUploadModal,
+            hideUploadModal,
+            setProgress,
+          });
           mediaUrl = `https://videodelivery.net/${videoKey}/manifest/video.m3u8`;
         } else {
-          mediaUrl = await uploadImageToR2(selectedItem.uri);
+          mediaUrl = await uploadImageToR2(selectedItem.uri, {
+            showUploadModal,
+            hideUploadModal,
+            setProgress,
+          });
         }
       } catch (error) {
         Alert.alert(
