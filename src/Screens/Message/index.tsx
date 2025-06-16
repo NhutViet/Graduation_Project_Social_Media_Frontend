@@ -14,7 +14,7 @@ import {
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
-import {useEffect, useRef, useState} from 'react';
+import {useEffect, useMemo, useRef, useState} from 'react';
 import MessageStyles from '../../StyleSheet/MessageStyles';
 import {io, Socket} from 'socket.io-client';
 import {RootStackParamList} from '../../Navigation/AppNavigation';
@@ -43,36 +43,37 @@ export const MessageScreen = () => {
   const flatListRef = useRef<FlatList>(null);
 
   const route = useRoute<RouteProp<RootStackParamList, 'MessageScreen'>>();
-  const room = route?.params?.room;
-  const img1 = route?.params?.img1;
-  const img2 = route?.params?.img2;
-  const nameChat = route?.params?.nameChat;
-  const themeFromParams = route?.params?.theme;
+  const roomId = route?.params?.room;
+  const rooms = useSelector((state: RootState) => state.rooms.rooms);
+  const room = useMemo(
+    () => rooms.find(r => r._id === roomId),
+    [rooms, roomId],
+  );
+  const filteredUsers = room?.user_ids.filter(
+    user => user._id !== room.created_by,
+  );
+
+  const user1 = filteredUsers ? filteredUsers[0] : undefined;
+  const user2 = filteredUsers ? filteredUsers[1] : undefined;
 
   const [selectedMessageIndex, setSelectedMessageIndex] = useState<
     number | null
   >(null);
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
   const [linkPreviews, setLinkPreviews] = useState<{[key: number]: any}>({});
-  const [visibleThemeModal, setVisibleThemeModal] = useState(false);
-  const [chatBackground, setChatBackground] = useState<string | null>(null);
   const [socket, setSocket] = useState<Socket | null>(null);
   const {showUploadModal, hideUploadModal, setProgress} = useUploadProgress();
 
   useEffect(() => {
     setChat([]);
-    dispatch(fetchMessages({roomId: room}));
+    if (room?._id) {
+      dispatch(fetchMessages({roomId: room._id}));
+    }
   }, []);
 
   useEffect(() => {
     setChat(messages);
   }, [messages, room]);
-
-  useEffect(() => {
-    if (themeFromParams) {
-      setChatBackground(themeFromParams);
-    }
-  }, [themeFromParams]);
 
   useEffect(() => {
     if (!user.user?._id || !room) return;
@@ -168,7 +169,6 @@ export const MessageScreen = () => {
     setSelectedImageUri(null);
     setSelectedMessageIndex(null);
     setLinkPreviews({});
-    setChatBackground(null);
 
     dispatch(clearMessages());
 
@@ -210,9 +210,9 @@ export const MessageScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {chatBackground && (
+      {room?.theme && (
         <ImageBackground
-          source={{uri: chatBackground}}
+          source={{uri: room.theme}}
           style={{
             position: 'absolute',
             top: 0,
@@ -233,7 +233,7 @@ export const MessageScreen = () => {
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundColor: chatBackground
+          backgroundColor: room?.theme
             ? 'rgba(0, 0, 0, 0.2)'
             : color.background,
           zIndex: 1,
@@ -255,30 +255,54 @@ export const MessageScreen = () => {
               <TouchableOpacity
                 style={[
                   styles.imgContainer,
-                  {overflow: img1 && !img2 ? 'hidden' : undefined},
-                ]}>
-                {img2 && (
+                  {
+                    overflow:
+                      user1?.profilePic && !user2?.profilePic
+                        ? 'hidden'
+                        : undefined,
+                  },
+                ]}
+                onPress={() => {
+                  if (user1?.profilePic && user2?.profilePic) {
+                    navigation.navigate('InforGroupChat', {
+                      roomId: room?._id,
+                      img1: user1?.profilePic,
+                      img2: user2?.profilePic,
+                    });
+                  } else {
+                    navigation.navigate('InfoUser', {
+                      roomId: room?._id,
+                      img1: user1?.profilePic,
+                    });
+                  }
+                }}>
+                {user2?.profilePic && (
                   <>
-                    <Image style={styles.iconW} source={{uri: img1}} />
+                    <Image
+                      style={styles.iconW}
+                      source={{uri: user1?.profilePic}}
+                    />
                     <Image
                       style={[
                         styles.iconF,
                         {
-                          borderColor: color.background,
+                          borderColor: Colors.white,
                           backgroundColor: color.backgroundSecondary,
                         },
                       ]}
-                      source={{uri: img2}}
+                      source={{uri: user2?.profilePic}}
                     />
                   </>
                 )}
-                {!img2 && img1 && (
-                  <Image style={styles.img} source={{uri: img1}} />
+                {!user2?.profilePic && user1?.profilePic && (
+                  <Image style={styles.img} source={{uri: user1?.profilePic}} />
                 )}
               </TouchableOpacity>
 
-              <Text style={{color: color.text, fontSize: 16}} numberOfLines={1}>
-                {nameChat}
+              <Text
+                style={{color: Colors.black, fontSize: 16}}
+                numberOfLines={1}>
+                {room?.name}
               </Text>
             </View>
 
@@ -293,11 +317,7 @@ export const MessageScreen = () => {
                   source={require('../../../assets/icon/videoCamera.png')}
                 />
               </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.blockIcon}
-                onPress={() => {
-                  setVisibleThemeModal(true);
-                }}>
+              <TouchableOpacity style={styles.blockIcon}>
                 <Image
                   style={styles.icon}
                   source={require('../../../assets/icon/info.png')}
@@ -325,7 +345,7 @@ export const MessageScreen = () => {
           <View
             style={[
               styles.inputContainer,
-              {backgroundColor: color.backgroundSecondary, zIndex: 20},
+              {backgroundColor: 'rgba(255, 255, 255, 0.6)', zIndex: 20},
             ]}>
             <TouchableOpacity style={styles.blockCamera}>
               <Image
@@ -337,35 +357,49 @@ export const MessageScreen = () => {
             <TextInput
               value={message}
               onChangeText={setMessage}
-              placeholder="Type a message..."
-              placeholderTextColor={color.text}
+              placeholder="Soạn tin nhắn..."
+              placeholderTextColor={Colors.black}
               style={styles.input}
-              returnKeyType="send"
-              onSubmitEditing={sendMessage}
+              multiline={true}
+              returnKeyType="default"
+              blurOnSubmit={false}
             />
 
-            <View style={styles.rowContainer}>
-              <TouchableOpacity style={styles.blockIcon1}>
-                <Image
-                  style={styles.icon}
-                  source={require('../../../assets/icon/Microphone.png')}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.blockIcon1}
-                onPress={pickImageAndSend}>
-                <Image
-                  style={styles.icon}
-                  source={require('../../../assets/icon/Picture.png')}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.blockIcon1}>
-                <Image
-                  style={styles.icon}
-                  source={require('../../../assets/icon/another.png')}
-                />
-              </TouchableOpacity>
-            </View>
+            <>
+              {message.trim().length > 0 ? (
+                <TouchableOpacity
+                  style={styles.blockCamera}
+                  onPress={sendMessage}>
+                  <Image
+                    style={{tintColor: color.text, width: 20, height: 20}}
+                    source={require('../../../assets/icon/share.png')}
+                  />
+                </TouchableOpacity>
+              ) : (
+                <View style={styles.rowContainer}>
+                  <TouchableOpacity style={styles.blockIcon1}>
+                    <Image
+                      style={styles.icon}
+                      source={require('../../../assets/icon/Microphone.png')}
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.blockIcon1}
+                    onPress={pickImageAndSend}>
+                    <Image
+                      style={styles.icon}
+                      source={require('../../../assets/icon/Picture.png')}
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.blockIcon1}>
+                    <Image
+                      style={styles.icon}
+                      source={require('../../../assets/icon/another.png')}
+                    />
+                  </TouchableOpacity>
+                </View>
+              )}
+            </>
           </View>
         </View>
       </View>
@@ -402,17 +436,6 @@ export const MessageScreen = () => {
           )}
         </View>
       </Modal>
-
-      <ModalTheme
-        visible={visibleThemeModal}
-        onClose={() => {
-          setVisibleThemeModal(false);
-        }}
-        onSelect={selectedBackground => {
-          setChatBackground(selectedBackground);
-          setVisibleThemeModal(false);
-        }}
-      />
     </SafeAreaView>
   );
 };

@@ -49,7 +49,7 @@ const ModalTheme: React.FC<ModalThemeProps> = ({
       <TouchableOpacity
         style={styles.overlay}
         activeOpacity={1}
-        onPressOut={onClose}></TouchableOpacity>
+        onPress={onClose}></TouchableOpacity>
 
       <View style={styles.container}>
         <Text style={styles.title}>Đổi nền khung chat</Text>
@@ -84,13 +84,20 @@ const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'flex-end',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   container: {
+    position: 'absolute',
+    bottom: 0,
     backgroundColor: '#fff',
-    borderRadius: 12,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
     width: '100%',
-    height: '70%',
+    height: '80%',
     paddingVertical: space,
   },
   title: {

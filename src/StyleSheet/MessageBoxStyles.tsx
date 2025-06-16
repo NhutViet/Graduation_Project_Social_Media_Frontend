@@ -14,7 +14,7 @@ const MessageBoxStyles = (theme: ThemeType) => {
     headerContainer: {
       flexDirection: 'row',
       width: '100%',
-      paddingVertical: Colors.spacing.l,
+      paddingVertical: Colors.spacing.m,
       paddingHorizontal: Colors.spacing.xs,
       alignItems: 'center',
       justifyContent: 'space-between',

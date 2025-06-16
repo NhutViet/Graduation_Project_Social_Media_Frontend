@@ -142,7 +142,7 @@ const ItemHome = (props: ItemHomeProps) => {
           commentCount={commentCount}
           share={share}
           onLikePress={actions.handleLike}
-          onCommentPress={openComment}
+          onCommentPress={() => openComment(_id)}
           onSharePress={actions.handleOpenModalShare}
           onBookmarkPress={actions.handleBookmarkAction}
           onReactionModalPress={modal.handleOpenReactionModal}

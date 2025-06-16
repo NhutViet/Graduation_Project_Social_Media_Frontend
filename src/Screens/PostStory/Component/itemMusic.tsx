@@ -1,97 +1,12 @@
-import React, {useRef, useState, useEffect} from 'react';
+import React from 'react';
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import Sound from 'react-native-sound';
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
 
-let currentSound: Sound | null = null;
-let stopOther: (() => void) | null = null;
-
 const ItemMusic = (props: any) => {
-  const {coverImg, song, link, author, countVideoUsed = 0, onPress} = props;
+  const {coverImg, song, author, countVideoUsed = 0, onPress} = props;
   const {theme} = useTheme();
   const color = Colors[theme];
-  const soundRef = useRef<Sound | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
-
-  useEffect(() => {
-    return () => {
-      if (soundRef.current) {
-        soundRef.current.stop();
-        soundRef.current.release();
-        soundRef.current = null;
-      }
-    };
-  }, []);
-
-  const handlePlayPause = () => {
-    if (currentSound && currentSound !== soundRef.current) {
-      currentSound.stop(() => {
-        currentSound?.release();
-      });
-      currentSound = null;
-      stopOther?.();
-    }
-
-    if (isPlaying) {
-      soundRef.current?.pause();
-      setIsPlaying(false);
-      setIsPaused(true);
-    } else {
-      if (isPaused && soundRef.current) {
-        soundRef.current.play(() => {
-          setIsPlaying(false);
-          setIsPaused(false);
-          soundRef.current?.release();
-          soundRef.current = null;
-          currentSound = null;
-        });
-        setIsPlaying(true);
-      } else if (!soundRef.current) {
-        soundRef.current = new Sound(link, undefined, error => {
-          if (error) {
-            console.log('❌ Failed to load sound', error);
-            return;
-          }
-
-          soundRef.current?.play(() => {
-            setIsPlaying(false);
-            setIsPaused(false);
-            soundRef.current?.release();
-            soundRef.current = null;
-            currentSound = null;
-          });
-
-          currentSound = soundRef.current;
-          setIsPlaying(true);
-        });
-      } else {
-        soundRef.current.play(() => {
-          setIsPlaying(false);
-          setIsPaused(false);
-          soundRef.current?.release();
-          soundRef.current = null;
-          currentSound = null;
-        });
-        setIsPlaying(true);
-      }
-
-      stopOther = () => {
-        if (soundRef.current?.isPlaying()) {
-          soundRef.current?.stop(() => {
-            soundRef.current?.release();
-            soundRef.current = null;
-            setIsPlaying(false);
-            setIsPaused(false);
-          });
-        } else {
-          setIsPlaying(false);
-          setIsPaused(false);
-        }
-      };
-    }
-  };
 
   return (
     <TouchableOpacity style={styles.container} onPress={onPress}>
@@ -114,16 +29,10 @@ const ItemMusic = (props: any) => {
         </View>
       </View>
 
-      <TouchableOpacity
-        onPress={handlePlayPause}
-        style={[styles.playBlock, {borderColor: color.text}]}>
+      <TouchableOpacity style={styles.playBlock}>
         <Image
           style={[styles.play, {tintColor: color.text}]}
-          source={
-            isPlaying
-              ? require('../../../../assets/icon/pause.png')
-              : require('../../../../assets/icon/play.png')
-          }
+          source={require('../../../../assets/icon/bookmark.png')}
         />
       </TouchableOpacity>
     </TouchableOpacity>
@@ -157,11 +66,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   playBlock: {
-    width: 30,
-    height: 30,
+    width: 20,
+    height: 20,
     borderRadius: 15,
-    padding: 10,
-    borderWidth: 1,
   },
   play: {
     width: '100%',
