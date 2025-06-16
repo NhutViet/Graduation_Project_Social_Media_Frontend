@@ -90,5 +90,11 @@ export const SearchStyles = (theme: 'light' | 'dark') => {
       alignItems: 'center',
       flex: 1,
     },
+    overlay: {
+      ...StyleSheet.absoluteFillObject,
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 999,
+    },
   });
 };

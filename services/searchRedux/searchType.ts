@@ -88,3 +88,19 @@ export interface ResSearchUser {
     message: string;
     users: UserR;
 }
+
+// Slice state for Redux
+export interface SearchState {
+    posts?: ResSearchPost;
+    users?: ResSearchUser;
+    isLoading: boolean;
+    isError: boolean;
+    errorMessage?: string;
+}
+
+// Selectors 
+export const selectSearchLoading = (state: { search: SearchState }): boolean => state.search.isLoading;
+export const selectSearchError = (state: { search: SearchState }): { isError: boolean; message?: string } => ({
+    isError: state.search.isError,
+    message: state.search.errorMessage
+});

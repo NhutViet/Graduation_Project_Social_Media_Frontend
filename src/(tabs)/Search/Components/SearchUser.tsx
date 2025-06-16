@@ -7,12 +7,21 @@ import User from '../../Home/components/Story';
 import {useSelector} from 'react-redux';
 import {RootState} from '../../../../services/store';
 
-const SearchUser = (props: any) => {
+const SearchUser: React.FC = React.memo(() => {
   const {theme} = useTheme();
   const color = Colors[theme];
   const {users, isLoading} = useSelector((state: RootState) => state.search);
 
   const dataU = (users as any)?.items || [];
+
+  const renderItem = React.useCallback(({item}: {item: any}) => (
+    <User
+      name={item.username}
+      image={item.profilePic}
+      status={item.status}
+      isStory={false}
+    />
+  ), []);
 
   if (isLoading) {
     return (
@@ -41,19 +50,11 @@ const SearchUser = (props: any) => {
       {dataU.length > 0 ? (
         <FlashList
           data={dataU}
-          renderItem={({item}: any) => {
-            return (
-              <User
-                name={item.username}
-                image={item.profilePic}
-                status={item.status}
-                isStory={false}
-              />
-            );
-          }}
+          renderItem={renderItem}
+          keyExtractor={item => item._id || item.username}
           estimatedItemSize={200}
           showsVerticalScrollIndicator={false}
-        />
+          removeClippedSubviews/>
       ) : (
         <View
           style={{
@@ -74,6 +75,6 @@ const SearchUser = (props: any) => {
       )}
     </View>
   );
-};
+});
 
 export default SearchUser;

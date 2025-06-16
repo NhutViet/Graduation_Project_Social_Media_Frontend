@@ -7,224 +7,235 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  ActivityIndicator,
+  StyleSheet,
 } from 'react-native';
-import React, {useEffect, useRef, useState} from 'react';
-import {FlashList} from '@shopify/flash-list';
-import {useTheme} from '../../util/ThemeContext';
-import {SearchStyles} from '../../StyleSheet/SearchStyles';
+import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
+import { FlashList } from '@shopify/flash-list';
+import { useTheme } from '../../util/ThemeContext';
+import { SearchStyles } from '../../StyleSheet/SearchStyles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import HistoryItem from './Components/HistoryItem';
 import User from '../Home/components/Story';
-// import GridMedia from './Components/GridMedia';
-import {Colors} from '../../../assets/color/Colors';
+import { Colors } from '../../../assets/color/Colors';
 import SearchResult from './Components/SearchResult';
-import {useIsFocused} from '@react-navigation/native';
-import {RootState} from '../../../services/store';
-import {useDispatch, useSelector} from 'react-redux';
-import {fetchPostsWithMedia} from '../../../services/postRedux/postSlice';
-import {AppDispatch} from '../../../services/store';
-import {Media} from '../../../services/postRedux/postTypes';
+import { useIsFocused } from '@react-navigation/native';
+import { RootState } from '../../../services/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchPostsWithMedia } from '../../../services/postRedux/postSlice';
+import { AppDispatch } from '../../../services/store';
+import { Media } from '../../../services/postRedux/postTypes';
 import ExploreSection from './Components/ExploreTile';
-import {useDebounce} from 'use-debounce';
-import { fetchSearchPost, fetchSearchUser } from '../../../services/searchRedux/searchSlice';
-
-const generateImages = (count: number) =>
-  Array.from({length: count}, (_, i) => ({
-    id: `${i}`,
-    uri: 'https://kimipet.vn/wp-content/uploads/2021/06/husky-ngao-.jpg',
-  }));
-
-const dataUser = [
-  {
-    id: 1,
-    name: 'user1',
-    image:
-      'https://i.pinimg.com/736x/b7/25/61/b72561fd1ec7018c0418c84a3c2d5a57.jpg',
-    status: 1,
-  },
-  {
-    id: 2,
-    name: 'user2',
-    image:
-      'https://i.pinimg.com/736x/c1/70/e8/c170e84663405785c80ba367cd5e3b85.jpg',
-    status: 1,
-  },
-  {
-    id: 3,
-    name: 'user3',
-    image:
-      'https://i.pinimg.com/736x/8b/ae/77/8bae77c63f046f5a307a864a9d230da2.jpg',
-    status: 0,
-  },
-  {
-    id: 4,
-    name: 'user4',
-    image:
-      'https://i.pinimg.com/736x/56/81/64/5681646985e7ddc1b2cd4b826763b541.jpg',
-    status: 0,
-  },
-];
+import { useDebounce } from 'use-debounce';
+import { fetchSearchPost, fetchSearchUser, clearSearchResults } from '../../../services/searchRedux/searchSlice';
+import { selectSearchLoading } from '../../../services/searchRedux/searchType';
 
 const SEARCH_HISTORY_KEY = 'search_history';
 
-export const Search = () => {
+export const Search: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
 
-  const {posts} = useSelector((state: RootState) => state.post);
-  const [postMedia, setPostMedia] = useState<Media[]>([]);
-
-  useEffect(() => {
-    dispatch(fetchPostsWithMedia());
-    setPostMedia(posts.flatMap(post => post.media));
-  }, [dispatch, posts]);
+  // Redux state
+  const postsData = useSelector((state: RootState) => state.post.posts);
+  const { refreshToken } = useSelector((state: RootState) => state.user);
+  const { users, isError } = useSelector((state: RootState) => state.search);
+  const isLoading = useSelector(selectSearchLoading);
 
   const theme = useTheme();
   const color = Colors[theme.theme];
   const styles = SearchStyles(theme.theme);
+
+  // Local state
   const [isFocused, setIsFocused] = useState(false);
-  const inputRef = useRef<TextInput>(null);
   const [isShowResult, setIsShowResult] = useState(false);
+  const [searchText, setSearchText] = useState('');
+  const [searchHistory, setSearchHistory] = useState<string[]>([]);
+  const [isInitializing, setIsInitializing] = useState(true);
+
+  // Initialization guard
+  const hasInitialized = useRef(false);
+
+  // Refs
+  const inputRef = useRef<TextInput>(null);
   const isFocusedPage = useIsFocused();
 
-  //animated value cho opacity ẩn hiện
+  // Animations
   const searchOpacity = useRef(new Animated.Value(0)).current;
   const mediaOpacity = useRef(new Animated.Value(1)).current;
   const resultOpacity = useRef(new Animated.Value(0)).current;
 
-  // Xử lý video
-  const [visibleIndexView1, setVisibleIndexView1] = useState<number | null>(
-    null,
-  );
-  const [visibleIndexView2, setVisibleIndexView2] = useState<number | null>(
-    null,
-  );
+  // View tracking
+  const [visibleIndexView1, setVisibleIndexView1] = useState<number | null>(null);
+  const [visibleIndexView2, setVisibleIndexView2] = useState<number | null>(null);
 
-  const onViewableItemsChangedView1 = useRef(({viewableItems}: any) => {
-    if (viewableItems.length > 0) {
-      setVisibleIndexView1(viewableItems[0].index);
-    }
-  }).current;
-
-  const onViewableItemsChangedView2 = useRef(({viewableItems}: any) => {
-    if (viewableItems.length > 0) {
-      setVisibleIndexView2(viewableItems[0].index);
-    }
-  }).current;
-
-  const viewabilityConfig = {viewAreaCoveragePercentThreshold: 50};
-
-  // Xử lý tìm kiếm
-  const [searchText, setSearchText] = useState('');
-  const [combinedResults, setCombinedResults] = useState<any[]>([]);
-  const [searchHistory, setSearchHistory] = useState<string[]>([]);
-
+  // Debounced input
   const [debouncedSearchText] = useDebounce(searchText, 500);
-  const {refreshToken} = useSelector((state: RootState) => state.user);
-  const {users, isLoading, isError} = useSelector((state: RootState) => state.search);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
-  //gọi Api sử lý tìm kiếm
-  useEffect(() => {
-    if(debouncedSearchText.trim().length > 0){
-      dispatch(fetchSearchUser({refreshToken, keyword: debouncedSearchText, mode: 'username'}));
-      dispatch(fetchSearchPost({refreshToken, keyword: debouncedSearchText}));
+  const cleanup = useCallback(() => {
+    // Cancel ongoing requests
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
     }
-  }, [debouncedSearchText]);
+    
+    // Clear search state
+    dispatch(clearSearchResults());
+    
+    // Reset local state
+    setSearchText('');
+    setIsShowResult(false);
+    setIsFocused(false);
+  }, [dispatch]);
 
-  // Tải lịch sử tìm kiếm
-  const loadSearchHistory = async () => {
-    try {
-      const history = await AsyncStorage.getItem(SEARCH_HISTORY_KEY);
-      if (history) {
-        setSearchHistory(JSON.parse(history));
+  // Enhanced search effect with cleanup
+  useEffect(() => {
+    const keyword = debouncedSearchText.trim();
+    
+    if (keyword && keyword !== lastSearch.current) {
+      // Cancel previous request
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
       }
-    } catch (error) {
-      console.error(
-        'Screens/Search/index_line_118: Load search history: ',
-        error,
-      );
+      
+      // Create new abort controller
+      abortControllerRef.current = new AbortController();
+      
+      lastSearch.current = keyword;
+      
+      dispatch(fetchSearchUser({ refreshToken, keyword, mode: 'username' }));
+      dispatch(fetchSearchPost({ refreshToken, keyword }));
     }
-  };
-
-  // Lưu lịch sử tìm kiếm
-  const saveSearchHistory = async (query: string) => {
-    if (!query.trim()) {
-      return;
+    
+    if (!keyword) {
+      lastSearch.current = '';
+      dispatch(clearSearchResults());
     }
+  }, [debouncedSearchText, dispatch, refreshToken]);
 
-    let updatedHistory = [
-      query,
-      ...searchHistory.filter(item => item !== query),
-    ];
-    if (updatedHistory.length > 10) {
-      updatedHistory = updatedHistory.slice(0, 10);
-    }
-
-    setSearchHistory(updatedHistory);
-    await AsyncStorage.setItem(
-      SEARCH_HISTORY_KEY,
-      JSON.stringify(updatedHistory),
-    );
-  };
-
-  // Xóa mục lịch sử
-  const deleteHistoryItem = async (query: string) => {
-    const updatedHistory = searchHistory.filter(item => item !== query);
-    setSearchHistory(updatedHistory);
-    await AsyncStorage.setItem(
-      SEARCH_HISTORY_KEY,
-      JSON.stringify(updatedHistory),
-    );
-  };
-
-  // Tải lịch sử khi mount
+  // Cleanup on unmount and page blur
   useEffect(() => {
-    loadSearchHistory();
+    if (!isFocusedPage) {
+      cleanup();
+    }
+  }, [isFocusedPage, cleanup]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return cleanup;
+  }, [cleanup]);
+
+  // Fetch posts once
+  useEffect(() => {
+    if (!hasInitialized.current) {
+      hasInitialized.current = true;
+      dispatch(fetchPostsWithMedia());
+    }
+  }, [dispatch]);
+  
+  // Track initialization
+  useEffect(() => {
+    if (postsData.length > 0 && isInitializing) {
+      setIsInitializing(false);
+    }
+  }, [postsData, isInitializing]);
+
+  // Prepare media groups
+  const postMedia = useMemo(() => postsData.flatMap(p => p.media || []), [postsData]);
+  const mediaGroups = useMemo(() => {
+    const groups: Media[][] = [];
+    for (let i = 0; i < postMedia.length; i += 5) {
+      groups.push(postMedia.slice(i, i + 5));
+    }
+    return groups;
+  }, [postMedia]);
+
+  // Screen dims for grid
+  const screenDimensions = useMemo(() => {
+    const screenWidth = Dimensions.get('window').width;
+    const SMALL = (screenWidth - 6) / 3;
+    const BIG = SMALL * 2 + 2;
+    return { SMALL, BIG };
   }, []);
 
-  // Logic tìm kiếm
+  // Viewability handlers
+  const onViewableItemsChangedView1 = useCallback(({ viewableItems }: any) => {
+    const idx = viewableItems[0]?.index ?? null;
+    setVisibleIndexView1(prev => (prev !== idx ? idx : prev));
+  }, []);
+
+  const onViewableItemsChangedView2 = useCallback(({ viewableItems }: any) => {
+    const idx = viewableItems[0]?.index ?? null;
+    setVisibleIndexView2(prev => (prev !== idx ? idx : prev));
+  }, []);
+
+  const viewabilityConfig = useMemo(() => ({ viewAreaCoveragePercentThreshold: 50 }), []);
+
+  // Search API
+  const lastSearch = useRef('');
   useEffect(() => {
-      if (debouncedSearchText.trim().length > 0 && !isLoading && !isError) {
+    const keyword = debouncedSearchText.trim();
+    if (keyword && keyword !== lastSearch.current) {
+      lastSearch.current = keyword;
+      dispatch(fetchSearchUser({ refreshToken, keyword, mode: 'username' }));
+      dispatch(fetchSearchPost({ refreshToken, keyword }));
+    }
+    if (!keyword) lastSearch.current = '';
+  }, [debouncedSearchText, dispatch, refreshToken]);
 
-        const filteredHistory = searchHistory.filter((historyItem: string) =>
-          historyItem.toLowerCase().includes(debouncedSearchText.trim().toLowerCase()),
-        );
+  // Combine history + users
+  const combinedResults = useMemo(() => {
+    const keyword = debouncedSearchText.trim().toLowerCase();
+    if (keyword && !isLoading && !isError) {
+      const hist = searchHistory.filter(item => item.toLowerCase().includes(keyword));
+      const userItems = (users as any)?.items || [];
+      return [
+        ...hist.map((h, i) => ({ type: 'history', value: h, id: `history-${i}` })),
+        ...userItems.map((u: any, i: any) => ({ type: 'user', value: u, id: `user-${u._id || i}` })),
+      ];
+    }
+    return searchHistory.map((h, i) => ({ type: 'history', value: h, id: `history-${i}` }));
+  }, [debouncedSearchText, searchHistory, users, isLoading, isError]);
 
-        const userItems = (users as any)?.items || [];
+  // History persistence
+  const loadHistory = useCallback(async () => {
+    const raw = await AsyncStorage.getItem(SEARCH_HISTORY_KEY);
+    if (raw) setSearchHistory(JSON.parse(raw));
+  }, []);
 
-        const combined = [
-          ...filteredHistory.map(item => ({type: 'history', value: item})),
-          ...userItems.map((item: any) => ({type: 'user', value: item})),
-        ];
+  const saveHistory = useCallback(async (q: string) => {
+    if (!q) return;
+    setSearchHistory(prev => {
+      const updated = [q, ...prev.filter(x => x !== q)].slice(0, 10);
+      AsyncStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
 
-        setCombinedResults(combined);
-      } else {
-        setCombinedResults(
-          searchHistory.map(item => ({type: 'history', value: item})),
-        );
-      }
-  }, [debouncedSearchText, users, searchHistory]);
+  const deleteHistory = useCallback(async (q: string) => {
+    setSearchHistory(prev => {
+      const updated = prev.filter(x => x !== q);
+      AsyncStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
 
-  // hiệu ứng opacity khi focused thay đổi
   useEffect(() => {
-    Animated.parallel([
-      Animated.timing(searchOpacity, {
-        toValue: isFocused && !isShowResult ? 1 : 0,
-        duration: 300,
-        useNativeDriver: false,
-      }),
-      Animated.timing(mediaOpacity, {
-        toValue: isFocused || isShowResult ? 0 : 1,
-        duration: 300,
-        useNativeDriver: false,
-      }),
-      Animated.timing(resultOpacity, {
-        toValue: isShowResult ? 1 : 0,
-        duration: 300,
-        useNativeDriver: false,
-      }),
-    ]).start();
-  }, [isFocused, isShowResult, mediaOpacity, resultOpacity, searchOpacity]);
+    loadHistory();
+  }, [loadHistory]);
 
+  // Animations
+  useEffect(() => {
+    const animation = Animated.parallel([
+      Animated.timing(searchOpacity, { toValue: isFocused && !isShowResult ? 1 : 0, duration: 300, useNativeDriver: true }),
+      Animated.timing(mediaOpacity, { toValue: isFocused || isShowResult ? 0 : 1, duration: 300, useNativeDriver: true }),
+      Animated.timing(resultOpacity, { toValue: isShowResult ? 1 : 0, duration: 300, useNativeDriver: true }),
+    ]);
+    animation.start();
+    return () => animation.stop();
+  }, [isFocused, isShowResult]);
+  
+  // Reset on blur
   useEffect(() => {
     if (!isFocusedPage) {
       setIsFocused(false);
@@ -233,30 +244,77 @@ export const Search = () => {
     }
   }, [isFocusedPage]);
 
-  // DO NOT CHANGE ANYTHING BELOW THIS LINE
-  // All these things below is for ExploreSection
-  const mediaGroups: Media[][] = [];
-  for (let i = 0; i < postMedia.length; i += 5) {
-    mediaGroups.push(postMedia.slice(i, i + 5));
+  // Handlers
+  const handleSearchSubmit = useCallback(() => {
+    if (!searchText.trim()) return;
+    saveHistory(searchText);
+    setIsFocused(false);
+    setIsShowResult(true);
+    inputRef.current?.blur();
+  }, [searchText, saveHistory]);
+
+  const handleCancel = useCallback(() => {
+    inputRef.current?.blur();
+    setIsFocused(false);
+    setSearchText('');
+  }, []);
+
+  const handleBack = useCallback(() => {
+    setIsShowResult(false);
+    setSearchText('');
+  }, []);
+
+  const renderSearchItem = useCallback(({ item }: any) => {
+    if (item.type === 'history') {
+      return (
+        <HistoryItem
+          name={item.value}
+          onPress={() => {
+            setSearchText(item.value);
+            saveHistory(item.value);
+            setIsFocused(false);
+            setIsShowResult(true);
+            inputRef.current?.blur();
+          }}
+          onDelete={() => deleteHistory(item.value)}
+        />
+      );
+    }
+    return <User name={item.value.username} image={item.value.profilePic} status={item.value.status} isStory={false} />;
+  }, [deleteHistory, saveHistory]);
+
+  const renderExploreItem = useCallback(({ item, index }: any) => (
+    <ExploreSection
+      media={item}
+      index={index}
+      currentVisibleIndex={visibleIndexView1}
+      isPause={isFocused || isShowResult}
+      isFocused={isFocused}
+      isFocusedPage={isFocusedPage}
+    />
+  ), [isFocused, isShowResult, isFocusedPage, visibleIndexView1]);
+
+  if (isInitializing) {
+    return (
+      <SafeAreaView style={[styles.container]}>
+        <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+          <Text>Loading...</Text>
+        </View>
+      </SafeAreaView>
+    );
   }
 
-  const screenWidth = Dimensions.get('window').width;
-  const SMALL = (screenWidth - 2 * 3) / 3;
-  const BIG = SMALL * 2 + 2;
-
   return (
-    <SafeAreaView style={[styles.container]}>
+    <SafeAreaView style={styles.container}>
+       {isShowResult && isLoading && (
+         <View style={styles.overlay} pointerEvents="auto">
+           <ActivityIndicator size="large" color={color.primary} />
+         </View>
+       )}
       <View style={styles.searchContainer}>
         {isShowResult && (
-          <TouchableOpacity
-            onPress={() => {
-              setIsShowResult(false);
-              setSearchText('');
-            }}>
-            <Image
-              source={require('../../../assets/icon/left.png')}
-              style={[styles.icon, {marginRight: 10}]}
-            />
+          <TouchableOpacity onPress={handleBack}>
+            <Image source={require('../../../assets/icon/left.png')} style={[styles.icon, { marginRight: 10 }]} />
           </TouchableOpacity>
         )}
         <View style={styles.row}>
@@ -265,44 +323,27 @@ export const Search = () => {
             placeholder="Tìm kiếm..."
             placeholderTextColor={color.text}
             style={styles.search}
-            onFocus={() => {
-              setIsFocused(true);
-              setIsShowResult(false);
-            }}
+            onFocus={() => { setIsFocused(true); setIsShowResult(false); }}
             value={searchText}
             onChangeText={setSearchText}
+            onSubmitEditing={handleSearchSubmit}
+            returnKeyType="search"
           />
-          <Image
-            source={require('../../../assets/icon/search.png')}
-            style={styles.iconSearch}
-          />
+          <Image source={require('../../../assets/icon/search.png')} style={styles.iconSearch} />
         </View>
         {isFocused && (
-          <TouchableOpacity
-            onPress={() => {
-              inputRef.current?.blur();
-              setIsFocused(false);
-              setSearchText('');
-            }}>
+          <TouchableOpacity onPress={handleCancel}>
             <Text style={styles.textHuy}>Hủy</Text>
           </TouchableOpacity>
         )}
       </View>
+
       <View style={styles.container}>
-        {/* Kết quả tìm kiếm (ẩn/hiện bằng display) */}
+        {/* Search History/Results */}
         <Animated.View
           pointerEvents={isFocused && !isShowResult ? 'auto' : 'none'}
-          style={[
-            styles.container,
-            {
-              opacity: searchOpacity,
-              position: 'absolute',
-              left: 0,
-              right: 0,
-              top: 0,
-              bottom: 0,
-            },
-          ]}>
+          style={[styles.container, { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, opacity: searchOpacity }]}
+        >
           {searchText === '' && searchHistory.length > 0 && (
             <View style={styles.rowSpace}>
               <Text style={styles.textGD}>Gần đây</Text>
@@ -310,64 +351,23 @@ export const Search = () => {
             </View>
           )}
           {searchText !== '' && (
-            <HistoryItem
-              name={searchText}
-              func={() => {
-                saveSearchHistory(searchText);
-                setSearchText(searchText);
-                setIsFocused(false);
-                setIsShowResult(true);
-                inputRef.current?.blur();
-              }}
-            />
+            <HistoryItem name={searchText} onPress={handleSearchSubmit} onDelete={() => {}} />
           )}
           <FlashList
             data={combinedResults}
-            renderItem={({item}: any) => {
-              if (item.type === 'history') {
-                return (
-                  <HistoryItem
-                    name={item.value}
-                    deleteFunc={() => deleteHistoryItem(item.value)}
-                    func={() => {
-                      setSearchText(item.value);
-                      saveSearchHistory(item.value);
-                      setIsFocused(false);
-                      setIsShowResult(true);
-                      inputRef.current?.blur();
-                    }}
-                  />
-                );
-              } else {
-                return (
-                  <User
-                    name={item.value.username}
-                    image={item.value.profilePic}
-                    status={item.value.status}
-                    isStory={false}
-                  />
-                );
-              }
-            }}
-            estimatedItemSize={100}
+            renderItem={renderSearchItem}
+            estimatedItemSize={60}
             showsVerticalScrollIndicator={false}
-            extraData={[searchHistory]}
+            keyExtractor={item => item.id}
+            removeClippedSubviews
           />
         </Animated.View>
-        {/* kêts quả tìm kiếmkiếm (ẩn/hiện bằng display) */}
+
+        {/* Search Results */}
         <Animated.View
           pointerEvents={isShowResult ? 'auto' : 'none'}
-          style={[
-            styles.container,
-            {
-              opacity: resultOpacity,
-              position: 'absolute',
-              right: 0,
-              left: 0,
-              top: 0,
-              bottom: 0,
-            },
-          ]}>
+          style={[styles.container, { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, opacity: resultOpacity }]}
+        >
           <SearchResult
             searchText={debouncedSearchText}
             currentVisibleIndex={visibleIndexView2}
@@ -376,43 +376,17 @@ export const Search = () => {
           />
         </Animated.View>
 
-        {/* Lưới media (ẩn/hiện bằng display) */}
-        <Animated.View
-          style={[styles.container, {opacity: mediaOpacity}]}
-          pointerEvents={isFocused || isShowResult ? 'none' : 'auto'}>
-          {/* <FlashList
-            data={mediaBlocks}
-            keyExtractor={(_, index) => index.toString()}
-            renderItem={({item, index}) => (
-              <GridMedia
-                block={item}
-                index={index}
-                isPause={isFocused || isShowResult}
-                isFocused={isFocused}
-                isFocusedPage={isFocusedPage}
-                currentVisibleIndex={visibleIndexView1}
-              />
-            )}
-            estimatedItemSize={BIG_IMAGE_HEIGHT + 2} // chính xác chiều cao 1 block
-            onViewableItemsChanged={onViewableItemsChangedView1}
-            viewabilityConfig={viewabilityConfig}
-          /> */}
+        {/* Media Grid */}
+        <Animated.View style={[styles.container, { opacity: mediaOpacity }]} pointerEvents={isFocused || isShowResult ? 'none' : 'auto'}>
           <FlashList
             data={mediaGroups}
-            keyExtractor={(_, index) => index.toString()}
-            renderItem={({item, index}) => (
-              <ExploreSection
-                media={item}
-                index={index}
-                isPause={isFocused || isShowResult}
-                isFocused={isFocused}
-                isFocusedPage={isFocusedPage}
-                currentVisibleIndex={visibleIndexView1}
-              />
-            )}
-            estimatedItemSize={BIG + 4}
+            keyExtractor={(_, i) => `media-group-${i}`}
+            renderItem={renderExploreItem}
+            estimatedItemSize={screenDimensions.BIG + 4}
             onViewableItemsChanged={onViewableItemsChangedView1}
             viewabilityConfig={viewabilityConfig}
+            removeClippedSubviews
+            getItemType={() => 'media-group'}
           />
         </Animated.View>
       </View>
