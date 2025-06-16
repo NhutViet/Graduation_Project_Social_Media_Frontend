@@ -30,8 +30,8 @@ import {useDispatch, useSelector} from 'react-redux';
 import {fetchLogout} from '../../../services/userRedux/userSlice';
 import {AppDispatch, RootState} from '../../../services/store';
 import {resetStatus} from '../../../services/userRedux/userReducer';
-import { resetBookmarkState } from '../../../services/bookmarkRedux/bookmarkReducer';
-import { resetReaction } from '../../../services/reactionRedux/reactionReducer';
+import {resetBookmarkState} from '../../../services/bookmarkRedux/bookmarkReducer';
+import {resetReaction} from '../../../services/reactionRedux/reactionReducer';
 
 export const Setting = () => {
   const navigation: any = useNavigation();
@@ -558,8 +558,24 @@ export const Setting = () => {
       <Modal visible={showModal} transparent animationType="fade">
         <View style={styles.modal}>
           <View style={styles.modalContainer}>
-            {isSuccess ? <Image source={require('../../../assets/icon/success.png')} style={[styles.iconNoti, {tintColor: mColor.primary}]}/> : <Image source={require('../../../assets/icon/danger.png')} style={[styles.iconNoti, {tintColor: mColor.error}]}/>}
-            <Text style={[styles.textNoti, {color: isSuccess ? mColor.primary : mColor.error}]}>{isSuccess ? 'Đăng xuất thành công' : 'Đã có lỗi xảy ra'}</Text>
+            {isSuccess ? (
+              <Image
+                source={require('../../../assets/icon/success.png')}
+                style={[styles.iconNoti, {tintColor: mColor.primary}]}
+              />
+            ) : (
+              <Image
+                source={require('../../../assets/icon/danger.png')}
+                style={[styles.iconNoti, {tintColor: mColor.error}]}
+              />
+            )}
+            <Text
+              style={[
+                styles.textNoti,
+                {color: isSuccess ? mColor.primary : mColor.error},
+              ]}>
+              {isSuccess ? 'Đăng xuất thành công' : 'Đã có lỗi xảy ra'}
+            </Text>
             {isSuccess && <Text style={styles.textContent}>Hẹn gặp lại</Text>}
             {isError && <Text style={styles.textContent}>{errorMessage}</Text>}
           </View>
