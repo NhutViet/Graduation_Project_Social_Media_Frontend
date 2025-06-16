@@ -25,35 +25,25 @@ const optionModal = forwardRef<Modalize, OptionModalProps>(
         useEffect(() => {
             setIsBlock(initialIsBlock);
         }, [initialIsBlock]);
-        const handleBlock = async () => {
-            if (isBlock) return;
 
+        const toggleBlock = async () => {
+            const actionType = isBlock ? 'unblock' : 'block';
+            setIsBlock(!isBlock)
+            onBlockChange(!isBlock)
             try {
                 await dispatch(
                 relationAction({
-                    targetId: userID || '',
-                    action: 'block',
+                    targetId: userID,
+                    action: actionType,
                 }),
                 ).unwrap();
-                setIsBlock(true);
-                onBlockChange(true);
             } catch (error) {
-                console.error('Chặn thất bại:', error);
-            }
-        };
-
-        const handleUnblock = async () => {
-            try {
-                await dispatch(
-                relationAction({
-                    targetId: userID || '',
-                    action: 'unblock',
-                }),
-                ).unwrap();
-                setIsBlock(false);
-                onBlockChange(false);
-            } catch (error) {
-                console.error('Bỏ chặn thất bại:', error);
+                Alert.alert(
+                    `${actionType === 'block' ? 'Chặn' : 'Bỏ chặn'} thất bại`,
+                    'Vui lòng thử lại sau.',
+                );
+                setIsBlock(isBlock)
+                onBlockChange(isBlock)
             }
         };
 
@@ -70,7 +60,7 @@ const optionModal = forwardRef<Modalize, OptionModalProps>(
             <TouchableOpacity style={styles.option}>
                 <Text style={styles.optionText}>Hạn chế</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.option} onPress={isBlock ? handleUnblock : handleBlock}>
+            <TouchableOpacity style={styles.option} onPress={toggleBlock}>
                 <Text style={styles.optionText}>{isBlock ? "Bỏ chặn" : "Chặn"}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.option}>

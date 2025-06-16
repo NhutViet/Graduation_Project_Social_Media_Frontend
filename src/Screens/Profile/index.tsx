@@ -41,6 +41,7 @@ import {
 import {getPublicProfile} from '../../../services/userRedux/userSlice';
 import {clearPublicProfile} from '../../../services/userRedux/userReducer';
 import {createRoom} from '../../../services/roomRedux/roomSlice';
+import { relationAction } from '../../../services/relationRedux/relationSlice';
 
 const ProfileComp = ({route}: any) => {
   const navigation: any = useNavigation();
@@ -92,7 +93,8 @@ const ProfileComp = ({route}: any) => {
   // }, []);
 
   const [isFollowing, setIsFollowing] = useState(false);
-  const toggleFollow = useCallback(() => {
+  const [isBlock, setIsBlock] = useState(false);
+  const toggleFollow = useCallback( async () => {
     setIsFollowing(!isFollowing);
     Alert.alert(
       isFollowing ? 'Bỏ theo dõi' : 'Đã theo dõi',
@@ -100,7 +102,46 @@ const ProfileComp = ({route}: any) => {
         ? 'Bạn đã bỏ theo dõi người dùng này.'
         : 'Bạn đã theo dõi người dùng này.',
     );
+    const actionType = isFollowing ? 'unfollow' : 'follow';
+    try {
+        await dispatch(
+          relationAction({
+            targetId: userID,
+            action: actionType,
+          }),
+        ).unwrap();
+      } catch (error) {
+        Alert.alert(
+          `${actionType === 'follow' ? 'Theo dõi' : 'Bỏ theo dõi'} thất bại`,
+          'Vui lòng thử lại sau.',
+        );
+        setIsFollowing(isFollowing);
+      }
+
   }, [isFollowing]);
+
+  const toggleUnblock = useCallback(async () => {
+    setIsBlock(false);
+    setIsFollowing(isFollowing);
+    Alert.alert(
+      'Bỏ chặn',
+      'Bạn đã bỏ chặn người dùng này.'
+    );
+    try{
+      await dispatch(
+        relationAction({
+          targetId: userID,
+          action: "unblock"
+        })
+      ).unwrap();
+    } catch (error){
+      Alert.alert(
+          "Bỏ chặn thất bại",
+          'Vui lòng thử lại sau.',
+        );
+        setIsBlock(true);
+    }
+  }, [])
 
   const dispatch = useDispatch<AppDispatch>();
   const {followers, following, loading, error} = useSelector(
@@ -113,8 +154,6 @@ const ProfileComp = ({route}: any) => {
     isErrorPublicProfile,
     errorMessagePublicProfile,
   } = useSelector((state: RootState) => state.user);
-
-  const [isBlock, setIsBlock] = useState(false);
 
   const fetchProfileData = async () => {
 
@@ -301,7 +340,10 @@ const ProfileComp = ({route}: any) => {
         <ActionButtons
           onFollowPress={toggleFollow}
           onMessagePress={handleMessagePress}
+          onUnblockPress={toggleUnblock}
           theme={theme}
+          isFollowing={isFollowing}
+          isBlocked={isBlock}
         />
         {/* Story Highlights */}
         {!isBlock && (
