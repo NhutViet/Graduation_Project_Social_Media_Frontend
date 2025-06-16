@@ -1,4 +1,3 @@
-// Components/ExploreTile.tsx
 import {Dimensions, Image, TouchableOpacity, View} from 'react-native';
 import React, {useMemo, useCallback} from 'react';
 import Video from 'react-native-video';
@@ -27,34 +26,15 @@ const ExploreSection: React.FC<ExploreSectionProps> = ({
   isFocused,
   isFocusedPage,
 }) => {
-  // Early return if no media
-  if (!media || media.length === 0) {
-    return null;
-  }
+  if (!media || media.length === 0) return null;
 
-  // FIXED: Optimize expensive calculations with better dependencies
-  const { bigMedia, smallMedias, isReversed, shouldPlayVideo } = useMemo(() => {
+  const { bigMedia, smallMedias, isReversed } = useMemo(() => {
     const reversed = index % 2 === 0;
-    
-    // Find big media (prefer video, fallback to first item)
     const big = media.find(m => !!m.videoUrl) || media[0];
-    
-    // Filter out the big media for small items, limit to 4
     const small = media.filter(m => m._id !== big._id).slice(0, 4);
-    
-    // Determine if video should play
-    const isPlaying = currentVisibleIndex === index;
-    const shouldPlay = isPlaying && !isPause && !isFocused && isFocusedPage;
-    
-    return {
-      bigMedia: big,
-      smallMedias: small,
-      isReversed: reversed,
-      shouldPlayVideo: shouldPlay,
-    };
-  }, [media, index, currentVisibleIndex, isPause, isFocused, isFocusedPage]);
+    return { bigMedia: big, smallMedias: small, isReversed: reversed };
+  }, [media, index]);
 
-  // FIXED: Use useCallback for press handlers to prevent re-renders
   const handleBigMediaPress = useCallback(() => {
     console.log(`Big media: ${bigMedia?._id}`);
   }, [bigMedia?._id]);
@@ -63,149 +43,127 @@ const ExploreSection: React.FC<ExploreSectionProps> = ({
     console.log(`Small media: ${mediaId}`);
   }, []);
 
-  // FIXED: Memoize big media render with proper error handling
   const renderBigMedia = useMemo(() => {
     if (!bigMedia) return null;
-
     return (
       <TouchableOpacity
         onPress={handleBigMediaPress}
         style={{
           width: SMALL,
           height: BIG,
-          backgroundColor: '#ccc',
           borderRadius: 4,
+          position: 'relative', // ensure overflow works
           overflow: 'hidden',
         }}>
-        {bigMedia.videoUrl && shouldPlayVideo ? (
+        {bigMedia.videoUrl ? (
           <Video
             source={{uri: bigMedia.videoUrl}}
-            style={{flex: 1}}
+            style={{ width: '100%', height: '100%' }}
             resizeMode="cover"
-            repeat
-            muted
-            paused={false}
-            onError={(error) => console.log('Big video error:', error)}
-            onLoad={() => {}} // Prevent unnecessary re-renders
-            onLoadStart={() => {}} // Prevent unnecessary re-renders
+            repeat={false}
+            muted={true}
+            paused={true}
+            useTextureView={true}
           />
         ) : bigMedia.imageUrl ? (
           <Image
             source={{uri: bigMedia.imageUrl}}
-            style={{flex: 1}}
+            style={{width: '100%', height: '100%'}}
             resizeMode="cover"
-            onError={() => console.log('Big image error:', bigMedia.imageUrl)}
-            onLoad={() => {}} // Prevent unnecessary re-renders
           />
-        ) : (
-          <View style={{flex: 1, backgroundColor: '#000'}} />
-        )}
+        ) : null}
       </TouchableOpacity>
     );
-  }, [bigMedia, shouldPlayVideo, handleBigMediaPress]);
+  }, [bigMedia, handleBigMediaPress]);
 
-  // FIXED: Optimize small media rendering
   const renderSmallMedias = useMemo(() => {
     if (!smallMedias || smallMedias.length === 0) {
       return <View style={{width: SMALL * 2 + GAP}} />;
     }
-
     return (
       <View
         style={{
-          width: SMALL * 2 + GAP,
+          width: BIG,
           flexDirection: 'row',
           flexWrap: 'wrap',
-          gap: GAP,
         }}>
-        {smallMedias.map(item => {
+        {smallMedias.map((item, idx) => {
+          const isRightCol = idx % 2 === 1;
           return (
             <TouchableOpacity
-              onPress={() => handleSmallMediaPress(item._id)}
               key={item._id}
+              onPress={() => handleSmallMediaPress(item._id)}
               style={{
                 width: SMALL,
                 height: SMALL,
-                backgroundColor: '#eee',
-                borderRadius: 2,
-                overflow: 'hidden',
+                marginRight: isRightCol ? 0 : GAP,
+                marginBottom: GAP,
+                borderRadius: 4,
+                position: 'relative', // ensure clipping
+                overflow: 'hidden',    // clip video/image
               }}>
-              {item.videoUrl && shouldPlayVideo ? (
+              {item.videoUrl ? (
                 <Video
                   source={{uri: item.videoUrl}}
                   style={{width: '100%', height: '100%'}}
                   resizeMode="cover"
-                  repeat
+                  repeat={false}
                   muted
-                  paused={false}
-                  onError={(error) => console.log('Small video error:', error)}
-                  onLoad={() => {}} // Prevent unnecessary re-renders
-                  onLoadStart={() => {}} // Prevent unnecessary re-renders
+                  paused
+                  useTextureView={true}
                 />
               ) : item.imageUrl ? (
                 <Image
                   source={{uri: item.imageUrl}}
                   style={{width: '100%', height: '100%'}}
                   resizeMode="cover"
-                  onError={() => console.log('Small image error:', item.imageUrl)}
-                  onLoad={() => {}} // Prevent unnecessary re-renders
                 />
-              ) : (
-                <View style={{flex: 1, backgroundColor: '#000'}} />
-              )}
+              ) : null}
             </TouchableOpacity>
           );
         })}
       </View>
     );
-  }, [smallMedias, shouldPlayVideo, handleSmallMediaPress]);
+  }, [smallMedias, handleSmallMediaPress]);
 
   return (
     <View
       style={{
-        flexDirection: isReversed ? 'row' : 'row-reverse',
+        flexDirection: isReversed ? 'row-reverse' : 'row',
         marginBottom: GAP,
-        gap: GAP,
         paddingHorizontal: 1,
       }}>
-      {renderBigMedia}
+      <View
+        style={{
+          marginRight: !isReversed ? GAP : 0,
+          marginLeft: isReversed ? GAP : 0,
+        }}>
+        {renderBigMedia}
+      </View>
+
       {renderSmallMedias}
     </View>
   );
 };
 
-// FIXED: Improved memo comparison function
-export default React.memo(ExploreSection, (prevProps, nextProps) => {
-  // Quick checks first (most likely to change)
+export default React.memo(ExploreSection, (prev, next) => {
   if (
-    prevProps.currentVisibleIndex !== nextProps.currentVisibleIndex ||
-    prevProps.isPause !== nextProps.isPause ||
-    prevProps.isFocused !== nextProps.isFocused ||
-    prevProps.isFocusedPage !== nextProps.isFocusedPage ||
-    prevProps.index !== nextProps.index
+    prev.currentVisibleIndex !== next.currentVisibleIndex ||
+    prev.isPause !== next.isPause ||
+    prev.isFocused !== next.isFocused ||
+    prev.isFocusedPage !== next.isFocusedPage ||
+    prev.index !== next.index
   ) {
     return false;
   }
-
-  // Check media length
-  if (prevProps.media.length !== nextProps.media.length) {
+  if (prev.media.length !== next.media.length) {
     return false;
   }
-
-  // Only do deep comparison if lengths match
-  // Compare first few items (most important) and sample a few others
-  const checkIndices = [0, 1, Math.floor(prevProps.media.length / 2), prevProps.media.length - 1];
-  
+  const checkIndices = [0, 1, Math.floor(prev.media.length / 2), prev.media.length - 1];
   for (const i of checkIndices) {
-    if (i < prevProps.media.length) {
-      const prevItem = prevProps.media[i];
-      const nextItem = nextProps.media[i];
-      
-      if (!nextItem || prevItem._id !== nextItem._id) {
-        return false;
-      }
+    if (i < prev.media.length && prev.media[i]._id !== next.media[i]._id) {
+      return false;
     }
   }
-
   return true;
 });

@@ -75,7 +75,7 @@ const SearchForYou = (props: any) => {
             style={[commonStyle, {backgroundColor: color.black}]}
             repeat
             muted
-            paused={false}
+            paused={true}
           />
         ) : (
           <Image
