@@ -8,11 +8,22 @@ import HashTag from './HashTag';
 import SearchUser from './SearchUser';
 import { useIsFocused } from '@react-navigation/native';
 
-const SearchResult = (props: any) => {
+interface SearchResultProps {
+  searchText: string;
+  currentVisibleIndex: number | null;
+  onViewableItemsChanged: (info: any) => void;
+  isPause: boolean;
+}
+
+const SearchResult: React.FC<SearchResultProps> = ({
+  searchText,
+  currentVisibleIndex,
+  onViewableItemsChanged,
+  isPause,
+}) => {
   const layout = Dimensions.get('window');
   const {theme} = useTheme();
   const color = Colors[theme];
-  const {searchText, currentVisibleIndex, onViewableItemsChanged, isPause} = props;
   const isFocusedPage = useIsFocused();
 
   //tab
@@ -24,41 +35,59 @@ const SearchResult = (props: any) => {
   ]);
 
   const renderScene = ({route}: any) => {
+    if (index !== routes.findIndex(r => r.key === route.key)) {
+      return null;
+    }
     const isFirstTab = index === 0 && route.key === 'first';
     switch (route.key) {
       case 'first':
-        return <SearchForYou searchText={searchText}  isFocusedPage={isFocusedPage} currentVisibleIndex={currentVisibleIndex} onViewableItemsChanged={onViewableItemsChanged} isPause={isPause && isFirstTab}/>;
+        return (
+          <SearchForYou
+            searchText={searchText}
+            isFocusedPage={isFocusedPage}
+            currentVisibleIndex={currentVisibleIndex}
+            onViewableItemsChanged={onViewableItemsChanged}
+            isPause={isPause && isFirstTab}
+          />
+        );
       case 'second':
-        return <SearchUser searchText={searchText} />;
+        return <SearchUser />;
       case 'three':
-        return <HashTag searchText={searchText} />;
+        return <HashTag />;
       default:
         return null;
     }
   };
 
+  const renderLazyPlaceholder = () => {
+    return (
+      <View style={{ flex: 1, backgroundColor: color.background }} />
+    );
+  };
+
   return (
     <TabView
       navigationState={{index, routes}}
+      lazy
+      renderLazyPlaceholder={renderLazyPlaceholder}
+      lazyPreloadDistance={0}  
       renderScene={renderScene}
       onIndexChange={setIndex}
       initialLayout={{width: layout.width}}
-      renderTabBar={props => {
-        return (
-          <TabBar
-            {...props}
-            indicatorStyle={{backgroundColor: color.primary}}
-            activeColor={color.primary}
-            inactiveColor={color.text}
-            style={{
-              backgroundColor: color.background,
-              shadowColor: 'transparent',
-              borderBottomWidth: 0.5,
-              borderBottomColor: color.gray,
-            }}
-          />
-        );
-      }}
+      renderTabBar={tabBarProps => (
+        <TabBar
+          {...tabBarProps}
+          indicatorStyle={{backgroundColor: color.primary}}
+          activeColor={color.primary}
+          inactiveColor={color.text}
+          style={({
+            backgroundColor: color.background,
+            shadowColor: 'transparent',
+            borderBottomWidth: 0.5,
+            borderBottomColor: color.gray,
+          })}
+        />
+      )}
     />
   );
 };

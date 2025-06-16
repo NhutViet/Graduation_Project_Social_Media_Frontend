@@ -1,192 +1,179 @@
-import {Dimensions, Image, Text, TouchableOpacity, View} from 'react-native';
-import React, {useMemo} from 'react';
-import {useTheme} from '../../../util/ThemeContext';
-import {Colors} from '../../../../assets/color/Colors';
-import {FlashList} from '@shopify/flash-list';
+import React, { useCallback, useMemo, useEffect, useRef } from 'react';
+import { Dimensions, Image, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
+import { useTheme } from '../../../util/ThemeContext';
+import { Colors } from '../../../../assets/color/Colors';
+import { FlashList } from '@shopify/flash-list';
 import Video from 'react-native-video';
-import {useSelector} from 'react-redux';
-import {RootState} from '../../../../services/store';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../../services/store';
 
 const screenWidth = Dimensions.get('window').width;
 const mediasHeight = ((screenWidth - 4) / 3) * 2;
 const mediasWidth = (screenWidth - 4) / 3;
 
-const SearchForYou = (props: any) => {
-  const {
-    searchText,
-    isFocusedPage,
-    currentVisibleIndex,
-    onViewableItemsChanged,
-    isPause,
-  } = props;
+// Move shuffle outside component to prevent recreating
+const shuffleArray = <T,>(array: T[]): T[] => {
+  const arr = [...array]; // Create copy
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+};
 
-  const viewabilityConfig = {viewAreaCoveragePercentThreshold: 50};
+interface SearchForYouProps {
+  searchText: string;
+  isFocusedPage: boolean;
+  currentVisibleIndex: number | null;
+  onViewableItemsChanged: (info: any) => void;
+  isPause: boolean;
+}
 
-  const {theme} = useTheme();
+const SearchForYou: React.FC<SearchForYouProps> = ({
+  searchText,
+  isFocusedPage,
+  currentVisibleIndex,
+  onViewableItemsChanged,
+  isPause,
+}) => {
+  const { theme } = useTheme();
   const color = Colors[theme];
+  
+  // Track video refs for cleanup
+  const videoRefs = useRef<any[]>([]);
+  const shuffleCache = useRef<{data: any[], shuffled: any[]}>({data: [], shuffled: []});
 
-  const {posts, reels, isLoading} = useSelector(
-    (state: RootState) => state.search,
-  );
+  const viewabilityConfig = useMemo(() => ({ 
+    viewAreaCoveragePercentThreshold: 50 
+  }), []);
+
+  const { posts, reels, isLoading } = useSelector((state: RootState) => state.search);
 
   const postItems = (posts as any)?.items || [];
   const reelItems = (reels as any)?.items || [];
 
-  //trộn ngẫu nhiên
+  // Optimize shuffling with caching
   const randomList = useMemo(() => {
-    return [...postItems, ...reelItems].sort(() => Math.random() - 0.5);
-  }, [postItems, reelItems]);
+    const combined = [...postItems, ...reelItems];
+    
+    // Only reshuffle if data actually changed
+    if (JSON.stringify(combined) !== JSON.stringify(shuffleCache.current.data)) {
+      shuffleCache.current.data = combined;
+      shuffleCache.current.shuffled = shuffleArray(combined);
+    }
+    
+    return shuffleCache.current.shuffled;
+  }, [postItems.length, reelItems.length]); // Depend on lengths, not arrays
+
+  const extra = useMemo(
+    () => ({ currentVisibleIndex, isFocusedPage, isPause }),
+    [currentVisibleIndex, isFocusedPage, isPause]
+  );
+
+  // Cleanup videos when component unmounts or loses focus
+  useEffect(() => {
+    return () => {
+      // Cleanup all video refs
+      videoRefs.current.forEach(videoRef => {
+        if (videoRef) {
+          try {
+            videoRef.dismissFullscreenPlayer?.();
+          } catch (e) {
+            // Ignore cleanup errors
+          }
+        }
+      });
+      videoRefs.current = [];
+    };
+  }, []);
+
+  // Clear video refs when not focused
+  useEffect(() => {
+    if (!isFocusedPage || !isPause) {
+      videoRefs.current = [];
+    }
+  }, [isFocusedPage, isPause]);
+
+  const renderMediaItem = useCallback(
+    ({ item, index }: any) => {
+      const media = item.media?.[0];
+      if (!media) return null;
+
+      const isActiveVideo =
+        !!media.videoUrl &&
+        index === currentVisibleIndex &&
+        isPause &&
+        isFocusedPage;
+
+      return (
+        <TouchableOpacity key={item._id || index} style={styles.itemContainer}>
+          {media.videoUrl ? (
+            <Video
+              ref={(ref) => {
+                if (ref && isActiveVideo) {
+                  videoRefs.current[index] = ref;
+                }
+              }}
+              source={{ uri: media.videoUrl }}
+              style={styles.media}
+              resizeMode="cover"
+              repeat
+              muted
+              paused={!isActiveVideo}
+              onError={(error) => {
+                console.warn('Video error:', error);
+              }}
+              // Add cleanup props
+              playInBackground={false}
+              playWhenInactive={false}
+            />
+          ) : media.imageUrl ? (
+            <Image 
+              source={{ uri: media.imageUrl }} 
+              style={styles.media} 
+              resizeMode="cover"
+              // Add error handling for images
+              onError={() => console.warn('Image load error')}
+            />
+          ) : (
+            <Image
+              source={require('../../../../assets/icon/black.png')}
+              style={styles.media}
+              resizeMode="contain"
+            />
+          )}
+        </TouchableOpacity>
+      );
+    },
+    [currentVisibleIndex, isFocusedPage, isPause]
+  );
 
   if (isLoading) {
     return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          padding: 20,
-          backgroundColor: color.background,
-        }}>
-        <Text
-          style={{
-            fontSize: 18,
-            fontWeight: '500',
-            color: color.textSecondary,
-          }}>
-          Đang tải...
-        </Text>
+      <View style={[styles.center, { backgroundColor: color.background }]}> 
+        <Text style={[styles.loadingText, { color: color.textSecondary }]}>Đang tải...</Text>
       </View>
     );
   }
 
   return (
-    <View style={{flex: 1, backgroundColor: color.background}}>
+    <View style={[styles.container, { backgroundColor: color.background }]}>  
       {randomList.length > 0 ? (
         <FlashList
           data={randomList}
           numColumns={3}
-          renderItem={({item, index}: any) => {
-            const media = item.media?.[0];
-            if (!media) return null;
-            const isPlaying =
-              index >= currentVisibleIndex && index < currentVisibleIndex + 3;
-            return (
-              <TouchableOpacity style={{marginBottom: 2}}>
-                {item.media[0]?.videoUrl ? (
-                  <View>
-                    <Video
-                      source={{uri: item.media[0].videoUrl}}
-                      resizeMode="contain"
-                      style={{
-                        width: mediasWidth,
-                        height: mediasHeight,
-                        marginRight: (index + 1) % 3 == 0 ? 0 : 2,
-                        overflow: 'hidden',
-                        backgroundColor: color.black,
-                      }}
-                      repeat
-                      muted={true}
-                      paused={!isPlaying || !isPause || !isFocusedPage}
-                    />
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        gap: 5,
-                        alignItems: 'center',
-                        position: 'absolute',
-                        bottom: 8,
-                        left: 8,
-                      }}>
-                      <Image
-                        source={require('../../../../assets/icon/eye.png')}
-                        style={{
-                          width: 20,
-                          height: 20,
-                          resizeMode: 'contain',
-                          tintColor: color.background,
-                        }}
-                      />
-                      <Text
-                        style={{
-                          fontSize: 12,
-                          color: color.background,
-                        }}>
-                        {item.viewCount}
-                      </Text>
-                    </View>
-                    <View
-                      style={{
-                        position: 'absolute',
-                        top: 5,
-                        left: 5,
-                        backgroundColor:
-                          theme === 'dark'
-                            ? 'rgba(255, 255, 255, 0.5)'
-                            : 'rgba(0, 0, 0, 0.5)',
-                        padding: 5,
-                        borderRadius: 50,
-                        borderColor: color.background,
-                      }}>
-                      <Image
-                        source={require('../../../../assets/icon/clapperboard.png')}
-                        style={{
-                          width: 18,
-                          height: 18,
-                          resizeMode: 'contain',
-                          tintColor: color.background,
-                        }}
-                      />
-                    </View>
-                  </View>
-                ) : (
-                  <View>
-                    <Image
-                      source={{
-                        uri: item.media[0].imageUrl,
-                      }}
-                      style={{
-                        width: mediasWidth,
-                        height: mediasHeight,
-                        marginRight: (index + 1) % 3 == 0 ? 0 : 2,
-                      }}
-                    />
-                    {item.media.length > 1 && (
-                      <Image
-                        source={require('../../../../assets/icon/gallery.png')}
-                        style={{
-                          width: 20,
-                          height: 20,
-                          tintColor: color.background,
-                          position: 'absolute',
-                          right: 12,
-                          top: 10,
-                        }}
-                      />
-                    )}
-                  </View>
-                )}
-              </TouchableOpacity>
-            );
-          }}
-          estimatedItemSize={200}
+          renderItem={renderMediaItem}
+          estimatedItemSize={mediasHeight + 2}
           onViewableItemsChanged={onViewableItemsChanged}
           viewabilityConfig={viewabilityConfig}
-          extraData={[currentVisibleIndex, isFocusedPage]}
+          extraData={extra}
+          removeClippedSubviews
+          keyExtractor={(item, idx) => item._id || `search-${idx}`}
+          getItemType={() => 'media-item'} // Add item type for better performance
         />
       ) : (
-        <View
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: 20,
-          }}>
-          <Text
-            style={{
-              fontSize: 18,
-              fontWeight: '500',
-              color: color.textSecondary,
-            }}>
+        <View style={styles.center}>
+          <Text style={[styles.loadingText, { color: color.textSecondary }]}>
             Không có kết quả phù hợp.
           </Text>
         </View>
@@ -195,4 +182,12 @@ const SearchForYou = (props: any) => {
   );
 };
 
-export default SearchForYou;
+export default React.memo(SearchForYou);
+
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
+  loadingText: { fontSize: 18, fontWeight: '500' },
+  itemContainer: { marginBottom: 2 },
+  media: { width: mediasWidth, height: mediasHeight, marginRight: 2, backgroundColor: Colors.black, },
+});

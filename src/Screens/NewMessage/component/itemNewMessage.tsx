@@ -4,7 +4,8 @@ import {useTheme} from '../../../util/ThemeContext';
 import {useNavigation} from '@react-navigation/native';
 
 const ItemNewMessage = (props: any) => {
-  const {roomId, nameChat, userHandle1, userHandle2, img1, img2} = props;
+  const {roomId, roomTheme, nameChat, userHandle1, userHandle2, img1, img2} =
+    props;
   const {theme} = useTheme();
   const color = Colors[theme];
   const navigation: any = useNavigation();
@@ -15,9 +16,6 @@ const ItemNewMessage = (props: any) => {
       onPress={() => {
         navigation.navigate('MessageScreen', {
           room: roomId,
-          img1: img1,
-          img2: img2,
-          nameChat: nameChat,
         });
       }}>
       <View style={styles.rowContainer}>
@@ -55,7 +53,7 @@ const ItemNewMessage = (props: any) => {
       </View>
       <View style={styles.blockIcon}>
         <Image
-          style={styles.img}
+          style={[styles.img, {tintColor: color.text}]}
           source={require('../../../../assets/icon/rightArrow.png')}
         />
       </View>

@@ -42,10 +42,6 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
 
       <View
         style={[styles.row, {alignItems: isMe ? 'flex-end' : 'flex-start'}]}>
-        {!isMe && showAvatar && (
-          <Text style={styles.name}>{item.sender.handleName}</Text>
-        )}
-
         <TouchableOpacity activeOpacity={0.7}>
           <View
             style={[
@@ -55,20 +51,30 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
                 marginRight: isMe ? 0 : 40,
                 backgroundColor: item.media
                   ? 'transparent'
-                  : isMe
+                  : !isMe
+                  ? color.backgroundSecondary
+                  : !linkPreviews[index] && !item.media
                   ? '#00BFFF'
-                  : '#A9A9A9',
+                  : color.backgroundSecondary,
                 padding: item.media ? 0 : 10,
               },
             ]}>
-            {item.media ? (
+            {item.media != '' ? (
               <TouchableOpacity
                 onPress={() => setSelectedImageUri(item.media ?? null)}>
-                <Image
-                  source={{uri: item.media}}
-                  style={{width: 150, height: 150, borderRadius: 8}}
-                  resizeMode="cover"
-                />
+                <View
+                  style={{
+                    width: 150,
+                    height: 200,
+                    borderRadius: 10,
+                    overflow: 'hidden',
+                  }}>
+                  <Image
+                    source={{uri: item.media}}
+                    style={{width: '100%', height: '100%'}}
+                    resizeMode="cover"
+                  />
+                </View>
               </TouchableOpacity>
             ) : (
               <>
@@ -76,7 +82,12 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
                   .split(/(\s+)/)
                   .filter(part => !/^https?:\/\/\S+$/i.test(part))
                   .join('') !== '' && (
-                  <Text style={{color: color.text}}>
+                  <Text
+                    style={{
+                      color: color.text,
+                      textAlign: linkPreviews[index] && 'right',
+                      fontSize: 14,
+                    }}>
                     {item.content
                       .split(/(\s+)/)
                       .filter(part => !/^https?:\/\/\S+$/i.test(part))
@@ -88,9 +99,8 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
                     onPress={() => Linking.openURL(linkPreviews[index].url)}
                     style={{
                       borderRadius: 8,
-                      backgroundColor: '#f0f0f0',
+                      backgroundColor: color.backgroundSecondary,
                       marginTop: 5,
-                      padding: 8,
                       maxWidth: 200,
                     }}>
                     {linkPreviews[index].images?.length > 0 && (
@@ -98,7 +108,7 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
                         source={{uri: linkPreviews[index].images[0]}}
                         style={{
                           width: '100%',
-                          height: 120,
+                          height: 140,
                           borderRadius: 6,
                           marginBottom: 6,
                         }}
@@ -106,7 +116,12 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
                       />
                     )}
                     <Text
-                      style={{fontWeight: 'bold', color: 'black'}}
+                      style={{
+                        fontWeight: 'bold',
+                        color: color.text,
+                        fontSize: 14,
+                        marginBottom: 4,
+                      }}
                       numberOfLines={2}
                       ellipsizeMode="tail">
                       {linkPreviews[index].title}

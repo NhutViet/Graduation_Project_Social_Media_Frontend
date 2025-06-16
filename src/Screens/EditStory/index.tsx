@@ -12,14 +12,21 @@ import {
   Modal,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from 'react-native';
 import Video from 'react-native-video';
 import Draggable from 'react-native-draggable';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
-import {Colors} from '../../../assets/color/Colors';
+import Sound from 'react-native-sound';
+import axios from 'axios';
+import {BASE_URL} from '../../../services/api';
+import {useUploadProgress} from '../../../services/UploadProgressManager';
+import {useSelector} from 'react-redux';
+import {RootState} from '../../../services/store';
+import {uploadImageToR2, uploadToCloudflare} from '../../core/upload';
 
 export const EditStory = ({route, navigation}: any) => {
-  const {selectedItem} = route.params;
+  const {selectedItem, selectedMusic, songUrl} = route.params;
   const [videoDuration, setVideoDuration] = useState<number | null>(null);
   const [videoCurrentTime, setVideoCurrentTime] = useState(0);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -28,6 +35,19 @@ export const EditStory = ({route, navigation}: any) => {
   const progressAnim = useRef(new Animated.Value(0)).current;
   const animationRef = useRef<Animated.CompositeAnimation | null>(null);
   const videoRef = useRef<any>(null);
+  const audioRef = useRef<Sound | null>(null); // ref cho âm thanh
+  //lấy tọa độ
+  const positionRef = useRef({x: 0, y: 0});
+  const [initialized, setInitialized] = useState(false);
+
+  // Sau khi render lần đầu, ngừng truyền x/y để tránh nhảy
+  useEffect(() => {
+    setInitialized(true);
+  }, []);
+
+  const {refreshToken} = useSelector((state: RootState) => state.user);
+
+  const {showUploadModal, hideUploadModal, setProgress} = useUploadProgress();
 
   const imageDuration = 10000; // 10 seconds for images
 
@@ -55,6 +75,11 @@ export const EditStory = ({route, navigation}: any) => {
       if (finished) {
         progressAnim.setValue(0); // Reset progress for loop
         startProgressAnimation(); // Restart animation
+        //nếu có nhạc thì chuyển audio vể timeStart
+        if (selectedMusic && audioRef.current) {
+          audioRef.current.setCurrentTime(selectedMusic.timeStart || 0);
+          audioRef.current.play();
+        }
       }
     });
   };
@@ -80,7 +105,41 @@ export const EditStory = ({route, navigation}: any) => {
     if (videoRef.current) {
       videoRef.current.seek(0); // Restart video
     }
+    if (selectedMusic && audioRef.current) {
+      audioRef.current.setCurrentTime(selectedMusic.timeStart || 0); // restart audio nếu có chọn
+      audioRef.current.play();
+    }
   };
+  //chạy audio nêys có selectedMusic
+  useEffect(() => {
+    if (selectedMusic && songUrl) {
+      const sound = new Sound(songUrl, undefined, error => {
+        if (error) {
+          console.log('Không thể tải âm thanh: ', error);
+          return;
+        }
+        audioRef.current = sound;
+        sound.setCurrentTime(selectedMusic.timeStart || 0);
+        sound.setVolume(1.0);
+        sound.play(success => {
+          if (success) {
+            //lặp lại audio
+            sound.setCurrentTime(selectedMusic.timeStart || 0);
+            sound.play();
+          } else {
+            console.log('Phát âm thanh thất bại.');
+          }
+        });
+      });
+    }
+
+    //clean audio khi component unmout
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.release();
+      }
+    };
+  }, [selectedMusic, songUrl]);
 
   useEffect(() => {
     setVideoDuration(null);
@@ -141,6 +200,65 @@ export const EditStory = ({route, navigation}: any) => {
     );
   };
 
+  const handleUploadStory = async () => {
+    try {
+      setProgress(0); // Reset tiến độ
+      //kiểm tra selectedItem
+      if (!selectedItem) {
+        console.error('Không có media để upload.');
+        return;
+      }
+
+      let mediaUrl = '';
+
+      //xử lý loại
+      try {
+        if (selectedItem?.type.includes('video')) {
+          const videoKey = await uploadToCloudflare(selectedItem.uri, {
+            showUploadModal,
+            hideUploadModal,
+            setProgress,
+          });
+          mediaUrl = `https://videodelivery.net/${videoKey}/manifest/video.m3u8`;
+        } else {
+          mediaUrl = await uploadImageToR2(selectedItem.uri, {
+            showUploadModal,
+            hideUploadModal,
+            setProgress,
+          });
+        }
+      } catch (error) {
+        Alert.alert(
+          'Upload thất bại',
+          `Không thể upload ${
+            selectedItem?.type.includes('video') ? 'video' : 'ảnh'
+          }: ${selectedItem.uri}`,
+        );
+        return;
+      }
+
+      const payload = {
+        mediaUrl,
+        musicId: selectedMusic?.musicId || '',
+      };
+
+      //api
+      const res = await axios.post(`${BASE_URL}/stories/create`, payload, {
+        headers: {
+          Authorization: `Bearer ${refreshToken}`,
+        },
+      });
+
+      console.log('Upload story thành công: ', res.data);
+
+      hideUploadModal();
+      navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
+    } catch (error) {
+      console.error('Lỗi khi upload story: ', error);
+      hideUploadModal();
+    }
+  };
+
   return (
     <GestureHandlerRootView style={styles.container}>
       <KeyboardAvoidingView
@@ -164,7 +282,7 @@ export const EditStory = ({route, navigation}: any) => {
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.btnCloser}
-                onPress={handleCloserPress}>
+                onPress={handleUploadStory}>
                 <Image
                   style={styles.iconCloser}
                   source={require('../../../assets/icon/rightArrow.png')}
@@ -203,7 +321,16 @@ export const EditStory = ({route, navigation}: any) => {
                   </Text>
                 )}
                 {caption && (
-                  <Draggable x={100} y={100}>
+                  <Draggable
+                    x={!initialized ? positionRef.current.x : undefined}
+                    y={!initialized ? positionRef.current.y : undefined}
+                    onDragRelease={(event, gestureState) => {
+                      positionRef.current.x += gestureState.dx;
+                      positionRef.current.y += gestureState.dy;
+                      console.log(
+                        `📍 New position: x=${positionRef.current.x}, y=${positionRef.current.y}`,
+                      );
+                    }}>
                     <View style={styles.textInputContainer}>
                       <Text style={styles.captionText}>{caption}</Text>
                     </View>
