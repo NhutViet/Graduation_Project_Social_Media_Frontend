@@ -35,6 +35,9 @@ const SearchResult: React.FC<SearchResultProps> = ({
   ]);
 
   const renderScene = ({route}: any) => {
+    if (index !== routes.findIndex(r => r.key === route.key)) {
+      return null;
+    }
     const isFirstTab = index === 0 && route.key === 'first';
     switch (route.key) {
       case 'first':
@@ -48,18 +51,25 @@ const SearchResult: React.FC<SearchResultProps> = ({
           />
         );
       case 'second':
-        return <SearchUser searchText={searchText} />;
+        return <SearchUser />;
       case 'three':
-        return <HashTag searchText={searchText} />;
+        return <HashTag />;
       default:
         return null;
     }
+  };
+
+  const renderLazyPlaceholder = () => {
+    return (
+      <View style={{ flex: 1, backgroundColor: color.background }} />
+    );
   };
 
   return (
     <TabView
       navigationState={{index, routes}}
       lazy
+      renderLazyPlaceholder={renderLazyPlaceholder}
       lazyPreloadDistance={0}  
       renderScene={renderScene}
       onIndexChange={setIndex}

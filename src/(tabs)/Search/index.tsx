@@ -7,6 +7,8 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  ActivityIndicator,
+  StyleSheet,
 } from 'react-native';
 import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import { FlashList } from '@shopify/flash-list';
@@ -26,6 +28,7 @@ import { Media } from '../../../services/postRedux/postTypes';
 import ExploreSection from './Components/ExploreTile';
 import { useDebounce } from 'use-debounce';
 import { fetchSearchPost, fetchSearchUser } from '../../../services/searchRedux/searchSlice';
+import { selectSearchLoading } from '../../../services/searchRedux/searchType';
 
 const SEARCH_HISTORY_KEY = 'search_history';
 
@@ -35,7 +38,8 @@ export const Search: React.FC = () => {
   // Redux state
   const postsData = useSelector((state: RootState) => state.post.posts);
   const { refreshToken } = useSelector((state: RootState) => state.user);
-  const { users, isLoading, isError } = useSelector((state: RootState) => state.search);
+  const { users, isError } = useSelector((state: RootState) => state.search);
+  const isLoading = useSelector(selectSearchLoading);
 
   const theme = useTheme();
   const color = Colors[theme.theme];
@@ -168,13 +172,15 @@ export const Search: React.FC = () => {
 
   // Animations
   useEffect(() => {
-    Animated.parallel([
+    const animation = Animated.parallel([
       Animated.timing(searchOpacity, { toValue: isFocused && !isShowResult ? 1 : 0, duration: 300, useNativeDriver: true }),
       Animated.timing(mediaOpacity, { toValue: isFocused || isShowResult ? 0 : 1, duration: 300, useNativeDriver: true }),
       Animated.timing(resultOpacity, { toValue: isShowResult ? 1 : 0, duration: 300, useNativeDriver: true }),
-    ]).start();
+    ]);
+    animation.start();
+    return () => animation.stop();
   }, [isFocused, isShowResult]);
-
+  
   // Reset on blur
   useEffect(() => {
     if (!isFocusedPage) {
@@ -246,6 +252,11 @@ export const Search: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+       {isShowResult && isLoading && (
+         <View style={styles.overlay} pointerEvents="auto">
+           <ActivityIndicator size="large" color={color.primary} />
+         </View>
+       )}
       <View style={styles.searchContainer}>
         {isShowResult && (
           <TouchableOpacity onPress={handleBack}>
