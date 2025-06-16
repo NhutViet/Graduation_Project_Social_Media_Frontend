@@ -17,7 +17,6 @@ import {
   PlusSquare,
   Menu,
   Grid,
-  UserSquare2,
   Lock,
   ChevronDown,
   Share2,
@@ -324,18 +323,6 @@ const Profile = () => {
           size={24}
         />
       </TouchableOpacity>
-      <TouchableOpacity
-        style={[
-          styles.tab,
-          activeTab === 'tagged' && styles.activeTab,
-          {borderBottomColor: color.text},
-        ]}
-        onPress={() => setActiveTab('tagged')}>
-        <UserSquare2
-          color={activeTab === 'tagged' ? color.text : color.textSecondary}
-          size={24}
-        />
-      </TouchableOpacity>
     </View>
   );
 
@@ -364,7 +351,7 @@ const Profile = () => {
             {renderTabBar()}
           </>
         }
-        estimatedItemSize={20}
+        estimatedItemSize={200}
         showsVerticalScrollIndicator={false}
         keyboardDismissMode="on-drag"
         numColumns={3}
