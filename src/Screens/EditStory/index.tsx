@@ -24,6 +24,7 @@ import {useUploadProgress} from '../../../services/UploadProgressManager';
 import {useSelector} from 'react-redux';
 import {RootState} from '../../../services/store';
 import {uploadImageToR2, uploadToCloudflare} from '../../core/upload';
+import axiosInstance from '../../../services/axiosInstance';
 
 export const EditStory = ({route, navigation}: any) => {
   const {selectedItem, selectedMusic, songUrl} = route.params;
@@ -237,27 +238,50 @@ export const EditStory = ({route, navigation}: any) => {
         return;
       }
 
-      const payload = {
-        mediaUrl,
-        music: selectedMusic?.musicId ? {
-          musicId: selectedMusic?.musicId,
-          time_start: selectedMusic.timeStart || 0,
-          time_end: selectedMusic.timeEnd || 30,
-        } :undefined,
-        content: caption ? {
-          text: caption,
-          x: positionRef.current.x,
-          y: positionRef.current.y,
-        }: undefined,
-        
-      };
+      const isValidMedia =
+        typeof mediaUrl === 'string' && mediaUrl.trim() !== '';
+
+      const isValidMusic =
+        selectedMusic?.musicId && typeof selectedMusic.musicId === 'string';
+
+      const isValidContent = caption !== undefined && caption !== null;
+
+      const payload: any = {};
+
+      if (!isValidMedia) {
+        throw new Error('mediaUrl là bắt buộc và không được để trống!');
+      }
+
+      payload.mediaUrl = mediaUrl;
+
+      if (isValidMusic) {
+        payload.music = {
+          _id: selectedMusic.musicId, // dạng ObjectId string
+          time_start: Number(selectedMusic.timeStart) || 0,
+          time_end: Number(selectedMusic.timeEnd) || 30,
+        };
+      }
+
+      if (isValidContent) {
+        payload.content = {
+          text: caption, // có thể là ''
+          x: Number(positionRef.current.x),
+          y: Number(positionRef.current.y),
+        };
+      }
+      console.log('payload: ', payload);
 
       //api
-      const res = await axios.post(`${BASE_URL}/stories/create`, payload, {
-        headers: {
-          Authorization: `Bearer ${refreshToken}`,
+      const res = await axiosInstance.post(
+        `${BASE_URL}/stories/create`,
+        payload,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${refreshToken}`,
+          },
         },
-      });
+      );
 
       console.log('Upload story thành công: ', res.data);
 
