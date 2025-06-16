@@ -1,4 +1,4 @@
-import React, { forwardRef, useState } from "react";
+import React, { forwardRef, useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Alert, Dimensions} from "react-native";
 import { Modalize } from "react-native-modalize";
 import { Colors } from '../../../../assets/color/Colors';
@@ -21,6 +21,10 @@ const optionModal = forwardRef<Modalize, OptionModalProps>(
         const color = Colors[theme];
         const dispatch = useDispatch<AppDispatch>();
         const [isBlock, setIsBlock] = useState(initialIsBlock);
+
+        useEffect(() => {
+            setIsBlock(initialIsBlock);
+        }, [initialIsBlock]);
         const handleBlock = async () => {
             if (isBlock) return;
 

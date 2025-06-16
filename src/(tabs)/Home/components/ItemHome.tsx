@@ -66,7 +66,9 @@ const ItemHome = (props: ItemHomeProps) => {
   }, [_id, isLike, isPostLiked, dispatch]);
 
   const handleUserPress = () => {
-    navigation.navigate('ProfileComp', {userID: user._id});
+    navigation.navigate('ProfileComp', {
+      userID: user._id,
+    });
   };
 
   const handleMediaScroll = (event: any) => {

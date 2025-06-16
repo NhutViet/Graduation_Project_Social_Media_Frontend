@@ -18,7 +18,7 @@ import {
   UserSquare2,
   Video,
 } from 'lucide-react-native';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {UserMock} from '../../MockData/user.mock';
@@ -116,16 +116,21 @@ const ProfileComp = ({route}: any) => {
 
   const [isBlock, setIsBlock] = useState(false);
 
-  useEffect(() => {
-    if (userID) {
-      // Clear previous profile data
+  const fetchProfileData = async () => {
+
+    // Clear previous profile data
       dispatch(clearPublicProfile());
+      
+    if (userID) {
 
       // Fetch new profile data
       Promise.all([
-        dispatch(getPublicProfile({userId: userID})),
-        dispatch(fetchFollowers({userID})),
-        dispatch(fetchFollowing({userID})),
+        await dispatch(getPublicProfile({userId: userID})).unwrap().then((profile) => {
+          setIsFollowing(profile.userFollowing),
+          setIsBlock(profile.userBlocked ?? false)
+        }),
+        await dispatch(fetchFollowers({userID})),
+        await dispatch(fetchFollowing({userID})),
       ]).catch(error => {
         console.error('Error fetching data:', error);
       });
@@ -135,16 +140,24 @@ const ProfileComp = ({route}: any) => {
     return () => {
       dispatch(clearPublicProfile());
     };
-  }, [dispatch, userID]);
+  };
 
-  // Update following state when public profile is loaded
-  useEffect(() => {
-    if (publicProfile) {
-      setIsFollowing(publicProfile.userFollowing);
-      setIsBlock(publicProfile.userBlocked);
-    }
-  }, [publicProfile]);
-
+   useFocusEffect(
+    useCallback(() => {
+      // Clear immediately when screen is focused
+      dispatch(clearPublicProfile());
+      
+      if (userID) {
+        // Start fetching data
+        fetchProfileData();
+      }
+      
+      return () => {
+        // Cleanup when leaving screen
+        dispatch(clearPublicProfile());
+      };
+    }, [userID])
+  )
   const renderPrivateContent = () => {
     return (
       <View style={styles.privateContainer}>
@@ -202,9 +215,17 @@ const ProfileComp = ({route}: any) => {
   };
 
   // Show loading indicator while fetching profile
-  if (isLoadingPublicProfile) {
+  if (isLoadingPublicProfile || !publicProfile) {
       return (
         <SafeAreaView style={styles.container}>
+          <View style={styles.Header}>
+            <TouchableOpacity
+              style={{alignItems: 'center', paddingRight: 12}}
+              onPress={() => navigation.goBack()}>
+              <ChevronLeft size={28} color={Colors[theme].text} />
+            </TouchableOpacity>
+            <Text style={styles.headTitle}>Đang tải...</Text>
+          </View>
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={Colors[theme].text} />
           </View>
@@ -238,7 +259,9 @@ const ProfileComp = ({route}: any) => {
             </Text>
             <TouchableOpacity
               style={styles.retryButton}
-              onPress={() => dispatch(getPublicProfile({userId: userID}))}>
+              onPress={() =>{
+                dispatch(clearPublicProfile());
+                dispatch(getPublicProfile({userId: userID}))}}>
               <Text style={styles.retryButtonText}>Thử lại</Text>
           </TouchableOpacity>
         </View>
