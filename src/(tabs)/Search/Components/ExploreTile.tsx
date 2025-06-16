@@ -1,4 +1,4 @@
-import {Dimensions, Image, TouchableOpacity, View} from 'react-native';
+import {Dimensions, Image, StyleSheet, TouchableOpacity, View} from 'react-native';
 import React, {useMemo, useCallback} from 'react';
 import Video from 'react-native-video';
 import {Media} from '../../../../services/postRedux/postTypes';
@@ -45,16 +45,10 @@ const ExploreSection: React.FC<ExploreSectionProps> = ({
 
   const renderBigMedia = useMemo(() => {
     if (!bigMedia) return null;
-    return (
-      <TouchableOpacity
-        onPress={handleBigMediaPress}
-        style={{
-          width: SMALL,
-          height: BIG,
-          borderRadius: 4,
-          position: 'relative', // ensure overflow works
-          overflow: 'hidden',
-        }}>
+     return (
+       <TouchableOpacity
+         onPress={handleBigMediaPress}
+         style={styles.bigMedia}>
         {bigMedia.videoUrl ? (
           <Video
             source={{uri: bigMedia.videoUrl}}
@@ -78,7 +72,7 @@ const ExploreSection: React.FC<ExploreSectionProps> = ({
 
   const renderSmallMedias = useMemo(() => {
     if (!smallMedias || smallMedias.length === 0) {
-      return <View style={{width: SMALL * 2 + GAP}} />;
+      return <View style={{width: BIG}} />;
     }
     return (
       <View
@@ -92,16 +86,15 @@ const ExploreSection: React.FC<ExploreSectionProps> = ({
           return (
             <TouchableOpacity
               key={item._id}
-              onPress={() => handleSmallMediaPress(item._id)}
-              style={{
-                width: SMALL,
-                height: SMALL,
-                marginRight: isRightCol ? 0 : GAP,
-                marginBottom: GAP,
-                borderRadius: 4,
-                position: 'relative', // ensure clipping
-                overflow: 'hidden',    // clip video/image
-              }}>
+               onPress={() => handleSmallMediaPress(item._id)}
+               style={[
+                 styles.smallMedia,
+                 {
+                   marginRight: isRightCol ? 0 : GAP,
+                   marginBottom: GAP,
+                 },
+               ]}
+             >
               {item.videoUrl ? (
                 <Video
                   source={{uri: item.videoUrl}}
@@ -128,16 +121,13 @@ const ExploreSection: React.FC<ExploreSectionProps> = ({
 
   return (
     <View
-      style={{
-        flexDirection: isReversed ? 'row-reverse' : 'row',
-        marginBottom: GAP,
-        paddingHorizontal: 1,
-      }}>
+       style={[
+         styles.row,
+         isReversed ? styles.rowReverse : {},
+         { marginBottom: GAP, paddingHorizontal: 1 },
+       ]}>
       <View
-        style={{
-          marginRight: !isReversed ? GAP : 0,
-          marginLeft: isReversed ? GAP : 0,
-        }}>
+        style={isReversed ? styles.marginLeft : styles.marginRight}>
         {renderBigMedia}
       </View>
 
@@ -166,4 +156,31 @@ export default React.memo(ExploreSection, (prev, next) => {
     }
   }
   return true;
+});
+const styles = StyleSheet.create({
+  row: { flexDirection: 'row' },
+  rowReverse: { flexDirection: 'row-reverse' },
+  marginRight: { marginRight: GAP },
+  marginLeft: { marginLeft: GAP },
+  bigMedia: {
+    width: SMALL,
+    height: BIG,
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  smallContainer: {
+    width: BIG,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  smallMedia: {
+    width: SMALL,
+    height: SMALL,
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  media: {
+    width: '100%',
+    height: '100%',
+  },
 });
