@@ -310,7 +310,17 @@ export const EditStory = ({route, navigation}: any) => {
 
       const payload = {
         mediaUrl,
-        musicId: selectedMusic?.musicId || '',
+        music: selectedMusic?.musicId ? {
+          musicId: selectedMusic?.musicId,
+          time_start: selectedMusic.timeStart || 0,
+          time_end: selectedMusic.timeEnd || 30,
+        } :undefined,
+        content: caption ? {
+          text: caption,
+          x: positionRef.current.x,
+          y: positionRef.current.y,
+        }: undefined,
+        
       };
 
       //api
