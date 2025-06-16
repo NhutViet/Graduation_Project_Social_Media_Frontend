@@ -175,28 +175,15 @@ const ProfileComp = ({route}: any) => {
     if (isLoadingPublicProfile) {
       return (
         <SafeAreaView style={styles.container}>
-          <View style={styles.Header}>
-            <TouchableOpacity
-              style={{alignItems: 'center', paddingRight: 12}}
-              onPress={() => navigation.goBack()}>
-              <ChevronLeft size={28} color={Colors[theme].text} />
-            </TouchableOpacity>
-            <Text style={styles.headTitle}>Profile</Text>
-            <View style={styles.SectionRight}>
-              <TouchableOpacity>
-                <Ellipsis size={24} color={Colors[theme].text} />
-              </TouchableOpacity>
-            </View>
-          </View>
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={Colors.primary} />
+            <ActivityIndicator size="large" color={Colors[theme].text} />
           </View>
         </SafeAreaView>
       );
     }
 
     // Show error message if failed to load profile
-    if (isErrorPublicProfile) {
+    if (isErrorPublicProfile || !publicProfile) {
       return (
         <SafeAreaView style={styles.container}>
           <View style={styles.Header}>
@@ -205,7 +192,7 @@ const ProfileComp = ({route}: any) => {
               onPress={() => navigation.goBack()}>
               <ChevronLeft size={28} color={Colors[theme].text} />
             </TouchableOpacity>
-            <Text style={styles.headTitle}>Profile</Text>
+            <Text style={styles.headTitle}>Lỗi</Text>
             <View style={styles.SectionRight}>
               <TouchableOpacity>
                 <Ellipsis size={24} color={Colors[theme].text} />
@@ -213,8 +200,12 @@ const ProfileComp = ({route}: any) => {
             </View>
           </View>
           <View style={styles.errorContainer}>
-            <Text style={styles.errorText}>{errorMessagePublicProfile}</Text>
-            <TouchableOpacity 
+            <Text style={styles.errorText}>
+              {isErrorPublicProfile
+                ? errorMessagePublicProfile
+                : 'Không tìm thấy dữ liệu người dùng.'}
+            </Text>
+            <TouchableOpacity
               style={styles.retryButton}
               onPress={() => dispatch(getPublicProfile({userId: userID}))}>
               <Text style={styles.retryButtonText}>Thử lại</Text>
@@ -223,14 +214,6 @@ const ProfileComp = ({route}: any) => {
         </SafeAreaView>
       );
     }
-
-  // Use public profile data if available, otherwise fall back to mock data
-  const profileData = publicProfile || {
-    handleName: UserMock.handleName,
-    username: UserMock.name,
-    bio: UserMock.bio,
-    profilePic: UserMock.avatar,
-  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -241,7 +224,7 @@ const ProfileComp = ({route}: any) => {
             onPress={() => navigation.goBack()}>
             <ChevronLeft size={28} color={Colors[theme].text} />
           </TouchableOpacity>
-          <Text style={styles.headTitle}>{profileData.handleName}</Text>
+          <Text style={styles.headTitle}>{publicProfile.handleName}</Text>
           <View style={styles.SectionRight}>
             <TouchableOpacity onPress={openOptionModal}>
               <Ellipsis size={24} color={Colors[theme].text} />
@@ -251,12 +234,12 @@ const ProfileComp = ({route}: any) => {
         {/* Header Info */}
         <View>
           <UserInfo
-            name={profileData.username}
+            name={publicProfile.username}
             followers={followers.length}
             following={following.length}
             posts={UserMock.posts}
-            avatar={profileData.profilePic}
-            bio={profileData.bio}
+            avatar={publicProfile.profilePic}
+            bio={publicProfile.bio}
             theme={theme}
           />
         </View>
@@ -511,6 +494,7 @@ export const createStyles = (theme: 'light' | 'dark') => {
       padding: 4,
     },
     loadingContainer: {
+      backgroundColor: color.background,
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',

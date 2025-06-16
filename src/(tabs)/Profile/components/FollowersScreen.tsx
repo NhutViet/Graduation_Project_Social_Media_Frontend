@@ -8,6 +8,8 @@ import FollowingTab from './FollowingTab';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {Colors} from '../../../../assets/color/Colors';
 import {useTheme} from '../../../util/ThemeContext';
+import {useDispatch, useSelector} from 'react-redux';
+import { RootState } from '../../../../services/store';
 
 const TopTab = createMaterialTopTabNavigator();
 
@@ -15,11 +17,14 @@ const FollowersScreen = () => {
   const navigation: any = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];
+  const username = useSelector((state: RootState) => {
+    state.user.user?.username
+  })
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
       <View style={{width: '100%', height: 60}}>
         <Header
-          title="username..."
+          title= {username}
           iconBack={require('../../../../assets/icon/left.png')}
           func={() => navigation.goBack()}
           navigation={navigation}
