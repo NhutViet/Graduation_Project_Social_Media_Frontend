@@ -27,7 +27,7 @@ import { AppDispatch } from '../../../services/store';
 import { Media } from '../../../services/postRedux/postTypes';
 import ExploreSection from './Components/ExploreTile';
 import { useDebounce } from 'use-debounce';
-import { fetchSearchPost, fetchSearchUser } from '../../../services/searchRedux/searchSlice';
+import { fetchSearchPost, fetchSearchUser, clearSearchResults } from '../../../services/searchRedux/searchSlice';
 import { selectSearchLoading } from '../../../services/searchRedux/searchType';
 
 const SEARCH_HISTORY_KEY = 'search_history';
@@ -70,6 +70,60 @@ export const Search: React.FC = () => {
 
   // Debounced input
   const [debouncedSearchText] = useDebounce(searchText, 500);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  const cleanup = useCallback(() => {
+    // Cancel ongoing requests
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    
+    // Clear search state
+    dispatch(clearSearchResults());
+    
+    // Reset local state
+    setSearchText('');
+    setIsShowResult(false);
+    setIsFocused(false);
+  }, [dispatch]);
+
+  // Enhanced search effect with cleanup
+  useEffect(() => {
+    const keyword = debouncedSearchText.trim();
+    
+    if (keyword && keyword !== lastSearch.current) {
+      // Cancel previous request
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      
+      // Create new abort controller
+      abortControllerRef.current = new AbortController();
+      
+      lastSearch.current = keyword;
+      
+      dispatch(fetchSearchUser({ refreshToken, keyword, mode: 'username' }));
+      dispatch(fetchSearchPost({ refreshToken, keyword }));
+    }
+    
+    if (!keyword) {
+      lastSearch.current = '';
+      dispatch(clearSearchResults());
+    }
+  }, [debouncedSearchText, dispatch, refreshToken]);
+
+  // Cleanup on unmount and page blur
+  useEffect(() => {
+    if (!isFocusedPage) {
+      cleanup();
+    }
+  }, [isFocusedPage, cleanup]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return cleanup;
+  }, [cleanup]);
 
   // Fetch posts once
   useEffect(() => {

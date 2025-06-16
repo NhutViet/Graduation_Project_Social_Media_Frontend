@@ -10,7 +10,6 @@ import {
 import axiosInstance from "../axiosInstance";
 import { API } from "../api";
 
-// Add initial state
 const initialState: SearchState = {
   posts: undefined,
   users: undefined,
@@ -24,16 +23,20 @@ export const fetchSearchPost = createAsyncThunk<
   ReqSearch,
   { rejectValue: { message: string } }
 >(
-  'posts/search',
-  async ({ refreshToken, keyword }, { rejectWithValue }) => {
+  'search/fetchPosts',
+  async ({ refreshToken, keyword }, { rejectWithValue, signal }) => {
     try {
       const res = await axiosInstance.post(API.POST_SEARCH_POST, { keyword }, {
         headers: {
           Authorization: `Bearer ${refreshToken}`,
-        }
+        },
+        signal // Add abort signal for cleanup
       });
       return res.data;
     } catch (error: any) {
+      if (error.name === 'AbortError') {
+        return rejectWithValue({ message: 'Search cancelled' });
+      }
       return rejectWithValue({ message: error?.response?.data?.message || 'Tìm kiếm thất bại.' })
     }
   },
@@ -44,18 +47,22 @@ export const fetchSearchUser = createAsyncThunk<
   ReqSearchUser,
   { rejectValue: { message: string } }
 >(
-  'users/search',
-  async ({ refreshToken, keyword, mode }, { rejectWithValue }) => {
+  'search/fetchUsers',
+  async ({ refreshToken, keyword, mode }, { rejectWithValue, signal }) => {
     try {
       const res = await axiosInstance.post(API.POST_SEARCH_USER, {
         keyword, mode
       }, {
         headers: {
           Authorization: `Bearer ${refreshToken}`,
-        }
+        },
+        signal // Add abort signal for cleanup
       });
       return res.data;
     } catch (error: any) {
+      if (error.name === 'AbortError') {
+        return rejectWithValue({ message: 'Search cancelled' });
+      }
       return rejectWithValue({ message: error?.response?.data?.message || 'Tìm kiếm thất bại.' })
     }
   },
@@ -64,10 +71,21 @@ export const fetchSearchUser = createAsyncThunk<
 const searchSlice = createSlice({
   name: 'search',
   initialState,
-  reducers: {},
+  reducers: {
+    // ADD CLEANUP ACTIONS
+    clearSearchResults: (state) => {
+      state.posts = undefined;
+      state.users = undefined;
+      state.isError = false;
+      state.errorMessage = undefined;
+    },
+    resetSearchState: () => initialState,
+    cancelSearch: (state) => {
+      state.isLoading = false;
+    }
+  },
   extraReducers: (builder) => {
     builder
-      // Fetch Posts
       .addCase(fetchSearchPost.pending, (state) => {
         state.isLoading = true;
         state.isError = false;
@@ -79,10 +97,11 @@ const searchSlice = createSlice({
       })
       .addCase(fetchSearchPost.rejected, (state, action) => {
         state.isLoading = false;
-        state.isError = true;
-        state.errorMessage = action.payload?.message;
+        if (action.payload?.message !== 'Search cancelled') {
+          state.isError = true;
+          state.errorMessage = action.payload?.message;
+        }
       })
-      // Fetch Users
       .addCase(fetchSearchUser.pending, (state) => {
         state.isLoading = true;
         state.isError = false;
@@ -94,17 +113,13 @@ const searchSlice = createSlice({
       })
       .addCase(fetchSearchUser.rejected, (state, action) => {
         state.isLoading = false;
-        state.isError = true;
-        state.errorMessage = action.payload?.message;
+        if (action.payload?.message !== 'Search cancelled') {
+          state.isError = true;
+          state.errorMessage = action.payload?.message;
+        }
       });
   }
 });
 
+export const { clearSearchResults, resetSearchState, cancelSearch } = searchSlice.actions;
 export default searchSlice.reducer;
-
-// Type-safe selector with RootState
-export const selectSearchLoading = (state: RootState) => state.search.isLoading;
-export const selectSearchError = (state: RootState) => ({
-  isError: state.search.isError,
-  message: state.search.errorMessage
-});
