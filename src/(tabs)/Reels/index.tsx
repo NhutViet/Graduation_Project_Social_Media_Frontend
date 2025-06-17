@@ -14,7 +14,14 @@ import {
   useIsFocused,
   useNavigation,
 } from '@react-navigation/native';
-import {useCallback, useEffect, useRef, useState} from 'react';
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react';
 import {FlashList} from '@shopify/flash-list';
 import {Dimensions} from 'react-native';
 import {Colors} from '../../../assets/color/Colors';
@@ -33,7 +40,7 @@ import BottomSheetComment, {
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
 
-const Reels = () => {
+const Reels = forwardRef((props, ref) => {
   const isFocused = useIsFocused();
   const navigation: any = useNavigation();
   const {theme, toggleTheme} = useTheme();
@@ -53,6 +60,12 @@ const Reels = () => {
       }
     }
   });
+
+  useImperativeHandle(ref, () => ({
+    reload: () => {
+      dispatch(fetchReelsWithMedia());
+    },
+  }));
 
   // fetch api
   const dispatch = useDispatch<AppDispatch>();
@@ -132,7 +145,7 @@ const Reels = () => {
       <BottomSheetComment ref={sheetRefComment} postId={selectedPostId} />
     </SafeAreaView>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {

@@ -1,4 +1,11 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react';
 import {SafeAreaView, View, ActivityIndicator, ScrollView} from 'react-native';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
@@ -30,7 +37,7 @@ import {handleUserPress} from './util';
 const HEADER_HEIGHT = 100;
 const AnimatedFlatList = Animated.createAnimatedComponent(Animated.FlatList);
 
-export const Home = () => {
+export const Home = forwardRef(({onReload}: any, ref) => {
   const navigation: any = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];
@@ -49,9 +56,17 @@ export const Home = () => {
   const user = useSelector((state: RootState) => state.user.user);
 
 
-  useEffect(() => {
+  const reloadAllData = useCallback(() => {
     dispatch(fetchPostsWithMedia());
     dispatch(fetchFollowingStories({page: 1}));
+  }, []);
+
+  useImperativeHandle(ref, () => ({
+    reload: reloadAllData,
+  }));
+
+  useEffect(() => {
+    reloadAllData();
   }, []);
 
   const onViewRef = useCallback(({viewableItems}: {viewableItems: any[]}) => {
@@ -182,6 +197,6 @@ export const Home = () => {
       <BottomSheetComment ref={sheetRef} postId={selectedPostId} />
     </SafeAreaView>
   );
-};
+});
 
 export default Home;
