@@ -3,7 +3,6 @@ import {
   FlatList,
   Image,
   ImageBackground,
-  InteractionManager,
   Modal,
   SafeAreaView,
   Text,
@@ -19,7 +18,6 @@ import MessageStyles from '../../StyleSheet/MessageStyles';
 import {io, Socket} from 'socket.io-client';
 import {RootStackParamList} from '../../Navigation/AppNavigation';
 import LinkPreview from 'react-native-link-preview';
-import ModalTheme from './components/ModalTheme';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../services/store';
 import MessageItemComponent from './components/MessageItemComponent';
@@ -29,6 +27,7 @@ import {launchImageLibrary} from 'react-native-image-picker';
 import {uploadImageToR2} from '../../core/upload';
 import {useUploadProgress} from '../../../services/UploadProgressManager';
 import {clearMessages} from '../../../services/messageRedux/messageReducer';
+import {BASE_URL} from '../../../services/api';
 
 export const MessageScreen = () => {
   const navigation: any = useNavigation();
@@ -52,13 +51,9 @@ export const MessageScreen = () => {
   const filteredUsers = room?.user_ids.filter(
     user => user._id !== room.created_by,
   );
-
   const user1 = filteredUsers ? filteredUsers[0] : undefined;
   const user2 = filteredUsers ? filteredUsers[1] : undefined;
 
-  const [selectedMessageIndex, setSelectedMessageIndex] = useState<
-    number | null
-  >(null);
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
   const [linkPreviews, setLinkPreviews] = useState<{[key: number]: any}>({});
   const [socket, setSocket] = useState<Socket | null>(null);
@@ -78,7 +73,7 @@ export const MessageScreen = () => {
   useEffect(() => {
     if (!user.user?._id || !room) return;
 
-    const newSocket = io('http://cirla.io.vn', {
+    const newSocket = io(BASE_URL, {
       transports: ['websocket'],
       query: {
         userId: user.user._id,
@@ -120,7 +115,7 @@ export const MessageScreen = () => {
   const sendMessage = () => {
     if (message.trim() && socket) {
       socket.emit('sendMessage', {
-        roomId: room,
+        roomId: room?._id,
         content: message,
         senderId: user.user?._id,
       });
@@ -147,9 +142,12 @@ export const MessageScreen = () => {
           });
 
           socket.emit('sendMessage', {
-            roomId: room,
+            roomId: room?._id,
             senderId: user.user?._id,
-            media: imageUrl,
+            media: {
+              type: 'image',
+              url: imageUrl,
+            },
           });
         } catch (err) {
           console.error('❌ Upload/send image error:', err);
@@ -163,15 +161,12 @@ export const MessageScreen = () => {
       socket.disconnect();
       setSocket(null);
     }
-
     setChat([]);
     setMessage('');
     setSelectedImageUri(null);
-    setSelectedMessageIndex(null);
     setLinkPreviews({});
 
     dispatch(clearMessages());
-
     navigation.goBack();
   };
 
@@ -180,6 +175,15 @@ export const MessageScreen = () => {
       flatListRef.current?.scrollToEnd({animated: true});
     }
   }, [chat]);
+
+  const handleCall = (type: 'video' | 'voice') => {
+    navigation.navigate('ZegoCallScreen', {
+      userID: user.user?._id,
+      userName: user.user?.username,
+      callID: roomId,
+      isVideoCall: type === 'video',
+    });
+  };
 
   const renderItem = ({item, index}: {item: Message; index: number}) => (
     <MessageItemComponent
@@ -309,9 +313,7 @@ export const MessageScreen = () => {
             <View style={styles.rowContainer}>
               <TouchableOpacity
                 style={styles.blockIcon}
-                onPress={() => {
-                  console.log('Video camera button pressed');
-                }}>
+                onPress={() => handleCall('video')}>
                 <Image
                   style={styles.icon}
                   source={require('../../../assets/icon/videoCamera.png')}
