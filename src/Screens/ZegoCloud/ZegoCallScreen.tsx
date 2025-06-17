@@ -1,42 +1,64 @@
 import React from 'react';
+import {StyleSheet, View, Image} from 'react-native';
 import {ZegoUIKitPrebuiltCall} from '@zegocloud/zego-uikit-prebuilt-call-rn';
 import {CallAppID, CallAppSign} from '../../../services/api';
 import {useNavigation} from '@react-navigation/native';
 
-const ZegoCallScreen = ({route}: any) => {
-  const {userID, userName, callID, isVideoCall} = route.params;
+export default function ZegoCallScreen({route}: any) {
+  const {userID, userName, callID} = route.params;
   const navigation = useNavigation();
 
   return (
-    <ZegoUIKitPrebuiltCall
-      appID={CallAppID}
-      appSign={CallAppSign}
-      userID={userID}
-      userName={userName}
-      callID={callID}
-      config={{
-        turnOnCameraWhenJoining: isVideoCall,
-        turnOnMicrophoneWhenJoining: true,
-        useSpeakerWhenJoining: true,
-        layout: 'GROUP',
-        showCameraToggleButton: isVideoCall,
-        showMicrophoneToggleButton: true,
-        showAudioOutputButton: true,
-        showEndCallButton: true,
-        onHangUp: () => {
-          navigation.goBack();
-        },
-        onOnlySelfInRoom: () => {
-          setTimeout(() => {
+    <View style={styles.container}>
+      <ZegoUIKitPrebuiltCall
+        appID={CallAppID}
+        appSign={CallAppSign}
+        userID={userID}
+        userName={userName}
+        callID={callID}
+        config={{
+          turnOnCameraWhenJoining: true,
+          turnOnMicrophoneWhenJoining: true,
+          useSpeakerWhenJoining: true,
+          layout: 'GROUP',
+          showCameraToggleButton: true,
+          showMicrophoneToggleButton: true,
+          showAudioOutputButton: true,
+          showEndCallButton: true,
+          onCallEnd: () => {
             navigation.goBack();
-          }, 10000);
-        },
-        scenario: {
-          mode: isVideoCall ? 'VIDEO_CALL' : 'VOICE_CALL',
-        },
-      }}
-    />
+          },
+          timingConfig: {
+            isDurationVisible: true,
+            onDurationUpdate: (duration: number) => {
+              if (duration === 10 * 60) {
+                ZegoUIKitPrebuiltCall.hangUp();
+              }
+            },
+          },
+          avatarBuilder: ({userInfo}: {userInfo: {userID: string}}) => (
+            <View style={{width: '100%', height: '100%'}}>
+              <Image
+                style={{width: '100%', height: '100%'}}
+                resizeMode="cover"
+                source={{uri: `https://robohash.org/${userInfo.userID}.png`}}
+              />
+            </View>
+          ),
+          scenario: {
+            mode: 'VIDEO_CALL',
+          },
+        }}
+      />
+    </View>
   );
-};
+}
 
-export default ZegoCallScreen;
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 0,
+  },
+});
