@@ -123,8 +123,8 @@ const Profile = () => {
     if (userID) {
       // gọi 2 api followers, following
       Promise.all([
-        dispatch(fetchFollowers({userID})),
-        dispatch(fetchFollowing({userID})),
+        dispatch(fetchFollowers({userId: userID})),
+        dispatch(fetchFollowing({userId: userID})),
       ]).catch(error => {
         console.error('Error fetching relations:', error);
       });
@@ -225,7 +225,7 @@ const Profile = () => {
               onPress={() => navigation.navigate('FollowersScreen')}>
               <View style={styles.statItem}>
                 <Text style={[styles.statNumber, {color: color.text}]}>
-                  {followers.length}
+                  {(followers?.length) ? followers?.length : 0}
                 </Text>
                 <Text style={[styles.statLabel, {color: color.text}]}>
                   người theo dõi
@@ -235,7 +235,7 @@ const Profile = () => {
             <TouchableOpacity>
               <View style={styles.statItem}>
                 <Text style={[styles.statNumber, {color: color.text}]}>
-                  {following.length}
+                  {(following?.length) ? following?.length : 0}
                 </Text>
                 <Text style={[styles.statLabel, {color: color.text}]}>
                   đang theo dõi

@@ -5,11 +5,17 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
+  Alert
 } from 'react-native';
 import {FlashList} from '@shopify/flash-list';
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {Colors} from '../../../../assets/color/Colors';
 import {useTheme} from '../../../util/ThemeContext';
+import {useNavigation} from '@react-navigation/native';
+import {useDispatch, useSelector} from 'react-redux';
+import { AppDispatch, RootState } from '../../../../services/store';
+import { fetchFollowing, relationAction } from '../../../../services/relationRedux/relationSlice';
+import {createRoom} from '../../../../services/roomRedux/roomSlice';
 
 const categoriesData = [
   {
@@ -60,8 +66,75 @@ const suggestedData = [
 ];
 
 const FollowingTab = () => {
+  const navigation: any = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];
+  const userID = useSelector((state: RootState) => state.user?.user?._id);
+  const dispatch = useDispatch<AppDispatch>();
+  const {following: reduxFollowing} = useSelector(
+    (state: RootState) => state.relation,
+  );
+  
+  const [following, setFollowing] = useState(reduxFollowing);
+  const [suggestedFollow, setSuggestedFollow] = useState("");
+
+  useEffect(() => {
+      if (userID) {
+        dispatch(fetchFollowing({userId: userID}))
+          .unwrap()
+          .then((data) => {
+            setFollowing(data);
+          })
+          .catch((err) => {
+            console.error('Error fetching following:', err);
+          });
+      }
+    }, [dispatch, userID]);
+  
+  const handleMessagingPress = async (item: typeof following[0]) => {
+    try {
+      const res = await dispatch(
+        createRoom({
+          name: '',
+          user_ids: [item.id],
+          type: 'waiting',
+        }),
+      ).unwrap();
+          
+      const {room} = res;
+          
+      const otherUsers = room.user_ids.filter(user => user._id !== userID);
+      const img1 = otherUsers[0]?.profilePic;
+      const img2 = userID
+        ? room.user_ids.find(user => user._id === userID)?.profilePic
+        : undefined;
+          
+      navigation.navigate('MessageScreen', {
+        room: room._id,
+        img1,
+        img2,
+      });
+    } catch (error) {
+      console.log('Tạo room thất bại:', error);
+    }
+  }
+
+  const handleFollowPress = async (item: typeof following[0]) => {
+    try{
+      await dispatch(
+        relationAction({
+          targetId: item.id,
+          action: "follow"
+        })
+      ).unwrap();
+    } catch (error){
+      Alert.alert(
+          "Theo dõi thất bại",
+          'Vui lòng thử lại sau.',
+        );
+      console.log(error);
+    }
+  }
 
   const renderCategoryItem = ({item}: {item: any}) => (
     <TouchableOpacity>
@@ -81,20 +154,20 @@ const FollowingTab = () => {
     </TouchableOpacity>
   );
 
-  const renderSortItem = ({item}: {item: any}) => (
+  const renderSortItem = ({item}: {item: typeof following[0]}) => (
     <View style={[styles.suggestedItem, {backgroundColor: color.background}]}>
       <TouchableOpacity style={styles.touchableInfo}>
-        <Image source={{uri: item.profile_pic}} style={styles.profilePic} />
+        <Image source={{uri: item.profilePic}} style={styles.profilePic} />
         <View style={styles.suggestedInfo}>
           <Text style={[styles.handle, {color: color.text}]}>
-            {item.handle}
+            {item.handleName}
           </Text>
           <Text style={[styles.username, {color: color.textSecondary}]}>
             {item.username}
           </Text>
         </View>
       </TouchableOpacity>
-      <TouchableOpacity
+      <TouchableOpacity onPress={() => handleMessagingPress(item)}
         style={[styles.messageButton, {borderColor: color.text}]}>
         <Text style={[styles.messageText, {color: color.text}]}>Nhắn tin</Text>
       </TouchableOpacity>
@@ -110,10 +183,10 @@ const FollowingTab = () => {
   const renderSuggestedItem = ({item}: {item: any}) => (
     <View style={[styles.suggestedItem, {backgroundColor: color.background}]}>
       <TouchableOpacity style={styles.touchableInfo}>
-        <Image source={{uri: item.profile_pic}} style={styles.profilePic} />
+        <Image source={{uri: item.profilePic}} style={styles.profilePic} />
         <View style={styles.suggestedInfo}>
           <Text style={[styles.handle, {color: color.text}]}>
-            {item.handle}
+            {item.handleName}
           </Text>
           <Text style={[styles.username, {color: color.textSecondary}]}>
             {item.username}
@@ -147,7 +220,7 @@ const FollowingTab = () => {
         }
       />
       <FlashList
-        data={suggestedData}
+        data={following}
         keyExtractor={item => item.id}
         renderItem={renderSortItem}
         showsVerticalScrollIndicator={false}

@@ -21,6 +21,7 @@ export interface UserProfile {
   dateOfBirth: string;
   isVip: boolean;
   deletedAt: boolean;
+  isFollowing: boolean;
 }
 
 export interface RelationWithUser {

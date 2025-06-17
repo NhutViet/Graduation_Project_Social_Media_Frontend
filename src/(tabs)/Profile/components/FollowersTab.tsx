@@ -6,118 +6,50 @@ import {
   TouchableOpacity,
   TextInput,
   Pressable,
+  Alert
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {FlashList} from '@shopify/flash-list';
 import {Colors} from '../../../../assets/color/Colors';
 import {useTheme} from '../../../util/ThemeContext';
 import {useNavigation} from '@react-navigation/native';
-
-// data mẫu
-const followersData = [
-  {
-    id: '1',
-    username: 'abc',
-    handle: 'test_user1',
-    profile_pic:
-      'https://i.pinimg.com/736x/8c/71/92/8c7192c084765c076ef33024c0b34406.jpg',
-    isFollowing: false,
-  },
-  {
-    id: '2',
-    username: 'xyz',
-    handle: 'test_user2',
-    profile_pic:
-      'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-    isFollowing: true,
-  },
-  {
-    id: '3',
-    username: 'xcxc',
-    handle: 'test_user3',
-    profile_pic:
-      'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-    isFollowing: false,
-  },
-  {
-    id: '4',
-    username: 'int',
-    handle: 'test_user4',
-    profile_pic:
-      'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-    isFollowing: true,
-  },
-  {
-    id: '5',
-    username: 'int',
-    handle: 'test_user4',
-    profile_pic:
-      'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-    isFollowing: false,
-  },
-  {
-    id: '6',
-    username: 'int',
-    handle: 'test_user4',
-    profile_pic:
-      'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-    isFollowing: false,
-  },
-  {
-    id: '7',
-    username: 'int',
-    handle: 'test_user4',
-    profile_pic:
-      'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-    isFollowing: true,
-  },
-  {
-    id: '8',
-    username: 'int',
-    handle: 'test_user4',
-    profile_pic:
-      'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-    isFollowing: true,
-  },
-  {
-    id: '9',
-    username: 'int',
-    handle: 'test_user4',
-    profile_pic:
-      'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-    isFollowing: false,
-  },
-  {
-    id: '10',
-    username: 'int',
-    handle: 'test_user4',
-    profile_pic:
-      'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-    isFollowing: true,
-  },
-];
-
-type UserItem = {
-  id: string;
-  username: string;
-  profile_pic: string;
-  handle: string;
-  isFollowing: boolean;
-};
+import {useDispatch, useSelector} from 'react-redux';
+import { AppDispatch, RootState } from '../../../../services/store';
+import { fetchFollowers, relationAction } from '../../../../services/relationRedux/relationSlice';
+import {createRoom} from '../../../../services/roomRedux/roomSlice';
 
 const FollowersTab = () => {
   const navigation: any = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];
-  const [followers, setFollowers] = useState(followersData);
+  const userID = useSelector((state: RootState) => state.user?.user?._id);
+  const dispatch = useDispatch<AppDispatch>();
+  const {followers: reduxFollowers} = useSelector(
+    (state: RootState) => state.relation,
+  );
 
-  const renderItem = ({item}: {item: UserItem}) => (
+  const [followers, setFollowers] = useState(reduxFollowers);
+
+  useEffect(() => {
+    if (userID) {
+      dispatch(fetchFollowers({userId: userID}))
+        .unwrap()
+        .then((data) => {
+          setFollowers(data);
+        })
+        .catch((err) => {
+          console.error('Error fetching followers:', err);
+        });
+    }
+  }, [dispatch, userID])
+
+  const renderItem = ({item}: {item: typeof followers[0]}) => (
     <View style={styles.userContainer}>
       <TouchableOpacity style={styles.touchableInfo}>
-        <Image source={{uri: item.profile_pic}} style={styles.avatar} />
+        <Image source={{uri: item.profilePic}} style={styles.avatar} />
         <View style={styles.userInfo}>
           <Text style={[styles.handle, {color: color.text}]}>
-            {item.handle}
+            {item.handleName}
           </Text>
           <Text style={[styles.username, {color: color.textSecondary}]}>
             {item.username}
@@ -131,7 +63,7 @@ const FollowersTab = () => {
             ? [styles.messageButton, {borderColor: color.text}]
             : styles.followBack,
         ]}
-        onPress={() => handleFollowButton(item)}>
+        onPress={() => handleActionButton(item)}>
         <Text
           style={[
             styles.buttonText,
@@ -153,17 +85,56 @@ const FollowersTab = () => {
     </View>
   );
 
-  const handleFollowButton = (item: UserItem) => {
+  const handleActionButton = async (item: typeof followers[0]) => {
     if (item.isFollowing) {
-      navigation.navigate('FollowingTab');
+      try {
+        const res = await dispatch(
+          createRoom({
+            name: '',
+            user_ids: [item.id],
+            type: 'waiting',
+          }),
+        ).unwrap();
+      
+        const {room} = res;
+      
+        const otherUsers = room.user_ids.filter(user => user._id !== userID);
+        const img1 = otherUsers[0]?.profilePic;
+        const img2 = userID
+          ? room.user_ids.find(user => user._id === userID)?.profilePic
+          : undefined;
+      
+        navigation.navigate('MessageScreen', {
+          room: room._id,
+          img1,
+          img2,
+        });
+      } catch (error) {
+            console.log('Tạo room thất bại:', error);
+      }
     } else {
-      setFollowers(prevFollowers =>
-        prevFollowers.map(followers =>
-          followers.id === item.id
-            ? {...followers, isFollowing: true}
-            : followers,
-        ),
+      try{
+        await dispatch(
+          relationAction({
+            targetId: item.id,
+            action: "follow"
+          })
+        ).unwrap();
+
+        setFollowers((prevFollowers) =>
+        prevFollowers.map((follower) =>
+          follower.id === item.id
+            ? { ...follower, isFollowing: true }
+            : follower
+        )
       );
+      } catch (error){
+        Alert.alert(
+            "Theo dõi thất bại",
+            'Vui lòng thử lại sau.',
+          );
+        console.log(error);
+      }
     }
   };
   return (

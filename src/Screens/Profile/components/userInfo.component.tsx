@@ -1,7 +1,8 @@
 import React from 'react';
-import {View, Text, Image, StyleSheet} from 'react-native';
+import {View, Text, Image, StyleSheet, TouchableOpacity} from 'react-native';
 import {Theme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
+import {useNavigation} from '@react-navigation/native';
 
 interface UserInfoProps {
   name: string;
@@ -22,6 +23,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
   bio,
   theme,
 }) => {
+  const navigation: any = useNavigation();
   const color = Colors[theme];
   const formatFollowers = (num: number): string => {
     if (num >= 1000000) {
@@ -43,12 +45,12 @@ const UserInfo: React.FC<UserInfoProps> = ({
             </Text>
             <Text style={styles.statLabel}>bài viết</Text>
           </View>
-          <View style={styles.statItem}>
+          <TouchableOpacity style={styles.statItem}>
             <Text style={[styles.statNumber, {color: color.text}]}>
               {formatFollowers(followers)}
             </Text>
             <Text style={styles.statLabel}>người theo dõi</Text>
-          </View>
+          </TouchableOpacity>
           <View style={styles.statItem}>
             <Text style={[styles.statNumber, {color: color.text}]}>
               {following}

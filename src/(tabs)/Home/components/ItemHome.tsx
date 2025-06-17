@@ -59,6 +59,10 @@ const ItemHome = (props: ItemHomeProps) => {
     state.reactions.likePosts.includes(_id),
   );
 
+  const currentUserID = useSelector((state: RootState) => 
+    state.user.user?._id
+  );
+
   useEffect(() => {
     if (isLike && !isPostLiked) {
       dispatch(addLikedPost(_id));
@@ -66,6 +70,9 @@ const ItemHome = (props: ItemHomeProps) => {
   }, [_id, isLike, isPostLiked, dispatch]);
 
   const handleUserPress = () => {
+    if(user._id === currentUserID)
+      console.log("This is your current proflie")
+    else
     navigation.navigate('ProfileComp', {
       userID: user._id,
     });

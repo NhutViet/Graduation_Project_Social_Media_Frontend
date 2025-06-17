@@ -168,8 +168,8 @@ const ProfileComp = ({route}: any) => {
           setIsFollowing(profile.userFollowing),
           setIsBlock(profile.userBlocked ?? false)
         }),
-        await dispatch(fetchFollowers({userID})),
-        await dispatch(fetchFollowing({userID})),
+        await dispatch(fetchFollowers({userId: userID})),
+        await dispatch(fetchFollowing({userId: userID})),
       ]).catch(error => {
         console.error('Error fetching data:', error);
       });
@@ -328,8 +328,8 @@ const ProfileComp = ({route}: any) => {
         <View>
           <UserInfo
             name={publicProfile.username}
-            followers={followers.length}
-            following={following.length}
+            followers={(followers?.length) ? followers?.length : 0}
+            following={(following?.length) ? following?.length : 0}
             posts={UserMock.posts}
             avatar={publicProfile.profilePic}
             bio={publicProfile.bio}
