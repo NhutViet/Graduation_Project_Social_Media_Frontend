@@ -59,9 +59,9 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
                 padding: item.media ? 0 : 10,
               },
             ]}>
-            {item.media != '' ? (
+            {item.media?.type == 'image' ? (
               <TouchableOpacity
-                onPress={() => setSelectedImageUri(item.media ?? null)}>
+                onPress={() => setSelectedImageUri(item.media?.url ?? null)}>
                 <View
                   style={{
                     width: 150,
@@ -70,7 +70,7 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
                     overflow: 'hidden',
                   }}>
                   <Image
-                    source={{uri: item.media}}
+                    source={{uri: item.media.url}}
                     style={{width: '100%', height: '100%'}}
                     resizeMode="cover"
                   />

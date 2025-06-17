@@ -17,14 +17,13 @@ export const saveBookmark = createAsyncThunk<
   ReqBookmark,
   {rejectValue: {message: string}}
 >(
-  'bookmark-playlists/add-bookmark',
-  async ({postId, playlistId, refreshToken}, {rejectWithValue}) => {
+  'bookmark-playlists/add-default',
+  async ({postId, refreshToken}, {rejectWithValue}) => {
     try {
       const res = await axiosInstance.post(
         API.POST_SAVE_BOOKMARK,
         {
           postId,
-          playlistId,
         },
         {
           headers: {
@@ -42,27 +41,23 @@ export const saveBookmark = createAsyncThunk<
 );
 
 export const removeBookmark = createAsyncThunk<
-  {removeCount: string; postId: string; playlistId: string},
+  {message: string; postId: string},
   ReqRemoveBookmark,
   {rejectValue: {message: string}}
 >(
-  'bookmark-playlists/remove-bookmark',
-  async ({postId, playlistId, refreshToken}, {rejectWithValue}) => {
+  'bookmark-items/remove',
+  async ({postId, refreshToken}, {rejectWithValue}) => {
     try {
       const res = await axiosInstance.delete(API.DELETE_BOOKMARK, {
         data: {
           postId,
-          playlistId,
         },
         headers: {
           Authorization: `Bearer ${refreshToken}`,
         },
       });
-      return {
-        ...res.data,
-        postId,
-        playlistId,
-      };
+      const message = res.data.message || 'Xóa thành công';
+      return {message, postId};
     } catch (error: any) {
       return rejectWithValue({
         message: error?.response?.data?.message || 'Bỏ lưu thất bại',
@@ -147,6 +142,36 @@ export const getItemsOfPlaylist = createAsyncThunk<
       return rejectWithValue({
         message:
           error?.response?.data?.message || 'Lấy danh sách bài viết thất bại.',
+      });
+    }
+  },
+);
+
+
+export const switchBookmark = createAsyncThunk<
+  ResBookmark,
+  ReqBookmark,
+  {rejectValue: {message: string}}
+>(
+  'bookmark-playlists/switch',
+  async ({postId, playlistId, refreshToken}, {rejectWithValue}) => {
+    try {
+      const res = await axiosInstance.post(
+        API.POST_SWITCH_PLAYLIST,
+        {
+          postId,
+          playlistId
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${refreshToken}`,
+          },
+        },
+      );
+      return res.data;
+    } catch (error: any) {
+      return rejectWithValue({
+        message: error?.response?.data?.message || 'Chuyển mục lưu thất bại.',
       });
     }
   },

@@ -1,7 +1,6 @@
 import {
   ActivityIndicator,
   Image,
-  Modal,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -10,11 +9,15 @@ import {
 } from 'react-native';
 import ReelsComponent from './components/reelsComponent';
 import {
-  useFocusEffect,
   useIsFocused,
-  useNavigation,
 } from '@react-navigation/native';
-import {useCallback, useEffect, useRef, useState} from 'react';
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react';
 import {FlashList} from '@shopify/flash-list';
 import {Dimensions} from 'react-native';
 import {Colors} from '../../../assets/color/Colors';
@@ -33,9 +36,8 @@ import BottomSheetComment, {
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
 
-const Reels = () => {
+const Reels = forwardRef((props, ref) => {
   const isFocused = useIsFocused();
-  const navigation: any = useNavigation();
   const {theme, toggleTheme} = useTheme();
   const color = Colors[theme];
 
@@ -43,6 +45,8 @@ const Reels = () => {
   const sheetRefComment: any = useRef<BottomSheetCommentRef>(null);
 
   const [currentVisible, setCurrentVisible] = useState<string | null>(null);
+  const [isCurrentBookmarked, setIsCurrentBookmarked] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<any | null>(null);
 
   const onViewRef = useRef(({viewableItems}: {viewableItems: any[]}) => {
     if (viewableItems.length > 0) {
@@ -53,6 +57,12 @@ const Reels = () => {
       }
     }
   });
+
+  useImperativeHandle(ref, () => ({
+    reload: () => {
+      dispatch(fetchReelsWithMedia());
+    },
+  }));
 
   // fetch api
   const dispatch = useDispatch<AppDispatch>();
@@ -110,6 +120,9 @@ const Reels = () => {
               currentVisible={shouldPlay}
               muted={false}
               showBottomSheet={() => {
+                setSelectedItem(item);
+                console.log('item: ', item);
+                setIsCurrentBookmarked(item.isBookmarked);
                 sheetRef?.current.open();
               }}
               openComment={() => {
@@ -128,11 +141,11 @@ const Reels = () => {
         }}
         estimatedItemSize={height}
       />
-      <BottomSheetReels ref={sheetRef} />
+      <BottomSheetReels ref={sheetRef} isBookmarked={isCurrentBookmarked} selectedItem={selectedItem}/>
       <BottomSheetComment ref={sheetRefComment} postId={selectedPostId} />
     </SafeAreaView>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {

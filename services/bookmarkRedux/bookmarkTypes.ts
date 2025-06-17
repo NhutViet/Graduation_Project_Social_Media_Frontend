@@ -1,13 +1,13 @@
 export interface ReqBookmark {
-    postId: string;
-    playlistId: string;
-    refreshToken: string;
+    postId?: string;
+    playlistId?: string;
+    refreshToken?: string;
 };
 
 export interface ReqRemoveBookmark {
-    postId: string[];
-    playlistId: string;
-    refreshToken: string;
+    postId: string;
+    playlistId?: string;
+    refreshToken?: string;
 };
 
 export interface ResBookmark {

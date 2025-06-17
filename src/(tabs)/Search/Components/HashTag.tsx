@@ -1,191 +1,115 @@
-/* eslint-disable react-native/no-inline-styles */
-import {Image, Text, View} from 'react-native';
-import React, {useEffect} from 'react';
-import {useTheme} from '../../../util/ThemeContext';
-import {Colors} from '../../../../assets/color/Colors';
-import {FlashList} from '@shopify/flash-list';
-// import User from '../../Home/components/Story';
-import {AppDispatch, RootState} from '../../../../services/store';
-import {useDispatch, useSelector} from 'react-redux';
-import {fetchPostsWithMedia} from '../../../../services/postRedux/postSlice';
+import React, { useMemo, useCallback } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
+import { useTheme } from '../../../util/ThemeContext';
+import { Colors } from '../../../../assets/color/Colors';
+import { FlashList } from '@shopify/flash-list';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../../services/store';
 
-// const dataUser = [
-//   {
-//     id: 1,
-//     name: 'user1',
-//     image:
-//       'https://i.pinimg.com/736x/b7/25/61/b72561fd1ec7018c0418c84a3c2d5a57.jpg',
-//     status: 1,
-//   },
-//   {
-//     id: 2,
-//     name: 'user2',
-//     image:
-//       'https://i.pinimg.com/736x/c1/70/e8/c170e84663405785c80ba367cd5e3b85.jpg',
-//     status: 1,
-//   },
-//   {
-//     id: 3,
-//     name: 'user3',
-//     image:
-//       'https://i.pinimg.com/736x/8b/ae/77/8bae77c63f046f5a307a864a9d230da2.jpg',
-//     status: 0,
-//   },
-//   {
-//     id: 4,
-//     name: 'user4',
-//     image:
-//       'https://i.pinimg.com/736x/56/81/64/5681646985e7ddc1b2cd4b826763b541.jpg',
-//     status: 0,
-//   },
-//   {
-//     id: 5,
-//     name: 'user1',
-//     image:
-//       'https://i.pinimg.com/736x/b7/25/61/b72561fd1ec7018c0418c84a3c2d5a57.jpg',
-//     status: 1,
-//   },
-//   {
-//     id: 6,
-//     name: 'user2',
-//     image:
-//       'https://i.pinimg.com/736x/c1/70/e8/c170e84663405785c80ba367cd5e3b85.jpg',
-//     status: 1,
-//   },
-//   {
-//     id: 7,
-//     name: 'user3',
-//     image:
-//       'https://i.pinimg.com/736x/8b/ae/77/8bae77c63f046f5a307a864a9d230da2.jpg',
-//     status: 0,
-//   },
-//   {
-//     id: 8,
-//     name: 'user4',
-//     image:
-//       'https://i.pinimg.com/736x/56/81/64/5681646985e7ddc1b2cd4b826763b541.jpg',
-//     status: 0,
-//   },
-//   {
-//     id: 9,
-//     name: 'user1',
-//     image:
-//       'https://i.pinimg.com/736x/b7/25/61/b72561fd1ec7018c0418c84a3c2d5a57.jpg',
-//     status: 1,
-//   },
-//   {
-//     id: 10,
-//     name: 'user2',
-//     image:
-//       'https://i.pinimg.com/736x/c1/70/e8/c170e84663405785c80ba367cd5e3b85.jpg',
-//     status: 1,
-//   },
-//   {
-//     id: 11,
-//     name: 'user3',
-//     image:
-//       'https://i.pinimg.com/736x/8b/ae/77/8bae77c63f046f5a307a864a9d230da2.jpg',
-//     status: 0,
-//   },
-//   {
-//     id: 12,
-//     name: 'user4',
-//     image:
-//       'https://i.pinimg.com/736x/56/81/64/5681646985e7ddc1b2cd4b826763b541.jpg',
-//     status: 0,
-//   },
-//   {
-//     id: 13,
-//     name: 'user1',
-//     image:
-//       'https://i.pinimg.com/736x/b7/25/61/b72561fd1ec7018c0418c84a3c2d5a57.jpg',
-//     status: 1,
-//   },
-//   {
-//     id: 14,
-//     name: 'user2',
-//     image:
-//       'https://i.pinimg.com/736x/c1/70/e8/c170e84663405785c80ba367cd5e3b85.jpg',
-//     status: 1,
-//   },
-//   {
-//     id: 15,
-//     name: 'user3',
-//     image:
-//       'https://i.pinimg.com/736x/8b/ae/77/8bae77c63f046f5a307a864a9d230da2.jpg',
-//     status: 0,
-//   },
-//   {
-//     id: 16,
-//     name: 'user4',
-//     image:
-//       'https://i.pinimg.com/736x/56/81/64/5681646985e7ddc1b2cd4b826763b541.jpg',
-//     status: 0,
-//   },
-// ];
+interface TagCount {
+  tag: string;
+  count: number;
+}
 
-const SearchTag = (props: any) => {
-  const dispatch = useDispatch<AppDispatch>();
-
-  const {posts} = useSelector((state: RootState) => state.post);
-
-  useEffect(() => {
-    dispatch(fetchPostsWithMedia());
-  }, [dispatch]);
-
-  // console.log('HashTag: ', posts);
-
-  // const {searchText} = props;
-
-  const {theme} = useTheme();
+const HashTag: React.FC = React.memo(() => {
+  const { theme } = useTheme();
   const color = Colors[theme];
+
+  // Grab loading + the two result sets from Redux
+  const isLoading = useSelector((state: RootState) => state.search.isLoading);
+  const posts = useSelector((state: RootState) => (state.search.posts as { items: any[] })?.items || []);
+  const reels = useSelector((state: RootState) => (state.search.reels as { items: any[] })?.items || []);
+
+  // Combine and extract/count hashtags
+  const tagsData: TagCount[] = useMemo(() => {
+    const allItems = [...posts, ...reels];
+    const counts: Record<string, number> = {};
+    const regex = /#(\w+)/g;
+
+    allItems.forEach(item => {
+      const caption = item.caption || '';
+      let m: RegExpExecArray | null;
+      // eslint-disable-next-line no-cond-assign
+      while ((m = regex.exec(caption))) {
+        const tag = m[1].toLowerCase();
+        counts[tag] = (counts[tag] || 0) + 1;
+      }
+    });
+
+    return Object.entries(counts)
+      .map(([tag, count]) => ({ tag, count }))
+      .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
+  }, [posts, reels]);
+
+  const renderItem = useCallback(
+    ({ item }: { item: TagCount }) => (
+      <TouchableOpacity style={styles.row}>
+        <Text style={[styles.tagText, { color: color.text }]}>#{item.tag}</Text>
+        <Text style={[styles.countText, { color: color.textSecondary }]}>
+          {item.count} post{item.count > 1 ? 's' : ''}
+        </Text>
+      </TouchableOpacity>
+    ),
+    [color]
+  );
+
+  if (isLoading) {
+    return (
+      <View style={[styles.center, { backgroundColor: color.background }]}>
+        <ActivityIndicator size="large" color={color.primary} />
+        <Text style={[styles.loadingText, { color: color.textSecondary }]}>
+          Đang tải…
+        </Text>
+      </View>
+    );
+  }
+
+  if (tagsData.length === 0) {
+    return (
+      <View style={[styles.center, { backgroundColor: color.background }]}>
+        <Text style={[styles.loadingText, { color: color.textSecondary }]}>
+          Không có hashtag nào.
+        </Text>
+      </View>
+    );
+  }
+
   return (
-    <View style={{flex: 1, backgroundColor: color.background}}>
+    <View style={[styles.container, { backgroundColor: color.background }]}>
       <FlashList
-        data={posts}
-        renderItem={({item}: any) => {
-          return (
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                padding: 12,
-                borderBottomWidth: 1,
-                borderColor: color.border,
-              }}>
-              <Image
-                source={require('../../../../assets/icon/hash.png')}
-                style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: 14,
-                  marginRight: 4,
-                  backgroundColor: color.card,
-                }}
-              />
-              <View style={{padding: 4, marginLeft: 6}}>
-                <Text
-                  style={{fontWeight: 'bold', color: color.text, fontSize: 18}}
-                  numberOfLines={1}>
-                  {item._id}
-                </Text>
-                <Text
-                  style={{fontWeight: '300', color: color.text, fontSize: 14}}
-                  numberOfLines={1}>
-                  {item.likeCount} Posts
-                </Text>
-                {/* Add more info here if needed, e.g. hashtag count, description, etc. */}
-              </View>
-            </View>
-          );
-        }}
+        data={tagsData}
+        renderItem={renderItem}
+        keyExtractor={item => item.tag}
         estimatedItemSize={50}
-        keyExtractor={() => Math.random().toString()}
-        horizontal={false}
-        showsVerticalScrollIndicator={false}
+        removeClippedSubviews
       />
     </View>
   );
-};
+});
 
-export default SearchTag;
+export default HashTag;
+
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  loadingText: { fontSize: 18, fontWeight: '500', marginTop: 8 },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  tagText: { fontSize: 18, fontWeight: 'bold' },
+  countText: { fontSize: 16, fontWeight: '300' },
+});
