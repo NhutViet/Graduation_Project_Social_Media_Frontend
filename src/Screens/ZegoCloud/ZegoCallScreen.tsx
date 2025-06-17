@@ -1,8 +1,7 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {ZegoUIKitPrebuiltCall} from '@zegocloud/zego-uikit-prebuilt-call-rn';
 import {CallAppID, CallAppSign} from '../../../services/api';
 import {useNavigation} from '@react-navigation/native';
-import ZegoUIKit from '@zegocloud/zego-uikit-rn';
 
 const ZegoCallScreen = ({route}: any) => {
   const {userID, userName, callID, isVideoCall} = route.params;
