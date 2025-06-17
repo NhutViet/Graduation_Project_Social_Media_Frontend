@@ -87,11 +87,12 @@ const FollowersTab = () => {
 
   const handleActionButton = async (item: typeof followers[0]) => {
     if (item.isFollowing) {
+      console.log(item.isFollowing);
       try {
         const res = await dispatch(
           createRoom({
             name: '',
-            user_ids: [item.id],
+            user_ids: [item._id],
             type: 'waiting',
           }),
         ).unwrap();
@@ -116,14 +117,14 @@ const FollowersTab = () => {
       try{
         await dispatch(
           relationAction({
-            targetId: item.id,
+            targetId: item._id,
             action: "follow"
           })
         ).unwrap();
 
         setFollowers((prevFollowers) =>
         prevFollowers.map((follower) =>
-          follower.id === item.id
+          follower._id === item._id
             ? { ...follower, isFollowing: true }
             : follower
         )
@@ -162,7 +163,7 @@ const FollowersTab = () => {
       </View>
       <FlashList
         data={followers}
-        keyExtractor={item => item.id}
+        keyExtractor={item => item._id}
         renderItem={renderItem}
         estimatedItemSize={50}
         showsVerticalScrollIndicator={false}

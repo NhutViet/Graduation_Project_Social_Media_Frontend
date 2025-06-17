@@ -9,7 +9,7 @@ export interface Relation {
 }
 
 export interface UserProfile {
-  id: string;
+  _id: string;
   username: string;
   email: string;
   phoneNumber: string;

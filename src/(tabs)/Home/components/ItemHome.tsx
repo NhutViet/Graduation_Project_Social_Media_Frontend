@@ -73,7 +73,7 @@ const ItemHome = (props: ItemHomeProps) => {
     if(user._id === currentUserID)
       console.log("This is your current proflie")
     else
-    navigation.navigate('ProfileComp', {
+    navigation.navigate('UserProfileNavigation', {
       userID: user._id,
     });
   };

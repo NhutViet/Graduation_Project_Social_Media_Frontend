@@ -96,7 +96,7 @@ const FollowingTab = () => {
       const res = await dispatch(
         createRoom({
           name: '',
-          user_ids: [item.id],
+          user_ids: [item._id],
           type: 'waiting',
         }),
       ).unwrap();
@@ -123,7 +123,7 @@ const FollowingTab = () => {
     try{
       await dispatch(
         relationAction({
-          targetId: item.id,
+          targetId: item._id,
           action: "follow"
         })
       ).unwrap();
@@ -221,7 +221,7 @@ const FollowingTab = () => {
       />
       <FlashList
         data={following}
-        keyExtractor={item => item.id}
+        keyExtractor={item => item._id}
         renderItem={renderSortItem}
         showsVerticalScrollIndicator={false}
         estimatedItemSize={10}

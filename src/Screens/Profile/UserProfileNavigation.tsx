@@ -5,7 +5,7 @@ import Profile from '.';
 
 const Stack = createStackNavigator();
 
-const ProfileNavigation = () => {
+const UserProfileNavigation = () => {
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
       <Stack.Screen name="index" component={Profile} />
@@ -14,4 +14,4 @@ const ProfileNavigation = () => {
   );
 };
 
-export default ProfileNavigation;
+export default UserProfileNavigation;

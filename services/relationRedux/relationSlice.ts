@@ -11,14 +11,40 @@ export const fetchFollowers = createAsyncThunk<
   'relations/followers',
   async ({userId}, {rejectWithValue}) => {
     try {
-      const response = await axiosInstance.post(API.GET_FOLLOWERS, { userId }, {
+      if (!userId || typeof userId !== 'string') {
+        return rejectWithValue('User ID không hợp lệ');
+      }
+
+      console.log('Sending request to get followers for userId:', userId);
+      
+      const response = await axiosInstance.post(API.GET_FOLLOWERS, { 
+        userId: userId.toString().trim()
+      }, {
         headers: {
             token: 'refresh',
         },
       });
+
+      console.log('Server response:', response.data);
+
+      if (!response.data || !Array.isArray(response.data.followers)) {
+        return rejectWithValue('Dữ liệu trả về không hợp lệ');
+      }
+
       return response.data.followers;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || error.message || 'Lấy danh sách người theo dõi thất bại');
+      console.error('fetchFollowers error:', error);
+      
+      if (error.response) {
+        console.error('Error response:', error.response.data);
+        console.error('Error status:', error.response.status);
+      }
+      
+      return rejectWithValue(
+        error.response?.data?.message || 
+        error.message || 
+        'Lấy danh sách người theo dõi thất bại'
+      );
     }
   }
 );
