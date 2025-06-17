@@ -38,11 +38,12 @@ export const API = {
   /// User
   GET_PUBLIC_PROFILE: '/users/public',
   ////bookmark
-  POST_SAVE_BOOKMARK: 'bookmark-playlists/add-bookmark',
-  DELETE_BOOKMARK: 'bookmark-playlists/remove-bookmark',
+  POST_SAVE_BOOKMARK: 'bookmark-playlists/add-default',
+  DELETE_BOOKMARK: 'bookmark-items/remove',
   POST_CREATE_PLAYLIST: 'bookmark-playlists/add',
   GET_ALL_PLAYLIST: 'bookmark-playlists/all',
   GET_ITEM_PLAYLIST: 'bookmark-items/all',
+  POST_SWITCH_PLAYLIST: 'bookmark-playlists/switch',
 
   //// Room
   GET_MY_ROOMS: 'rooms/my',

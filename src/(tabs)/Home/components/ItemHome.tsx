@@ -41,6 +41,7 @@ const ItemHome = (props: ItemHomeProps) => {
     isFocused,
     currentVisible,
     isLike,
+    isBookmarked,
     commentCount,
     share,
     music,
@@ -138,6 +139,7 @@ const ItemHome = (props: ItemHomeProps) => {
           likedColor={utils.likedColor}
           bookmarkColor={utils.bookmarkColor}
           isLiked={state.isLiked}
+          isBookmarked={state.isBookmark}
           numLike={state.numLike}
           commentCount={commentCount}
           share={share}

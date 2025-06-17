@@ -18,6 +18,7 @@ export interface ItemHomeProps {
   music?: MusicInfo;
   musicInfo?: MusicInfo;
   isFollow: boolean;
+  isBookmarked?: boolean;
 }
 
 interface User {
@@ -35,9 +36,7 @@ interface MusicInfo {
 export interface HandleBookmarkParams {
   isBookmarked: boolean;
   _id: string;
-  playlists: {id: string}[];
   refreshToken: string;
-  itemsByPlaylist: Record<string, {itemID: string}[]>;
   setIsBookmarked: (v: boolean) => void;
   dispatch: AppDispatch;
 }

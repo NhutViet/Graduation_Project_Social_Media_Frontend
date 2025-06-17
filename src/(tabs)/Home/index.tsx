@@ -54,15 +54,11 @@ export const Home = forwardRef(({onReload}: any, ref) => {
   );
   const storyLoading = useSelector((state: RootState) => state.stories.loading);
   const user = useSelector((state: RootState) => state.user.user);
-  const refreshToken = useSelector(
-    (state: RootState) => state.user.refreshToken,
-  );
-  const playlists = useSelector((state: RootState) => state.bookmark.playlists);
+
 
   const reloadAllData = useCallback(() => {
     dispatch(fetchPostsWithMedia());
     dispatch(fetchFollowingStories({page: 1}));
-    dispatch(getAllPlaylists({refreshToken}));
   }, []);
 
   useImperativeHandle(ref, () => ({
@@ -72,12 +68,6 @@ export const Home = forwardRef(({onReload}: any, ref) => {
   useEffect(() => {
     reloadAllData();
   }, []);
-
-  useEffect(() => {
-    playlists.forEach(playlist => {
-      dispatch(getItemsOfPlaylist({playlistId: playlist.id, refreshToken}));
-    });
-  }, [playlists]);
 
   const onViewRef = useCallback(({viewableItems}: {viewableItems: any[]}) => {
     const id = viewableItems[0]?.item?._id;

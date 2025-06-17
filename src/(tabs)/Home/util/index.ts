@@ -6,14 +6,15 @@ import {
   saveBookmark,
 } from '../../../../services/bookmarkRedux/bookmarkSlice';
 import {HandleBookmarkParams} from '../types';
-import { fetchStoriesByIds, seenStory } from '../../../../services/StoryRedux/StorySlice';
+import {
+  fetchStoriesByIds,
+  seenStory,
+} from '../../../../services/StoryRedux/StorySlice';
 
 export const handleBookmark = async ({
   isBookmarked,
   _id,
-  playlists,
   refreshToken,
-  itemsByPlaylist,
   setIsBookmarked,
   dispatch,
 }: HandleBookmarkParams) => {
@@ -23,36 +24,23 @@ export const handleBookmark = async ({
       await dispatch(
         saveBookmark({
           postId: _id,
-          playlistId: playlists[0].id,
           refreshToken,
         }),
       ).unwrap();
     } catch (res) {
-      const fallback = Object.values(itemsByPlaylist)
-        .flat()
-        .some(item => item.itemID === _id);
-      setIsBookmarked(fallback);
+      setIsBookmarked(false);
     }
   } else {
-    const playlistID = Object.entries(itemsByPlaylist).find(([_, items]) =>
-      items.some(item => item.itemID.toString() === _id.toString()),
-    )?.[0];
     setIsBookmarked(false);
-    if (playlistID) {
-      try {
-        await dispatch(
-          removeBookmark({
-            postId: [_id],
-            playlistId: playlistID,
-            refreshToken,
-          }),
-        ).unwrap();
-      } catch (res) {
-        const fallback = Object.values(itemsByPlaylist)
-          .flat()
-          .some(item => item.itemID === _id);
-        setIsBookmarked(fallback);
-      }
+    try {
+      await dispatch(
+        removeBookmark({
+          postId: _id,
+          refreshToken,
+        }),
+      ).unwrap();
+    } catch (res) {
+      setIsBookmarked(true);
     }
   }
 };
@@ -117,7 +105,11 @@ export const handleFollowToggle = async ({
   }
 };
 
-export const handleUserPress = async (item: any, dispatch: any, navigation: any) => {
+export const handleUserPress = async (
+  item: any,
+  dispatch: any,
+  navigation: any,
+) => {
   if (!item.stories.length) return;
   const firstStoryId = item.stories[0];
 

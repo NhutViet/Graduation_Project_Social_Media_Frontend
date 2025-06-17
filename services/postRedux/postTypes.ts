@@ -22,6 +22,7 @@ export interface Post {
   likeCount?: number;
   isLike?: boolean;
   isFollow: boolean;
+  isBookmarked?: boolean;
 }
 
 export interface UserPost {

@@ -8,6 +8,7 @@ interface ItemHomeActionsProps {
   likedColor: string;
   bookmarkColor: string;
   isLiked: boolean;
+  isBookmarked?: boolean;
   numLike: number;
   commentCount: number;
   share: number;
@@ -23,6 +24,7 @@ export const ItemHomeActions: React.FC<ItemHomeActionsProps> = ({
   likedColor,
   bookmarkColor,
   isLiked,
+  isBookmarked,
   numLike,
   commentCount,
   share,
@@ -73,7 +75,7 @@ export const ItemHomeActions: React.FC<ItemHomeActionsProps> = ({
         <Image
           style={[{ tintColor: bookmarkColor }, ItemHomeStyles.icon]}
           source={
-            bookmarkColor === '#F2C641'
+            isBookmarked
               ? require('../../../../assets/icon/bookmark_fill.png')
               : require('../../../../assets/icon/bookmark.png')
           }
