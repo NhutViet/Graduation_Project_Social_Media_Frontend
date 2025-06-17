@@ -7,7 +7,7 @@ import {
   saveBookmark,
   switchBookmark,
 } from './bookmarkSlice';
-import { ResBookmark, ResCreatePlaylist} from './bookmarkTypes';
+import {ResCreatePlaylist} from './bookmarkTypes';
 
 interface Playlist {
   id: string;
@@ -61,6 +61,20 @@ const bookmarkReducer = createSlice({
       .addCase(saveBookmark.fulfilled, (state, action) => {
         state.isloading = false;
         state.isSuccess = true;
+
+        const {playlistID, itemID, itemType} = action.payload;
+
+        if (!state.itemsByPlaylist[playlistID]) {
+          state.itemsByPlaylist[playlistID] = [];
+        }
+
+        const exists = state.itemsByPlaylist[playlistID].some(
+          item => item.itemID === itemID && item.itemType === itemType,
+        );
+
+        if (!exists) {
+          state.itemsByPlaylist[playlistID].push({itemID, itemType});
+        }
       })
       .addCase(saveBookmark.rejected, (state, action) => {
         state.isloading = false;
@@ -77,6 +91,17 @@ const bookmarkReducer = createSlice({
       .addCase(removeBookmark.fulfilled, (state, action) => {
         state.isloading = false;
         state.isSuccess = true;
+
+        const {postId} = action.payload;
+        Object.keys(state.itemsByPlaylist).forEach(playlistId => {
+          const items = state.itemsByPlaylist[playlistId];
+
+          if (items && items.length > 0) {
+            state.itemsByPlaylist[playlistId] = items.filter(
+              item => item.itemID !== postId[0],
+            );
+          }
+        });
       })
       .addCase(removeBookmark.rejected, (state, action) => {
         state.isloading = false;
@@ -176,12 +201,14 @@ const bookmarkReducer = createSlice({
         state.isloading = false;
         state.isSuccess = true;
 
-        const { playlistID: playlistId, itemID: postId } = action.payload;
+        const {playlistID: playlistId, itemID: postId} = action.payload;
 
         // Xoá post khỏi tất cả playlists đang chứa
         for (const key in state.itemsByPlaylist) {
           const items = state.itemsByPlaylist[key];
-          state.itemsByPlaylist[key] = items.filter(item => item.itemID !== postId);
+          state.itemsByPlaylist[key] = items.filter(
+            item => item.itemID !== postId,
+          );
         }
 
         // Thêm post vào playlist mới nếu đã có dữ liệu load
@@ -195,8 +222,9 @@ const bookmarkReducer = createSlice({
       .addCase(switchBookmark.rejected, (state, action) => {
         state.isloading = false;
         state.isError = true;
-        state.messageError = action.payload?.message || 'Chuyển mục lưu thất bại';
-      })
+        state.messageError =
+          action.payload?.message || 'Chuyển mục lưu thất bại';
+      });
   },
 });
 

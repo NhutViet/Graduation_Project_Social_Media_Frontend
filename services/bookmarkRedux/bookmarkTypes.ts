@@ -5,7 +5,8 @@ export interface ReqBookmark {
 };
 
 export interface ReqRemoveBookmark {
-    postId?: string;
+    postId: string;
+    playlistId?: string;
     refreshToken?: string;
 };
 

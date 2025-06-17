@@ -80,6 +80,7 @@ const ItemHome = (props: ItemHomeProps) => {
     <View style={ItemHomeStyles.wrapper}>
       <BottomSheetOptionsModal
         sheetRef={modal.sheetRef}
+        isBookmarked={state.isBookmark}
         topOptions={modal.topOptions}
         firstListOptions={modal.firstListOptions}
         secondListOptions={modal.secondListOptions}

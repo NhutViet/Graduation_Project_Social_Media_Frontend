@@ -41,7 +41,7 @@ export const saveBookmark = createAsyncThunk<
 );
 
 export const removeBookmark = createAsyncThunk<
-  {message: string},
+  {message: string; postId: string},
   ReqRemoveBookmark,
   {rejectValue: {message: string}}
 >(
@@ -56,7 +56,8 @@ export const removeBookmark = createAsyncThunk<
           Authorization: `Bearer ${refreshToken}`,
         },
       });
-      return res.data;
+      const message = res.data.message || 'Xóa thành công';
+      return {message, postId};
     } catch (error: any) {
       return rejectWithValue({
         message: error?.response?.data?.message || 'Bỏ lưu thất bại',
