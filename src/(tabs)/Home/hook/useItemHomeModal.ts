@@ -12,7 +12,7 @@ export const useItemHomeModal = (actions: any, state: any) => {
   const sheetRef = useRef<Modalize>(null);
   const modalReactionRef = useRef<Modalize>(null);
 
-  const {handleHidePost, handleFollowAction} = actions;
+  const {handleHidePost, handleFollowAction, handleBookmarkAction} = actions;
   const {setIsModalVisible} = state;
 
   /** Open bottom sheet options */
@@ -45,6 +45,9 @@ export const useItemHomeModal = (actions: any, state: any) => {
           break;
         case 'report':
           openIntentions();
+          break;
+        case 'bookmark':
+          handleBookmarkAction();
           break;
         default:
           break;
