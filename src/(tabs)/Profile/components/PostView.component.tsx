@@ -1,7 +1,6 @@
 import React from 'react';
 import {TouchableOpacity, View, Image, Text} from 'react-native';
 import {FlashList} from '@shopify/flash-list';
-import {Video as Icon} from 'lucide-react-native';
 import {Styles} from '../../../StyleSheet/Profile.Styles';
 import Video from 'react-native-video';
 import {Colors} from '../../../../assets/color/Colors';
@@ -38,10 +37,7 @@ const GridView: React.FC<GridViewProps> = ({data, renderOverlay}) => {
             return (
               <View style={Styles.styles.gridItem}>
                 {isVideo ? (
-                  <TouchableOpacity
-                    onPress={() =>
-                      navigate.navigate('VideoPlayer', {uri: uri})
-                    }>
+                  <TouchableOpacity onPress={() => console.log(item)}>
                     <Video
                       source={{uri: uri}}
                       style={[
@@ -86,17 +82,4 @@ const GridView: React.FC<GridViewProps> = ({data, renderOverlay}) => {
 
 export const PostsView: React.FC<{data: any[]}> = ({data}) => {
   return <GridView data={data} />;
-};
-
-export const ReelsView: React.FC<{data: any[]}> = ({data}) => {
-  return (
-    <GridView
-      data={data}
-      renderOverlay={() => (
-        <View style={Styles.styles.reelOverlay}>
-          <Icon color="white" size={20} />
-        </View>
-      )}
-    />
-  );
 };

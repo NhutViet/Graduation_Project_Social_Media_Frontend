@@ -6,7 +6,8 @@
     "target": "esnext", 
     "moduleResolution": "bundler",
     "paths": {
-      "@services/*": ["services/*"]
+      "@services/*": ["services/*"],
+      "@icon/*": ["assets/icons/*"]
     }
   }
 }

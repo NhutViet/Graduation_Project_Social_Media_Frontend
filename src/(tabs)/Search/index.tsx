@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import {
   Animated,
-  // Dimensions,
+  Dimensions,
   Image,
   SafeAreaView,
   Text,

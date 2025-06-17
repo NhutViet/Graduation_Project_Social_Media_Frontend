@@ -27,12 +27,9 @@ import {Styles} from '../../StyleSheet/Profile.Styles';
 import {SwitchAccount} from '../../../components/SwitchAccount';
 import {ViewMore} from '../../../components/ViewMore';
 import ModalCreate from './components/ModalCreate';
-import {
-  PostsView,
-  ReelsView,
-} from './components/PostView.component';
+import {PostsView} from './components/PostView.component';
 import {useDispatch, useSelector} from 'react-redux';
-import {AppDispatch, RootState} from '../../../services/store';
+import {AppDispatch, RootState} from '@services/store';
 import {
   fetchFollowers,
   fetchFollowing,
