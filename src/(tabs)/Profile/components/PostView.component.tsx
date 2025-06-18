@@ -5,9 +5,6 @@ import {Styles} from '../../../StyleSheet/Profile.Styles';
 import Video from 'react-native-video';
 import {Colors} from '../../../../assets/color/Colors';
 import {useNavigation} from '@react-navigation/native';
-import {useDispatch, useSelector} from 'react-redux';
-import {fetchReels} from '@services/reelRedux/reelSlice';
-import {AppDispatch, RootState} from '@services/store';
 
 interface GridViewProps {
   data: any[];
@@ -92,7 +89,7 @@ export const PostsView: React.FC<{data: any[]}> = ({data}) => {
   const handlePress = (item: any) => {
     navigation.navigate('AllPostOfUserScreen', {
       targetPostId: item._id,
-    })
+    });
   };
-  return <GridView data={data} onPressItem={handlePress}/>;
+  return <GridView data={data} onPressItem={handlePress} />;
 };

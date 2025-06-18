@@ -73,6 +73,8 @@ const parseCaption = (
 
 const ReelItem: React.FC<ReelItemProps> = ({
   item,
+  index,
+  activeIndex,
   handleHashtagPress,
   openComment,
   showBottomSheet,
@@ -82,9 +84,11 @@ const ReelItem: React.FC<ReelItemProps> = ({
   const {likePosts} = useSelector((state: RootState) => state.reactions);
   const {refreshToken} = useSelector((state: RootState) => state.user);
 
-  // Local state for like
   const [isLiked, setIsLiked] = useState(likePosts.includes(item._id));
   const [numLike, setNumLike] = useState(item.likeCount);
+
+  // Chỉ phát video khi index === activeIndex
+  const isActive = index === activeIndex;
 
   const handleLike = async () => {
     if (isLiked) {
@@ -118,7 +122,7 @@ const ReelItem: React.FC<ReelItemProps> = ({
         maxBitRate={1500000}
         progressUpdateInterval={500}
         muted={false}
-        paused={false}
+        paused={!isActive}
       />
       <View style={styles.bottomContainer}>
         {/* Left: User info and caption */}

@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {Dimensions, TouchableOpacity, View} from 'react-native';
 import {FlashList} from '@shopify/flash-list';
 import {Reel, styles} from '../../StyleSheet/ViewReels';
@@ -7,36 +7,31 @@ import BottomSheetComment, {
   BottomSheetCommentRef,
 } from '../../(tabs)/Home/components/CommentSection';
 import {useNavigation} from '@react-navigation/native';
-// import {useReelLike} from './hook';
-const {width, height} = Dimensions.get('window');
-
 import BottomSheetReels, {
   BottomSheetReelsRef,
 } from '../../(tabs)/Reels/bottomSheet/reelBottomSheet';
 import {ArrowLeft} from 'lucide-react-native';
-import {fetchReels} from '@services/reelRedux/reelSlice';
-import {AppDispatch, RootState} from '@services/store';
-import {useDispatch, useSelector} from 'react-redux';
+import {RootState} from '@services/store';
+import {useSelector} from 'react-redux';
+
+const {width, height} = Dimensions.get('window');
 
 export const ViewReels: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const userId = useSelector((state: RootState) => state.user.user?._id);
-  const [reels, setReels] = useState<Reel[]>([]);
+  const reels: Reel[] = useSelector((state: RootState) => state.reels.data);
+  const [activeIndex, setActiveIndex] = useState<number>(0);
   const navigate = useNavigation();
   const sheetRefComment = useRef<BottomSheetCommentRef>(null);
   const sheetRef: any = useRef<BottomSheetReelsRef>(null);
   const [_selectedPostId, setSelectedPostId] = useState<string>('');
-  // const {handleLike} = useReelLike(reels);
 
-  useEffect(() => {
-    if (userId) {
-      dispatch(fetchReels(userId)).then((action: any) => {
-        if (action.payload) {
-          setReels(action.payload);
-        }
-      });
+  const onViewRef = useRef(({viewableItems}: {viewableItems: any[]}) => {
+    if (viewableItems.length > 0) {
+      const visibleIndex = viewableItems[0]?.index;
+      if (typeof visibleIndex === 'number') {
+        setActiveIndex(visibleIndex);
+      }
     }
-  }, [userId, dispatch]);
+  });
 
   const handleHashtagPress = (tag: string) => {
     console.log('Hashtag pressed:', tag);
@@ -44,7 +39,6 @@ export const ViewReels: React.FC = () => {
 
   const openComment = (postId: string) => {
     setSelectedPostId(postId);
-    // dispatch(fetchCommentsByPost(postId));
     sheetRefComment.current?.open();
   };
 
@@ -62,10 +56,11 @@ export const ViewReels: React.FC = () => {
       </View>
       <FlashList
         data={reels}
-        renderItem={({item}) => (
+        renderItem={({item, index}) => (
           <ReelItem
             item={item}
-            handleLike={() => console.log('Liked')}
+            index={index}
+            activeIndex={activeIndex}
             handleHashtagPress={handleHashtagPress}
             openComment={openComment}
             showBottomSheet={closeComment}
@@ -81,8 +76,12 @@ export const ViewReels: React.FC = () => {
         snapToInterval={height}
         decelerationRate="fast"
         removeClippedSubviews
+        onViewableItemsChanged={onViewRef.current}
+        viewabilityConfig={{
+          itemVisiblePercentThreshold: 70,
+        }}
       />
-      <BottomSheetReels ref={sheetRef} />
+      <BottomSheetReels ref={sheetRef} selectedItem={undefined} />
       <BottomSheetComment ref={sheetRefComment} postId={_selectedPostId} />
     </>
   );

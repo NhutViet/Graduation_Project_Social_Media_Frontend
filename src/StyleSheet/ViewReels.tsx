@@ -19,11 +19,12 @@ export interface Reel {
 
 export interface ReelItemProps {
   item: Reel;
+  index: number;
+  activeIndex: number;
+  handleHashtagPress: (tag: string) => void;
   openComment: (postId: string) => void;
   showBottomSheet: (postId: string) => void;
   navigation: any;
-  handleLike: (index: number) => void;
-  handleHashtagPress: (tag: string) => void;
 }
 
 const {width, height} = Dimensions.get('window');

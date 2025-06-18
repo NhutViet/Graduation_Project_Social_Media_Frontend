@@ -6,6 +6,7 @@ import {
   Text,
   SafeAreaView,
   Image,
+  ScrollView,
   // Animated,
 } from 'react-native';
 import {useTheme} from '../../util/ThemeContext';
@@ -27,18 +28,15 @@ import {Styles} from '../../StyleSheet/Profile.Styles';
 import {SwitchAccount} from '../../../components/SwitchAccount';
 import {ViewMore} from '../../../components/ViewMore';
 import ModalCreate from './components/ModalCreate';
-import {PostsView, ReelsView} from './components/PostView.component';
+import {PostsView} from './components/PostView.component';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '@services/store';
 import {
   fetchFollowers,
   fetchFollowing,
 } from '../../../services/relationRedux/relationSlice';
-import {
-  getPostsAndReelsOfUser,
-  getPostsOfUser,
-  getReelsOfUser,
-} from '../../../services/postUserRedux/postUserSlice';
+import {getPostsAndReelsOfUser} from '../../../services/postUserRedux/postUserSlice';
+import {fetchReels} from '@services/reelRedux/reelSlice';
 
 const Profile = () => {
   const navigation: any = useNavigation();
@@ -140,7 +138,10 @@ const Profile = () => {
       };
       setDataUser([newUser, ...dataUser]);
     }
-  }, [dataUser]);
+    if (userId) {
+      dispatch(fetchReels(userId as string));
+    }
+  }, [dataUser, dispatch, userId]);
 
   const handleUserPress = (user: any) => {
     // Cập nhật status của user được nhấn thành 0
@@ -337,7 +338,7 @@ const Profile = () => {
         );
       case 'reels':
         return isSuccess && ReelsItem ? (
-          <ReelsView data={ReelsItem} />
+          <PostsView data={ReelsItem} />
         ) : (
           <LoadingPlaceholder />
         );
@@ -360,9 +361,11 @@ const Profile = () => {
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
-      {renderHeader()}
-      {renderTabBar()}
-      {renderContent()}
+      <ScrollView>
+        {renderHeader()}
+        {renderTabBar()}
+        {renderContent()}
+      </ScrollView>
       <SwitchAccount
         visible={isSwitchAccountVisible}
         onClose={() => setSwitchAccountVisible(false)}

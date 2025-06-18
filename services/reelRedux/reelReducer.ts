@@ -28,7 +28,7 @@ const reelReducer = createReducer(initReelState, builder => {
       state.loading = false;
       state.data = action.payload;
       state.message = 'Fetch reels success';
-      // console.log('Fetch reels success:', action.payload);
+      console.log('Fetch reels success:');
     })
     .addCase(fetchReels.rejected, (state, action) => {
       state.loading = false;
