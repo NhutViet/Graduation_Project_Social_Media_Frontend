@@ -10,22 +10,45 @@ import {
   TextInput,
 } from 'react-native';
 import Video from 'react-native-video';
-import { Modalize } from "react-native-modalize";
+import {Modalize} from 'react-native-modalize';
 import {Portal} from 'react-native-portalize';
 import ModelPeopleSeen from './component/ModelPeopleSeen';
 import ModelSeeMore from './component/ModelSeeMore';
-import HighlightAddModal from './component/HighlightAddModal'
-import HighlightViewModal from './component/HighlightViewModal'
+import HighlightAddModal from './component/HighlightAddModal';
+import HighlightViewModal from './component/HighlightViewModal';
+import {styles} from './component/style';
+import {useSelector} from 'react-redux';
+import {RootState} from '../../../services/store';
 
 // data mẫu cho modal highlight
-const highlights= [
-  { id: "1", name: "Trip", isAdded: true, imageURL: 'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg'},
-  { id: "2", name: "Food", isAdded: true, imageURL: 'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg'},
-  { id: "3", name: "Friends", isAdded: false, imageURL: 'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg'},
+const highlights = [
+  {
+    id: '1',
+    name: 'Trip',
+    isAdded: true,
+    imageURL:
+      'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
+  },
+  {
+    id: '2',
+    name: 'Food',
+    isAdded: true,
+    imageURL:
+      'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
+  },
+  {
+    id: '3',
+    name: 'Friends',
+    isAdded: false,
+    imageURL:
+      'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
+  },
 ];
 
 export const SeenStoryOwner = ({route, navigation}: any) => {
   const {selectedItem} = route.params;
+  const user = useSelector((state: RootState) => state.user.user);
+  console.log('user', user);
   const [videoDuration, setVideoDuration] = useState(null);
   const [visible, setVisible] = useState(false);
   const [visibleSeeMore, setVisibleSeeMore] = useState(false);
@@ -43,13 +66,13 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
   const handleOnBackAddModal = () => {
     addModalRef.current?.close();
     setTimeout(() => viewModalRef.current?.open(), 300);
-  }
+  };
 
   const handleAddHighlight = (name: string) => {
     // xử lý thêm highlight mới vào danh sách
   };
 
-  const imageDuration = 10000; // 10 seconds for images
+  const imageDuration = 15000; // 10 seconds for images
 
   const getItemDuration = () => {
     if (selectedItem?.uriVideo && videoDuration) {
@@ -84,7 +107,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
   };
 
   const onVideoEnd = () => {
-    navigation.goBack(); // Quay lại khi video kết thúc
+    navigation.goBack();
   };
 
   useEffect(() => {
@@ -136,10 +159,10 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
             <Image
               style={styles.avatar}
               source={{
-                uri: 'https://i.pinimg.com/736x/c1/70/e8/c170e84663405785c80ba367cd5e3b85.jpg',
+                uri: user?.profilePic,
               }}
             />
-            <Text style={styles.nameUser}>Nhut Viet</Text>
+            <Text style={styles.nameUser}>{user?.username}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.btnCloser}
@@ -151,11 +174,11 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
           </TouchableOpacity>
         </View>
         <View style={styles.ViewMedia}>
-          {selectedItem ? (
-            selectedItem.uriVideo ? (
+          {selectedItem && selectedItem.mediaUrl ? (
+            selectedItem.mediaUrl.endsWith('.m3u8') ? (
               <Video
                 ref={videoRef}
-                source={{uri: selectedItem.uriVideo}}
+                source={{uri: selectedItem.mediaUrl}}
                 style={styles.media}
                 resizeMode="cover"
                 repeat={false}
@@ -164,14 +187,12 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
                 playInBackground={false}
                 playWhenInactive={false}
               />
-            ) : selectedItem.image ? (
+            ) : (
               <Image
-                source={{uri: selectedItem.image}}
+                source={{uri: selectedItem.mediaUrl}}
                 style={styles.media}
                 resizeMode="cover"
               />
-            ) : (
-              <Text style={styles.errorText}>Không có media để hiển thị</Text>
             )
           ) : (
             <Text style={styles.errorText}>Không có media để hiển thị</Text>
@@ -197,14 +218,6 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
           />
           <Text style={styles.txtIcon}>Xem thêm</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.viewIconItem}
-          onPress={() => viewModalRef.current?.open()}>
-          <Image
-            style={styles.icon}
-            source={require('../../../assets/icon/heart.png')}
-          />
-        </TouchableOpacity>
         <ModelPeopleSeen visible={visible} onClose={() => setVisible(false)} />
         <ModelSeeMore
           visible={visibleSeeMore}
@@ -219,134 +232,17 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
           onAddNew={handleOpenAddModal}
         />
       </Portal>
-            
+
       <Portal>
         <HighlightAddModal
           ref={addModalRef}
           onAdd={handleAddHighlight}
           onBack={handleOnBackAddModal}
-          imageSource={"https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg"}
+          imageSource={
+            'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg'
+          }
         />
       </Portal>
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#000',
-  },
-  header: {
-    position: 'absolute',
-    zIndex: 10,
-    width: '100%',
-  },
-  viewUser: {
-    position: 'absolute',
-    flexDirection: 'row',
-    alignItems: 'center',
-    left: 10,
-    top: 20,
-  },
-  avatar: {
-    width: 30,
-    height: 30,
-    borderRadius: 50,
-  },
-  nameUser: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '500',
-    marginLeft: 8,
-  },
-  btnCloser: {
-    position: 'absolute',
-    right: 10,
-    top: 20,
-    borderRadius: 50,
-    width: 30,
-    height: 30,
-    backgroundColor: 'rgba(140, 137, 137, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  iconCloser: {
-    width: 15,
-    height: 15,
-    tintColor: '#fff',
-  },
-  ViewMedia: {
-    flex: 1,
-  },
-  mediaItems: {
-    marginBottom: 15,
-    top: 5,
-  },
-  mediaWrapper: {
-    flex: 1,
-  },
-  media: {
-    flex: 1,
-    width: '100%',
-    height: '100%',
-  },
-  progressContainer: {
-    flexDirection: 'row',
-    width: '100%',
-    marginTop: 5,
-  },
-  progressBarWrapper: {
-    flex: 1,
-    height: 3,
-    backgroundColor: '#888',
-    marginHorizontal: 2,
-    borderRadius: 2,
-  },
-  progressBar: {
-    height: '100%',
-    backgroundColor: '#fff',
-  },
-  errorText: {
-    color: '#ff4444',
-    fontSize: 16,
-    textAlign: 'center',
-    flex: 1,
-    padding: 15,
-  },
-  viewBottom: {
-    margin: 15,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignContent: 'center',
-  },
-  input: {
-    width: '75%',
-    borderWidth: 1,
-    borderColor: '#fff',
-    color: '#fff',
-    padding: 10,
-    borderRadius: 15,
-  },
-  viewIconItem: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  icon: {
-    height: 20,
-    width: 20,
-    tintColor: '#fff',
-    marginBottom: 3,
-  },
-  txtIcon: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  viewIcon: {
-    width: '20%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-});

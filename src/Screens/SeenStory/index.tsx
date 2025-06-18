@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect, useRef, useMemo} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -10,34 +10,38 @@ import {
   TextInput,
 } from 'react-native';
 import Video from 'react-native-video';
-import {Modalize} from 'react-native-modalize';
-import {Portal} from 'react-native-portalize';
-import HighlightViewModal from '../SeenStoryOwner/component/HighlightViewModal';
-import HighlightAddModal from '../SeenStoryOwner/component/HighlightAddModal';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../services/store';
 import {toggleLikeStory} from '../../../services/StoryRedux/StorySlice';
+import {styles} from './components/styles';
+import {Header} from './components/Header';
+import {ProgressBar} from './components/ProgressBar';
+import {MediaPlayer} from './components/MediaPlayer';
+import {Footer} from './components/Footer';
 
 export const SeenStory = ({route, navigation}: any) => {
-  const {selectedItem} = route.params;
-  console.log('SeenStory - selectedItem:', selectedItem);
+  const {creator, selectedItem: routeSelectedItem} = route.params;
   const [videoDuration, setVideoDuration] = useState(null);
+  const [isLiked, setIsLiked] = useState<boolean>(false);
   const progressAnim = useRef(new Animated.Value(0)).current;
   const animationRef: any = useRef(null);
   const videoRef = useRef(null);
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.user.user);
-  const [isLiked, setIsLiked] = useState<boolean>(false);
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  // ✅ Giữ nguyên selectedItem, không bị ảnh hưởng từ Redux
+  const selectedItem = useMemo(() => {
+    return {
+      ...routeSelectedItem,
+    };
+  }, []);
 
   const imageDuration = 15000;
 
-  useEffect(() => {
-    console.log('selectedItem:', selectedItem);
-  }, [selectedItem]);
-
   const getItemDuration = () => {
     if (selectedItem?.uriVideo && videoDuration) {
-      return videoDuration * 1000; // Convert to milliseconds
+      return videoDuration * 1000;
     }
     return imageDuration;
   };
@@ -49,15 +53,16 @@ export const SeenStory = ({route, navigation}: any) => {
 
     progressAnim.setValue(0);
     const duration = getItemDuration();
+
     animationRef.current = Animated.timing(progressAnim, {
       toValue: 1,
-      duration: duration,
+      duration,
       useNativeDriver: false,
     });
 
     animationRef.current.start(({finished}: any) => {
       if (finished) {
-        navigation.goBack(); // Quay lại sau khi hết thời gian
+        setTimeout(() => navigation.goBack(), 50);
       }
     });
   };
@@ -68,249 +73,71 @@ export const SeenStory = ({route, navigation}: any) => {
   };
 
   const onVideoEnd = () => {
-    navigation.goBack(); // Quay lại khi video kết thúc
+    setTimeout(() => navigation.goBack(), 50);
   };
+
+  useEffect(() => {
+    const likedList = selectedItem?.likedByUsers || [];
+    setIsLiked(likedList.includes(user?._id));
+  }, [selectedItem, user?._id]);
 
   useEffect(() => {
     setVideoDuration(null);
     progressAnim.setValue(0);
 
     if (selectedItem?.uriVideo) {
-      if (animationRef.current) {
-        animationRef.current.stop();
-      }
+      if (animationRef.current) animationRef.current.stop();
     } else {
       startProgressAnimation();
     }
 
     return () => {
-      if (animationRef.current) {
-        animationRef.current.stop();
-      }
+      if (animationRef.current) animationRef.current.stop();
     };
-  }, [selectedItem]);
+  }, []); // ✅ Không phụ thuộc selectedItem nữa
 
-  useEffect(() => {
-    const isLikedByUser = selectedItem?.likedByUsers?.includes(user._id);
-    setIsLiked(!!isLikedByUser);
-  }, [selectedItem, user._id]);
+  const animateLike = () => {
+    Animated.sequence([
+      Animated.timing(scaleAnim, {
+        toValue: 1.5,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
 
   const handleLike = async () => {
     try {
-      await dispatch(
-        toggleLikeStory({storyId: selectedItem._id, userId: user._id}),
-      );
+      await dispatch(toggleLikeStory({storyId: selectedItem._id})).unwrap();
       setIsLiked(prev => !prev);
+      animateLike();
     } catch (err) {
       console.error('Error liking story:', err);
     }
   };
 
-  const handleCloserPress = () => {
-    navigation.goBack();
-  };
-
-  const renderProgressBar = () => {
-    const width = progressAnim.interpolate({
-      inputRange: [0, 1],
-      outputRange: ['0%', '100%'],
-    });
-
-    return (
-      <View style={styles.progressContainer}>
-        <View style={styles.progressBarWrapper}>
-          <Animated.View
-            style={[styles.progressBar, {width, backgroundColor: '#fff'}]}
-          />
-        </View>
-      </View>
-    );
-  };
-
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.mediaWrapper}>
-        <View style={styles.header}>
-          <View style={styles.mediaItems}>{renderProgressBar()}</View>
-          <TouchableOpacity style={styles.viewUser}>
-            <Image
-              style={styles.avatar}
-              source={{
-                uri: 'https://i.pinimg.com/736x/c1/70/e8/c170e84663405785c80ba367cd5e3b85.jpg',
-              }}
-            />
-            <Text style={styles.nameUser}>Nhut Viet</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.btnCloser}
-            onPress={handleCloserPress}>
-            <Image
-              style={styles.iconCloser}
-              source={require('../../../assets/icon/closer.png')}
-            />
-          </TouchableOpacity>
-        </View>
-        <View style={styles.ViewMedia}>
-          {selectedItem ? (
-            selectedItem.uriVideo ? (
-              <Video
-                ref={videoRef}
-                source={{uri: selectedItem.uriVideo}}
-                style={styles.media}
-                resizeMode="cover"
-                repeat={false}
-                onLoad={onVideoLoad}
-                onEnd={onVideoEnd}
-                playInBackground={false}
-                playWhenInactive={false}
-              />
-            ) : selectedItem.image ? (
-              <Image
-                source={{uri: selectedItem.image}}
-                style={styles.media}
-                resizeMode="cover"
-              />
-            ) : (
-              <Text style={styles.errorText}>Không có media để hiển thị</Text>
-            )
-          ) : (
-            <Text style={styles.errorText}>Không có media để hiển thị</Text>
-          )}
-        </View>
-      </View>
-      <View style={styles.viewBottom}>
-        <TextInput
-          style={styles.input}
-          placeholder="Gửi tin nhắn"
-          placeholderTextColor={'#fff'}
+        <Header
+          onClose={() => navigation.goBack()}
+          username={creator?.username}
+          profilePic={creator?.profilePic}
         />
-        <View style={styles.viewIcon}>
-          <TouchableOpacity onPress={handleLike}>
-            <Image
-              source={require('../../../assets/icon/heartred.png')}
-              style={{
-                width: 30,
-                height: 30,
-                tintColor: isLiked ? 'red' : '#fff',
-              }}
-            />
-          </TouchableOpacity>
-
-          <Image
-            style={styles.icon}
-            source={require('../../../assets/icon/share.png')}
-          />
-        </View>
+        <ProgressBar progressAnim={progressAnim} />
+        <MediaPlayer
+          item={selectedItem}
+          onLoad={onVideoLoad}
+          onEnd={onVideoEnd}
+          videoRef={videoRef}
+        />
       </View>
+      <Footer onLike={handleLike} isLiked={isLiked} scaleAnim={scaleAnim} />
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#000',
-  },
-  header: {
-    position: 'absolute',
-    zIndex: 10,
-    width: '100%',
-  },
-  viewUser: {
-    position: 'absolute',
-    flexDirection: 'row',
-    alignItems: 'center',
-    left: 10,
-    top: 20,
-  },
-  avatar: {
-    width: 30,
-    height: 30,
-    borderRadius: 50,
-  },
-  nameUser: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '500',
-    marginLeft: 8,
-  },
-  btnCloser: {
-    position: 'absolute',
-    right: 10,
-    top: 20,
-    borderRadius: 50,
-    width: 30,
-    height: 30,
-    backgroundColor: 'rgba(140, 137, 137, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  iconCloser: {
-    width: 15,
-    height: 15,
-    tintColor: '#fff',
-  },
-  ViewMedia: {
-    flex: 1,
-  },
-  mediaItems: {
-    marginBottom: 15,
-    top: 5,
-  },
-  mediaWrapper: {
-    flex: 1,
-  },
-  media: {
-    flex: 1,
-    width: '100%',
-    height: '100%',
-  },
-  progressContainer: {
-    flexDirection: 'row',
-    width: '100%',
-    marginTop: 5,
-  },
-  progressBarWrapper: {
-    flex: 1,
-    height: 3,
-    backgroundColor: '#888',
-    marginHorizontal: 2,
-    borderRadius: 2,
-  },
-  progressBar: {
-    height: '100%',
-    backgroundColor: '#fff',
-  },
-  errorText: {
-    color: '#ff4444',
-    fontSize: 16,
-    textAlign: 'center',
-    flex: 1,
-    padding: 15,
-  },
-  viewBottom: {
-    margin: 15,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignContent: 'center',
-  },
-  input: {
-    width: '75%',
-    borderWidth: 1,
-    borderColor: '#fff',
-    color: '#fff',
-    padding: 10,
-    borderRadius: 15,
-  },
-  icon: {
-    height: 30,
-    width: 30,
-    tintColor: '#fff',
-  },
-  viewIcon: {
-    width: '20%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-});

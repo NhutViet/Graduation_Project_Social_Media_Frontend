@@ -28,6 +28,7 @@ import {uploadImageToR2} from '../../core/upload';
 import {useUploadProgress} from '../../../services/UploadProgressManager';
 import {clearMessages} from '../../../services/messageRedux/messageReducer';
 import {BASE_URL} from '../../../services/api';
+import IncomingCallModal from '../../../components/IncomingCallModal';
 
 export const MessageScreen = () => {
   const navigation: any = useNavigation();
@@ -92,6 +93,14 @@ export const MessageScreen = () => {
 
     newSocket.on('receiveMessage', data => {
       setChat(prev => [...prev, data]);
+    });
+
+    newSocket.on('incomingCall', ({callerName, type}) => {
+      setIncomingCall({
+        visible: true,
+        callerName,
+        type,
+      });
     });
 
     setSocket(newSocket);
@@ -176,12 +185,34 @@ export const MessageScreen = () => {
     }
   }, [chat]);
 
+  const [incomingCall, setIncomingCall] = useState<{
+    visible: boolean;
+    callerName: string;
+    type: 'video' | 'voice';
+  }>({
+    visible: false,
+    callerName: '',
+    type: 'video',
+  });
+
+  const handleAcceptCall = () => {
+    setIncomingCall(prev => ({...prev, visible: false}));
+    navigation.navigate('ZegoCallScreen', {
+      userID: user.user?._id,
+      userName: user.user?.username,
+      callID: roomId,
+    });
+  };
+
+  const handleRejectCall = () => {
+    setIncomingCall(prev => ({...prev, visible: false}));
+  };
+
   const handleCall = (type: 'video' | 'voice') => {
     navigation.navigate('ZegoCallScreen', {
       userID: user.user?._id,
       userName: user.user?.username,
       callID: roomId,
-      isVideoCall: type === 'video',
     });
   };
 
@@ -438,6 +469,13 @@ export const MessageScreen = () => {
           )}
         </View>
       </Modal>
+      <IncomingCallModal
+        visible={incomingCall.visible}
+        callerName={incomingCall.callerName}
+        type={incomingCall.type}
+        onAccept={handleAcceptCall}
+        onReject={handleRejectCall}
+      />
     </SafeAreaView>
   );
 };
