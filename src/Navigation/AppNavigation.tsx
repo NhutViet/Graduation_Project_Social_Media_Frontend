@@ -52,9 +52,10 @@ import {
   DissapearingMessage,
   PrivacyAndSafety,
   Splash,
+  UserFollowScreen
 } from '../Screens';
 import BottomTabs from './BottomTabs';
-import UserProfileNavigation from '../Screens/Profile';
+import ProfileComp from '../Screens/Profile';
 import EditHighlightScreen from '../(tabs)/Profile/components/EditHighlightScreen';
 import NewMessage from '../Screens/NewMessage';
 import PostStory from '../Screens/PostStory';
@@ -98,7 +99,7 @@ const AppNavigator = () => {
         <Stack.Screen name="NewMessage" component={NewMessage} />
         <Stack.Screen name="MusicSaved" component={MusicSavedScreen} />
         <Stack.Screen name="HorizontalScreen" component={HorizontalScreen} />
-        <Stack.Screen name="UserProfileNavigation" component={UserProfileNavigation} />
+        <Stack.Screen name="ProfileComp" component={ProfileComp} />
         <Stack.Screen name="SaveMusic" component={SaveMusic} />
         <Stack.Screen name="PeopleGroupChat" component={PeopleGroupChat} />
         <Stack.Screen name="BlockUser" component={BlockUser} />
@@ -155,6 +156,7 @@ const AppNavigator = () => {
           component={DissapearingMessage}
         />
         <Stack.Screen name="PrivacyAndSafety" component={PrivacyAndSafety} />
+        <Stack.Screen name="UserFollowScreen" component={UserFollowScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

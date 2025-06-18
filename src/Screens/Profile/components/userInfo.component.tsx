@@ -12,6 +12,8 @@ interface UserInfoProps {
   avatar: string;
   bio?: string;
   theme: Theme;
+  onFollowersPress: () => void;
+  onFollowingPress: () => void;
 }
 
 const UserInfo: React.FC<UserInfoProps> = ({
@@ -22,6 +24,8 @@ const UserInfo: React.FC<UserInfoProps> = ({
   avatar,
   bio,
   theme,
+  onFollowersPress,
+  onFollowingPress
 }) => {
   const navigation: any = useNavigation();
   const color = Colors[theme];
@@ -45,18 +49,18 @@ const UserInfo: React.FC<UserInfoProps> = ({
             </Text>
             <Text style={styles.statLabel}>bài viết</Text>
           </View>
-          <TouchableOpacity style={styles.statItem}>
+          <TouchableOpacity onPress={onFollowersPress} style={styles.statItem}>
             <Text style={[styles.statNumber, {color: color.text}]}>
               {formatFollowers(followers)}
             </Text>
             <Text style={styles.statLabel}>người theo dõi</Text>
           </TouchableOpacity>
-          <View style={styles.statItem}>
+          <TouchableOpacity onPress={onFollowingPress} style={styles.statItem}>
             <Text style={[styles.statNumber, {color: color.text}]}>
               {following}
             </Text>
             <Text style={styles.statLabel}>đang theo dõi</Text>
-          </View>
+          </TouchableOpacity>
         </View>
       </View>
       <View style={styles.bioContainer}>

@@ -65,7 +65,7 @@ const suggestedData = [
   },
 ];
 
-const FollowingTab = () => {
+const FollowingTab = ({route}: any) => {
   const navigation: any = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];

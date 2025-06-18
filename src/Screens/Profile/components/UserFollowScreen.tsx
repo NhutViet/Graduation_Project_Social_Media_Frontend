@@ -2,7 +2,7 @@ import {StyleSheet, Text, View} from 'react-native';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 import React from 'react';
 import Header from '../../../../components/Header';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import UserFollowersTab from './UserFollowersTab'
 import UserFollowingTab from './UserFollowingTab'
@@ -13,11 +13,13 @@ import { RootState } from '../../../../services/store';
 
 const TopTab = createMaterialTopTabNavigator();
 
-const UserFollowScreen = () => {
+export const UserFollowScreen = ({routes}: any) => {
   const navigation: any = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];
   const user = useSelector((state: RootState) => state.user.user);
+  const route = useRoute();
+  const initialRouteName = (route.params as {screen?: string})?.screen || 'UserFollowersTab';
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
       <View style={{width: '100%', height: 60}}>
@@ -30,6 +32,7 @@ const UserFollowScreen = () => {
       </View>
       <View style={{width: '100%', height: '100%'}}>
         <TopTab.Navigator
+          initialRouteName={initialRouteName}  
           screenOptions={{
             tabBarLabelStyle: {
               fontSize: 16,
@@ -51,6 +54,7 @@ const UserFollowScreen = () => {
             name="UserFollowersTab"
             component={UserFollowersTab}
             options={{title: 'Người theo dõi'}}
+            initialParams={{userID: routes.params?.userID}}
           />
           <TopTab.Screen
             name="UserFollowingTab"
@@ -62,5 +66,3 @@ const UserFollowScreen = () => {
     </SafeAreaView>
   );
 };
-
-export default UserFollowScreen;

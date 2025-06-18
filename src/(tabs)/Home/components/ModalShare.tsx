@@ -21,7 +21,7 @@ import {Colors} from '../../../../assets/color/Colors';
 import {useTheme} from '../../../util/ThemeContext';
 
 interface Friend {
-  id: string;
+  _id: string;
   name: string;
   avatar: string;
 }
@@ -57,12 +57,12 @@ const ModalShare: React.FC<ModalShareProps> = ({visible, onClose, friends}) => {
           </Text>
 
           {/* Tìm kiếm */}
-          <View style={styles.searchBox}>
+          <View style={[styles.searchBox, {backgroundColor: color.search}]}>
             <Search size={20} color="#aaa" />
             <TextInput
               placeholder="Tìm kiếm"
-              style={[styles.searchInput, {color: color.text}]}
-              placeholderTextColor="#888"
+              style={[styles.searchInput, {backgroundColor: color.backgroundSecondary}]}
+              placeholderTextColor= {color.textSecondary}
             />
             <UserPlus size={20} color="#aaa" />
           </View>
@@ -75,17 +75,17 @@ const ModalShare: React.FC<ModalShareProps> = ({visible, onClose, friends}) => {
             estimatedItemSize={80}
             showsVerticalScrollIndicator={false}
             extraData={selectedFriendIds}
-            keyExtractor={item => item.id}
+            keyExtractor={item => item._id}
             contentContainerStyle={{
               paddingBottom: 16,
-              backgroundColor: '#1c1c1e',
+              backgroundColor: color.background,
             }}
             renderItem={({item}) => {
-              const isSelected = selectedFriendIds.includes(item.id);
+              const isSelected = selectedFriendIds.includes(item._id);
               return (
                 <View style={{flex: 1, alignItems: 'center'}}>
                   <TouchableOpacity
-                    onPress={() => toggleSelectFriend(item.id)}
+                    onPress={() => toggleSelectFriend(item._id)}
                     style={styles.friendItem}>
                     <View>
                       <Image
@@ -98,7 +98,7 @@ const ModalShare: React.FC<ModalShareProps> = ({visible, onClose, friends}) => {
                         </View>
                       )}
                     </View>
-                    <Text style={styles.friendName}>{item.name}</Text>
+                    <Text style={[styles.friendName, {color: color.textSecondary}]}>{item.name}</Text>
                   </TouchableOpacity>
                 </View>
               );
@@ -122,11 +122,11 @@ const ModalShare: React.FC<ModalShareProps> = ({visible, onClose, friends}) => {
               <TextInput
                 placeholder="Soạn tin nhắn..."
                 placeholderTextColor="#888"
-                style={[styles.messageInput, {color: color.text}]}
+                style={[styles.messageInput, {backgroundColor: color.backgroundSecondary}]}
                 value={message}
                 onChangeText={setMessage}
               />
-              <TouchableOpacity style={[styles.sendButton, {backgroundColor: color.background}]}>
+              <TouchableOpacity style={[styles.sendButton]}>
                 <Text style={styles.sendButtonText}>Gửi</Text>
               </TouchableOpacity>
             </>

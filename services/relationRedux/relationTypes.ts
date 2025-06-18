@@ -22,6 +22,7 @@ export interface UserProfile {
   isVip: boolean;
   deletedAt: boolean;
   isFollowing: boolean;
+  isMeFollowing?: boolean;
 }
 
 export interface RelationWithUser {
