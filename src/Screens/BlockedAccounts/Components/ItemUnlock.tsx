@@ -1,26 +1,36 @@
-import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import React from 'react';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '../../../util/ThemeContext';
 import { Colors } from '../../../../assets/color/Colors';
 
-const ItemUnlock = (props: any) => {
-    const {uri, handle, onHandleUnBlock} = props;
-    const {theme} = useTheme();
-    const colors = Colors[theme];
+interface ItemUnlockProps {
+  uri: string;
+  handle: string;
+  onHandleUnBlock: () => void;
+}
+
+const ItemUnlock: React.FC<ItemUnlockProps> = ({ uri, handle, onHandleUnBlock }) => {
+  const { theme } = useTheme();
+  const colors = Colors[theme];
+
   return (
     <TouchableOpacity style={styles.container}>
       <View style={styles.leftContainer}>
         <View style={styles.imgContainer}>
-          <View style={[styles.outCircle, {backgroundColor: colors.lightGray, borderColor: colors.gray}]}/>
-          <Image source={{uri: uri}} style={[styles.imgMain, {borderColor: colors.background}]}/>
+          <View style={[styles.outCircle, { backgroundColor: colors.lightGray, borderColor: colors.gray }]} />
+          <Image source={{ uri }} style={[styles.imgMain, { borderColor: colors.background }]} />
         </View>
-        <View style={{flex: 1}} >
-          <Text style={[styles.textHandle, {color: colors.text}]} numberOfLines={1} ellipsizeMode='tail'>{handle}</Text>
-          <Text style={[styles.textNote, {color: colors.lightDark}]} numberOfLines={2} ellipsizeMode='tail'>Bao gồm các tài khoản khác mà họ có hoặc có thể tạo</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={[styles.textHandle, { color: colors.text }]} numberOfLines={1} ellipsizeMode='tail'>
+            {handle}
+          </Text>
+          <Text style={[styles.textNote, { color: colors.lightDark }]} numberOfLines={2} ellipsizeMode='tail'>
+            Bao gồm các tài khoản khác mà họ có hoặc có thể tạo
+          </Text>
         </View>
       </View>
-      <TouchableOpacity style={[styles.btn, {backgroundColor: colors.primary}]} onPress={onHandleUnBlock}>
-        <Text style={[styles.textUnBlock, {color: colors.background}]}>Bỏ chặn</Text>
+      <TouchableOpacity style={[styles.btn, { backgroundColor: colors.primary }]} onPress={onHandleUnBlock}>
+        <Text style={[styles.textUnBlock, { color: colors.background }]}>Bỏ chặn</Text>
       </TouchableOpacity>
     </TouchableOpacity>
   );
