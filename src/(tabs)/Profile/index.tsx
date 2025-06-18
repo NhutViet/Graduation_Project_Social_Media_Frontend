@@ -49,7 +49,7 @@ const Profile = () => {
   const user = useSelector((state: RootState) => state.user.user);
 
   const dispatch = useDispatch<AppDispatch>();
-  const userID = useSelector((state: RootState) => state.user?.user?._id);
+  const userId = useSelector((state: RootState) => state.user?.user?._id);
   const {followers, following} = useSelector(
     (state: RootState) => state.relation,
   );
@@ -118,16 +118,16 @@ const Profile = () => {
   ]);
 
   useEffect(() => {
-    if (userID) {
+    if (userId) {
       // gọi 2 api followers, following
       Promise.all([
-        dispatch(fetchFollowers({userID})),
-        dispatch(fetchFollowing({userID})),
+        dispatch(fetchFollowers({userId})),
+        dispatch(fetchFollowing({userId})),
       ]).catch(error => {
         console.error('Error fetching relations:', error);
       });
     }
-  }, [dispatch, userID]);
+  }, [dispatch, userId]);
 
   useEffect(() => {
     const exists = dataUser.some(user => user.name === 'Tin của tôi');
