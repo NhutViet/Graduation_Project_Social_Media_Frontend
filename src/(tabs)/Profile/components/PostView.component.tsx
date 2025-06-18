@@ -5,21 +5,23 @@ import {Video as Icon, Tag} from 'lucide-react-native';
 import {Styles} from '../../../StyleSheet/Profile.Styles';
 import Video from 'react-native-video';
 import {Colors} from '../../../../assets/color/Colors';
+import { useNavigation } from '@react-navigation/native';
 // import {useNavigation} from '@react-navigation/native';
 
 interface GridViewProps {
   data: any[];
   renderOverlay?: () => React.ReactNode;
+  onPressItem?: (item: any) => void;
 }
 
-const GridView: React.FC<GridViewProps> = ({data, renderOverlay}) => {
+const GridView: React.FC<GridViewProps> = ({data, renderOverlay, onPressItem}) => {
   // const navigate = useNavigation<any>();
   return (
     <>
       {data.length > 0 ? (
         <FlashList
           data={data}
-          // numColumns={3}
+          numColumns={3}
           estimatedItemSize={Styles.itemSize}
           // scrollEnabled={true}
           extraData={data}
@@ -36,7 +38,7 @@ const GridView: React.FC<GridViewProps> = ({data, renderOverlay}) => {
               isVideo = false;
             }
             return (
-              <TouchableOpacity style={Styles.styles.gridItem}>
+              <TouchableOpacity style={Styles.styles.gridItem} onPress={() => onPressItem?.(item)}>
                 {isVideo ? (
                   <Video
                     source={{uri: uri}}
@@ -80,7 +82,13 @@ const GridView: React.FC<GridViewProps> = ({data, renderOverlay}) => {
 };
 
 export const PostsView: React.FC<{data: any[]}> = ({data}) => {
-  return <GridView data={data} />;
+  const navigation = useNavigation<any>();
+  const handlePress = (item: any) => {
+    navigation.navigate('AllPostOfUserScreen', {
+      targetPostId: item._id,
+    })
+  };
+  return <GridView data={data} onPressItem={handlePress}/>;
 };
 
 export const ReelsView: React.FC<{data: any[]}> = ({data}) => {

@@ -41,6 +41,12 @@ import {
 import {getPublicProfile} from '../../../services/userRedux/userSlice';
 import {clearPublicProfile} from '../../../services/userRedux/userReducer';
 import {createRoom} from '../../../services/roomRedux/roomSlice';
+import {
+  PostsView,
+  ReelsView,
+} from '../../(tabs)/Profile/components/PostView.component';
+import {getPostsAndReelsOfUser} from '../../../services/postUserRedux/postUserSlice';
+import {clearPostsAndReels} from '../../../services/postUserRedux/postUserReducer';
 
 const ProfileComp = ({route}: any) => {
   const navigation: any = useNavigation();
@@ -116,6 +122,15 @@ const ProfileComp = ({route}: any) => {
 
   const [isBlock, setIsBlock] = useState(false);
 
+  const {items: PostsItem}: any | null = useSelector(
+    (state: RootState) => state.postUser.posts,
+  );
+  const {items: ReelsItem}: any | null = useSelector(
+    (state: RootState) => state.postUser.reels,
+  );
+  const {isSuccess} = useSelector((state: RootState) => state.postUser);
+  const {refreshToken} = useSelector((state: RootState) => state.user);
+
   useEffect(() => {
     if (userID) {
       // Clear previous profile data
@@ -126,6 +141,7 @@ const ProfileComp = ({route}: any) => {
         dispatch(getPublicProfile({userId: userID})),
         dispatch(fetchFollowers({userID})),
         dispatch(fetchFollowing({userID})),
+        dispatch(getPostsAndReelsOfUser({refreshToken, userId: userID})),
       ]).catch(error => {
         console.error('Error fetching data:', error);
       });
@@ -134,6 +150,7 @@ const ProfileComp = ({route}: any) => {
     // Cleanup when component unmounts
     return () => {
       dispatch(clearPublicProfile());
+      dispatch(clearPostsAndReels());
     };
   }, [dispatch, userID]);
 
@@ -160,46 +177,34 @@ const ProfileComp = ({route}: any) => {
   };
 
   const [activeTab, setActiveTab] = useState('grid');
-  const renderItem = ({item}: {item: any}) => (
-    <TouchableOpacity
-      style={[Styles.styles.gridItem, {backgroundColor: '#f0f0f0'}]}>
-      <Image
-        source={{uri: item.image}}
-        style={[
-          Styles.styles.gridImage,
-          {
-            width: Styles.itemSize - 2,
-            height: Styles.itemSize - 2,
-            borderRadius: 1,
-          },
-        ]}
-      />
-      {activeTab !== 'grid' && (
-        <View style={styles.overlayStyle}>
-          {activeTab === 'reels' && <Video color="white" size={20} />}
-          {activeTab === 'tagged' && <UserSquare2 color="white" size={20} />}
-        </View>
-      )}
-    </TouchableOpacity>
-  );
+
   const renderTabContent = () => {
     if (!isPrivate) {
       return renderPrivateContent();
     }
-    return (
-      <FlashList
-        data={PostData}
-        numColumns={3}
-        estimatedItemSize={Styles.itemSize}
-        scrollEnabled={true}
-        renderItem={renderItem}
-        keyExtractor={item => item.id}
-        showsVerticalScrollIndicator={false}
-        extraData={activeTab}
-        contentContainerStyle={{paddingBottom: 20}}
-      />
-    );
+    switch (activeTab) {
+      case 'grid':
+        return isSuccess && PostsItem ? (
+          <PostsView data={PostsItem} />
+        ) : (
+          <LoadingPlaceholder />
+        );
+      case 'reels':
+        return isSuccess && ReelsItem ? (
+          <ReelsView data={ReelsItem} />
+        ) : (
+          <LoadingPlaceholder />
+        );
+      default:
+        return <LoadingPlaceholder />;
+    }
   };
+
+  const LoadingPlaceholder = () => (
+    <View style={[styles.content, styles.centerItem, {height: 50}]}>
+      <Text style={styles.textno}>Đang tải...</Text>
+    </View>
+  );
 
   // Show loading indicator while fetching profile
   if (isLoadingPublicProfile) {
@@ -342,28 +347,9 @@ const ProfileComp = ({route}: any) => {
                   }
                 />
               </TouchableOpacity>
-              <TouchableOpacity
-                disabled={!isPrivate}
-                onPress={() => {
-                  setActiveTab('tagged');
-                }}
-                style={[
-                  styles.tab,
-                  activeTab === 'tagged' && styles.activeTab,
-                  !isPrivate && {opacity: 0.5},
-                ]}>
-                <UserSquare2
-                  size={26}
-                  color={
-                    activeTab === 'tagged'
-                      ? Colors[theme].text
-                      : Colors.textSecondary
-                  }
-                />
-              </TouchableOpacity>
             </View>
             {/* Posts Grid */}
-            {renderTabContent()}
+            <View style={{flex: 1}}>{renderTabContent()}</View>
           </>
         )}
 
@@ -568,6 +554,25 @@ export const createStyles = (theme: 'light' | 'dark') => {
     retryButtonText: {
       color: Colors.white,
       fontWeight: '600',
+    },
+    content: {
+      flex: 1,
+      paddingHorizontal: 5,
+    },
+    centerItem: {
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    imgNoPhoto: {
+      width: 100,
+      height: 150,
+      resizeMode: 'contain',
+      tintColor: Colors.textSecondary,
+    },
+    textno: {
+      fontSize: 18,
+      fontWeight: '500',
+      color: Colors.textSecondary,
     },
   });
 };

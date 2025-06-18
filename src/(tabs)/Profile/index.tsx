@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   TouchableOpacity,
   View,
@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {FlashList} from '@shopify/flash-list';
 import {highlights, HighlightItem} from '../../MockData/story.mock';
 import {
@@ -28,10 +28,7 @@ import {Styles} from '../../StyleSheet/Profile.Styles';
 import {SwitchAccount} from '../../../components/SwitchAccount';
 import {ViewMore} from '../../../components/ViewMore';
 import ModalCreate from './components/ModalCreate';
-import {
-  PostsView,
-  ReelsView,
-} from './components/PostView.component';
+import {PostsView, ReelsView} from './components/PostView.component';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../services/store';
 import {
@@ -39,6 +36,7 @@ import {
   fetchFollowing,
 } from '../../../services/relationRedux/relationSlice';
 import {
+  getPostsAndReelsOfUser,
   getPostsOfUser,
   getReelsOfUser,
 } from '../../../services/postUserRedux/postUserSlice';
@@ -331,89 +329,45 @@ const Profile = () => {
           size={24}
         />
       </TouchableOpacity>
-      <TouchableOpacity
-        style={[
-          styles.tab,
-          activeTab === 'tagged' && styles.activeTab,
-          {borderBottomColor: color.text},
-        ]}
-        onPress={() => setActiveTab('tagged')}>
-        <UserSquare2
-          color={activeTab === 'tagged' ? color.text : color.textSecondary}
-          size={24}
-        />
-      </TouchableOpacity>
     </View>
   );
 
-  // const renderContent = () => {
-  //   switch (activeTab) {
-  //     case 'grid':
-  //       return isSuccess && PostsItem ? (
-  //         <PostsView data={PostsItem} />
-  //       ) : (
-  //         <View style={[styles.content, styles.centerItem, {height: 50}]}>
-  //           <Text style={styles.textno}>Đang tải...</Text>
-  //         </View>
-  //       );
-  //     case 'reels':
-  //       return isSuccess && ReelsItem ? (
-  //         <ReelsView data={ReelsItem} />
-  //       ) : (
-  //         <View style={[styles.content, styles.centerItem, {height: 50}]}>
-  //           <Text style={styles.textno}>Đang tải...</Text>
-  //         </View>
-  //       );
-  //     case 'tagged':
-  //       return isSuccess ? (
-  //         <PostsView data={PostsItem} />
-  //       ) : (
-  //         <View style={[styles.content, styles.centerItem, {height: 50}]}>
-  //           <Text style={styles.textno}>Đang tải...</Text>
-  //         </View>
-  //       );
-  //     default:
-  //       return isSuccess ? (
-  //         <PostsView data={PostsItem} />
-  //       ) : (
-  //         <View style={[styles.content, styles.centerItem, {height: 50}]}>
-  //           <Text style={styles.textno}>Đang tải...</Text>
-  //         </View>
-  //       );
-  //   }
-  // };
-
-  useEffect(() => {
-    // Lần đầu tiên: gọi cả hai API
-    dispatch(getPostsOfUser({refreshToken}));
-    dispatch(getReelsOfUser({refreshToken}));
-  }, [dispatch, refreshToken]);
-
-  useEffect(() => {
-    if (activeTab === 'grid') {
-      dispatch(getPostsOfUser({refreshToken}));
-    } else if (activeTab === 'reels') {
-      dispatch(getReelsOfUser({refreshToken}));
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'grid':
+        return isSuccess && PostsItem ? (
+          <PostsView data={PostsItem} />
+        ) : (
+          <LoadingPlaceholder />
+        );
+      case 'reels':
+        return isSuccess && ReelsItem ? (
+          <ReelsView data={ReelsItem} />
+        ) : (
+          <LoadingPlaceholder />
+        );
+      default:
+        return <LoadingPlaceholder />;
     }
-  }, [activeTab, dispatch, refreshToken]);
+  };
+
+  const LoadingPlaceholder = () => (
+    <View style={[styles.content, styles.centerItem, {height: 50}]}>
+      <Text style={styles.textno}>Đang tải...</Text>
+    </View>
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(getPostsAndReelsOfUser({refreshToken, userId: userID}));
+    }, [dispatch, refreshToken, userID]),
+  );
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
-      <FlashList
-        data={activeTab === 'grid' ? PostsItem : ReelsItem}
-        renderItem={({item}) => <PostsView data={[item]} />}
-        ListHeaderComponent={
-          <>
-            {renderHeader()}
-            {renderTabBar()}
-          </>
-        }
-        estimatedItemSize={200}
-        showsVerticalScrollIndicator={false}
-        keyboardDismissMode="on-drag"
-        numColumns={3}
-        keyboardShouldPersistTaps="handled"
-      />
+      {renderHeader()}
+      {renderTabBar()}
+      {renderContent()}
       <SwitchAccount
         visible={isSwitchAccountVisible}
         onClose={() => setSwitchAccountVisible(false)}
