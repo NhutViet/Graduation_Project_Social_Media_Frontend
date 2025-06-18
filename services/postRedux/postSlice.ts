@@ -12,7 +12,7 @@ export const fetchPostsWithMedia = createAsyncThunk<PostWithMedia[]>(
           token: 'refresh',
         },
       });
-      return response.data;
+      return response.data.items;
     } catch (err: any) {
       return rejectWithValue(err.response?.data || err.message);
     }
@@ -28,7 +28,7 @@ export const fetchReelsWithMedia = createAsyncThunk<PostWithMedia[]>(
           token: 'refresh',
         },
       });
-      return response.data;
+      return response.data.items;
     } catch (err: any) {
       return rejectWithValue(err.response?.data || err.message);
     }
