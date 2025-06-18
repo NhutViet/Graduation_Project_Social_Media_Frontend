@@ -1,10 +1,11 @@
 import {createSlice} from '@reduxjs/toolkit';
 import {UserProfile, RelationWithUser} from './relationTypes';
-import {fetchFollowers, fetchFollowing} from './relationSlice';
+import {fetchFollowers, fetchFollowing, fetchBlocking} from './relationSlice';
 
 interface RelationState {
   followers: UserProfile[];
   following: UserProfile[];
+  blocking:    UserProfile[]; 
   loading: boolean;
   error: string | null;
 };
@@ -12,6 +13,7 @@ interface RelationState {
 const initialState: RelationState = {
   followers: [],
   following: [],
+  blocking: [],   
   loading: false,
   error: null,
 };
@@ -23,10 +25,14 @@ const relationReducer = createSlice({
     clearRelations: state => {
       state.followers = [];
       state.following = [];
+      state.blocking = [];  
       state.error = null;
     },
     clearError: state => {
       state.error = null;
+    },
+    clearBlocking: state => {   
+      state.blocking = [];
     },
   },
   extraReducers: builder => {
@@ -57,6 +63,20 @@ const relationReducer = createSlice({
       .addCase(fetchFollowing.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Tải dữ liệu người đang theo dõi thất bại';
+      })
+
+        // fetchBlocking
+      .addCase(fetchBlocking.pending, state => {
+        state.loading = true;
+        state.error   = null;
+      })
+      .addCase(fetchBlocking.fulfilled, (state, action) => {
+        state.loading  = false;
+        state.blocking = action.payload;
+      })
+      .addCase(fetchBlocking.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Tải dữ liệu người bị chặn thất bại';
       });
   },
 });

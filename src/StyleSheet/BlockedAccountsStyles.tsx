@@ -76,6 +76,22 @@ export const BlockedAccountsStyles = (theme: 'light' | 'dark') => {
       padding: 20,
       justifyContent: 'center',
       alignItems: 'center',
-    }
+    },
+    loaderOverlay: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: color.background,  
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 10,                             
+    },
+    emptyContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    emptyText: {
+      fontSize: 16,
+      color: color.text,
+    },
   });
 };
