@@ -6,7 +6,11 @@ import {
   saveBookmark,
 } from '../../../../services/bookmarkRedux/bookmarkSlice';
 import {HandleBookmarkParams} from '../types';
-import { fetchStoriesByIds, seenStory } from '../../../../services/StoryRedux/StorySlice';
+import {seenStory} from '../../../../services/StoryRedux/StorySlice';
+import {
+  checkStorySeenInStorage,
+  markStoryAsSeen,
+} from '../../../../services/storage/storage';
 
 export const handleBookmark = async ({
   isBookmarked,
@@ -117,28 +121,68 @@ export const handleFollowToggle = async ({
   }
 };
 
-export const handleUserPress = async (item: any, dispatch: any, navigation: any) => {
-  if (!item.stories.length) return;
-  const firstStoryId = item.stories[0];
+export const handleUserPress = async (
+  item: any,
+  dispatch: any,
+  navigation: any,
+  storyDetails: any[],
+  user: any,
+) => {
+  const isCurrentUser = item._id === user?._id;
+
+  if (!item.stories.length && isCurrentUser) {
+    navigation.navigate('UpStory');
+    return;
+  }
+
+  const storyId = item.stories[0];
+  const story = storyDetails.find(s => s._id === storyId);
+  const createdAt = story?.createdAt;
+
+  if (!createdAt) {
+    console.warn('⚠️ createdAt is undefined, bỏ qua:', storyId);
+    return;
+  }
 
   try {
-    const res = await dispatch(fetchStoriesByIds([firstStoryId])).unwrap();
-    const storyDetail = res[0];
+    const res = await dispatch(seenStory({storyId})).unwrap();
+    const storyData = res?.data;
 
-    await dispatch(seenStory({storyId: firstStoryId, userId: item._id}));
-    navigation.navigate('SeenStory', {
-      selectedItem: {
-        _id: storyDetail._id,
-        uriVideo: storyDetail.mediaUrl.endsWith('.m3u8')
-          ? storyDetail.mediaUrl
+    if (!storyData || !storyData.mediaUrl) {
+      Alert.alert('Không tìm thấy nội dung story để hiển thị');
+      return;
+    }
+
+    // Nếu chưa lưu thì mới đánh dấu đã seen trong máy
+    const hasSeen = await checkStorySeenInStorage(storyId, createdAt);
+    if (!hasSeen) {
+      await markStoryAsSeen(storyId, storyData.createdAt);
+    }
+
+    const selectedItem = {
+      ...storyData,
+      uriVideo: storyData.mediaUrl.endsWith('.m3u8')
+        ? storyData.mediaUrl
+        : null,
+      image:
+        storyData.mediaUrl.endsWith('.jpg') ||
+        storyData.mediaUrl.endsWith('.png')
+          ? storyData.mediaUrl
           : null,
-        image: storyDetail.mediaUrl.endsWith('.m3u8')
-          ? null
-          : storyDetail.mediaUrl,
-        likedByUsers: storyDetail.likedByUsers,
-      },
+      createdAt: storyData.createdAt,
+    };
+
+    const creator = {
+      username: item.handleName,
+      profilePic: item.profilePic,
+    };
+
+    navigation.navigate(isCurrentUser ? 'SeenStoryOwner' : 'SeenStory', {
+      selectedItem,
+      creator,
     });
-  } catch (err) {
-    console.error('❌ Error viewing story:', err);
+  } catch (error) {
+    Alert.alert('Lỗi khi tải story');
+    console.error('❌ seenStory error', error);
   }
 };

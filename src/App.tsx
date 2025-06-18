@@ -14,7 +14,11 @@ import {UploadProvider} from '../services/UploadProgressManager';
 import Toast from 'react-native-toast-message';
 import {Buffer} from 'buffer';
 global.Buffer = Buffer;
-
+if (__DEV__) {
+  import('./config/ReactotronConfig').then(() =>
+    console.tron.log('Reactotron Configured ✅'),
+  );
+}
 enableScreens();
 
 const App = () => {

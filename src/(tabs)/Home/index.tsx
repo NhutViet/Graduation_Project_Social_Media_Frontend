@@ -1,5 +1,11 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {SafeAreaView, View, ActivityIndicator, ScrollView} from 'react-native';
+import {
+  SafeAreaView,
+  View,
+  ActivityIndicator,
+  ScrollView,
+  Alert,
+} from 'react-native';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {useIsFocused, useNavigation} from '@react-navigation/native';
@@ -13,7 +19,10 @@ import Animated, {
 
 import {AppDispatch, RootState} from '../../../services/store';
 import {fetchPostsWithMedia} from '../../../services/postRedux/postSlice';
-import {fetchFollowingStories} from '../../../services/StoryRedux/StorySlice';
+import {
+  fetchFollowingStories,
+  seenStory,
+} from '../../../services/StoryRedux/StorySlice';
 import {
   getAllPlaylists,
   getItemsOfPlaylist,
@@ -26,6 +35,11 @@ import BottomSheetComment, {
   BottomSheetCommentRef,
 } from './components/CommentSection';
 import {handleUserPress} from './util';
+import {
+  checkStorySeenInStorage,
+  clearExpiredSeenStories,
+  markStoryAsSeen,
+} from '../../../services/storage/storage';
 
 const HEADER_HEIGHT = 100;
 const AnimatedFlatList = Animated.createAnimatedComponent(Animated.FlatList);
@@ -36,10 +50,13 @@ export const Home = () => {
   const color = Colors[theme];
   const isFocused = useIsFocused();
   const dispatch = useDispatch<AppDispatch>();
-
+  const storyDetails = useSelector(
+    (state: RootState) => state.stories.storyDetails,
+  );
   const sheetRef = useRef<BottomSheetCommentRef>(null);
   const [currentVisible, setCurrentVisible] = useState<string | null>(null);
   const [selectedPostId, setSelectedPostId] = useState<string>('');
+  const [seenMap, setSeenMap] = useState<Record<string, boolean>>({});
 
   const posts = useSelector((state: RootState) => state.post.posts);
   const followingUsers = useSelector(
@@ -54,8 +71,12 @@ export const Home = () => {
 
   useEffect(() => {
     dispatch(fetchPostsWithMedia());
+
     dispatch(fetchFollowingStories({page: 1}));
+
     dispatch(getAllPlaylists({refreshToken}));
+
+    clearExpiredSeenStories();
   }, []);
 
   useEffect(() => {
@@ -63,6 +84,29 @@ export const Home = () => {
       dispatch(getItemsOfPlaylist({playlistId: playlist.id, refreshToken}));
     });
   }, [playlists]);
+
+  useEffect(() => {
+    const syncSeenStories = async () => {
+      const map: Record<string, boolean> = {};
+      for (const user of followingUsers) {
+        for (const storyId of user.stories) {
+          const story = storyDetails.find(s => s._id === storyId);
+          const createdAt = story?.createdAt;
+          if (!createdAt) {
+            console.warn('⚠️ createdAt is undefined, bỏ qua:', storyId);
+            continue;
+          }
+          const seen = await checkStorySeenInStorage(storyId, createdAt);
+          map[storyId] = seen;
+        }
+      }
+      setSeenMap(map);
+    };
+
+    if (followingUsers.length && storyDetails.length) {
+      syncSeenStories();
+    }
+  }, [followingUsers, storyDetails]);
 
   const onViewRef = useCallback(({viewableItems}: {viewableItems: any[]}) => {
     const id = viewableItems[0]?.item?._id;
@@ -155,6 +199,9 @@ export const Home = () => {
             />
           );
         }}
+        initialNumToRender={5}
+        maxToRenderPerBatch={1}
+        windowSize={3}
         onViewableItemsChanged={onViewRef}
         viewabilityConfig={{itemVisiblePercentThreshold: 70}}
         scrollEventThrottle={16}
@@ -164,26 +211,49 @@ export const Home = () => {
         nestedScrollEnabled
         ListHeaderComponent={
           <View style={{position: 'relative', height: 160}}>
-            <View style={{position: 'absolute', top: 50}}>
+            <View style={{paddingTop: 48}}>
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={{paddingHorizontal: 10}}>
                 {followingUsers
-                  .filter(item => item !== undefined && item !== null)
-                  .map(item => (
-                    <Story
-                      key={item._id}
-                      name={
-                        item.handleName === user?.handleName
-                          ? 'Tin của tôi'
-                          : item.handleName
-                      }
-                      image={item.profilePic}
-                      status={item.stories.length > 0 ? 1 : 0}
-                      func={() => handleUserPress(item, dispatch, navigation)}
-                    />
-                  ))}
+                  .filter(item => {
+                    const isCurrentUser = item._id === user?._id;
+                    const hasStory = item.stories?.length > 0;
+
+                    return isCurrentUser || hasStory;
+                  })
+                  .map(item => {
+                    const isCurrentUser = item._id === user?._id;
+                    const story = storyDetails.find(
+                      s => s._id === item.stories?.[0],
+                    );
+                    const viewedByUsers = (story as any)?.viewedByUsers || [];
+                    const isSeen =
+                      viewedByUsers.includes(user?.handleName) ||
+                      seenMap[item.stories?.[0]] === true;
+
+                    return (
+                      <Story
+                        key={item._id}
+                        name={isCurrentUser ? 'Tin của tôi' : item.handleName}
+                        image={item.profilePic}
+                        status={item.stories.length > 0 ? 1 : 0}
+                        hasStory={item.stories.length > 0}
+                        isSeen={isSeen}
+                        isCurrentUser={isCurrentUser}
+                        func={() =>
+                          handleUserPress(
+                            item,
+                            dispatch,
+                            navigation,
+                            storyDetails,
+                            user,
+                          )
+                        }
+                      />
+                    );
+                  })}
               </ScrollView>
             </View>
           </View>
@@ -193,5 +263,3 @@ export const Home = () => {
     </SafeAreaView>
   );
 };
-
-export default Home;
