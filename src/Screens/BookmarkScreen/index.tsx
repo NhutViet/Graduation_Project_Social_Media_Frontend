@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
   View,
   Text,
@@ -11,13 +11,32 @@ import {useNavigation} from '@react-navigation/native';
 import {bookmarked, BookmarkedItem} from '../../MockData/bookmarked.mock';
 import BookmarkedPlaylist from './components/BookmarkedPlaylist';
 import {useBookmarkStyles} from '../../StyleSheet/BookmarkedStyles';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '../../../services/store';
+import {
+  getAllPlaylists,
+  getItemsOfPlaylist,
+} from '../../../services/bookmarkRedux/bookmarkSlice';
 
 export const BookmarkScreen = () => {
   const navigation: any = useNavigation();
   const styles = useBookmarkStyles();
+  const dispatch = useDispatch<AppDispatch>();
+  const {refreshToken} = useSelector((state: RootState) => state.user);
+  const playlist = useSelector((state: RootState) => state.bookmark.playlists);
 
   const posts = bookmarked.filter(item => item.type === 'post');
   const musics = bookmarked.filter(item => item.type === 'music');
+
+  useEffect(() => {
+    dispatch(getAllPlaylists({refreshToken}));
+  }, []);
+
+  useEffect(() => {
+    playlist.forEach(playlist => {
+      dispatch(getItemsOfPlaylist({playlistId: playlist.id, refreshToken}));
+    });
+  }, [playlist]);
 
   interface Playlist {
     id: string;
@@ -39,10 +58,10 @@ export const BookmarkScreen = () => {
     <TouchableOpacity
       style={styles.columnItem}
       onPress={() => {
-        if(item.title == 'Âm thanh'){
+        if (item.title == 'Âm thanh') {
           navigation.navigate('MusicSaved');
-        }else{
-          handlePlaylistPress(item.title, item.type)
+        } else {
+          handlePlaylistPress(item.title, item.type);
         }
       }}>
       <BookmarkedPlaylist title={item.title} items={item.items} />

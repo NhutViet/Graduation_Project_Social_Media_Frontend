@@ -30,8 +30,8 @@ export const useItemHomeActions = (props: ItemHomeProps, state: any) => {
     setVisibleModalShare,
     follow,
     setFollow,
-    isBookmarked,
-    setIsBookmarked,
+    isBookmark,
+    setIsBookmark,
     playlists,
     itemsByPlaylist,
   } = state;
@@ -88,15 +88,13 @@ export const useItemHomeActions = (props: ItemHomeProps, state: any) => {
 
   const handleBookmarkAction = useCallback(() => {
     handleBookmark({
-      isBookmarked,
+      isBookmarked: isBookmark,
       _id,
-      playlists,
       refreshToken,
-      itemsByPlaylist,
-      setIsBookmarked,
+      setIsBookmarked: setIsBookmark,
       dispatch,
     });
-  }, [isBookmarked, _id, playlists, refreshToken, itemsByPlaylist, dispatch]);
+  }, [isBookmark, _id, playlists, refreshToken, itemsByPlaylist, dispatch]);
 
   return {
     handleLike,

@@ -41,6 +41,7 @@ const ItemHome = (props: ItemHomeProps) => {
     isFocused,
     currentVisible,
     isLike,
+    isBookmarked,
     commentCount,
     share,
     music,
@@ -79,6 +80,7 @@ const ItemHome = (props: ItemHomeProps) => {
     <View style={ItemHomeStyles.wrapper}>
       <BottomSheetOptionsModal
         sheetRef={modal.sheetRef}
+        isBookmarked={state.isBookmark}
         topOptions={modal.topOptions}
         firstListOptions={modal.firstListOptions}
         secondListOptions={modal.secondListOptions}
@@ -138,6 +140,7 @@ const ItemHome = (props: ItemHomeProps) => {
           likedColor={utils.likedColor}
           bookmarkColor={utils.bookmarkColor}
           isLiked={state.isLiked}
+          isBookmarked={state.isBookmark}
           numLike={state.numLike}
           commentCount={commentCount}
           share={share}

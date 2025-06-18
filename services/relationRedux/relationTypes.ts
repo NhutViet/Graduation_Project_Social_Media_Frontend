@@ -1,4 +1,4 @@
-export type RelationType = 'FOLLOWER' | 'FOLLOWING' | 'BLOCK' | 'REQUEST';
+export type RelationType = 'FOLLOWER' | 'FOLLOWING' | 'BLOCK' | 'REQUEST' | 'BLOCKING' | 'BLOCKER';
 
 export interface Relation {
   id: string;
@@ -9,7 +9,7 @@ export interface Relation {
 }
 
 export interface UserProfile {
-  id: string;
+  _id: string;
   username: string;
   email: string;
   phoneNumber: string;

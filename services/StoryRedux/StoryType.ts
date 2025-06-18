@@ -16,4 +16,5 @@ export interface userFollow {
   handleName: string;
   profilePic: string;
   stories: string[];
+  storyDetails?: Story[];
 }

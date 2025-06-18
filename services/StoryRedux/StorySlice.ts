@@ -4,12 +4,12 @@ import axiosInstance from '../axiosInstance';
 import {API} from '../api';
 
 export const seenStory = createAsyncThunk<
-  void,
+  any,
   {storyId: string},
   {rejectValue: string}
 >('stories/seenStory', async ({storyId}, {rejectWithValue}) => {
   try {
-    await axiosInstance.patch(
+    const response = await axiosInstance.patch(
       '/stories/seen',
       {_id: storyId},
       {
@@ -18,6 +18,7 @@ export const seenStory = createAsyncThunk<
         },
       },
     );
+    return response.data;
   } catch (err: any) {
     return rejectWithValue(
       err.response?.data?.message || 'Failed to mark story as seen',
@@ -48,28 +49,6 @@ export const fetchFollowingStories = createAsyncThunk<
   }
 });
 
-// Lấy thông tin chi tiết của stories
-export const fetchStoriesByIds = createAsyncThunk<
-  Story[],
-  string[],
-  {rejectValue: string}
->('stories/fetchStoriesByIds', async (storyId, {rejectWithValue}) => {
-  try {
-    const response = await axiosInstance.post(
-      '/stories',
-      {storyId},
-      {
-        headers: {token: 'refresh'},
-      },
-    );
-    return response.data.data;
-  } catch (error: any) {
-    return rejectWithValue(
-      error.response?.data?.message || 'Failed to fetch story details',
-    );
-  }
-});
-
 // lấy story đã đăng
 export const fetchGetPostedSotry = createAsyncThunk<
   Story[],
@@ -90,16 +69,26 @@ export const fetchGetPostedSotry = createAsyncThunk<
   }
 });
 
-export const toggleLikeStory = createAsyncThunk(
-  'stories/toggleLikeStory',
-  async ({storyId}: {storyId: string}) => {
+export const toggleLikeStory = createAsyncThunk<
+  {storyId: string; likedByUsers: string[]},
+  {storyId: string},
+  {rejectValue: string}
+>('stories/toggleLikeStory', async ({storyId}, {rejectWithValue}) => {
+  try {
     const res = await axiosInstance.patch(
       `/stories/like`,
-      {_id: storyId}, // ✅ Đây là điểm quan trọng
+      {_id: storyId},
       {
         headers: {token: 'refresh'},
       },
     );
-    return res.data;
-  },
-);
+    return {
+      storyId: res.data.data._id,
+      likedByUsers: res.data.data.likedByUsers || [],
+    };
+  } catch (err: any) {
+    return rejectWithValue(
+      err.response?.data?.message || 'Failed to like story',
+    );
+  }
+});

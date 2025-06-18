@@ -1,4 +1,11 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react';
 import {SafeAreaView, View, ActivityIndicator, ScrollView} from 'react-native';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
@@ -10,14 +17,9 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-
 import {AppDispatch, RootState} from '../../../services/store';
 import {fetchPostsWithMedia} from '../../../services/postRedux/postSlice';
 import {fetchFollowingStories} from '../../../services/StoryRedux/StorySlice';
-import {
-  getAllPlaylists,
-  getItemsOfPlaylist,
-} from '../../../services/bookmarkRedux/bookmarkSlice';
 import {fetchCommentsByPost} from '../../../services/commentRedux/commentSlice';
 import Header from '../../../components/Header';
 import Story from './components/Story';
@@ -26,20 +28,27 @@ import BottomSheetComment, {
   BottomSheetCommentRef,
 } from './components/CommentSection';
 import {handleUserPress} from './util';
+import {
+  checkStorySeenInStorage,
+  clearExpiredSeenStories,
+} from '../../../services/storage/storage';
 
 const HEADER_HEIGHT = 100;
 const AnimatedFlatList = Animated.createAnimatedComponent(Animated.FlatList);
 
-export const Home = () => {
+export const Home = forwardRef(({onReload}: any, ref) => {
   const navigation: any = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];
   const isFocused = useIsFocused();
   const dispatch = useDispatch<AppDispatch>();
-
+  const storyDetails = useSelector(
+    (state: RootState) => state.stories.storyDetails,
+  );
   const sheetRef = useRef<BottomSheetCommentRef>(null);
   const [currentVisible, setCurrentVisible] = useState<string | null>(null);
   const [selectedPostId, setSelectedPostId] = useState<string>('');
+  const [seenMap, setSeenMap] = useState<Record<string, boolean>>({});
 
   const posts = useSelector((state: RootState) => state.post.posts);
   const followingUsers = useSelector(
@@ -47,22 +56,43 @@ export const Home = () => {
   );
   const storyLoading = useSelector((state: RootState) => state.stories.loading);
   const user = useSelector((state: RootState) => state.user.user);
-  const refreshToken = useSelector(
-    (state: RootState) => state.user.refreshToken,
-  );
-  const playlists = useSelector((state: RootState) => state.bookmark.playlists);
 
-  useEffect(() => {
+  const reloadAllData = useCallback(() => {
     dispatch(fetchPostsWithMedia());
     dispatch(fetchFollowingStories({page: 1}));
-    dispatch(getAllPlaylists({refreshToken}));
+    clearExpiredSeenStories();
+  }, []);
+
+  useImperativeHandle(ref, () => ({
+    reload: reloadAllData,
+  }));
+
+  useEffect(() => {
+    reloadAllData();
   }, []);
 
   useEffect(() => {
-    playlists.forEach(playlist => {
-      dispatch(getItemsOfPlaylist({playlistId: playlist.id, refreshToken}));
-    });
-  }, [playlists]);
+    const syncSeenStories = async () => {
+      const map: Record<string, boolean> = {};
+      for (const user of followingUsers) {
+        for (const storyId of user.stories) {
+          const story = storyDetails.find(s => s._id === storyId);
+          const createdAt = story?.createdAt;
+          if (!createdAt) {
+            console.warn('⚠️ createdAt is undefined, bỏ qua:', storyId);
+            continue;
+          }
+          const seen = await checkStorySeenInStorage(storyId, createdAt);
+          map[storyId] = seen;
+        }
+      }
+      setSeenMap(map);
+    };
+
+    if (followingUsers.length && storyDetails.length) {
+      syncSeenStories();
+    }
+  }, [followingUsers, storyDetails]);
 
   const onViewRef = useCallback(({viewableItems}: {viewableItems: any[]}) => {
     const id = viewableItems[0]?.item?._id;
@@ -102,14 +132,11 @@ export const Home = () => {
     transform: [{translateY: headerTranslateY.value}],
   }));
 
-  const handleOpenComment = useCallback(
-    (postId: string) => {
-      setSelectedPostId(postId);
-      dispatch(fetchCommentsByPost(postId));
-      sheetRef.current?.open();
-    },
-    [dispatch],
-  );
+  const handleOpenComment = useCallback((postId: string) => {
+    setSelectedPostId(postId);
+    dispatch(fetchCommentsByPost(postId));
+    sheetRef.current?.open();
+  }, []);
 
   if (storyLoading) {
     return (
@@ -143,7 +170,6 @@ export const Home = () => {
       <AnimatedFlatList
         data={posts}
         keyExtractor={item => item._id}
-        extraData={isFocused}
         renderItem={({item}) => {
           const shouldPlay = item._id === currentVisible;
           return (
@@ -155,6 +181,9 @@ export const Home = () => {
             />
           );
         }}
+        initialNumToRender={5}
+        maxToRenderPerBatch={1}
+        windowSize={3}
         onViewableItemsChanged={onViewRef}
         viewabilityConfig={{itemVisiblePercentThreshold: 70}}
         scrollEventThrottle={16}
@@ -163,27 +192,54 @@ export const Home = () => {
         showsVerticalScrollIndicator={false}
         nestedScrollEnabled
         ListHeaderComponent={
-          <View style={{position: 'relative', height: 160}}>
-            <View style={{position: 'absolute', top: 50}}>
+          <View
+            style={{
+              position: 'relative',
+              height: 160,
+            }}>
+            <View style={{paddingTop: 48}}>
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={{paddingHorizontal: 10}}>
                 {followingUsers
-                  .filter(item => item !== undefined && item !== null)
-                  .map(item => (
-                    <Story
-                      key={item._id}
-                      name={
-                        item.handleName === user?.handleName
-                          ? 'Tin của tôi'
-                          : item.handleName
-                      }
-                      image={item.profilePic}
-                      status={item.stories.length > 0 ? 1 : 0}
-                      func={() => handleUserPress(item, dispatch, navigation)}
-                    />
-                  ))}
+                  .filter(item => {
+                    const isCurrentUser = item._id === user?._id;
+                    const hasStory = item.stories?.length > 0;
+
+                    return isCurrentUser || hasStory;
+                  })
+                  .map(item => {
+                    const isCurrentUser = item._id === user?._id;
+                    const story = storyDetails.find(
+                      s => s._id === item.stories?.[0],
+                    );
+                    const viewedByUsers = (story as any)?.viewedByUsers || [];
+                    const isSeen =
+                      viewedByUsers.includes(user?.handleName) ||
+                      seenMap[item.stories?.[0]] === true;
+
+                    return (
+                      <Story
+                        key={item._id}
+                        name={isCurrentUser ? 'Tin của tôi' : item.handleName}
+                        image={item.profilePic}
+                        status={item.stories.length > 0 ? 1 : 0}
+                        hasStory={item.stories.length > 0}
+                        isSeen={isSeen}
+                        isCurrentUser={isCurrentUser}
+                        func={() =>
+                          handleUserPress(
+                            item,
+                            dispatch,
+                            navigation,
+                            storyDetails,
+                            user,
+                          )
+                        }
+                      />
+                    );
+                  })}
               </ScrollView>
             </View>
           </View>
@@ -192,6 +248,6 @@ export const Home = () => {
       <BottomSheetComment ref={sheetRef} postId={selectedPostId} />
     </SafeAreaView>
   );
-};
+});
 
 export default Home;

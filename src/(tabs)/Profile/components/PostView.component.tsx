@@ -12,6 +12,7 @@ import {AppDispatch, RootState} from '@services/store';
 interface GridViewProps {
   data: any[];
   renderOverlay?: () => React.ReactNode;
+  onPressItem?: (item: any) => void;
 }
 
 const GridView: React.FC<GridViewProps> = ({data, renderOverlay}) => {
@@ -25,7 +26,7 @@ const GridView: React.FC<GridViewProps> = ({data, renderOverlay}) => {
       {data.length > 0 ? (
         <FlashList
           data={data}
-          // numColumns={3}
+          numColumns={3}
           estimatedItemSize={Styles.itemSize}
           extraData={data}
           renderItem={({item}) => {
@@ -87,5 +88,11 @@ const GridView: React.FC<GridViewProps> = ({data, renderOverlay}) => {
 };
 
 export const PostsView: React.FC<{data: any[]}> = ({data}) => {
-  return <GridView data={data} />;
+  const navigation = useNavigation<any>();
+  const handlePress = (item: any) => {
+    navigation.navigate('AllPostOfUserScreen', {
+      targetPostId: item._id,
+    })
+  };
+  return <GridView data={data} onPressItem={handlePress}/>;
 };

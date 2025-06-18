@@ -5,13 +5,13 @@ import {API} from '../api';
 
 export const fetchFollowers = createAsyncThunk<
   UserProfile[], 
-  {userID: string}, 
+  {userId: string}, 
   {rejectValue: string}
 >(
   'relations/followers',
-  async ({userID}, {rejectWithValue}) => {
+  async ({userId}, {rejectWithValue}) => {
     try {
-      const response = await axiosInstance.post(API.GET_FOLLOWERS, { userID }, {
+      const response = await axiosInstance.post(API.GET_FOLLOWERS, { userId }, {
         headers: {
             token: 'refresh',
         },
@@ -25,13 +25,13 @@ export const fetchFollowers = createAsyncThunk<
 
 export const fetchFollowing = createAsyncThunk<
   UserProfile[], 
-  {userID: string}, 
+  {userId: string}, 
   {rejectValue: string}
 >(
   'relations/following',
-  async ({userID}, {rejectWithValue}) => {
+  async ({userId}, {rejectWithValue}) => {
     try {
-      const response = await axiosInstance.post(API.GET_FOLLOWING, { userID }, {
+      const response = await axiosInstance.post(API.GET_FOLLOWING, { userId }, {
         headers: {
             token: 'refresh',
         },
@@ -39,6 +39,27 @@ export const fetchFollowing = createAsyncThunk<
       return response.data.following;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || error.message || 'Lấy danh sách người đang theo dõi thất bại');
+    }
+  }
+);
+
+export const fetchBlocking = createAsyncThunk<
+  UserProfile[],           
+  { userId: string },       
+  { rejectValue: string }   
+>(
+  'relations/blocking',
+  async ({ userId }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(API.GET_BLOCKING, { userId }, { 
+        headers: { 
+          token: 'refresh' 
+        } 
+      });
+      return response.data.blocking;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || 'Lấy danh sách người bị chặn thất bại');
     }
   }
 );

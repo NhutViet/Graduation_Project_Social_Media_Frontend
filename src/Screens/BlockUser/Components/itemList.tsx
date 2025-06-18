@@ -1,27 +1,39 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React from 'react'
+import React from 'react';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '../../../util/ThemeContext';
 import { Colors } from '../../../../assets/color/Colors';
 
-const ItemList = (props: any) => {
-    const {uri, handle, name, onhandleItem, onhandleBlock} = props;
-    const {theme} = useTheme();
-    const colors = Colors[theme];
-  return (
-    <TouchableOpacity onPress={onhandleItem} style={styles.container}>
-        <Image source={{uri: uri}} style={styles.image}/>
-        <View style={styles.midContainer}>
-            <Text style={[styles.handle, {color: colors.text, textAlign: 'left'}]} numberOfLines={1} ellipsizeMode='tail'>{handle}</Text>
-            <Text style={[styles.name, {color: colors.lightDark}]} numberOfLines={1} ellipsizeMode='tail'>{name}</Text>
-        </View>
-        <TouchableOpacity onPress={onhandleBlock} style={styles.blockBox}>
-            <Text style={[styles.handle, {color: colors.text}]}>Chặn</Text>
-        </TouchableOpacity>
-    </TouchableOpacity>
-  )
+interface ItemProps {
+  uri: string;
+  handle: string;
+  name: string;
+  onhandleItem: () => void;
+  onhandleBlock: () => void;
 }
 
-export default ItemList
+const ItemList: React.FC<ItemProps> = ({ uri, handle, name, onhandleItem, onhandleBlock }) => {
+  const { theme } = useTheme();
+  const colors = Colors[theme];
+
+  return (
+    <TouchableOpacity onPress={onhandleItem} style={styles.container}>
+      <Image source={{ uri }} style={styles.image} />
+      <View style={styles.midContainer}>
+        <Text style={[styles.handle, { color: colors.text }]} numberOfLines={1} ellipsizeMode='tail'>
+          {handle}
+        </Text>
+        <Text style={[styles.name, { color: colors.lightDark }]} numberOfLines={1} ellipsizeMode='tail'>
+          {name}
+        </Text>
+      </View>
+      <TouchableOpacity onPress={onhandleBlock} style={[styles.blockBox, { borderColor: colors.text }]}>  
+        <Text style={[styles.handle, { color: colors.text }]}>Chặn</Text>
+      </TouchableOpacity>
+    </TouchableOpacity>
+  );
+};
+
+export default ItemList;
 
 const styles = StyleSheet.create({
     container: {

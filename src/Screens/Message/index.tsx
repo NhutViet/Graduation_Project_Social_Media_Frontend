@@ -3,7 +3,6 @@ import {
   FlatList,
   Image,
   ImageBackground,
-  InteractionManager,
   Modal,
   SafeAreaView,
   Text,
@@ -19,7 +18,6 @@ import MessageStyles from '../../StyleSheet/MessageStyles';
 import {io, Socket} from 'socket.io-client';
 import {RootStackParamList} from '../../Navigation/AppNavigation';
 import LinkPreview from 'react-native-link-preview';
-import ModalTheme from './components/ModalTheme';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../services/store';
 import MessageItemComponent from './components/MessageItemComponent';
@@ -29,6 +27,9 @@ import {launchImageLibrary} from 'react-native-image-picker';
 import {uploadImageToR2} from '../../core/upload';
 import {useUploadProgress} from '../../../services/UploadProgressManager';
 import {clearMessages} from '../../../services/messageRedux/messageReducer';
+import IncomingCallModal from '../../../components/IncomingCallModal';
+import ImagePreviewModal from './components/ImagePreviewModal';
+import { BASE_URL } from '../../../services/api';
 
 export const MessageScreen = () => {
   const navigation: any = useNavigation();
@@ -41,7 +42,7 @@ export const MessageScreen = () => {
   const [chat, setChat] = useState<Message[]>([]);
   const user = useSelector((state: RootState) => state.user);
   const flatListRef = useRef<FlatList>(null);
-
+  const rejectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const route = useRoute<RouteProp<RootStackParamList, 'MessageScreen'>>();
   const roomId = route?.params?.room;
   const rooms = useSelector((state: RootState) => state.rooms.rooms);
@@ -52,17 +53,22 @@ export const MessageScreen = () => {
   const filteredUsers = room?.user_ids.filter(
     user => user._id !== room.created_by,
   );
-
   const user1 = filteredUsers ? filteredUsers[0] : undefined;
   const user2 = filteredUsers ? filteredUsers[1] : undefined;
 
-  const [selectedMessageIndex, setSelectedMessageIndex] = useState<
-    number | null
-  >(null);
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
   const [linkPreviews, setLinkPreviews] = useState<{[key: number]: any}>({});
   const [socket, setSocket] = useState<Socket | null>(null);
   const {showUploadModal, hideUploadModal, setProgress} = useUploadProgress();
+  const [incomingCall, setIncomingCall] = useState<{
+    visible: boolean;
+    callerName: string;
+    type: 'video' | 'voice';
+  }>({
+    visible: false,
+    callerName: '',
+    type: 'video',
+  });
 
   useEffect(() => {
     setChat([]);
@@ -73,30 +79,38 @@ export const MessageScreen = () => {
 
   useEffect(() => {
     setChat(messages);
-  }, [messages, room]);
+  }, [messages, roomId]);
 
   useEffect(() => {
-    if (!user.user?._id || !room) return;
+    if (!user.user?._id || !roomId) return;
 
-    const newSocket = io('http://cirla.io.vn', {
+    const newSocket = io(BASE_URL, {
       transports: ['websocket'],
       query: {
         userId: user.user._id,
-        roomId: room,
+        roomId: roomId,
       },
     });
 
     newSocket.on('connect', () => {
       console.log('✅ Socket connected!');
-      newSocket.emit('joinRoom', {roomId: room});
-    });
-
-    newSocket.on('connect_error', err => {
-      console.log('❌ Socket connect error:', err.message);
+      newSocket.emit('joinRoom', {roomId: roomId});
     });
 
     newSocket.on('receiveMessage', data => {
       setChat(prev => [...prev, data]);
+    });
+
+    newSocket.on('incomingCall', ({callerName, type}) => {
+      setIncomingCall({
+        visible: true,
+        callerName,
+        type,
+      });
+    });
+
+    newSocket.on('connect_error', err => {
+      console.log('❌ Socket connect error:', err.message);
     });
 
     setSocket(newSocket);
@@ -120,7 +134,7 @@ export const MessageScreen = () => {
   const sendMessage = () => {
     if (message.trim() && socket) {
       socket.emit('sendMessage', {
-        roomId: room,
+        roomId: roomId,
         content: message,
         senderId: user.user?._id,
       });
@@ -147,9 +161,12 @@ export const MessageScreen = () => {
           });
 
           socket.emit('sendMessage', {
-            roomId: room,
+            roomId: roomId,
             senderId: user.user?._id,
-            media: imageUrl,
+            media: {
+              type: 'image',
+              url: imageUrl,
+            },
           });
         } catch (err) {
           console.error('❌ Upload/send image error:', err);
@@ -163,15 +180,12 @@ export const MessageScreen = () => {
       socket.disconnect();
       setSocket(null);
     }
-
     setChat([]);
     setMessage('');
     setSelectedImageUri(null);
-    setSelectedMessageIndex(null);
     setLinkPreviews({});
 
     dispatch(clearMessages());
-
     navigation.goBack();
   };
 
@@ -180,6 +194,70 @@ export const MessageScreen = () => {
       flatListRef.current?.scrollToEnd({animated: true});
     }
   }, [chat]);
+
+  const handleAcceptCall = () => {
+    if (rejectTimeoutRef.current) {
+      clearTimeout(rejectTimeoutRef.current);
+      rejectTimeoutRef.current = null;
+    }
+    setIncomingCall(prev => ({...prev, visible: false}));
+    navigation.navigate('ZegoCallScreen', {
+      userID: user.user?._id,
+      userName: user.user?.username,
+      callID: roomId,
+      image: user.user?.profilePic,
+    });
+  };
+
+  const handleRejectCall = () => {
+    if (rejectTimeoutRef.current) {
+      clearTimeout(rejectTimeoutRef.current);
+      rejectTimeoutRef.current = null;
+    }
+    if (socket) {
+      socket.emit('callEnded', {
+        roomId,
+        senderId: user.user?._id,
+        callType: 'video',
+        missed: true,
+      });
+    }
+    setIncomingCall(prev => ({...prev, visible: false}));
+  };
+
+  const handleCall = () => {
+    if (socket) {
+      socket.emit('incomingCall', {
+        callerName: user.user?.username,
+        type: 'video',
+        roomId,
+      });
+    }
+    navigation.navigate('ZegoCallScreen', {
+      userID: user.user?._id,
+      userName: user.user?.username,
+      callID: roomId,
+      image: user.user?.profilePic,
+    });
+  };
+
+  useEffect(() => {
+    if (incomingCall.visible) {
+      rejectTimeoutRef.current = setTimeout(() => {
+        handleRejectCall();
+      }, 10000);
+    } else {
+      if (rejectTimeoutRef.current) {
+        clearTimeout(rejectTimeoutRef.current);
+        rejectTimeoutRef.current = null;
+      }
+    }
+    return () => {
+      if (rejectTimeoutRef.current) {
+        clearTimeout(rejectTimeoutRef.current);
+      }
+    };
+  }, [incomingCall.visible]);
 
   const renderItem = ({item, index}: {item: Message; index: number}) => (
     <MessageItemComponent
@@ -196,13 +274,7 @@ export const MessageScreen = () => {
 
   if (loading) {
     return (
-      <SafeAreaView
-        style={{
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: color.background,
-        }}>
+      <SafeAreaView style={styles.loading}>
         <ActivityIndicator size="large" color={color.text} />
       </SafeAreaView>
     );
@@ -213,31 +285,19 @@ export const MessageScreen = () => {
       {room?.theme && (
         <ImageBackground
           source={{uri: room.theme}}
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 0,
-            backgroundColor: 'transparent',
-          }}
+          style={styles.bg}
           resizeMode="cover"
-          onError={() => console.log('❌ Failed to load chat background')}
         />
       )}
       <View
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: room?.theme
-            ? 'rgba(0, 0, 0, 0.2)'
-            : color.background,
-          zIndex: 1,
-        }}>
+        style={[
+          styles.viewDf,
+          {
+            backgroundColor: room?.theme
+              ? 'rgba(0, 0, 0, 0.2)'
+              : color.background,
+          },
+        ]}>
         <View style={{flex: 1}}>
           <View
             style={[
@@ -302,16 +362,14 @@ export const MessageScreen = () => {
               <Text
                 style={{color: Colors.black, fontSize: 16}}
                 numberOfLines={1}>
-                {room?.name}
+                {room?.name?.trim() || user1?.handleName || 'No name'}
               </Text>
             </View>
 
             <View style={styles.rowContainer}>
               <TouchableOpacity
                 style={styles.blockIcon}
-                onPress={() => {
-                  console.log('Video camera button pressed');
-                }}>
+                onPress={() => handleCall()}>
                 <Image
                   style={styles.icon}
                   source={require('../../../assets/icon/videoCamera.png')}
@@ -364,7 +422,6 @@ export const MessageScreen = () => {
               returnKeyType="default"
               blurOnSubmit={false}
             />
-
             <>
               {message.trim().length > 0 ? (
                 <TouchableOpacity
@@ -404,38 +461,19 @@ export const MessageScreen = () => {
         </View>
       </View>
 
-      <Modal visible={!!selectedImageUri} transparent={true}>
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-          <TouchableOpacity
-            style={{position: 'absolute', top: 30, right: 20, zIndex: 1}}
-            onPress={() => setSelectedImageUri(null)}>
-            <Text style={{color: Colors.light.background, fontSize: 24}}>
-              ✕
-            </Text>
-          </TouchableOpacity>
-          {selectedImageUri && (
-            <View
-              style={{
-                width: '90%',
-                height: '80%',
-                borderRadius: 10,
-                overflow: 'hidden',
-              }}>
-              <Image
-                source={{uri: selectedImageUri}}
-                style={{width: '100%', height: '100%'}}
-                resizeMode="cover"
-              />
-            </View>
-          )}
-        </View>
-      </Modal>
+      <ImagePreviewModal
+        visible={!!selectedImageUri}
+        imageUri={selectedImageUri}
+        onClose={() => setSelectedImageUri(null)}
+        backgroundColor={Colors.light.background}
+      />
+      <IncomingCallModal
+        visible={incomingCall.visible}
+        callerName={incomingCall.callerName}
+        type={incomingCall.type}
+        onAccept={handleAcceptCall}
+        onReject={handleRejectCall}
+      />
     </SafeAreaView>
   );
 };

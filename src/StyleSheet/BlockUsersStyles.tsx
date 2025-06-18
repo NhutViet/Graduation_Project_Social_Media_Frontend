@@ -65,5 +65,21 @@ export const BlockUsersStyles = (theme: 'light' | 'dark') => {
         textAlign: 'center',
         marginVertical: 100,
     },
+    loaderOverlay: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: color.background,  
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 10,                             
+    },
+    emptyContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    emptyText: {
+        fontSize: 16,
+        color: '#666',
+    },
   });
 };

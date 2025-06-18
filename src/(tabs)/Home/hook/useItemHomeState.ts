@@ -4,7 +4,7 @@ import {useSelector, shallowEqual} from 'react-redux';
 import {RootState} from '../../../../services/store';
 
 export const useItemHomeState = (props: ItemHomeProps) => {
-  const {_id, isLike, likeCount, isFollow} = props;
+  const {_id, isLike, likeCount, isFollow, isBookmarked} = props;
 
   const [muted, setMuted] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -13,6 +13,7 @@ export const useItemHomeState = (props: ItemHomeProps) => {
   const [isLiked, setIsLiked] = useState(isLike);
   const [numLike, setNumLike] = useState(likeCount);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isBookmark, setIsBookmark] = useState(isBookmarked);
 
   const {
     likePosts,
@@ -37,12 +38,6 @@ export const useItemHomeState = (props: ItemHomeProps) => {
     shallowEqual,
   );
 
-  const isBookmarked = useMemo(() => {
-    return Object.values(itemsByPlaylist)
-      .flat()
-      .some(item => item.itemID === _id);
-  }, [itemsByPlaylist, _id]);
-
   return {
     muted,
     setMuted,
@@ -58,7 +53,8 @@ export const useItemHomeState = (props: ItemHomeProps) => {
     setNumLike,
     currentIndex,
     setCurrentIndex,
-    isBookmarked,
+    isBookmark,
+    setIsBookmark,
     likePosts,
     refreshToken,
     userID,

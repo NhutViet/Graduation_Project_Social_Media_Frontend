@@ -7,12 +7,14 @@ import {Colors} from '../../../../assets/color/Colors';
 
 const BottomSheetOptionsModal = ({
   sheetRef,
+  isBookmarked,
   topOptions,
   firstListOptions,
   secondListOptions,
   onSelect,
 }: {
   sheetRef: React.RefObject<Modalize>;
+  isBookmarked?: boolean;
   topOptions?: any[];
   firstListOptions: any[];
   secondListOptions: any[];
@@ -46,6 +48,7 @@ const BottomSheetOptionsModal = ({
           }}>
           <BottomSheetOptions
             topOptions={topOptions ?? []}
+            isBookmarked={isBookmarked}
             listOptionGroups={[firstListOptions, secondListOptions]}
             onSelect={onSelect}
           />
