@@ -5,9 +5,9 @@ import {Styles} from '../../../StyleSheet/Profile.Styles';
 import Video from 'react-native-video';
 import {Colors} from '../../../../assets/color/Colors';
 import {useNavigation} from '@react-navigation/native';
-import {useDispatch} from 'react-redux';
-import {fetchReels} from '@services/reelRedux/reelReducer';
-import {Reel} from '@services/reelRedux/reelTypes';
+import {useDispatch, useSelector} from 'react-redux';
+import {fetchReels} from '@services/reelRedux/reelSlice';
+import {AppDispatch, RootState} from '@services/store';
 
 interface GridViewProps {
   data: any[];
@@ -15,13 +15,11 @@ interface GridViewProps {
 }
 
 const GridView: React.FC<GridViewProps> = ({data, renderOverlay}) => {
-  const dispatch = useDispatch();
   const navigate = useNavigation<any>();
-  const reelsArray: Reel[] = [];
-  const handlePostPress = (postId: string) => {
-    navigate.navigate('ViewReels', {postId});
-    dispatch(fetchReels(reelsArray));
+  const handlePostPress = () => {
+    navigate.navigate('ViewReels');
   };
+
   return (
     <>
       {data.length > 0 ? (
@@ -45,7 +43,7 @@ const GridView: React.FC<GridViewProps> = ({data, renderOverlay}) => {
             return (
               <View style={Styles.styles.gridItem}>
                 {isVideo ? (
-                  <TouchableOpacity onPress={() => handlePostPress(item._id)}>
+                  <TouchableOpacity onPress={() => handlePostPress()}>
                     <Video
                       source={{uri: uri}}
                       style={[

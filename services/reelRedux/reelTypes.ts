@@ -1,7 +1,6 @@
 export interface Reel {
   _id: string;
   caption: string;
-  isLike: boolean;
   likeCount: number;
   commentCount: number;
   shareCount: number;

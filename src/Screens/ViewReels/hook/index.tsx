@@ -3,25 +3,17 @@ import {useCallback, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '@services/store';
 import {likePost, unlikePost} from '@services/reactionRedux/reactionSlice';
+import {Reel} from '@services/reelRedux/reelTypes';
 
-export function useReelLike(sampleReels: any[]) {
+export function useReelLike(Reels: Reel[]) {
   const dispatch = useDispatch<AppDispatch>();
   const {likePosts} = useSelector((state: RootState) => state.reactions);
   const {refreshToken} = useSelector((state: RootState) => state.user);
 
-  const [likeStates, setLikeStates] = useState(sampleReels.map(r => r.isLike));
-  const [likeCounts, setLikeCounts] = useState(
-    sampleReels.map(r => r.likeCount),
-  );
+  const [likeCounts, setLikeCounts] = useState(Reels.map(r => r.likeCount));
 
   const handleLike = useCallback(
     (index: number) => {
-      setLikeStates(prev => {
-        const newStates = [...prev];
-        newStates[index] = !prev[index];
-        return newStates;
-      });
-
       setLikeCounts(prev => {
         const newCounts = [...prev];
         // Sử dụng prev[index] để biết trạng thái trước khi nhấn
@@ -29,11 +21,8 @@ export function useReelLike(sampleReels: any[]) {
         return newCounts;
       });
 
-      const postId = sampleReels[index]._id;
-      const originalLikeCount = sampleReels[index].likeCount;
-
-      // Lấy trạng thái like hiện tại từ sampleReels hoặc likeStates (không closure)
-      const isCurrentlyLiked = likeStates[index];
+      const postId = Reels[index]._id;
+      const originalLikeCount = Reels[index].likeCount;
 
       if (isCurrentlyLiked) {
         dispatch(unlikePost({postId, refreshToken}))
@@ -67,7 +56,7 @@ export function useReelLike(sampleReels: any[]) {
           });
       }
     },
-    [sampleReels, dispatch, refreshToken, likePosts, likeStates],
+    [Reels, dispatch, refreshToken, likePosts, likeStates],
   );
 
   return {likeStates, likeCounts, handleLike};

@@ -59,6 +59,7 @@ import ProfileComp from '../Screens/Profile';
 import EditHighlightScreen from '../(tabs)/Profile/components/EditHighlightScreen';
 import NewMessage from '../Screens/NewMessage';
 import PostStory from '../Screens/PostStory';
+import Profile from '../(tabs)/Profile/index';
 export type RootStackParamList = {
   PendingMessages: {handleName: string};
   MessageScreen: {
@@ -85,6 +86,7 @@ const AppNavigator = () => {
       <Stack.Navigator
         initialRouteName="Splash"
         screenOptions={{headerShown: false}}>
+        <Stack.Screen name="Profile" component={Profile} />
         <Stack.Screen name="ViewReels" component={ViewReels} />
         <Stack.Screen name="ChangeBirthday" component={ChangeBirthday} />
         <Stack.Screen name="ChangePassword" component={ChangePassword} />

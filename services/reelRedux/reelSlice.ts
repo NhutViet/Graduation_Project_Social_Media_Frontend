@@ -11,7 +11,7 @@ export const fetchReels = createAsyncThunk<Reel[], string>(
           token: 'refresh',
         },
       });
-      return response.data;
+      return response.data.data;
     } catch (err: any) {
       return rejectWithValue(err.response?.data || err.message);
     }
