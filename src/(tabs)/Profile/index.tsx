@@ -355,6 +355,7 @@ const Profile = () => {
         showsVerticalScrollIndicator={false}
         keyboardDismissMode="on-drag"
         numColumns={3}
+        scrollEnabled={true}
         keyboardShouldPersistTaps="handled"
       />
       <SwitchAccount

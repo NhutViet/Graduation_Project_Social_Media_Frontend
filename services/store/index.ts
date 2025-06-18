@@ -14,6 +14,7 @@ import PostUserReducer from '../postUserRedux/postUserReducer';
 import RoomReducer from '../roomRedux/roomReducer';
 import messagesReducer from '../messageRedux/messageReducer';
 import SearchReducer from '../searchRedux/searchReducer';
+import ReelReducer from '../reelRedux/reelReducer';
 
 const persistUserConfig = {
   key: 'user',
@@ -37,6 +38,7 @@ export const store = configureStore({
     rooms: RoomReducer,
     messages: messagesReducer,
     search: SearchReducer,
+    reels: ReelReducer,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({

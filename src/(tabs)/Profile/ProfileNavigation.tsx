@@ -1,7 +1,7 @@
 import {createStackNavigator} from '@react-navigation/stack';
 import React from 'react';
 import FollowersScreen from './components/FollowersScreen';
-import Profile from '.';
+import Profile from './index';
 
 const Stack = createStackNavigator();
 
