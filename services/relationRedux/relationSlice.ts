@@ -11,15 +11,7 @@ export const fetchFollowers = createAsyncThunk<
   'relations/followers',
   async ({userId}, {rejectWithValue}) => {
     try {
-      if (!userId || typeof userId !== 'string') {
-        return rejectWithValue('User ID không hợp lệ');
-      }
-
-      console.log('Sending request to get followers for userId:', userId);
-      
-      const response = await axiosInstance.post(API.GET_FOLLOWERS, { 
-        userId: userId.toString().trim()
-      }, {
+      const response = await axiosInstance.post(API.GET_FOLLOWERS, { userId }, {
         headers: {
             token: 'refresh',
         },
@@ -65,6 +57,27 @@ export const fetchFollowing = createAsyncThunk<
       return response.data.following;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || error.message || 'Lấy danh sách người đang theo dõi thất bại');
+    }
+  }
+);
+
+export const fetchBlocking = createAsyncThunk<
+  UserProfile[],           
+  { userId: string },       
+  { rejectValue: string }   
+>(
+  'relations/blocking',
+  async ({ userId }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(API.GET_BLOCKING, { userId }, { 
+        headers: { 
+          token: 'refresh' 
+        } 
+      });
+      return response.data.blocking;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || 'Lấy danh sách người bị chặn thất bại');
     }
   }
 );

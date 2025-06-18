@@ -57,7 +57,18 @@ const StoriesTab = () => {
   }, []);
 
   const renderItem = ({item}: {item: any}) => {
-    console.log('🟢 item:', item);
+    const handleOpenStory = (item: any) => {
+      const isVideo = item.mediaUrl?.endsWith('.m3u8');
+      const isImage = /\.(jpg|jpeg|png|gif)$/i.test(item.mediaUrl || '');
+
+      navigation.navigate('SeenStoryOwner', {
+        selectedItem: {
+          ...item,
+          uriVideo: isVideo ? item.mediaUrl : null,
+          image: isImage ? item.mediaUrl : null,
+        },
+      });
+    };
 
     return (
       <View style={[styles.itemContainer, {backgroundColor: color.black}]}>
@@ -71,7 +82,7 @@ const StoriesTab = () => {
             />
           </Pressable>
         ) : (
-          <Pressable onPress={() => navigation.navigate('SeenStoryOwner')}>
+          <Pressable onPress={() => handleOpenStory(item)}>
             <Image source={{uri: item.mediaUrl}} style={styles.media} />
           </Pressable>
         )}

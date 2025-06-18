@@ -37,11 +37,17 @@ import {AppDispatch, RootState} from '../../../services/store';
 import {
   fetchFollowers,
   fetchFollowing,
+  relationAction
 } from '../../../services/relationRedux/relationSlice';
 import {getPublicProfile} from '../../../services/userRedux/userSlice';
 import {clearPublicProfile} from '../../../services/userRedux/userReducer';
 import {createRoom} from '../../../services/roomRedux/roomSlice';
-import { relationAction } from '../../../services/relationRedux/relationSlice';
+import {
+  PostsView,
+  ReelsView,
+} from '../../(tabs)/Profile/components/PostView.component';
+import {getPostsAndReelsOfUser} from '../../../services/postUserRedux/postUserSlice';
+import {clearPostsAndReels} from '../../../services/postUserRedux/postUserReducer';
 
 const ProfileComp = ({route}: any) => {
   const navigation: any = useNavigation();
@@ -166,6 +172,15 @@ const ProfileComp = ({route}: any) => {
     errorMessagePublicProfile,
   } = useSelector((state: RootState) => state.user);
 
+  const {items: PostsItem}: any | null = useSelector(
+    (state: RootState) => state.postUser.posts,
+  );
+  const {items: ReelsItem}: any | null = useSelector(
+    (state: RootState) => state.postUser.reels,
+  );
+  const {isSuccess} = useSelector((state: RootState) => state.postUser);
+  const {refreshToken} = useSelector((state: RootState) => state.user);
+
   const initializeProfile = useCallback(async () => {
     if (!userID) return;
     
@@ -181,6 +196,7 @@ const ProfileComp = ({route}: any) => {
       const profilePromise = dispatch(getPublicProfile({userId: userID})).unwrap();
       const followersPromise = dispatch(fetchFollowers({userId: userID}));
       const followingPromise = dispatch(fetchFollowing({userId: userID}));
+      const postAndReelPromise = dispatch(getPostsAndReelsOfUser({refreshToken, userId: userID}));
       
       // Wait for profile first to set user states
       const profile = await profilePromise;
@@ -188,7 +204,7 @@ const ProfileComp = ({route}: any) => {
       setIsBlock(profile.userBlocked || false);
       
       // Then wait for followers/following data
-      await Promise.all([followersPromise, followingPromise]);
+      await Promise.all([followersPromise, followingPromise, postAndReelPromise]);
       
       setCurrentUserID(userID);
     } catch (error) {
@@ -209,6 +225,7 @@ const ProfileComp = ({route}: any) => {
       dispatch(clearPublicProfile());
       setCurrentUserID(null);
       setIsInitializing(true);
+      dispatch(clearPostsAndReels());
     };
    }, []);
   const renderPrivateContent = () => {
@@ -226,56 +243,49 @@ const ProfileComp = ({route}: any) => {
   };
 
   const [activeTab, setActiveTab] = useState('grid');
-  const renderItem = ({item}: {item: any}) => (
-    <TouchableOpacity
-      style={[Styles.styles.gridItem, {backgroundColor: '#f0f0f0'}]}>
-      <Image
-        source={{uri: item.image}}
-        style={[
-          Styles.styles.gridImage,
-          {
-            width: Styles.itemSize - 2,
-            height: Styles.itemSize - 2,
-            borderRadius: 1,
-          },
-        ]}
-      />
-      {activeTab !== 'grid' && (
-        <View style={styles.overlayStyle}>
-          {activeTab === 'reels' && <Video color="white" size={20} />}
-          {activeTab === 'tagged' && <UserSquare2 color="white" size={20} />}
-        </View>
-      )}
-    </TouchableOpacity>
-  );
+
   const renderTabContent = () => {
     if (!isPrivate) {
       return renderPrivateContent();
     }
-    return (
-      <FlashList
-        data={PostData}
-        numColumns={3}
-        estimatedItemSize={Styles.itemSize}
-        scrollEnabled={true}
-        renderItem={renderItem}
-        keyExtractor={item => item.id}
-        showsVerticalScrollIndicator={false}
-        extraData={activeTab}
-        contentContainerStyle={{paddingBottom: 20}}
-      />
-    );
+    switch (activeTab) {
+      case 'grid':
+        return isSuccess && PostsItem ? (
+          <PostsView data={PostsItem} />
+        ) : (
+          <LoadingPlaceholder />
+        );
+      case 'reels':
+        return isSuccess && ReelsItem ? (
+          <ReelsView data={ReelsItem} />
+        ) : (
+          <LoadingPlaceholder />
+        );
+      default:
+        return <LoadingPlaceholder />;
+    }
   };
 
-  // Show loading during initialization or when profile is loading
+  const LoadingPlaceholder = () => (
+    <View style={[styles.content, styles.centerItem, {height: 50}]}>
+      <Text style={styles.textno}>Đang tải...</Text>
+    </View>
+  );
+
+  // Show loading indicator while fetching profile
   if (isInitializing || isLoadingPublicProfile || !publicProfile) {
-      return (
-        <SafeAreaView style={styles.container}>
-          <View style={styles.Header}>
-            <TouchableOpacity
-              style={{alignItems: 'center', paddingRight: 12}}
-              onPress={() => navigation.goBack()}>
-              <ChevronLeft size={28} color={Colors[theme].text} />
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.Header}>
+          <TouchableOpacity
+            style={{alignItems: 'center', paddingRight: 12}}
+            onPress={() => navigation.goBack()}>
+            <ChevronLeft size={28} color={Colors[theme].text} />
+          </TouchableOpacity>
+          <Text style={styles.headTitle}>Profile</Text>
+          <View style={styles.SectionRight}>
+            <TouchableOpacity>
+              <Ellipsis size={24} color={Colors[theme].text} />
             </TouchableOpacity>
             <Text style={styles.headTitle}>Đang tải...</Text>
           </View>
@@ -431,16 +441,68 @@ const ProfileComp = ({route}: any) => {
           {renderTabContent()}
         </>
       )}
-      <Portal>
-        <OptionModal
-          ref={modalOptionRef}
-          userID={userID}
-          isBlock={isBlock}
-          onBlockChange={newState => setIsBlock(newState)}
-        />
-      </Portal>
-    </ScrollView>
-  </SafeAreaView>
+        {/* Story Highlights */}
+        {!isBlock && (
+          <StoryComponent isPrivate={isPrivate} highlights={highlights} />
+        )}
+        {/* Posts Grid/Video Tabs */}
+        {!isBlock && (
+          <>
+            <View style={{flexDirection: 'row'}}>
+              <TouchableOpacity
+                disabled={!isPrivate}
+                onPress={() => {
+                  setActiveTab('grid');
+                }}
+                style={[
+                  styles.tab,
+                  activeTab === 'grid' && styles.activeTab,
+                  !isPrivate && {opacity: 0.5},
+                ]}>
+                <Grid
+                  size={26}
+                  color={
+                    activeTab === 'grid'
+                      ? Colors[theme].text
+                      : Colors.textSecondary
+                  }
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                disabled={!isPrivate}
+                onPress={() => {
+                  setActiveTab('reels');
+                }}
+                style={[
+                  styles.tab,
+                  activeTab === 'reels' && styles.activeTab,
+                  !isPrivate && {opacity: 0.5},
+                ]}>
+                <Video
+                  size={26}
+                  color={
+                    activeTab === 'reels'
+                      ? Colors[theme].text
+                      : Colors.textSecondary
+                  }
+                />
+              </TouchableOpacity>
+            </View>
+            {/* Posts Grid */}
+            <View style={{flex: 1}}>{renderTabContent()}</View>
+          </>
+        )}
+
+        <Portal>
+          <OptionModal
+            ref={modalOptionRef}
+            userID={userID}
+            isBlock={isBlock}
+            onBlockChange={newState => setIsBlock(newState)}
+          />
+        </Portal>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
@@ -633,6 +695,25 @@ export const createStyles = (theme: 'light' | 'dark') => {
     retryButtonText: {
       color: Colors.white,
       fontWeight: '600',
+    },
+    content: {
+      flex: 1,
+      paddingHorizontal: 5,
+    },
+    centerItem: {
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    imgNoPhoto: {
+      width: 100,
+      height: 150,
+      resizeMode: 'contain',
+      tintColor: Colors.textSecondary,
+    },
+    textno: {
+      fontSize: 18,
+      fontWeight: '500',
+      color: Colors.textSecondary,
     },
   });
 };

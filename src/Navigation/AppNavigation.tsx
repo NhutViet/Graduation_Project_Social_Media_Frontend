@@ -60,6 +60,7 @@ import EditHighlightScreen from '../(tabs)/Profile/components/EditHighlightScree
 import NewMessage from '../Screens/NewMessage';
 import PostStory from '../Screens/PostStory';
 import ZegoCallScreen from '../Screens/ZegoCloud/ZegoCallScreen';
+import AllPostOfUserScreen from '../../components/AllPostOfUserScreen';
 export type RootStackParamList = {
   PendingMessages: {handleName: string};
   MessageScreen: {
@@ -86,6 +87,7 @@ const AppNavigator = () => {
       <Stack.Navigator
         initialRouteName="Splash"
         screenOptions={{headerShown: false}}>
+          <Stack.Screen name="AllPostOfUserScreen" component={AllPostOfUserScreen} />
         <Stack.Screen name="ZegoCallScreen" component={ZegoCallScreen} />
         <Stack.Screen name="ChangeBirthday" component={ChangeBirthday} />
         <Stack.Screen name="ChangePassword" component={ChangePassword} />

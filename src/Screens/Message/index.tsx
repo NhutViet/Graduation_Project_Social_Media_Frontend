@@ -28,6 +28,7 @@ import {uploadImageToR2} from '../../core/upload';
 import {useUploadProgress} from '../../../services/UploadProgressManager';
 import {clearMessages} from '../../../services/messageRedux/messageReducer';
 import {BASE_URL} from '../../../services/api';
+import IncomingCallModal from '../../../components/IncomingCallModal';
 
 export const MessageScreen = () => {
   const navigation: any = useNavigation();
@@ -68,30 +69,38 @@ export const MessageScreen = () => {
 
   useEffect(() => {
     setChat(messages);
-  }, [messages, room]);
+  }, [messages, roomId]);
 
   useEffect(() => {
-    if (!user.user?._id || !room) return;
+    if (!user.user?._id || !roomId) return;
 
-    const newSocket = io(BASE_URL, {
+    const newSocket = io('http://cirla.io.vn', {
       transports: ['websocket'],
       query: {
         userId: user.user._id,
-        roomId: room,
+        roomId: roomId,
       },
     });
 
     newSocket.on('connect', () => {
       console.log('✅ Socket connected!');
-      newSocket.emit('joinRoom', {roomId: room});
-    });
-
-    newSocket.on('connect_error', err => {
-      console.log('❌ Socket connect error:', err.message);
+      newSocket.emit('joinRoom', {roomId: roomId});
     });
 
     newSocket.on('receiveMessage', data => {
       setChat(prev => [...prev, data]);
+    });
+
+    newSocket.on('incomingCall', ({callerName, type}) => {
+      setIncomingCall({
+        visible: true,
+        callerName,
+        type,
+      });
+    });
+
+    newSocket.on('connect_error', err => {
+      console.log('❌ Socket connect error:', err.message);
     });
 
     setSocket(newSocket);
@@ -115,7 +124,7 @@ export const MessageScreen = () => {
   const sendMessage = () => {
     if (message.trim() && socket) {
       socket.emit('sendMessage', {
-        roomId: room?._id,
+        roomId: roomId,
         content: message,
         senderId: user.user?._id,
       });
@@ -142,7 +151,7 @@ export const MessageScreen = () => {
           });
 
           socket.emit('sendMessage', {
-            roomId: room?._id,
+            roomId: roomId,
             senderId: user.user?._id,
             media: {
               type: 'image',
@@ -176,12 +185,34 @@ export const MessageScreen = () => {
     }
   }, [chat]);
 
+  const [incomingCall, setIncomingCall] = useState<{
+    visible: boolean;
+    callerName: string;
+    type: 'video' | 'voice';
+  }>({
+    visible: false,
+    callerName: '',
+    type: 'video',
+  });
+
+  const handleAcceptCall = () => {
+    setIncomingCall(prev => ({...prev, visible: false}));
+    navigation.navigate('ZegoCallScreen', {
+      userID: user.user?._id,
+      userName: user.user?.username,
+      callID: roomId,
+    });
+  };
+
+  const handleRejectCall = () => {
+    setIncomingCall(prev => ({...prev, visible: false}));
+  };
+
   const handleCall = (type: 'video' | 'voice') => {
     navigation.navigate('ZegoCallScreen', {
       userID: user.user?._id,
       userName: user.user?.username,
       callID: roomId,
-      isVideoCall: type === 'video',
     });
   };
 
@@ -438,6 +469,13 @@ export const MessageScreen = () => {
           )}
         </View>
       </Modal>
+      <IncomingCallModal
+        visible={incomingCall.visible}
+        callerName={incomingCall.callerName}
+        type={incomingCall.type}
+        onAccept={handleAcceptCall}
+        onReject={handleRejectCall}
+      />
     </SafeAreaView>
   );
 };
