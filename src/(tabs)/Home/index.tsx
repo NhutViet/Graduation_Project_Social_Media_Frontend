@@ -19,14 +19,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import {AppDispatch, RootState} from '../../../services/store';
 import {fetchPostsWithMedia} from '../../../services/postRedux/postSlice';
-import {
-  fetchFollowingStories,
-  seenStory,
-} from '../../../services/StoryRedux/StorySlice';
-import {
-  getAllPlaylists,
-  getItemsOfPlaylist,
-} from '../../../services/bookmarkRedux/bookmarkSlice';
+import {fetchFollowingStories} from '../../../services/StoryRedux/StorySlice';
 import {fetchCommentsByPost} from '../../../services/commentRedux/commentSlice';
 import Header from '../../../components/Header';
 import Story from './components/Story';
@@ -38,7 +31,6 @@ import {handleUserPress} from './util';
 import {
   checkStorySeenInStorage,
   clearExpiredSeenStories,
-  markStoryAsSeen,
 } from '../../../services/storage/storage';
 
 const HEADER_HEIGHT = 100;
@@ -67,9 +59,7 @@ export const Home = forwardRef(({onReload}: any, ref) => {
 
   const reloadAllData = useCallback(() => {
     dispatch(fetchPostsWithMedia());
-
     dispatch(fetchFollowingStories({page: 1}));
-
     clearExpiredSeenStories();
   }, []);
 
@@ -142,14 +132,11 @@ export const Home = forwardRef(({onReload}: any, ref) => {
     transform: [{translateY: headerTranslateY.value}],
   }));
 
-  const handleOpenComment = useCallback(
-    (postId: string) => {
-      setSelectedPostId(postId);
-      dispatch(fetchCommentsByPost(postId));
-      sheetRef.current?.open();
-    },
-    [dispatch],
-  );
+  const handleOpenComment = useCallback((postId: string) => {
+    setSelectedPostId(postId);
+    dispatch(fetchCommentsByPost(postId));
+    sheetRef.current?.open();
+  }, []);
 
   if (storyLoading) {
     return (
@@ -183,7 +170,6 @@ export const Home = forwardRef(({onReload}: any, ref) => {
       <AnimatedFlatList
         data={posts}
         keyExtractor={item => item._id}
-        extraData={isFocused}
         renderItem={({item}) => {
           const shouldPlay = item._id === currentVisible;
           return (

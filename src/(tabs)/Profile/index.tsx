@@ -359,8 +359,8 @@ const Profile = () => {
 
   useFocusEffect(
     useCallback(() => {
-      dispatch(getPostsAndReelsOfUser({refreshToken, userId: userID}));
-    }, [dispatch, refreshToken, userID]),
+      dispatch(getPostsAndReelsOfUser({refreshToken, userId: userId}));
+    }, [dispatch, refreshToken, userId]),
   );
 
   return (
