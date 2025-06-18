@@ -8,6 +8,29 @@ const MessageStyles = (theme: ThemeType) => {
   const color = Colors[theme];
 
   return StyleSheet.create({
+    bg: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      zIndex: 0,
+      backgroundColor: 'transparent',
+    },
+    viewDf: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      zIndex: 1,
+    },
+    loading: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: color.background,
+    },
     container: {
       flex: 1,
       justifyContent: 'flex-end',

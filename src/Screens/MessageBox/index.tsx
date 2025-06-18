@@ -213,16 +213,21 @@ export const MessageBox = (props: any) => {
           data={rooms}
           renderItem={({item}) => {
             const filteredUsers = item.user_ids.filter(
-              user => user._id !== item.created_by,
+              u => u._id !== user?._id,
             );
 
             const user1 = filteredUsers[0];
             const user2 = filteredUsers[1];
 
+            const nameChat =
+              item.name?.trim().length > 0
+                ? item.name
+                : user1?.handleName || 'Không xác định';
+
             return (
               <ItemNewMessage
                 roomId={item._id}
-                nameChat={item.name}
+                nameChat={nameChat}
                 roomTheme={item?.theme}
                 userHandle1={user1?.handleName || ''}
                 userHandle2={user2?.handleName || ''}

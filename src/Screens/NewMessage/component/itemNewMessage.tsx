@@ -4,8 +4,7 @@ import {useTheme} from '../../../util/ThemeContext';
 import {useNavigation} from '@react-navigation/native';
 
 const ItemNewMessage = (props: any) => {
-  const {roomId, roomTheme, nameChat, userHandle1, userHandle2, img1, img2} =
-    props;
+  const {roomId, nameChat, userHandle1, userHandle2, img1, img2} = props;
   const {theme} = useTheme();
   const color = Colors[theme];
   const navigation: any = useNavigation();

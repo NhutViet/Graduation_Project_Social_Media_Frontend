@@ -5,8 +5,12 @@ import {CallAppID, CallAppSign} from '../../../services/api';
 import {useNavigation} from '@react-navigation/native';
 
 export default function ZegoCallScreen({route}: any) {
-  const {userID, userName, callID} = route.params;
+  const {userID, userName, callID, image} = route.params;
   const navigation = useNavigation();
+  const callStartTimeRef = React.useRef<number | null>(null);
+  React.useEffect(() => {
+    callStartTimeRef.current = Date.now();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -41,7 +45,7 @@ export default function ZegoCallScreen({route}: any) {
               <Image
                 style={{width: '100%', height: '100%'}}
                 resizeMode="cover"
-                source={{uri: `https://robohash.org/${userInfo.userID}.png`}}
+                source={{uri: image}}
               />
             </View>
           ),
