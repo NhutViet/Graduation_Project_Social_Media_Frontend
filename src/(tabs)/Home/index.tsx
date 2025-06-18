@@ -71,8 +71,6 @@ export const Home = forwardRef(({onReload}: any, ref) => {
 
     dispatch(fetchFollowingStories({page: 1}));
 
-    dispatch(getAllPlaylists({refreshToken}));
-
     clearExpiredSeenStories();
   }, []);
 
