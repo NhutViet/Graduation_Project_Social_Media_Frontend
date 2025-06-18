@@ -17,14 +17,9 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-
 import {AppDispatch, RootState} from '../../../services/store';
 import {fetchPostsWithMedia} from '../../../services/postRedux/postSlice';
 import {fetchFollowingStories} from '../../../services/StoryRedux/StorySlice';
-import {
-  getAllPlaylists,
-  getItemsOfPlaylist,
-} from '../../../services/bookmarkRedux/bookmarkSlice';
 import {fetchCommentsByPost} from '../../../services/commentRedux/commentSlice';
 import Header from '../../../components/Header';
 import Story from './components/Story';
@@ -54,7 +49,6 @@ export const Home = forwardRef(({onReload}: any, ref) => {
   );
   const storyLoading = useSelector((state: RootState) => state.stories.loading);
   const user = useSelector((state: RootState) => state.user.user);
-
 
   const reloadAllData = useCallback(() => {
     dispatch(fetchPostsWithMedia());

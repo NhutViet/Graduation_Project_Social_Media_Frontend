@@ -87,11 +87,8 @@ export const MessageScreen = () => {
       newSocket.emit('joinRoom', {roomId: room});
     });
 
-    newSocket.on('connect_error', err => {
-      console.log('❌ Socket connect error:', err.message);
-    });
-
     newSocket.on('receiveMessage', data => {
+      console.log('📩 New message received:', data);
       setChat(prev => [...prev, data]);
     });
 
@@ -101,6 +98,10 @@ export const MessageScreen = () => {
         callerName,
         type,
       });
+    });
+
+    newSocket.on('connect_error', err => {
+      console.log('❌ Socket connect error:', err.message);
     });
 
     setSocket(newSocket);
@@ -124,7 +125,7 @@ export const MessageScreen = () => {
   const sendMessage = () => {
     if (message.trim() && socket) {
       socket.emit('sendMessage', {
-        roomId: room?._id,
+        roomId: roomId,
         content: message,
         senderId: user.user?._id,
       });
@@ -151,7 +152,7 @@ export const MessageScreen = () => {
           });
 
           socket.emit('sendMessage', {
-            roomId: room?._id,
+            roomId: roomId,
             senderId: user.user?._id,
             media: {
               type: 'image',
