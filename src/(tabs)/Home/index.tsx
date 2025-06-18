@@ -17,7 +17,6 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-
 import {AppDispatch, RootState} from '../../../services/store';
 import {fetchPostsWithMedia} from '../../../services/postRedux/postSlice';
 import {
