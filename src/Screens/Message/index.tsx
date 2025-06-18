@@ -69,26 +69,25 @@ export const MessageScreen = () => {
 
   useEffect(() => {
     setChat(messages);
-  }, [messages, room]);
+  }, [messages, roomId]);
 
   useEffect(() => {
-    if (!user.user?._id || !room) return;
+    if (!user.user?._id || !roomId) return;
 
-    const newSocket = io(BASE_URL, {
+    const newSocket = io('http://cirla.io.vn', {
       transports: ['websocket'],
       query: {
         userId: user.user._id,
-        roomId: room,
+        roomId: roomId,
       },
     });
 
     newSocket.on('connect', () => {
       console.log('✅ Socket connected!');
-      newSocket.emit('joinRoom', {roomId: room});
+      newSocket.emit('joinRoom', {roomId: roomId});
     });
 
     newSocket.on('receiveMessage', data => {
-      console.log('📩 New message received:', data);
       setChat(prev => [...prev, data]);
     });
 

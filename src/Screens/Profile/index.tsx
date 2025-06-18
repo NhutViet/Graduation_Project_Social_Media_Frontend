@@ -139,8 +139,8 @@ const ProfileComp = ({route}: any) => {
       // Fetch new profile data
       Promise.all([
         dispatch(getPublicProfile({userId: userID})),
-        dispatch(fetchFollowers({userID})),
-        dispatch(fetchFollowing({userID})),
+        // dispatch(fetchFollowers({userID})),
+        // dispatch(fetchFollowing({userID})),
         dispatch(getPostsAndReelsOfUser({refreshToken, userId: userID})),
       ]).catch(error => {
         console.error('Error fetching data:', error);
