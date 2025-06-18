@@ -5,8 +5,9 @@ import {
   getItemsOfPlaylist,
   removeBookmark,
   saveBookmark,
+  switchBookmark,
 } from './bookmarkSlice';
-import { ResCreatePlaylist} from './bookmarkTypes';
+import {ResCreatePlaylist} from './bookmarkTypes';
 
 interface Playlist {
   id: string;
@@ -91,15 +92,16 @@ const bookmarkReducer = createSlice({
         state.isloading = false;
         state.isSuccess = true;
 
-        const {postId, playlistId} = action.payload;
-        console.log('action payload ', action.payload);
+        const {postId} = action.payload;
+        Object.keys(state.itemsByPlaylist).forEach(playlistId => {
+          const items = state.itemsByPlaylist[playlistId];
 
-        const itemss = state.itemsByPlaylist[playlistId];
-        if (itemss) {
-          state.itemsByPlaylist[playlistId] = itemss.filter(
-            item => item.itemID !== postId[0],
-          );
-        }
+          if (items && items.length > 0) {
+            state.itemsByPlaylist[playlistId] = items.filter(
+              item => item.itemID !== postId[0],
+            );
+          }
+        });
       })
       .addCase(removeBookmark.rejected, (state, action) => {
         state.isloading = false;
@@ -187,6 +189,41 @@ const bookmarkReducer = createSlice({
         state.isError = true;
         state.messageError =
           action.payload?.message || 'Lấy danh sách thất bại';
+      })
+      // Chuyển bài post sang playlist khác
+      .addCase(switchBookmark.pending, state => {
+        state.isloading = true;
+        state.isError = false;
+        state.messageError = '';
+        state.isSuccess = false;
+      })
+      .addCase(switchBookmark.fulfilled, (state, action) => {
+        state.isloading = false;
+        state.isSuccess = true;
+
+        const {playlistID: playlistId, itemID: postId} = action.payload;
+
+        // Xoá post khỏi tất cả playlists đang chứa
+        for (const key in state.itemsByPlaylist) {
+          const items = state.itemsByPlaylist[key];
+          state.itemsByPlaylist[key] = items.filter(
+            item => item.itemID !== postId,
+          );
+        }
+
+        // Thêm post vào playlist mới nếu đã có dữ liệu load
+        if (state.itemsByPlaylist[playlistId]) {
+          state.itemsByPlaylist[playlistId].unshift({
+            itemID: postId,
+            itemType: 'post', // Nếu itemType khác thì chỉnh lại
+          });
+        }
+      })
+      .addCase(switchBookmark.rejected, (state, action) => {
+        state.isloading = false;
+        state.isError = true;
+        state.messageError =
+          action.payload?.message || 'Chuyển mục lưu thất bại';
       });
   },
 });

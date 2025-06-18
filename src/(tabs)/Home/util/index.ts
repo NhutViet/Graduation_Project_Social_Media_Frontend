@@ -15,9 +15,7 @@ import {
 export const handleBookmark = async ({
   isBookmarked,
   _id,
-  playlists,
   refreshToken,
-  itemsByPlaylist,
   setIsBookmarked,
   dispatch,
 }: HandleBookmarkParams) => {
@@ -27,36 +25,23 @@ export const handleBookmark = async ({
       await dispatch(
         saveBookmark({
           postId: _id,
-          playlistId: playlists[0].id,
           refreshToken,
         }),
       ).unwrap();
     } catch (res) {
-      const fallback = Object.values(itemsByPlaylist)
-        .flat()
-        .some(item => item.itemID === _id);
-      setIsBookmarked(fallback);
+      setIsBookmarked(false);
     }
   } else {
-    const playlistID = Object.entries(itemsByPlaylist).find(([_, items]) =>
-      items.some(item => item.itemID.toString() === _id.toString()),
-    )?.[0];
     setIsBookmarked(false);
-    if (playlistID) {
-      try {
-        await dispatch(
-          removeBookmark({
-            postId: [_id],
-            playlistId: playlistID,
-            refreshToken,
-          }),
-        ).unwrap();
-      } catch (res) {
-        const fallback = Object.values(itemsByPlaylist)
-          .flat()
-          .some(item => item.itemID === _id);
-        setIsBookmarked(fallback);
-      }
+    try {
+      await dispatch(
+        removeBookmark({
+          postId: _id,
+          refreshToken,
+        }),
+      ).unwrap();
+    } catch (res) {
+      setIsBookmarked(true);
     }
   }
 };
@@ -130,21 +115,21 @@ export const handleUserPress = async (
 ) => {
   const isCurrentUser = item._id === user?._id;
 
+  // Nếu là người dùng hiện tại và chưa có story → chuyển sang màn up story
   if (!item.stories.length && isCurrentUser) {
     navigation.navigate('UpStory');
     return;
   }
 
-  const storyId = item.stories[0];
+  const storyId = item.stories?.[0];
+  if (!storyId) return;
+
+  // Tìm story đã fetch trong danh sách storyDetails
   const story = storyDetails.find(s => s._id === storyId);
   const createdAt = story?.createdAt;
 
-  if (!createdAt) {
-    console.warn('⚠️ createdAt is undefined, bỏ qua:', storyId);
-    return;
-  }
-
   try {
+    // Gọi API seenStory
     const res = await dispatch(seenStory({storyId})).unwrap();
     const storyData = res?.data;
 
@@ -153,10 +138,12 @@ export const handleUserPress = async (
       return;
     }
 
-    // Nếu chưa lưu thì mới đánh dấu đã seen trong máy
-    const hasSeen = await checkStorySeenInStorage(storyId, createdAt);
-    if (!hasSeen) {
-      await markStoryAsSeen(storyId, storyData.createdAt);
+    // Nếu chưa lưu trạng thái seen → lưu lại
+    if (createdAt) {
+      const hasSeen = await checkStorySeenInStorage(storyId, createdAt);
+      if (!hasSeen) {
+        await markStoryAsSeen(storyId, storyData.createdAt);
+      }
     }
 
     const selectedItem = {

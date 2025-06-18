@@ -13,6 +13,7 @@ import {PersistGate} from 'redux-persist/integration/react';
 import {UploadProvider} from '../services/UploadProgressManager';
 import Toast from 'react-native-toast-message';
 import {Buffer} from 'buffer';
+import { TabLoadingProvider } from '../services/TabLoadingContext';
 global.Buffer = Buffer;
 if (__DEV__) {
   import('./config/ReactotronConfig').then(() =>
@@ -30,8 +31,10 @@ const App = () => {
             <SafeAreaProvider>
               <Host>
                 <UploadProvider>
-                  <AppNavigator />
-                  <Toast />
+                  <TabLoadingProvider>
+                    <AppNavigator />
+                    <Toast />
+                  </TabLoadingProvider>
                 </UploadProvider>
               </Host>
             </SafeAreaProvider>

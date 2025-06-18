@@ -5,7 +5,7 @@ import { useTheme } from '../../../util/ThemeContext';
 
 export const useItemHomeUtils = (props: ItemHomeProps, state: any) => {
   const { type, _id } = props;
-  const { isLiked, isBookmarked, followers, following } = state;
+  const { isLiked, isBookmark, followers, following } = state;
   
   const {theme} = useTheme();
   const color = Colors[theme];
@@ -15,7 +15,7 @@ export const useItemHomeUtils = (props: ItemHomeProps, state: any) => {
   const iconTintColor = isReel ? Colors.light.background : color.text;
   const iconColor = color.text;
   const likedColor = isLiked ? color.error : iconColor;
-  const bookmarkColor = isBookmarked ? '#F2C641' : iconColor;
+  const bookmarkColor = isBookmark ? '#F2C641' : iconColor;
 
   const follows = useMemo(() => {
     const allUsers = [...followers, ...following];

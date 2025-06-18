@@ -13,12 +13,14 @@ export interface ConfigOption {
 
 export interface BottomSheetOptionsProps {
   topOptions: ConfigOption[];
+  isBookmarked?: boolean;
   listOptionGroups: ConfigOption[][];
   onSelect: (id: string) => void;
 }
 
 const BottomSheetOptions: React.FC<BottomSheetOptionsProps> = ({
   topOptions,
+  isBookmarked,
   listOptionGroups,
   onSelect,
 }) => {
@@ -42,12 +44,12 @@ const BottomSheetOptions: React.FC<BottomSheetOptionsProps> = ({
                 style={styles.horizontalButton}
                 onPress={() => handlePress(opt.id)}>
                 <Image
-                  source={opt.icon}
-                  style={[styles.topIcon, { tintColor: palette.text }]}
+                  source={isBookmarked && opt.id === 'bookmark' ? require('../assets/icon/bookmark_fill.png') : opt.icon}
+                  style={[styles.topIcon, { tintColor: isBookmarked && opt.id === 'bookmark' ? '#F2C641' : palette.text }]}
                   resizeMode="contain"
                 />
                 <Text style={[styles.topLabel, { color: palette.text }]}>  
-                  {opt.label}
+                  {isBookmarked && opt.id ? 'Đã lưu' :opt.label}
                 </Text>
               </TouchableOpacity>
               {/* only render an invisible spacer if this ain't the last item */}

@@ -1,11 +1,12 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {
-  SafeAreaView,
-  View,
-  ActivityIndicator,
-  ScrollView,
-  Alert,
-} from 'react-native';
+import React, {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react';
+import {SafeAreaView, View, ActivityIndicator, ScrollView} from 'react-native';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {useIsFocused, useNavigation} from '@react-navigation/native';
@@ -44,7 +45,7 @@ import {
 const HEADER_HEIGHT = 100;
 const AnimatedFlatList = Animated.createAnimatedComponent(Animated.FlatList);
 
-export const Home = () => {
+export const Home = forwardRef(({onReload}: any, ref) => {
   const navigation: any = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];
@@ -64,12 +65,8 @@ export const Home = () => {
   );
   const storyLoading = useSelector((state: RootState) => state.stories.loading);
   const user = useSelector((state: RootState) => state.user.user);
-  const refreshToken = useSelector(
-    (state: RootState) => state.user.refreshToken,
-  );
-  const playlists = useSelector((state: RootState) => state.bookmark.playlists);
 
-  useEffect(() => {
+  const reloadAllData = useCallback(() => {
     dispatch(fetchPostsWithMedia());
 
     dispatch(fetchFollowingStories({page: 1}));
@@ -79,11 +76,13 @@ export const Home = () => {
     clearExpiredSeenStories();
   }, []);
 
+  useImperativeHandle(ref, () => ({
+    reload: reloadAllData,
+  }));
+
   useEffect(() => {
-    playlists.forEach(playlist => {
-      dispatch(getItemsOfPlaylist({playlistId: playlist.id, refreshToken}));
-    });
-  }, [playlists]);
+    reloadAllData();
+  }, []);
 
   useEffect(() => {
     const syncSeenStories = async () => {
@@ -262,4 +261,6 @@ export const Home = () => {
       <BottomSheetComment ref={sheetRef} postId={selectedPostId} />
     </SafeAreaView>
   );
-};
+});
+
+export default Home;
