@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { ReqGetPosts, ResGetPost, ResGetReels } from "./postUserType";
+import { ReqGetPosts, ResGetPost, ResGetPostsAndReels, ResGetReels } from "./postUserType";
 import axiosInstance from "../axiosInstance";
 import { API } from "../api";
 
@@ -45,6 +45,26 @@ export const getReelsOfUser = createAsyncThunk<
             return res.data;
         } catch (error: any) {
             return rejectWithValue({message: error?.response?.data?.message || 'Lấy bài post thất bại'});
+        }
+    },
+);
+
+export const getPostsAndReelsOfUser = createAsyncThunk<
+    ResGetPostsAndReels,
+    ReqGetPosts,
+    {rejectValue: {message: string}}
+>(
+    'posts/user/all',
+    async ({refreshToken, userId}, {rejectWithValue}) => {
+        try {
+            const res = await axiosInstance.get(`/posts/user/${userId}/all`, {
+                headers: {
+                    Authorization: `Bearer ${refreshToken}`
+                },
+            });
+            return res.data;
+        } catch (error: any) {
+            return rejectWithValue({message: error?.response?.data?.message || 'Lấy bài viết và thước phim thất bại.'});
         }
     },
 );
