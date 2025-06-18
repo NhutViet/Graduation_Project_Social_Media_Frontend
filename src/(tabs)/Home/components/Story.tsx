@@ -124,7 +124,6 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 16,
-    marginTop: 4,
   },
   box: {
     flexDirection: 'row',

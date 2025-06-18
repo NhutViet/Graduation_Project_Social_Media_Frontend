@@ -207,7 +207,11 @@ export const Home = forwardRef(({onReload}: any, ref) => {
         showsVerticalScrollIndicator={false}
         nestedScrollEnabled
         ListHeaderComponent={
-          <View style={{position: 'relative', height: 160}}>
+          <View
+            style={{
+              position: 'relative',
+              height: 160,
+            }}>
             <View style={{paddingTop: 48}}>
               <ScrollView
                 horizontal
