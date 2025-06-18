@@ -1,6 +1,7 @@
 import {useNavigation} from '@react-navigation/native';
 import {FlashList} from '@shopify/flash-list';
 import {
+  Alert,
   Image,
   SafeAreaView,
   ScrollView,
@@ -19,6 +20,15 @@ import {fetchMyRooms} from '../../../services/roomRedux/roomSlice';
 import ItemNewMessage from '../NewMessage/component/itemNewMessage';
 import Story from '../../(tabs)/Home/components/Story';
 import {handleUserPress} from '../../(tabs)/Home/util';
+import {
+  fetchFollowingStories,
+  seenStory,
+} from '../../../services/StoryRedux/StorySlice';
+import {
+  checkStorySeenInStorage,
+  clearExpiredSeenStories,
+  markStoryAsSeen,
+} from '../../../services/storage/storage';
 
 export const MessageBox = (props: any) => {
   const navigation: any = useNavigation();
@@ -31,14 +41,43 @@ export const MessageBox = (props: any) => {
   const {rooms, loading, error} = useSelector(
     (state: RootState) => state.rooms,
   );
+  const [seenMap, setSeenMap] = useState<Record<string, boolean>>({});
+
   const followingUsers = useSelector(
     (state: RootState) => state.stories.followingUsers,
   );
-  const user = useSelector((state: RootState) => state.user?.user);
 
+  const user = useSelector((state: RootState) => state.user?.user);
+  const storyDetails = useSelector(
+    (state: RootState) => state.stories.storyDetails,
+  );
   useEffect(() => {
     dispatch(fetchMyRooms());
+
+    dispatch(fetchFollowingStories({page: 1}));
+
+    clearExpiredSeenStories();
   }, []);
+  useEffect(() => {
+    const syncSeenStories = async () => {
+      const map: Record<string, boolean> = {};
+      for (const user of followingUsers) {
+        for (const storyId of user.stories) {
+          const createdAt = storyDetails.find(
+            s => s._id === storyId,
+          )?.createdAt;
+          if (!createdAt) continue;
+          const seen = await checkStorySeenInStorage(storyId, createdAt);
+          map[storyId] = seen;
+        }
+      }
+      setSeenMap(map);
+    };
+
+    if (followingUsers.length && storyDetails.length) {
+      syncSeenStories();
+    }
+  }, [followingUsers, storyDetails]);
 
   // State management
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -108,26 +147,51 @@ export const MessageBox = (props: any) => {
       </View>
       {/* Stories Section */}
       <View style={styles.storiesContainer}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{paddingHorizontal: 10}}>
-          {followingUsers
-            .filter(item => item !== undefined && item !== null)
-            .map(item => (
-              <Story
-                key={item._id}
-                name={
-                  item.handleName === user?.handleName
-                    ? 'Tin của tôi'
-                    : item.handleName
-                }
-                image={item.profilePic}
-                status={item.stories.length > 0 ? 1 : 0}
-                func={() => handleUserPress(item, dispatch, navigation)}
-              />
-            ))}
-        </ScrollView>
+        <View>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{paddingHorizontal: 10}}>
+            {followingUsers
+              .filter(item => {
+                const isCurrentUser = item._id === user?._id;
+                const hasStory = item.stories?.length > 0;
+
+                return isCurrentUser || hasStory;
+              })
+              .map(item => {
+                const isCurrentUser = item._id === user?._id;
+                const story = storyDetails.find(
+                  s => s._id === item.stories?.[0],
+                );
+                const viewedByUsers = (story as any)?.viewedByUsers || [];
+                const isSeen =
+                  viewedByUsers.includes(user?.handleName) ||
+                  seenMap[item.stories?.[0]] === true;
+
+                return (
+                  <Story
+                    key={item._id}
+                    name={isCurrentUser ? 'Tin của tôi' : item.handleName}
+                    image={item.profilePic}
+                    status={item.stories.length > 0 ? 1 : 0}
+                    hasStory={item.stories.length > 0}
+                    isSeen={isSeen}
+                    isCurrentUser={isCurrentUser}
+                    func={() =>
+                      handleUserPress(
+                        item,
+                        dispatch,
+                        navigation,
+                        storyDetails,
+                        user,
+                      )
+                    }
+                  />
+                );
+              })}
+          </ScrollView>
+        </View>
       </View>
 
       {/* Messages Header */}
