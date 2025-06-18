@@ -15,7 +15,11 @@ import Toast from 'react-native-toast-message';
 import {Buffer} from 'buffer';
 import { TabLoadingProvider } from '../services/TabLoadingContext';
 global.Buffer = Buffer;
-
+if (__DEV__) {
+  import('./config/ReactotronConfig').then(() =>
+    console.tron.log('Reactotron Configured ✅'),
+  );
+}
 enableScreens();
 
 const App = () => {
