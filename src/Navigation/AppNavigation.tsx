@@ -52,6 +52,7 @@ import {
   DissapearingMessage,
   PrivacyAndSafety,
   Splash,
+  UserFollowScreen,
   ViewReels,
 } from '../Screens';
 import BottomTabs from './BottomTabs';
@@ -170,6 +171,7 @@ const AppNavigator = () => {
           component={DissapearingMessage}
         />
         <Stack.Screen name="PrivacyAndSafety" component={PrivacyAndSafety} />
+        <Stack.Screen name="UserFollowScreen" component={UserFollowScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -16,9 +16,27 @@ export const fetchFollowers = createAsyncThunk<
             token: 'refresh',
         },
       });
+
+      console.log('Server response:', response.data);
+
+      if (!response.data || !Array.isArray(response.data.followers)) {
+        return rejectWithValue('Dữ liệu trả về không hợp lệ');
+      }
+
       return response.data.followers;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || error.message || 'Lấy danh sách người theo dõi thất bại');
+      console.error('fetchFollowers error:', error);
+      
+      if (error.response) {
+        console.error('Error response:', error.response.data);
+        console.error('Error status:', error.response.status);
+      }
+      
+      return rejectWithValue(
+        error.response?.data?.message || 
+        error.message || 
+        'Lấy danh sách người theo dõi thất bại'
+      );
     }
   }
 );
@@ -88,6 +106,38 @@ export const relationAction = createAsyncThunk<
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || error.message || 'Thao tác quan hệ thất bại'
+      );
+    }
+  }
+);
+
+export const fetchRecommendations = createAsyncThunk<
+  UserProfile[],
+  { limit?: number },
+  { rejectValue: string }
+>(
+  'relations/recommendations',
+  async ({ limit = 10 }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(
+        API.GET_RECOMMENDATIONS,
+        {
+          params: { limit },
+          headers: { token: 'refresh' },
+        }
+      );
+
+      const data = response.data;
+      if (!data || !Array.isArray(data.recommendations)) {
+        return rejectWithValue('Dữ liệu trả về không hợp lệ');
+      }
+      return data.recommendations;
+    } catch (error: any) {
+      console.error('fetchRecommendations error:', error);
+      return rejectWithValue(
+        error.response?.data?.message ||
+        error.message ||
+        'Lấy danh sách gợi ý thất bại'
       );
     }
   }

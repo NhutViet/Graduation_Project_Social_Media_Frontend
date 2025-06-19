@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {View, TouchableOpacity, Text, StyleSheet} from 'react-native';
 import {Colors} from '../../../../assets/color/Colors';
 import {Theme} from '../../../util/ThemeContext';
@@ -6,21 +6,40 @@ import {Theme} from '../../../util/ThemeContext';
 interface ActionProps {
   onFollowPress: () => void;
   onMessagePress: () => void;
+  onUnblockPress: () => void;
   theme: Theme;
   isFollowing?: boolean;
+  isBlocked? : boolean;
 }
 
 const ActionButtons: React.FC<ActionProps> = ({
   onFollowPress,
   onMessagePress,
+  onUnblockPress,
   theme,
-  isFollowing = false,
+  isFollowing: initialIsFollowing,
+  isBlocked
 }) => {
+  const [isFollowing, setIsFollowing] = useState(initialIsFollowing);
+
+  useEffect(() => {
+    setIsFollowing(initialIsFollowing);
+  }, [initialIsFollowing]);
+  
   return (
     <View style={styles.actionButtons}>
-      <TouchableOpacity style={[styles.followButton, isFollowing && styles.followingButton]} onPress={onFollowPress}>
-        <Text style={[styles.followButtonText, isFollowing && styles.followingButtonText]}>{isFollowing ? 'Đang theo dõi' : 'Theo dõi'}</Text>
+      {!isBlocked && (
+        <TouchableOpacity style={[styles.followButton, isFollowing && styles.followingButton,]} onPress={onFollowPress}>
+          <Text style={[styles.followButtonText, isFollowing && styles.followingButtonText,]}>
+            {isFollowing ? 'Đang theo dõi' : 'Theo dõi'}
+          </Text>
+        </TouchableOpacity>
+      )}
+      {isBlocked &&
+      <TouchableOpacity style={styles.followButton} onPress={onUnblockPress}>
+        <Text style={styles.followButtonText}>Bỏ chặn</Text>
       </TouchableOpacity>
+      }
       <TouchableOpacity style={styles.messageButton} onPress={onMessagePress}>
         <Text style={[styles.messageButtonText, {color: Colors[theme].text}]}>
           Nhắn tin
