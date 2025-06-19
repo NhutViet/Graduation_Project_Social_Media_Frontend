@@ -22,6 +22,7 @@ import {
 } from '../../../services/userRedux/userSlice';
 import {resetStatus} from '../../../services/userRedux/userReducer';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
+import {Eye, EyeOff} from 'lucide-react-native';
 
 export const SwitchAccount = ({navigation}: any) => {
   const [email, setEmail] = useState('');
@@ -35,7 +36,7 @@ export const SwitchAccount = ({navigation}: any) => {
   const SwitchStyles = SwitchAccountStyles(theme);
   const [successModal, setSuccessModal] = useState(false);
   const [errorModal, setErrorModal] = useState(false);
-
+  const [isPassWord, setIsPassWord] = useState(true);
   //redux
   const dispatch = useDispatch<AppDispatch>();
   const {isLoading, isError, errorMessage, isSuccess} = useSelector(
@@ -170,18 +171,41 @@ export const SwitchAccount = ({navigation}: any) => {
           {!(errorEmail === '') && (
             <Text style={styles.errorText}>{errorEmail}</Text>
           )}
-          <TextInput
-            value={password}
-            onChangeText={setPassword}
-            placeholder="Mật khẩu"
-            secureTextEntry={true}
-            placeholderTextColor={Colors.light.lightDark}
-            style={[SwitchStyles.input, {marginTop: 20}]}
-          />
+          <View
+            style={[
+              SwitchStyles.input,
+              {
+                marginTop: 20,
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              },
+            ]}>
+            <TextInput
+              value={password}
+              onChangeText={setPassword}
+              style={{width: '90%'}}
+              placeholder="Mật khẩu"
+              secureTextEntry={isPassWord}
+              placeholderTextColor={Colors.light.lightDark}
+            />
+            <TouchableOpacity
+              onPress={() =>
+                isPassWord ? setIsPassWord(false) : setIsPassWord(true)
+              }>
+              {isPassWord ? (
+                <EyeOff size={24} color={'#000'} />
+              ) : (
+                <Eye size={24} color={'#000'} />
+              )}
+            </TouchableOpacity>
+          </View>
+
           {!(errorPassword === '') && (
             <Text style={styles.errorText}>{errorPassword}</Text>
           )}
-          <TouchableOpacity>
+
+          <TouchableOpacity style={SwitchStyles.btnForgot}>
             <Text style={SwitchStyles.textForgot}>Quên mật khẩu?</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.buttonLogin} onPress={handleLogin}>
@@ -189,18 +213,17 @@ export const SwitchAccount = ({navigation}: any) => {
               {isLoading ? 'Đang xử lý...' : 'Đăng nhập'}
             </Text>
           </TouchableOpacity>
-          <View style={{alignItems: 'center'}}>
+          <View style={{alignItems: 'center', marginTop: 15}}>
             <TouchableOpacity
               onPress={() => {
                 signInWithGoogle();
-              }}>
-              <Text style={SwitchStyles.textGoogle}>
-                <Image
-                  style={SwitchStyles.icon}
-                  source={require('../../../assets/icon/gg.png')}
-                />{' '}
-                Đăng nhập bằng Google
-              </Text>
+              }}
+              style={{flexDirection: 'row', alignItems: 'center'}}>
+              <Image
+                style={SwitchStyles.icon}
+                source={require('../../../assets/icon/gg.png')}
+              />
+              <Text style={SwitchStyles.textGoogle}>Đăng nhập bằng Google</Text>
             </TouchableOpacity>
           </View>
         </View>

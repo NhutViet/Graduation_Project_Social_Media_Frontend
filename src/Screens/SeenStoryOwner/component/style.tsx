@@ -63,6 +63,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     width: '100%',
     marginTop: 5,
+    paddingHorizontal: 10,
   },
   progressBarWrapper: {
     flex: 1,

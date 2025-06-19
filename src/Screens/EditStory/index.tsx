@@ -25,6 +25,10 @@ import {useSelector} from 'react-redux';
 import {RootState} from '../../../services/store';
 import {uploadImageToR2, uploadToCloudflare} from '../../core/upload';
 import axiosInstance from '../../../services/axiosInstance';
+import {Dimensions} from 'react-native';
+
+const screenWidth = Dimensions.get('window').width;
+const screenHeight = Dimensions.get('window').height;
 
 export const EditStory = ({route, navigation}: any) => {
   const {selectedItem, selectedMusic, songUrl} = route.params;
@@ -37,8 +41,8 @@ export const EditStory = ({route, navigation}: any) => {
   const animationRef = useRef<Animated.CompositeAnimation | null>(null);
   const videoRef = useRef<any>(null);
   const audioRef = useRef<Sound | null>(null); // ref cho âm thanh
-  //lấy tọa độ
-  const positionRef = useRef({x: 0, y: 0});
+  // Lấy tọa độ, đặt giá trị mặc định ở giữa nếu không kéo thả
+  const positionRef = useRef({x: 50, y: 50}); // Mặc định ở giữa (50% x, 50% y)
   const [initialized, setInitialized] = useState(false);
 
   // Sau khi render lần đầu, ngừng truyền x/y để tránh nhảy
@@ -76,7 +80,6 @@ export const EditStory = ({route, navigation}: any) => {
       if (finished) {
         progressAnim.setValue(0); // Reset progress for loop
         startProgressAnimation(); // Restart animation
-        //nếu có nhạc thì chuyển audio vể timeStart
         if (selectedMusic && audioRef.current) {
           audioRef.current.setCurrentTime(selectedMusic.timeStart || 0);
           audioRef.current.play();
@@ -107,11 +110,11 @@ export const EditStory = ({route, navigation}: any) => {
       videoRef.current.seek(0); // Restart video
     }
     if (selectedMusic && audioRef.current) {
-      audioRef.current.setCurrentTime(selectedMusic.timeStart || 0); // restart audio nếu có chọn
+      audioRef.current.setCurrentTime(selectedMusic.timeStart || 0);
       audioRef.current.play();
     }
   };
-  //chạy audio nêys có selectedMusic
+
   useEffect(() => {
     if (selectedMusic && songUrl) {
       const sound = new Sound(songUrl, undefined, error => {
@@ -124,7 +127,6 @@ export const EditStory = ({route, navigation}: any) => {
         sound.setVolume(1.0);
         sound.play(success => {
           if (success) {
-            //lặp lại audio
             sound.setCurrentTime(selectedMusic.timeStart || 0);
             sound.play();
           } else {
@@ -134,7 +136,6 @@ export const EditStory = ({route, navigation}: any) => {
       });
     }
 
-    //clean audio khi component unmout
     return () => {
       if (audioRef.current) {
         audioRef.current.release();
@@ -170,7 +171,7 @@ export const EditStory = ({route, navigation}: any) => {
   const handleDonePress = () => {
     console.log('Done pressed, closing modal with caption:', caption);
     setIsModalVisible(false);
-    setHasShownModal(true); // Keep track that modal has been shown at least once
+    setHasShownModal(true);
   };
 
   const handleCloserPress = () => {
@@ -203,16 +204,13 @@ export const EditStory = ({route, navigation}: any) => {
 
   const handleUploadStory = async () => {
     try {
-      setProgress(0); // Reset tiến độ
-      //kiểm tra selectedItem
+      setProgress(0);
       if (!selectedItem) {
         console.error('Không có media để upload.');
         return;
       }
 
       let mediaUrl = '';
-
-      //xử lý loại
       try {
         if (selectedItem?.type.includes('video')) {
           const videoKey = await uploadToCloudflare(selectedItem.uri, {
@@ -240,23 +238,19 @@ export const EditStory = ({route, navigation}: any) => {
 
       const isValidMedia =
         typeof mediaUrl === 'string' && mediaUrl.trim() !== '';
-
       const isValidMusic =
         selectedMusic?.musicId && typeof selectedMusic.musicId === 'string';
-
       const isValidContent = caption !== undefined && caption !== null;
 
       const payload: any = {};
-
       if (!isValidMedia) {
         throw new Error('mediaUrl là bắt buộc và không được để trống!');
       }
-
       payload.mediaUrl = mediaUrl;
 
       if (isValidMusic) {
         payload.music = {
-          _id: selectedMusic.musicId, // dạng ObjectId string
+          _id: selectedMusic.musicId,
           time_start: Number(selectedMusic.timeStart) || 0,
           time_end: Number(selectedMusic.timeEnd) || 30,
         };
@@ -264,13 +258,12 @@ export const EditStory = ({route, navigation}: any) => {
 
       if (isValidContent) {
         payload.content = {
-          text: caption, // có thể là ''
-          x: Number(positionRef.current.x),
-          y: Number(positionRef.current.y),
+          text: caption,
+          x: Number(positionRef.current.x) || 50, // Mặc định 50% nếu không kéo thả
+          y: Number(positionRef.current.y) || 50, // Mặc định 50% nếu không kéo thả
         };
       }
 
-      //api
       const res = await axiosInstance.post(
         `${BASE_URL}/stories/create`,
         payload,
@@ -360,8 +353,16 @@ export const EditStory = ({route, navigation}: any) => {
                     x={!initialized ? positionRef.current.x : undefined}
                     y={!initialized ? positionRef.current.y : undefined}
                     onDragRelease={(event, gestureState) => {
-                      positionRef.current.x += gestureState.dx;
-                      positionRef.current.y += gestureState.dy;
+                      const mediaWidth =
+                        event.nativeEvent.layout?.width || screenWidth;
+                      const mediaHeight =
+                        event.nativeEvent.layout?.height || screenHeight;
+
+                      const absoluteX = positionRef.current.x + gestureState.dx;
+                      const absoluteY = positionRef.current.y + gestureState.dy;
+
+                      positionRef.current.x = (absoluteX / mediaWidth) * 100;
+                      positionRef.current.y = (absoluteY / mediaHeight) * 100;
                     }}>
                     <View style={styles.textInputContainer}>
                       <Text style={styles.captionText}>{caption}</Text>
@@ -404,6 +405,8 @@ export const EditStory = ({route, navigation}: any) => {
     </GestureHandlerRootView>
   );
 };
+
+// ... (styles giữ nguyên như trước)
 
 const styles = StyleSheet.create({
   container: {
