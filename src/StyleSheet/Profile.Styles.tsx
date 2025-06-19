@@ -180,6 +180,8 @@ export const Styles = {
 
     // Highlights section
     highlightsContainer: {
+      height: 100,
+      flex: 0,
       marginVertical: 10,
     },
     highlightItem: {
@@ -263,7 +265,8 @@ export const Styles = {
       justifyContent: 'center',
     },
     imgNoPhoto: {
-      width: 100, height: 150,
+      width: 100,
+      height: 150,
       resizeMode: 'contain',
       tintColor: Colors.textSecondary,
     },

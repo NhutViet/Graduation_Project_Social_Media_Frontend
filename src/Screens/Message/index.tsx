@@ -3,7 +3,6 @@ import {
   FlatList,
   Image,
   ImageBackground,
-  Modal,
   SafeAreaView,
   Text,
   TextInput,
@@ -15,7 +14,6 @@ import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {useEffect, useMemo, useRef, useState} from 'react';
 import MessageStyles from '../../StyleSheet/MessageStyles';
-import {io, Socket} from 'socket.io-client';
 import {RootStackParamList} from '../../Navigation/AppNavigation';
 import LinkPreview from 'react-native-link-preview';
 import {useDispatch, useSelector} from 'react-redux';
@@ -29,7 +27,7 @@ import {useUploadProgress} from '../../../services/UploadProgressManager';
 import {clearMessages} from '../../../services/messageRedux/messageReducer';
 import IncomingCallModal from '../../../components/IncomingCallModal';
 import ImagePreviewModal from './components/ImagePreviewModal';
-import { BASE_URL } from '../../../services/api';
+import {useSocket} from '../../../services/SocketContext';
 
 export const MessageScreen = () => {
   const navigation: any = useNavigation();
@@ -40,7 +38,7 @@ export const MessageScreen = () => {
   const [message, setMessage] = useState('');
   const {messages, loading} = useSelector((state: RootState) => state.messages);
   const [chat, setChat] = useState<Message[]>([]);
-  const user = useSelector((state: RootState) => state.user);
+  const userC = useSelector((state: RootState) => state.user.user);
   const flatListRef = useRef<FlatList>(null);
   const rejectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const route = useRoute<RouteProp<RootStackParamList, 'MessageScreen'>>();
@@ -50,15 +48,12 @@ export const MessageScreen = () => {
     () => rooms.find(r => r._id === roomId),
     [rooms, roomId],
   );
-  const filteredUsers = room?.user_ids.filter(
-    user => user._id !== room.created_by,
-  );
+  const filteredUsers = room?.user_ids.filter(user => user._id !== userC?._id);
   const user1 = filteredUsers ? filteredUsers[0] : undefined;
   const user2 = filteredUsers ? filteredUsers[1] : undefined;
 
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
   const [linkPreviews, setLinkPreviews] = useState<{[key: number]: any}>({});
-  const [socket, setSocket] = useState<Socket | null>(null);
   const {showUploadModal, hideUploadModal, setProgress} = useUploadProgress();
   const [incomingCall, setIncomingCall] = useState<{
     visible: boolean;
@@ -69,6 +64,7 @@ export const MessageScreen = () => {
     callerName: '',
     type: 'video',
   });
+  const {socket, connectToSocket, disconnectSocket} = useSocket();
 
   useEffect(() => {
     setChat([]);
@@ -82,44 +78,28 @@ export const MessageScreen = () => {
   }, [messages, roomId]);
 
   useEffect(() => {
-    if (!user.user?._id || !roomId) return;
+    connectToSocket(roomId);
+  }, [roomId]);
 
-    const newSocket = io(BASE_URL, {
-      transports: ['websocket'],
-      query: {
-        userId: user.user._id,
-        roomId: roomId,
-      },
-    });
+  useEffect(() => {
+    if (!socket) return;
 
-    newSocket.on('connect', () => {
-      console.log('✅ Socket connected!');
-      newSocket.emit('joinRoom', {roomId: roomId});
-    });
-
-    newSocket.on('receiveMessage', data => {
+    const onMessage = (data: Message) => {
       setChat(prev => [...prev, data]);
-    });
+    };
 
-    newSocket.on('incomingCall', ({callerName, type}) => {
-      setIncomingCall({
-        visible: true,
-        callerName,
-        type,
-      });
-    });
+    const onCall = ({callerName, type}: any) => {
+      setIncomingCall({visible: true, callerName, type});
+    };
 
-    newSocket.on('connect_error', err => {
-      console.log('❌ Socket connect error:', err.message);
-    });
-
-    setSocket(newSocket);
+    socket.on('receiveMessage', onMessage);
+    socket.on('incomingCall', onCall);
 
     return () => {
-      newSocket.disconnect();
-      console.log('🔌 Socket disconnected.');
+      socket.off('receiveMessage', onMessage);
+      socket.off('incomingCall', onCall);
     };
-  }, [room, user.user?._id]);
+  }, [socket]);
 
   useEffect(() => {
     chat.forEach((item, index) => {
@@ -136,7 +116,7 @@ export const MessageScreen = () => {
       socket.emit('sendMessage', {
         roomId: roomId,
         content: message,
-        senderId: user.user?._id,
+        senderId: userC?._id,
       });
       setMessage('');
     }
@@ -162,7 +142,7 @@ export const MessageScreen = () => {
 
           socket.emit('sendMessage', {
             roomId: roomId,
-            senderId: user.user?._id,
+            senderId: userC?._id,
             media: {
               type: 'image',
               url: imageUrl,
@@ -176,15 +156,11 @@ export const MessageScreen = () => {
   };
 
   const handleGoBack = () => {
-    if (socket) {
-      socket.disconnect();
-      setSocket(null);
-    }
+    disconnectSocket();
     setChat([]);
     setMessage('');
     setSelectedImageUri(null);
     setLinkPreviews({});
-
     dispatch(clearMessages());
     navigation.goBack();
   };
@@ -202,10 +178,10 @@ export const MessageScreen = () => {
     }
     setIncomingCall(prev => ({...prev, visible: false}));
     navigation.navigate('ZegoCallScreen', {
-      userID: user.user?._id,
-      userName: user.user?.username,
+      userID: userC?._id,
+      userName: userC?.username,
       callID: roomId,
-      image: user.user?.profilePic,
+      image: userC?.profilePic,
     });
   };
 
@@ -217,7 +193,7 @@ export const MessageScreen = () => {
     if (socket) {
       socket.emit('callEnded', {
         roomId,
-        senderId: user.user?._id,
+        senderId: userC?._id,
         callType: 'video',
         missed: true,
       });
@@ -228,16 +204,16 @@ export const MessageScreen = () => {
   const handleCall = () => {
     if (socket) {
       socket.emit('incomingCall', {
-        callerName: user.user?.username,
+        callerName: userC?.username,
         type: 'video',
         roomId,
       });
     }
     navigation.navigate('ZegoCallScreen', {
-      userID: user.user?._id,
-      userName: user.user?.username,
+      userID: userC?._id,
+      userName: userC?.username,
       callID: roomId,
-      image: user.user?.profilePic,
+      image: userC?.profilePic,
     });
   };
 
@@ -263,7 +239,7 @@ export const MessageScreen = () => {
     <MessageItemComponent
       item={item}
       index={index}
-      userHandleName={user.user?.handleName ?? ''}
+      userHandleName={userC?.handleName ?? ''}
       chat={chat}
       setSelectedImageUri={setSelectedImageUri}
       linkPreviews={linkPreviews}

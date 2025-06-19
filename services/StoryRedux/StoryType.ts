@@ -1,14 +1,13 @@
 export interface Story {
   _id: string;
-  userId: string;
+  ownerId: string;
   type: 'stories' | 'highlights';
   mediaUrl: string;
-  viewsCount: number;
   isArchived: boolean;
-  viewerId: string[];
+  viewedByUsers: string[];
+  likedByUsers: string[];
   collectionName?: string;
   storyId?: string[];
-  likedByUsers: string[];
   createdAt: string;
   updatedAt: string;
 }
