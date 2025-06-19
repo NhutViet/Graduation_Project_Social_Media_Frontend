@@ -23,16 +23,20 @@ const reactionReducer = createSlice({
   reducers: {
     addLikedPost: (state, action) => {
       const postId = action.payload;
-      if(!state.likePosts.includes(postId)){
+      if (!state.likePosts.includes(postId)) {
         state.likePosts.push(postId);
       }
     },
-    resetReaction: (state) => {
+    removeLikedPost: (state, action) => {
+      const postId = action.payload;
+      state.likePosts = state.likePosts.filter(id => id !== postId);
+    },
+    resetReaction: state => {
       state.likePosts = [];
-  state.isLoading = false;
-  state.isSuccess = false;
-  state.isError = false;
-  state.errorMessage = null;
+      state.isLoading = false;
+      state.isSuccess = false;
+      state.isError = false;
+      state.errorMessage = null;
     },
   },
   extraReducers: builder => {
@@ -80,5 +84,5 @@ const reactionReducer = createSlice({
   },
 });
 
-export const {addLikedPost, resetReaction} = reactionReducer.actions;
+export const {addLikedPost, resetReaction, removeLikedPost} = reactionReducer.actions;
 export default reactionReducer.reducer;

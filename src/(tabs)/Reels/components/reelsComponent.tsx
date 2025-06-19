@@ -1,13 +1,16 @@
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Colors} from '../../../../assets/color/Colors';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import Video from 'react-native-video';
 
 import {Dimensions} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../../services/store';
-import {useEffect, useState} from 'react';
-import {addLikedPost} from '../../../../services/reactionRedux/reactionReducer';
+import {useCallback, useEffect, useState} from 'react';
+import {
+  addLikedPost,
+  removeLikedPost,
+} from '../../../../services/reactionRedux/reactionReducer';
 import {
   likePost,
   unlikePost,
@@ -53,14 +56,29 @@ const ReelsComponent = (props: any) => {
   const {likePosts} = useSelector((state: RootState) => state.reactions);
 
   const {refreshToken} = useSelector((state: RootState) => state.user);
-  const [isLiked, setIsLiked] = useState(likePosts.includes(_id));
+  const isLikedFromRedux = useSelector((state: RootState) =>
+    state.reactions.likePosts.includes(_id),
+  );
+  const [isLiked, setIsLiked] = useState(isLikedFromRedux);
+
+  // Đồng bộ lại khi redux thay đổi (tránh lệch trạng thái nếu redux cập nhật sau)
+  useEffect(() => {
+    setIsLiked(isLikedFromRedux);
+  }, [isLikedFromRedux]);
+
   const [numLike, setNumLike] = useState(likeCount);
 
   useEffect(() => {
-    if (isLike && !likePosts.includes(_id)) {
+    if (isLike) {
       dispatch(addLikedPost(_id));
+    } else {
+      dispatch(removeLikedPost({postId: _id}));
     }
   }, [_id, isLike]);
+
+  useEffect(() => {
+    setNumLike(likeCount);
+  }, [likeCount]);
 
   const handleLike = async () => {
     if (isLiked) {
@@ -68,6 +86,9 @@ const ReelsComponent = (props: any) => {
       setNumLike((prev: number) => prev - 1);
       dispatch(unlikePost({postId: _id, refreshToken}))
         .unwrap()
+        .then(res => {
+          dispatch(removeLikedPost({postId: _id}));
+        })
         .catch(res => {
           setNumLike(likeCount);
           setIsLiked(likePosts.includes(_id));
@@ -77,6 +98,9 @@ const ReelsComponent = (props: any) => {
       setNumLike((prev: number) => prev + 1);
       dispatch(likePost({postId: _id, refreshToken}))
         .unwrap()
+        .then(res => {
+          dispatch(addLikedPost(_id));
+        })
         .catch(res => {
           setNumLike(likeCount);
           setIsLiked(likePosts.includes(_id));
