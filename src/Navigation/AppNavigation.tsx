@@ -60,10 +60,8 @@ import EditHighlightScreen from '../(tabs)/Profile/components/EditHighlightScree
 import NewMessage from '../Screens/NewMessage';
 import PostStory from '../Screens/PostStory';
 import Profile from '../(tabs)/Profile/index';
-import AllPostOfUserScreen from 'components/AllPostOfUserScreen';
-import ZegoCallScreen from 'src/Screens/ZegoCloud/ZegoCallScreen';
-import ZegoCallScreen from '../Screens/ZegoCloud/ZegoCallScreen';
 import AllPostOfUserScreen from '../../components/AllPostOfUserScreen';
+import ZegoCallScreen from '../Screens/ZegoCloud/ZegoCallScreen';
 export type RootStackParamList = {
   PendingMessages: {handleName: string};
   MessageScreen: {
@@ -98,7 +96,10 @@ const AppNavigator = () => {
         screenOptions={{headerShown: false}}>
         <Stack.Screen name="Profile" component={Profile} />
         <Stack.Screen name="ViewReels" component={ViewReels} />
-        <Stack.Screen name="AllPostOfUserScreen" component={AllPostOfUserScreen} />
+        <Stack.Screen
+          name="AllPostOfUserScreen"
+          component={AllPostOfUserScreen}
+        />
         <Stack.Screen name="ZegoCallScreen" component={ZegoCallScreen} />
         <Stack.Screen name="ChangeBirthday" component={ChangeBirthday} />
         <Stack.Screen name="ChangePassword" component={ChangePassword} />
@@ -133,8 +134,8 @@ const AppNavigator = () => {
         />
         <Stack.Screen name="FollowerRequests" component={FollowerRequests} />
         <Stack.Screen name="Register" component={Register} />
-        <Stack.Screen name="SeenStory" component={SeenStory} />
-        <Stack.Screen name="SeenStoryOwner" component={SeenStoryOwner} />
+        {/* <Stack.Screen name="SeenStory" component={SeenStory} />
+        <Stack.Screen name="SeenStoryOwner" component={SeenStoryOwner} /> */}
         <Stack.Screen name="MessageScreen" component={MessageScreen} />
         <Stack.Screen name="InfoUser" component={UserInfo} />
         <Stack.Screen name="QRCode" component={ScreenQRCode} />

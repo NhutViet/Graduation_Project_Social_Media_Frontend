@@ -192,7 +192,7 @@ export const MessageScreen = () => {
     }
     if (socket) {
       socket.emit('callEnded', {
-        roomId,
+        roomId: roomId,
         senderId: userC?._id,
         callType: 'video',
         missed: true,
