@@ -55,7 +55,7 @@ const LoginStyles = () => {
       marginTop: 20,
     },
     textGray: {
-      color: Colors.light.lightDark,
+      color: 'gray',
       fontSize: 15,
     },
     text: {

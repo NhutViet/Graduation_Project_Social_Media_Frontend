@@ -20,6 +20,12 @@ const SwitchAccountStyles = (theme: ThemeType) => {
       color: Colors.light.text,
       borderRadius: 8,
       paddingHorizontal: 10,
+      marginTop: 15,
+      marginBottom: 15,
+    },
+    btnForgot: {
+      marginTop: 20,
+      marginBottom: 5,
     },
     textForgot: {
       color: color.primary,
@@ -36,12 +42,12 @@ const SwitchAccountStyles = (theme: ThemeType) => {
       color: color.orange,
       fontSize: 16,
       textAlign: 'center',
-      marginTop: 20,
     },
     icon: {
       width: 20,
       height: 20,
       resizeMode: 'contain',
+      marginRight: 15,
     },
   });
 };
