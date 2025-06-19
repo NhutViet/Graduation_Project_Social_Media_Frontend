@@ -184,7 +184,7 @@ export const SwitchAccount = ({navigation}: any) => {
             <TextInput
               value={password}
               onChangeText={setPassword}
-              style={{width: '90%'}}
+              style={{width: '90%', color: color.black}}
               placeholder="Mật khẩu"
               secureTextEntry={isPassWord}
               placeholderTextColor={Colors.light.lightDark}

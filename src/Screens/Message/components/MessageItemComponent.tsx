@@ -52,18 +52,28 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
 
     if (item.media?.type === 'call') {
       return (
-        <View>
+        <View style={{width: 140}}>
           <Text style={{color: color.text, fontSize: 14}}>{item.content}</Text>
+          {item.media.duration && (
+            <Text style={{color: color.text, fontSize: 14}}>
+              {item.media.duration}
+            </Text>
+          )}
           <TouchableOpacity
             style={{
+              width: '100%',
               marginTop: 8,
-              paddingVertical: 4,
-              paddingHorizontal: 10,
+              paddingVertical: 6,
               borderRadius: 6,
-              backgroundColor: '#007AFF',
-              alignSelf: 'flex-start',
+              backgroundColor: color.background,
+              elevation: 2,
+              shadowColor: color.text,
+              shadowOffset: {width: 0, height: 1},
+              shadowOpacity: 0.1,
+              shadowRadius: 2,
+              alignItems: 'center',
             }}>
-            <Text style={{color: 'white', fontSize: 13}}>📞 Gọi lại</Text>
+            <Text style={{color: color.text, fontSize: 13}}>📞 Gọi lại</Text>
           </TouchableOpacity>
         </View>
       );
@@ -161,7 +171,7 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
                 marginRight: isMe ? 0 : 40,
                 backgroundColor: item.media
                   ? item.media.type === 'call'
-                    ? '#f0f0f0'
+                    ? color.backgroundSecondary
                     : 'transparent'
                   : !isMe
                   ? color.backgroundSecondary
