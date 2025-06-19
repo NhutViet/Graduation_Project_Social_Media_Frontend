@@ -28,6 +28,126 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
   const showAvatar =
     !prevMsg || prevMsg.sender.handleName !== item.sender.handleName;
 
+  const renderContent = () => {
+    if (item.media?.type === 'image') {
+      return (
+        <TouchableOpacity
+          onPress={() => setSelectedImageUri(item.media?.url ?? null)}>
+          <View
+            style={{
+              width: 150,
+              height: 200,
+              borderRadius: 10,
+              overflow: 'hidden',
+            }}>
+            <Image
+              source={{uri: item.media.url}}
+              style={{width: '100%', height: '100%'}}
+              resizeMode="cover"
+            />
+          </View>
+        </TouchableOpacity>
+      );
+    }
+
+    if (item.media?.type === 'call') {
+      return (
+        <View style={{width: 140}}>
+          <Text style={{color: color.text, fontSize: 14}}>{item.content}</Text>
+          {item.media.duration && (
+            <Text style={{color: color.text, fontSize: 14}}>
+              {item.media.duration}
+            </Text>
+          )}
+          <TouchableOpacity
+            style={{
+              width: '100%',
+              marginTop: 8,
+              paddingVertical: 6,
+              borderRadius: 6,
+              backgroundColor: color.background,
+              elevation: 2,
+              shadowColor: color.text,
+              shadowOffset: {width: 0, height: 1},
+              shadowOpacity: 0.1,
+              shadowRadius: 2,
+              alignItems: 'center',
+            }}>
+            <Text style={{color: color.text, fontSize: 13}}>📞 Gọi lại</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    const filteredText = item.content
+      .split(/(\s+)/)
+      .filter(part => !/^https?:\/\/\S+$/i.test(part))
+      .join('');
+
+    return (
+      <>
+        {filteredText !== '' && (
+          <Text
+            style={{
+              color: color.text,
+              textAlign: linkPreviews[index] && 'right',
+              fontSize: 14,
+            }}>
+            {filteredText}
+          </Text>
+        )}
+        {linkPreviews[index] && (
+          <TouchableOpacity
+            onPress={() => Linking.openURL(linkPreviews[index].url)}
+            style={{
+              borderRadius: 8,
+              backgroundColor: color.backgroundSecondary,
+              marginTop: 5,
+              maxWidth: 200,
+            }}>
+            {linkPreviews[index].images?.length > 0 && (
+              <Image
+                source={{uri: linkPreviews[index].images[0]}}
+                style={{
+                  width: '100%',
+                  height: 140,
+                  borderRadius: 6,
+                  marginBottom: 6,
+                }}
+                resizeMode="cover"
+              />
+            )}
+            <Text
+              style={{
+                fontWeight: 'bold',
+                color: color.text,
+                fontSize: 14,
+                marginBottom: 4,
+              }}
+              numberOfLines={2}
+              ellipsizeMode="tail">
+              {linkPreviews[index].title}
+            </Text>
+            {linkPreviews[index].description && (
+              <Text
+                numberOfLines={1}
+                ellipsizeMode="tail"
+                style={{color: 'gray', fontSize: 12}}>
+                {linkPreviews[index].description}
+              </Text>
+            )}
+            <Text
+              style={{color: '#007AFF', fontSize: 12, marginTop: 4}}
+              numberOfLines={2}
+              ellipsizeMode="tail">
+              {linkPreviews[index].url}
+            </Text>
+          </TouchableOpacity>
+        )}
+      </>
+    );
+  };
+
   return (
     <View
       style={[
@@ -50,100 +170,18 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
                 marginLeft: isMe || showAvatar ? 0 : 50,
                 marginRight: isMe ? 0 : 40,
                 backgroundColor: item.media
-                  ? 'transparent'
+                  ? item.media.type === 'call'
+                    ? color.backgroundSecondary
+                    : 'transparent'
                   : !isMe
                   ? color.backgroundSecondary
                   : !linkPreviews[index] && !item.media
                   ? '#00BFFF'
                   : color.backgroundSecondary,
-                padding: item.media ? 0 : 10,
+                padding: item.media?.type === 'image' ? 0 : 10,
               },
             ]}>
-            {item.media?.type == 'image' ? (
-              <TouchableOpacity
-                onPress={() => setSelectedImageUri(item.media?.url ?? null)}>
-                <View
-                  style={{
-                    width: 150,
-                    height: 200,
-                    borderRadius: 10,
-                    overflow: 'hidden',
-                  }}>
-                  <Image
-                    source={{uri: item.media.url}}
-                    style={{width: '100%', height: '100%'}}
-                    resizeMode="cover"
-                  />
-                </View>
-              </TouchableOpacity>
-            ) : (
-              <>
-                {item.content
-                  .split(/(\s+)/)
-                  .filter(part => !/^https?:\/\/\S+$/i.test(part))
-                  .join('') !== '' && (
-                  <Text
-                    style={{
-                      color: color.text,
-                      textAlign: linkPreviews[index] && 'right',
-                      fontSize: 14,
-                    }}>
-                    {item.content
-                      .split(/(\s+)/)
-                      .filter(part => !/^https?:\/\/\S+$/i.test(part))
-                      .join('')}
-                  </Text>
-                )}
-                {linkPreviews[index] && (
-                  <TouchableOpacity
-                    onPress={() => Linking.openURL(linkPreviews[index].url)}
-                    style={{
-                      borderRadius: 8,
-                      backgroundColor: color.backgroundSecondary,
-                      marginTop: 5,
-                      maxWidth: 200,
-                    }}>
-                    {linkPreviews[index].images?.length > 0 && (
-                      <Image
-                        source={{uri: linkPreviews[index].images[0]}}
-                        style={{
-                          width: '100%',
-                          height: 140,
-                          borderRadius: 6,
-                          marginBottom: 6,
-                        }}
-                        resizeMode="cover"
-                      />
-                    )}
-                    <Text
-                      style={{
-                        fontWeight: 'bold',
-                        color: color.text,
-                        fontSize: 14,
-                        marginBottom: 4,
-                      }}
-                      numberOfLines={2}
-                      ellipsizeMode="tail">
-                      {linkPreviews[index].title}
-                    </Text>
-                    {linkPreviews[index].description && (
-                      <Text
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
-                        style={{color: 'gray', fontSize: 12}}>
-                        {linkPreviews[index].description}
-                      </Text>
-                    )}
-                    <Text
-                      style={{color: '#007AFF', fontSize: 12, marginTop: 4}}
-                      numberOfLines={2}
-                      ellipsizeMode="tail">
-                      {linkPreviews[index].url}
-                    </Text>
-                  </TouchableOpacity>
-                )}
-              </>
-            )}
+            {renderContent()}
           </View>
         </TouchableOpacity>
       </View>

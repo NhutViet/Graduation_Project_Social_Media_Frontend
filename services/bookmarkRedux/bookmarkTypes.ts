@@ -79,3 +79,13 @@ export interface ReqGetItemPlaylist {
     page?: number;
     limit?: number;
 }
+
+export interface ResAddMusic {
+    playlistID: string;
+    itemID: string;
+    itemType: string;
+    isDeleted: boolean;
+    _id: string;
+    createdAt: string;
+    updatedAt: string;
+}

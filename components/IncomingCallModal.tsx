@@ -28,16 +28,6 @@ const IncomingCallModal = ({
     <Modal visible={visible} transparent animationType="fade">
       <View style={styles.modalOverlay}>
         <View style={styles.modalContainer}>
-          <Image
-            source={
-              type === 'video'
-                ? require('./../assets/icon/videoCamera.png')
-                : require('./../assets/icon/Microphone.png')
-            }
-            style={styles.callIcon}
-            resizeMode="contain"
-          />
-
           <Text style={styles.title}>Cuộc gọi đến</Text>
           <Text style={styles.subTitle}>{callerName} đang gọi bạn</Text>
 
@@ -61,21 +51,16 @@ export default IncomingCallModal;
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.65)',
+    backgroundColor: 'rgba(0,0,0,0.6)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalContainer: {
     width: '80%',
     padding: 20,
-    backgroundColor: Colors.white,
+    backgroundColor: 'rgba(255,255,255,0.8)',
     borderRadius: 20,
     alignItems: 'center',
-  },
-  callIcon: {
-    width: 50,
-    height: 50,
-    marginBottom: 20,
   },
   title: {
     fontSize: 18,
@@ -93,13 +78,14 @@ const styles = StyleSheet.create({
     gap: 20,
   },
   rejectButton: {
-    backgroundColor: 'red',
+    backgroundColor: 'rgba(255, 0, 0, 0.5)',
     paddingVertical: 12,
     paddingHorizontal: 30,
     borderRadius: 30,
   },
+
   acceptButton: {
-    backgroundColor: 'green',
+    backgroundColor: 'rgba(0, 128, 0, 0.5)',
     paddingVertical: 12,
     paddingHorizontal: 30,
     borderRadius: 30,

@@ -6,4 +6,5 @@ export interface Music {
   coverImg: boolean;
   createdAt?: string;
   updatedAt?: string;
+  isBookmarked?: boolean;
 }

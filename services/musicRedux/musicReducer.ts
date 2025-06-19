@@ -1,15 +1,17 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Music } from "./musicType";
 import { fetchAllMusic } from "./musicSlice";
 
 interface MusicState {
   musicList: Music[];
+  musicBookmark: Music[];
   loading: boolean;
   error: string | null;
 }
 
 const initialState: MusicState = {
   musicList: [],
+  musicBookmark: [],
   loading: false,
   error: null,
 };
@@ -17,7 +19,19 @@ const initialState: MusicState = {
 const musicSlice = createSlice({
   name: 'music',
   initialState,
-  reducers: {},
+  reducers: {
+    addToBookmark: (state, action: PayloadAction<Music>) => {
+      const exists = state.musicBookmark.find(item => item._id === action.payload._id);
+      if (!exists) {
+        state.musicBookmark.push(action.payload);
+      }
+    },
+    removeFromBookmark: (state, action: PayloadAction<string>) => {
+      state.musicBookmark = state.musicBookmark.filter(
+        (item) => item._id !== action.payload
+      );
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchAllMusic.pending, (state) => {
@@ -35,4 +49,5 @@ const musicSlice = createSlice({
   },
 });
 
+export const { addToBookmark, removeFromBookmark } = musicSlice.actions;
 export default musicSlice.reducer;

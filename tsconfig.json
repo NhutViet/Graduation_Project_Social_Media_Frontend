@@ -1,8 +1,13 @@
 {
   "extends": "@react-native/typescript-config/tsconfig.json",
   "compilerOptions": {
-    "module": "esnext", // or "es2022"
-    "target": "esnext", 
+    "baseUrl": ".",
+    "module": "esnext",
+    "target": "esnext",
     "moduleResolution": "bundler",
+    "paths": {
+      "@services/*": ["services/*"],
+      "@icon/*": ["assets/icons/*"]
+    }
   }
 }

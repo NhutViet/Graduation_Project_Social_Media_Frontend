@@ -1,4 +1,4 @@
-import {useMemo, useState} from 'react';
+import {useEffect, useMemo, useState} from 'react';
 import {ItemHomeProps} from '../types';
 import {useSelector, shallowEqual} from 'react-redux';
 import {RootState} from '../../../../services/store';

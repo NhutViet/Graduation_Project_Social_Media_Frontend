@@ -19,6 +19,8 @@ import {AppDispatch, RootState} from '../../../services/store';
 import {fetchEditUser} from '../../../services/userRedux/userSlice';
 import {ChevronLeft, SquarePen, Check} from 'lucide-react-native';
 import {SEX, VN_PROVINCES} from './DataAddress/VN_PROVINCES';
+import {uploadImageToR2} from '../../core/upload';
+import {useUploadProgress} from '../../../services/UploadProgressManager';
 
 async function requestCameraPermission() {
   if (Platform.OS !== 'android') return true;
@@ -39,6 +41,7 @@ export const EditProfile = ({navigation}: any) => {
   const user = useSelector((state: RootState) => state.user.user);
   const styles = useProfileEditingStyles();
   const dispatch = useDispatch<AppDispatch>();
+  const {showUploadModal, hideUploadModal, setProgress} = useUploadProgress(); // Lấy các callback từ hook
 
   const [username, setUsername] = useState(user?.username);
   const [bio, setBio] = useState(user?.bio);
@@ -52,12 +55,50 @@ export const EditProfile = ({navigation}: any) => {
   const [profilePic, setProfilePic] = useState(user?.profilePic);
   const [modalVisible, setModalVisible] = useState(false);
 
-  const pickImage = ({navigation}: any) => {
-    launchImageLibrary({mediaType: 'photo'}, response => {
+  // Hàm upload ảnh và cập nhật profilePic
+  const uploadProfilePic = async (uri: string) => {
+    try {
+      showUploadModal(uri, 'image'); // Hiển thị modal upload
+      const publicUrl = await uploadImageToR2(uri, {
+        showUploadModal,
+        hideUploadModal,
+        setProgress,
+      });
+      setProfilePic(publicUrl); // Cập nhật với URL từ Cloudflare
+    } catch (error) {
+      console.error('Upload profile picture failed:', error);
+      Alert.alert('Lỗi', 'Không thể upload ảnh đại diện. Vui lòng thử lại.');
+    } finally {
+      hideUploadModal(); // Ẩn modal dù thành công hay thất bại
+      setModalVisible(false); // Đóng modal
+    }
+  };
+
+  const pickImage = () => {
+    launchImageLibrary({mediaType: 'photo'}, async response => {
       if (response.assets && response.assets.length > 0) {
-        setProfilePic(response.assets[0].uri);
+        const uri = response.assets[0].uri;
+        await uploadProfilePic(uri);
       }
-      setModalVisible(false);
+    });
+  };
+
+  const takePhoto = async () => {
+    const hasPermission = await requestCameraPermission();
+    if (!hasPermission) {
+      console.log('Camera permission denied');
+      return;
+    }
+
+    launchCamera({mediaType: 'photo', saveToPhotos: true}, async response => {
+      if (response.didCancel) {
+        console.log('User cancelled camera');
+      } else if (response.errorCode) {
+        console.log('Camera error: ', response.errorMessage);
+      } else if (response.assets && response.assets.length > 0) {
+        const uri = response.assets[0].uri;
+        await uploadProfilePic(uri);
+      }
     });
   };
 
@@ -76,25 +117,6 @@ export const EditProfile = ({navigation}: any) => {
     );
     Alert.alert('Thông báo', 'Sửa thông tin của bạn thành công');
     setEdit(false);
-  };
-
-  const takePhoto = async () => {
-    const hasPermission = await requestCameraPermission();
-    if (!hasPermission) {
-      console.log('Camera permission denied');
-      return;
-    }
-
-    launchCamera({mediaType: 'photo', saveToPhotos: true}, response => {
-      if (response.didCancel) {
-        console.log('User cancelled camera');
-      } else if (response.errorCode) {
-        console.log('Camera error: ', response.errorMessage);
-      } else if (response.assets && response.assets.length > 0) {
-        setProfilePic(response.assets[0].uri);
-      }
-      setModalVisible(false);
-    });
   };
 
   return (
