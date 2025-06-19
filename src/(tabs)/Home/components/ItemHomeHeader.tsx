@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { ItemHomeStyles } from '../component_styles/ItemHomeStyles';
+import {useSelector} from 'react-redux';
+import {RootState} from '../../../../services/store';
 
 interface ItemHomeHeaderProps {
   user: any;
@@ -23,6 +25,7 @@ export const ItemHomeHeader: React.FC<ItemHomeHeaderProps> = ({
   onFollowPress,
   onOptionsPress,
 }) => {
+  const userId = useSelector((state: RootState) => state.user?.user?._id);
   return (
     <View style={ItemHomeStyles.headerItem}>
       <View style={ItemHomeStyles.rowContainer}>
@@ -44,6 +47,7 @@ export const ItemHomeHeader: React.FC<ItemHomeHeaderProps> = ({
         </View>
       </View>
       <View style={ItemHomeStyles.rowContainer}>
+        {user._id !== userId && 
         <TouchableOpacity
           style={[ItemHomeStyles.btnFollow, { borderColor }]}
           onPress={onFollowPress}>
@@ -51,6 +55,7 @@ export const ItemHomeHeader: React.FC<ItemHomeHeaderProps> = ({
             {follow ? 'Đã theo dõi' : 'Theo dõi'}
           </Text>
         </TouchableOpacity>
+        }
         <TouchableOpacity
           onPress={onOptionsPress}
           style={ItemHomeStyles.iconBlock}>

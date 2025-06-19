@@ -110,3 +110,35 @@ export const relationAction = createAsyncThunk<
     }
   }
 );
+
+export const fetchRecommendations = createAsyncThunk<
+  UserProfile[],
+  { limit?: number },
+  { rejectValue: string }
+>(
+  'relations/recommendations',
+  async ({ limit = 10 }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(
+        API.GET_RECOMMENDATIONS,
+        {
+          params: { limit },
+          headers: { token: 'refresh' },
+        }
+      );
+
+      const data = response.data;
+      if (!data || !Array.isArray(data.recommendations)) {
+        return rejectWithValue('Dữ liệu trả về không hợp lệ');
+      }
+      return data.recommendations;
+    } catch (error: any) {
+      console.error('fetchRecommendations error:', error);
+      return rejectWithValue(
+        error.response?.data?.message ||
+        error.message ||
+        'Lấy danh sách gợi ý thất bại'
+      );
+    }
+  }
+);

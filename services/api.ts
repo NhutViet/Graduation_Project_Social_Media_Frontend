@@ -35,6 +35,7 @@ export const API = {
   GET_FOLLOWING: 'relations/following',
   GET_BLOCKING: '/relations/blocking',
   RELATION_ACTION: 'relations/relation-action',
+  GET_RECOMMENDATIONS: 'relations/recommendations',
   //// Register
   REGISTER: 'users/register',
   /// User

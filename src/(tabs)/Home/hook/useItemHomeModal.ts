@@ -71,13 +71,21 @@ export const useItemHomeModal = (actions: any, state: any) => {
   );
 
   const firstListOptions = useMemo(
-    () =>
-      postFirstList.map(opt => ({
-        ...opt,
-        onPress: () => handleOptionSelect(opt.id),
-      })),
-    [handleOptionSelect],
-  );
+    () => {
+      return postFirstList.map(opt => {
+        if (opt.id === 'unfollow') {
+          return {
+            ...opt,
+            label: state.follow ? 'Bỏ theo dõi' : 'Theo dõi',
+            onPress: () => handleOptionSelect(opt.id),
+          };
+        }
+        return {
+          ...opt,
+          onPress: () => handleOptionSelect(opt.id),
+        };
+      });
+    }, [handleOptionSelect, state.follow]);
 
   const secondListOptions = useMemo(
     () =>

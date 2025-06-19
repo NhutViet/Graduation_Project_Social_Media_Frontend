@@ -2,7 +2,7 @@ import {StyleSheet, Text, View} from 'react-native';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 import React from 'react';
 import Header from '../../../../components/Header';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import {useNavigation, useRoute, RouteProp} from '@react-navigation/native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import UserFollowersTab from './UserFollowersTab'
 import UserFollowingTab from './UserFollowingTab'
@@ -13,16 +13,24 @@ import { RootState } from '../../../../services/store';
 
 const TopTab = createMaterialTopTabNavigator();
 
-export const UserFollowScreen = ({routes}: any) => {
+interface UserFollowScreenParams {
+  userID?: string;
+  screen: string;
+}
+
+type UserFollowScreenRouteProp = RouteProp<{ params: UserFollowScreenParams }, 'params'>;
+
+export const UserFollowScreen = () => {
   const navigation: any = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];
   const user = useSelector((state: RootState) => state.user.user);
-  const route = useRoute();
+  const route = useRoute<UserFollowScreenRouteProp>();
   const initialRouteName = (route.params as {screen?: string})?.screen || 'UserFollowersTab';
+  console.log('Navigate to initial tab:', initialRouteName);
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
-      <View style={{width: '100%', height: 60}}>
+      <View style={{height: 60}}>
         <Header
           title= {user?.username}
           iconBack={require('../../../../assets/icon/left.png')}
@@ -30,9 +38,10 @@ export const UserFollowScreen = ({routes}: any) => {
           navigation={navigation}
         />
       </View>
-      <View style={{width: '100%', height: '100%'}}>
+      <View style={{flex: 1}}>
         <TopTab.Navigator
-          initialRouteName={initialRouteName}  
+          initialRouteName={initialRouteName} 
+          backBehavior='none' 
           screenOptions={{
             tabBarLabelStyle: {
               fontSize: 16,
@@ -47,19 +56,20 @@ export const UserFollowScreen = ({routes}: any) => {
               backgroundColor: color.text,
               height: 3,
             },
-            tabBarActiveTintColor: color.text,
-            tabBarInactiveTintColor: color.textSecondary,
+            tabBarActiveTintColor: "tomato",
+            tabBarInactiveTintColor: 'gray',
           }}>
           <TopTab.Screen
             name="UserFollowersTab"
             component={UserFollowersTab}
             options={{title: 'Người theo dõi'}}
-            initialParams={{userID: routes.params?.userID}}
+            initialParams={{userID: route.params?.userID}}
           />
           <TopTab.Screen
             name="UserFollowingTab"
             component={UserFollowingTab}
             options={{title: 'Đang theo dõi'}}
+            initialParams={{userID: route.params?.userID}}
           />
         </TopTab.Navigator>
       </View>

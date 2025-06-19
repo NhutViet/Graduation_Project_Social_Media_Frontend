@@ -5,8 +5,8 @@ import {
   Image,
   TouchableOpacity,
   TextInput,
-  Pressable,
-  Alert
+  Alert,
+  ActivityIndicator
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
 import {FlashList} from '@shopify/flash-list';
@@ -24,13 +24,20 @@ const FollowersTab = () => {
   const color = Colors[theme];
   const userID = useSelector((state: RootState) => state.user?.user?._id);
   const dispatch = useDispatch<AppDispatch>();
-  const {followers: reduxFollowers} = useSelector(
+  const {followers: reduxFollowers, loading, error} = useSelector(
     (state: RootState) => state.relation,
   );
 
   const [followers, setFollowers] = useState(reduxFollowers);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isError, setIsError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!userID) return;
+
+    setIsLoading(true);
+    setIsError(null);
+
     if (userID) {
       dispatch(fetchFollowers({userId: userID}))
         .unwrap()
@@ -39,6 +46,9 @@ const FollowersTab = () => {
         })
         .catch((err) => {
           console.error('Error fetching followers:', err);
+        })
+        .finally(() => {
+          setIsLoading(false);
         });
     }
   }, [dispatch, userID])
@@ -46,7 +56,7 @@ const FollowersTab = () => {
   const renderItem = ({item}: {item: typeof followers[0]}) => (
     <View style={styles.userContainer}>
       <TouchableOpacity style={styles.touchableInfo}>
-        <Image source={{uri: item.profilePic}} style={styles.avatar} />
+        {item.profilePic ? <Image source={{uri: item.profilePic}} style={styles.avatar} /> : <Image source={require("../../../../assets/icon/user.png")} style={styles.avatar}/>}
         <View style={styles.userInfo}>
           <Text style={[styles.handle, {color: color.text}]}>
             {item.handleName}
@@ -138,6 +148,41 @@ const FollowersTab = () => {
       }
     }
   };
+
+  if (isLoading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={color.text} />
+      </View>
+    );
+  }
+
+  if (isError) {
+    return (
+      <View style={styles.center}>
+        <Text style={[styles.errorText, { color: color.text }]}>{error}</Text>
+      </View>
+    );
+  }
+
+  if (!followers || followers.length === 0) {
+    return (
+      <View style={[styles.emptyContainer, { backgroundColor: color.background }]}>
+        <Image
+          source={require('../../../../assets/icon/block-user.png')}
+          style={styles.emptyImage}
+          resizeMode="contain"
+        />
+        <Text style={[styles.emptyTitle, { color: color.text }]}>
+          Bạn chưa có người theo dõi
+        </Text>
+        <Text style={[styles.emptySubtitle, { color: color.textSecondary }]}>
+          Khi có người theo dõi bạn, họ sẽ xuất hiện ở đây
+        </Text>
+      </View>
+    );
+  }
+
   return (
     <View style={{flex: 1, backgroundColor: color.background}}>
       <View
@@ -161,6 +206,7 @@ const FollowersTab = () => {
           />
         </View>
       </View>
+      {}
       <FlashList
         data={followers}
         keyExtractor={item => item._id}
@@ -266,5 +312,27 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingTop: 70,
+  },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  errorText: { fontSize: 16 },
+  emptyContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  emptyImage: {
+    width: 180,
+    height: 180,
+    marginBottom: 24,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  emptySubtitle: {
+    fontSize: 14,
+    textAlign: 'center',
   },
 });

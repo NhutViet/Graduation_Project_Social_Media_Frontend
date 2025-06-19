@@ -5,7 +5,8 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
-  Alert
+  Alert,
+  ActivityIndicator
 } from 'react-native';
 import {FlashList} from '@shopify/flash-list';
 import React, {useState, useEffect} from 'react';
@@ -14,7 +15,7 @@ import {useTheme} from '../../../util/ThemeContext';
 import {useNavigation} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
 import { AppDispatch, RootState } from '../../../../services/store';
-import { fetchFollowing, relationAction } from '../../../../services/relationRedux/relationSlice';
+import { fetchFollowing, relationAction, fetchRecommendations } from '../../../../services/relationRedux/relationSlice';
 import {createRoom} from '../../../../services/roomRedux/roomSlice';
 
 const categoriesData = [
@@ -41,54 +42,40 @@ const categoriesData = [
   },
 ];
 
-const suggestedData = [
-  {
-    id: '1',
-    username: 'abc',
-    handle: 'User1',
-    profile_pic:
-      'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-  },
-  {
-    id: '2',
-    username: 'xyz',
-    handle: 'User2',
-    profile_pic:
-      'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-  },
-  {
-    id: '3',
-    username: 'cde',
-    handle: 'User3',
-    profile_pic:
-      'https://i.pinimg.com/736x/8c/71/92/8c7192c084765c076ef33024c0b34406.jpg',
-  },
-];
-
-const FollowingTab = ({route}: any) => {
+const FollowingTab = () => {
   const navigation: any = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];
   const userID = useSelector((state: RootState) => state.user?.user?._id);
   const dispatch = useDispatch<AppDispatch>();
-  const {following: reduxFollowing} = useSelector(
+  const {following: reduxFollowing, recommendations: reduxRecommendatinos, loading, error} = useSelector(
     (state: RootState) => state.relation,
   );
   
   const [following, setFollowing] = useState(reduxFollowing);
-  const [suggestedFollow, setSuggestedFollow] = useState("");
+  const [recommendations, setRecommendations] = useState(reduxRecommendatinos);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isError, setIsError] = useState<string | null>(null)
 
   useEffect(() => {
-      if (userID) {
-        dispatch(fetchFollowing({userId: userID}))
-          .unwrap()
-          .then((data) => {
-            setFollowing(data);
-          })
-          .catch((err) => {
-            console.error('Error fetching following:', err);
-          });
-      }
+    if (!userID) return;
+
+    setIsLoading(true);
+    setIsError(null);
+
+    Promise.all([
+      dispatch(fetchFollowing({ userId: userID })).unwrap(),
+      dispatch(fetchRecommendations({ limit: 10 })).unwrap(),
+    ])
+      .then(([followData, recData]) => {
+        setFollowing(followData);
+        setRecommendations(recData);
+      })
+      .catch(err => {
+        console.error('Error loading lists:', err);
+        setIsError(typeof err === 'string' ? err : 'Tải dữ liệu thất bại');
+      })
+      .finally(() => setIsLoading(false));
     }, [dispatch, userID]);
   
   const handleMessagingPress = async (item: typeof following[0]) => {
@@ -119,7 +106,7 @@ const FollowingTab = ({route}: any) => {
     }
   }
 
-  const handleFollowPress = async (item: typeof following[0]) => {
+  const handleFollowPress = async (item: typeof recommendations[0]) => {
     try{
       await dispatch(
         relationAction({
@@ -127,6 +114,8 @@ const FollowingTab = ({route}: any) => {
           action: "follow"
         })
       ).unwrap();
+
+      setRecommendations(curr => curr.filter(u => u._id !== item._id));
     } catch (error){
       Alert.alert(
           "Theo dõi thất bại",
@@ -180,7 +169,7 @@ const FollowingTab = ({route}: any) => {
     </View>
   );
 
-  const renderSuggestedItem = ({item}: {item: any}) => (
+  const renderRecommendItem = ({item}: {item: typeof recommendations[0]}) => (
     <View style={[styles.suggestedItem, {backgroundColor: color.background}]}>
       <TouchableOpacity style={styles.touchableInfo}>
         <Image source={{uri: item.profilePic}} style={styles.profilePic} />
@@ -193,7 +182,7 @@ const FollowingTab = ({route}: any) => {
           </Text>
         </View>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.followButton}>
+      <TouchableOpacity onPress={() => handleFollowPress(item)} style={styles.followButton}>
         <Text style={styles.followText}>Theo dõi</Text>
       </TouchableOpacity>
       <TouchableOpacity>
@@ -204,6 +193,17 @@ const FollowingTab = ({route}: any) => {
       </TouchableOpacity>
     </View>
   );
+
+  if (isLoading) {
+    return <ActivityIndicator style={{ marginTop: 20 }} size="large" />;
+  }
+  if (isError) {
+    return (
+      <View style={{ padding: 20 }}>
+        <Text style={{ color: color.text, textAlign: 'center' }}>{error}</Text>
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={[styles.container, {backgroundColor: color.background}]}>
@@ -219,34 +219,50 @@ const FollowingTab = ({route}: any) => {
           </Text>
         }
       />
+      {!isLoading && following.length === 0 ? 
+        <View style={{ backgroundColor: color.background, flex: 1, alignItems: 'center', justifyContent: 'center', padding: 20, }}>
+          <Image
+            source={require('../../../../assets/icon/invite.png')}
+            style={{width: 200, height: 200, marginBottom: 24,}}
+            resizeMode="contain"
+          />
+          <Text style={{ color: color.text, fontSize: 20, fontWeight: 'bold', marginBottom: 8, }}>
+            Bạn chưa theo dõi ai
+          </Text>
+          <Text style={{ color: color.textSecondary, fontSize: 14, textAlign: 'center', marginBottom: 24, }}>
+            Khám phá người dùng để kết nối và bắt đầu theo dõi
+          </Text>
+        </View> :
+
+        <FlashList
+          data={following}
+          keyExtractor={item => item._id}
+          renderItem={renderSortItem}
+          showsVerticalScrollIndicator={false}
+          estimatedItemSize={10}
+          ListHeaderComponent={
+            <TouchableOpacity
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginTop: 10,
+              }}>
+              <Text style={{color: color.text, fontSize: 18}}>
+                Sắp xếp theo <Text style={{color: color.text, fontSize: 18, fontWeight: 'bold'}}>Mặc định</Text>
+              </Text>
+              <Image
+                source={require('../../../../assets/icon/icon_sort.png')}
+                style={[styles.sortIcon, {tintColor: color.text}]}
+              />
+            </TouchableOpacity>
+          }
+        />
+      }
       <FlashList
-        data={following}
+        data={recommendations}
         keyExtractor={item => item._id}
-        renderItem={renderSortItem}
-        showsVerticalScrollIndicator={false}
-        estimatedItemSize={10}
-        ListHeaderComponent={
-          <TouchableOpacity
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginTop: 10,
-            }}>
-            <Text style={{color: color.text, fontSize: 18}}>
-              Sắp xếp theo <Text style={{color: color.text, fontSize: 18, fontWeight: 'bold'}}>Mặc định</Text>
-            </Text>
-            <Image
-              source={require('../../../../assets/icon/icon_sort.png')}
-              style={[styles.sortIcon, {tintColor: color.text}]}
-            />
-          </TouchableOpacity>
-        }
-      />
-      <FlashList
-        data={suggestedData}
-        keyExtractor={item => item.id}
-        renderItem={renderSuggestedItem}
+        renderItem={renderRecommendItem}
         showsVerticalScrollIndicator={false}
         estimatedItemSize={10}
         ListHeaderComponent={

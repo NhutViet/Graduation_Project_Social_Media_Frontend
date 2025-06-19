@@ -5,8 +5,8 @@ import {
   Image,
   TouchableOpacity,
   TextInput,
-  Pressable,
-  Alert
+  Alert,
+  ActivityIndicator
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
 import {FlashList} from '@shopify/flash-list';
@@ -19,20 +19,26 @@ import { fetchFollowers, fetchFollowing, relationAction } from '../../../../serv
 import {createRoom} from '../../../../services/roomRedux/roomSlice';
 
 const UserFollowersTab = ({route}: any) => {
-  const navigation: any = useNavigation();
+    const navigation: any = useNavigation();
     const {theme} = useTheme();
     const color = Colors[theme];
     const userID: string = route.params?.userID;
     const myUserId = useSelector((state: RootState) => state.user.user?._id);
     const dispatch = useDispatch<AppDispatch>();
-    const {followers: reduxFollowers, following: reduxFollowing} = useSelector(
+    const {followers: reduxFollowers, following: reduxFollowing, loading, error} = useSelector(
       (state: RootState) => state.relation,
     );
   
     const [followers, setFollowers] = useState(reduxFollowers);
-    const [following, setFollowing] = useState(reduxFollowing);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [isError, setIsError] = useState<string | null>(null);
   
     useEffect(() => {
+      if(!userID) return;
+
+      setIsLoading(true);
+      setIsError(null);
+
       const fetchAndCombineData = async () => {
         if (userID === undefined || !myUserId) {
             console.error('User ID hoặc My User ID không hợp lệ');
@@ -42,18 +48,18 @@ const UserFollowersTab = ({route}: any) => {
         const followersData = await dispatch(fetchFollowers({ userId: userID })).unwrap();
         const followingList = await dispatch(fetchFollowing({ userId: myUserId })).unwrap();
 
-        console.log("data follower fetch: ", followersData)
         // update the isFollowing state for each follower that have _id match a user in current user following list
         const updatedFollowers = followersData.map(follower => ({
             ...follower,
             isMeFollowing: followingList.some(f => f._id === follower._id),
         }));
 
-        console.log("UserID", userID);
-        // Cập nhật danh sách followers với trạng thái mới
+        // update new followers state
         setFollowers(updatedFollowers);
         } catch (err) {
             console.error("Error fetching followers:", err);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -101,15 +107,11 @@ const UserFollowersTab = ({route}: any) => {
             />
           </View>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => {console.log(userID);}}>
-            <Text>asd</Text>
-        </TouchableOpacity>
       </View>
     );
   
     const handleActionButton = async (item: typeof followers[0]) => {
       if (item.isMeFollowing) {
-        console.log(item.isMeFollowing);
         try {
           const res = await dispatch(
             createRoom({
@@ -147,7 +149,7 @@ const UserFollowersTab = ({route}: any) => {
           setFollowers((prevFollowers) =>
           prevFollowers.map((follower) =>
             follower._id === item._id
-              ? { ...follower, isFollowing: true }
+              ? { ...follower, isMeFollowing: true }
               : follower
           )
         );
@@ -160,6 +162,42 @@ const UserFollowersTab = ({route}: any) => {
         }
       }
     };
+
+    if (isLoading) {
+        return (
+          <View style={styles.center}>
+            <ActivityIndicator size="large" color={color.text} />
+          </View>
+        );
+      }
+    
+      if (isError) {
+        return (
+          <View style={styles.center}>
+            <Text style={[styles.errorText, { color: color.text }]}>{error}</Text>
+          </View>
+        );
+      }
+    
+      if (!followers || followers.length === 0) {
+        return (
+          <View style={[styles.emptyContainer, { backgroundColor: color.background }]}>
+            <Image
+              source={require('../../../../assets/icon/block-user.png')}
+              style={styles.emptyImage}
+              resizeMode="contain"
+            />
+            <Text style={[styles.emptyTitle, { color: color.text }]}>
+              Người dùng hiện tại chưa có người theo dõi
+            </Text>
+            <Text style={[styles.emptySubtitle, { color: color.textSecondary }]}>
+              Khi có người theo dõi, họ sẽ xuất hiện ở đây
+            </Text>
+          </View>
+        );
+      }
+
+
     return (
       <View style={{flex: 1, backgroundColor: color.background}}>
         <View
@@ -288,5 +326,29 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingTop: 70,
+  },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  errorText: { fontSize: 16 },
+  emptyContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 0,
+    padding: 20,
+  },
+  emptyImage: {
+    width: 180,
+    height: 180,
+    marginBottom: 24,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  emptySubtitle: {
+    fontSize: 14,
+    textAlign: 'center',
   },
 })

@@ -18,7 +18,7 @@ import {
   UserSquare2,
   Video,
 } from 'lucide-react-native';
-import {useNavigation, useFocusEffect} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {UserMock} from '../../MockData/user.mock';
@@ -58,13 +58,13 @@ const ProfileComp = ({route}: any) => {
   const myUserId = useSelector((state: RootState) => state.user.user?._id);
 
   const [isInitializing, setIsInitializing] = useState(true);
-  // userId for display
-  const [currentUserID, setCurrentUserID] = useState<string | null>(null);
+
+  const prevUserRef = useRef<string | null>(null);
 
   const navigateToUserFollow = (initialTab: string = 'UserFollowersTab') => {
     navigation.navigate('UserFollowScreen', {
       screen: initialTab,
-      userID: currentUserID,
+      userID: userID,
     });
   };
 
@@ -164,6 +164,10 @@ const ProfileComp = ({route}: any) => {
   const {followers, following, loading, error} = useSelector(
     (state: RootState) => state.relation,
   );
+
+  const [localFollowersCount, setLocalFollowersCount] = useState(0);
+  const [localFollowingCount, setLocalFollowingCount] = useState(0);
+
   const {
     publicProfile,
     isLoadingPublicProfile,
@@ -178,6 +182,8 @@ const ProfileComp = ({route}: any) => {
   const {items: ReelsItem}: any | null = useSelector(
     (state: RootState) => state.postUser.reels,
   );
+
+  const [localPostAndReelCount, setLocalPostAndReelCount] = useState(0);
   const {isSuccess} = useSelector((state: RootState) => state.postUser);
   const {refreshToken} = useSelector((state: RootState) => state.user);
 
@@ -188,42 +194,43 @@ const ProfileComp = ({route}: any) => {
     
     try {
       // Clear old data if different user
-      if (currentUserID && currentUserID !== userID) {
+      if (prevUserRef.current && prevUserRef.current !== userID) {
         dispatch(clearPublicProfile());
+        dispatch(clearPostsAndReels());
       }
       
-      // Fetch all data in parallel but handle profile response first
-      const profilePromise = dispatch(getPublicProfile({userId: userID})).unwrap();
-      const followersPromise = dispatch(fetchFollowers({userId: userID}));
-      const followingPromise = dispatch(fetchFollowing({userId: userID}));
-      const postAndReelPromise = dispatch(getPostsAndReelsOfUser({refreshToken, userId: userID}));
+      // Fetch parallel
+      const [profile, followersData, followingData, postData] = await Promise.all([
+        dispatch(getPublicProfile({ userId: userID })).unwrap(),
+        dispatch(fetchFollowers({ userId: userID })).unwrap(),
+        dispatch(fetchFollowing({ userId: userID })).unwrap(),
+        dispatch(getPostsAndReelsOfUser({ refreshToken, userId: userID })),
+      ]);
+
       
       // Wait for profile first to set user states
-      const profile = await profilePromise;
-      setIsFollowing(profile.userFollowing || false);
-      setIsBlock(profile.userBlocked || false);
+      setIsFollowing(profile.userFollowing ?? false);
+      setIsBlock(profile.userBlocked ?? false);
+      setLocalFollowersCount(followersData.length);
+      setLocalFollowingCount(followingData.length);
       
       // Then wait for followers/following data
-      await Promise.all([followersPromise, followingPromise, postAndReelPromise]);
-      
-      setCurrentUserID(userID);
+      prevUserRef.current = userID;
     } catch (error) {
       console.error('Error initializing profile:', error);
     } finally {
       setIsInitializing(false);
     }
-  }, [userID, currentUserID, dispatch]);
+  }, [userID, dispatch]);
 
-   useFocusEffect(
-    useCallback(() => {
-      initializeProfile();
-    }, [initializeProfile])
-   );
+   useEffect(() => {
+    initializeProfile();
+  }, [initializeProfile]);
+  
     // Reset state when component completed unmount
    useEffect(() => {
     return () => {
       dispatch(clearPublicProfile());
-      setCurrentUserID(null);
       setIsInitializing(true);
       dispatch(clearPostsAndReels());
     };
@@ -282,17 +289,17 @@ const ProfileComp = ({route}: any) => {
             onPress={() => navigation.goBack()}>
             <ChevronLeft size={28} color={Colors[theme].text} />
           </TouchableOpacity>
-          <Text style={styles.headTitle}>Profile</Text>
+          <Text style={styles.headTitle}>Đang tải...</Text>
           <View style={styles.SectionRight}>
             <TouchableOpacity>
               <Ellipsis size={24} color={Colors[theme].text} />
             </TouchableOpacity>
-            <Text style={styles.headTitle}>Đang tải...</Text>
           </View>
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={Colors[theme].text} />
-          </View>
-        </SafeAreaView>
+        </View>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={Colors[theme].text} />
+        </View>
+      </SafeAreaView>
       );
     }
 
@@ -352,8 +359,8 @@ const ProfileComp = ({route}: any) => {
       <View>
         <UserInfo
           name={publicProfile.username}
-          followers={(followers?.length) ? followers?.length : 0}
-          following={(following?.length) ? following?.length : 0}
+          followers={localFollowersCount}
+          following={localFollowingCount}
           posts={UserMock.posts}
           avatar={publicProfile.profilePic}
           bio={publicProfile.bio}
@@ -441,58 +448,6 @@ const ProfileComp = ({route}: any) => {
           {renderTabContent()}
         </>
       )}
-        {/* Story Highlights */}
-        {!isBlock && (
-          <StoryComponent isPrivate={isPrivate} highlights={highlights} />
-        )}
-        {/* Posts Grid/Video Tabs */}
-        {!isBlock && (
-          <>
-            <View style={{flexDirection: 'row'}}>
-              <TouchableOpacity
-                disabled={!isPrivate}
-                onPress={() => {
-                  setActiveTab('grid');
-                }}
-                style={[
-                  styles.tab,
-                  activeTab === 'grid' && styles.activeTab,
-                  !isPrivate && {opacity: 0.5},
-                ]}>
-                <Grid
-                  size={26}
-                  color={
-                    activeTab === 'grid'
-                      ? Colors[theme].text
-                      : Colors.textSecondary
-                  }
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                disabled={!isPrivate}
-                onPress={() => {
-                  setActiveTab('reels');
-                }}
-                style={[
-                  styles.tab,
-                  activeTab === 'reels' && styles.activeTab,
-                  !isPrivate && {opacity: 0.5},
-                ]}>
-                <Video
-                  size={26}
-                  color={
-                    activeTab === 'reels'
-                      ? Colors[theme].text
-                      : Colors.textSecondary
-                  }
-                />
-              </TouchableOpacity>
-            </View>
-            {/* Posts Grid */}
-            <View style={{flex: 1}}>{renderTabContent()}</View>
-          </>
-        )}
-
         <Portal>
           <OptionModal
             ref={modalOptionRef}

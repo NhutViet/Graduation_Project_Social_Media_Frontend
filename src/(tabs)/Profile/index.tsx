@@ -233,7 +233,8 @@ const Profile = () => {
             <TouchableOpacity
               onPress={() => navigation.navigate('FollowersScreen', {
                 screen: "FollowingTab"
-              })}>
+              })}
+              >
               <View style={styles.statItem}>
                 <Text style={[styles.statNumber, {color: color.text}]}>
                   {(following?.length) ? following?.length : 0}
