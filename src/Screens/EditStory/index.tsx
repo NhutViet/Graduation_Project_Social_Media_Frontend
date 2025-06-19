@@ -269,7 +269,6 @@ export const EditStory = ({route, navigation}: any) => {
           y: Number(positionRef.current.y),
         };
       }
-      console.log('payload: ', payload);
 
       //api
       const res = await axiosInstance.post(
@@ -283,12 +282,14 @@ export const EditStory = ({route, navigation}: any) => {
         },
       );
 
-      console.log('Upload story thành công: ', res.data);
+      if(res.data){
+        Alert.alert('Thông báo', 'Đăng story thành công.')
+      }
 
       hideUploadModal();
       navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
-    } catch (error) {
-      console.error('Lỗi khi upload story: ', error);
+    } catch (error: any) {
+      Alert.alert('Lỗi!!!', error?.response?.data?.message || 'Đăng story thất bại.');
       hideUploadModal();
     }
   };
@@ -361,9 +362,6 @@ export const EditStory = ({route, navigation}: any) => {
                     onDragRelease={(event, gestureState) => {
                       positionRef.current.x += gestureState.dx;
                       positionRef.current.y += gestureState.dy;
-                      console.log(
-                        `📍 New position: x=${positionRef.current.x}, y=${positionRef.current.y}`,
-                      );
                     }}>
                     <View style={styles.textInputContainer}>
                       <Text style={styles.captionText}>{caption}</Text>
