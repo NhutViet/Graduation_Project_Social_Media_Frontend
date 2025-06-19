@@ -1,12 +1,84 @@
-import React from 'react';
-import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {
+  Alert,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '../../../../services/store';
+import {
+  addMusicToPlaylist,
+  removeMusicFromPlaylist,
+} from '../../../../services/bookmarkRedux/bookmarkSlice';
+import {
+  addToBookmark,
+  removeFromBookmark,
+} from '../../../../services/musicRedux/musicReducer';
 
 const ItemMusic = (props: any) => {
-  const {coverImg, song, author, countVideoUsed = 0, onPress} = props;
+  const {
+    _id,
+    coverImg,
+    song,
+    author,
+    countVideoUsed = 0,
+    onPress,
+    isBookmarked,
+  } = props;
   const {theme} = useTheme();
   const color = Colors[theme];
+  const dispatch = useDispatch<AppDispatch>();
+  const {refreshToken} = useSelector((state: RootState) => state.user);
+  const {musicList, musicBookmark} = useSelector(
+    (state: RootState) => state.music,
+  );
+  const [isSave, setIsSave] = useState(isBookmarked);
+  const {messageError, isError} = useSelector(
+    (state: RootState) => state.bookmark,
+  );
+
+  useEffect(() => {
+    const isNowSaved = musicBookmark.some(item => item._id === _id);
+    setIsSave(isNowSaved);
+  }, [musicBookmark, _id]);
+
+  const handleBookmark = () => {
+    if (isSave) {
+      setIsSave(false);
+      dispatch(removeMusicFromPlaylist({musicId: _id, refreshToken}))
+        .unwrap()
+        .then(res => {
+          dispatch(removeFromBookmark(_id));
+        })
+        .catch(res => {
+          setIsSave(true);
+          if (isError) {
+            Alert.alert('Thông báo', messageError);
+          }
+        });
+    } else {
+      setIsSave(true);
+      dispatch(addMusicToPlaylist({musicId: _id, refreshToken}))
+        .unwrap()
+        .then(res => {
+          const currentMusic = musicList.find(item => item._id === _id);
+          if (currentMusic) {
+            dispatch(addToBookmark(currentMusic));
+          }
+        })
+        .catch(res => {
+          setIsSave(false);
+          if (isError) {
+            Alert.alert('Thông báo', messageError);
+          }
+        });
+    }
+  };
 
   return (
     <TouchableOpacity style={styles.container} onPress={onPress}>
@@ -29,10 +101,14 @@ const ItemMusic = (props: any) => {
         </View>
       </View>
 
-      <TouchableOpacity style={styles.playBlock}>
+      <TouchableOpacity style={styles.playBlock} onPress={handleBookmark}>
         <Image
-          style={[styles.play, {tintColor: color.text}]}
-          source={require('../../../../assets/icon/bookmark.png')}
+          style={[styles.play, {tintColor: isSave ? '#F2C641' : color.text}]}
+          source={
+            isSave
+              ? require('../../../../assets/icon/bookmark_fill.png')
+              : require('../../../../assets/icon/bookmark.png')
+          }
         />
       </TouchableOpacity>
     </TouchableOpacity>

@@ -13,6 +13,7 @@ import {
 } from '@react-navigation/native';
 import {
   forwardRef,
+  useCallback,
   useEffect,
   useImperativeHandle,
   useRef,
@@ -32,6 +33,7 @@ import {fetchCommentsByPost} from '../../../services/commentRedux/commentSlice';
 import BottomSheetComment, {
   BottomSheetCommentRef,
 } from '../Home/components/CommentSection';
+import { useFocusEffect } from '@react-navigation/native';
 
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
@@ -68,9 +70,11 @@ const Reels = forwardRef((props, ref) => {
   const dispatch = useDispatch<AppDispatch>();
   const {reels, loading} = useSelector((state: RootState) => state.post);
 
-  useEffect(() => {
-    dispatch(fetchReelsWithMedia());
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(fetchReelsWithMedia());
+    }, [dispatch]) 
+  );
   ///////////////////////////////
 
   const [selectedPostId, setSelectedPostId] = useState<string>('');
@@ -121,7 +125,6 @@ const Reels = forwardRef((props, ref) => {
               muted={false}
               showBottomSheet={() => {
                 setSelectedItem(item);
-                console.log('item: ', item);
                 setIsCurrentBookmarked(item.isBookmarked);
                 sheetRef?.current.open();
               }}

@@ -26,6 +26,7 @@ export const seenStory = createAsyncThunk<
   }
 });
 
+// lấy story's following
 export const fetchFollowingStories = createAsyncThunk<
   userFollow[],
   {page: number},

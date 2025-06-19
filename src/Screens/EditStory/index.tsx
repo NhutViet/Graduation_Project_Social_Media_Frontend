@@ -263,7 +263,6 @@ export const EditStory = ({route, navigation}: any) => {
           y: Number(positionRef.current.y) || 50, // Mặc định 50% nếu không kéo thả
         };
       }
-      console.log('payload: ', payload);
 
       const res = await axiosInstance.post(
         `${BASE_URL}/stories/create`,
@@ -276,12 +275,14 @@ export const EditStory = ({route, navigation}: any) => {
         },
       );
 
-      console.log('Upload story thành công: ', res.data);
+      if(res.data){
+        Alert.alert('Thông báo', 'Đăng story thành công.')
+      }
 
       hideUploadModal();
       navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
-    } catch (error) {
-      console.error('Lỗi khi upload story: ', error);
+    } catch (error: any) {
+      Alert.alert('Lỗi!!!', error?.response?.data?.message || 'Đăng story thất bại.');
       hideUploadModal();
     }
   };
@@ -362,10 +363,6 @@ export const EditStory = ({route, navigation}: any) => {
 
                       positionRef.current.x = (absoluteX / mediaWidth) * 100;
                       positionRef.current.y = (absoluteY / mediaHeight) * 100;
-
-                      console.log(
-                        `✅ Caption at: x=${positionRef.current.x}%, y=${positionRef.current.y}%`,
-                      );
                     }}>
                     <View style={styles.textInputContainer}>
                       <Text style={styles.captionText}>{caption}</Text>
