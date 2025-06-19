@@ -8,7 +8,7 @@ interface RelationState {
   blocking:    UserProfile[]; 
   loading: boolean;
   error: string | null;
-};
+}
 
 const initialState: RelationState = {
   followers: [],
