@@ -3,7 +3,9 @@ import {Music} from './musicType';
 import {API} from '../api';
 import axiosInstance from '../axiosInstance';
 
-export const fetchAllMusic = createAsyncThunk<Music[]>(
+export const fetchAllMusic = createAsyncThunk<Music[],
+  {refreshToken: string}
+>(
   'music/fetchAllMusic',
   async (_, {rejectWithValue}) => {
     try {
