@@ -13,7 +13,8 @@ import {PersistGate} from 'redux-persist/integration/react';
 import {UploadProvider} from '../services/UploadProgressManager';
 import Toast from 'react-native-toast-message';
 import {Buffer} from 'buffer';
-import { TabLoadingProvider } from '../services/TabLoadingContext';
+import {TabLoadingProvider} from '../services/TabLoadingContext';
+import {SocketProvider} from '../services/SocketContext';
 global.Buffer = Buffer;
 if (__DEV__) {
   import('./config/ReactotronConfig').then(() =>
@@ -27,18 +28,20 @@ const App = () => {
     <GestureHandlerRootView style={{flex: 1}}>
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
-          <ThemeProvider>
-            <SafeAreaProvider>
-              <Host>
-                <UploadProvider>
-                  <TabLoadingProvider>
-                    <AppNavigator />
-                    <Toast />
-                  </TabLoadingProvider>
-                </UploadProvider>
-              </Host>
-            </SafeAreaProvider>
-          </ThemeProvider>
+          <SocketProvider>
+            <ThemeProvider>
+              <SafeAreaProvider>
+                <Host>
+                  <UploadProvider>
+                    <TabLoadingProvider>
+                      <AppNavigator />
+                      <Toast />
+                    </TabLoadingProvider>
+                  </UploadProvider>
+                </Host>
+              </SafeAreaProvider>
+            </ThemeProvider>
+          </SocketProvider>
         </PersistGate>
       </Provider>
     </GestureHandlerRootView>
