@@ -8,7 +8,8 @@ interface UserInfoProps {
   name: string;
   followers: number;
   following: number;
-  posts: {id: string; image: string}[];
+  // posts: {id: string; image: string}[];
+  posts: number;
   avatar: string;
   bio?: string;
   theme: Theme;
@@ -45,7 +46,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
         <View style={styles.statsContainer}>
           <View style={styles.statItem}>
             <Text style={[styles.statNumber, {color: color.text}]}>
-              {posts.length}
+              {posts}
             </Text>
             <Text style={styles.statLabel}>bài viết</Text>
           </View>
