@@ -76,6 +76,12 @@ export type RootStackParamList = {
     roomId: string;
     img1?: string;
   };
+  ZegoCallScreen: {
+    userID: string;
+    userName: string;
+    callID: string;
+    image: string;
+  };
 };
 
 const Stack = createStackNavigator();
@@ -86,7 +92,10 @@ const AppNavigator = () => {
       <Stack.Navigator
         initialRouteName="Splash"
         screenOptions={{headerShown: false}}>
-          <Stack.Screen name="AllPostOfUserScreen" component={AllPostOfUserScreen} />
+        <Stack.Screen
+          name="AllPostOfUserScreen"
+          component={AllPostOfUserScreen}
+        />
         <Stack.Screen name="ZegoCallScreen" component={ZegoCallScreen} />
         <Stack.Screen name="ChangeBirthday" component={ChangeBirthday} />
         <Stack.Screen name="ChangePassword" component={ChangePassword} />
