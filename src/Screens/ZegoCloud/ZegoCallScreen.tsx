@@ -11,7 +11,6 @@ export default function ZegoCallScreen({route}: any) {
   const callStartTimeRef = React.useRef<number | null>(null);
   const {socket} = useSocket();
   const [hasOtherUser, setHasOtherUser] = useState(false);
-  const [isInitiator, setIsInitiator] = useState(false);
 
   useEffect(() => {
     callStartTimeRef.current = Date.now();
