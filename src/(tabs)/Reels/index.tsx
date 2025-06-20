@@ -47,6 +47,7 @@ const Reels = forwardRef((props, ref) => {
 
   const [currentVisible, setCurrentVisible] = useState<string | null>(null);
   const [isCurrentBookmarked, setIsCurrentBookmarked] = useState(false);
+  const [isCurrentFollowing, setIsCurrentFollowing] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any | null>(null);
 
   const onViewRef = useRef(({viewableItems}: {viewableItems: any[]}) => {
@@ -121,6 +122,7 @@ const Reels = forwardRef((props, ref) => {
               {...item}
               isFocused={isFocused}
               currentVisible={shouldPlay}
+              isFollow={item?.isFollow}
               muted={false}
               showBottomSheet={() => {
                 setSelectedItem(item);

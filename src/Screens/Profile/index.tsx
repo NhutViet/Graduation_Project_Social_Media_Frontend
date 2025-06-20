@@ -184,7 +184,6 @@ const ProfileComp = ({route}: any) => {
     (state: RootState) => state.postUser.reels,
   );
 
-  const [localPostAndReelCount, setLocalPostAndReelCount] = useState(0);
   const {isSuccess} = useSelector((state: RootState) => state.postUser);
   const {refreshToken} = useSelector((state: RootState) => state.user);
 
