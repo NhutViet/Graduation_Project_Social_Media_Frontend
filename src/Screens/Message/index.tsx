@@ -190,14 +190,14 @@ export const MessageScreen = () => {
       clearTimeout(rejectTimeoutRef.current);
       rejectTimeoutRef.current = null;
     }
+
     if (socket) {
-      socket.emit('callEnded', {
+      socket.emit('callCancelled', {
         roomId: roomId,
         senderId: userC?._id,
-        callType: 'video',
-        missed: true,
       });
     }
+
     setIncomingCall(prev => ({...prev, visible: false}));
   };
 
