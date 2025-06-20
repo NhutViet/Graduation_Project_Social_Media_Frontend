@@ -75,6 +75,7 @@ const ReelItem: React.FC<ReelItemProps> = ({
   item,
   index,
   activeIndex,
+  isFocused,
   handleHashtagPress,
   openComment,
   showBottomSheet,
@@ -87,7 +88,7 @@ const ReelItem: React.FC<ReelItemProps> = ({
   const [isLiked, setIsLiked] = useState(likePosts.includes(item._id));
   const [numLike, setNumLike] = useState(item.likeCount);
 
-  // Chỉ phát video khi index === activeIndex
+  // Chỉ phát video khi index === activeIndex và màn hình đang được focus
   const isActive = index === activeIndex;
 
   const handleLike = async () => {
@@ -122,7 +123,7 @@ const ReelItem: React.FC<ReelItemProps> = ({
         maxBitRate={1500000}
         progressUpdateInterval={500}
         muted={false}
-        paused={!isActive}
+        paused={!isActive || !isFocused}
       />
       <View style={styles.bottomContainer}>
         {/* Left: User info and caption */}

@@ -13,6 +13,7 @@ import BottomSheetReels, {
 import {ArrowLeft} from 'lucide-react-native';
 import {RootState} from '@services/store';
 import {useSelector} from 'react-redux';
+import {useIsFocused} from '@react-navigation/native';
 
 const {width, height} = Dimensions.get('window');
 
@@ -23,6 +24,10 @@ export const ViewReels: React.FC = () => {
   const sheetRefComment = useRef<BottomSheetCommentRef>(null);
   const sheetRef: any = useRef<BottomSheetReelsRef>(null);
   const [_selectedPostId, setSelectedPostId] = useState<string>('');
+   /**
+   * The isFocus below will tracking-focus to know whenever user focus to this screen
+   **/
+  const isFocused = useIsFocused();
 
   const onViewRef = useRef(({viewableItems}: {viewableItems: any[]}) => {
     if (viewableItems.length > 0) {
@@ -42,9 +47,9 @@ export const ViewReels: React.FC = () => {
     sheetRefComment.current?.open();
   };
 
-  const closeComment = () => {
-    setSelectedPostId('');
-    sheetRefComment.current?.close();
+  const showBottomSheetOptions = (postId: string) => {
+    setSelectedPostId(postId);
+    sheetRef.current?.open();
   };
 
   return (
@@ -61,9 +66,10 @@ export const ViewReels: React.FC = () => {
             item={item}
             index={index}
             activeIndex={activeIndex}
+            isFocused={isFocused}
             handleHashtagPress={handleHashtagPress}
             openComment={openComment}
-            showBottomSheet={closeComment}
+            showBottomSheet={showBottomSheetOptions}
             navigation={navigate}
           />
         )}
