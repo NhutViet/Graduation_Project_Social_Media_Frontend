@@ -48,8 +48,10 @@ const UserFollowersTab = ({route}: any) => {
         const followersData = await dispatch(fetchFollowers({ userId: userID })).unwrap();
         const followingList = await dispatch(fetchFollowing({ userId: myUserId })).unwrap();
 
+        const filtered = followersData.filter(f => f._id !== myUserId);
+
         // update the isFollowing state for each follower that have _id match a user in current user following list
-        const updatedFollowers = followersData.map(follower => ({
+        const updatedFollowers = filtered.map(follower => ({
             ...follower,
             isMeFollowing: followingList.some(f => f._id === follower._id),
         }));
