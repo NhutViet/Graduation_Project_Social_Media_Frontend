@@ -6,22 +6,37 @@ import {useNavigation} from '@react-navigation/native';
 import {useSocket} from '../../../services/SocketContext';
 
 export default function ZegoCallScreen({route}: any) {
-  const {userID, userName, callID, image} = route.params;
+  const {userID, userName, callID, image, isCaller} = route.params;
   const navigation = useNavigation();
   const callStartTimeRef = React.useRef<number | null>(null);
   const {socket} = useSocket();
   const [hasOtherUser, setHasOtherUser] = useState(false);
+  const [isInitiator, setIsInitiator] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     callStartTimeRef.current = Date.now();
   }, []);
 
-  React.useEffect(() => {
-    if (!socket) return;
+  const handleCallCancelled = () => {
+    const duration =
+      callStartTimeRef.current !== null
+        ? Math.floor((Date.now() - callStartTimeRef.current) / 1000)
+        : 0;
 
-    const handleCallCancelled = () => {
-      ZegoUIKitPrebuiltCall.hangUp();
-    };
+    if (socket && isCaller) {
+      socket.emit('callEnded', {
+        roomId: callID,
+        senderId: userID,
+        callType: 'video',
+        missed: !hasOtherUser,
+        duration: duration,
+      });
+    }
+    navigation.goBack();
+  };
+
+  useEffect(() => {
+    if (!socket) return;
 
     socket.on('callCancelled', handleCallCancelled);
 
@@ -53,28 +68,13 @@ export default function ZegoCallScreen({route}: any) {
             }
           },
           onCallEnd: () => {
-            const duration =
-              callStartTimeRef.current !== null
-                ? Math.floor((Date.now() - callStartTimeRef.current) / 1000)
-                : 0;
-
-            if (socket) {
-              socket.emit('callEnded', {
-                roomId: callID,
-                senderId: userID,
-                callType: 'video',
-                missed: !hasOtherUser,
-                duration,
-              });
-            }
-
-            navigation.goBack();
+            handleCallCancelled();
           },
           timingConfig: {
             isDurationVisible: true,
             onDurationUpdate: (duration: number) => {
               if (duration === 10 * 60) {
-                ZegoUIKitPrebuiltCall.hangUp();
+                navigation.goBack();
               }
             },
           },

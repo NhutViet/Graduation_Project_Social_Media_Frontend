@@ -207,6 +207,7 @@ export const MessageScreen = () => {
         callerName: userC?.username,
         type: 'video',
         roomId,
+        isCaller: true,
       });
     }
     navigation.navigate('ZegoCallScreen', {
