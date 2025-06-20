@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {StyleSheet, View, Image} from 'react-native';
 import {ZegoUIKitPrebuiltCall} from '@zegocloud/zego-uikit-prebuilt-call-rn';
 import {CallAppID, CallAppSign} from '../../../services/api';
@@ -15,6 +15,20 @@ export default function ZegoCallScreen({route}: any) {
   React.useEffect(() => {
     callStartTimeRef.current = Date.now();
   }, []);
+
+  React.useEffect(() => {
+    if (!socket) return;
+
+    const handleCallCancelled = () => {
+      ZegoUIKitPrebuiltCall.hangUp();
+    };
+
+    socket.on('callCancelled', handleCallCancelled);
+
+    return () => {
+      socket.off('callCancelled', handleCallCancelled);
+    };
+  }, [socket]);
 
   return (
     <View style={styles.container}>
