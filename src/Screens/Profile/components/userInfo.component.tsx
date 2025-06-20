@@ -1,16 +1,20 @@
 import React from 'react';
-import {View, Text, Image, StyleSheet} from 'react-native';
+import {View, Text, Image, StyleSheet, TouchableOpacity} from 'react-native';
 import {Theme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
+import {useNavigation} from '@react-navigation/native';
 
 interface UserInfoProps {
   name: string;
   followers: number;
   following: number;
-  posts: {id: string; image: string}[];
+  // posts: {id: string; image: string}[];
+  posts: number;
   avatar: string;
   bio?: string;
   theme: Theme;
+  onFollowersPress: () => void;
+  onFollowingPress: () => void;
 }
 
 const UserInfo: React.FC<UserInfoProps> = ({
@@ -21,7 +25,10 @@ const UserInfo: React.FC<UserInfoProps> = ({
   avatar,
   bio,
   theme,
+  onFollowersPress,
+  onFollowingPress
 }) => {
+  const navigation: any = useNavigation();
   const color = Colors[theme];
   const formatFollowers = (num: number): string => {
     if (num >= 1000000) {
@@ -39,22 +46,22 @@ const UserInfo: React.FC<UserInfoProps> = ({
         <View style={styles.statsContainer}>
           <View style={styles.statItem}>
             <Text style={[styles.statNumber, {color: color.text}]}>
-              {posts.length}
+              {posts}
             </Text>
             <Text style={styles.statLabel}>bài viết</Text>
           </View>
-          <View style={styles.statItem}>
+          <TouchableOpacity onPress={onFollowersPress} style={styles.statItem}>
             <Text style={[styles.statNumber, {color: color.text}]}>
               {formatFollowers(followers)}
             </Text>
             <Text style={styles.statLabel}>người theo dõi</Text>
-          </View>
-          <View style={styles.statItem}>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={onFollowingPress} style={styles.statItem}>
             <Text style={[styles.statNumber, {color: color.text}]}>
               {following}
             </Text>
             <Text style={styles.statLabel}>đang theo dõi</Text>
-          </View>
+          </TouchableOpacity>
         </View>
       </View>
       <View style={styles.bioContainer}>

@@ -75,8 +75,8 @@ export const useItemHomeActions = (props: ItemHomeProps, state: any) => {
 
     if (userID) {
       Promise.all([
-        dispatch(fetchFollowers({userID})),
-        dispatch(fetchFollowing({userID})),
+        dispatch(fetchFollowers({userId: userID})),
+        dispatch(fetchFollowing({userId: userID})),
       ])
         .then(() => setVisibleModalShare(true))
         .catch(() => {

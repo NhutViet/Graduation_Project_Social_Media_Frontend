@@ -20,11 +20,11 @@ export const useItemHomeUtils = (props: ItemHomeProps, state: any) => {
   const follows = useMemo(() => {
     const allUsers = [...followers, ...following];
     const uniqueUsers = allUsers.filter(
-      (user, index, self) => index === self.findIndex(u => u.id === user.id)
+      (user, index, self) => index === self.findIndex(u => u._id === user._id)
     );
 
     return uniqueUsers.map(user => ({
-      id: user.id,
+      _id: user._id,
       name: user.username,
       avatar: user.profilePic,
     }));

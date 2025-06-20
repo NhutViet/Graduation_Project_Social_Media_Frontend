@@ -66,6 +66,10 @@ const ItemHome = (props: ItemHomeProps) => {
     state.reactions.likePosts.includes(_id),
   );
 
+  const currentUserID = useSelector((state: RootState) => 
+    state.user.user?._id
+  );
+
   useEffect(() => {
     state.setIsLiked(isLikedFromRedux);
   }, [isLikedFromRedux]);
@@ -86,7 +90,12 @@ const ItemHome = (props: ItemHomeProps) => {
   }, [_id, isLike]);
 
   const handleUserPress = () => {
-    navigation.navigate('ProfileComp', {userID: user._id});
+    if(user._id === currentUserID)
+      console.log("This is your current proflie")
+    else
+    navigation.navigate('ProfileComp', {
+      userID: user._id,
+    });
   };
 
   const handleMediaScroll = (event: any) => {
@@ -100,6 +109,7 @@ const ItemHome = (props: ItemHomeProps) => {
       <BottomSheetOptionsModal
         sheetRef={modal.sheetRef}
         isBookmarked={state.isBookmark}
+        isFollowing={state.follow}
         topOptions={modal.topOptions}
         firstListOptions={modal.firstListOptions}
         secondListOptions={modal.secondListOptions}
