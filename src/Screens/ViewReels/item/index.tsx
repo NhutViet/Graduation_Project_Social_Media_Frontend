@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, Text, TouchableOpacity, Image} from 'react-native';
 import Video from 'react-native-video';
 import {
@@ -17,7 +17,7 @@ import {
 } from '../../../../services/reactionRedux/reactionSlice';
 import {ReelItemProps, styles} from '../../../StyleSheet/ViewReels';
 
-const formatNumber = (num?: number | null): string => {
+const formatNumber = (num: number): string => {
   if (typeof num !== 'number' || isNaN(num)) {
     return '0';
   }
@@ -30,10 +30,7 @@ const formatNumber = (num?: number | null): string => {
   return num.toString();
 };
 
-const parseCaption = (
-  caption: string | null | undefined,
-  onHashtagPress: (tag: string) => void,
-): React.ReactNode[] => {
+const parseCaption = (caption: string, onHashtagPress: (tag: string) => void): React.ReactNode[] => {
   if (!caption || typeof caption !== 'string') {
     return [];
   }
@@ -73,9 +70,8 @@ const parseCaption = (
 
 const ReelItem: React.FC<ReelItemProps> = ({
   item,
-  index,
-  activeIndex,
   isFocused,
+  currentVisible,
   handleHashtagPress,
   openComment,
   showBottomSheet,
@@ -87,9 +83,6 @@ const ReelItem: React.FC<ReelItemProps> = ({
 
   const [isLiked, setIsLiked] = useState(likePosts.includes(item._id));
   const [numLike, setNumLike] = useState(item.likeCount);
-
-  // Chỉ phát video khi index === activeIndex và màn hình đang được focus
-  const isActive = index === activeIndex;
 
   const handleLike = async () => {
     if (isLiked) {
@@ -112,19 +105,34 @@ const ReelItem: React.FC<ReelItemProps> = ({
         });
     }
   };
+  const [paused, setPaused] = useState(true);
+
+  useEffect(() => {
+    setPaused(!(currentVisible && isFocused));
+  }, [currentVisible, isFocused]);
+
+  const handlePressVideo = () => {
+    setPaused(prev => !prev);
+  };
 
   return (
     <View style={styles.container}>
-      <Video
-        source={{uri: item.media?.videoUrl}}
-        style={styles.video}
-        resizeMode="cover"
-        repeat
-        maxBitRate={1500000}
-        progressUpdateInterval={500}
-        muted={false}
-        paused={!isActive || !isFocused}
-      />
+      <TouchableOpacity
+        activeOpacity={1}
+        onPress={handlePressVideo}
+        style={styles.container}
+      >
+        <Video
+          source={{uri: item.media?.videoUrl}}
+          style={styles.video}
+          resizeMode="cover"
+          repeat
+          maxBitRate={1500000}
+          progressUpdateInterval={500}
+          muted={false}
+          paused={paused}
+        />
+      </TouchableOpacity>
       <View style={styles.bottomContainer}>
         {/* Left: User info and caption */}
         <View style={styles.block1}>

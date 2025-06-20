@@ -19,7 +19,6 @@ const {width, height} = Dimensions.get('window');
 
 export const ViewReels: React.FC = () => {
   const reels: Reel[] = useSelector((state: RootState) => state.reels.data);
-  const [activeIndex, setActiveIndex] = useState<number>(0);
   const navigate = useNavigation();
   const sheetRefComment = useRef<BottomSheetCommentRef>(null);
   const sheetRef: any = useRef<BottomSheetReelsRef>(null);
@@ -28,15 +27,6 @@ export const ViewReels: React.FC = () => {
    * The isFocus below will tracking-focus to know whenever user focus to this screen
    **/
   const isFocused = useIsFocused();
-
-  const onViewRef = useRef(({viewableItems}: {viewableItems: any[]}) => {
-    if (viewableItems.length > 0) {
-      const visibleIndex = viewableItems[0]?.index;
-      if (typeof visibleIndex === 'number') {
-        setActiveIndex(visibleIndex);
-      }
-    }
-  });
 
   const handleHashtagPress = (tag: string) => {
     console.log('Hashtag pressed:', tag);
@@ -52,6 +42,17 @@ export const ViewReels: React.FC = () => {
     sheetRef.current?.open();
   };
 
+  const [currentVisibleId, setCurrentVisibleId] = useState<string | null>(null);
+  const onViewRef = useRef(({viewableItems}: {viewableItems: any[]}) => {
+    if (viewableItems.length > 0) {
+      const visibleItem = viewableItems[0];
+      const id = visibleItem?.item?._id;
+      if (id) {
+        setCurrentVisibleId(id);
+      }
+    }
+  });
+
   return (
     <>
       <View style={styles.header}>
@@ -59,34 +60,35 @@ export const ViewReels: React.FC = () => {
           <ArrowLeft color="#fff" size={28} />
         </TouchableOpacity>
       </View>
-      <FlashList
-        data={reels}
-        renderItem={({item, index}) => (
-          <ReelItem
-            item={item}
-            index={index}
-            activeIndex={activeIndex}
-            isFocused={isFocused}
-            handleHashtagPress={handleHashtagPress}
-            openComment={openComment}
-            showBottomSheet={showBottomSheetOptions}
-            navigation={navigate}
-          />
-        )}
-        keyExtractor={item => item._id}
-        estimatedItemSize={height}
-        estimatedListSize={{height, width}}
-        pagingEnabled
-        showsVerticalScrollIndicator={false}
-        horizontal={false}
-        snapToInterval={height}
-        decelerationRate="fast"
-        removeClippedSubviews
-        onViewableItemsChanged={onViewRef.current}
-        viewabilityConfig={{
-          itemVisiblePercentThreshold: 70,
-        }}
-      />
+      <View style={styles.container}>
+        <FlashList
+          data={reels}
+          renderItem={({item}) => (
+            <ReelItem
+              item={item}
+              currentVisible={item._id === currentVisibleId}
+              isFocused={isFocused}
+              handleHashtagPress={handleHashtagPress}
+              openComment={openComment}
+              showBottomSheet={showBottomSheetOptions}
+              navigation={navigate}
+            />
+          )}
+          keyExtractor={item => item._id}
+          estimatedItemSize={height}
+          estimatedListSize={{height, width}}
+          pagingEnabled
+          showsVerticalScrollIndicator={false}
+          horizontal={false}
+          snapToInterval={height}
+          decelerationRate="fast"
+          removeClippedSubviews
+          onViewableItemsChanged={onViewRef.current}
+          viewabilityConfig={{
+            itemVisiblePercentThreshold: 70,
+          }}
+        />
+      </View>
       <BottomSheetReels ref={sheetRef} selectedItem={undefined} />
       <BottomSheetComment ref={sheetRefComment} postId={_selectedPostId} />
     </>
