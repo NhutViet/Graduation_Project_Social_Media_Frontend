@@ -83,7 +83,7 @@ const Story = (props: any) => {
           </View>
         )}
       </TouchableOpacity>
-      {isStory && (
+      {!isStory && (
         <Text style={[styles.text, {color: color.text}]}>{name}</Text>
       )}
     </View>

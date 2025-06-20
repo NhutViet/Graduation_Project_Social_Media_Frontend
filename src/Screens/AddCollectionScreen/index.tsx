@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {
   View,
   Text,
@@ -8,24 +8,39 @@ import {
   FlatList,
   Image,
   SafeAreaView,
+  Alert,
 } from 'react-native';
-import {ChevronLeft, Check, CircleX, Video, Images} from 'lucide-react-native';
+import {ChevronLeft, Check, CircleX} from 'lucide-react-native';
 import {useNavigation} from '@react-navigation/native';
-import {launchImageLibrary} from 'react-native-image-picker';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
-const DUMMY_POSTS = Array.from({length: 20}).map((_, i) => ({
-  id: String(i + 1),
-  uri: `https://picsum.photos/id/${i + 1}/300/300`,
-  isVideo: i % 4 === 0, // Giả lập 1 số là video
-}));
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '../../../services/store';
+import {
+  createPlaylist,
+  getItemsOfPlaylist,
+  switchBookmark,
+} from '../../../services/bookmarkRedux/bookmarkSlice';
 
 export const AddCollectionScreen = () => {
   const {theme} = useTheme();
   const color = Colors[theme];
   const navigation = useNavigation();
   const [name, setName] = useState('');
-  const [coverImage, setCoverImage] = useState('');
+  const {itemsByPlaylist, playlists} = useSelector(
+    (state: RootState) => state.bookmark,
+  );
+
+  useEffect(() => {
+    playlists.forEach(playlist => {
+      dispatch(getItemsOfPlaylist({playlistId: playlist._id, refreshToken}));
+    });
+  }, [playlists]);
+
+  const allItems = useMemo(() => {
+    return Object.values(itemsByPlaylist).flat();
+  }, [itemsByPlaylist, playlists]);
+
   const [selectedPostIds, setSelectedPostIds] = useState<string[]>([]);
 
   const toggleSelect = (id: string) => {
@@ -34,36 +49,88 @@ export const AddCollectionScreen = () => {
     );
   };
 
-  const renderPostItem = ({item}: any) => {
-    const isSelected = selectedPostIds.includes(item.id);
-    return (
-      <TouchableOpacity
-        onPress={() => toggleSelect(item.id)}
-        style={styles.postItem}>
-        <Image source={{uri: item.uri}} style={styles.postImage} />
-        {item.isVideo ? (
-          <View style={styles.iconOverlay}>
-            <Image
-              style={styles.icon}
-              source={require('../../../assets/icon/reels.png')}
-            />
-          </View>
-        ) : (
-          <View style={styles.iconOverlay}>
-            <Image
-              style={styles.icon}
-              source={require('../../../assets/icon/gallery.png')}
-            />
-          </View>
-        )}
-        {isSelected && (
-          <View style={styles.overlayCheck}>
-            <Check size={18} color="#fff" />
-          </View>
-        )}
-      </TouchableOpacity>
-    );
+  ///////////////redux
+  const dispatch = useDispatch<AppDispatch>();
+  const {refreshToken} = useSelector((state: RootState) => state.user);
+  const {isloading, messageError} = useSelector(
+    (state: RootState) => state.bookmark,
+  );
+
+  const handleSave = async () => {
+    if (!name.trim()) {
+      Alert.alert('Lỗi', 'Vui lòng nhập tên bộ sưu tập');
+      return;
+    }
+
+    if (selectedPostIds.length === 0) {
+      Alert.alert('Lỗi', 'Vui lòng chọn ít nhất 1 bài viết');
+      return;
+    }
+
+    if (isloading) return;
+
+    try {
+      // 1. Tạo playlist mới
+      const newPlaylist = await dispatch(
+        createPlaylist({playlistName: name.trim(), refreshToken}),
+      ).unwrap();
+
+      const newPlaylistId = newPlaylist.id;
+
+      // 2. Gọi API chuyển nhiều bài
+      await dispatch(
+        switchBookmark({
+          playlistId: newPlaylistId,
+          postIds: selectedPostIds,
+          refreshToken,
+        }),
+      ).unwrap();
+
+      // 3. Quay lại màn hình trước
+      navigation.goBack();
+    } catch (err: any) {
+      Alert.alert('Lỗi', err.message || 'Không thể tạo bộ sưu tập');
+    }
   };
+
+  const renderPostItem = useCallback(
+    ({item}: {item: any}) => {
+      const isSelected = selectedPostIds.includes(item._id!);
+      const isVideo = item.itemType === 'reel';
+      if (!item?.media || item.media.length === 0) return null;
+      const thumbnail = isVideo
+        ? `https://videodelivery.net/${
+            item.media?.[0]?.videoUrl?.split('/')[3]
+          }/thumbnails/thumbnail.jpg?time=2s`
+        : (item.media?.[0] as any)?.imageUrl;
+
+      if (!thumbnail) return null;
+
+      return (
+        <TouchableOpacity
+          onPress={() => toggleSelect(item._id!)}
+          style={styles.postItem}>
+          <Image source={{uri: thumbnail}} style={styles.postImage} />
+          <View style={styles.iconOverlay}>
+            <Image
+              style={styles.icon}
+              source={
+                isVideo
+                  ? require('../../../assets/icon/reels.png')
+                  : require('../../../assets/icon/gallery.png')
+              }
+            />
+          </View>
+          {isSelected && (
+            <View style={styles.overlayCheck}>
+              <Check size={18} color="#fff" />
+            </View>
+          )}
+        </TouchableOpacity>
+      );
+    },
+    [selectedPostIds, toggleSelect],
+  );
 
   return (
     <SafeAreaView
@@ -94,17 +161,28 @@ export const AddCollectionScreen = () => {
         </View>
       </View>
 
-      <FlatList
-        data={DUMMY_POSTS}
-        keyExtractor={item => item.id}
-        numColumns={3}
-        renderItem={renderPostItem}
-        contentContainerStyle={styles.gridContainer}
-      />
+      {allItems.length === 0 ? (
+        <Text style={{textAlign: 'center', marginTop: 32, color: color.text}}>
+          Không có bài viết nào đã lưu.
+        </Text>
+      ) : (
+        <FlatList
+          data={allItems}
+          keyExtractor={item => item._id!}
+          numColumns={3}
+          renderItem={renderPostItem}
+          contentContainerStyle={styles.gridContainer}
+        />
+      )}
 
       {selectedPostIds.length > 0 && (
-        <TouchableOpacity style={styles.saveButton}>
-          <Text style={styles.saveButtonText}>Lưu</Text>
+        <TouchableOpacity
+          style={[styles.saveButton, isloading && {opacity: 0.6}]}
+          onPress={handleSave}
+          disabled={isloading}>
+          <Text style={styles.saveButtonText}>
+            {isloading ? 'Đang lưu...' : 'Lưu'}
+          </Text>
         </TouchableOpacity>
       )}
     </SafeAreaView>
@@ -136,7 +214,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     borderRadius: 8,
-
     paddingHorizontal: 10,
   },
   input: {
@@ -174,8 +251,8 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   icon: {
-    width: 20,
-    height: 20,
+    width: 15,
+    height: 15,
     tintColor: '#fff',
   },
   saveButton: {

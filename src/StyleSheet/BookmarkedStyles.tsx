@@ -1,17 +1,24 @@
-import { useMemo } from 'react';
-import { StyleSheet, ViewStyle, TextStyle, ImageStyle, Dimensions } from 'react-native';
-import { useTheme } from '../util/ThemeContext';
-import { Colors } from '../../assets/color/Colors';
+import {useMemo} from 'react';
+import {
+  StyleSheet,
+  ViewStyle,
+  TextStyle,
+  ImageStyle,
+  Dimensions,
+} from 'react-native';
+import {useTheme} from '../util/ThemeContext';
+import {Colors} from '../../assets/color/Colors';
 
-const { width } = Dimensions.get('window');
+const {width} = Dimensions.get('window');
 const COLUMN_COUNT = 3;
 const GRID_SPACING = 1;
-const ITEM_WIDTH = (width - (COLUMN_COUNT - 1) * GRID_SPACING - 16 * 2) / COLUMN_COUNT; 
+const ITEM_WIDTH =
+  (width - (COLUMN_COUNT - 1) * GRID_SPACING - 16 * 2) / COLUMN_COUNT;
 
 export const useBookmarkStyles = () => {
-  const { theme } = useTheme();
+  const {theme} = useTheme();
   const palette = Colors[theme];
-  const { spacing, typography } = Colors;
+  const {spacing, typography} = Colors;
 
   return useMemo(
     () =>
@@ -59,19 +66,19 @@ export const useBookmarkStyles = () => {
           backgroundColor: palette.card,
           borderRadius: 8,
           overflow: 'hidden',
-          gap: 2, 
+          gap: 2,
         } as ViewStyle,
         gridImage: {
-          width: '49%', 
-          height: '49%', 
-          maxWidth: '49%', 
-          maxHeight: '49%', 
+          width: '49%',
+          height: '49%',
+          maxWidth: '49%',
+          maxHeight: '49%',
         } as ImageStyle,
         gridImagePlaceholder: {
-          width: '49%', 
-          height: '49%', 
-          maxWidth: '49%', 
-          maxHeight: '49%', 
+          width: '49%',
+          height: '49%',
+          maxWidth: '49%',
+          maxHeight: '49%',
           backgroundColor: palette.background,
         } as ViewStyle,
         playlistRow: {
@@ -79,7 +86,7 @@ export const useBookmarkStyles = () => {
           marginBottom: spacing.m,
         } as ViewStyle,
         columnItem: {
-          width: '48%', 
+          width: '48%',
         } as ViewStyle,
         playlistsContainer: {
           flex: 1,
@@ -106,10 +113,10 @@ export const useBookmarkStyles = () => {
         tabIcon: {
           width: 24,
           height: 24,
-          tintColor: palette.lessBlack, 
+          tintColor: palette.lessBlack,
         } as ImageStyle,
         tabIconActive: {
-          tintColor: palette.text, 
+          tintColor: palette.text,
         } as ImageStyle,
         tabIndicator: {
           position: 'absolute',
@@ -123,7 +130,7 @@ export const useBookmarkStyles = () => {
           flex: 1,
         } as ViewStyle,
         postsGridContent: {
-          paddingHorizontal: spacing.m,
+          paddingHorizontal: spacing.s,
           paddingBottom: spacing.l,
         } as ViewStyle,
         postImage: {
@@ -134,6 +141,8 @@ export const useBookmarkStyles = () => {
           position: 'absolute',
           top: 5,
           right: 5,
+          paddingHorizontal: 5,
+          paddingVertical: 5,
           backgroundColor: 'rgba(0, 0, 0, 0.3)',
           borderRadius: 12,
           padding: 2,
@@ -181,9 +190,199 @@ export const useBookmarkStyles = () => {
           width: ITEM_WIDTH,
           height: ITEM_WIDTH,
           borderRadius: 2,
+          margin: 3,
           overflow: 'hidden',
         } as ViewStyle,
+        fullImage: {
+          width: '100%',
+          backgroundColor: Colors.border,
+          aspectRatio: 1,
+          borderRadius: 8,
+          overflow: 'hidden',
+        } as ImageStyle,
+
+        row: {
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          width: '100%',
+          aspectRatio: 1,
+          borderRadius: 8,
+          backgroundColor: Colors.lightGray,
+          overflow: 'hidden',
+          gap: 2,
+        } as ViewStyle,
+
+        halfImage: {
+          flex: 1,
+        } as ImageStyle,
+
+        grid3Container: {
+          width: '100%',
+          backgroundColor: Colors.lightGray,
+          aspectRatio: 1,
+          borderRadius: 8,
+          overflow: 'hidden',
+        } as ViewStyle,
+
+        grid3Row: {
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          gap: 2,
+        } as ViewStyle,
+
+        grid3TopImage: {
+          flex: 1,
+          aspectRatio: 1,
+        } as ImageStyle,
+
+        grid3BottomWrapper: {
+          justifyContent: 'center',
+          alignItems: 'center',
+          flex: 1,
+          paddingTop: 2,
+        } as ViewStyle,
+
+        grid3BottomImage: {
+          width: '50%',
+          aspectRatio: 1,
+        } as ImageStyle,
+
+        activeTab: {
+          borderBottomWidth: 2, // độ dày viền
+        },
+
+        overlayCheck: {
+          position: 'absolute',
+          bottom: 0,
+          right: 0,
+          backgroundColor: 'rgba(0,0,0,0.6)',
+          borderRadius: 12,
+          padding: 4,
+        },
+        modal: {
+          backgroundColor: palette.background,
+          borderTopLeftRadius: 20,
+          borderTopRightRadius: 20,
+          paddingBottom: 30,
+          paddingTop: 16,
+        },
+        handle: {
+          backgroundColor: palette.border,
+          width: 40,
+        },
+        box: {
+          paddingHorizontal: 24,
+        },
+        option: {
+          paddingVertical: 16,
+          borderBottomWidth: 0.5,
+          borderBottomColor: '#eee',
+        },
+        cancel: {
+          paddingVertical: 16,
+        },
+        optionText: {
+          textAlign: 'center',
+          fontSize: 16,
+          color: '#000',
+        },
+        cancelText: {
+          textAlign: 'center',
+          fontSize: 16,
+          color: '#ff3b30',
+        },
+        bottomcontainer: {
+          padding: 10,
+          backgroundColor: palette.background,
+          flexDirection: 'row',
+          gap: 15,
+        },
+        bottomBtn: {
+          flex: 1,
+          paddingVertical: 10,
+          borderColor: palette.text,
+          borderWidth: 1,
+          borderRadius: 10,
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
+        textBtn: {
+          fontSize: 14,
+          fontWeight: '500',
+          color: palette.text,
+        },
+        textTop: {
+          fontSize: 16,
+          fontWeight: '400',
+          color: palette.primary,
+        },
+        overlay: {
+          position: 'absolute',
+          bottom: 6,
+          right: 6,
+          backgroundColor: 'rgba(0,0,0,0.6)',
+          borderRadius: 50,
+          width: 25,
+          height: 25,
+          justifyContent: 'center',
+          alignItems: 'center',
+          borderColor: palette.white,
+          borderWidth: 1,
+        },
+        anotherBox: {
+          padding: 5,
+          justifyContent: 'center',
+          alignItems: 'center',
+          marginVertical: 10,
+          gap: 8,
+        },
+        anotherImage: {
+          width: 40,
+          height: 40,
+          resizeMode: 'cover',
+          borderRadius: 100,
+        },
+        anotherText: {
+          fontSize: 14,
+          fontWeight: '500',
+          color: palette.text,
+        },
+        modalN: {
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+        },
+        modalContainer: {
+          backgroundColor: Colors.white,
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '70%',
+          borderRadius: 15,
+          padding: 15,
+        },
+        textNoti: {
+          fontSize: 20,
+          fontWeight: 'bold',
+          color: Colors.black,
+          marginTop: 15,
+        },
+        textContent: {
+          fontSize: 16,
+          fontWeight: '400',
+          color: '#8E8E8E',
+        },
+        iconNoti: {
+          width: 60,
+          height: 60,
+          resizeMode: 'contain',
+        },
+        errorText: {
+          fontSize: 12,
+          color: Colors.error,
+          marginTop: 5,
+        },
       }),
-    [palette, spacing, typography]
+    [palette, spacing, typography],
   );
 };

@@ -71,7 +71,7 @@ const BottomSheetReels = forwardRef<BottomSheetReelsRef, BottomSheetReelsProps>(
 
       if (isBookmark) {
         dispatch(removeReelBookmark(postId));
-        dispatch(removeBookmark({postId, refreshToken}))
+        dispatch(removeBookmark({postIds: [postId], refreshToken}))
           .unwrap()
           .catch(() => {
             dispatch(addBookmark({postId}));
