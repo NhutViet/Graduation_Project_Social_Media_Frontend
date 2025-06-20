@@ -9,6 +9,7 @@ import {
   ResBookmark,
   ResCreatePlaylist,
   ResGetItemPlaylist,
+  ResSwitchBookmark,
 } from './bookmarkTypes';
 import axiosInstance from '../axiosInstance';
 import {API} from '../api';
@@ -42,23 +43,23 @@ export const saveBookmark = createAsyncThunk<
 );
 
 export const removeBookmark = createAsyncThunk<
-  {message: string; postId: string},
+  {message: string; postIds: string[]},
   ReqRemoveBookmark,
   {rejectValue: {message: string}}
 >(
   'bookmark-items/remove',
-  async ({postId, refreshToken}, {rejectWithValue}) => {
+  async ({postIds, refreshToken}, {rejectWithValue}) => {
     try {
       const res = await axiosInstance.delete(API.DELETE_BOOKMARK, {
         data: {
-          postId,
+          postIds,
         },
         headers: {
           Authorization: `Bearer ${refreshToken}`,
         },
       });
       const message = res.data.message || 'Xóa thành công';
-      return {message, postId};
+      return {message, postIds};
     } catch (error: any) {
       return rejectWithValue({
         message: error?.response?.data?.message || 'Bỏ lưu thất bại',
@@ -107,13 +108,17 @@ export const getAllPlaylists = createAsyncThunk<
         Authorization: `Bearer ${refreshToken}`,
       },
     });
-    return res.data;
+
+    // Trả mảng playlist đầy đủ
+    const playlists: Playlist[] = res.data;
+    return playlists;
   } catch (error: any) {
     return rejectWithValue({
       message: error?.response?.data?.message || 'Lấy danh sách lưu thất bại.',
     });
   }
 });
+
 
 export const getItemsOfPlaylist = createAsyncThunk<
   ResGetItemPlaylist,
@@ -150,17 +155,17 @@ export const getItemsOfPlaylist = createAsyncThunk<
 
 
 export const switchBookmark = createAsyncThunk<
-  ResBookmark,
-  ReqBookmark,
+  ResSwitchBookmark,
+  {postIds: string[], playlistId: string, refreshToken: string},
   {rejectValue: {message: string}}
 >(
   'bookmark-playlists/switch',
-  async ({postId, playlistId, refreshToken}, {rejectWithValue}) => {
+  async ({postIds, playlistId, refreshToken}, {rejectWithValue}) => {
     try {
       const res = await axiosInstance.post(
         API.POST_SWITCH_PLAYLIST,
         {
-          postId,
+          postIds,
           playlistId
         },
         {

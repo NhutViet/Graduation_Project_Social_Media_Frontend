@@ -1,7 +1,4 @@
-import React, {useState, useRef} from 'react';
-
-// Enable playback in silence mode (iOS)
-Sound.setCategory('Playback');
+import React, {useState, useRef, useEffect, useMemo} from 'react';
 import {
   View,
   Text,
@@ -10,133 +7,151 @@ import {
   SafeAreaView,
   Image,
 } from 'react-native';
+import {useNavigation, useRoute, useIsFocused} from '@react-navigation/native';
+import {FlashList} from '@shopify/flash-list';
+import Sound from 'react-native-sound';
+import {ChevronLeft, Share2, Play, Pause} from 'lucide-react-native';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '../../../services/store';
+import {getItemsOfPlaylist} from '../../../services/bookmarkRedux/bookmarkSlice';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
-import {useNavigation} from '@react-navigation/native';
-import {FlashList} from '@shopify/flash-list';
-import {ChevronLeft, Share2, Play, Pause, Music} from 'lucide-react-native';
-import Sound from 'react-native-sound';
 
-const musicData = [
-  {
-    id: '1',
-    title: "That's So True",
-    artist: 'Gracie Abrams',
-    reels: '800K reels',
-    duration: '2:46',
-    thumbnail: 'https://picsum.photos/300/300?random=10',
-    audioUrl: '/Users/toibietemkhongbiet./Downloads/SampleAudio.mp3',
-  },
-  {
-    id: '2',
-    title: 'Sorauta',
-    artist: 'Kentaro feat. Yuna',
-    reels: '13.2K reels',
-    duration: '4:00',
-    thumbnail: 'https://picsum.photos/300/300?random=20',
-    audioUrl: 'https://cdn.freesound.org/previews/473/473917_8315715-lq.mp3',
-  },
-  {
-    id: '3',
-    title: 'The Name Of Life (From "Spirited Away")',
-    artist: 'Anime Zing',
-    reels: '34.2K reels',
-    duration: '5:42',
-    thumbnail: 'https://picsum.photos/300/300?random=30',
-    audioUrl: 'https://cdn.freesound.org/previews/808/808066_5674468-lq.mp3',
-  },
-  {
-    id: '4',
-    title: 'Original audio',
-    artist: 'yuna_3047',
-    reels: '4,202 reels',
-    duration: '0:10',
-    thumbnail: 'https://picsum.photos/300/300?random=40',
-    audioUrl: 'https://cdn.freesound.org/previews/510/510802_6627602-lq.mp3',
-  },
-  {
-    id: '5',
-    title: 'Fantasy',
-    artist: 'Meiko Nakahara',
-    reels: '17.8K reels',
-    duration: '4:15',
-    thumbnail: 'https://picsum.photos/300/300?random=50',
-    audioUrl: 'https://cdn.freesound.org/previews/541/541689_3492460-lq.mp3',
-  },
-];
+// Enable playback in silence mode (iOS)
+Sound.setCategory('Playback');
+
+interface MusicItem {
+  id: string;
+  title: string;
+  artist: string;
+  reels: string;
+  duration: string;
+  thumbnail: string;
+  audioUrl: string;
+}
+
+interface RouteParams {
+  title: string;
+  playlistId: string;
+}
 
 export const MusicSavedScreen = () => {
   const {theme} = useTheme();
   const colors = Colors[theme];
   const navigation = useNavigation();
+  const route = useRoute();
+  const isFocused = useIsFocused();
+
+  const {title, playlistId} = route.params as RouteParams;
   const [playingTrackId, setPlayingTrackId] = useState<string | null>(null);
   const [currentPlayingId, setCurrentPlayingId] = useState<string | null>(null);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const soundRef = useRef<Sound | null>(null);
 
-  const playAudio = (id: string, audioUrl: string) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const {itemsByPlaylist} = useSelector((state: RootState) => state.bookmark);
+  const {refreshToken} = useSelector((state: RootState) => state.user);
+
+  const [playlistItems, setPlaylistItems] = useState(
+    itemsByPlaylist[playlistId] ?? [],
+  );
+
+  useEffect(() => {
+    dispatch(getItemsOfPlaylist({playlistId, refreshToken}));
+  }, [dispatch, playlistId]);
+
+  useEffect(() => {
+    setPlaylistItems(itemsByPlaylist[playlistId] ?? []);
+  }, [itemsByPlaylist]);
+
+  // Auto stop audio when screen unfocus
+  useEffect(() => {
+    if (!isFocused && soundRef.current) {
+      soundRef.current.stop(() => {
+        soundRef.current?.release();
+        soundRef.current = null;
+        setIsPlayingAudio(false);
+        setCurrentPlayingId(null);
+        setPlayingTrackId(null);
+      });
+    }
+  }, [isFocused]);
+
+  const mappedMusicData: MusicItem[] = useMemo(() => {
+    return playlistItems
+      .filter(i => i.itemType === 'music' && i._id && i.link)
+      .map(i => ({
+        id: i._id!,
+        title: i.song ?? 'No title',
+        artist: i.author ?? 'Unknown artist',
+        reels: `${i.viewCount ?? 0} reels`,
+        duration: '0:00',
+        thumbnail: i.coverImg ?? 'https://via.placeholder.com/300',
+        audioUrl: i.link!,
+      }));
+  }, [playlistItems]);
+
+  const createAndPlay = (id: string, url: string) => {
+    const sound = new Sound(url, '', error => {
+      if (error) {
+        console.log('Lỗi khi tải audio:', error);
+        setIsPlayingAudio(false);
+        return;
+      }
+      soundRef.current = sound;
+      sound.setNumberOfLoops(0);
+      sound.play(success => {
+        if (!success) {
+          console.log('Phát thất bại');
+        }
+        sound.release();
+        soundRef.current = null;
+        setIsPlayingAudio(false);
+        setPlayingTrackId(null);
+        setCurrentPlayingId(null);
+      });
+      setPlayingTrackId(id);
+      setCurrentPlayingId(id);
+      setIsPlayingAudio(true);
+    });
+  };
+
+  const playAudio = (id: string, url: string) => {
     if (soundRef.current) {
       soundRef.current.stop(() => {
         soundRef.current?.release();
         soundRef.current = null;
+        createAndPlay(id, url);
       });
+    } else {
+      createAndPlay(id, url);
     }
-
-    const newSound = new Sound(audioUrl, '', error => {
-      if (error) {
-        console.log('Lỗi khi tải audio:', error);
-        setIsPlayingAudio(false);
-        setCurrentPlayingId(null);
-        setPlayingTrackId(null);
-        return;
-      }
-
-      soundRef.current = newSound;
-      newSound.setNumberOfLoops(0);
-      newSound.play(success => {
-        if (!success) {
-          console.log('Phát thất bại');
-        }
-        // reset lại state khi kết thúc
-        setIsPlayingAudio(false);
-        setCurrentPlayingId(null);
-        setPlayingTrackId(null);
-        soundRef.current?.release();
-        soundRef.current = null;
-      });
-
-      setCurrentPlayingId(id);
-      setPlayingTrackId(id);
-      setIsPlayingAudio(true);
-    });
   };
 
   const handlePlayPress = (id: string, audioUrl: string) => {
     const isSameTrack = currentPlayingId === id;
 
     if (!isPlayingAudio) {
-      // Case 1: chưa phát gì
       playAudio(id, audioUrl);
       return;
     }
 
     if (isPlayingAudio && isSameTrack) {
-      if (soundRef.current) {
-        if (soundRef.current.isPlaying()) {
-          soundRef.current.pause();
-          return;
-        } else {
-          soundRef.current.play();
-          return;
-        }
+      if (soundRef.current?.isPlaying()) {
+        soundRef.current.pause();
+        setIsPlayingAudio(false);
+      } else {
+        soundRef.current?.play();
+        setIsPlayingAudio(true);
       }
+      return;
     }
 
-    // Case 3: đang phát và bấm sang bài khác
+    // Đang phát bài khác
     playAudio(id, audioUrl);
   };
 
-  const renderItem = ({item}: {item: (typeof musicData)[0]}) => {
+  const renderItem = ({item}: {item: MusicItem}) => {
     const isThisPlaying = playingTrackId === item.id && isPlayingAudio;
 
     return (
@@ -144,14 +159,10 @@ export const MusicSavedScreen = () => {
         <View style={styles.leftContent}>
           <Image source={{uri: item.thumbnail}} style={styles.thumbnail} />
           <View style={styles.textContainer}>
-            <Text
-              style={[styles.title, {color: colors.text}]}
-              numberOfLines={1}>
+            <Text style={[styles.title, {color: colors.text}]} numberOfLines={1}>
               {item.title}
             </Text>
-            <Text
-              style={[styles.subtitle, {color: colors.textSecondary}]}
-              numberOfLines={1}>
+            <Text style={[styles.subtitle, {color: colors.textSecondary}]} numberOfLines={1}>
               {item.artist} · {item.reels} · {item.duration}
             </Text>
           </View>
@@ -160,14 +171,10 @@ export const MusicSavedScreen = () => {
           style={[
             styles.playButton,
             {
-              backgroundColor: isThisPlaying
-                ? colors.primary
-                : colors.textSecondary,
+              backgroundColor: isThisPlaying ? colors.primary : colors.textSecondary,
             },
           ]}
-          onPress={() => {
-            handlePlayPress(item.id, item.audioUrl);
-          }}>
+          onPress={() => handlePlayPress(item.id, item.audioUrl)}>
           {isThisPlaying ? (
             <Pause size={20} color={colors.text} />
           ) : (
@@ -179,29 +186,23 @@ export const MusicSavedScreen = () => {
   };
 
   return (
-    <SafeAreaView
-      style={[styles.container, {backgroundColor: colors.background}]}>
+    <SafeAreaView style={[styles.container, {backgroundColor: colors.background}]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <ChevronLeft size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, {color: colors.text}]}>Âm thanh</Text>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('LikedScreen' as never)}>
+        <Text style={[styles.headerTitle, {color: colors.text}]}>{title}</Text>
+        <TouchableOpacity onPress={() => navigation.navigate('LikedScreen' as never)}>
           <Share2 size={24} color={colors.text} />
         </TouchableOpacity>
       </View>
 
-      <FlashList
-        data={musicData}
+      <FlashList<MusicItem>
+        data={mappedMusicData}
         renderItem={renderItem}
         estimatedItemSize={50}
         keyExtractor={item => item.id}
-        extraData={{
-          playingTrackId,
-          isPlayingAudio,
-          currentPlayingId,
-        }}
+        extraData={{playingTrackId, isPlayingAudio, currentPlayingId}}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContainer}
       />
@@ -210,9 +211,7 @@ export const MusicSavedScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+  container: {flex: 1},
   header: {
     flexDirection: 'row',
     alignItems: 'center',
