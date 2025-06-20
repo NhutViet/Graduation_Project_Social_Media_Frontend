@@ -23,12 +23,13 @@ import {
   Share2,
   Moon,
   Video,
+  PersonStanding,
 } from 'lucide-react-native';
 import {Styles} from '../../StyleSheet/Profile.Styles';
 import {SwitchAccount} from '../../../components/SwitchAccount';
 import {ViewMore} from '../../../components/ViewMore';
 import ModalCreate from './components/ModalCreate';
-import {PostsView} from './components/PostView.component';
+import {PostsView, ReelsView, TagsView} from './components/PostView.component';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '@services/store';
 import {
@@ -329,6 +330,18 @@ const Profile = () => {
           size={24}
         />
       </TouchableOpacity>
+      <TouchableOpacity
+        style={[
+          styles.tab,
+          activeTab === 'reels' && styles.activeTab,
+          {borderBottomColor: color.text},
+        ]}
+        onPress={() => setActiveTab('tags')}>
+        <PersonStanding
+          color={activeTab === 'tags' ? color.text : color.textSecondary}
+          size={24}
+        />
+      </TouchableOpacity>
     </View>
   );
 
@@ -336,13 +349,21 @@ const Profile = () => {
     switch (activeTab) {
       case 'grid':
         return isSuccess && PostsItem ? (
-          <PostsView data={PostsItem} />
+          <PostsView
+            data={PostsItem}
+          />
         ) : (
           <LoadingPlaceholder />
         );
       case 'reels':
         return isSuccess && ReelsItem ? (
-          <PostsView data={ReelsItem} />
+          <ReelsView data={ReelsItem} />
+        ) : (
+          <LoadingPlaceholder />
+        );
+      case 'tags':
+        return isSuccess && PostsItem ? (
+          <TagsView data={PostsItem} />
         ) : (
           <LoadingPlaceholder />
         );
