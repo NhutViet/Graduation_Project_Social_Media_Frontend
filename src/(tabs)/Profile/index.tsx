@@ -23,7 +23,7 @@ import {
   Share2,
   Moon,
   Video,
-  PersonStanding,
+  SquareUserRound,
 } from 'lucide-react-native';
 import {Styles} from '../../StyleSheet/Profile.Styles';
 import {SwitchAccount} from '../../../components/SwitchAccount';
@@ -337,7 +337,7 @@ const Profile = () => {
           {borderBottomColor: color.text},
         ]}
         onPress={() => setActiveTab('tags')}>
-        <PersonStanding
+        <SquareUserRound
           color={activeTab === 'tags' ? color.text : color.textSecondary}
           size={24}
         />
