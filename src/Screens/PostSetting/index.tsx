@@ -217,7 +217,7 @@ export const PostSetting = () => {
         <Section
           title={'Gắn thẻ người khác'}
           iconRight={require('../../../assets/icon/right.png')}
-          iconLeft={require('../../../assets/icon/tagSO.png')}
+          iconLeft={require('../../../assets/icon/tag.png')}
         />
         <Section
           title={'Thêm vị trí'}
@@ -227,7 +227,7 @@ export const PostSetting = () => {
         <Section
           title={selectedMusic?.song ? selectedMusic.song : 'Thêm nhạc'}
           iconRight={require('../../../assets/icon/right.png')}
-          iconLeft={require('../../../assets/icon/music.png')}
+          iconLeft={require('../../../assets/icon/add_song.png')}
           func={() => sheetRef.current?.open()}
         />
         <Section
