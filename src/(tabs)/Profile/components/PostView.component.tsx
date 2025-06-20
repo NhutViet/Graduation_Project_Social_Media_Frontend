@@ -1,12 +1,10 @@
 import React from 'react';
 import {TouchableOpacity, View, Image, Text} from 'react-native';
 import {FlashList} from '@shopify/flash-list';
-import {Video as Icon, Tag} from 'lucide-react-native';
 import {Styles} from '../../../StyleSheet/Profile.Styles';
 import Video from 'react-native-video';
 import {Colors} from '../../../../assets/color/Colors';
-import { useNavigation } from '@react-navigation/native';
-// import {useNavigation} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 
 interface GridViewProps {
   data: any[];
@@ -14,8 +12,12 @@ interface GridViewProps {
   onPressItem?: (item: any) => void;
 }
 
-const GridView: React.FC<GridViewProps> = ({data, renderOverlay, onPressItem}) => {
-  // const navigate = useNavigation<any>();
+const GridView: React.FC<GridViewProps> = ({data, renderOverlay}) => {
+  const navigate = useNavigation<any>();
+  const handlePostPress = () => {
+    navigate.navigate('ViewReels');
+  };
+
   return (
     <>
       {data.length > 0 ? (
@@ -23,7 +25,6 @@ const GridView: React.FC<GridViewProps> = ({data, renderOverlay, onPressItem}) =
           data={data}
           numColumns={3}
           estimatedItemSize={Styles.itemSize}
-          // scrollEnabled={true}
           extraData={data}
           renderItem={({item}) => {
             const media = item.media?.[0];
@@ -38,20 +39,22 @@ const GridView: React.FC<GridViewProps> = ({data, renderOverlay, onPressItem}) =
               isVideo = false;
             }
             return (
-              <TouchableOpacity style={Styles.styles.gridItem} onPress={() => onPressItem?.(item)}>
+              <View style={Styles.styles.gridItem}>
                 {isVideo ? (
-                  <Video
-                    source={{uri: uri}}
-                    style={[
-                      Styles.styles.gridImage,
-                      {
-                        width: Styles.itemSize - 2,
-                        height: Styles.itemSize - 2,
-                        backgroundColor: Colors.black,
-                      },
-                    ]}
-                    paused={true}
-                  />
+                  <TouchableOpacity onPress={() => handlePostPress()}>
+                    <Video
+                      source={{uri: uri}}
+                      style={[
+                        Styles.styles.gridImage,
+                        {
+                          width: Styles.itemSize - 2,
+                          height: Styles.itemSize - 2,
+                          backgroundColor: Colors.black,
+                        },
+                      ]}
+                      paused={true}
+                    />
+                  </TouchableOpacity>
                 ) : (
                   <Image
                     source={{uri: uri}}
@@ -62,7 +65,7 @@ const GridView: React.FC<GridViewProps> = ({data, renderOverlay, onPressItem}) =
                   />
                 )}
                 {renderOverlay && renderOverlay()}
-              </TouchableOpacity>
+              </View>
             );
           }}
           keyExtractor={item => item._id}
@@ -86,33 +89,7 @@ export const PostsView: React.FC<{data: any[]}> = ({data}) => {
   const handlePress = (item: any) => {
     navigation.navigate('AllPostOfUserScreen', {
       targetPostId: item._id,
-    })
+    });
   };
-  return <GridView data={data} onPressItem={handlePress}/>;
-};
-
-export const ReelsView: React.FC<{data: any[]}> = ({data}) => {
-  return (
-    <GridView
-      data={data}
-      renderOverlay={() => (
-        <View style={Styles.styles.reelOverlay}>
-          <Icon color="white" size={20} />
-        </View>
-      )}
-    />
-  );
-};
-
-export const TaggedView: React.FC<{data: any[]}> = ({data}) => {
-  return (
-    <GridView
-      data={data}
-      renderOverlay={() => (
-        <View style={Styles.styles.tagOverlay}>
-          <Tag color="white" size={20} />
-        </View>
-      )}
-    />
-  );
+  return <GridView data={data} onPressItem={handlePress} />;
 };

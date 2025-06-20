@@ -8,6 +8,7 @@ import {Colors} from '../../../../assets/color/Colors';
 const BottomSheetOptionsModal = ({
   sheetRef,
   isBookmarked,
+  isFollowing,
   topOptions,
   firstListOptions,
   secondListOptions,
@@ -15,6 +16,7 @@ const BottomSheetOptionsModal = ({
 }: {
   sheetRef: React.RefObject<Modalize>;
   isBookmarked?: boolean;
+  isFollowing?: boolean;
   topOptions?: any[];
   firstListOptions: any[];
   secondListOptions: any[];

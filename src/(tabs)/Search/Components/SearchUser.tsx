@@ -3,9 +3,9 @@ import React from 'react';
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
 import {FlashList} from '@shopify/flash-list';
-import User from '../../Home/components/Story';
 import {useSelector} from 'react-redux';
 import {RootState} from '../../../../services/store';
+import User from './User';
 
 const SearchUser: React.FC = React.memo(() => {
   const {theme} = useTheme();
@@ -18,8 +18,7 @@ const SearchUser: React.FC = React.memo(() => {
     <User
       name={item.username}
       image={item.profilePic}
-      status={item.status}
-      isStory={false}
+      handle={item.handleName}
     />
   ), []);
 

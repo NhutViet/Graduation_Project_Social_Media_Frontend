@@ -57,6 +57,8 @@ const BottomSheetReels = forwardRef<BottomSheetReelsRef, BottomSheetReelsProps>(
     useEffect(() => {
       if (isBookmarked && selectedItem?._id) {
         dispatch(addBookmark({postId: selectedItem._id}));
+      }else if (selectedItem?._id){
+        dispatch(removeReelBookmark(selectedItem._id));
       }
     }, [isBookmarked, selectedItem]);
 

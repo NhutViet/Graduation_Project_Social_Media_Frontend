@@ -1,7 +1,17 @@
 module.exports = {
-  presets: ['module:@react-native/babel-preset'],
+  presets: ['module:metro-react-native-babel-preset'],
   plugins: [
     '@babel/plugin-transform-export-namespace-from',
-    'react-native-reanimated/plugin', // luôn để plugin này ở cuối
+    [
+      'module-resolver',
+      {
+        root: ['./'],
+        alias: {
+          '@services': './services',
+          '@icon': './assets/icons',
+        },
+      },
+    ],
+    'react-native-reanimated/plugin',
   ],
 };

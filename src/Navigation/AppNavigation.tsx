@@ -52,15 +52,18 @@ import {
   DissapearingMessage,
   PrivacyAndSafety,
   Splash,
+  UserFollowScreen,
+  ViewReels,
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 import ProfileComp from '../Screens/Profile';
 import EditHighlightScreen from '../(tabs)/Profile/components/EditHighlightScreen';
 import NewMessage from '../Screens/NewMessage';
 import PostStory from '../Screens/PostStory';
-import ZegoCallScreen from '../Screens/ZegoCloud/ZegoCallScreen';
+import Profile from '../(tabs)/Profile/index';
 import AllPostOfUserScreen from '../../components/AllPostOfUserScreen';
 import AllPostOfCollection from '../../components/AllPostOfCollection';
+import ZegoCallScreen from '../Screens/ZegoCloud/ZegoCallScreen';
 export type RootStackParamList = {
   PendingMessages: {handleName: string};
   MessageScreen: {
@@ -77,6 +80,12 @@ export type RootStackParamList = {
     roomId: string;
     img1?: string;
   };
+  ZegoCallScreen: {
+    userID: string;
+    userName: string;
+    callID: string;
+    image: string;
+  };
 };
 
 const Stack = createStackNavigator();
@@ -89,6 +98,8 @@ const AppNavigator = () => {
         screenOptions={{headerShown: false}}>
           <Stack.Screen name="AllPostOfCollection" component={AllPostOfCollection} />
           <Stack.Screen name="AllPostOfUserScreen" component={AllPostOfUserScreen} />
+        <Stack.Screen name="Profile" component={Profile} />
+        <Stack.Screen name="ViewReels" component={ViewReels} />
         <Stack.Screen name="ZegoCallScreen" component={ZegoCallScreen} />
         <Stack.Screen name="ChangeBirthday" component={ChangeBirthday} />
         <Stack.Screen name="ChangePassword" component={ChangePassword} />
@@ -159,6 +170,7 @@ const AppNavigator = () => {
           component={DissapearingMessage}
         />
         <Stack.Screen name="PrivacyAndSafety" component={PrivacyAndSafety} />
+        <Stack.Screen name="UserFollowScreen" component={UserFollowScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

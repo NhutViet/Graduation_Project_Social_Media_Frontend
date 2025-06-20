@@ -6,7 +6,8 @@ import {
   Text,
   SafeAreaView,
   Image,
-  Animated,
+  ScrollView,
+  // Animated,
 } from 'react-native';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
@@ -17,7 +18,6 @@ import {
   PlusSquare,
   Menu,
   Grid,
-  UserSquare2,
   Lock,
   ChevronDown,
   Share2,
@@ -28,18 +28,15 @@ import {Styles} from '../../StyleSheet/Profile.Styles';
 import {SwitchAccount} from '../../../components/SwitchAccount';
 import {ViewMore} from '../../../components/ViewMore';
 import ModalCreate from './components/ModalCreate';
-import {PostsView, ReelsView} from './components/PostView.component';
+import {PostsView} from './components/PostView.component';
 import {useDispatch, useSelector} from 'react-redux';
-import {AppDispatch, RootState} from '../../../services/store';
+import {AppDispatch, RootState} from '@services/store';
 import {
   fetchFollowers,
   fetchFollowing,
 } from '../../../services/relationRedux/relationSlice';
-import {
-  getPostsAndReelsOfUser,
-  getPostsOfUser,
-  getReelsOfUser,
-} from '../../../services/postUserRedux/postUserSlice';
+import {getPostsAndReelsOfUser} from '../../../services/postUserRedux/postUserSlice';
+import {fetchReels} from '@services/reelRedux/reelSlice';
 
 const Profile = () => {
   const navigation: any = useNavigation();
@@ -121,8 +118,8 @@ const Profile = () => {
     if (userId) {
       // gọi 2 api followers, following
       Promise.all([
-        dispatch(fetchFollowers({userId})),
-        dispatch(fetchFollowing({userId})),
+        dispatch(fetchFollowers({userId: userId})),
+        dispatch(fetchFollowing({userId: userId})),
       ]).catch(error => {
         console.error('Error fetching relations:', error);
       });
@@ -141,10 +138,12 @@ const Profile = () => {
       };
       setDataUser([newUser, ...dataUser]);
     }
-  }, [dataUser]);
+    if (userId) {
+      dispatch(fetchReels(userId as string));
+    }
+  }, [dataUser, dispatch, userId]);
 
   const handleUserPress = (user: any) => {
-    console.log('Navigating to SeenStory with user:', user);
     // Cập nhật status của user được nhấn thành 0
     setDataUser(prevData =>
       prevData.map(item => (item.id === user.id ? {...item, status: 0} : item)),
@@ -160,11 +159,7 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState('grid');
 
   const renderHeader = () => (
-    <Animated.View>
-      {/* // style={{
-      //   // transform: [{translateY}],
-      //   // zIndex: 1,
-      // }}> */}
+    <View>
       <View style={styles.header}>
         <View style={styles.usernameContainer}>
           <Lock size={16} color={color.text} />
@@ -223,17 +218,21 @@ const Profile = () => {
               onPress={() => navigation.navigate('FollowersScreen')}>
               <View style={styles.statItem}>
                 <Text style={[styles.statNumber, {color: color.text}]}>
-                  {followers.length}
+                  {(followers?.length) ? followers?.length : 0}
                 </Text>
                 <Text style={[styles.statLabel, {color: color.text}]}>
                   người theo dõi
                 </Text>
               </View>
             </TouchableOpacity>
-            <TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('FollowersScreen', {
+                screen: "FollowingTab"
+              })}
+              >
               <View style={styles.statItem}>
                 <Text style={[styles.statNumber, {color: color.text}]}>
-                  {following.length}
+                  {(following?.length) ? following?.length : 0}
                 </Text>
                 <Text style={[styles.statLabel, {color: color.text}]}>
                   đang theo dõi
@@ -291,6 +290,7 @@ const Profile = () => {
             data={highlights}
             renderItem={({item}) => renderStories({item})}
             estimatedItemSize={50}
+            keyExtractor={item => item.id.toString()}
             showsHorizontalScrollIndicator={false}
           />
         </View>
@@ -300,7 +300,7 @@ const Profile = () => {
           onSelect={id => console.log('Selected:', id)}
         />
       </View>
-    </Animated.View>
+    </View>
   );
 
   const renderTabBar = () => (
@@ -342,7 +342,7 @@ const Profile = () => {
         );
       case 'reels':
         return isSuccess && ReelsItem ? (
-          <ReelsView data={ReelsItem} />
+          <PostsView data={ReelsItem} />
         ) : (
           <LoadingPlaceholder />
         );
@@ -365,9 +365,11 @@ const Profile = () => {
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
-      {renderHeader()}
-      {renderTabBar()}
-      {renderContent()}
+      <ScrollView>
+        {renderHeader()}
+        {renderTabBar()}
+        {renderContent()}
+      </ScrollView>
       <SwitchAccount
         visible={isSwitchAccountVisible}
         onClose={() => setSwitchAccountVisible(false)}

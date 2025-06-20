@@ -1,9 +1,11 @@
 import {createSlice} from '@reduxjs/toolkit';
 import {
+  addMusicToPlaylist,
   createPlaylist,
   getAllPlaylists,
   getItemsOfPlaylist,
   removeBookmark,
+  removeMusicFromPlaylist,
   saveBookmark,
   switchBookmark,
 } from './bookmarkSlice';
@@ -171,7 +173,39 @@ const bookmarkReducer = createSlice({
         state.isError = true;
         state.messageError =
           action.payload?.message || 'Chuyển mục lưu thất bại';
-      });
+      })
+      ////lưu âm thanh
+      .addCase(addMusicToPlaylist.pending, state => {
+        state.isloading = true;
+        state.isError = false;
+        state.messageError = '';
+        state.isSuccess = false;
+      })
+      .addCase(addMusicToPlaylist.fulfilled, (state, action) => {
+        state.isloading = false;
+        state.isSuccess = true;
+      })
+      .addCase(addMusicToPlaylist.rejected, (state, action) => {
+        state.isloading = false;
+        state.isError = true;
+        state.messageError = action.payload?.message || 'Lưu âm thanh thất bại.';
+      })
+      //// bỏ lưu âm thanh
+      .addCase(removeMusicFromPlaylist.pending, state => {
+        state.isloading = true;
+        state.isError = false;
+        state.messageError = '';
+        state.isSuccess = false;
+      })
+      .addCase(removeMusicFromPlaylist.fulfilled, (state, action) => {
+        state.isloading = false;
+        state.isSuccess = true;
+      })
+      .addCase(removeMusicFromPlaylist.rejected, (state, action) => {
+        state.isloading = false;
+        state.isError = true;
+        state.messageError = action.payload?.message || 'Bỏ lưu âm thanh thất bại.';
+      })
   },
 });
 

@@ -13,7 +13,7 @@ import {
 } from '@react-navigation/native';
 import {
   forwardRef,
-  useEffect,
+  useCallback,
   useImperativeHandle,
   useRef,
   useState,
@@ -32,6 +32,7 @@ import {fetchCommentsByPost} from '../../../services/commentRedux/commentSlice';
 import BottomSheetComment, {
   BottomSheetCommentRef,
 } from '../Home/components/CommentSection';
+import { useFocusEffect } from '@react-navigation/native';
 
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
@@ -46,6 +47,7 @@ const Reels = forwardRef((props, ref) => {
 
   const [currentVisible, setCurrentVisible] = useState<string | null>(null);
   const [isCurrentBookmarked, setIsCurrentBookmarked] = useState(false);
+  const [isCurrentFollowing, setIsCurrentFollowing] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any | null>(null);
 
   const onViewRef = useRef(({viewableItems}: {viewableItems: any[]}) => {
@@ -68,9 +70,11 @@ const Reels = forwardRef((props, ref) => {
   const dispatch = useDispatch<AppDispatch>();
   const {reels, loading} = useSelector((state: RootState) => state.post);
 
-  useEffect(() => {
-    dispatch(fetchReelsWithMedia());
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(fetchReelsWithMedia());
+    }, [dispatch]) 
+  );
   ///////////////////////////////
 
   const [selectedPostId, setSelectedPostId] = useState<string>('');
@@ -118,10 +122,10 @@ const Reels = forwardRef((props, ref) => {
               {...item}
               isFocused={isFocused}
               currentVisible={shouldPlay}
+              isFollow={item?.isFollow}
               muted={false}
               showBottomSheet={() => {
                 setSelectedItem(item);
-                console.log('item: ', item);
                 setIsCurrentBookmarked(item.isBookmarked);
                 sheetRef?.current.open();
               }}

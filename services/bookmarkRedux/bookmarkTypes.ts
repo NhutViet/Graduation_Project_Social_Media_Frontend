@@ -162,3 +162,13 @@ export interface ResSwitchBookmark {
   results: Result[];
   summary: Summary;
 }
+
+export interface ResAddMusic {
+    playlistID: string;
+    itemID: string;
+    itemType: string;
+    isDeleted: boolean;
+    _id: string;
+    createdAt: string;
+    updatedAt: string;
+}

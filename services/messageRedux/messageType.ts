@@ -7,6 +7,7 @@ export interface Sender {
 interface MediaMessage {
   type: string;
   url?: string;
+  duration?: number;
 }
 
 export interface Message {

@@ -13,6 +13,10 @@ import {
 } from '../../../../services/relationRedux/relationSlice';
 import {handleFollowToggle, handleBookmark} from '../util';
 import {ItemHomeProps} from '../types';
+import {
+  addLikedPost,
+  removeLikedPost,
+} from '../../../../services/reactionRedux/reactionReducer';
 
 export const useItemHomeActions = (props: ItemHomeProps, state: any) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -45,8 +49,15 @@ export const useItemHomeActions = (props: ItemHomeProps, state: any) => {
 
     dispatch(action({postId: _id, refreshToken}))
       .unwrap()
+      .then(() => {
+        if (optimisticLike) {
+          dispatch(addLikedPost(_id));
+        } else {
+          dispatch(removeLikedPost({postId: _id}));
+        }
+      })
       .catch(() => {
-        setIsLiked(likePosts.includes(_id));
+        setIsLiked(!optimisticLike);
         setNumLike(likeCount);
       });
   }, [isLiked, _id, refreshToken, likeCount, likePosts]);
@@ -64,8 +75,8 @@ export const useItemHomeActions = (props: ItemHomeProps, state: any) => {
 
     if (userID) {
       Promise.all([
-        dispatch(fetchFollowers({userID})),
-        dispatch(fetchFollowing({userID})),
+        dispatch(fetchFollowers({userId: userID})),
+        dispatch(fetchFollowing({userId: userID})),
       ])
         .then(() => setVisibleModalShare(true))
         .catch(() => {

@@ -5,6 +5,7 @@ import {
   ReqCreatePlaylist,
   ReqGetItemPlaylist,
   ReqRemoveBookmark,
+  ResAddMusic,
   ResBookmark,
   ResCreatePlaylist,
   ResGetItemPlaylist,
@@ -178,6 +179,51 @@ export const switchBookmark = createAsyncThunk<
       return rejectWithValue({
         message: error?.response?.data?.message || 'Chuyển mục lưu thất bại.',
       });
+    }
+  },
+);
+
+export const addMusicToPlaylist = createAsyncThunk<
+  ResAddMusic,
+  {musicId: string, refreshToken: string},
+  {rejectValue: {message: string}}
+>(
+  'bookmark-playlists/music/add',
+  async ({musicId, refreshToken}, {rejectWithValue}) => {
+    try {
+      const res = await axiosInstance.post(API.POST_ADD_MUSIC, {
+        musicId
+      }, {
+        headers: {
+          Authorization: `Bearer ${refreshToken}`
+        },
+      });
+
+      return res.data;
+    } catch (error: any) {
+      return rejectWithValue({message: error?.response?.data?.message || 'Lưu âm thanh thất bại.'});
+    }
+  },
+);
+
+export const removeMusicFromPlaylist = createAsyncThunk<
+  {removedCount: number},
+  {musicId: string, refreshToken: string},
+  {rejectValue: {message: string}}
+>(
+  'bookmark-playlists/music/remove',
+  async ({musicId, refreshToken}, {rejectWithValue}) => {
+    try {
+      const res = await axiosInstance.delete(API.DELETE_MUSIC_BOOKMARK, {
+        data: {musicId},
+        headers: {
+          Authorization: `Bearer ${refreshToken}`
+        },
+      });
+
+      return res.data;
+    } catch (error: any) {
+      return rejectWithValue({message: error?.response?.data?.message || 'Bỏ lưu âm thanh thất bại.'});
     }
   },
 );

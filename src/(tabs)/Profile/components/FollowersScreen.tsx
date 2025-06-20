@@ -1,13 +1,15 @@
 import {StyleSheet, Text, View} from 'react-native';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
-import React from 'react';
+import React, {useEffect} from 'react';
 import Header from '../../../../components/Header';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import FollowersTab from './FollowersTab';
 import FollowingTab from './FollowingTab';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {Colors} from '../../../../assets/color/Colors';
 import {useTheme} from '../../../util/ThemeContext';
+import {useDispatch, useSelector} from 'react-redux';
+import { RootState } from '../../../../services/store';
 
 const TopTab = createMaterialTopTabNavigator();
 
@@ -15,11 +17,15 @@ const FollowersScreen = () => {
   const navigation: any = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];
+  const route = useRoute();
+  const user = useSelector((state: RootState) => state.user.user);
+  const initialRouteName = (route.params as {screen?: string})?.screen || 'FollowersTab';
+  
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
       <View style={{width: '100%', height: 60}}>
         <Header
-          title="username..."
+          title= {user?.username}
           iconBack={require('../../../../assets/icon/left.png')}
           func={() => navigation.goBack()}
           navigation={navigation}
@@ -27,12 +33,16 @@ const FollowersScreen = () => {
       </View>
       <View style={{width: '100%', height: '100%'}}>
         <TopTab.Navigator
+          initialRouteName={initialRouteName}
+          backBehavior='none'
           screenOptions={{
             tabBarLabelStyle: {
-              fontSize: 16,
+              fontSize: 18,
               fontWeight: 'bold',
               textAlign: 'center',
-              textTransform: 'lowercase',
+              textTransform: 'capitalize',
+              padding: 4,
+              color: '#000000'
             },
             tabBarStyle: {
               backgroundColor: color.background,
@@ -52,7 +62,7 @@ const FollowersScreen = () => {
           <TopTab.Screen
             name="FollowingTab"
             component={FollowingTab}
-            options={{title: 'Đang theo dõi'}}
+            options={{title: 'Đang theo dõi', }}
           />
         </TopTab.Navigator>
       </View>
