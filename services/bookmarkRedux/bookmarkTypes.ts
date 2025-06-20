@@ -26,10 +26,14 @@ export interface ReqCreatePlaylist {
 }
 
 export interface ResCreatePlaylist {
-  id: string;
+  _id: string;
+  userID: string;
   playlistName: string;
+  coverImg: string;
   postCount: number;
-  isDelete: boolean;
+  isDeleted: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Playlist {

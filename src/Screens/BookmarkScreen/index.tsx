@@ -7,15 +7,15 @@ import {
   ScrollView,
   FlatList,
   ListRenderItem,
+  SafeAreaView,
+  ActivityIndicator,
 } from 'react-native';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {useBookmarkStyles} from '../../StyleSheet/BookmarkedStyles';
 import BookmarkedPlaylist from './components/BookmarkedPlaylist';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../services/store';
-import {
-  getAllPlaylists,
-} from '../../../services/bookmarkRedux/bookmarkSlice';
+import {getAllPlaylists} from '../../../services/bookmarkRedux/bookmarkSlice';
 import {
   Playlist,
   Playlist as PlaylistType,
@@ -27,7 +27,9 @@ export const BookmarkScreen = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   const {refreshToken} = useSelector((state: RootState) => state.user);
-  const {playlists} = useSelector((state: RootState) => state.bookmark);
+  const {playlists, isloading} = useSelector(
+    (state: RootState) => state.bookmark,
+  );
 
   // Lấy danh sách playlist lần đầu
   useFocusEffect(
@@ -39,9 +41,9 @@ export const BookmarkScreen = () => {
   );
 
   const handlePlaylistPress = (playlistId: string, title: string) => {
-    if(title === 'Music'){
+    if (title === 'Music') {
       navigation.navigate('MusicSaved', {playlistId, title});
-    }else{
+    } else {
       navigation.navigate('PlaylistsScreen', {playlistId, title});
     }
   };
@@ -60,37 +62,49 @@ export const BookmarkScreen = () => {
     );
   };
 
-  return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Image
-            source={require('../../../assets/icon/left.png')}
-            style={styles.icon}
-          />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Đã lưu</Text>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('AddCollection' as never)}>
-          <Image
-            source={require('../../../assets/icon/Plus.png')}
-            style={styles.icon}
-          />
-        </TouchableOpacity>
-      </View>
+  if (isloading) {
+    return (
+      <SafeAreaView style={styles.centerContainer}>
+        <ActivityIndicator size="large" color={'#0095F6'} />
+      </SafeAreaView>
+    );
+  }else{
 
-      {/* Danh sách playlist */}
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <FlatList
-          data={playlists}
-          renderItem={renderPlaylistItem}
-          keyExtractor={item => item._id}
-          numColumns={2}
-          columnWrapperStyle={styles.playlistRow}
-          scrollEnabled={false}
-        />
-      </ScrollView>
-    </View>
+  }
+
+  return (
+    <SafeAreaView style={{flex: 1}}>
+      <View style={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Image
+              source={require('../../../assets/icon/left.png')}
+              style={styles.icon}
+            />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Đã lưu</Text>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('AddCollection' as never)}>
+            <Image
+              source={require('../../../assets/icon/Plus.png')}
+              style={styles.icon}
+            />
+          </TouchableOpacity>
+        </View>
+
+        {/* Danh sách playlist */}
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          <FlatList
+            data={playlists}
+            renderItem={renderPlaylistItem}
+            keyExtractor={item => item._id}
+            numColumns={2}
+            columnWrapperStyle={styles.playlistRow}
+            scrollEnabled={false}
+          />
+        </ScrollView>
+      </View>
+    </SafeAreaView>
   );
 };

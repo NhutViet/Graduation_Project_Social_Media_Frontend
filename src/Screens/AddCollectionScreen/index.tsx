@@ -75,7 +75,7 @@ export const AddCollectionScreen = () => {
         createPlaylist({playlistName: name.trim(), refreshToken}),
       ).unwrap();
 
-      const newPlaylistId = newPlaylist.id;
+      const newPlaylistId = newPlaylist._id;
 
       // 2. Gọi API chuyển nhiều bài
       await dispatch(
@@ -86,6 +86,7 @@ export const AddCollectionScreen = () => {
         }),
       ).unwrap();
 
+      Alert.alert('Thông báo', 'Tạo danh sách mới thành công.')
       // 3. Quay lại màn hình trước
       navigation.goBack();
     } catch (err: any) {

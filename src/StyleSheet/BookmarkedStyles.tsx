@@ -347,40 +347,14 @@ export const useBookmarkStyles = () => {
           fontWeight: '500',
           color: palette.text,
         },
-        modalN: {
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        centerContainer:{
           flex: 1,
-          alignItems: 'center',
           justifyContent: 'center',
-        },
-        modalContainer: {
-          backgroundColor: Colors.white,
           alignItems: 'center',
-          justifyContent: 'center',
-          width: '70%',
-          borderRadius: 15,
-          padding: 15,
+          backgroundColor: palette.background,
         },
-        textNoti: {
-          fontSize: 20,
-          fontWeight: 'bold',
-          color: Colors.black,
-          marginTop: 15,
-        },
-        textContent: {
-          fontSize: 16,
-          fontWeight: '400',
-          color: '#8E8E8E',
-        },
-        iconNoti: {
-          width: 60,
-          height: 60,
-          resizeMode: 'contain',
-        },
-        errorText: {
-          fontSize: 12,
-          color: Colors.error,
-          marginTop: 5,
+        coloText: {
+          color: palette.text,
         },
       }),
     [palette, spacing, typography],
