@@ -23,7 +23,7 @@ const UserFollowingTab = ({route}: any) => {
     const navigation: any = useNavigation();
     const {theme} = useTheme();
     const color = Colors[theme];
-    const myUserID = useSelector((state: RootState) => state.user?.user?._id);
+    const myUserId = useSelector((state: RootState) => state.user?.user?._id);
     const dispatch = useDispatch<AppDispatch>();
     const {following: reduxFollowing, recommendations: reduxRecommendatinos, loading, error} = useSelector(
         (state: RootState) => state.relation,
@@ -35,7 +35,7 @@ const UserFollowingTab = ({route}: any) => {
     const [isError, setIsError] = useState<string | null>(null);
 
     useEffect(() => {
-      if (!userID || !myUserID) return;
+      if (!userID || !myUserId) return;
 
       setIsLoading(true);
       setIsError(null);
@@ -46,10 +46,12 @@ const UserFollowingTab = ({route}: any) => {
           const viewingFollowing: typeof reduxFollowing =
             await dispatch(fetchFollowing({ userId: userID })).unwrap();
 
-          const myFollowing: typeof reduxFollowing =
-            await dispatch(fetchFollowing({ userId: myUserID })).unwrap();
+          const filtered = viewingFollowing.filter(f => f._id !== myUserId);
 
-          const updatedFollowing = viewingFollowing.map(u => ({
+          const myFollowing: typeof reduxFollowing =
+            await dispatch(fetchFollowing({ userId: myUserId })).unwrap();
+
+          const updatedFollowing = filtered.map(u => ({
             ...u,
             isMeFollowing: myFollowing.some(m => m._id === u._id),
           }));
