@@ -16,6 +16,7 @@ import {
   unlikePost,
 } from '../../../../services/reactionRedux/reactionSlice';
 import {useTheme} from '../../../util/ThemeContext';
+import { relationAction } from '@services/relationRedux/relationSlice';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height - 60;
@@ -35,6 +36,7 @@ const ReelsComponent = (props: any) => {
     isLike,
     commentCount,
     openComment,
+    isFollow
   } = props;
   const navigation = useNavigation<any>();
 
@@ -54,12 +56,13 @@ const ReelsComponent = (props: any) => {
   //like
   const dispatch = useDispatch<AppDispatch>();
   const {likePosts} = useSelector((state: RootState) => state.reactions);
-
+  const currentUserId = useSelector((state: RootState) => state.user.user?._id);
   const {refreshToken} = useSelector((state: RootState) => state.user);
   const isLikedFromRedux = useSelector((state: RootState) =>
     state.reactions.likePosts.includes(_id),
   );
   const [isLiked, setIsLiked] = useState(isLikedFromRedux);
+  const [follow, setFollow] = useState(isFollow);
 
   // Đồng bộ lại khi redux thay đổi (tránh lệch trạng thái nếu redux cập nhật sau)
   useEffect(() => {
@@ -108,6 +111,22 @@ const ReelsComponent = (props: any) => {
     }
   };
 
+  const toggleFollow = useCallback( async () => {
+      setFollow(!follow);
+      const actionType = follow ? 'unfollow' : 'follow';
+      try {
+        await dispatch(
+            relationAction({
+              targetId: user._id,
+              action: actionType,
+            }),
+        ).unwrap();
+      } catch (error) {
+        setFollow(follow);
+      }
+  
+  }, [follow]);
+
   return (
     <View style={styles.container}>
       <View style={styles.video}>
@@ -129,11 +148,13 @@ const ReelsComponent = (props: any) => {
               <Image style={styles.img} source={{uri: user.profilePic}} />
             </TouchableOpacity>
             <Text style={styles.name}>{user.handleName}</Text>
-            <TouchableOpacity style={styles.btnFollow}>
-              <Text style={{fontSize: 14, color: Colors.dark.text}}>
-                Theo dõi
-              </Text>
-            </TouchableOpacity>
+            {user._id !== currentUserId && 
+              <TouchableOpacity onPress={toggleFollow} style={styles.btnFollow}>
+                <Text style={{fontSize: 14, color: Colors.dark.text}}>
+                  {follow ? "Đang theo dõi": "Theo dõi"}
+                </Text>
+              </TouchableOpacity>
+            }
           </View>
           <Text style={styles.textNormal} numberOfLines={1}>
             {caption}
