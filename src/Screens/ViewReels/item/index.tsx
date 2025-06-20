@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {View, Text, TouchableOpacity, Image} from 'react-native';
 import Video from 'react-native-video';
 import {
@@ -71,7 +71,8 @@ const parseCaption = (caption: string, onHashtagPress: (tag: string) => void): R
 const ReelItem: React.FC<ReelItemProps> = ({
   item,
   isFocused,
-  currentVisible,
+  // currentVisible,
+  isCurrentVisible,
   handleHashtagPress,
   openComment,
   showBottomSheet,
@@ -105,34 +106,17 @@ const ReelItem: React.FC<ReelItemProps> = ({
         });
     }
   };
-  const [paused, setPaused] = useState(true);
-
-  useEffect(() => {
-    setPaused(!(currentVisible && isFocused));
-  }, [currentVisible, isFocused]);
-
-  const handlePressVideo = () => {
-    setPaused(prev => !prev);
-  };
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity
-        activeOpacity={1}
-        onPress={handlePressVideo}
-        style={styles.container}
-      >
-        <Video
-          source={{uri: item.media?.videoUrl}}
-          style={styles.video}
-          resizeMode="cover"
-          repeat
-          maxBitRate={1500000}
-          progressUpdateInterval={500}
-          muted={false}
-          paused={paused}
-        />
-      </TouchableOpacity>
+       <Video
+        source={{uri: item.media?.videoUrl}}
+        style={styles.video}
+        resizeMode="cover"
+        repeat
+        paused={!isCurrentVisible || !isFocused}
+        muted={false}
+      />
       <View style={styles.bottomContainer}>
         {/* Left: User info and caption */}
         <View style={styles.block1}>

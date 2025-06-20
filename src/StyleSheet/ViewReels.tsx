@@ -19,8 +19,9 @@ export interface Reel {
 
 export interface ReelItemProps {
   item: Reel;
-  currentVisible: boolean;
   isFocused: boolean;
+  // currentVisible: boolean;
+  isCurrentVisible: boolean;
   handleHashtagPress: (tag: string) => void;
   openComment: (postId: string) => void;
   showBottomSheet: (postId: string) => void;
