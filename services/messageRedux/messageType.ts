@@ -4,7 +4,7 @@ export interface Sender {
   profilePic: string;
 }
 
-interface MediaMessage {
+export interface MediaMessage {
   type: string;
   url?: string;
   duration?: number;

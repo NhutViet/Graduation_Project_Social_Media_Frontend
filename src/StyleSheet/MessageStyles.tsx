@@ -107,7 +107,7 @@ const MessageStyles = (theme: ThemeType) => {
     img: {
       width: '100%',
       height: '100%',
-      resizeMode: 'contain',
+      resizeMode: 'cover',
     },
     input: {
       flex: 1,
@@ -222,6 +222,19 @@ const MessageStyles = (theme: ThemeType) => {
       fontSize: 16,
       fontWeight: '600',
       color: color.text,
+    },
+    callButton: {
+      width: '100%',
+      marginTop: 8,
+      paddingVertical: 6,
+      borderRadius: 6,
+      backgroundColor: color.background,
+      elevation: 2,
+      shadowColor: color.text,
+      shadowOffset: {width: 0, height: 1},
+      shadowOpacity: 0.1,
+      shadowRadius: 2,
+      alignItems: 'center',
     },
   });
 };

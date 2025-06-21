@@ -11,6 +11,7 @@ interface MessageItemProps {
   linkPreviews: {[key: number]: any};
   styles: any;
   color: any;
+  onLongPress: (content: Message) => void;
 }
 
 const MessageItemComponent: React.FC<MessageItemProps> = ({
@@ -22,6 +23,7 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
   linkPreviews,
   styles,
   color,
+  onLongPress,
 }) => {
   const isMe = item.sender.handleName === userHandleName;
   const prevMsg = chat[index - 1];
@@ -32,7 +34,8 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
     if (item.media?.type === 'image') {
       return (
         <TouchableOpacity
-          onPress={() => setSelectedImageUri(item.media?.url ?? null)}>
+          onPress={() => setSelectedImageUri(item.media?.url ?? null)}
+          onLongPress={() => onLongPress?.(item)}>
           <View
             style={{
               width: 150,
@@ -59,20 +62,7 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
               {item.media.duration}
             </Text>
           )}
-          <TouchableOpacity
-            style={{
-              width: '100%',
-              marginTop: 8,
-              paddingVertical: 6,
-              borderRadius: 6,
-              backgroundColor: color.background,
-              elevation: 2,
-              shadowColor: color.text,
-              shadowOffset: {width: 0, height: 1},
-              shadowOpacity: 0.1,
-              shadowRadius: 2,
-              alignItems: 'center',
-            }}>
+          <TouchableOpacity style={styles.callButton}>
             <Text style={{color: color.text, fontSize: 13}}>📞 Gọi lại</Text>
           </TouchableOpacity>
         </View>
@@ -99,6 +89,7 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
         {linkPreviews[index] && (
           <TouchableOpacity
             onPress={() => Linking.openURL(linkPreviews[index].url)}
+            onLongPress={() => onLongPress?.(item)}
             style={{
               borderRadius: 8,
               backgroundColor: color.backgroundSecondary,
@@ -162,7 +153,9 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
 
       <View
         style={[styles.row, {alignItems: isMe ? 'flex-end' : 'flex-start'}]}>
-        <TouchableOpacity activeOpacity={0.7}>
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onLongPress={() => onLongPress?.(item)}>
           <View
             style={[
               styles.message,

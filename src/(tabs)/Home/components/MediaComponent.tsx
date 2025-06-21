@@ -43,7 +43,7 @@ export const RenderMediaItem: React.FC<RenderMediaItemProps> = ({
       <Video
         source={{uri: item.videoUrl}}
         resizeMode={videoResizeMode}
-        style={{width: screenWidth, height: '100%'}}
+        style={{width: screenWidth, height: 600}}
         repeat
         paused={!currentVisible || !isFocused}
         muted={muted}
@@ -62,8 +62,8 @@ export const RenderMediaItem: React.FC<RenderMediaItemProps> = ({
   return (
     <Image
       source={{uri: item.imageUrl ?? ''}}
-      style={{width: screenWidth, height: '100%'}}
-      resizeMode="contain"
+      style={{width: screenWidth, height: 460}}
+      resizeMode="cover"
     />
   );
 };
