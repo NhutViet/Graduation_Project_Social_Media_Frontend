@@ -1,5 +1,5 @@
-// export const BASE_URL = 'http://cirla.io.vn';
-export const BASE_URL = 'http://192.168.0.108:4001';
+export const BASE_URL = 'http://cirla.io.vn';
+// export const BASE_URL = 'http://192.168.0.108:4001';
 export const CallAppID = 1540310098;
 export const CallAppSign =
   '3c3dfbc5dcb04d97848e4a1b9e91a7bc8c66db7cbbbe41f188f40101ee33e5f6';
