@@ -6,7 +6,10 @@ import {
   saveBookmark,
 } from '../../../../services/bookmarkRedux/bookmarkSlice';
 import {HandleBookmarkParams} from '../types';
-import {seenStory} from '../../../../services/StoryRedux/StorySlice';
+import {
+  fetchStoryDetails,
+  seenStory,
+} from '../../../../services/StoryRedux/StorySlice';
 import {
   checkStorySeenInStorage,
   markStoryAsSeen,
@@ -115,76 +118,72 @@ export const handleUserPress = async (
 ) => {
   const isCurrentUser = item._id === user?._id;
 
-  // Nếu là người dùng hiện tại và không có story, chuyển sang màn hình up story
   if (!item.stories.length && isCurrentUser) {
     navigation.navigate('UpStory');
     return;
   }
 
-  // Lấy tất cả story của người dùng
-  const stories = item.stories
-    .map(storyId => storyDetails.find(s => s._id === storyId))
-    .filter(story => story); // Lọc bỏ story không tìm thấy
+  try {
+    //  Gọi API fetchStoryDetails để lấy thông tin đầy đủ các story
+    const detailRes = await dispatch(
+      fetchStoryDetails({storyIds: item.stories}),
+    ).unwrap();
 
-  if (!stories.length) {
-    Alert.alert('Không tìm thấy story để hiển thị');
-    return;
-  }
+    if (!detailRes || !detailRes.length) {
+      Alert.alert('Không tìm thấy story để hiển thị');
+      return;
+    }
 
-  // Gọi API seenStory và chuẩn bị dữ liệu
-  const selectedItems = await Promise.all(
-    stories.map(async story => {
-      try {
-        const res = await dispatch(seenStory({storyId: story._id})).unwrap();
-        const storyData = res?.data;
+    //  Gọi seenStory cho từng story
+    const seenedStories = await Promise.all(
+      detailRes.map(async story => {
+        try {
+          // Chỉ trigger, không dùng kết quả
+          await dispatch(seenStory({storyId: story._id}));
 
-        if (!storyData || !storyData.mediaUrl) {
+          const hasSeen = await checkStorySeenInStorage(
+            story._id,
+            story.createdAt,
+          );
+          if (!hasSeen) {
+            await markStoryAsSeen(story._id, story.createdAt);
+          }
+
+          console.log('🎧 musicData:', story.music); // ✅ sẽ có link ở đây
+
+          return {
+            ...story,
+            uriVideo: story.mediaUrl.endsWith('.m3u8') ? story.mediaUrl : null,
+            image:
+              story.mediaUrl.endsWith('.jpg') || story.mediaUrl.endsWith('.png')
+                ? story.mediaUrl
+                : null,
+          };
+        } catch (err) {
+          console.error('❌ seenStory error', err);
           return null;
         }
+      }),
+    );
 
-        // Kiểm tra và lưu trạng thái seen
-        const hasSeen = await checkStorySeenInStorage(
-          story._id,
-          story.createdAt,
-        );
-        if (!hasSeen) {
-          await markStoryAsSeen(story._id, storyData.createdAt);
-        }
+    const validStories = seenedStories.filter(s => s);
 
-        return {
-          ...storyData,
-          uriVideo: storyData.mediaUrl.endsWith('.m3u8')
-            ? storyData.mediaUrl
-            : null,
-          image:
-            storyData.mediaUrl.endsWith('.jpg') ||
-            storyData.mediaUrl.endsWith('.png')
-              ? storyData.mediaUrl
-              : null,
-          createdAt: storyData.createdAt,
-        };
-      } catch (error) {
-        console.error('❌ seenStory error', error);
-        return null;
-      }
-    }),
-  );
+    if (!validStories.length) {
+      Alert.alert('Không có story hợp lệ để hiển thị');
+      return;
+    }
 
-  // Lọc bỏ các story không hợp lệ
-  const validStories = selectedItems.filter(item => item);
+    const creator = {
+      username: item.handleName,
+      profilePic: item.profilePic,
+    };
 
-  if (!validStories.length) {
+    navigation.navigate(isCurrentUser ? 'SeenStoryOwner' : 'SeenStory', {
+      stories: validStories,
+      creator,
+    });
+  } catch (error) {
+    console.error('❌ fetchStoryDetails or seenStory failed:', error);
     Alert.alert('Lỗi khi tải story');
-    return;
   }
-
-  const creator = {
-    username: item.handleName,
-    profilePic: item.profilePic,
-  };
-
-  navigation.navigate(isCurrentUser ? 'SeenStoryOwner' : 'SeenStory', {
-    stories: validStories,
-    creator,
-  });
 };

@@ -20,9 +20,6 @@ const Story = (props: any) => {
 
   const {theme} = useTheme();
   const color = Colors[theme];
-  console.log(
-    `Story props: name=${name}, isCurrentUser=${isCurrentUser}, hasStory=${hasStory}, isSeen=${isSeen}`,
-  );
 
   const AvatarContent = () => (
     <View style={[styles.bgWhite, {backgroundColor: color.background}]}>
@@ -50,7 +47,6 @@ const Story = (props: any) => {
       <TouchableOpacity
         style={[styles.box, {marginTop: 10}]}
         onPress={() => {
-          console.log('Pressed story:', name, isCurrentUser, hasStory);
           func();
         }}>
         {hasStory ? (

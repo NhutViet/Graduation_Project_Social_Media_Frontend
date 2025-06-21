@@ -25,7 +25,7 @@ const Header = (props: any) => {
     funcLeft,
     navigation,
     pressableTitle,
-    pressableTilFunc
+    pressableTilFunc,
   } = props;
 
   const {theme} = useTheme();
@@ -79,8 +79,16 @@ const Header = (props: any) => {
             <Text style={[styles.title, {color: color.text}]}>{title}</Text>
           )}
           {pressableTitle && (
-            <TouchableOpacity style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}} onPress={pressableTilFunc}>
-              <Text style={[styles.title, {color: color.text}]}>{pressableTitle}</Text>
+            <TouchableOpacity
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+              onPress={pressableTilFunc}>
+              <Text style={[styles.title, {color: color.text}]}>
+                {pressableTitle}
+              </Text>
             </TouchableOpacity>
           )}
         </View>

@@ -10,7 +10,6 @@ import {
   NotificationsScreen,
   PostSetting,
   SeenStory,
-  SeenStoryOwner,
   Setting,
   SwitchAccount,
   Register,
@@ -54,6 +53,7 @@ import {
   Splash,
   UserFollowScreen,
   ViewReels,
+  SeenStoryOwner,
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 import ProfileComp from '../Screens/Profile';
@@ -63,6 +63,7 @@ import PostStory from '../Screens/PostStory';
 import Profile from '../(tabs)/Profile/index';
 import AllPostOfUserScreen from '../../components/AllPostOfUserScreen';
 import ZegoCallScreen from '../Screens/ZegoCloud/ZegoCallScreen';
+
 export type RootStackParamList = {
   PendingMessages: {handleName: string};
   MessageScreen: {
@@ -135,8 +136,8 @@ const AppNavigator = () => {
         />
         <Stack.Screen name="FollowerRequests" component={FollowerRequests} />
         <Stack.Screen name="Register" component={Register} />
-        {/* <Stack.Screen name="SeenStory" component={SeenStory} />
-        <Stack.Screen name="SeenStoryOwner" component={SeenStoryOwner} /> */}
+        <Stack.Screen name="SeenStory" component={SeenStory} />
+        <Stack.Screen name="SeenStoryOwner" component={SeenStoryOwner} />
         <Stack.Screen name="MessageScreen" component={MessageScreen} />
         <Stack.Screen name="InfoUser" component={UserInfo} />
         <Stack.Screen name="QRCode" component={ScreenQRCode} />

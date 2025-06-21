@@ -118,4 +118,22 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
+  musicContainer: {
+    position: 'absolute',
+    bottom: 50,
+    left: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: 10,
+    borderRadius: 8,
+  },
+  musicTitle: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  musicArtist: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '400',
+  },
 });

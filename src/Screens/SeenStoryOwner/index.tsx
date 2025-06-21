@@ -1,25 +1,25 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect, useRef, useCallback} from 'react';
 import {
   SafeAreaView,
-  StyleSheet,
   View,
   Image,
   Text,
   Animated,
   TouchableOpacity,
   Dimensions,
+  GestureResponderEvent,
 } from 'react-native';
 import {Modalize} from 'react-native-modalize';
 import {Portal} from 'react-native-portalize';
-
+import {useSelector} from 'react-redux';
+import {RootState} from '../../../services/store';
 import ModelPeopleSeen from './component/ModelPeopleSeen';
 import ModelSeeMore from './component/ModelSeeMore';
 import HighlightAddModal from './component/HighlightAddModal';
 import HighlightViewModal from './component/HighlightViewModal';
-import {styles} from './component/style';
-import {useSelector} from 'react-redux';
-import {RootState} from '../../../services/store';
 import {MediaSection} from './component/MediaSection';
+import {styles} from './component/style';
+import debounce from 'lodash/debounce';
 
 // Data mẫu cho modal highlight
 const highlights = [
@@ -55,69 +55,76 @@ interface RouteParams {
     _id?: string;
     createdAt?: string;
     content?: {text?: string; x?: number; y?: number};
+    music?: {link: string; time_start: number; title: string; artist: string};
   }>;
+  creator: {username: string; profilePic: string};
 }
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 
-export const SeenStoryOwner = ({
-  route,
-  navigation,
-}: {
-  route: {params: RouteParams};
-  navigation: any;
-}) => {
-  const {stories} = route.params; // Nhận danh sách stories
+export const SeenStoryOwner = ({route, navigation}: any) => {
+  const {stories, creator} = route.params;
   const user = useSelector((state: RootState) => state.user.user);
-  const [currentIndex, setCurrentIndex] = useState(0); // Chỉ số story hiện tại
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isVideoPaused, setIsVideoPaused] = useState(false);
   const selectedItem = stories[currentIndex];
-  const [videoDuration, setVideoDuration] = useState(null);
+  const [videoDuration, setVideoDuration] = useState<number | null>(null);
+  const [musicDuration, setMusicDuration] = useState<number | null>(null);
   const [visible, setVisible] = useState(false);
   const [visibleSeeMore, setVisibleSeeMore] = useState(false);
-  const [mediaSize, setMediaSize] = useState({width: 0, height: 0}); // Khởi tạo với 0
+  const [mediaSize, setMediaSize] = useState({width: 0, height: 0});
 
-  // Khai báo kiểu cho progressAnims
+  // Debug dữ liệu stories và currentIndex
+  console.log(
+    '🔍 Stories received: length =',
+    stories ? stories.length : 'undefined',
+  );
+  console.log(
+    '🔍 Selected story (index =',
+    currentIndex,
+    '):',
+    selectedItem
+      ? JSON.stringify(selectedItem, null, 2)
+      : 'Selected item is undefined',
+  );
+
   const progressAnims = useRef<Animated.Value[]>(
     (stories || []).map(() => new Animated.Value(0)),
-  ).current; // Tiến trình cho từng story
-
-  // Khai báo kiểu cho animationRef
+  ).current;
   const animationRef = useRef<Animated.CompositeAnimation | null>(null);
   const videoRef = useRef<any>(null);
   const viewModalRef = useRef<Modalize>(null);
   const addModalRef = useRef<Modalize>(null);
 
-  const imageDuration = 15000; // 15 giây cho ảnh
+  const imageDuration = 15000;
 
-  // Hàm mở modal thêm highlight
   const handleOpenAddModal = () => {
     viewModalRef.current?.close();
     setTimeout(() => addModalRef.current?.open(), 300);
   };
 
-  // Hàm quay lại từ modal thêm highlight
   const handleOnBackAddModal = () => {
     addModalRef.current?.close();
     setTimeout(() => viewModalRef.current?.open(), 300);
   };
 
-  // Hàm xử lý thêm highlight mới
   const handleAddHighlight = (name: string) => {
     console.log('Thêm highlight:', name);
     addModalRef.current?.close();
   };
 
-  // Lấy thời gian hiển thị của story hiện tại
   const getItemDuration = () => {
     const currentStory = stories[currentIndex];
     if (currentStory?.mediaUrl?.endsWith('.m3u8') && videoDuration) {
-      return videoDuration * 1000; // Chuyển sang mili giây
+      return videoDuration * 1000;
+    }
+    if (currentStory?.music?.link && musicDuration) {
+      return Math.max(musicDuration * 1000, imageDuration);
     }
     return imageDuration;
   };
 
-  // Khởi động hiệu ứng thanh tiến trình
   const startProgressAnimation = () => {
     if (animationRef.current) {
       animationRef.current.stop();
@@ -126,6 +133,7 @@ export const SeenStoryOwner = ({
     if (progressAnims[currentIndex]) {
       progressAnims[currentIndex].setValue(0);
       const duration = getItemDuration();
+      console.log('🎵 Progress animation duration:', duration);
       animationRef.current = Animated.timing(progressAnims[currentIndex], {
         toValue: 1,
         duration,
@@ -140,75 +148,152 @@ export const SeenStoryOwner = ({
     }
   };
 
-  // Chuyển sang story tiếp theo
   const goToNextStory = () => {
-    if (currentIndex < (stories?.length || 0) - 1) {
-      setCurrentIndex(currentIndex + 1);
+    const maxIndex = (stories?.length || 0) - 1;
+    if (currentIndex < maxIndex) {
       setVideoDuration(null);
+      setMusicDuration(null);
+      setIsVideoPaused(false);
+      setCurrentIndex(prev => prev + 1);
     } else {
-      navigation.goBack(); // Quay lại khi hết story
+      console.log('🏁 No more stories, going back');
+      navigation.goBack();
     }
   };
 
-  // Quay lại story trước đó
   const goToPreviousStory = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
-      setVideoDuration(null);
-    }
+    setCurrentIndex(prev => {
+      if (prev > 0) {
+        console.log('⏮️ Going to previous story, currentIndex:', prev);
+        setVideoDuration(null);
+        setMusicDuration(null);
+        setIsVideoPaused(false);
+        return prev - 1;
+      }
+      console.log('🚫 Already at first story');
+      return prev;
+    });
   };
 
-  // Xử lý khi video tải xong
+  const toggleVideoPause = () => {
+    if (!selectedItem?.mediaUrl?.endsWith('.m3u8')) {
+      console.log('🚫 Cannot pause: Not a video');
+      return;
+    }
+
+    setIsVideoPaused(prev => {
+      const newState = !prev;
+      console.log('⏯️ Video paused:', newState);
+      if (newState) {
+        animationRef.current?.stop();
+      } else {
+        startProgressAnimation();
+      }
+      return newState;
+    });
+  };
+
+  const debouncedHandleTouch = useRef(
+    debounce((locationX: number | null) => {
+      if (locationX == null) {
+        console.warn('⚠️ event.nativeEvent.locationX is null');
+        toggleVideoPause();
+        return;
+      }
+
+      console.log('🖱️ Touch at locationX:', locationX);
+      if (locationX < screenWidth / 3) {
+        console.log('👈 Touch left, calling goToPreviousStory');
+        goToPreviousStory();
+      } else if (locationX > (screenWidth * 2) / 3) {
+        console.log('👉 Touch right, calling goToNextStory');
+        goToNextStory();
+      } else {
+        console.log('⏯️ Touch center, toggling pause');
+        toggleVideoPause();
+      }
+    }, 300),
+  ).current;
+
+  const handleTouch = useCallback(
+    (event: GestureResponderEvent) => {
+      const locationX = event.nativeEvent.locationX;
+      console.log('📍 Raw touch event, locationX:', locationX);
+      debouncedHandleTouch(locationX);
+    },
+    [debouncedHandleTouch],
+  );
+
   const onVideoLoad = (data: any) => {
     setVideoDuration(data.duration);
-    startProgressAnimation();
+    console.log('📹 Video loaded, duration:', data.duration);
+    if (!isVideoPaused) {
+      startProgressAnimation();
+    }
   };
 
-  // Xử lý khi video kết thúc
+  const onMusicLoad = (data: any) => {
+    setMusicDuration(data.duration);
+    console.log('🎵 Music loaded, duration:', data.duration);
+    if (!isVideoPaused) {
+      startProgressAnimation(); // ✅ Thêm dòng này để kích hoạt thanh tiến trình
+    }
+  };
+
   const onVideoEnd = () => {
+    console.log('📹 Video ended');
     goToNextStory();
   };
 
-  // Xử lý khi chạm vào màn hình
-  const handleTouch = (event: any) => {
-    const {locationX} = event.nativeEvent;
-    const screenWidth = Dimensions.get('window').width;
-    if (locationX < screenWidth / 3) {
-      goToPreviousStory(); // Chạm bên trái để quay lại
-    } else if (locationX > (screenWidth * 2) / 3) {
-      goToNextStory(); // Chạm bên phải để tiến tới
-    }
+  const onMusicEnd = () => {
+    console.log('🎵 Music ended');
+    goToNextStory();
   };
 
-  // Xử lý hiệu ứng và trạng thái khi chuyển story
   useEffect(() => {
-    console.log('stories', stories); // Debug dữ liệu stories
+    console.log('📊 Updating progress bars, currentIndex:', currentIndex);
     setVideoDuration(null);
+    setMusicDuration(null);
+    setIsVideoPaused(false);
+
+    if (!stories[currentIndex]) {
+      navigation.goBack();
+      return;
+    }
     progressAnims.forEach((anim: Animated.Value, index: number) => {
-      if (index < currentIndex) {
-        anim.setValue(1); // Đã xem
-      } else if (index > currentIndex) {
-        anim.setValue(0); // Chưa xem
-      }
+      if (index < currentIndex) anim.setValue(1);
+      else if (index > currentIndex) anim.setValue(0);
+      else anim.setValue(0); // Reset thanh tiến trình cho story hiện tại
     });
 
     const currentStory = stories[currentIndex];
-    if (!currentStory?.mediaUrl?.endsWith('.m3u8')) {
-      startProgressAnimation();
+    if (currentStory) {
+      const isVideo = currentStory?.mediaUrl?.endsWith('.m3u8');
+      const hasMusic = !!currentStory?.music?.link;
+      if (!isVideo && !hasMusic && !isVideoPaused) {
+        console.log('▶️ Starting progress animation for non-video/music story');
+        startProgressAnimation();
+      }
+    } else {
+      console.warn('🚨 Current story is undefined at index:', currentIndex);
     }
 
     return () => {
-      if (animationRef.current) {
-        animationRef.current.stop();
-      }
+      animationRef.current?.stop();
     };
-  }, [currentIndex]);
+  }, [currentIndex, isVideoPaused]);
+
+  useEffect(() => {
+    return () => {
+      debouncedHandleTouch.cancel();
+    };
+  }, [debouncedHandleTouch]);
 
   const handleCloserPress = () => {
+    console.log('🔙 Closing story');
     navigation.goBack();
   };
 
-  // Hiển thị các thanh tiến trình
   const renderProgressBars = () => {
     return (
       <View style={styles.progressContainer}>
@@ -229,9 +314,7 @@ export const SeenStoryOwner = ({
     );
   };
 
-  // Hiển thị caption
   const getCaptionPosition = (xPercent: number, yPercent: number) => {
-    // Đảm bảo mediaSize không phải 0 để tránh lỗi chia cho 0
     const width = mediaSize.width || screenWidth;
     const height = mediaSize.height || screenHeight;
     return {
@@ -244,9 +327,7 @@ export const SeenStoryOwner = ({
     const content = selectedItem?.content;
     if (!content?.text) return null;
 
-    const position = getCaptionPosition(content.x || 50, content.y || 50); // Mặc định giữa nếu không có x, y
-    console.log('Caption position:', position, 'mediaSize:', mediaSize); // Debug
-
+    const position = getCaptionPosition(content.x || 50, content.y || 50);
     return (
       <Text
         style={{
@@ -261,12 +342,32 @@ export const SeenStoryOwner = ({
     );
   };
 
+  const renderMusicInfo = () => {
+    const music = selectedItem?.music;
+    if (!music?.title && !music?.artist) return null;
+
+    return (
+      <View style={styles.musicContainer}>
+        <Text style={styles.musicTitle}>{music?.title || 'Unknown Title'}</Text>
+        <Text style={styles.musicArtist}>
+          {music?.artist || 'Unknown Artist'}
+        </Text>
+      </View>
+    );
+  };
+
+  if (!stories || stories.length === 0) {
+    console.warn('🚫 No stories available');
+    navigation.goBack();
+    return null;
+  }
+
   return (
     <SafeAreaView style={styles.container}>
-      <TouchableOpacity
+      <View
         style={styles.mediaWrapper}
-        activeOpacity={1}
-        onPress={handleTouch}>
+        onStartShouldSetResponder={() => true}
+        onResponderRelease={handleTouch}>
         <View style={styles.header}>
           <View style={styles.mediaItems}>{renderProgressBars()}</View>
           <TouchableOpacity style={styles.viewUser}>
@@ -282,15 +383,21 @@ export const SeenStoryOwner = ({
             />
           </TouchableOpacity>
         </View>
-        <MediaSection
-          selectedItem={stories[currentIndex]}
-          ref={videoRef}
-          onLoad={onVideoLoad}
-          onEnd={onVideoEnd}
-          onMediaLayout={setMediaSize} // Cập nhật mediaSize
-        />
+        {stories[currentIndex] ? (
+          <MediaSection
+            selectedItem={stories[currentIndex]}
+            ref={videoRef}
+            onLoad={onVideoLoad}
+            onEnd={onVideoEnd}
+            onMediaLayout={setMediaSize}
+            onMusicLoad={onMusicLoad}
+            onMusicEnd={onMusicEnd}
+            paused={isVideoPaused}
+          />
+        ) : null}
         {renderCaption()}
-      </TouchableOpacity>
+        {renderMusicInfo()}
+      </View>
       <View style={styles.viewBottom}>
         <TouchableOpacity
           style={styles.viewIconItem}

@@ -62,35 +62,35 @@ const StoriesTab = () => {
       const isImage = /\.(jpg|jpeg|png|gif)$/i.test(item.mediaUrl || '');
 
       navigation.navigate('SeenStoryOwner', {
-        selectedItem: {
-          ...item,
-          uriVideo: isVideo ? item.mediaUrl : null,
-          image: isImage ? item.mediaUrl : null,
-        },
+        stories: [
+          {
+            ...item,
+            uriVideo: isVideo ? item.mediaUrl : null,
+            image: isImage ? item.mediaUrl : null,
+          },
+        ],
       });
     };
 
     return (
       <View style={[styles.itemContainer, {backgroundColor: color.black}]}>
-        {item.videoURL ? (
-          <Pressable>
-            <Video
-              source={{uri: item.mediaUrl}}
-              style={styles.media}
-              resizeMode="contain"
-              paused={true}
-            />
-          </Pressable>
-        ) : (
-          <Pressable onPress={() => handleOpenStory(item)}>
-            <Image source={{uri: item.mediaUrl}} style={styles.media} />
-          </Pressable>
-        )}
-
+        <Pressable onPress={() => handleOpenStory(item)}>
+          {item.mediaUrl ? (
+            item.mediaUrl.endsWith('.m3u8') ? (
+              <Video
+                source={{uri: item.mediaUrl}}
+                style={styles.media}
+                resizeMode="contain"
+                paused={true}
+              />
+            ) : (
+              <Image source={{uri: item.mediaUrl}} style={styles.media} />
+            )
+          ) : null}
+        </Pressable>
         <View style={styles.dateBadge}>
           <Text style={styles.dateText}>{formatMonthText(item.createdAt)}</Text>
         </View>
-
         {item.saved && (
           <TouchableOpacity style={styles.heartIcon}>
             <Image
@@ -118,7 +118,7 @@ const StoriesTab = () => {
         <FlatList
           data={myStories}
           renderItem={renderItem}
-          keyExtractor={item => item._id}
+          keyExtractor={item => item._id} // Đảm bảo keyExtractor rõ ràng
           numColumns={3}
           contentContainerStyle={{paddingBottom: 16}}
           showsVerticalScrollIndicator={false}
