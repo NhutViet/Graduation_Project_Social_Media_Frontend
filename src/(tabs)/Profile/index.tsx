@@ -333,7 +333,7 @@ const Profile = () => {
       <TouchableOpacity
         style={[
           styles.tab,
-          activeTab === 'reels' && styles.activeTab,
+          activeTab === 'tags' && styles.activeTab,
           {borderBottomColor: color.text},
         ]}
         onPress={() => setActiveTab('tags')}>

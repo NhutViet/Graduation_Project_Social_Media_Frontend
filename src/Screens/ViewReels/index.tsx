@@ -30,7 +30,7 @@ export const ViewReels: React.FC = () => {
     if (viewableItems.length > 0) {
       const visibleItem = viewableItems[0];
       const id = visibleItem?.item?._id;
-      if (id) setCurrentVisibleId(id);
+      if (id) {setCurrentVisibleId(id);}
     }
   });
 
