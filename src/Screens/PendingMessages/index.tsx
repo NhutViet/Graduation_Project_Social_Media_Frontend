@@ -1,132 +1,42 @@
-import React, {useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
   Image,
   TextInput,
-  FlatList,
-  useWindowDimensions,
+  StyleSheet,
+  TouchableOpacity,
 } from 'react-native';
-import {TabView, SceneMap, TabBar} from 'react-native-tab-view';
-import MessageThumbnail, {
-  MessageThumbnailProps,
-} from '../../../components/MessageThumbnail';
+import {FlashList} from '@shopify/flash-list';
 import {useProfileEditingStyles} from '../../../src/StyleSheet/ProfileEditingStyles';
-import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
-import {StackNavigationProp} from '@react-navigation/stack';
-import {RootStackParamList} from '../../Navigation/AppNavigation';
-
-const rooms = ['room1', 'room2'];
-
-type RoomSelectorProp = StackNavigationProp<
-  RootStackParamList,
-  'PendingMessages'
->;
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
+import ItemNewMessage from '../NewMessage/component/itemNewMessage';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '@services/store';
+import {fetchMyWaitingRooms} from '@services/roomRedux/roomSlice';
+import {Room} from '@services/roomRedux/roomType';
 
 export const PendingMessages: React.FC = () => {
   const styles = useProfileEditingStyles();
-  const layout = useWindowDimensions();
-  const [index, setIndex] = useState(0);
+  const nav = useNavigation();
   const [searchText, setSearchText] = useState('');
-  const nav = useNavigation<RoomSelectorProp>();
-  const route = useRoute<RouteProp<RootStackParamList, 'PendingMessages'>>();
-  const handleName = route.params?.handleName;
+  const [room, setRoom] = useState<Room[]>();
+  const dispatch = useDispatch<AppDispatch>();
+  const user = useSelector((state: RootState) => state.user.user);
 
-  const enterRoom = (room: string) => nav.navigate('MessageScreen', {room});
-
-  const strangersData: MessageThumbnailProps[] = [
-    {
-      id: 's1',
-      username: 'alice99',
-      message: 'Hey there! Loved your profile.',
-      time: 'Just now',
-      avatarUri: 'https://i.pravatar.cc/150?img=1',
-    },
-    {
-      id: 's2',
-      username: 'bob_the_builder',
-      message: 'Wanna collaborate on a project?',
-      time: '12 min ago',
-      avatarUri: 'https://i.pravatar.cc/150?img=2',
-    },
-  ];
-  const mineData: MessageThumbnailProps[] = strangersData.map(item => ({
-    ...item,
-    id: `m-${item.id}`,
-    isMine: true,
-  }));
-
-  const filtered = (data: MessageThumbnailProps[]) =>
-    data.filter(
-      item =>
-        item.username.includes(searchText) || item.message.includes(searchText),
-    );
-
-  const renderList = (data: MessageThumbnailProps[]) => (
-    <FlatList
-      data={filtered(data)}
-      keyExtractor={item => item.id}
-      renderItem={({item}) => (
-        <MessageThumbnail {...item} onPress={() => enterRoom(rooms[0])} />
-      )}
-      contentContainerStyle={styles.listContent}
-      ListHeaderComponent={() => (
-        <View style={styles.searchContainer}>
-          <Image
-            source={require('../../../assets/icon/search.png')}
-            style={styles.searchIcon}
-          />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Tìm kiếm"
-            placeholderTextColor={styles.tabSelected.backgroundColor}
-            value={searchText}
-            onChangeText={setSearchText}
-          />
-        </View>
-      )}
-    />
-  );
-
-  const renderStrangers = () => renderList(strangersData);
-  const renderMine = () => renderList(mineData);
-
-  const renderScene = SceneMap({
-    strangers: renderStrangers,
-    mine: renderMine,
-  });
-
-  const renderTabBar = (props: any) => (
-    <TabBar
-      {...props}
-      style={{backgroundColor: styles.screen.backgroundColor}}
-      tabStyle={{flex: 1}}
-      indicatorStyle={{
-        backgroundColor: styles.tabIndicator.backgroundColor,
-        height: styles.tabIndicator.height,
-      }}
-      renderLabel={({route, focused}) => (
-        <Text
-          style={[
-            styles.tabText,
-            {
-              color: focused
-                ? styles.tabIndicator.backgroundColor
-                : styles.tabText.color,
-            },
-          ]}>
-          {route.key === 'strangers'
-            ? 'Tin nhắn từ người lạ'
-            : 'Yêu cầu tin nhắn của tôi'}
-        </Text>
-      )}
-      pressColor="transparent"
-    />
+  useFocusEffect(
+    useCallback(() => {
+      const fetchRooms = async () => {
+        const res = await dispatch(fetchMyWaitingRooms());
+        if (res.payload) setRoom(res.payload as Room[]);
+      };
+      fetchRooms();
+    }, [dispatch]),
   );
 
   return (
     <View style={styles.screen}>
+      {/* Header */}
       <View style={styles.headerRow}>
         <TouchableOpacity onPress={() => nav.goBack()}>
           <Image
@@ -134,7 +44,7 @@ export const PendingMessages: React.FC = () => {
             style={styles.headerIcon}
           />
         </TouchableOpacity>
-        <Text style={styles.headerUsername}>{handleName}</Text>
+        <Text style={styles.headerUsername}>{user?.handleName}</Text>
         <TouchableOpacity>
           <Image
             source={require('../../../assets/icon/down.png')}
@@ -157,15 +67,71 @@ export const PendingMessages: React.FC = () => {
         </View>
       </View>
 
-      <TabView
-        navigationState={{index, routes: [{key: 'strangers'}, {key: 'mine'}]}}
-        renderScene={renderScene}
-        onIndexChange={setIndex}
-        initialLayout={{width: layout.width}}
-        renderTabBar={renderTabBar}
+      {/* Search Bar */}
+      <View style={localStyles.searchContainer}>
+        <Image
+          source={require('../../../assets/icon/search.png')}
+          style={localStyles.searchIcon}
+        />
+        <TextInput
+          style={localStyles.searchInput}
+          placeholder="Tìm kiếm"
+          placeholderTextColor={styles.tabSelected.backgroundColor}
+          value={searchText}
+          onChangeText={setSearchText}
+        />
+      </View>
+
+      {/* FlashList */}
+      <FlashList
+        data={room}
+        renderItem={({item}) => {
+          const filteredUsers = item.user_ids.filter(u => u._id !== user?._id);
+
+          const user1 = filteredUsers[0];
+          const user2 = filteredUsers[1];
+
+          const nameChat =
+            item.name?.trim().length > 0
+              ? item.name
+              : user1?.handleName || 'Không xác định';
+
+          return (
+            <ItemNewMessage
+              roomId={item._id}
+              nameChat={nameChat}
+              latestMessage={item.latestMessage}
+              img1={user1?.profilePic || ''}
+              img2={user2?.profilePic || ''}
+            />
+          );
+        }}
+        estimatedItemSize={100}
+        showsVerticalScrollIndicator={false}
       />
     </View>
   );
 };
+
+const localStyles = StyleSheet.create({
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 16,
+    marginBottom: 12,
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderColor: '#ccc',
+  },
+  searchIcon: {
+    width: 20,
+    height: 20,
+    marginRight: 10,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+  },
+});
 
 export default PendingMessages;

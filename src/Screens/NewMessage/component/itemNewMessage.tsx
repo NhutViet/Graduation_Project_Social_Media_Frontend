@@ -3,8 +3,23 @@ import {Colors} from '../../../../assets/color/Colors';
 import {useTheme} from '../../../util/ThemeContext';
 import {useNavigation} from '@react-navigation/native';
 
-const ItemNewMessage = (props: any) => {
-  const {roomId, nameChat, latestMessage, img1, img2} = props;
+interface ItemNewMessageProps {
+  roomId: string;
+  nameChat: string;
+  latestMessage: {
+    content: string;
+  };
+  img1?: string;
+  img2?: string;
+}
+
+const ItemNewMessage: React.FC<ItemNewMessageProps> = ({
+  roomId,
+  nameChat,
+  latestMessage,
+  img1,
+  img2,
+}) => {
   const {theme} = useTheme();
   const color = Colors[theme];
   const navigation: any = useNavigation();

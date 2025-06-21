@@ -25,6 +25,22 @@ export const fetchMyRooms = createAsyncThunk<Room[]>(
   },
 );
 
+export const fetchMyWaitingRooms = createAsyncThunk<Room[]>(
+  'rooms/fetchMyWaitingRooms',
+  async (_, {rejectWithValue}) => {
+    try {
+      const response = await axiosInstance.get(`${API.GET_MY_WAITING_ROOMS}`, {
+        headers: {
+          token: 'refresh',
+        },
+      });
+      return response.data;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data || err.message);
+    }
+  },
+);
+
 export const updateRoomTheme = createAsyncThunk<
   any,
   UpdateRoomThemeArgs,

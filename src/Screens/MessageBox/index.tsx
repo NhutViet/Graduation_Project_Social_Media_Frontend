@@ -1,7 +1,6 @@
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {FlashList} from '@shopify/flash-list';
 import {
-  Alert,
   Image,
   SafeAreaView,
   ScrollView,
@@ -20,14 +19,10 @@ import {fetchMyRooms} from '../../../services/roomRedux/roomSlice';
 import ItemNewMessage from '../NewMessage/component/itemNewMessage';
 import Story from '../../(tabs)/Home/components/Story';
 import {handleUserPress} from '../../(tabs)/Home/util';
-import {
-  fetchFollowingStories,
-  seenStory,
-} from '../../../services/StoryRedux/StorySlice';
+import {fetchFollowingStories} from '../../../services/StoryRedux/StorySlice';
 import {
   checkStorySeenInStorage,
   clearExpiredSeenStories,
-  markStoryAsSeen,
 } from '../../../services/storage/storage';
 
 export const MessageBox = (props: any) => {
@@ -59,7 +54,7 @@ export const MessageBox = (props: any) => {
       dispatch(fetchMyRooms());
     }, [dispatch]),
   );
-  
+
   useEffect(() => {
     const syncSeenStories = async () => {
       const map: Record<string, boolean> = {};
@@ -230,7 +225,6 @@ export const MessageBox = (props: any) => {
               <ItemNewMessage
                 roomId={item._id}
                 nameChat={nameChat}
-                roomTheme={item?.theme}
                 latestMessage={item.latestMessage}
                 img1={user1?.profilePic || ''}
                 img2={user2?.profilePic || ''}
