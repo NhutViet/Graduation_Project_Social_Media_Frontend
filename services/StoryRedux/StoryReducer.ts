@@ -5,6 +5,8 @@ import {
   fetchGetPostedSotry,
   seenStory,
   toggleLikeStory,
+  fetchStoryDetails,
+  createHighlightStory, // New thunk
 } from './StorySlice';
 
 interface StoryState {
@@ -42,7 +44,6 @@ const storySlice = createSlice({
         state.followingUsers = users;
         state.loading = false;
 
-        // Không reset storyDetails, chỉ thêm nếu chưa có
         for (const user of users) {
           const storyIds = user.stories || [];
 
@@ -70,6 +71,47 @@ const storySlice = createSlice({
         state.error = action.payload?.message || 'Lỗi tải stories';
       })
 
+      // ====== STORY DETAILS ======
+      .addCase(fetchStoryDetails.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(
+        fetchStoryDetails.fulfilled,
+        (state, action: PayloadAction<Story[]>) => {
+          state.loading = false;
+          action.payload.forEach(newStory => {
+            const index = state.storyDetails.findIndex(
+              s => s._id === newStory._id,
+            );
+            if (index !== -1) {
+              state.storyDetails[index] = newStory;
+            } else {
+              state.storyDetails.push(newStory);
+            }
+
+            // Update storyDetails in followingUsers
+            for (const user of state.followingUsers) {
+              if (user.stories?.includes(newStory._id)) {
+                if (!user.storyDetails) user.storyDetails = [];
+                const userStoryIndex = user.storyDetails.findIndex(
+                  s => s._id === newStory._id,
+                );
+                if (userStoryIndex !== -1) {
+                  user.storyDetails[userStoryIndex] = newStory;
+                } else {
+                  user.storyDetails.push(newStory);
+                }
+              }
+            }
+          });
+        },
+      )
+      .addCase(fetchStoryDetails.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Lỗi tải chi tiết story';
+      })
+
       // ====== SEEN STORY ======
       .addCase(seenStory.fulfilled, (state, action) => {
         const story = action.payload?.data;
@@ -82,7 +124,6 @@ const storySlice = createSlice({
           state.storyDetails.push(story);
         }
 
-        // Cập nhật storyDetails trong từng user nếu có
         for (const user of state.followingUsers) {
           if (user.stories?.includes(story._id)) {
             if (!user.storyDetails) user.storyDetails = [];
@@ -148,6 +189,22 @@ const storySlice = createSlice({
       )
       .addCase(toggleLikeStory.rejected, (state, action) => {
         state.error = action.payload || 'Không thể like story';
+      })
+      // ====== Create highlight story  ======
+      .addCase(createHighlightStory.pending, state => {
+        (state.loading = true), (state.error = null);
+      })
+      .addCase(
+        createHighlightStory.fulfilled,
+        (state, action: PayloadAction<Story>) => {
+          state.loading = false;
+          state.error = null;
+          state.myStories.push(action.payload);
+        },
+      )
+      .addCase(createHighlightStory.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Không thể tạo highlight';
       });
   },
 });

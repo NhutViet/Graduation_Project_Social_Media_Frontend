@@ -1,67 +1,102 @@
-import React, {forwardRef} from 'react';
+import React, {forwardRef, useEffect, useRef} from 'react';
 import {Image, Text, View} from 'react-native';
 import Video from 'react-native-video';
+import Sound from 'react-native-sound';
 import {styles} from './styles';
 
 interface MediaPlayerProps {
-  item: any;
-  onLoad?: (data: any) => void;
+  item: {
+    uriVideo?: string;
+    image?: string;
+    mediaUrl?: string;
+    music?: {link: string; time_start?: number};
+  };
+  onLoad?: (data: {duration: number}) => void;
   onEnd?: () => void;
-  videoRef: any;
+  onMusicLoad?: (seconds: number) => void;
+  onMusicEnd?: () => void;
   onMediaLayout?: (size: {width: number; height: number}) => void;
 }
 
-export const MediaPlayer = forwardRef(
-  (
-    {item, onLoad, onEnd, videoRef, onMediaLayout}: MediaPlayerProps,
-    ref: any,
-  ) => {
+export const MediaPlayer = forwardRef<any, MediaPlayerProps>(
+  ({item, onLoad, onEnd, onMusicLoad, onMusicEnd, onMediaLayout}, ref) => {
+    /* ---------- AUDIO ----------- */
+    const soundRef = useRef<Sound | null>(null);
+
+    useEffect(() => {
+      let isMounted = true;
+
+      const {music} = item || {};
+      if (!music?.link) return;
+
+      soundRef.current?.stop(() => soundRef.current?.release());
+      soundRef.current = null;
+
+      const sound = new Sound(music.link, undefined, error => {
+        if (error) {
+          console.warn('❌ Can’t load sound:', error);
+          return;
+        }
+
+        const total = sound.getDuration();
+        onMusicLoad?.(total);
+        if (music.time_start) sound.setCurrentTime(music.time_start);
+
+        sound.play(success => {
+          if (isMounted) {
+            if (success) onMusicEnd?.();
+            else console.warn('⚠️  Sound playback failed');
+          }
+        });
+
+        soundRef.current = sound;
+      });
+
+      return () => {
+        isMounted = false;
+        soundRef.current?.stop(() => soundRef.current?.release());
+        soundRef.current = null;
+      };
+    }, [item]);
+
     if (!item) {
       return <Text style={styles.errorText}>Không có media để hiển thị</Text>;
     }
 
-    if (item.uriVideo) {
-      return (
-        <View
-          style={styles.media}
-          onLayout={event => {
-            const {width, height} = event.nativeEvent.layout;
-            onMediaLayout?.({width, height});
-          }}>
+    const displayImage = item.image || item.mediaUrl;
+
+    return (
+      <View
+        style={styles.media}
+        onLayout={e => {
+          const {width, height} = e.nativeEvent.layout;
+          onMediaLayout?.({width, height});
+        }}>
+        {item.uriVideo ? (
           <Video
-            ref={videoRef}
+            ref={ref}
             source={{uri: item.uriVideo}}
             style={styles.media}
-            resizeMode="contain" // Thay đổi từ "cover" sang "contain" để nhất quán với EditStory
+            resizeMode="contain"
             repeat={false}
-            onLoad={onLoad}
-            onEnd={onEnd}
             playInBackground={false}
             playWhenInactive={false}
+            onLoad={onLoad}
+            onEnd={onEnd}
           />
-        </View>
-      );
-    }
-
-    if (item.image || item.mediaUrl) {
-      const displayUrl = item.image || item.mediaUrl;
-      return (
-        <View
-          style={styles.media}
-          onLayout={event => {
-            const {width, height} = event.nativeEvent.layout;
-            onMediaLayout?.({width, height});
-          }}>
+        ) : displayImage ? (
           <Image
-            source={{uri: displayUrl}}
+            source={{uri: displayImage}}
             style={styles.media}
-            resizeMode="contain" // Thay đổi từ "cover" sang "contain"
-            onError={e => console.log('Image load error:', e.nativeEvent.error)}
+            resizeMode="contain"
+            onError={e =>
+              console.log('🖼️  Image load error:', e.nativeEvent.error)
+            }
           />
-        </View>
-      );
-    }
-
-    return <Text style={styles.errorText}>Không có media để hiển thị</Text>;
+        ) : (
+          <Text style={styles.errorText}>Không có media để hiển thị</Text>
+        )}
+      </View>
+    );
   },
 );
