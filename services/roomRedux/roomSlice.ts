@@ -1,5 +1,11 @@
 import {createAsyncThunk} from '@reduxjs/toolkit';
-import {CreateRoomDto, CreateRoomResponse, Room, UpdateRoomNameArgs, UpdateRoomThemeArgs} from './roomType';
+import {
+  CreateRoomDto,
+  CreateRoomResponse,
+  Room,
+  UpdateRoomNameArgs,
+  UpdateRoomThemeArgs,
+} from './roomType';
 import axiosInstance from '../axiosInstance';
 import {API} from '../api';
 
@@ -64,7 +70,7 @@ export const updateRoomName = createAsyncThunk<
 export const createRoom = createAsyncThunk<
   CreateRoomResponse,
   CreateRoomDto,
-  { rejectValue: any }
+  {rejectValue: any}
 >('rooms/createRoom', async (payload, {rejectWithValue}) => {
   try {
     const response = await axiosInstance.post<CreateRoomResponse>(

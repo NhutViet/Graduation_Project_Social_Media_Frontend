@@ -28,6 +28,10 @@ import {clearMessages} from '../../../services/messageRedux/messageReducer';
 import IncomingCallModal from '../../../components/IncomingCallModal';
 import ImagePreviewModal from './components/ImagePreviewModal';
 import {useSocket} from '../../../services/SocketContext';
+import ActionModalMessage from './components/ActionModalMessage';
+import {showIncomingCall} from '@services/CallKeepService';
+import {v4 as uuidv4} from 'uuid';
+import RNCallKeep from 'react-native-callkeep';
 
 export const MessageScreen = () => {
   const navigation: any = useNavigation();
@@ -65,6 +69,8 @@ export const MessageScreen = () => {
     type: 'video',
   });
   const {socket, connectToSocket, disconnectSocket} = useSocket();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [content, setContent] = useState<Message>();
 
   useEffect(() => {
     setChat([]);
@@ -89,6 +95,12 @@ export const MessageScreen = () => {
     };
 
     const onCall = ({callerName, type}: any) => {
+      const callUUID = uuidv4();
+      showIncomingCall({
+        uuid: callUUID,
+        handle: callerName,
+        name: callerName,
+      });
       setIncomingCall({visible: true, callerName, type});
     };
 
@@ -185,19 +197,36 @@ export const MessageScreen = () => {
     });
   };
 
+  useEffect(() => {
+    const subscription = RNCallKeep.addEventListener(
+      'answerCall',
+      ({callUUID}) => {
+        navigation.navigate('ZegoCallScreen', {
+          userID: userC?._id,
+          callID: roomId,
+          isCaller: false,
+        });
+      },
+    );
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
   const handleRejectCall = () => {
     if (rejectTimeoutRef.current) {
       clearTimeout(rejectTimeoutRef.current);
       rejectTimeoutRef.current = null;
     }
+
     if (socket) {
-      socket.emit('callEnded', {
+      socket.emit('callCancelled', {
         roomId: roomId,
         senderId: userC?._id,
-        callType: 'video',
-        missed: true,
       });
     }
+
     setIncomingCall(prev => ({...prev, visible: false}));
   };
 
@@ -214,6 +243,7 @@ export const MessageScreen = () => {
       userName: userC?.username,
       callID: roomId,
       image: userC?.profilePic,
+      isCaller: true,
     });
   };
 
@@ -245,6 +275,10 @@ export const MessageScreen = () => {
       linkPreviews={linkPreviews}
       styles={styles}
       color={color}
+      onLongPress={(content: Message) => {
+        setModalVisible(true);
+        setContent(content);
+      }}
     />
   );
 
@@ -449,6 +483,12 @@ export const MessageScreen = () => {
         type={incomingCall.type}
         onAccept={handleAcceptCall}
         onReject={handleRejectCall}
+      />
+      <ActionModalMessage
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        content={content}
+        setChat={setChat}
       />
     </SafeAreaView>
   );

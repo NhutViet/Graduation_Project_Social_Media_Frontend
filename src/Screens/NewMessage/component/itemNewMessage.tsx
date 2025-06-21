@@ -4,7 +4,7 @@ import {useTheme} from '../../../util/ThemeContext';
 import {useNavigation} from '@react-navigation/native';
 
 const ItemNewMessage = (props: any) => {
-  const {roomId, nameChat, userHandle1, userHandle2, img1, img2} = props;
+  const {roomId, nameChat, latestMessage, img1, img2} = props;
   const {theme} = useTheme();
   const color = Colors[theme];
   const navigation: any = useNavigation();
@@ -42,12 +42,9 @@ const ItemNewMessage = (props: any) => {
         </View>
         <View>
           <Text style={[styles.nameChat, {color: color.text}]}>{nameChat}</Text>
-          {userHandle1 && (
-            <Text style={[styles.textNormal, {color: color.text}]}>
-              {userHandle1}
-              {userHandle2 ? `, ${userHandle2}` : ''}
-            </Text>
-          )}
+          <Text style={[styles.textNormal, {color: color.text}]}>
+            {latestMessage.content}
+          </Text>
         </View>
       </View>
       <View style={styles.blockIcon}>
@@ -105,7 +102,7 @@ const styles = StyleSheet.create({
   img: {
     width: '100%',
     height: '100%',
-    resizeMode: 'contain',
+    resizeMode: 'cover',
   },
   icon: {
     width: '40%',

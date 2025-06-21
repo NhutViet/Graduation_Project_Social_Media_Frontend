@@ -48,6 +48,7 @@ import {
 } from '../../(tabs)/Profile/components/PostView.component';
 import {getPostsAndReelsOfUser} from '../../../services/postUserRedux/postUserSlice';
 import {clearPostsAndReels} from '../../../services/postUserRedux/postUserReducer';
+import PostItem from '../LikedScreen/Components/PostItem';
 
 const ProfileComp = ({route}: any) => {
   const navigation: any = useNavigation();
@@ -183,7 +184,6 @@ const ProfileComp = ({route}: any) => {
     (state: RootState) => state.postUser.reels,
   );
 
-  const [localPostAndReelCount, setLocalPostAndReelCount] = useState(0);
   const {isSuccess} = useSelector((state: RootState) => state.postUser);
   const {refreshToken} = useSelector((state: RootState) => state.user);
 
@@ -361,7 +361,7 @@ const ProfileComp = ({route}: any) => {
           name={publicProfile.username}
           followers={localFollowersCount}
           following={localFollowingCount}
-          posts={UserMock.posts}
+          posts={PostsItem.length + ReelsItem.length}
           avatar={publicProfile.profilePic}
           bio={publicProfile.bio}
           theme={theme}

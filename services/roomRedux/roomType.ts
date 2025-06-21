@@ -1,7 +1,18 @@
+import {MediaMessage} from '@services/messageRedux/messageType';
+
 export interface RoomUser {
   _id: string;
   handleName?: string;
   profilePic?: string;
+}
+
+export interface LatestMessage {
+  _id: string;
+  messageId: string;
+  content: string;
+  senderId: string;
+  media: MediaMessage;
+  createdAt: string;
 }
 
 export interface Room {
@@ -13,6 +24,7 @@ export interface Room {
   user_ids: RoomUser[];
   createdAt: string;
   updatedAt: string;
+  latestMessage: LatestMessage;
   __v: number;
 }
 

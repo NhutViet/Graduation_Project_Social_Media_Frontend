@@ -39,7 +39,7 @@ export const handleBookmark = async ({
     try {
       await dispatch(
         removeBookmark({
-          postId: _id,
+          postIds: [_id],
           refreshToken,
         }),
       ).unwrap();
