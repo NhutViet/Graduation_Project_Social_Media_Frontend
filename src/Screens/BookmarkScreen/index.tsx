@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useCallback, useEffect} from 'react';
 import {
   View,
   Text,
@@ -6,99 +6,105 @@ import {
   TouchableOpacity,
   ScrollView,
   FlatList,
+  ListRenderItem,
+  SafeAreaView,
+  ActivityIndicator,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import {bookmarked, BookmarkedItem} from '../../MockData/bookmarked.mock';
-import BookmarkedPlaylist from './components/BookmarkedPlaylist';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {useBookmarkStyles} from '../../StyleSheet/BookmarkedStyles';
+import BookmarkedPlaylist from './components/BookmarkedPlaylist';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../services/store';
+import {getAllPlaylists} from '../../../services/bookmarkRedux/bookmarkSlice';
 import {
-  getAllPlaylists,
-  getItemsOfPlaylist,
-} from '../../../services/bookmarkRedux/bookmarkSlice';
+  Playlist,
+  Playlist as PlaylistType,
+} from '../../../services/bookmarkRedux/bookmarkTypes';
 
 export const BookmarkScreen = () => {
-  const navigation: any = useNavigation();
+  const navigation = useNavigation<any>();
   const styles = useBookmarkStyles();
   const dispatch = useDispatch<AppDispatch>();
+
   const {refreshToken} = useSelector((state: RootState) => state.user);
-  const playlist = useSelector((state: RootState) => state.bookmark.playlists);
-
-  const posts = bookmarked.filter(item => item.type === 'post');
-  const musics = bookmarked.filter(item => item.type === 'music');
-
-  useEffect(() => {
-    dispatch(getAllPlaylists({refreshToken}));
-  }, []);
-
-  useEffect(() => {
-    playlist.forEach(playlist => {
-      dispatch(getItemsOfPlaylist({playlistId: playlist.id, refreshToken}));
-    });
-  }, [playlist]);
-
-  interface Playlist {
-    id: string;
-    title: string;
-    type: 'post' | 'music';
-    items: BookmarkedItem[];
-  }
-
-  const playlists: Playlist[] = [
-    {id: '1', title: 'Tất cả bài đăng', type: 'post', items: posts},
-    {id: '2', title: 'Âm thanh', type: 'music', items: musics},
-  ];
-
-  const handlePlaylistPress = (title: string, type: 'post' | 'music') => {
-    navigation.navigate('PlaylistsScreen', {title, type});
-  };
-
-  const renderPlaylistItem = ({item, index}: {item: any; index: number}) => (
-    <TouchableOpacity
-      style={styles.columnItem}
-      onPress={() => {
-        if (item.title == 'Âm thanh') {
-          navigation.navigate('MusicSaved');
-        } else {
-          handlePlaylistPress(item.title, item.type);
-        }
-      }}>
-      <BookmarkedPlaylist title={item.title} items={item.items} />
-    </TouchableOpacity>
+  const {playlists, isloading} = useSelector(
+    (state: RootState) => state.bookmark,
   );
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Image
-            source={require('../../../assets/icon/left.png')}
-            style={styles.icon}
-          />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Đã lưu</Text>
-        <TouchableOpacity
-          onPress={() => {
-            navigation.navigate('AddCollection');
-          }}>
-          <Image
-            source={require('../../../assets/icon/Plus.png')}
-            style={styles.icon}
-          />
-        </TouchableOpacity>
-      </View>
+  // Lấy danh sách playlist lần đầu
+  useFocusEffect(
+    useCallback(() => {
+      if (refreshToken) {
+        dispatch(getAllPlaylists({refreshToken}));
+      }
+    }, [dispatch, refreshToken]),
+  );
 
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <FlatList
-          data={playlists}
-          renderItem={renderPlaylistItem}
-          keyExtractor={item => item.id}
-          numColumns={2}
-          columnWrapperStyle={styles.playlistRow}
-          scrollEnabled={false} // disable FlatList scrolling as we're using ScrollView
+  const handlePlaylistPress = (playlistId: string, title: string) => {
+    if (title === 'Music') {
+      navigation.navigate('MusicSaved', {playlistId, title});
+    } else {
+      navigation.navigate('PlaylistsScreen', {playlistId, title});
+    }
+  };
+
+  const renderPlaylistItem = ({item}: {item: Playlist}) => {
+    return (
+      <TouchableOpacity
+        style={styles.columnItem}
+        onPress={() => handlePlaylistPress(item._id, item.playlistName)}>
+        <BookmarkedPlaylist
+          title={item.playlistName}
+          thumbnails={item.thumbnails || []}
+          coverImg={item.coverImg}
         />
-      </ScrollView>
-    </View>
+      </TouchableOpacity>
+    );
+  };
+
+  if (isloading) {
+    return (
+      <SafeAreaView style={styles.centerContainer}>
+        <ActivityIndicator size="large" color={'#0095F6'} />
+      </SafeAreaView>
+    );
+  }else{
+
+  }
+
+  return (
+    <SafeAreaView style={{flex: 1}}>
+      <View style={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Image
+              source={require('../../../assets/icon/left.png')}
+              style={styles.icon}
+            />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Đã lưu</Text>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('AddCollection' as never)}>
+            <Image
+              source={require('../../../assets/icon/Plus.png')}
+              style={styles.icon}
+            />
+          </TouchableOpacity>
+        </View>
+
+        {/* Danh sách playlist */}
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          <FlatList
+            data={playlists}
+            renderItem={renderPlaylistItem}
+            keyExtractor={item => item._id}
+            numColumns={2}
+            columnWrapperStyle={styles.playlistRow}
+            scrollEnabled={false}
+          />
+        </ScrollView>
+      </View>
+    </SafeAreaView>
   );
 };

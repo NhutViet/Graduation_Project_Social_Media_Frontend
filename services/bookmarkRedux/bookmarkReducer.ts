@@ -9,22 +9,12 @@ import {
   saveBookmark,
   switchBookmark,
 } from './bookmarkSlice';
-import {ResCreatePlaylist} from './bookmarkTypes';
-
-interface Playlist {
-  id: string;
-  name: string;
-}
-
-interface BookmarkItem {
-  itemID: string;
-  itemType: string;
-}
+import {Playlist, PlaylistItem, ResCreatePlaylist} from './bookmarkTypes';
 
 interface BookmarkState {
   playlists: Playlist[];
   itemsByPlaylist: {
-    [playlistId: string]: BookmarkItem[];
+    [playlistId: string]: PlaylistItem[];
   };
   paginationByPlaylist: {
     [playlistId: string]: any;
@@ -74,9 +64,9 @@ const bookmarkReducer = createSlice({
           item => item.itemID === itemID && item.itemType === itemType,
         );
 
-        if (!exists) {
-          state.itemsByPlaylist[playlistID].push({itemID, itemType});
-        }
+        // if (!exists) {
+        //   state.itemsByPlaylist[playlistID].push({itemID, itemType});
+        // }
       })
       .addCase(saveBookmark.rejected, (state, action) => {
         state.isloading = false;
@@ -94,13 +84,13 @@ const bookmarkReducer = createSlice({
         state.isloading = false;
         state.isSuccess = true;
 
-        const {postId} = action.payload;
+        const {postIds} = action.payload;
         Object.keys(state.itemsByPlaylist).forEach(playlistId => {
           const items = state.itemsByPlaylist[playlistId];
 
           if (items && items.length > 0) {
             state.itemsByPlaylist[playlistId] = items.filter(
-              item => item.itemID !== postId[0],
+              item => !postIds.includes(item.itemID || ''),
             );
           }
         });
@@ -120,15 +110,6 @@ const bookmarkReducer = createSlice({
       .addCase(createPlaylist.fulfilled, (state, action) => {
         state.isloading = false;
         state.isSuccess = true;
-
-        const res = action.payload as ResCreatePlaylist;
-
-        const newPlaylist: Playlist = {
-          id: res.id,
-          name: res.playlistName,
-        };
-
-        state.playlists.push(newPlaylist);
       })
       .addCase(createPlaylist.rejected, (state, action) => {
         state.isloading = false;
@@ -146,18 +127,7 @@ const bookmarkReducer = createSlice({
       .addCase(getAllPlaylists.fulfilled, (state, action) => {
         state.isloading = false;
         state.isSuccess = true;
-
-        const newPlaylist: Playlist[] = action?.payload?.map(playlist => ({
-          id: playlist._id,
-          name: playlist.playlistName,
-        }));
-
-        newPlaylist?.forEach(newItem => {
-          const exists = state.playlists.some(p => p.id === newItem.id);
-          if (!exists) {
-            state.playlists.push(newItem);
-          }
-        });
+        state.playlists = action.payload
       })
       .addCase(getAllPlaylists.rejected, (state, action) => {
         state.isloading = false;
@@ -173,16 +143,11 @@ const bookmarkReducer = createSlice({
         state.isSuccess = false;
       })
       .addCase(getItemsOfPlaylist.fulfilled, (state, action) => {
-        const {items, pagination, playlistId} = action.payload;
+        const {data, pagination, playlistId} = action.payload;
         state.isloading = false;
         state.isSuccess = true;
 
-        if (state.itemsByPlaylist[playlistId]) return;
-
-        state.itemsByPlaylist[playlistId] = items.map(item => ({
-          itemID: item.itemID,
-          itemType: item.itemType,
-        }));
+        state.itemsByPlaylist[playlistId] = data;
 
         state.paginationByPlaylist[playlistId] = pagination;
       })
@@ -202,24 +167,6 @@ const bookmarkReducer = createSlice({
       .addCase(switchBookmark.fulfilled, (state, action) => {
         state.isloading = false;
         state.isSuccess = true;
-
-        const {playlistID: playlistId, itemID: postId} = action.payload;
-
-        // Xoá post khỏi tất cả playlists đang chứa
-        for (const key in state.itemsByPlaylist) {
-          const items = state.itemsByPlaylist[key];
-          state.itemsByPlaylist[key] = items.filter(
-            item => item.itemID !== postId,
-          );
-        }
-
-        // Thêm post vào playlist mới nếu đã có dữ liệu load
-        if (state.itemsByPlaylist[playlistId]) {
-          state.itemsByPlaylist[playlistId].unshift({
-            itemID: postId,
-            itemType: 'post', // Nếu itemType khác thì chỉnh lại
-          });
-        }
       })
       .addCase(switchBookmark.rejected, (state, action) => {
         state.isloading = false;

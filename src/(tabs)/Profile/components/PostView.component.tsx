@@ -8,15 +8,10 @@ import {useNavigation} from '@react-navigation/native';
 
 interface GridViewProps {
   data: any[];
-  renderOverlay?: () => React.ReactNode;
   onPressItem?: (item: any) => void;
 }
 
-const GridView: React.FC<GridViewProps> = ({data, renderOverlay}) => {
-  const navigate = useNavigation<any>();
-  const handlePostPress = () => {
-    navigate.navigate('ViewReels');
-  };
+const GridView: React.FC<GridViewProps> = ({data, onPressItem}) => {
 
   return (
     <>
@@ -41,7 +36,7 @@ const GridView: React.FC<GridViewProps> = ({data, renderOverlay}) => {
             return (
               <View style={Styles.styles.gridItem}>
                 {isVideo ? (
-                  <TouchableOpacity onPress={() => handlePostPress()}>
+                  <TouchableOpacity onPress={onPressItem}>
                     <Video
                       source={{uri: uri}}
                       style={[
@@ -56,6 +51,7 @@ const GridView: React.FC<GridViewProps> = ({data, renderOverlay}) => {
                     />
                   </TouchableOpacity>
                 ) : (
+                <TouchableOpacity onPress={onPressItem}>
                   <Image
                     source={{uri: uri}}
                     style={[
@@ -63,8 +59,8 @@ const GridView: React.FC<GridViewProps> = ({data, renderOverlay}) => {
                       {width: Styles.itemSize - 2, height: Styles.itemSize - 2},
                     ]}
                   />
+                </TouchableOpacity>
                 )}
-                {renderOverlay && renderOverlay()}
               </View>
             );
           }}
@@ -85,6 +81,25 @@ const GridView: React.FC<GridViewProps> = ({data, renderOverlay}) => {
 };
 
 export const PostsView: React.FC<{data: any[]}> = ({data}) => {
+  const navigation = useNavigation<any>();
+  const handlePress = (item: any) => {
+    navigation.navigate('AllPostOfUserScreen', {
+      targetPostId: item._id,
+    });
+  };
+  return <GridView data={data} onPressItem={handlePress} />;
+};
+
+export const ReelsView: React.FC<{data: any[]}> = ({data}) => {
+  const navigation = useNavigation<any>();
+  const handlePress = () => {
+    navigation.navigate('ViewReels', {
+    });
+  };
+  return <GridView data={data} onPressItem={handlePress} />;
+};
+
+export const TagsView: React.FC<{data: any[]}> = ({data}) => {
   const navigation = useNavigation<any>();
   const handlePress = (item: any) => {
     navigation.navigate('AllPostOfUserScreen', {
