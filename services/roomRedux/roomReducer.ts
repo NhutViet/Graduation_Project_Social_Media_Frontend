@@ -3,6 +3,7 @@ import {Room} from './roomType';
 import {
   createRoom,
   fetchMyRooms,
+  fetchMyWaitingRooms,
   updateRoomName,
   updateRoomTheme,
 } from './roomSlice';
@@ -42,6 +43,11 @@ const roomSlice = createSlice({
       .addCase(fetchMyRooms.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+      })
+
+      .addCase(fetchMyWaitingRooms.fulfilled, (state, action) => {
+        state.loading = false;
+        state.rooms = action.payload;
       })
 
       .addCase(updateRoomTheme.fulfilled, (state, action) => {

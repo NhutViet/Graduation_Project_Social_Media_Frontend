@@ -66,11 +66,8 @@ import AllPostOfCollection from '../../components/AllPostOfCollection';
 import ZegoCallScreen from '../Screens/ZegoCloud/ZegoCallScreen';
 
 export type RootStackParamList = {
-  PendingMessages: {handleName: string};
   MessageScreen: {
     room: string;
-    img1?: string;
-    img2?: string;
   };
   InforGroupChat: {
     roomId: string;
