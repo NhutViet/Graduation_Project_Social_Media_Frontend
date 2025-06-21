@@ -17,7 +17,7 @@ import {
 } from '../../../../services/reactionRedux/reactionSlice';
 import {ReelItemProps, styles} from '../../../StyleSheet/ViewReels';
 
-const formatNumber = (num?: number | null): string => {
+const formatNumber = (num: number): string => {
   if (typeof num !== 'number' || isNaN(num)) {
     return '0';
   }
@@ -30,10 +30,7 @@ const formatNumber = (num?: number | null): string => {
   return num.toString();
 };
 
-const parseCaption = (
-  caption: string | null | undefined,
-  onHashtagPress: (tag: string) => void,
-): React.ReactNode[] => {
+const parseCaption = (caption: string, onHashtagPress: (tag: string) => void): React.ReactNode[] => {
   if (!caption || typeof caption !== 'string') {
     return [];
   }
@@ -73,8 +70,9 @@ const parseCaption = (
 
 const ReelItem: React.FC<ReelItemProps> = ({
   item,
-  index,
-  activeIndex,
+  isFocused,
+  // currentVisible,
+  isCurrentVisible,
   handleHashtagPress,
   openComment,
   showBottomSheet,
@@ -86,9 +84,6 @@ const ReelItem: React.FC<ReelItemProps> = ({
 
   const [isLiked, setIsLiked] = useState(likePosts.includes(item._id));
   const [numLike, setNumLike] = useState(item.likeCount);
-
-  // Chỉ phát video khi index === activeIndex
-  const isActive = index === activeIndex;
 
   const handleLike = async () => {
     if (isLiked) {
@@ -114,15 +109,13 @@ const ReelItem: React.FC<ReelItemProps> = ({
 
   return (
     <View style={styles.container}>
-      <Video
+       <Video
         source={{uri: item.media?.videoUrl}}
         style={styles.video}
         resizeMode="cover"
         repeat
-        maxBitRate={1500000}
-        progressUpdateInterval={500}
+        paused={!isCurrentVisible || !isFocused}
         muted={false}
-        paused={!isActive}
       />
       <View style={styles.bottomContainer}>
         {/* Left: User info and caption */}

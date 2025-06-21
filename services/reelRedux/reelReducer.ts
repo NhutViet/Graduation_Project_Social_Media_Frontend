@@ -22,19 +22,16 @@ const reelReducer = createReducer(initReelState, builder => {
     .addCase(fetchReels.pending, state => {
       state.loading = true;
       state.error = undefined;
-      console.log('Fetching reels...');
     })
     .addCase(fetchReels.fulfilled, (state, action: PayloadAction<Reel[]>) => {
       state.loading = false;
       state.data = action.payload;
       state.message = 'Fetch reels success';
-      console.log('Fetch reels success:');
     })
     .addCase(fetchReels.rejected, (state, action) => {
       state.loading = false;
       state.error = (action.payload as string) || 'Unknown error';
       state.message = 'Fetch reels failed';
-      console.error('Fetch reels failed:', action.payload);
     });
 });
 

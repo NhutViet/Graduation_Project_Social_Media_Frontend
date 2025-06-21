@@ -1,88 +1,89 @@
 import React, {useRef, useState} from 'react';
 import {Dimensions, TouchableOpacity, View} from 'react-native';
 import {FlashList} from '@shopify/flash-list';
-import {Reel, styles} from '../../StyleSheet/ViewReels';
-import ReelItem from './item';
+import {styles} from '../../StyleSheet/ViewReels';
+import {useNavigation, useIsFocused} from '@react-navigation/native';
+import {ArrowLeft} from 'lucide-react-native';
+import {useSelector} from 'react-redux';
+import {RootState} from '@services/store';
 import BottomSheetComment, {
   BottomSheetCommentRef,
 } from '../../(tabs)/Home/components/CommentSection';
-import {useNavigation} from '@react-navigation/native';
 import BottomSheetReels, {
   BottomSheetReelsRef,
 } from '../../(tabs)/Reels/bottomSheet/reelBottomSheet';
-import {ArrowLeft} from 'lucide-react-native';
-import {RootState} from '@services/store';
-import {useSelector} from 'react-redux';
+import ReelItem from './item';
 
 const {width, height} = Dimensions.get('window');
 
 export const ViewReels: React.FC = () => {
-  const reels: Reel[] = useSelector((state: RootState) => state.reels.data);
-  const [activeIndex, setActiveIndex] = useState<number>(0);
-  const navigate = useNavigation();
+  const reels = useSelector((state: RootState) => state.reels.data);
+  const isFocused = useIsFocused();
+
+  const [currentVisibleId, setCurrentVisibleId] = useState<string | null>(null);
+  const [selectedPostId, setSelectedPostId] = useState<string>('');
   const sheetRefComment = useRef<BottomSheetCommentRef>(null);
-  const sheetRef: any = useRef<BottomSheetReelsRef>(null);
-  const [_selectedPostId, setSelectedPostId] = useState<string>('');
+  const sheetRef = useRef<BottomSheetReelsRef>(null);
+  const navigation = useNavigation();
 
   const onViewRef = useRef(({viewableItems}: {viewableItems: any[]}) => {
     if (viewableItems.length > 0) {
-      const visibleIndex = viewableItems[0]?.index;
-      if (typeof visibleIndex === 'number') {
-        setActiveIndex(visibleIndex);
-      }
+      const visibleItem = viewableItems[0];
+      const id = visibleItem?.item?._id;
+      if (id) setCurrentVisibleId(id);
     }
   });
-
-  const handleHashtagPress = (tag: string) => {
-    console.log('Hashtag pressed:', tag);
-  };
 
   const openComment = (postId: string) => {
     setSelectedPostId(postId);
     sheetRefComment.current?.open();
   };
 
-  const closeComment = () => {
-    setSelectedPostId('');
-    sheetRefComment.current?.close();
+  const openOptions = (postId: string) => {
+    setSelectedPostId(postId);
+    sheetRef.current?.open();
+  };
+  const handleHashtagPress = (tag: string) => {
+    console.log('Hashtag pressed:', tag);
   };
 
   return (
     <>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigate.goBack()}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <ArrowLeft color="#fff" size={28} />
         </TouchableOpacity>
       </View>
+
       <FlashList
         data={reels}
-        renderItem={({item, index}) => (
+        keyExtractor={item => item._id}
+        renderItem={({item}) => (
           <ReelItem
             item={item}
-            index={index}
-            activeIndex={activeIndex}
+            isFocused={isFocused}
+            isCurrentVisible={item._id === currentVisibleId}
             handleHashtagPress={handleHashtagPress}
+            navigation={navigation}
             openComment={openComment}
-            showBottomSheet={closeComment}
-            navigation={navigate}
+            showBottomSheet={openOptions}
           />
         )}
-        keyExtractor={item => item._id}
+        extraData={[isFocused, currentVisibleId]}
         estimatedItemSize={height}
-        estimatedListSize={{height, width}}
+        estimatedListSize={{width, height}}
         pagingEnabled
-        showsVerticalScrollIndicator={false}
-        horizontal={false}
         snapToInterval={height}
         decelerationRate="fast"
         removeClippedSubviews
+        showsVerticalScrollIndicator={false}
+        horizontal={false}
         onViewableItemsChanged={onViewRef.current}
-        viewabilityConfig={{
-          itemVisiblePercentThreshold: 70,
-        }}
+        viewabilityConfig={{itemVisiblePercentThreshold: 70}}
       />
+
       <BottomSheetReels ref={sheetRef} selectedItem={undefined} />
-      <BottomSheetComment ref={sheetRefComment} postId={_selectedPostId} />
+      <BottomSheetComment ref={sheetRefComment} postId={selectedPostId} />
     </>
   );
 };
