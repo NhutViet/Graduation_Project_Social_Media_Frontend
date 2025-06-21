@@ -149,8 +149,6 @@ export const handleUserPress = async (
             await markStoryAsSeen(story._id, story.createdAt);
           }
 
-          console.log('🎧 musicData:', story.music); // ✅ sẽ có link ở đây
-
           return {
             ...story,
             uriVideo: story.mediaUrl.endsWith('.m3u8') ? story.mediaUrl : null,

@@ -75,20 +75,6 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
   const [visibleSeeMore, setVisibleSeeMore] = useState(false);
   const [mediaSize, setMediaSize] = useState({width: 0, height: 0});
 
-  // Debug dữ liệu stories và currentIndex
-  console.log(
-    '🔍 Stories received: length =',
-    stories ? stories.length : 'undefined',
-  );
-  console.log(
-    '🔍 Selected story (index =',
-    currentIndex,
-    '):',
-    selectedItem
-      ? JSON.stringify(selectedItem, null, 2)
-      : 'Selected item is undefined',
-  );
-
   const progressAnims = useRef<Animated.Value[]>(
     (stories || []).map(() => new Animated.Value(0)),
   ).current;
@@ -110,7 +96,6 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
   };
 
   const handleAddHighlight = (name: string) => {
-    console.log('Thêm highlight:', name);
     addModalRef.current?.close();
   };
 
@@ -133,7 +118,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
     if (progressAnims[currentIndex]) {
       progressAnims[currentIndex].setValue(0);
       const duration = getItemDuration();
-      console.log('🎵 Progress animation duration:', duration);
+
       animationRef.current = Animated.timing(progressAnims[currentIndex], {
         toValue: 1,
         duration,
@@ -156,7 +141,6 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
       setIsVideoPaused(false);
       setCurrentIndex(prev => prev + 1);
     } else {
-      console.log('🏁 No more stories, going back');
       navigation.goBack();
     }
   };
@@ -164,26 +148,24 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
   const goToPreviousStory = () => {
     setCurrentIndex(prev => {
       if (prev > 0) {
-        console.log('⏮️ Going to previous story, currentIndex:', prev);
         setVideoDuration(null);
         setMusicDuration(null);
         setIsVideoPaused(false);
         return prev - 1;
       }
-      console.log('🚫 Already at first story');
+
       return prev;
     });
   };
 
   const toggleVideoPause = () => {
     if (!selectedItem?.mediaUrl?.endsWith('.m3u8')) {
-      console.log('🚫 Cannot pause: Not a video');
       return;
     }
 
     setIsVideoPaused(prev => {
       const newState = !prev;
-      console.log('⏯️ Video paused:', newState);
+
       if (newState) {
         animationRef.current?.stop();
       } else {
@@ -196,20 +178,15 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
   const debouncedHandleTouch = useRef(
     debounce((locationX: number | null) => {
       if (locationX == null) {
-        console.warn('⚠️ event.nativeEvent.locationX is null');
         toggleVideoPause();
         return;
       }
 
-      console.log('🖱️ Touch at locationX:', locationX);
       if (locationX < screenWidth / 3) {
-        console.log('👈 Touch left, calling goToPreviousStory');
         goToPreviousStory();
       } else if (locationX > (screenWidth * 2) / 3) {
-        console.log('👉 Touch right, calling goToNextStory');
         goToNextStory();
       } else {
-        console.log('⏯️ Touch center, toggling pause');
         toggleVideoPause();
       }
     }, 300),
@@ -218,7 +195,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
   const handleTouch = useCallback(
     (event: GestureResponderEvent) => {
       const locationX = event.nativeEvent.locationX;
-      console.log('📍 Raw touch event, locationX:', locationX);
+
       debouncedHandleTouch(locationX);
     },
     [debouncedHandleTouch],
@@ -226,7 +203,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
 
   const onVideoLoad = (data: any) => {
     setVideoDuration(data.duration);
-    console.log('📹 Video loaded, duration:', data.duration);
+
     if (!isVideoPaused) {
       startProgressAnimation();
     }
@@ -234,24 +211,21 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
 
   const onMusicLoad = (data: any) => {
     setMusicDuration(data.duration);
-    console.log('🎵 Music loaded, duration:', data.duration);
+
     if (!isVideoPaused) {
       startProgressAnimation(); // ✅ Thêm dòng này để kích hoạt thanh tiến trình
     }
   };
 
   const onVideoEnd = () => {
-    console.log('📹 Video ended');
     goToNextStory();
   };
 
   const onMusicEnd = () => {
-    console.log('🎵 Music ended');
     goToNextStory();
   };
 
   useEffect(() => {
-    console.log('📊 Updating progress bars, currentIndex:', currentIndex);
     setVideoDuration(null);
     setMusicDuration(null);
     setIsVideoPaused(false);
@@ -271,7 +245,6 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
       const isVideo = currentStory?.mediaUrl?.endsWith('.m3u8');
       const hasMusic = !!currentStory?.music?.link;
       if (!isVideo && !hasMusic && !isVideoPaused) {
-        console.log('▶️ Starting progress animation for non-video/music story');
         startProgressAnimation();
       }
     } else {
@@ -290,7 +263,6 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
   }, [debouncedHandleTouch]);
 
   const handleCloserPress = () => {
-    console.log('🔙 Closing story');
     navigation.goBack();
   };
 

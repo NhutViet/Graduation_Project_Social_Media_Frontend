@@ -44,17 +44,13 @@ export const MediaSection = forwardRef(
       const startTime = selectedItem?.music?.time_start || 0;
 
       if (!musicLink) {
-        console.log('🔇 No music link provided');
         return;
       }
 
       if (!isValidUrl(musicLink)) {
-        console.warn('❌ Invalid music URL:', musicLink);
         Alert.alert('Lỗi phát nhạc', 'URL nhạc không hợp lệ.');
         return;
       }
-
-      console.log('🎵 Loading music:', musicLink);
 
       // Dừng và giải phóng nhạc cũ
       if (soundRef.current) {
@@ -69,13 +65,12 @@ export const MediaSection = forwardRef(
         }
 
         const duration = sound.getDuration();
-        console.log('🎵 Music duration:', duration);
+
         onMusicLoad?.({duration});
 
         sound.setCurrentTime(startTime);
         sound.play(success => {
           if (success) {
-            console.log('🎵 Music ended');
             onMusicEnd?.();
           } else {
             console.warn('⚠️ Music playback failed');
@@ -88,7 +83,6 @@ export const MediaSection = forwardRef(
       return () => {
         // Cleanup dứt khoát
         if (soundRef.current) {
-          console.log('🛑 Cleaning up sound');
           soundRef.current.stop(() => soundRef.current?.release());
           soundRef.current = null;
         }
