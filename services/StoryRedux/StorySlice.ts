@@ -1,7 +1,30 @@
 import {createAsyncThunk} from '@reduxjs/toolkit';
-import {Story, userFollow} from './StoryType';
+import {CreateHighlightPayload, Story, userFollow} from './StoryType';
 import axiosInstance from '../axiosInstance';
 import {API} from '../api';
+
+export const fetchStoryDetails = createAsyncThunk<
+  Story[],
+  {storyIds: string[]},
+  {rejectValue: string}
+>('stories/fetchStoryDetails', async ({storyIds}, {rejectWithValue}) => {
+  try {
+    const response = await axiosInstance.post(
+      '/stories',
+      {storyId: storyIds},
+      {
+        headers: {
+          token: 'refresh',
+        },
+      },
+    );
+    return response.data.data;
+  } catch (error: any) {
+    return rejectWithValue(
+      error.response?.data?.message || 'Không thể lấy chi tiết story',
+    );
+  }
+});
 
 export const seenStory = createAsyncThunk<
   any,
@@ -26,7 +49,6 @@ export const seenStory = createAsyncThunk<
   }
 });
 
-// lấy story's following
 export const fetchFollowingStories = createAsyncThunk<
   userFollow[],
   {page: number},
@@ -34,7 +56,7 @@ export const fetchFollowingStories = createAsyncThunk<
 >('stories/fetchFollowing', async ({page}, {rejectWithValue}) => {
   try {
     const response = await axiosInstance.get(
-      `${API.GET_USER_FOLLOW}?page=${page}`,
+      `/stories/following?page=${page}`,
       {
         headers: {
           token: 'refresh',
@@ -49,7 +71,6 @@ export const fetchFollowingStories = createAsyncThunk<
   }
 });
 
-// lấy story đã đăng
 export const fetchGetPostedSotry = createAsyncThunk<
   Story[],
   void,
@@ -89,6 +110,29 @@ export const toggleLikeStory = createAsyncThunk<
   } catch (err: any) {
     return rejectWithValue(
       err.response?.data?.message || 'Failed to like story',
+    );
+  }
+});
+
+export const createHighlightStory = createAsyncThunk<
+  Story,
+  CreateHighlightPayload,
+  {rejectValue: string}
+>('stories/createHighlightStory', async (payload, {rejectWithValue}) => {
+  try {
+    const response = await axiosInstance.post(
+      `${API.CREATE_HIGHLIGHT_STORY}`,
+      payload,
+      {
+        headers: {
+          token: 'refresh',
+        },
+      },
+    );
+    return response.data.data;
+  } catch (error: any) {
+    return rejectWithValue(
+      error.response?.data?.message || 'Không thể tạo Highlight mới',
     );
   }
 });

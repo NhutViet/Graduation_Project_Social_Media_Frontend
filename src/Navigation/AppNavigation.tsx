@@ -9,8 +9,7 @@ import {
   Login,
   NotificationsScreen,
   PostSetting,
-  // SeenStory,
-  // SeenStoryOwner,
+  SeenStory,
   Setting,
   SwitchAccount,
   Register,
@@ -54,6 +53,7 @@ import {
   Splash,
   UserFollowScreen,
   ViewReels,
+  SeenStoryOwner,
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 import ProfileComp from '../Screens/Profile';
@@ -64,6 +64,7 @@ import Profile from '../(tabs)/Profile/index';
 import AllPostOfUserScreen from '../../components/AllPostOfUserScreen';
 import AllPostOfCollection from '../../components/AllPostOfCollection';
 import ZegoCallScreen from '../Screens/ZegoCloud/ZegoCallScreen';
+
 export type RootStackParamList = {
   PendingMessages: {handleName: string};
   MessageScreen: {
@@ -96,8 +97,14 @@ const AppNavigator = () => {
       <Stack.Navigator
         initialRouteName="Splash"
         screenOptions={{headerShown: false}}>
-          <Stack.Screen name="AllPostOfCollection" component={AllPostOfCollection} />
-          <Stack.Screen name="AllPostOfUserScreen" component={AllPostOfUserScreen} />
+        <Stack.Screen
+          name="AllPostOfCollection"
+          component={AllPostOfCollection}
+        />
+        <Stack.Screen
+          name="AllPostOfUserScreen"
+          component={AllPostOfUserScreen}
+        />
         <Stack.Screen name="Profile" component={Profile} />
         <Stack.Screen name="ViewReels" component={ViewReels} />
         <Stack.Screen name="ZegoCallScreen" component={ZegoCallScreen} />
