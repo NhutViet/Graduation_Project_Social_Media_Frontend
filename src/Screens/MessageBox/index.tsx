@@ -1,4 +1,4 @@
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {FlashList} from '@shopify/flash-list';
 import {
   Alert,
@@ -13,7 +13,7 @@ import {
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import MessageBoxStyles from '../../StyleSheet/MessageBoxStyles';
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect, useRef, useCallback} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../services/store';
 import {fetchMyRooms} from '../../../services/roomRedux/roomSlice';
@@ -38,9 +38,7 @@ export const MessageBox = (props: any) => {
   const {onBack} = props;
 
   const dispatch = useDispatch<AppDispatch>();
-  const {rooms, loading, error} = useSelector(
-    (state: RootState) => state.rooms,
-  );
+  const {rooms} = useSelector((state: RootState) => state.rooms);
   const [seenMap, setSeenMap] = useState<Record<string, boolean>>({});
 
   const followingUsers = useSelector(
@@ -52,12 +50,16 @@ export const MessageBox = (props: any) => {
     (state: RootState) => state.stories.storyDetails,
   );
   useEffect(() => {
-    dispatch(fetchMyRooms());
-
     dispatch(fetchFollowingStories({page: 1}));
-
     clearExpiredSeenStories();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(fetchMyRooms());
+    }, [dispatch]),
+  );
+  
   useEffect(() => {
     const syncSeenStories = async () => {
       const map: Record<string, boolean> = {};
@@ -229,8 +231,7 @@ export const MessageBox = (props: any) => {
                 roomId={item._id}
                 nameChat={nameChat}
                 roomTheme={item?.theme}
-                userHandle1={user1?.handleName || ''}
-                userHandle2={user2?.handleName || ''}
+                latestMessage={item.latestMessage}
                 img1={user1?.profilePic || ''}
                 img2={user2?.profilePic || ''}
               />

@@ -36,7 +36,6 @@ export const ItemHomeStyles = StyleSheet.create({
   video: {
     width: '100%',
     backgroundColor: Colors.black,
-    height: 600,
   },
   headerItem: {
     position: 'absolute',

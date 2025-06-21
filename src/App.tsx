@@ -1,5 +1,5 @@
 import 'react-native-gesture-handler';
-import React from 'react';
+import React, {useEffect} from 'react';
 import {enableScreens} from 'react-native-screens';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import AppNavigator from './Navigation/AppNavigation';
@@ -15,6 +15,7 @@ import Toast from 'react-native-toast-message';
 import {Buffer} from 'buffer';
 import {TabLoadingProvider} from '../services/TabLoadingContext';
 import {SocketProvider} from '../services/SocketContext';
+import {requestCallPermissions, setupCallKeep} from '@services/CallKeepService';
 global.Buffer = Buffer;
 if (__DEV__) {
   import('./config/ReactotronConfig').then(() =>
@@ -24,6 +25,15 @@ if (__DEV__) {
 enableScreens();
 
 const App = () => {
+  useEffect(() => {
+    const initCallKeep = async () => {
+      await requestCallPermissions();
+      setupCallKeep();
+    };
+
+    initCallKeep();
+  }, []);
+
   return (
     <GestureHandlerRootView style={{flex: 1}}>
       <Provider store={store}>
