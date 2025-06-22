@@ -128,18 +128,35 @@ const ActionModalMessage = ({visible, onClose, content, setChat}: Props) => {
               style={styles.featureContainer}
               onPress={async () => {
                 if (content) {
-                  const resultAction = await dispatch(
-                    deleteMessageById({messageId: content._id}),
-                  );
-                  if (deleteMessageById.fulfilled.match(resultAction)) {
-                    setChat(prev =>
-                      prev.filter(msg => msg._id !== content._id),
+                  try {
+                    const resultAction = await dispatch(
+                      deleteMessageById({messageId: content._id}),
                     );
+
+                    if (deleteMessageById.fulfilled.match(resultAction)) {
+                      const {deleted, reason} = resultAction.payload;
+
+                      if (deleted) {
+                        setChat(prev =>
+                          prev.filter(msg => msg._id !== content._id),
+                        );
+                        onClose();
+                      } else {
+                        Alert.alert(
+                          'Không thể xoá',
+                          reason || 'Bạn không thể xoá tin nhắn này',
+                        );
+                      }
+                    } else {
+                      const reason = resultAction.payload || 'Xoá thất bại';
+                      Alert.alert('Lỗi', reason);
+                    }
+                  } catch (err) {
+                    console.error('❌ Lỗi xoá tin nhắn:', err);
+                    Alert.alert('Lỗi', 'Đã xảy ra lỗi khi xoá tin nhắn');
+                  } finally {
                     onClose();
-                  } else {
-                    Alert.alert('Lỗi', 'Xoá thất bại');
                   }
-                  onClose();
                 }
               }}>
               <Image

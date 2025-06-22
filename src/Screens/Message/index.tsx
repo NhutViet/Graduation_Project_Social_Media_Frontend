@@ -29,9 +29,11 @@ import IncomingCallModal from '../../../components/IncomingCallModal';
 import ImagePreviewModal from './components/ImagePreviewModal';
 import {useSocket} from '../../../services/SocketContext';
 import ActionModalMessage from './components/ActionModalMessage';
-import {showIncomingCall} from '@services/CallKeepService';
-import {v4 as uuidv4} from 'uuid';
-import RNCallKeep from 'react-native-callkeep';
+import MessageInput from './components/MessageInput';
+import MessageHeader from './components/MessageHeader';
+// import {showIncomingCall} from '@services/CallKeepService';
+// import {v4 as uuidv4} from 'uuid';
+// import RNCallKeep from 'react-native-callkeep';
 
 export const MessageScreen = () => {
   const navigation: any = useNavigation();
@@ -94,22 +96,22 @@ export const MessageScreen = () => {
       setChat(prev => [...prev, data]);
     };
 
-    const onCall = ({callerName, type}: any) => {
-      const callUUID = uuidv4();
-      showIncomingCall({
-        uuid: callUUID,
-        handle: callerName,
-        name: callerName,
-      });
-      setIncomingCall({visible: true, callerName, type});
-    };
+    // const onCall = ({callerName, type}: any) => {
+    //   const callUUID = uuidv4();
+    //   showIncomingCall({
+    //     uuid: callUUID,
+    //     handle: callerName,
+    //     name: callerName,
+    //   });
+    //   setIncomingCall({visible: true, callerName, type});
+    // };
 
     socket.on('receiveMessage', onMessage);
-    socket.on('incomingCall', onCall);
+    // socket.on('incomingCall', onCall);
 
     return () => {
       socket.off('receiveMessage', onMessage);
-      socket.off('incomingCall', onCall);
+      // socket.off('incomingCall', onCall);
     };
   }, [socket]);
 
@@ -197,22 +199,22 @@ export const MessageScreen = () => {
     });
   };
 
-  useEffect(() => {
-    const subscription = RNCallKeep.addEventListener(
-      'answerCall',
-      ({callUUID}) => {
-        navigation.navigate('ZegoCallScreen', {
-          userID: userC?._id,
-          callID: roomId,
-          isCaller: false,
-        });
-      },
-    );
+  // useEffect(() => {
+  //   const subscription = RNCallKeep.addEventListener(
+  //     'answerCall',
+  //     ({callUUID}) => {
+  //       navigation.navigate('ZegoCallScreen', {
+  //         userID: userC?._id,
+  //         callID: roomId,
+  //         isCaller: false,
+  //       });
+  //     },
+  //   );
 
-    return () => {
-      subscription.remove();
-    };
-  }, []);
+  //   return () => {
+  //     subscription.remove();
+  //   };
+  // }, []);
 
   const handleRejectCall = () => {
     if (rejectTimeoutRef.current) {
@@ -309,90 +311,16 @@ export const MessageScreen = () => {
           },
         ]}>
         <View style={{flex: 1}}>
-          <View
-            style={[
-              styles.header,
-              {backgroundColor: 'rgba(255, 255, 255, 0.6)'},
-            ]}>
-            <View style={styles.rowContainer2}>
-              <TouchableOpacity style={styles.blockIcon} onPress={handleGoBack}>
-                <Image
-                  style={styles.icon}
-                  source={require('../../../assets/icon/left.png')}
-                />
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[
-                  styles.imgContainer,
-                  {
-                    overflow:
-                      user1?.profilePic && !user2?.profilePic
-                        ? 'hidden'
-                        : undefined,
-                  },
-                ]}
-                onPress={() => {
-                  if (user1?.profilePic && user2?.profilePic) {
-                    navigation.navigate('InforGroupChat', {
-                      roomId: room?._id,
-                      img1: user1?.profilePic,
-                      img2: user2?.profilePic,
-                    });
-                  } else {
-                    navigation.navigate('InfoUser', {
-                      roomId: room?._id,
-                      img1: user1?.profilePic,
-                    });
-                  }
-                }}>
-                {user2?.profilePic && (
-                  <>
-                    <Image
-                      style={styles.iconW}
-                      source={{uri: user1?.profilePic}}
-                    />
-                    <Image
-                      style={[
-                        styles.iconF,
-                        {
-                          borderColor: Colors.white,
-                          backgroundColor: color.backgroundSecondary,
-                        },
-                      ]}
-                      source={{uri: user2?.profilePic}}
-                    />
-                  </>
-                )}
-                {!user2?.profilePic && user1?.profilePic && (
-                  <Image style={styles.img} source={{uri: user1?.profilePic}} />
-                )}
-              </TouchableOpacity>
-
-              <Text
-                style={{color: Colors.black, fontSize: 16}}
-                numberOfLines={1}>
-                {room?.name?.trim() || user1?.handleName || 'No name'}
-              </Text>
-            </View>
-
-            <View style={styles.rowContainer}>
-              <TouchableOpacity
-                style={styles.blockIcon}
-                onPress={() => handleCall()}>
-                <Image
-                  style={styles.icon}
-                  source={require('../../../assets/icon/videoCamera.png')}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.blockIcon}>
-                <Image
-                  style={styles.icon}
-                  source={require('../../../assets/icon/info.png')}
-                />
-              </TouchableOpacity>
-            </View>
-          </View>
+          <MessageHeader
+            user1={user1}
+            user2={user2}
+            room={room}
+            navigation={navigation}
+            handleGoBack={handleGoBack}
+            handleCall={handleCall}
+            styles={styles}
+            color={color}
+          />
 
           <FlatList
             ref={flatListRef}
@@ -410,64 +338,14 @@ export const MessageScreen = () => {
             }}
           />
 
-          <View
-            style={[
-              styles.inputContainer,
-              {backgroundColor: 'rgba(255, 255, 255, 0.6)', zIndex: 20},
-            ]}>
-            <TouchableOpacity style={styles.blockCamera}>
-              <Image
-                style={{tintColor: color.text, width: 20, height: 20}}
-                source={require('../../../assets/icon/camera.png')}
-              />
-            </TouchableOpacity>
-
-            <TextInput
-              value={message}
-              onChangeText={setMessage}
-              placeholder="Soạn tin nhắn..."
-              placeholderTextColor={Colors.black}
-              style={styles.input}
-              multiline={true}
-              returnKeyType="default"
-              blurOnSubmit={false}
-            />
-            <>
-              {message.trim().length > 0 ? (
-                <TouchableOpacity
-                  style={styles.blockCamera}
-                  onPress={sendMessage}>
-                  <Image
-                    style={{tintColor: color.text, width: 20, height: 20}}
-                    source={require('../../../assets/icon/share.png')}
-                  />
-                </TouchableOpacity>
-              ) : (
-                <View style={styles.rowContainer}>
-                  <TouchableOpacity style={styles.blockIcon1}>
-                    <Image
-                      style={styles.icon}
-                      source={require('../../../assets/icon/Microphone.png')}
-                    />
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.blockIcon1}
-                    onPress={pickImageAndSend}>
-                    <Image
-                      style={styles.icon}
-                      source={require('../../../assets/icon/Picture.png')}
-                    />
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.blockIcon1}>
-                    <Image
-                      style={styles.icon}
-                      source={require('../../../assets/icon/another.png')}
-                    />
-                  </TouchableOpacity>
-                </View>
-              )}
-            </>
-          </View>
+          <MessageInput
+            message={message}
+            setMessage={setMessage}
+            sendMessage={sendMessage}
+            pickImageAndSend={pickImageAndSend}
+            styles={styles}
+            color={color}
+          />
         </View>
       </View>
 

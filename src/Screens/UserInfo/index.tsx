@@ -1,6 +1,5 @@
 import React, {useState, useRef, useMemo} from 'react';
 import {
-  ActivityIndicator,
   Alert,
   Animated,
   Dimensions,
@@ -41,6 +40,7 @@ export const UserInfo = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'InfoUser'>>();
   const roomId = route?.params?.roomId;
   const img1 = route?.params?.img1;
+  const nameChat = route?.params?.nameChat;
   const dispatch = useDispatch<AppDispatch>();
   const animatedLeftValue = React.useRef(new Animated.Value(0)).current;
   const [visibleThemeModal, setVisibleThemeModal] = useState(false);
@@ -122,7 +122,7 @@ export const UserInfo = () => {
             style={styles.imgUser}
           />
         </TouchableOpacity>
-        <Text style={styles.nameUser}>{room?.name}</Text>
+        <Text style={styles.nameUser}>{nameChat}</Text>
       </View>
       <TouchableOpacity
         style={styles.iconBack}
@@ -194,10 +194,6 @@ export const UserInfo = () => {
             label: 'Chủ đề',
           },
           {
-            icon: require('../../../assets/icon/nickname.png'),
-            label: 'Biệt danh',
-          },
-          {
             icon: require('../../../assets/icon/lock.png'),
             label: 'Quyền riêng tư và bảo mật',
           },
@@ -217,10 +213,9 @@ export const UserInfo = () => {
               if (i == 0) {
                 setVisibleThemeModal(true);
               } else if (i == 1) {
-                navigation.navigate('EditNickname', {userId: 1});
-              } else if (i == 3) {
+              } else if (i == 2) {
                 navigation.navigate('CreateGroupScreen');
-              } else if (i == 4) {
+              } else if (i == 3) {
                 setVisibleRenameModal(true);
               }
             }}>
