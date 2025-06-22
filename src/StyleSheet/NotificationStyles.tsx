@@ -26,7 +26,6 @@ export const useNotificationStyles = () => {
           borderBottomWidth: 1,
           borderBottomColor: palette.gray,
           paddingHorizontal: 16,
-          position: 'relative',
         },
         backButton: {
           padding: 8,
@@ -35,11 +34,8 @@ export const useNotificationStyles = () => {
           textAlign: 'center',
           fontSize: 16,
           fontWeight: '600',
-          marginLeft: 16,
-          position: 'absolute', 
-          left: 0,             
-          right: 0,   
           color: palette.text,
+          flex: 1,
         },
         contentContainer: {
           flex: 1,
@@ -65,7 +61,7 @@ export const useNotificationStyles = () => {
         },
         imageIcon: {
           backgroundColor: palette.lightDark,
-          width: '100%',   
+          width: '100%',
           height: '100%',
           justifyContent: 'center',
           alignItems: 'center',
@@ -143,10 +139,10 @@ export const useNotificationStyles = () => {
           resizeMode: 'contain',
         },
         userIcon: {
-          width: 44,                
+          width: 44,
           height: 44,
-          borderRadius: 22,         
-          resizeMode: 'cover',   
+          borderRadius: 22,
+          resizeMode: 'cover',
         },
         specialContainer: {
             paddingHorizontal: 16,
@@ -177,30 +173,30 @@ export const useNotificationStyles = () => {
             color: palette.primary,
         },
         searchBar: {
-          width: '90%', 
+          width: '90%',
           height: 40,
           flexDirection: 'row',
           alignItems: 'center',
           paddingHorizontal: 12,
-          backgroundColor: palette.lightGray, 
-          borderRadius: 8, 
+          backgroundColor: palette.lightGray,
+          borderRadius: 8,
           marginVertical: 8,
-          marginHorizontal: '5%', 
-          borderWidth: 0.5, 
+          marginHorizontal: '5%',
+          borderWidth: 0.5,
           borderColor: palette.gray,
         },
         searchIcon: {
-            width: 16,            
+            width: 16,
             height: 16,
             marginRight: 8,
-            opacity: 0.7, 
+            opacity: 0.7,
         },
         searchPlaceholderText: {
-            flex: 1, 
+            flex: 1,
             fontSize: 14,
             color: palette.text,
             opacity: 0.6,
-            paddingVertical: 8, 
+            paddingVertical: 8,
         },
         confirmButton: {
             width: 72,
@@ -232,4 +228,3 @@ export const useNotificationStyles = () => {
     [palette]
   );
 };
- 
