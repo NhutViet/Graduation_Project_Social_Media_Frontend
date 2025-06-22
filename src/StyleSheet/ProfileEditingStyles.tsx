@@ -62,6 +62,7 @@ export const useProfileEditingStyles = () => {
           backgroundColor: palette.background,
         },
         header: {
+          width: Dimensions.get('window').width,
           height: 50,
           flexDirection: 'row',
           alignItems: 'center',
@@ -76,7 +77,6 @@ export const useProfileEditingStyles = () => {
           marginRight: 5,
         },
         headerTitle: {
-          position: 'absolute',
           left: 0,
           right: 0,
           textAlign: 'center',
