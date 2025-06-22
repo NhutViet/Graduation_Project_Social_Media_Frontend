@@ -11,6 +11,11 @@ export const fetchCommentsByPost = createAsyncThunk<
   try {
     const response = await axiosInstance.get(
       `${API.GET_COMMENT_POST}/${postId}`,
+      {
+        headers: {
+          token: 'refresh',
+        },
+      },
     );
     return response.data as CommentPost[];
   } catch (err: any) {
