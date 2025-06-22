@@ -1,18 +1,14 @@
 import {
   ActivityIndicator,
   FlatList,
-  Image,
   ImageBackground,
   SafeAreaView,
-  Text,
-  TextInput,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
-import {useEffect, useMemo, useRef, useState} from 'react';
+import {useEffect, useMemo, useRef, useState, useCallback} from 'react';
 import MessageStyles from '../../StyleSheet/MessageStyles';
 import {RootStackParamList} from '../../Navigation/AppNavigation';
 import LinkPreview from 'react-native-link-preview';
@@ -31,9 +27,6 @@ import {useSocket} from '../../../services/SocketContext';
 import ActionModalMessage from './components/ActionModalMessage';
 import MessageInput from './components/MessageInput';
 import MessageHeader from './components/MessageHeader';
-// import {showIncomingCall} from '@services/CallKeepService';
-// import {v4 as uuidv4} from 'uuid';
-// import RNCallKeep from 'react-native-callkeep';
 
 export const MessageScreen = () => {
   const navigation: any = useNavigation();
@@ -55,30 +48,38 @@ export const MessageScreen = () => {
     [rooms, roomId],
   );
   const filteredUsers = room?.user_ids.filter(user => user._id !== userC?._id);
-  const user1 = filteredUsers ? filteredUsers[0] : undefined;
-  const user2 = filteredUsers ? filteredUsers[1] : undefined;
-
+  const user1 = filteredUsers?.[0];
+  const user2 = filteredUsers?.[1];
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
   const [linkPreviews, setLinkPreviews] = useState<{[key: number]: any}>({});
   const {showUploadModal, hideUploadModal, setProgress} = useUploadProgress();
-  const [incomingCall, setIncomingCall] = useState<{
-    visible: boolean;
-    callerName: string;
-    type: 'video' | 'voice';
-  }>({
+  const [incomingCall, setIncomingCall] = useState({
     visible: false,
     callerName: '',
-    type: 'video',
+    type: 'video' as 'video' | 'voice',
   });
   const {socket, connectToSocket, disconnectSocket} = useSocket();
   const [modalVisible, setModalVisible] = useState(false);
   const [content, setContent] = useState<Message>();
 
+  const scrollToEnd = () => flatListRef.current?.scrollToEnd({animated: true});
+
+  const navigateToCall = useCallback(
+    (isCaller: boolean) => {
+      navigation.navigate('ZegoCallScreen', {
+        userID: userC?._id,
+        userName: userC?.username,
+        callID: roomId,
+        image: userC?.profilePic,
+        isCaller,
+      });
+    },
+    [navigation, roomId, userC],
+  );
+
   useEffect(() => {
     setChat([]);
-    if (room?._id) {
-      dispatch(fetchMessages({roomId: room._id}));
-    }
+    if (room?._id) dispatch(fetchMessages({roomId: room._id}));
   }, []);
 
   useEffect(() => {
@@ -87,37 +88,40 @@ export const MessageScreen = () => {
 
   useEffect(() => {
     connectToSocket(roomId);
+    return disconnectSocket;
   }, [roomId]);
 
   useEffect(() => {
     if (!socket) return;
 
-    const onMessage = (data: Message) => {
-      setChat(prev => [...prev, data]);
+    const onMessage = (data: Message) => setChat(prev => [...prev, data]);
+
+    const onIncomingCall = (data: {
+      callerName: string;
+      type: 'video' | 'voice';
+      roomId: string;
+    }) => {
+      if (data.roomId === roomId) {
+        setIncomingCall({
+          visible: true,
+          callerName: data.callerName,
+          type: data.type,
+        });
+      }
     };
 
-    // const onCall = ({callerName, type}: any) => {
-    //   const callUUID = uuidv4();
-    //   showIncomingCall({
-    //     uuid: callUUID,
-    //     handle: callerName,
-    //     name: callerName,
-    //   });
-    //   setIncomingCall({visible: true, callerName, type});
-    // };
-
     socket.on('receiveMessage', onMessage);
-    // socket.on('incomingCall', onCall);
+    socket.on('incomingCall', onIncomingCall);
 
     return () => {
       socket.off('receiveMessage', onMessage);
-      // socket.off('incomingCall', onCall);
+      socket.off('incomingCall', onIncomingCall);
     };
   }, [socket]);
 
   useEffect(() => {
     chat.forEach((item, index) => {
-      if (!linkPreviews[index] && item.content.match(/https?:\/\/\S+/)) {
+      if (!linkPreviews[index] && /https?:\/\/.+/.test(item.content)) {
         LinkPreview.getPreview(item.content).then(data => {
           setLinkPreviews(prev => ({...prev, [index]: data}));
         });
@@ -128,7 +132,7 @@ export const MessageScreen = () => {
   const sendMessage = () => {
     if (message.trim() && socket) {
       socket.emit('sendMessage', {
-        roomId: roomId,
+        roomId,
         content: message,
         senderId: userC?._id,
       });
@@ -137,15 +141,9 @@ export const MessageScreen = () => {
   };
 
   const pickImageAndSend = async () => {
-    const result = await launchImageLibrary({
-      mediaType: 'photo',
-      quality: 0.8,
-    });
-
-    if (result.assets && result.assets.length > 0) {
-      const image = result.assets[0];
-      const uri = image.uri;
-
+    const result = await launchImageLibrary({mediaType: 'photo', quality: 0.8});
+    if (result.assets?.length) {
+      const uri = result.assets[0].uri;
       if (uri && socket) {
         try {
           const imageUrl = await uploadImageToR2(uri, {
@@ -153,14 +151,10 @@ export const MessageScreen = () => {
             hideUploadModal,
             setProgress,
           });
-
           socket.emit('sendMessage', {
-            roomId: roomId,
+            roomId,
             senderId: userC?._id,
-            media: {
-              type: 'image',
-              url: imageUrl,
-            },
+            media: {type: 'image', url: imageUrl},
           });
         } catch (err) {
           console.error('❌ Upload/send image error:', err);
@@ -180,55 +174,23 @@ export const MessageScreen = () => {
   };
 
   useEffect(() => {
-    if (chat.length > 0) {
-      flatListRef.current?.scrollToEnd({animated: true});
-    }
+    if (chat.length > 0) scrollToEnd();
   }, [chat]);
 
   const handleAcceptCall = () => {
-    if (rejectTimeoutRef.current) {
-      clearTimeout(rejectTimeoutRef.current);
-      rejectTimeoutRef.current = null;
-    }
+    if (rejectTimeoutRef.current) clearTimeout(rejectTimeoutRef.current);
     setIncomingCall(prev => ({...prev, visible: false}));
-    navigation.navigate('ZegoCallScreen', {
-      userID: userC?._id,
-      userName: userC?.username,
-      callID: roomId,
-      image: userC?.profilePic,
-    });
+    navigateToCall(false);
   };
 
-  // useEffect(() => {
-  //   const subscription = RNCallKeep.addEventListener(
-  //     'answerCall',
-  //     ({callUUID}) => {
-  //       navigation.navigate('ZegoCallScreen', {
-  //         userID: userC?._id,
-  //         callID: roomId,
-  //         isCaller: false,
-  //       });
-  //     },
-  //   );
-
-  //   return () => {
-  //     subscription.remove();
-  //   };
-  // }, []);
-
   const handleRejectCall = () => {
-    if (rejectTimeoutRef.current) {
-      clearTimeout(rejectTimeoutRef.current);
-      rejectTimeoutRef.current = null;
-    }
-
+    if (rejectTimeoutRef.current) clearTimeout(rejectTimeoutRef.current);
     if (socket) {
       socket.emit('callCancelled', {
-        roomId: roomId,
+        roomId,
         senderId: userC?._id,
       });
     }
-
     setIncomingCall(prev => ({...prev, visible: false}));
   };
 
@@ -240,30 +202,17 @@ export const MessageScreen = () => {
         roomId,
       });
     }
-    navigation.navigate('ZegoCallScreen', {
-      userID: userC?._id,
-      userName: userC?.username,
-      callID: roomId,
-      image: userC?.profilePic,
-      isCaller: true,
-    });
+    navigateToCall(true);
   };
 
   useEffect(() => {
     if (incomingCall.visible) {
-      rejectTimeoutRef.current = setTimeout(() => {
-        handleRejectCall();
-      }, 10000);
-    } else {
-      if (rejectTimeoutRef.current) {
-        clearTimeout(rejectTimeoutRef.current);
-        rejectTimeoutRef.current = null;
-      }
+      rejectTimeoutRef.current = setTimeout(handleRejectCall, 10000);
+    } else if (rejectTimeoutRef.current) {
+      clearTimeout(rejectTimeoutRef.current);
     }
     return () => {
-      if (rejectTimeoutRef.current) {
-        clearTimeout(rejectTimeoutRef.current);
-      }
+      if (rejectTimeoutRef.current) clearTimeout(rejectTimeoutRef.current);
     };
   }, [incomingCall.visible]);
 
@@ -333,9 +282,7 @@ export const MessageScreen = () => {
               paddingHorizontal: 10,
               flexGrow: 1,
             }}
-            onContentSizeChange={() => {
-              flatListRef.current?.scrollToEnd({animated: true});
-            }}
+            onContentSizeChange={scrollToEnd}
           />
 
           <MessageInput
