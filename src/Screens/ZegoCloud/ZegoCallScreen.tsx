@@ -113,7 +113,9 @@ export default function ZegoCallScreen({route}: any) {
                 source={
                   image
                     ? {uri: image}
-                    : require('../../../assets/default-avatar.png')
+                    : {
+                        uri: 'https://i.pinimg.com/736x/09/80/62/098062ede8791dc791c3110250d2a413.jpg',
+                      }
                 }
               />
             </View>
