@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -9,18 +9,18 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
-import {useProfileEditingStyles} from '../../../src/StyleSheet/ProfileEditingStyles';
-import {UserInfo} from './components/UserInfo';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
-import {PermissionsAndroid, Platform} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import {useDispatch, useSelector} from 'react-redux';
-import {AppDispatch, RootState} from '../../../services/store';
-import {fetchEditUser} from '../../../services/userRedux/userSlice';
-import {ChevronLeft, SquarePen, Check} from 'lucide-react-native';
-import {SEX, VN_PROVINCES} from './DataAddress/VN_PROVINCES';
-import {uploadImageToR2} from '../../core/upload';
-import {useUploadProgress} from '../../../services/UploadProgressManager';
+import { useProfileEditingStyles } from '../../../src/StyleSheet/ProfileEditingStyles';
+import { UserInfo } from './components/UserInfo';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import { PermissionsAndroid, Platform } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../../services/store';
+import { fetchEditUser } from '../../../services/userRedux/userSlice';
+import { ChevronLeft, SquarePen, Check } from 'lucide-react-native';
+import { SEX, VN_PROVINCES } from './DataAddress/VN_PROVINCES';
+import { uploadImageToR2 } from '../../core/upload';
+import { useUploadProgress } from '../../../services/UploadProgressManager';
 
 async function requestCameraPermission() {
   if (Platform.OS !== 'android') return true;
@@ -37,11 +37,12 @@ async function requestCameraPermission() {
   return granted === PermissionsAndroid.RESULTS.GRANTED;
 }
 
-export const EditProfile = ({navigation}: any) => {
+export const EditProfile = () => {
+  const navigation = useNavigation();
   const user = useSelector((state: RootState) => state.user.user);
   const styles = useProfileEditingStyles();
   const dispatch = useDispatch<AppDispatch>();
-  const {showUploadModal, hideUploadModal, setProgress} = useUploadProgress(); // Lấy các callback từ hook
+  const { showUploadModal, hideUploadModal, setProgress } = useUploadProgress(); // Lấy các callback từ hook
 
   const [username, setUsername] = useState(user?.username);
   const [bio, setBio] = useState(user?.bio);
@@ -75,7 +76,7 @@ export const EditProfile = ({navigation}: any) => {
   };
 
   const pickImage = () => {
-    launchImageLibrary({mediaType: 'photo'}, async response => {
+    launchImageLibrary({ mediaType: 'photo' }, async response => {
       if (response.assets && response.assets.length > 0) {
         const uri = response.assets[0].uri;
         await uploadProfilePic(uri);
@@ -90,7 +91,7 @@ export const EditProfile = ({navigation}: any) => {
       return;
     }
 
-    launchCamera({mediaType: 'photo', saveToPhotos: true}, async response => {
+    launchCamera({ mediaType: 'photo', saveToPhotos: true }, async response => {
       if (response.didCancel) {
         console.log('User cancelled camera');
       } else if (response.errorCode) {
@@ -122,14 +123,16 @@ export const EditProfile = ({navigation}: any) => {
   return (
     <SafeAreaView style={styles.screen}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <ChevronLeft size={30} color={'#000'} />
+        <TouchableOpacity
+          hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
+          onPress={() => navigation.goBack()}>
+          <ChevronLeft size={35} color={'#000'} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Chỉnh sửa hồ sơ</Text>
         <TouchableOpacity
           onPress={edit ? handleSave : () => setEdit(true)}
-          style={{flexDirection: 'row', alignItems: 'center'}}>
-          <Text style={[styles.headerText, {color: '#3897F0'}]}>
+          style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Text style={[styles.headerText, { color: '#3897F0' }]}>
             {edit ? 'Hoàn tất' : 'Sửa'}
           </Text>
           {edit ? (
@@ -143,7 +146,7 @@ export const EditProfile = ({navigation}: any) => {
         <View>
           <View style={styles.profileSection}>
             {profilePic && (
-              <Image source={{uri: profilePic}} style={styles.avatar} />
+              <Image source={{ uri: profilePic }} style={styles.avatar} />
             )}
             <TouchableOpacity onPress={() => setModalVisible(true)}>
               {edit && (
