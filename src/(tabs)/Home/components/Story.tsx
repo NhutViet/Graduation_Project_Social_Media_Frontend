@@ -9,7 +9,6 @@ const Story = (props: any) => {
   const {
     name,
     image,
-    status,
     func,
     isStory = true,
     isHashTag = false,
@@ -79,9 +78,8 @@ const Story = (props: any) => {
           </View>
         )}
       </TouchableOpacity>
-      {!isStory && (
-        <Text style={[styles.text, {color: color.text}]}>{name}</Text>
-      )}
+
+      <Text style={[styles.text, {color: color.text}]}>{name}</Text>
     </View>
   );
 };

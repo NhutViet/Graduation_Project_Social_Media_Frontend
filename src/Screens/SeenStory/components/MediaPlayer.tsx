@@ -26,9 +26,15 @@ export const MediaPlayer = forwardRef<any, MediaPlayerProps>(
     useEffect(() => {
       let isMounted = true;
 
+      // ✅ Nếu có video, KHÔNG load và phát nhạc
+      if (item?.uriVideo) {
+        console.log('🚫 Skipping music. Video is present:', item.uriVideo);
+        return;
+      }
+
       const {music} = item || {};
       if (!music?.link) return;
-
+      console.log('🎵 Playing music:', music.link);
       soundRef.current?.stop(() => soundRef.current?.release());
       soundRef.current = null;
 
@@ -57,13 +63,31 @@ export const MediaPlayer = forwardRef<any, MediaPlayerProps>(
         soundRef.current?.stop(() => soundRef.current?.release());
         soundRef.current = null;
       };
-    }, [item]);
+    }, [
+      item?.uriVideo,
+      item?.image,
+      item?.mediaUrl,
+      item?.music?.link,
+      item?.music?.time_start,
+    ]);
 
     if (!item) {
       return <Text style={styles.errorText}>Không có media để hiển thị</Text>;
     }
 
     const displayImage = item.image || item.mediaUrl;
+
+    useEffect(() => {
+      if (displayImage) {
+        Image.getSize(
+          displayImage,
+          () => {},
+          err => {
+            console.warn('🖼️ Image size error:', err);
+          },
+        );
+      }
+    }, [displayImage]);
 
     return (
       <View

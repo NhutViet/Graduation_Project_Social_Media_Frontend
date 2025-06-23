@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {View, Text, TouchableOpacity, Platform} from 'react-native';
 import {AutoGrowingInput} from '../../../../components/AutoGrowTexts';
-import {useProfileEditingStyles} from '../../../StyleSheet/ProfileEditingStyles';
+import {useProfileEditingStyles} from './ProfileEditingStyles';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {Picker} from '@react-native-picker/picker';
 type Row = {
@@ -40,12 +40,17 @@ export const UserInfo: React.FC<UserInfoProps> = ({title, subtitle, rows}) => {
           <Text style={styles.label}>{row.label}</Text>
 
           {row.type === 'dropdown' ? (
-            <View style={[styles.input, {padding: 0}]}>
+            <View style={styles.input}>
               <Picker
                 selectedValue={row.value}
                 enabled={!!row.editable}
                 onValueChange={val => row.onChangeText?.(val)}
-                style={Platform.OS === 'android' ? undefined : {height: 150}}>
+                style={[
+                  styles.textSex,
+                  {
+                    height: Platform.OS === 'ios' ? 150 : undefined,
+                  },
+                ]}>
                 <Picker.Item
                   label={row.placeholder || 'Không xác định'}
                   value=""
@@ -64,7 +69,7 @@ export const UserInfo: React.FC<UserInfoProps> = ({title, subtitle, rows}) => {
               <TouchableOpacity
                 style={styles.input}
                 onPress={() => row.editable && setShowPickerIndex(idx)}>
-                <Text style={{color: row.value ? 'black' : '#979797'}}>
+                <Text style={styles.txtDate}>
                   {row.value || row.placeholder || 'Chọn ngày'}
                 </Text>
               </TouchableOpacity>
@@ -78,7 +83,7 @@ export const UserInfo: React.FC<UserInfoProps> = ({title, subtitle, rows}) => {
                   onChange={(event, selectedDate) => {
                     setShowPickerIndex(null);
                     if (selectedDate && row.onDateChange) {
-                      const iso = selectedDate.toISOString().split('T')[0];
+                      const iso = selectedDate.toISOString().split('')[0];
                       row.onDateChange(iso);
                     }
                   }}
