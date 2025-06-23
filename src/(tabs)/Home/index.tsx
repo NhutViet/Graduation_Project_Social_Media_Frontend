@@ -204,13 +204,18 @@ export const Home = forwardRef(({onReload}: any, ref) => {
                 contentContainerStyle={{paddingHorizontal: 10}}>
                 {followingUsers
                   .filter(item => {
-                    const isCurrentUser = item._id === user?._id;
+                    const isCurrentUser =
+                      item._id === user?._id ||
+                      item.handleName === user?.handleName;
                     const hasStory = item.stories?.length > 0;
 
                     return isCurrentUser || hasStory;
                   })
                   .map(item => {
-                    const isCurrentUser = item._id === user?._id;
+                    const isCurrentUser =
+                      item._id === user?._id ||
+                      item.handleName === user?.handleName;
+
                     const story = storyDetails.find(
                       s => s._id === item.stories?.[0],
                     );
@@ -218,6 +223,16 @@ export const Home = forwardRef(({onReload}: any, ref) => {
                     const isSeen =
                       viewedByUsers.includes(user?.handleName) ||
                       seenMap[item.stories?.[0]] === true;
+                    console.log('item:', item);
+                    console.log('user:', user);
+                    console.log(
+                      'item._id === user._id:',
+                      item._id === user?._id,
+                    );
+                    console.log(
+                      'item.handleName === user.handleName:',
+                      item.handleName === user?.handleName,
+                    );
 
                     return (
                       <Story
