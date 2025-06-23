@@ -246,6 +246,12 @@ export const useProfileEditingStyles = () => {
         iconLeft: {
           color: palette.text,
         },
+        textSex: {
+          color: palette.text,
+        },
+        txtDate: {
+          color: palette.text,
+        },
       }),
     [palette],
   );
