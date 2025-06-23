@@ -77,18 +77,6 @@ export const MediaPlayer = forwardRef<any, MediaPlayerProps>(
 
     const displayImage = item.image || item.mediaUrl;
 
-    useEffect(() => {
-      if (displayImage) {
-        Image.getSize(
-          displayImage,
-          () => {},
-          err => {
-            console.warn('🖼️ Image size error:', err);
-          },
-        );
-      }
-    }, [displayImage]);
-
     return (
       <View
         style={styles.media}
