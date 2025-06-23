@@ -223,16 +223,6 @@ export const Home = forwardRef(({onReload}: any, ref) => {
                     const isSeen =
                       viewedByUsers.includes(user?.handleName) ||
                       seenMap[item.stories?.[0]] === true;
-                    console.log('item:', item);
-                    console.log('user:', user);
-                    console.log(
-                      'item._id === user._id:',
-                      item._id === user?._id,
-                    );
-                    console.log(
-                      'item.handleName === user.handleName:',
-                      item.handleName === user?.handleName,
-                    );
 
                     return (
                       <Story
