@@ -16,8 +16,6 @@ import {useTheme} from '../../../../util/ThemeContext';
 import {Alert} from 'react-native';
 import {ChevronLeft} from 'lucide-react-native';
 import {Check} from 'lucide-react-native';
-
-// Import HighlightEditModal
 import HighlightEditModal from './HighlightEditModal';
 import {useDispatch} from 'react-redux';
 import {createHighlightStory} from '@services/StoryRedux/StorySlice';
@@ -133,13 +131,17 @@ const HighlightCreateModal = ({
     setUploadProgress(progress);
   };
 
+  const close = () => {
+    onClose();
+    setSelectedStories([]);
+  };
   return (
     <Portal>
       <Modal
         animationType="slide"
         transparent={true}
         visible={isOpen}
-        onRequestClose={onClose}>
+        onRequestClose={close}>
         <View style={styles.modalOverlay}>
           <View style={[styles.modal, {backgroundColor: color.modal}]}>
             <View style={styles.modalHandle} />
@@ -150,8 +152,10 @@ const HighlightCreateModal = ({
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   marginBottom: 20,
+                  paddingLeft: 15,
+                  paddingRight: 15,
                 }}>
-                <TouchableOpacity onPress={onClose}>
+                <TouchableOpacity onPress={close}>
                   <ChevronLeft size={24} color={color.text} />
                 </TouchableOpacity>
                 <Text
@@ -174,7 +178,11 @@ const HighlightCreateModal = ({
                 </Text>
               ) : (
                 <FlatList
-                  data={myStories}
+                  data={[...myStories].sort(
+                    (a, b) =>
+                      new Date(b.createdAt).getTime() -
+                      new Date(a.createdAt).getTime(),
+                  )}
                   initialNumToRender={5}
                   renderItem={({item}) => {
                     const isSelected = selectedStories.includes(item._id);
@@ -223,10 +231,10 @@ const HighlightCreateModal = ({
         setProgress={setProgress}
         onComplete={() => {
           setEditModalVisible(false);
-          onClose(); // đóng HighlightCreateModal
-          setSelectedStories([]); // reset chọn
+          onClose();
+          setSelectedStories([]);
         }}
-        isProcessing={isProcessing} // ✅ THÊM DÒNG NÀY
+        isProcessing={isProcessing}
         setIsProcessing={setIsProcessing}
       />
 
@@ -310,7 +318,7 @@ const styles = StyleSheet.create({
   },
   continue: {
     fontSize: 16,
-    color: 'blue',
+    color: '#3897F0',
     fontWeight: '500',
   },
 });

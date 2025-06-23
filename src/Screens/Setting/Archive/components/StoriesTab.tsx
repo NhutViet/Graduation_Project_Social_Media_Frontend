@@ -116,7 +116,10 @@ const StoriesTab = () => {
       style={[styles.container, {backgroundColor: color.background}]}>
       {myStories.length > 0 ? (
         <FlatList
-          data={myStories}
+          data={[...myStories].sort(
+            (a, b) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+          )}
           renderItem={renderItem}
           keyExtractor={item => item._id} // Đảm bảo keyExtractor rõ ràng
           numColumns={3}

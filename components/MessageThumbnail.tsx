@@ -6,7 +6,7 @@ import {
   Image,
   ImageSourcePropType,
 } from 'react-native';
-import {useProfileEditingStyles} from '../src/StyleSheet/ProfileEditingStyles';
+import {useProfileEditingStyles} from '../src/Screens/EditProfile/components/ProfileEditingStyles';
 
 export interface MessageThumbnailProps {
   id: string;

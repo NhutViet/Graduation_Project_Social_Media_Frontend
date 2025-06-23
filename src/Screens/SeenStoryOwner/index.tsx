@@ -46,20 +46,6 @@ const highlights = [
   },
 ];
 
-// Định nghĩa kiểu cho route.params
-interface RouteParams {
-  stories: Array<{
-    mediaUrl?: string;
-    uriVideo?: string;
-    image?: string;
-    _id?: string;
-    createdAt?: string;
-    content?: {text?: string; x?: number; y?: number};
-    music?: {link: string; time_start: number; title: string; artist: string};
-  }>;
-  creator: {username: string; profilePic: string};
-}
-
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 
