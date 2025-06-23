@@ -162,9 +162,6 @@ const ProfileComp = ({route}: any) => {
   }, [])
 
   const dispatch = useDispatch<AppDispatch>();
-  const {followers, following, loading, error} = useSelector(
-    (state: RootState) => state.relation,
-  );
 
   const [localFollowersCount, setLocalFollowersCount] = useState(0);
   const [localFollowingCount, setLocalFollowingCount] = useState(0);
@@ -172,7 +169,6 @@ const ProfileComp = ({route}: any) => {
   const {
     publicProfile,
     isLoadingPublicProfile,
-    isSuccessPublicProfile,
     isErrorPublicProfile,
     errorMessagePublicProfile,
   } = useSelector((state: RootState) => state.user);

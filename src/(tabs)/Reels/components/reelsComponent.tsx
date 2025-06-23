@@ -16,7 +16,8 @@ import {
   unlikePost,
 } from '../../../../services/reactionRedux/reactionSlice';
 import {useTheme} from '../../../util/ThemeContext';
-import { relationAction } from '@services/relationRedux/relationSlice';
+import {relationAction} from '@services/relationRedux/relationSlice';
+import TagMarker from './TagMarker';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height - 60;
@@ -36,7 +37,7 @@ const ReelsComponent = (props: any) => {
     isLike,
     commentCount,
     openComment,
-    isFollow
+    isFollow,
   } = props;
   const navigation = useNavigation<any>();
 
@@ -111,20 +112,19 @@ const ReelsComponent = (props: any) => {
     }
   };
 
-  const toggleFollow = useCallback( async () => {
-      setFollow(!follow);
-      const actionType = follow ? 'unfollow' : 'follow';
-      try {
-        await dispatch(
-            relationAction({
-              targetId: user._id,
-              action: actionType,
-            }),
-        ).unwrap();
-      } catch (error) {
-        setFollow(follow);
-      }
-  
+  const toggleFollow = useCallback(async () => {
+    setFollow(!follow);
+    const actionType = follow ? 'unfollow' : 'follow';
+    try {
+      await dispatch(
+        relationAction({
+          targetId: user._id,
+          action: actionType,
+        }),
+      ).unwrap();
+    } catch (error) {
+      setFollow(follow);
+    }
   }, [follow]);
 
   return (
@@ -140,6 +140,18 @@ const ReelsComponent = (props: any) => {
           maxBitRate={1500000}
           progressUpdateInterval={500}
         />
+        <View
+          style={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1}}>
+          {media[0]?.tags?.map((tag: any, index: number) => (
+            <TagMarker
+              key={index}
+              tag={tag}
+              onPress={(userId: string) => {
+                navigation.navigate('ProfileComp', {userID: userId});
+              }}
+            />
+          ))}
+        </View>
       </View>
       <View style={styles.bottomContainer}>
         <View style={styles.block1}>
@@ -148,13 +160,13 @@ const ReelsComponent = (props: any) => {
               <Image style={styles.img} source={{uri: user.profilePic}} />
             </TouchableOpacity>
             <Text style={styles.name}>{user.handleName}</Text>
-            {user._id !== currentUserId && 
+            {user._id !== currentUserId && (
               <TouchableOpacity onPress={toggleFollow} style={styles.btnFollow}>
                 <Text style={{fontSize: 14, color: Colors.dark.text}}>
-                  {follow ? "Đang theo dõi": "Theo dõi"}
+                  {follow ? 'Đang theo dõi' : 'Theo dõi'}
                 </Text>
               </TouchableOpacity>
-            }
+            )}
           </View>
           <Text style={styles.textNormal} numberOfLines={1}>
             {caption}

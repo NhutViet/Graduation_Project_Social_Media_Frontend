@@ -54,7 +54,9 @@ export const uploadImageToR2 = async (
 ): Promise<string> => {
   showUploadModal(uri, 'image');
   try {
-    const fileName = uri.split('/').pop() || `image_${Date.now()}.jpg`;
+    const ext = uri.split('.').pop() || 'jpg';
+    const uniqueId = `${Date.now()}_${Math.floor(Math.random() * 10000)}`;
+    const fileName = `image_${uniqueId}.${ext}`;
     const {data} = await axios.post(`${BASE_URL}/r2/presigned-url`, {
       fileName,
       contentType: 'image/jpeg',

@@ -3,6 +3,15 @@ export interface Media {
   postID: string;
   imageUrl?: string;
   videoUrl: string;
+  tags?: Tags[];
+}
+
+export interface Tags {
+  _id: string;
+  handleName: string;
+  userId: string;
+  positionX: number;
+  positionY: number;
 }
 
 export interface Post {
