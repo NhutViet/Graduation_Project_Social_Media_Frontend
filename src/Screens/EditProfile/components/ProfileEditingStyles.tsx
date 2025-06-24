@@ -1,7 +1,7 @@
 import {useMemo} from 'react';
 import {StyleSheet, Dimensions} from 'react-native';
-import {useTheme} from '../util/ThemeContext';
-import {Colors} from '../../assets/color/Colors';
+import {useTheme} from '../../../util/ThemeContext';
+import {Colors} from '../../../../assets/color/Colors';
 
 const {width: SCREEN_WIDTH} = Dimensions.get('window');
 
@@ -242,6 +242,15 @@ export const useProfileEditingStyles = () => {
         },
         tabSelected: {
           backgroundColor: palette.lightDark,
+        },
+        iconLeft: {
+          color: palette.text,
+        },
+        textSex: {
+          color: palette.text,
+        },
+        txtDate: {
+          color: palette.text,
         },
       }),
     [palette],

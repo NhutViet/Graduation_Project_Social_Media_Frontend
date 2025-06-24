@@ -5,7 +5,7 @@ import {Colors} from '../../../../assets/color/Colors';
 import {ItemHomeStyles} from '../component_styles/ItemHomeStyles';
 import {Media} from '../../../../services/postRedux/postTypes';
 import TagMarker from './TagMarker';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -27,23 +27,17 @@ interface RenderMuteButtonProps {
   isPostWithoutMusic: boolean;
 }
 
-export const RenderMediaItem: React.FC<RenderMediaItemProps> = ({
-  item,
-  currentVisible,
-  isFocused,
-  muted,
-}) => {
-  const [videoSize, setVideoSize] = useState({width: 0, height: 0});
-  const navigation = useNavigation<any>();
+export const RenderMediaItem = React.memo(
+  ({item, currentVisible, isFocused, muted}: RenderMediaItemProps) => {
+    const [videoSize, setVideoSize] = useState({width: 0, height: 0});
+    const navigation = useNavigation<any>();
+    const videoResizeMode = useMemo(() => {
+      if (videoSize.height > videoSize.width) return 'cover';
+      return 'contain';
+    }, [videoSize]);
 
-  const videoResizeMode = useMemo(() => {
-    if (videoSize.height > videoSize.width) return 'cover';
-    return 'contain';
-  }, [videoSize]);
-
-  return (
-    <View style={{width: screenWidth, height: item.videoUrl ? 600 : 460}}>
-      {item.videoUrl ? (
+    if (item.videoUrl) {
+      return (
         <Video
           source={{uri: item.videoUrl}}
           resizeMode={videoResizeMode}
@@ -51,7 +45,7 @@ export const RenderMediaItem: React.FC<RenderMediaItemProps> = ({
           repeat
           paused={!currentVisible || !isFocused}
           muted={muted}
-          maxBitRate={1500000}
+          maxBitRate={0}
           progressUpdateInterval={500}
           onLoad={({naturalSize}) => {
             setVideoSize({
@@ -59,72 +53,94 @@ export const RenderMediaItem: React.FC<RenderMediaItemProps> = ({
               height: naturalSize.height,
             });
           }}
+          useTextureView={false}
         />
-      ) : (
+      );
+    }
+
+    return (
+      <View style={{width: screenWidth, height: item.videoUrl ? 600 : 460}}>
+        {item.videoUrl ? (
+          <Video
+            source={{uri: item.videoUrl}}
+            resizeMode={videoResizeMode}
+            style={{width: screenWidth, height: 600}}
+            repeat
+            paused={!currentVisible || !isFocused}
+            muted={muted}
+            maxBitRate={1500000}
+            progressUpdateInterval={500}
+            onLoad={({naturalSize}) => {
+              setVideoSize({
+                width: naturalSize.width,
+                height: naturalSize.height,
+              });
+            }}
+          />
+        ) : (
+          <Image
+            source={{uri: item.imageUrl ?? ''}}
+            style={{width: screenWidth, height: 460}}
+            resizeMode="cover"
+          />
+        )}
+
+        {/* Hiển thị các tag (nếu có) */}
+        {item.tags?.map((tag, index) => (
+          <TagMarker
+            key={`${tag.userId}_${index}`}
+            tag={tag}
+            screenWidth={screenWidth}
+            imageHeight={item.videoUrl ? 600 : 460}
+            onPress={userId => {
+              navigation.navigate('ProfileComp', {userID: userId});
+            }}
+          />
+        ))}
+      </View>
+    );
+  },
+);
+
+export const RenderPagination = React.memo(
+  ({media, currentIndex}: RenderPaginationProps) => {
+    if (media.length <= 1) return null;
+    return (
+      <View style={ItemHomeStyles.pagination}>
+        {media.map((_, index) => (
+          <View
+            key={index}
+            style={[
+              ItemHomeStyles.dot,
+              {
+                backgroundColor:
+                  index === currentIndex ? '#fff' : 'rgba(255,255,255,0.5)',
+              },
+            ]}
+          />
+        ))}
+      </View>
+    );
+  },
+);
+
+export const RenderMuteButton = React.memo(
+  ({muted, setMuted, isPostWithoutMusic}: RenderMuteButtonProps) => {
+    if (isPostWithoutMusic) return null;
+
+    return (
+      <TouchableOpacity
+        style={ItemHomeStyles.muteButton}
+        onPress={() => setMuted(!muted)}>
         <Image
-          source={{uri: item.imageUrl ?? ''}}
-          style={{width: screenWidth, height: 460}}
-          resizeMode="cover"
+          source={
+            muted
+              ? require('../../../../assets/icon/mute.png')
+              : require('../../../../assets/icon/volume.png')
+          }
+          style={[{tintColor: Colors.dark.text}, ItemHomeStyles.icon]}
         />
-      )}
-
-      {/* Hiển thị các tag (nếu có) */}
-      {item.tags?.map((tag, index) => (
-        <TagMarker
-          key={`${tag.userId}_${index}`}
-          tag={tag}
-          screenWidth={screenWidth}
-          imageHeight={item.videoUrl ? 600 : 460}
-          onPress={userId => {
-            navigation.navigate('ProfileComp', {userID: userId});
-          }}
-        />
-      ))}
-    </View>
-  );
-};
-
-export const RenderPagination: React.FC<RenderPaginationProps> = ({
-  media,
-  currentIndex,
-}) => {
-  if (media.length <= 1) return null;
-  return (
-    <View style={ItemHomeStyles.pagination}>
-      {media.map((_, index) => (
-        <View
-          key={index}
-          style={[
-            ItemHomeStyles.dot,
-            {
-              backgroundColor:
-                index === currentIndex ? '#fff' : 'rgba(255,255,255,0.5)',
-            },
-          ]}
-        />
-      ))}
-    </View>
-  );
-};
-
-export const RenderMuteButton: React.FC<RenderMuteButtonProps> = ({
-  muted,
-  setMuted,
-  isPostWithoutMusic,
-}) => {
-  if (isPostWithoutMusic) return null;
-  return (
-    <TouchableOpacity
-      style={ItemHomeStyles.muteButton}
-      onPress={() => setMuted(!muted)}>
-      <Image
-        source={
-          muted
-            ? require('../../../../assets/icon/mute.png')
-            : require('../../../../assets/icon/volume.png')
-        }
-        style={[{tintColor: Colors.dark.text}, ItemHomeStyles.icon]}
-      />
-    </TouchableOpacity>
-  );
-};
+      </TouchableOpacity>
+    );
+  },
+);

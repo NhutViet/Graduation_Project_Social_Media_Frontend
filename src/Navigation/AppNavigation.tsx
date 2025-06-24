@@ -58,7 +58,7 @@ import {
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 import ProfileComp from '../Screens/Profile';
-import EditHighlightScreen from '../(tabs)/Profile/components/EditHighlightScreen';
+
 import NewMessage from '../Screens/NewMessage';
 import PostStory from '../Screens/PostStory';
 import Profile from '../(tabs)/Profile/index';
@@ -86,6 +86,7 @@ export type RootStackParamList = {
     callID: string;
     image: string;
   };
+  ProfileComp: {userID: string};
 };
 
 const Stack = createStackNavigator();
@@ -159,10 +160,6 @@ const AppNavigator = () => {
           component={NotificationOption}
         />
         <Stack.Screen name="QRScanner" component={QRScanner} />
-        <Stack.Screen
-          name="EditHighlightStory"
-          component={EditHighlightScreen}
-        />
         <Stack.Screen name="Archive" component={Archive} />
         <Stack.Screen name="InforGroupChat" component={InforGroupChat} />
         <Stack.Screen name="AddCollection" component={AddCollectionScreen} />
