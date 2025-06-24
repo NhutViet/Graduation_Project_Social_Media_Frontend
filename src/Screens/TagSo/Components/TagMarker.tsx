@@ -35,9 +35,12 @@ const TagMarker = ({
   useEffect(() => {
     const x = tag.position.x * screenWidth;
     const y = tag.position.y * imageHeight;
-    positionRef.current = {x, y};
-    setPosition({x, y}); // set state sau khi tính toán xong
-  }, [tag.position.x, tag.position.y, screenWidth, imageHeight]);
+
+    // Reset vị trí mỗi lần tag thay đổi
+    const newPos = {x, y};
+    positionRef.current = newPos;
+    setPosition(newPos);
+  }, [tag.user._id, tag.position.x, tag.position.y, screenWidth, imageHeight]);
 
   if (!position) return null; // Chưa có vị trí thì không render Draggable
 
@@ -45,7 +48,9 @@ const TagMarker = ({
     <Draggable
       x={position.x}
       y={position.y}
-      onDrag={() => {onDragStart?.()}}
+      onDrag={() => {
+        onDragStart?.();
+      }}
       onDragRelease={(e, gestureState) => {
         onDragEnd?.();
 

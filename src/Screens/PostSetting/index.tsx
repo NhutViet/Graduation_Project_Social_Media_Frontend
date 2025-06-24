@@ -84,10 +84,12 @@ export const PostSetting = () => {
       return;
     }
 
-    navigation.reset({
-      index: 0,
-      routes: [{name: 'BottomTabs'}],
-    });
+    for (const media of mediaWithTags) {
+      if (!media.node.image.uri) {
+        Alert.alert('Lỗi', 'URI của media không hợp lệ');
+        return;
+      }
+    }
 
     try {
       const uploadedMedia: {
@@ -134,7 +136,7 @@ export const PostSetting = () => {
           }
 
           //nếu có tags
-          if(media.tags && media.tags.length > 0){
+          if (media.tags && media.tags.length > 0) {
             uploadedItem.tags = media.tags.map(tag => ({
               userId: tag.user._id,
               handleName: tag.user.handleName,
@@ -182,6 +184,11 @@ export const PostSetting = () => {
           type: 'success',
           text1: '🎉 Thành công',
           text2: 'Bài viết của bạn đã được tải lên!',
+        });
+        setMediaWithTags([]);
+        navigation.reset({
+          index: 0,
+          routes: [{name: 'BottomTabs'}],
         });
       } else {
         Toast.show({

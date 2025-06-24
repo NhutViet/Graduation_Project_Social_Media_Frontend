@@ -74,6 +74,34 @@ export const TagSo = () => {
     }
   };
 
+  const handleRemoveTag = (user: TagUser) => {
+  const newMedia = media.map((m, index) => {
+    if (index === currentImageIndex) {
+      const newTags = (m.tags ?? []).filter(tag => tag.user._id !== user.user._id);
+      return {
+        ...m,
+        tags: JSON.parse(JSON.stringify(newTags)), // clone sâu
+      };
+    }
+    return m;
+  });
+
+  const newUpdate = update.map((u, index) => {
+    if (index === currentImageIndex) {
+      const newTags = (u.tags ?? []).filter(tag => tag.user._id !== user.user._id);
+      return {
+        ...u,
+        tags: JSON.parse(JSON.stringify(newTags)), // clone sâu
+      };
+    }
+    return u;
+  });
+
+  setMedia(newMedia);
+  setUpdate(newUpdate);
+};
+
+
   return (
     <SafeAreaView style={{flex: 1}}>
       <View style={styles.container}>
@@ -131,16 +159,7 @@ export const TagSo = () => {
                     handle={item.item.user.handleName}
                     isDelete={true}
                     func={() => {
-                      const updated = [...media];
-                      const current = updated[currentImageIndex];
-                      updated[currentImageIndex] = {
-                        ...current,
-                        tags: current.tags.filter(
-                          tag => tag.user._id !== item.item.user._id,
-                        ),
-                      };
-                      setMedia(updated);
-                      setUpdate(updated);
+                      handleRemoveTag(item.item);
                     }}
                   />
                 );

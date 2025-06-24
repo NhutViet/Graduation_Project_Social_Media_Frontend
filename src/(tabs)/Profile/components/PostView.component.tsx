@@ -73,7 +73,7 @@ const GridView: React.FC<GridViewProps> = ({data, onPressItem}) => {
             source={require('../../../../assets/icon/no_photo.png')}
             style={Styles.styles.imgNoPhoto}
           />
-          <Text style={Styles.styles.textno}>Bạn chưa đăng nội dung nào.</Text>
+          <Text style={Styles.styles.textno}>Chưa đăng nội dung nào.</Text>
         </View>
       )}
     </>

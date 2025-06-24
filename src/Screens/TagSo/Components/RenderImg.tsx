@@ -99,7 +99,7 @@ const RenderImg = ({
               )}
               {item.tags?.map((tag, idx) => (
                 <TagMarker
-                  key={`${item.node.image.uri}_${idx}`}
+                  key={`${item.node.image.uri}_${tag.user._id}`} // key theo user id, tránh bị reuse sai
                   tag={tag}
                   tagIndex={idx}
                   mediaIndex={index}

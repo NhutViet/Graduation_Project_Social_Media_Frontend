@@ -33,7 +33,6 @@ const TagMarker = ({tag, screenWidth, imageHeight, onPress}: TagMarkerProps) => 
         {
           left: x,
           top: y,
-          transform: [{translateX: -30}, {translateY: -10}], // căn giữa marker
         },
       ]}>
       <View style={styles.tagContainer}>
