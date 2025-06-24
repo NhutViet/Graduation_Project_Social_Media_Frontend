@@ -6,6 +6,14 @@ export interface ReqGetPosts {
     refreshToken: string;
 }
 
+export interface Tags {
+  _id: string;
+  handleName: string;
+  userId: string;
+  positionX: number;
+  positionY: number;
+}
+
 export interface Music {
     musicId: string;
     timeStart: number;
@@ -29,12 +37,14 @@ export interface Media {
     _id: string;
     postID: string;
     videoUrl: string;
+    tags?: Tags[];
 }
 
 export interface MediaR {
     _id: string;
     postID: string;
     imageUrl: string;
+    tags?: Tags[];
 }
 
 export interface Item {
