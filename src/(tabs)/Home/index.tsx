@@ -218,12 +218,17 @@ export const Home = forwardRef(({onReload}: any, ref) => {
                 contentContainerStyle={{paddingHorizontal: 10}}>
                 {followingUsers
                   .filter(item => {
-                    const isCurrentUser = item._id === user?._id;
+                    const isCurrentUser =
+                      item._id === user?._id ||
+                      item.handleName === user?.handleName;
                     const hasStory = item.stories?.length > 0;
                     return isCurrentUser || hasStory;
                   })
                   .map(item => {
-                    const isCurrentUser = item._id === user?._id;
+                    const isCurrentUser =
+                      item._id === user?._id ||
+                      item.handleName === user?.handleName;
+
                     const story = storyDetails.find(
                       s => s._id === item.stories?.[0],
                     );
