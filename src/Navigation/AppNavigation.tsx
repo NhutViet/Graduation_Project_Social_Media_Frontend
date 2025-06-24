@@ -85,6 +85,7 @@ export type RootStackParamList = {
     callID: string;
     image: string;
   };
+  ProfileComp: {userID: string};
 };
 
 const Stack = createStackNavigator();

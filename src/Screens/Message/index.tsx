@@ -8,7 +8,7 @@ import {
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
-import {useEffect, useMemo, useRef, useState, useCallback} from 'react';
+import {useEffect, useMemo, useRef, useState} from 'react';
 import MessageStyles from '../../StyleSheet/MessageStyles';
 import {RootStackParamList} from '../../Navigation/AppNavigation';
 import LinkPreview from 'react-native-link-preview';
@@ -21,7 +21,6 @@ import {launchImageLibrary} from 'react-native-image-picker';
 import {uploadImageToR2} from '../../core/upload';
 import {useUploadProgress} from '../../../services/UploadProgressManager';
 import {clearMessages} from '../../../services/messageRedux/messageReducer';
-import IncomingCallModal from '../../../components/IncomingCallModal';
 import ImagePreviewModal from './components/ImagePreviewModal';
 import {useSocket} from '../../../services/SocketContext';
 import ActionModalMessage from './components/ActionModalMessage';
@@ -39,7 +38,6 @@ export const MessageScreen = () => {
   const [chat, setChat] = useState<Message[]>([]);
   const userC = useSelector((state: RootState) => state.user.user);
   const flatListRef = useRef<FlatList>(null);
-  const rejectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const route = useRoute<RouteProp<RootStackParamList, 'MessageScreen'>>();
   const roomId = route?.params?.room;
   const rooms = useSelector((state: RootState) => state.rooms.rooms);
@@ -48,38 +46,20 @@ export const MessageScreen = () => {
     [rooms, roomId],
   );
   const filteredUsers = room?.user_ids.filter(user => user._id !== userC?._id);
-  const user1 = filteredUsers?.[0];
-  const user2 = filteredUsers?.[1];
+  const user1 = filteredUsers ? filteredUsers[0] : undefined;
+  const user2 = filteredUsers ? filteredUsers[1] : undefined;
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
   const [linkPreviews, setLinkPreviews] = useState<{[key: number]: any}>({});
   const {showUploadModal, hideUploadModal, setProgress} = useUploadProgress();
-  const [incomingCall, setIncomingCall] = useState({
-    visible: false,
-    callerName: '',
-    type: 'video' as 'video' | 'voice',
-  });
   const {socket, connectToSocket, disconnectSocket} = useSocket();
   const [modalVisible, setModalVisible] = useState(false);
   const [content, setContent] = useState<Message>();
 
-  const scrollToEnd = () => flatListRef.current?.scrollToEnd({animated: true});
-
-  const navigateToCall = useCallback(
-    (isCaller: boolean) => {
-      navigation.navigate('ZegoCallScreen', {
-        userID: userC?._id,
-        userName: userC?.username,
-        callID: roomId,
-        image: userC?.profilePic,
-        isCaller,
-      });
-    },
-    [navigation, roomId, userC],
-  );
-
   useEffect(() => {
     setChat([]);
-    if (room?._id) dispatch(fetchMessages({roomId: room._id}));
+    if (room?._id) {
+      dispatch(fetchMessages({roomId: room._id}));
+    }
   }, []);
 
   useEffect(() => {
@@ -88,40 +68,25 @@ export const MessageScreen = () => {
 
   useEffect(() => {
     connectToSocket(roomId);
-    return disconnectSocket;
   }, [roomId]);
 
   useEffect(() => {
     if (!socket) return;
 
-    const onMessage = (data: Message) => setChat(prev => [...prev, data]);
-
-    const onIncomingCall = (data: {
-      callerName: string;
-      type: 'video' | 'voice';
-      roomId: string;
-    }) => {
-      if (data.roomId === roomId) {
-        setIncomingCall({
-          visible: true,
-          callerName: data.callerName,
-          type: data.type,
-        });
-      }
+    const onMessage = (data: Message) => {
+      setChat(prev => [...prev, data]);
     };
 
     socket.on('receiveMessage', onMessage);
-    socket.on('incomingCall', onIncomingCall);
 
     return () => {
       socket.off('receiveMessage', onMessage);
-      socket.off('incomingCall', onIncomingCall);
     };
   }, [socket]);
 
   useEffect(() => {
     chat.forEach((item, index) => {
-      if (!linkPreviews[index] && /https?:\/\/.+/.test(item.content)) {
+      if (!linkPreviews[index] && item.content.match(/https?:\/\/\S+/)) {
         LinkPreview.getPreview(item.content).then(data => {
           setLinkPreviews(prev => ({...prev, [index]: data}));
         });
@@ -132,7 +97,7 @@ export const MessageScreen = () => {
   const sendMessage = () => {
     if (message.trim() && socket) {
       socket.emit('sendMessage', {
-        roomId,
+        roomId: roomId,
         content: message,
         senderId: userC?._id,
       });
@@ -141,9 +106,15 @@ export const MessageScreen = () => {
   };
 
   const pickImageAndSend = async () => {
-    const result = await launchImageLibrary({mediaType: 'photo', quality: 0.8});
-    if (result.assets?.length) {
-      const uri = result.assets[0].uri;
+    const result = await launchImageLibrary({
+      mediaType: 'photo',
+      quality: 0.8,
+    });
+
+    if (result.assets && result.assets.length > 0) {
+      const image = result.assets[0];
+      const uri = image.uri;
+
       if (uri && socket) {
         try {
           const imageUrl = await uploadImageToR2(uri, {
@@ -151,10 +122,14 @@ export const MessageScreen = () => {
             hideUploadModal,
             setProgress,
           });
+
           socket.emit('sendMessage', {
-            roomId,
+            roomId: roomId,
             senderId: userC?._id,
-            media: {type: 'image', url: imageUrl},
+            media: {
+              type: 'image',
+              url: imageUrl,
+            },
           });
         } catch (err) {
           console.error('❌ Upload/send image error:', err);
@@ -174,47 +149,10 @@ export const MessageScreen = () => {
   };
 
   useEffect(() => {
-    if (chat.length > 0) scrollToEnd();
+    if (chat.length > 0) {
+      flatListRef.current?.scrollToEnd({animated: true});
+    }
   }, [chat]);
-
-  const handleAcceptCall = () => {
-    if (rejectTimeoutRef.current) clearTimeout(rejectTimeoutRef.current);
-    setIncomingCall(prev => ({...prev, visible: false}));
-    navigateToCall(false);
-  };
-
-  const handleRejectCall = () => {
-    if (rejectTimeoutRef.current) clearTimeout(rejectTimeoutRef.current);
-    if (socket) {
-      socket.emit('callCancelled', {
-        roomId,
-        senderId: userC?._id,
-      });
-    }
-    setIncomingCall(prev => ({...prev, visible: false}));
-  };
-
-  const handleCall = () => {
-    if (socket) {
-      socket.emit('incomingCall', {
-        callerName: userC?.username,
-        type: 'video',
-        roomId,
-      });
-    }
-    navigateToCall(true);
-  };
-
-  useEffect(() => {
-    if (incomingCall.visible) {
-      rejectTimeoutRef.current = setTimeout(handleRejectCall, 10000);
-    } else if (rejectTimeoutRef.current) {
-      clearTimeout(rejectTimeoutRef.current);
-    }
-    return () => {
-      if (rejectTimeoutRef.current) clearTimeout(rejectTimeoutRef.current);
-    };
-  }, [incomingCall.visible]);
 
   const renderItem = ({item, index}: {item: Message; index: number}) => (
     <MessageItemComponent
@@ -266,9 +204,9 @@ export const MessageScreen = () => {
             room={room}
             navigation={navigation}
             handleGoBack={handleGoBack}
-            handleCall={handleCall}
             styles={styles}
             color={color}
+            userC={userC}
           />
 
           <FlatList
@@ -282,7 +220,9 @@ export const MessageScreen = () => {
               paddingHorizontal: 10,
               flexGrow: 1,
             }}
-            onContentSizeChange={scrollToEnd}
+            onContentSizeChange={() => {
+              flatListRef.current?.scrollToEnd({animated: true});
+            }}
           />
 
           <MessageInput
@@ -301,13 +241,6 @@ export const MessageScreen = () => {
         imageUri={selectedImageUri}
         onClose={() => setSelectedImageUri(null)}
         backgroundColor={Colors.light.background}
-      />
-      <IncomingCallModal
-        visible={incomingCall.visible}
-        callerName={incomingCall.callerName}
-        type={incomingCall.type}
-        onAccept={handleAcceptCall}
-        onReject={handleRejectCall}
       />
       <ActionModalMessage
         visible={modalVisible}
