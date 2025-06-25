@@ -23,29 +23,6 @@ import {fetchGetPostedSotry} from '../../../../../services/StoryRedux/StorySlice
 import {Alert} from 'react-native';
 import HighlightCreateModal from './HighlightCreateModal';
 
-const formatMonthText = (dateString?: string): string => {
-  if (!dateString) return '--\n--';
-
-  const date = new Date(dateString);
-  if (isNaN(date.getTime())) return '--\n--';
-
-  const months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ];
-  return `${date.getDate()}\n${months[date.getMonth()]}`;
-};
-
 // Giả lập action creator (thay bằng action thực tế khi có API)
 const fetchCreateHighlight =
   (data: {storyIds: string[]}) => async (dispatch: AppDispatch) => {

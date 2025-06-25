@@ -48,6 +48,11 @@ export const ItemHomeStyles = StyleSheet.create({
     backgroundColor: Colors.light.transparent,
   },
   rowContainer: {
+    width: '50%',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  rowBottom: {
     flexDirection: 'row',
     alignItems: 'center',
   },

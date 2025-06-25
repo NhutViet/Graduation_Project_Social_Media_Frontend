@@ -41,6 +41,8 @@ const ItemHome = (props: ItemHomeProps) => {
     createdAt,
     media,
     user,
+    musicInfo,
+    openComment,
     sheetRef,
     isFocused,
     currentVisible,
@@ -154,6 +156,7 @@ const ItemHome = (props: ItemHomeProps) => {
           borderColor={utils.borderColor}
           iconTintColor={utils.iconTintColor}
           follow={state.follow}
+          song={musicInfo?.song}
           onUserPress={handleUserPress}
           onFollowPress={actions.handleFollowAction}
           onOptionsPress={modal.openOptions}

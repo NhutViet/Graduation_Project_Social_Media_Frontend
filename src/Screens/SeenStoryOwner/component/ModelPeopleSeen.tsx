@@ -13,49 +13,21 @@ import {FlashList} from '@shopify/flash-list';
 const ModalPeopleSeen = ({
   visible,
   onClose,
+  users,
 }: {
   visible: boolean;
   onClose: () => void;
+  users: {_id: string; handleName: string; profilePic: string}[];
 }) => {
-  const [dataUser, setDataUser] = useState([
-    {
-      id: 1,
-      name: 'user1',
-      image:
-        'https://i.pinimg.com/736x/b7/25/61/b72561fd1ec7018c0418c84a3c2d5a57.jpg',
-      status: 1,
-    },
-    {
-      id: 2,
-      name: 'user2',
-      image:
-        'https://i.pinimg.com/736x/c1/70/e8/c170e84663405785c80ba367cd5e3b85.jpg',
-      status: 1,
-    },
-    {
-      id: 3,
-      name: 'user3',
-      image:
-        'https://i.pinimg.com/736x/8b/ae/77/8bae77c63f046f5a307a864a9d230da2.jpg',
-      status: 0,
-    },
-    {
-      id: 4,
-      name: 'user4',
-      image:
-        'https://i.pinimg.com/736x/56/81/64/5681646985e7ddc1b2cd4b826763b541.jpg',
-      status: 0,
-    },
-  ]);
-
+  console.log('ModalPeopleSeen users:', JSON.stringify(users, null, 2));
   const RenderItem = ({
     item,
   }: {
-    item: {id: number; name: string; image: string};
+    item: {_id: string; handleName: string; profilePic: string};
   }) => (
     <View style={styles.itemContainer}>
-      <Image style={styles.itemIcon} source={{uri: item.image}} />
-      <Text style={styles.itemName}>{item.name}</Text>
+      <Image style={styles.itemIcon} source={{uri: item.profilePic}} />
+      <Text style={styles.itemName}>{item.handleName}</Text>
     </View>
   );
 
@@ -74,7 +46,7 @@ const ModalPeopleSeen = ({
                   style={styles.icon}
                   source={require('../../../../assets/icon/users.png')}
                 />
-                <Text style={styles.quantity}>100</Text>
+                <Text style={styles.quantity}>{users.length}</Text>
               </View>
               <TouchableOpacity onPress={onClose}>
                 <Image
@@ -85,10 +57,12 @@ const ModalPeopleSeen = ({
             </View>
             <FlashList
               showsVerticalScrollIndicator={false}
-              data={dataUser}
+              data={users}
               renderItem={({item}) => <RenderItem item={item} />}
-              keyExtractor={item => item.id.toString()}
-              estimatedItemSize={60} // Điều chỉnh dựa trên chiều cao thực tế của item
+              keyExtractor={item =>
+                item?._id?.toString?.() || Math.random().toString()
+              }
+              estimatedItemSize={60}
             />
           </Pressable>
         </View>
