@@ -38,12 +38,14 @@ import {AppDispatch, RootState} from '../../../services/store';
 import {resetStatus} from '../../../services/userRedux/userReducer';
 import {resetBookmarkState} from '../../../services/bookmarkRedux/bookmarkReducer';
 import {resetReaction} from '../../../services/reactionRedux/reactionReducer';
+import { useSocket } from '@services/SocketContext';
 
 export const Setting = () => {
   const navigation: any = useNavigation();
   const {theme, toggleTheme} = useTheme();
   const styles = createStyles(theme);
   const mColor = Colors[theme] || Colors;
+  const {disconnectAllSockets} = useSocket();
 
   const [showContact, setShowContact] = useState(false);
   const handleShowContact = () => setShowContact(!showContact);
@@ -60,6 +62,7 @@ export const Setting = () => {
 
   const handleLogout = () => {
     dispatch(fetchLogout());
+    disconnectAllSockets();
   };
 
   useEffect(() => {

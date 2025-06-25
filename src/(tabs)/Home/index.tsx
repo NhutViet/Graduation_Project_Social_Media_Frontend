@@ -32,6 +32,7 @@ import {
   clearExpiredSeenStories,
 } from '../../../services/storage/storage';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+import { useSocket } from '@services/SocketContext';
 
 const HEADER_HEIGHT = 100;
 const AnimatedFlatList = Animated.createAnimatedComponent(Animated.FlatList);
@@ -42,6 +43,7 @@ export const Home = forwardRef(({onReload}: any, ref) => {
   const color = Colors[theme];
   const isFocused = useIsFocused();
   const dispatch = useDispatch<AppDispatch>();
+  const {connectNotificationSocket} = useSocket();
 
   const storyDetails = useSelector(
     (state: RootState) => state.stories.storyDetails,
@@ -65,6 +67,13 @@ export const Home = forwardRef(({onReload}: any, ref) => {
   useImperativeHandle(ref, () => ({
     reload: reloadAllData,
   }));
+
+  useEffect(() => {
+    if (user?._id) {
+      connectNotificationSocket();
+    }
+  }, []);
+
 
   useEffect(() => {
     reloadAllData();
