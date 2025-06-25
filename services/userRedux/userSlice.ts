@@ -6,13 +6,14 @@ import {resetUser} from './userReducer';
 
 export const fetchLogin = createAsyncThunk<
   {user: UserRes['user']; refreshToken: string},
-  {email: string; password: string},
+  {email: string; password: string; fcmToken?: string},
   {rejectValue: {message: string}}
->('auth/login', async ({email, password}, {rejectWithValue}) => {
+>('auth/login', async ({email, password, fcmToken}, {rejectWithValue}) => {
   try {
     const loginRes = await axiosInstance.post(API.GET_lOGIN_POST, {
       email,
       password,
+      fcmToken,
     });
 
     const refreshToken = loginRes.data.refreshToken;
@@ -143,7 +144,7 @@ export const getAccessTokenFromRefresh = async (): Promise<string | null> => {
       },
     );
 
-    const { accessToken } = response.data;
+    const {accessToken} = response.data;
 
     return accessToken;
   } catch (error) {
@@ -174,20 +175,20 @@ export const fetchEditUser = createAsyncThunk<
   },
 );
 
-export const getPublicProfile  = createAsyncThunk<
+export const getPublicProfile = createAsyncThunk<
   PublicUserRes,
   {userId: string},
   {rejectValue: {message: string}}
 >('users/public', async ({userId}, {rejectWithValue}) => {
-  try{
+  try {
     const res = await axiosInstance.get(`${API.GET_PUBLIC_PROFILE}/${userId}`, {
       headers: {
-        token: 'refresh'
+        token: 'refresh',
       },
     });
 
     return res.data;
-  } catch (error: any){
+  } catch (error: any) {
     return rejectWithValue({
       message: error.response?.data?.message || 'Failed to get public profile',
     });

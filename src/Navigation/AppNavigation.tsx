@@ -57,13 +57,13 @@ import {
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 import ProfileComp from '../Screens/Profile';
-
 import NewMessage from '../Screens/NewMessage';
 import PostStory from '../Screens/PostStory';
 import Profile from '../(tabs)/Profile/index';
 import AllPostOfUserScreen from '../../components/AllPostOfUserScreen';
 import AllPostOfCollection from '../../components/AllPostOfCollection';
 import ZegoCallScreen from '../Screens/ZegoCloud/ZegoCallScreen';
+import {navigationRef} from '../NavigationService';
 
 export type RootStackParamList = {
   MessageScreen: {
@@ -92,7 +92,7 @@ const Stack = createStackNavigator();
 
 const AppNavigator = () => {
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
       <Stack.Navigator
         initialRouteName="Splash"
         screenOptions={{headerShown: false}}>
