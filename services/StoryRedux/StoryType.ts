@@ -4,7 +4,7 @@ export interface Story {
   type?: 'stories' | 'highlights';
   mediaUrl: string;
   isArchived?: boolean;
-  viewedByUsers: string[];
+  viewedByUsers: UserMini[];
   likedByUsers: string[];
   collectionName?: string;
   storyId?: string[];
@@ -24,6 +24,13 @@ export interface Story {
     y: number;
   };
   isSeen?: boolean;
+}
+
+export interface UserMini {
+  _id: string;
+  username: string;
+  profilePic: string;
+  handleName?: string;
 }
 
 export interface userFollow {

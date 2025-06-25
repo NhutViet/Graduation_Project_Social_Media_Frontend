@@ -163,3 +163,26 @@ export const fetchHighlightStory = createAsyncThunk<
     );
   }
 });
+
+export const deleteStory = createAsyncThunk<
+  {storyId: string},
+  {storyId: string},
+  {rejectValue: string}
+>('stories/deleteStory', async ({storyId}, {rejectWithValue}) => {
+  try {
+    const response = await axiosInstance.patch(
+      '/stories/delete',
+      {_id: storyId},
+      {
+        headers: {
+          token: 'refresh',
+        },
+      },
+    );
+    return {storyId};
+  } catch (error: any) {
+    return rejectWithValue(
+      error.response?.data?.message || 'Không thể xoá story',
+    );
+  }
+});

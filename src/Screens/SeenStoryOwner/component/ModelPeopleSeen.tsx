@@ -17,16 +17,17 @@ const ModalPeopleSeen = ({
 }: {
   visible: boolean;
   onClose: () => void;
-  users: {_id: string; username: string; profilePic: string}[];
+  users: {_id: string; handleName: string; profilePic: string}[];
 }) => {
+  console.log('ModalPeopleSeen users:', JSON.stringify(users, null, 2));
   const RenderItem = ({
     item,
   }: {
-    item: {_id: string; username: string; profilePic: string};
+    item: {_id: string; handleName: string; profilePic: string};
   }) => (
     <View style={styles.itemContainer}>
       <Image style={styles.itemIcon} source={{uri: item.profilePic}} />
-      <Text style={styles.itemName}>{item.username}</Text>
+      <Text style={styles.itemName}>{item.handleName}</Text>
     </View>
   );
 
@@ -58,7 +59,9 @@ const ModalPeopleSeen = ({
               showsVerticalScrollIndicator={false}
               data={users}
               renderItem={({item}) => <RenderItem item={item} />}
-              keyExtractor={item => item._id}
+              keyExtractor={item =>
+                item?._id?.toString?.() || Math.random().toString()
+              }
               estimatedItemSize={60}
             />
           </Pressable>
