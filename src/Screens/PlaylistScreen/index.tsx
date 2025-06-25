@@ -105,8 +105,13 @@ export const PlaylistsScreen = () => {
         } as never,
       );
     } else {
-      setSelectedItem(item);
-      modalizeRef.current?.open();
+      navigation.navigate(
+        'AllReels',
+        {
+          reels: playlistItems,
+          initialId: item._id,
+        }
+      )
     }
   };
 
