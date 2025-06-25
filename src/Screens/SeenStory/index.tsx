@@ -29,7 +29,9 @@ export const SeenStory = ({route, navigation}: any) => {
   const [musicDuration, setMusicDuration] = useState<number | null>(null);
   const [isLiked, setIsLiked] = useState(false);
   const [mediaSize, setMediaSize] = useState({width: 0, height: 0});
-
+  const progressAnims = useRef<Animated.Value[]>(
+    routeStories.map(() => new Animated.Value(0)),
+  ).current;
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.user.user);
 
@@ -51,10 +53,6 @@ export const SeenStory = ({route, navigation}: any) => {
 
     return imageDuration;
   };
-
-  const progressAnims = useRef<Animated.Value[]>(
-    routeStories.map(() => new Animated.Value(0)),
-  ).current;
 
   const animationRef = useRef<Animated.CompositeAnimation | null>(null);
   const scaleAnim = useRef(new Animated.Value(1)).current;

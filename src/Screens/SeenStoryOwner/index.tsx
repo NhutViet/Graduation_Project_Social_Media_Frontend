@@ -375,7 +375,11 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
           />
           <Text style={styles.txtIcon}>Xem thêm</Text>
         </TouchableOpacity>
-        <ModelPeopleSeen visible={visible} onClose={() => setVisible(false)} />
+        <ModelPeopleSeen
+          visible={visible}
+          onClose={() => setVisible(false)}
+          users={selectedItem?.viewByUsers || []}
+        />
         <ModelSeeMore
           visible={visibleSeeMore}
           onClose={() => setVisibleSeeMore(false)}

@@ -8,6 +8,7 @@ export interface Story {
   likedByUsers: string[];
   collectionName?: string;
   storyId?: string[];
+  thumbnail: string;
   createdAt: string;
   updatedAt?: string;
 
@@ -38,4 +39,8 @@ export interface CreateHighlightPayload {
   collectionName: string;
   thumbnail: string;
   storyId: string[];
+}
+
+export interface FetchHighlightPayload {
+  userId: string;
 }

@@ -167,8 +167,9 @@ export const EditProfile = () => {
                 },
                 {
                   label: 'Tên tài khoản *',
+                  onChangeText: setHandleName,
                   value: handleName,
-                  editable: false,
+                  editable: edit,
                   type: 'text',
                 },
                 {
