@@ -1,5 +1,6 @@
 import {useEffect} from 'react';
 import {useSocket} from './SocketContext';
+import Toast from 'react-native-toast-message';
 
 const useNotificationListener = () => {
   const {notificationSocket} = useSocket();
@@ -8,8 +9,13 @@ const useNotificationListener = () => {
     if (!notificationSocket) return;
 
     const handleNotification = (payload: any) => {
-      console.log('📩 New notification received:', payload);
-      // 👉 có thể dispatch Redux, hiện toast, thêm vào state, v.v.
+      Toast.show({
+        type: 'info',
+        text1: 'Thông báo mới.',
+        text2: payload?.content || 'Bạn có thông báo mới',
+        position: 'top',
+        visibilityTime: 2000,
+      });
     };
 
     // Lắng nghe các sự kiện từ server
