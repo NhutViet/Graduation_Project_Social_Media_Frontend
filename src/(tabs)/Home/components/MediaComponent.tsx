@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useMemo, useState} from 'react';
 import {View, Image, TouchableOpacity, Dimensions} from 'react-native';
 import Video from 'react-native-video';
 import {Colors} from '../../../../assets/color/Colors';

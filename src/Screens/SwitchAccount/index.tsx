@@ -2,6 +2,8 @@ import {
   Alert,
   Image,
   Modal,
+  PermissionsAndroid,
+  Platform,
   Text,
   TextInput,
   TouchableOpacity,
@@ -24,13 +26,13 @@ import {resetStatus} from '../../../services/userRedux/userReducer';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import {Eye, EyeOff} from 'lucide-react-native';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+import messaging from '@react-native-firebase/messaging';
 
 export const SwitchAccount = ({navigation}: any) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorEmail, setErrorEmail] = useState('');
   const [errorPassword, setErrorPassword] = useState('');
-
   const {theme} = useTheme();
   const color = Colors[theme];
   const styles = LoginStyles();
@@ -44,7 +46,17 @@ export const SwitchAccount = ({navigation}: any) => {
     (state: RootState) => state.user,
   );
 
-  const handleLogin = () => {
+  const requestNotificationPermission = async () => {
+    if (Platform.OS === 'android' && Platform.Version >= 33) {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+      );
+      return granted === PermissionsAndroid.RESULTS.GRANTED;
+    }
+    return true; // iOS or Android < 13
+  };
+
+  const handleLogin = async () => {
     if (email === '' || password === '') {
       if (email === '') setErrorEmail('Vui lòng nhập đầy đủ thông tin.');
       if (password === '') setErrorPassword('Vui lòng nhập đầy đủ thông tin.');
@@ -54,7 +66,15 @@ export const SwitchAccount = ({navigation}: any) => {
     } else {
       setErrorEmail('');
       setErrorPassword('');
-      dispatch(fetchLogin({email, password}));
+
+      const permissionGranted = await requestNotificationPermission();
+      if (!permissionGranted) {
+        Alert.alert('Bạn cần cấp quyền thông báo để sử dụng ứng dụng.');
+        return;
+      }
+
+      const fcmToken = await messaging().getToken();
+      dispatch(fetchLogin({email, password, fcmToken}));
     }
   };
 
@@ -103,8 +123,9 @@ export const SwitchAccount = ({navigation}: any) => {
 
         if (exists) {
           dispatch(resetStatus());
+          const fcmToken = await messaging().getToken();
           const loginAction = await dispatch(
-            fetchLogin({email, password: tempPassword}),
+            fetchLogin({email, password: tempPassword, fcmToken}),
           );
 
           if (!fetchLogin.fulfilled.match(loginAction)) {

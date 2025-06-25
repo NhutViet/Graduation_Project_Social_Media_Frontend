@@ -105,7 +105,8 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
 
   return (
     <>
-      <View style={[styles.header, {backgroundColor: 'rgba(255, 255, 255, 0.6)'}]}>
+      <View
+        style={[styles.header, {backgroundColor: 'rgba(255, 255, 255, 0.6)'}]}>
         <View style={styles.rowContainer2}>
           <TouchableOpacity style={styles.blockIcon} onPress={handleGoBack}>
             <Image
@@ -118,7 +119,10 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
             style={[
               styles.imgContainer,
               {
-                overflow: user1?.profilePic && !user2?.profilePic ? 'hidden' : undefined,
+                overflow:
+                  user1?.profilePic && !user2?.profilePic
+                    ? 'hidden'
+                    : undefined,
               },
             ]}
             onPress={() => {
