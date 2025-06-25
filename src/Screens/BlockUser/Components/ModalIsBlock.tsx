@@ -13,21 +13,21 @@ const ModalIsBlock = (props: any) => {
       <View style={styles.topContainer}>
         <Image source={{uri: uri}} style={styles.image}/>
         <Text style={[styles.question, {color: color.text}]}>Chặn {handle}?</Text>
-        <Text style={[styles.note, {color: color.lessBlack}]}>
+        <Text style={[styles.note, {color: color.textSecondary}]}>
           Điều này cũng sẽ chặn bất kỳ tài khoản nào khác mà họ có hoặc có thể tạo trong tương lai.
         </Text>
         <View style={styles.notiContainer}>
-          <Image source={require('../../../../assets/icon/no_comment.png')} style={styles.icon}/>
+          <Image source={require('../../../../assets/icon/no_comment.png')} style={[styles.icon, {tintColor: color.textSecondary}]}/>
           <Text style={[styles.noti, {color: color.text}]}>
             Họ sẽ không thể nhắn tin cho bạn hoặc tìm thấy hồ sơ hay nội dung của bạn trên Cirla.
           </Text>
         </View>
         <View style={styles.notiContainer}>
-          <Image source={require('../../../../assets/icon/no_notification.png')} style={styles.icon}/>
+          <Image source={require('../../../../assets/icon/no_notification.png')} style={[styles.icon, {tintColor: color.textSecondary}]}/>
           <Text style={[styles.noti, {color: color.text}]}>Họ sẽ không được thông báo rằng bạn đã chặn họ.</Text>
         </View>
         <View style={styles.notiContainer}>
-          <Image source={require('../../../../assets/icon/setting.png')} style={styles.icon}/>
+          <Image source={require('../../../../assets/icon/setting.png')} style={[styles.icon, {tintColor: color.textSecondary}]}/>
           <Text style={[styles.noti, {color: color.text}]}>Bạn có thể bỏ chặn họ bất cứ lúc nào trong phần Cài đặt.</Text>
         </View>
       </View>

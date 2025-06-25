@@ -36,6 +36,7 @@ const ReelsComponent = (props: any) => {
     isLike,
     commentCount,
     openComment,
+    openReactionModal,
     isFollow,
   } = props;
   const navigation = useNavigation<any>();
@@ -144,7 +145,16 @@ const ReelsComponent = (props: any) => {
         <View style={styles.block1}>
           <View style={styles.rowContainer}>
             <TouchableOpacity style={styles.imgContainer}>
-              <Image style={styles.img} source={{uri: user.profilePic}} />
+              <TouchableOpacity style={styles.imgContainer}>
+                {user.profilePic ? (
+                  <Image style={styles.img} source={{uri: user.profilePic}} />
+                ) : (
+                  <Image
+                    style={styles.img}
+                    source={require('../../../../assets/icon/account.png')}
+                  />
+                )}
+              </TouchableOpacity>
             </TouchableOpacity>
             <Text style={styles.name}>{user.handleName}</Text>
             {user._id !== currentUserId && (
@@ -174,7 +184,9 @@ const ReelsComponent = (props: any) => {
                 }
               />
             </TouchableOpacity>
-            <Text style={styles.textNormal}>{formatNumber(numLike)}</Text>
+            <TouchableOpacity onPress={() => openReactionModal(_id, isLiked)}>
+              <Text style={styles.textNormal}>{formatNumber(numLike)}</Text>
+            </TouchableOpacity>
           </View>
           <View style={styles.containerVertical}>
             <TouchableOpacity
@@ -265,6 +277,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-end',
     backgroundColor: Colors.dark.transparent,
+    zIndex: 1,
   },
   block1: {
     width: '80%',
