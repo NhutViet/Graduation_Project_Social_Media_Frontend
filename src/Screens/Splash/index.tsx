@@ -24,7 +24,6 @@ export const Splash = () => {
         navigation.navigate('SwitchAccount');
       });
   }, []);
-
   return (
     <SafeAreaView
       style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>

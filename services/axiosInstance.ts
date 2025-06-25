@@ -26,20 +26,20 @@ axiosInstance.interceptors.request.use(
 
     delete config.headers.token;
 
-    // console.log(
-    //   '📤 Request:',
-    //   JSON.stringify(
-    //     {
-    //       url: config.url,
-    //       method: config.method,
-    //       params: config.params,
-    //       data: config.data,
-    //       headers: config.headers,
-    //     },
-    //     null,
-    //     2,
-    //   ),
-    // );
+    console.log(
+      '📤 Request:',
+      JSON.stringify(
+        {
+          url: config.url,
+          method: config.method,
+          params: config.params,
+          data: config.data,
+          headers: config.headers,
+        },
+        null,
+        2,
+      ),
+    );
 
     return config;
   },
@@ -51,18 +51,18 @@ axiosInstance.interceptors.request.use(
 
 axiosInstance.interceptors.response.use(
   response => {
-    // console.log(
-    //   '📥 Response:',
-    //   JSON.stringify(
-    //     {
-    //       url: response.config.url,
-    //       status: response.status,
-    //       data: response.data,
-    //     },
-    //     null,
-    //     2,
-    //   ),
-    // );
+    console.log(
+      '📥 Response:',
+      JSON.stringify(
+        {
+          url: response.config.url,
+          status: response.status,
+          data: response.data,
+        },
+        null,
+        2,
+      ),
+    );
     return response;
   },
   error => {

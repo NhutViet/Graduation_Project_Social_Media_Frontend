@@ -8,9 +8,7 @@ import {
   View,
 } from 'react-native';
 import ReelsComponent from './components/reelsComponent';
-import {
-  useIsFocused,
-} from '@react-navigation/native';
+import {useIsFocused} from '@react-navigation/native';
 import {
   forwardRef,
   useCallback,
@@ -33,6 +31,9 @@ import BottomSheetComment, {
   BottomSheetCommentRef,
 } from '../Home/components/CommentSection';
 import { useFocusEffect } from '@react-navigation/native';
+import { Modalize } from 'react-native-modalize';
+import ModalReaction from '../Home/components/ModalReaction';
+import { IHandles } from 'react-native-modalize/lib/options';
 
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
@@ -47,8 +48,18 @@ const Reels = forwardRef((props, ref) => {
 
   const [currentVisible, setCurrentVisible] = useState<string | null>(null);
   const [isCurrentBookmarked, setIsCurrentBookmarked] = useState(false);
-  const [isCurrentFollowing, setIsCurrentFollowing] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any | null>(null);
+
+  //lấy danh sách lượt like
+  const modalReactionRef = useRef<Modalize>(null);
+  const [reactionPostId, setReactionPostId] = useState<string>('');
+  const [reactionIsLiked, setReactionIsLiked] = useState<boolean>(false);
+
+  const openReactionModal = (postId: string, isLiked: boolean) => {
+    setReactionPostId(postId);
+    setReactionIsLiked(isLiked);
+    modalReactionRef.current?.open();
+  };
 
   const onViewRef = useRef(({viewableItems}: {viewableItems: any[]}) => {
     if (viewableItems.length > 0) {
@@ -73,7 +84,7 @@ const Reels = forwardRef((props, ref) => {
   useFocusEffect(
     useCallback(() => {
       dispatch(fetchReelsWithMedia());
-    }, [dispatch]) 
+    }, [dispatch]),
   );
   ///////////////////////////////
 
@@ -134,6 +145,7 @@ const Reels = forwardRef((props, ref) => {
                 dispatch(fetchCommentsByPost(item._id));
                 sheetRefComment.current?.open();
               }}
+              openReactionModal={() => openReactionModal(item._id, item.isLiked)}
             />
           );
         }}
@@ -147,6 +159,7 @@ const Reels = forwardRef((props, ref) => {
       />
       <BottomSheetReels ref={sheetRef} isBookmarked={isCurrentBookmarked} selectedItem={selectedItem}/>
       <BottomSheetComment ref={sheetRefComment} postId={selectedPostId} />
+      <ModalReaction ref={modalReactionRef} postId={reactionPostId} isLiked={reactionIsLiked}/>
     </SafeAreaView>
   );
 });

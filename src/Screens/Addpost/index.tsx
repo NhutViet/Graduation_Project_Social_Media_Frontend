@@ -21,6 +21,7 @@ import {FlashList} from '@shopify/flash-list';
 import {getAddPostStyles} from '../../StyleSheet/AddPostStyles';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
+import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
 const menu: string[] = ['Tất cả', 'Băng hình', 'Hình ảnh'];
 
@@ -128,7 +129,7 @@ export const AddPost = () => {
 
     if (isVideo) {
       if (isImageAlreadySelected) {
-        Alert.alert(
+        GlobalAlertManager.show(
           'Thông báo',
           'Không thể chọn cả video và ảnh cùng một lúc!!!',
         );
@@ -147,7 +148,7 @@ export const AddPost = () => {
       }
     } else {
       if (isVideoAlreadySelected) {
-        Alert.alert(
+        GlobalAlertManager.show(
           'Thông báo',
           'Không thể chọn cả video và ảnh cùng một lúc!!!',
         );
@@ -165,6 +166,11 @@ export const AddPost = () => {
           );
           setSelectedMedia(selectedItems[selectedItems.length - 2]);
         } else {
+          if (selectedItems.length >= 10) {
+            Alert.alert('Thông báo', 'Chỉ được chọn tối đa 10 ảnh!');
+            return;
+          }
+
           setSelectedItems(prev => [...prev, item]);
           setSelectedMedia(item);
         }
@@ -183,7 +189,10 @@ export const AddPost = () => {
 
   const handleNext = () => {
     if (selectedItems.length === 0) {
-      Alert.alert('Thông báo', 'Hãy chọn ít nhất một video hoặc ảnh');
+      GlobalAlertManager.show(
+        'Thông báo',
+        'Hãy chọn ít nhất một video hoặc ảnh',
+      );
       return;
     }
     navigation.navigate('PostSetting', {selectedMedia: selectedItems});
@@ -356,7 +365,10 @@ export const AddPost = () => {
                           right: 5,
                           width: 20,
                           height: 20,
-                          tintColor: color.primary,
+                          tintColor: color.white,
+                          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                          resizeMode: 'contain',
+                          borderRadius: 3,
                         }}
                       />
                     )}

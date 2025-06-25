@@ -1,5 +1,10 @@
 import {createAsyncThunk} from '@reduxjs/toolkit';
-import {CreateHighlightPayload, Story, userFollow} from './StoryType';
+import {
+  CreateHighlightPayload,
+  FetchHighlightPayload,
+  Story,
+  userFollow,
+} from './StoryType';
 import axiosInstance from '../axiosInstance';
 import {API} from '../api';
 
@@ -133,6 +138,51 @@ export const createHighlightStory = createAsyncThunk<
   } catch (error: any) {
     return rejectWithValue(
       error.response?.data?.message || 'Không thể tạo Highlight mới',
+    );
+  }
+});
+
+export const fetchHighlightStory = createAsyncThunk<
+  Story[],
+  FetchHighlightPayload,
+  {rejectValue: string}
+>('stories/getHighlighrStory', async ({userId}, {rejectWithValue}) => {
+  try {
+    const response = await axiosInstance.get(
+      `/stories/highlights/user/${userId}`,
+      {
+        headers: {
+          token: 'refresh',
+        },
+      },
+    );
+    return response.data.data;
+  } catch (error: any) {
+    return rejectWithValue(
+      error.response.data?.message || 'Lỗi không lấy được highlight story',
+    );
+  }
+});
+
+export const deleteStory = createAsyncThunk<
+  {storyId: string},
+  {storyId: string},
+  {rejectValue: string}
+>('stories/deleteStory', async ({storyId}, {rejectWithValue}) => {
+  try {
+    const response = await axiosInstance.patch(
+      '/stories/delete',
+      {_id: storyId},
+      {
+        headers: {
+          token: 'refresh',
+        },
+      },
+    );
+    return {storyId};
+  } catch (error: any) {
+    return rejectWithValue(
+      error.response?.data?.message || 'Không thể xoá story',
     );
   }
 });

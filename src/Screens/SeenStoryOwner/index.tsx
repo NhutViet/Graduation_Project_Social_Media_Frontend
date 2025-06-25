@@ -11,15 +11,20 @@ import {
 } from 'react-native';
 import {Modalize} from 'react-native-modalize';
 import {Portal} from 'react-native-portalize';
-import {useSelector} from 'react-redux';
-import {RootState} from '../../../services/store';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '../../../services/store';
 import ModelPeopleSeen from './component/ModelPeopleSeen';
-import ModelSeeMore from './component/ModelSeeMore';
 import HighlightAddModal from './component/HighlightAddModal';
 import HighlightViewModal from './component/HighlightViewModal';
 import {MediaSection} from './component/MediaSection';
 import {styles} from './component/style';
 import debounce from 'lodash/debounce';
+import ModalSeeMore from './component/ModelSeeMore';
+import {
+  deleteStory,
+  fetchGetPostedSotry,
+} from '@services/StoryRedux/StorySlice';
+import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
 // Data mẫu cho modal highlight
 const highlights = [
@@ -46,24 +51,11 @@ const highlights = [
   },
 ];
 
-// Định nghĩa kiểu cho route.params
-interface RouteParams {
-  stories: Array<{
-    mediaUrl?: string;
-    uriVideo?: string;
-    image?: string;
-    _id?: string;
-    createdAt?: string;
-    content?: {text?: string; x?: number; y?: number};
-    music?: {link: string; time_start: number; title: string; artist: string};
-  }>;
-  creator: {username: string; profilePic: string};
-}
-
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 
 export const SeenStoryOwner = ({route, navigation}: any) => {
+  const dispatch = useDispatch<AppDispatch>();
   const {stories, creator} = route.params;
   const user = useSelector((state: RootState) => state.user.user);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -97,6 +89,25 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
 
   const handleAddHighlight = (name: string) => {
     addModalRef.current?.close();
+  };
+
+  const handleDeleteStory = async () => {
+    try {
+      const currentStory = stories[currentIndex];
+      if (!currentStory?._id) return;
+
+      const result = await dispatch(deleteStory({storyId: currentStory._id}));
+
+      if (deleteStory.fulfilled.match(result)) {
+        GlobalAlertManager.show('Thành công', 'Tin của bạn đã được xoá');
+        dispatch(fetchGetPostedSotry());
+        navigation.goBack();
+      } else {
+        GlobalAlertManager.show('Thất bại', 'Không thể xoá story');
+      }
+    } catch (error) {
+      console.log('Line 100', error);
+    }
   };
 
   const getItemDuration = () => {
@@ -213,7 +224,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
     setMusicDuration(data.duration);
 
     if (!isVideoPaused) {
-      startProgressAnimation(); // ✅ Thêm dòng này để kích hoạt thanh tiến trình
+      startProgressAnimation();
     }
   };
 
@@ -269,7 +280,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
   const renderProgressBars = () => {
     return (
       <View style={styles.progressContainer}>
-        {stories.map((_, index) => {
+        {stories.map((_: any, index: number) => {
           const width = progressAnims[index].interpolate({
             inputRange: [0, 1],
             outputRange: ['0%', '100%'],
@@ -389,10 +400,10 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
           />
           <Text style={styles.txtIcon}>Xem thêm</Text>
         </TouchableOpacity>
-        <ModelPeopleSeen visible={visible} onClose={() => setVisible(false)} />
-        <ModelSeeMore
-          visible={visibleSeeMore}
-          onClose={() => setVisibleSeeMore(false)}
+        <ModelPeopleSeen
+          visible={visible}
+          onClose={() => setVisible(false)}
+          users={selectedItem?.viewedByUsers || []}
         />
       </View>
 
@@ -401,6 +412,14 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
           ref={viewModalRef}
           data={highlights}
           onAddNew={handleOpenAddModal}
+        />
+      </Portal>
+
+      <Portal>
+        <ModalSeeMore
+          visible={visibleSeeMore}
+          onClose={() => setVisibleSeeMore(false)}
+          onDelete={handleDeleteStory}
         />
       </Portal>
 

@@ -36,7 +36,7 @@ const GridView: React.FC<GridViewProps> = ({data, onPressItem}) => {
             return (
               <View style={Styles.styles.gridItem}>
                 {isVideo ? (
-                  <TouchableOpacity onPress={onPressItem}>
+                  <TouchableOpacity onPress={() => onPressItem?.(item)}>
                     <Video
                       source={{uri: uri}}
                       style={[
@@ -51,7 +51,7 @@ const GridView: React.FC<GridViewProps> = ({data, onPressItem}) => {
                     />
                   </TouchableOpacity>
                 ) : (
-                <TouchableOpacity onPress={onPressItem}>
+                <TouchableOpacity onPress={() => onPressItem?.(item)}>
                   <Image
                     source={{uri: uri}}
                     style={[
@@ -73,7 +73,7 @@ const GridView: React.FC<GridViewProps> = ({data, onPressItem}) => {
             source={require('../../../../assets/icon/no_photo.png')}
             style={Styles.styles.imgNoPhoto}
           />
-          <Text style={Styles.styles.textno}>Bạn chưa đăng nội dung nào.</Text>
+          <Text style={Styles.styles.textno}>Chưa đăng nội dung nào.</Text>
         </View>
       )}
     </>
