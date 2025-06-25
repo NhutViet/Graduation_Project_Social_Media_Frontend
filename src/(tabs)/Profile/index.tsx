@@ -59,7 +59,7 @@ const Profile = () => {
   const {followers, following} = useSelector(
     (state: RootState) => state.relation,
   );
-  console.log('>>>>>>>>>>', userId);
+
   const {refreshToken} = useSelector((state: RootState) => state.user);
   const {items: PostsItem}: any | null = useSelector(
     (state: RootState) => state.postUser.posts,
@@ -98,30 +98,32 @@ const Profile = () => {
     useCallback(() => {
       if (userId) {
         dispatch(fetchHighlightStory({userId}));
+        dispatch(fetchFollowers({userId: userId}));
+        dispatch(fetchFollowing({userId: userId}));
+        dispatch(getPostsAndReelsOfUser({refreshToken, userId}));
       }
     }, [userId]),
   );
 
-  useEffect(() => {
-    if (userId) {
-      Promise.all([
-        dispatch(fetchFollowers({userId: userId})),
-        dispatch(fetchFollowing({userId: userId})),
-      ]).catch(error => {
-        console.error('Error fetching relations:', error);
-      });
-    }
-  }, [dispatch, userId]);
+  // useEffect(() => {
+  //   if (userId) {
+  //     Promise.all([
+  // dispatch(fetchFollowers({userId: userId})),
+  // dispatch(fetchFollowing({userId: userId})),
+  //     ]).catch(error => {
+  //       console.error('Error fetching relations:', error);
+  //     });
+  //   }
+  // }, [dispatch, userId]);
 
-  useFocusEffect(
-    useCallback(() => {
-      if (!initializedRef.current && userId) {
-        initializedRef.current = true;
-
-        dispatch(getPostsAndReelsOfUser({refreshToken, userId}));
-      }
-    }, [dispatch, refreshToken, userId]),
-  );
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     if (!initializedRef.current && userId) {
+  //       initializedRef.current = true;
+  //       dispatch(getPostsAndReelsOfUser({refreshToken, userId}));
+  //     }
+  //   }, [dispatch, refreshToken, userId]),
+  // );
 
   const [activeTab, setActiveTab] = useState('grid');
 
