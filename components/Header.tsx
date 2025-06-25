@@ -10,6 +10,7 @@ import {
 import {Colors} from '../assets/color/Colors';
 import {useTheme} from '../src/util/ThemeContext';
 import {Menu, Divider, Provider} from 'react-native-paper';
+import {GlobalAlertManager} from './Global/AlertModal';
 
 const Header = (props: any) => {
   const {
@@ -54,11 +55,21 @@ const Header = (props: any) => {
                 </TouchableOpacity>
               }>
               <Menu.Item
-                onPress={() => Alert.alert('Option 1')}
+                onPress={() =>
+                  GlobalAlertManager.show(
+                    'Thông báo',
+                    'Chức năng chưa phát triển',
+                  )
+                }
                 title="Đang theo dõi"
               />
               <Menu.Item
-                onPress={() => Alert.alert('Option 2')}
+                onPress={() =>
+                  GlobalAlertManager.show(
+                    'Thông báo',
+                    'Chức năng chưa phát triển',
+                  )
+                }
                 title="Yêu thích"
               />
               <Divider />

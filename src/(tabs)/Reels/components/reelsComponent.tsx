@@ -1,8 +1,7 @@
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Colors} from '../../../../assets/color/Colors';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import Video from 'react-native-video';
-
 import {Dimensions} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../../services/store';
@@ -140,6 +139,25 @@ const ReelsComponent = (props: any) => {
           maxBitRate={0}
           progressUpdateInterval={500}
         />
+        <View
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 1,
+          }}>
+          {/* {media[0]?.tags?.map((tag: any, index: number) => (
+            <TagMarker
+              key={index}
+              tag={tag}
+              onPress={(userId: string) => {
+                navigation.navigate('ProfileComp', {userID: userId});
+              }}
+            />
+          ))} */}
+        </View>
       </View>
       <View style={styles.bottomContainer}>
         <View style={styles.block1}>

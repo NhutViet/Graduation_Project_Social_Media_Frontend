@@ -67,8 +67,8 @@ const MessageBoxStyles = (theme: ThemeType) => {
       alignItems: 'center',
     },
     clearIcon: {
-      width: 16,
-      height: 16,
+      width: 14,
+      height: 14,
       tintColor: color.text,
     },
     // Search Results Styles

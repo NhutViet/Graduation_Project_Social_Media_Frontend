@@ -1,5 +1,5 @@
 import 'react-native-gesture-handler';
-import React, {useEffect} from 'react';
+import React, {useEffect, useRef} from 'react';
 import {enableScreens} from 'react-native-screens';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import AppNavigator from './Navigation/AppNavigation';
@@ -20,6 +20,7 @@ import {KeyboardAvoidingView} from 'react-native';
 import {useNotificationHandler} from '@services/notification/useNotification';
 import NotificationModal from '@services/notification/NotificationModal';
 import {navigationRef} from './NavigationService';
+import { GlobalAlert, GlobalAlertManager, GlobalAlertRef } from 'components/Global/AlertModal';
 
 global.Buffer = Buffer;
 if (__DEV__) {
@@ -62,6 +63,11 @@ const App = () => {
         break;
     }
   });
+  const handleAlertRef = (ref: GlobalAlertRef | null) => {
+    if (ref) {
+      GlobalAlertManager.setAlertRef(ref);
+    }
+  };
 
   return (
     <GestureHandlerRootView style={{flex: 1}}>
@@ -111,6 +117,7 @@ const App = () => {
                             }}
                           />
                         )}
+                        <GlobalAlert ref={handleAlertRef} />
                       </TabLoadingProvider>
                     </UploadProvider>
                   </Host>

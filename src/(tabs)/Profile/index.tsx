@@ -1,5 +1,4 @@
-/* eslint-disable react-native/no-inline-styles */
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   TouchableOpacity,
   View,
@@ -7,7 +6,6 @@ import {
   SafeAreaView,
   Image,
   ScrollView,
-  // Animated,
 } from 'react-native';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
@@ -75,7 +73,16 @@ const Profile = () => {
       style={styles.highlightItem}
       onPress={() => handleUserPress(item)}>
       <View style={styles.highlightImageContainer}>
-        <Image source={{uri: item.image}} style={styles.highlightImage} />
+        <Image
+          source={
+            item?.thumbnail
+              ? {uri: item.thumbnail}
+              : {
+                  uri: 'https://i.pinimg.com/736x/6d/71/c3/6d71c3a702199277c03ea4be15200bb4.jpg',
+                }
+          }
+          style={styles.highlightImage}
+        />
       </View>
       <Text style={[styles.highlightText, {color: color.text}]}>
         {item.title}
@@ -188,14 +195,16 @@ const Profile = () => {
       <View>
         <View style={styles.profileInfo}>
           <View style={styles.avatarContainer}>
-            {user?.profilePic && (
-              <Image
-                source={{
-                  uri: user?.profilePic,
-                }}
-                style={styles.avatar}
-              />
-            )}
+            <Image
+              source={
+                user?.profilePic
+                  ? {uri: user.profilePic}
+                  : {
+                      uri: 'https://i.pinimg.com/736x/09/80/62/098062ede8791dc791c3110250d2a413.jpg',
+                    }
+              }
+              style={styles.avatar}
+            />
             <TouchableOpacity
               style={styles.addStoryButton}
               onPress={() => {

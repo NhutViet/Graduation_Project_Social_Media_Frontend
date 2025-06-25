@@ -22,6 +22,7 @@ import {AppDispatch, RootState} from '../../../../../services/store';
 import {fetchGetPostedSotry} from '../../../../../services/StoryRedux/StorySlice';
 import {Alert} from 'react-native';
 import HighlightCreateModal from './HighlightCreateModal';
+import {GlobalAlertManager} from '../../../../../components/Global/AlertModal';
 
 const formatMonthText = (dateString?: string): string => {
   if (!dateString) return '--\n--';
@@ -101,20 +102,22 @@ const StoryArchive = () => {
 
   const createHighlight = async (selectedStoryIds: string[]) => {
     if (selectedStoryIds.length === 0) {
-      Alert.alert('Lỗi', 'Vui lòng chọn ít nhất một story.');
+      GlobalAlertManager.show('Lỗi', 'Vui lòng chọn ít nhất một story.');
       return;
     }
     try {
       const response = await dispatch(
         fetchCreateHighlight({storyIds: selectedStoryIds}),
-      ).unwrap();
+      );
       if (response.success) {
-        Alert.alert('Thành công', 'Tin nổi bật đã được tạo.');
+        GlobalAlertManager.show('Thành công', 'Tin nổi bật đã được tạo.');
         closeHighlightModal();
       }
     } catch (error) {
-      console.error('Lỗi khi tạo highlight:', error);
-      Alert.alert('Lỗi', 'Không thể tạo tin nổi bật. Vui lòng thử lại.');
+      GlobalAlertManager.show(
+        'Lỗi',
+        'Không thể tạo tin nổi bật. Vui lòng thử lại.',
+      );
     }
   };
 

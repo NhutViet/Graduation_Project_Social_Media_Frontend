@@ -20,6 +20,12 @@ import HighlightViewModal from './component/HighlightViewModal';
 import {MediaSection} from './component/MediaSection';
 import {styles} from './component/style';
 import debounce from 'lodash/debounce';
+import ModalSeeMore from './component/ModelSeeMore';
+// import {
+//   deleteStory,
+//   fetchGetPostedSotry,
+// } from '@services/StoryRedux/StorySlice';
+import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
 // Data mẫu cho modal highlight
 const highlights = [
@@ -84,6 +90,25 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
   const handleAddHighlight = (name: string) => {
     addModalRef.current?.close();
   };
+
+  // const handleDeleteStory = async () => {
+  //   try {
+  //     const currentStory = stories[currentIndex];
+  //     if (!currentStory?._id) return;
+
+  //     const result = await dispatch(deleteStory({storyId: currentStory._id}));
+
+  //     if (deleteStory.fulfilled.match(result)) {
+  //       GlobalAlertManager.show('Thành công', 'Tin của bạn đã được xoá');
+  //       dispatch(fetchGetPostedSotry());
+  //       navigation.goBack();
+  //     } else {
+  //       GlobalAlertManager.show('Thất bại', 'Không thể xoá story');
+  //     }
+  //   } catch (error) {
+  //     console.log('Line 100', error);
+  //   }
+  // };
 
   const getItemDuration = () => {
     const currentStory = stories[currentIndex];
@@ -255,7 +280,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
   const renderProgressBars = () => {
     return (
       <View style={styles.progressContainer}>
-        {stories.map((_, index) => {
+        {stories.map((_: any, index: number) => {
           const width = progressAnims[index].interpolate({
             inputRange: [0, 1],
             outputRange: ['0%', '100%'],

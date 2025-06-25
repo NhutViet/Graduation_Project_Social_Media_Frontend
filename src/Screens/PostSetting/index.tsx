@@ -14,7 +14,11 @@ import {getAddPostStyles} from '../../StyleSheet/AddPostStyles';
 import {FlashList} from '@shopify/flash-list';
 import {Colors} from '../../../assets/color/Colors';
 import Section from '../../../components/Section';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
 import {useDispatch} from 'react-redux';
 import {AppDispatch} from '../../../services/store';
 import {uploadPostWithMedia} from '../../../services/postRedux/postSlice';
@@ -25,6 +29,14 @@ import BottomSheet, {
 } from '../PostStory/BottomSheet/BottomSheetMusic';
 import {uploadImageToR2, uploadToCloudflare} from '../../core/upload';
 import {useUploadProgress} from '../../../services/UploadProgressManager';
+import {PhotoIdentifier} from '@react-native-camera-roll/camera-roll';
+// import {TaggedMedia} from '../TagSo';
+import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+
+// type Params = {
+//   updated?: TaggedMedia[];
+// };
+
 export const PostSetting = () => {
   const {theme} = useTheme();
   const color = Colors[theme];
@@ -49,18 +61,20 @@ export const PostSetting = () => {
   const {showUploadModal, hideUploadModal, setProgress} = useUploadProgress();
 
   const handleUploadAll = async () => {
-    if (!selectedMedia || selectedMedia.length === 0) {
-      Alert.alert(
-        'Chưa chọn phương tiện',
-        'Hãy chọn ít nhất một ảnh hoặc video',
-      );
-      return;
-    }
+    // if (!mediaWithTags || mediaWithTags.length === 0) {
+    //   GlobalAlertManager.show(
+    //     'Thông báo',
+    //     'Hãy chọn ít nhất một ảnh hoặc video',
+    //   );
+    //   return;
+    // }
 
-    navigation.reset({
-      index: 0,
-      routes: [{name: 'BottomTabs'}],
-    });
+    // for (const media of mediaWithTags) {
+    //   if (!media.node.image.uri) {
+    //     GlobalAlertManager.show('Lỗi', 'URI của media không hợp lệ');
+    //     return;
+    //   }
+    // }
 
     try {
       const uploadedMedia: {imageUrl?: string; videoUrl?: string}[] = [];
@@ -88,8 +102,8 @@ export const PostSetting = () => {
             uploadedMedia.push({imageUrl});
           }
         } catch (err) {
-          Alert.alert(
-            'Upload thất bại',
+          GlobalAlertManager.show(
+            'Thất bại',
             `Không thể upload ${isVideo ? 'video' : 'ảnh'}: ${uri}`,
           );
           return;
@@ -134,7 +148,7 @@ export const PostSetting = () => {
         });
       }
     } catch (error) {
-      Alert.alert('Lỗi', 'Đã có lỗi xảy ra khi upload');
+      GlobalAlertManager.show('Lỗi', 'Đã có lỗi xảy ra khi upload');
       console.error(error);
     }
   };

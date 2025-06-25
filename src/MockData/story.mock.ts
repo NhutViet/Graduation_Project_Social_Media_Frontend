@@ -2,6 +2,7 @@ export interface HighlightItem {
   id: string;
   image: string;
   title: string;
+  thumbnail?: string;
 }
 
 export const highlights: HighlightItem[] = [

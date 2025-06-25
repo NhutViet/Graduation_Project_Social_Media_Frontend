@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {
   View,
   Text,
@@ -14,64 +14,78 @@ import {ArrowLeft, Search, X, Check} from 'lucide-react-native';
 import {useNavigation} from '@react-navigation/native';
 import {Colors} from '../../../assets/color/Colors';
 import {useTheme} from '../../util/ThemeContext';
-interface Friend {
-  id: string;
-  name: string;
-  username: string;
-  avatar: string;
-}
-
-const DUMMY_FRIENDS: Friend[] = [
-  {
-    id: '1',
-    name: 'Hello Kitty',
-    username: '7tzwxie_',
-    avatar: 'https://picsum.photos/id/1/100',
-  },
-  {
-    id: '2',
-    name: 'Double Girl',
-    username: '08.tt_',
-    avatar: 'https://picsum.photos/id/2/100',
-  },
-  {
-    id: '3',
-    name: 'iris_miie',
-    username: 'iris_miie',
-    avatar: 'https://picsum.photos/id/3/100',
-  },
-  {
-    id: '4',
-    name: 'Nhật Hà',
-    username: 'ngnha_23',
-    avatar: 'https://picsum.photos/id/4/100',
-  },
-  {
-    id: '5',
-    name: 'Vương Hoàng',
-    username: '_voung_',
-    avatar: 'https://picsum.photos/id/5/100',
-  },
-  {
-    id: '6',
-    name: 'Chu Kim Gun',
-    username: '_kym.hangz',
-    avatar: 'https://picsum.photos/id/6/100',
-  },
-];
+import {useDispatch, useSelector} from 'react-redux';
+import {RootState, AppDispatch} from '@services/store';
+import {UserProfile} from '@services/relationRedux/relationTypes';
+import {fetchFollowers} from '@services/relationRedux/relationSlice';
+import {createRoom} from '@services/roomRedux/roomSlice';
+import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
 export const CreateGroupScreen = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const navigation = useNavigation();
-  const [selected, setSelected] = useState<Friend[]>([]);
+  const [selected, setSelected] = useState<UserProfile[]>([]);
   const {theme} = useTheme();
   const color = Colors[theme];
+  const [searchText, setSearchText] = useState('');
+  const userId = useSelector((state: RootState) => state.user.user?._id);
+  const followers = useSelector((state: RootState) => state.relation.followers);
 
-  const toggleSelect = (friend: Friend) => {
-    const exists = selected.find(item => item.id === friend.id);
+  useEffect(() => {
+    if (userId) {
+      dispatch(fetchFollowers({userId}));
+    }
+  }, [userId]);
+
+  const toggleSelect = (friend: UserProfile) => {
+    const exists = selected.find(item => item._id === friend._id);
     if (exists) {
-      setSelected(prev => prev.filter(item => item.id !== friend.id));
+      setSelected(prev => prev.filter(item => item._id !== friend._id));
     } else {
       setSelected(prev => [...prev, friend]);
+    }
+  };
+
+  const filteredFollowers = useMemo(() => {
+    const keyword = searchText.trim().toLowerCase();
+    if (!keyword) return followers;
+
+    return followers.filter(
+      user =>
+        (user.username?.toLowerCase() || '').includes(keyword) ||
+        (user.handleName?.toLowerCase() || '').includes(keyword) ||
+        (user.email?.toLowerCase() || '').includes(keyword),
+    );
+  }, [searchText, followers]);
+
+  const handleCreateRoom = async () => {
+    try {
+      const user_ids = selected.map(user => user._id);
+
+      const res = await dispatch(
+        createRoom({
+          user_ids,
+          type: 'accept',
+          name: '',
+        }),
+      ).unwrap();
+
+      if (res.isExisted) {
+        GlobalAlertManager.show('Thông báo', 'Đoạn chat đã tồn tại!');
+      } else {
+        GlobalAlertManager.show(
+          'Thành công',
+          'Tạo đoạn chat thành công!',
+          () => {
+            navigation.goBack();
+          },
+        );
+      }
+    } catch (error: any) {
+      GlobalAlertManager.show(
+        'Thất bại',
+        error?.message || 'Tạo đoạn chat thất bại!',
+      );
     }
   };
 
@@ -93,54 +107,61 @@ export const CreateGroupScreen = () => {
         <TextInput
           placeholder="Tìm kiếm"
           placeholderTextColor="#888"
-          style={styles.searchInput}
+          style={[styles.searchInput, {color: color.text}]}
+          value={searchText}
+          onChangeText={setSearchText}
         />
       </View>
 
       {/* Selected Avatars */}
       {selected.length > 0 && (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.selectedScroll}>
-          {selected.map(item => (
-            <View key={item.id} style={styles.selectedItem}>
-              <Image
-                source={{uri: item.avatar}}
-                style={styles.selectedAvatar}
-              />
-              <TouchableOpacity
-                style={styles.removeIcon}
-                onPress={() => toggleSelect(item)}>
-                <X size={14} color={color.text} />
-              </TouchableOpacity>
-              <Text
-                style={[styles.selectedName, {color: color.text}]}
-                numberOfLines={1}>
-                {item.name}
-              </Text>
-            </View>
-          ))}
-        </ScrollView>
+        <View>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.selectedScroll}>
+            {selected.map(item => (
+              <View key={item._id} style={styles.selectedItem}>
+                <Image
+                  source={{uri: item.profilePic}}
+                  style={styles.selectedAvatar}
+                />
+                <TouchableOpacity
+                  style={styles.removeIcon}
+                  onPress={() => toggleSelect(item)}>
+                  <X size={14} color={color.text} />
+                </TouchableOpacity>
+                <Text
+                  style={[styles.selectedName, {color: color.text}]}
+                  numberOfLines={1}>
+                  {item.username || item.handleName}
+                </Text>
+              </View>
+            ))}
+          </ScrollView>
+        </View>
       )}
 
       {/* Suggestions */}
       <Text style={[styles.suggestionLabel, {color: color.text}]}>Gợi ý</Text>
       <FlatList
-        data={DUMMY_FRIENDS}
-        keyExtractor={item => item.id}
+        data={filteredFollowers}
+        keyExtractor={item => item._id}
         renderItem={({item}) => {
-          const isSelected = selected.some(f => f.id === item.id);
+          const isSelected = selected.some(f => f._id === item._id);
           return (
             <TouchableOpacity
               style={styles.friendRow}
               onPress={() => toggleSelect(item)}>
-              <Image source={{uri: item.avatar}} style={styles.friendAvatar} />
+              <Image
+                source={{uri: item.profilePic}}
+                style={styles.friendAvatar}
+              />
               <View style={styles.friendInfo}>
                 <Text style={[styles.friendName, {color: color.text}]}>
-                  {item.name}
+                  {item.username || item.handleName}
                 </Text>
-                <Text style={styles.friendUsername}>{item.username}</Text>
+                <Text style={styles.friendUsername}>{item.handleName}</Text>
               </View>
               <View style={styles.friendCheck}>
                 {isSelected ? <Check size={18} color={color.text} /> : null}
@@ -153,7 +174,9 @@ export const CreateGroupScreen = () => {
 
       {/* Create Button */}
       {selected.length > 1 && (
-        <TouchableOpacity style={styles.createButton}>
+        <TouchableOpacity
+          style={styles.createButton}
+          onPress={handleCreateRoom}>
           <Text style={styles.createButtonText}>Tạo đoạn chat</Text>
         </TouchableOpacity>
       )}
@@ -189,7 +212,6 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     marginLeft: 10,
-    color: '#fff',
   },
   selectedScroll: {
     maxHeight: 100,
@@ -221,7 +243,7 @@ const styles = StyleSheet.create({
   suggestionLabel: {
     fontSize: 16,
     fontWeight: '600',
-    marginBottom: 8,
+    marginVertical: 8,
   },
   friendRow: {
     flexDirection: 'row',

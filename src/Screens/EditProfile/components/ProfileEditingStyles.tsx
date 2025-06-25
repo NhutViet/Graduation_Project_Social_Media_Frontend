@@ -243,9 +243,6 @@ export const useProfileEditingStyles = () => {
         tabSelected: {
           backgroundColor: palette.lightDark,
         },
-        iconLeft: {
-          color: palette.text,
-        },
         textSex: {
           color: palette.text,
         },

@@ -7,7 +7,6 @@ import {
   ScrollView,
   SafeAreaView,
   Alert,
-  Image,
   ActivityIndicator,
 } from 'react-native';
 import {
@@ -27,8 +26,6 @@ import {PostData} from '../../MockData/posts.mock';
 import StoryComponent from './components/story.component';
 import ActionButtons from './components/actionButton.component';
 import UserInfo from './components/userInfo.component';
-import {FlashList} from '@shopify/flash-list';
-import {Styles} from '../../StyleSheet/Profile.Styles';
 import {Modalize} from 'react-native-modalize';
 import {Portal} from 'react-native-portalize';
 import OptionModal from './components/optionModal';
@@ -48,7 +45,10 @@ import {
 } from '../../(tabs)/Profile/components/PostView.component';
 import {getPostsAndReelsOfUser} from '../../../services/postUserRedux/postUserSlice';
 import {clearPostsAndReels} from '../../../services/postUserRedux/postUserReducer';
-import PostItem from '../LikedScreen/Components/PostItem';
+// import PostItem from '../LikedScreen/Components/PostItem';
+// import {fetchHighlightStory} from '@services/StoryRedux/StorySlice';
+// import {clearHighlightStories} from '@services/StoryRedux/StoryReducer';
+import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
 const ProfileComp = ({route}: any) => {
   const navigation: any = useNavigation();
@@ -106,58 +106,45 @@ const ProfileComp = ({route}: any) => {
   };
 
   const [isPrivate, setIsPrivate] = useState(UserMock.isPrivate);
-  // const togglePrivacy = useCallback(() => {
-  //   setIsPrivate(prevState => !prevState);
-  // }, []);
 
   const [isFollowing, setIsFollowing] = useState(false);
   const [isBlock, setIsBlock] = useState(false);
   const toggleFollow = useCallback( async () => {
     setIsFollowing(!isFollowing);
-    Alert.alert(
-      isFollowing ? 'Bỏ theo dõi' : 'Đã theo dõi',
+    GlobalAlertManager.show(
+      'Thông báo',
       isFollowing
         ? 'Bạn đã bỏ theo dõi người dùng này.'
         : 'Bạn đã theo dõi người dùng này.',
     );
     const actionType = isFollowing ? 'unfollow' : 'follow';
     try {
-        await dispatch(
-          relationAction({
-            targetId: userID,
-            action: actionType,
-          }),
-        ).unwrap();
-      } catch (error) {
-        Alert.alert(
-          `${actionType === 'follow' ? 'Theo dõi' : 'Bỏ theo dõi'} thất bại`,
-          'Vui lòng thử lại sau.',
-        );
-        setIsFollowing(isFollowing);
-      }
-
+      await dispatch(
+        relationAction({
+          targetId: userID,
+          action: actionType,
+        }),
+      ).unwrap();
+    } catch (error) {
+      GlobalAlertManager.show(`Thất bại`, 'Vui lòng thử lại sau.');
+      setIsFollowing(isFollowing);
+    }
   }, [isFollowing]);
 
   const toggleUnblock = useCallback(async () => {
     setIsBlock(false);
     setIsFollowing(isFollowing);
-    Alert.alert(
-      'Bỏ chặn',
-      'Bạn đã bỏ chặn người dùng này.'
-    );
-    try{
+    GlobalAlertManager.show('Thông báo', 'Bạn đã bỏ chặn người dùng này.');
+    try {
       await dispatch(
         relationAction({
           targetId: userID,
           action: "unblock"
         })
       ).unwrap();
-    } catch (error){
-      Alert.alert(
-          "Bỏ chặn thất bại",
-          'Vui lòng thử lại sau.',
-        );
-        setIsBlock(true);
+    } catch (error) {
+      GlobalAlertManager.show('Thất bại', 'Vui lòng thử lại sau.');
+      setIsBlock(true);
     }
   }, [])
 
