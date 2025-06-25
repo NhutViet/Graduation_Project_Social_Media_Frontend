@@ -39,7 +39,20 @@ export const AddCollectionScreen = () => {
   }, [playlists]);
 
   const allItems = useMemo(() => {
-    return Object.values(itemsByPlaylist).flat();
+    return Object.values(itemsByPlaylist)
+      .flat()
+      .filter(item => {
+        if (!item?.media || item.media.length === 0) return false;
+
+        const isVideo = item.itemType === 'reel';
+        const mediaItem: any = item.media[0];
+
+        if (isVideo) {
+          return mediaItem?.videoUrl?.split('/')[3];
+        } else {
+          return !!mediaItem?.imageUrl;
+        }
+      });
   }, [itemsByPlaylist, playlists]);
 
   const [selectedPostIds, setSelectedPostIds] = useState<string[]>([]);
@@ -226,7 +239,7 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   postItem: {
-    width: '31.5%',
+    width: '31%',
     aspectRatio: 1,
     margin: '1%',
     borderRadius: 8,

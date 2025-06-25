@@ -166,6 +166,11 @@ export const AddPost = () => {
           );
           setSelectedMedia(selectedItems[selectedItems.length - 2]);
         } else {
+          if (selectedItems.length >= 10) {
+            Alert.alert('Thông báo', 'Chỉ được chọn tối đa 10 ảnh!');
+            return;
+          }
+
           setSelectedItems(prev => [...prev, item]);
           setSelectedMedia(item);
         }
