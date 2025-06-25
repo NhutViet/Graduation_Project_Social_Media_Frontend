@@ -12,6 +12,7 @@ import {
 import {Message} from '@services/messageRedux/messageType';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '@services/store';
+import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 
 interface Props {
   visible: boolean;
@@ -142,18 +143,21 @@ const ActionModalMessage = ({visible, onClose, content, setChat}: Props) => {
                         );
                         onClose();
                       } else {
-                        Alert.alert(
-                          'Không thể xoá',
+                        GlobalAlertManager.show(
+                          'Thất bại',
                           reason || 'Bạn không thể xoá tin nhắn này',
                         );
                       }
                     } else {
                       const reason = resultAction.payload || 'Xoá thất bại';
-                      Alert.alert('Lỗi', reason);
+                      GlobalAlertManager.show('Lỗi', reason);
                     }
                   } catch (err) {
                     console.error('❌ Lỗi xoá tin nhắn:', err);
-                    Alert.alert('Lỗi', 'Đã xảy ra lỗi khi xoá tin nhắn');
+                    GlobalAlertManager.show(
+                      'Lỗi',
+                      'Đã xảy ra lỗi khi xoá tin nhắn',
+                    );
                   } finally {
                     onClose();
                   }

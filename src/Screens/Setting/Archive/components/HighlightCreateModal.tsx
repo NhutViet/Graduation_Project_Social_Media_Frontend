@@ -21,6 +21,7 @@ import {useDispatch} from 'react-redux';
 import {createHighlightStory} from '@services/StoryRedux/StorySlice';
 import {AppDispatch} from '@services/store';
 import {uploadImageToR2} from '../../../../core/upload';
+import {GlobalAlertManager} from '../../../../../components/Global/AlertModal';
 
 const formatMonthText = (dateString?: string): string => {
   if (!dateString) return '--\n--';
@@ -90,7 +91,7 @@ const HighlightCreateModal = ({
     coverImage?: string,
   ) => {
     if (!name || typeof name !== 'string') {
-      Alert.alert('Lỗi', 'Tên highlight không hợp lệ');
+      GlobalAlertManager.show('Lỗi', 'Tên highlight không hợp lệ');
       return;
     }
 
@@ -103,16 +104,16 @@ const HighlightCreateModal = ({
         }),
       ).unwrap();
 
-      Alert.alert('Thành công', 'Highlight đã được tạo!');
+      GlobalAlertManager.show('Thành công', 'Highlight đã được tạo!');
     } catch (error) {
       console.error('❌ createHighlightStory error:', error);
-      Alert.alert('Lỗi', 'Tạo highlight thất bại.');
+      GlobalAlertManager.show('Lỗi', 'Tạo highlight thất bại.');
     }
   };
 
   const handleCreateHighlightButtonPress = () => {
     if (selectedStories.length === 0) {
-      Alert.alert('Lỗi', 'Vui lòng chọn ít nhất một story.');
+      GlobalAlertManager.show('Lỗi', 'Vui lòng chọn ít nhất một story.');
       return;
     }
     setEditModalVisible(true);

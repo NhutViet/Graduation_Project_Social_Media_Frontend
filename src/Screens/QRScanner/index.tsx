@@ -126,17 +126,14 @@ export const QRScanner = () => {
         
         // thực hiện chức năng sau khi quét QR code ở đây, sau khi xong thêm dòng resetCooldown(); như mẫu alert dưới
 
-        Alert.alert('QR Code Detected', codeValue, [
-          { 
-            text: 'OK', 
-            onPress: () => {
-              resetCooldown();
-            }
-          }
-        ]);
-        
-
-        console.log('QR Code scanned:', codeValue);
+        // Alert.alert('QR Code Detected', codeValue, [
+        //   { 
+        //     text: 'OK', 
+        //     onPress: () => {
+        //       resetCooldown();
+        //     }
+        //   }
+        // ]);
       }
     },
     codeTypes: ['qr'],

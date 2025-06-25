@@ -1,5 +1,5 @@
 import {
-    Alert,
+  Alert,
   Image,
   SafeAreaView,
   StyleSheet,
@@ -14,8 +14,9 @@ import {FlashList} from '@shopify/flash-list';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {AddPeopleToGroupChatStyles} from '../../StyleSheet/AddPeopleToGroupChatStyles';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import Clipboard from '@react-native-clipboard/clipboard';
+import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
 export const AddPeopleToGroupChat = () => {
   const [users, setUsers] = useState<any>(list);
@@ -29,7 +30,7 @@ export const AddPeopleToGroupChat = () => {
 
   const copyToClipboard = (text: string) => {
     Clipboard.setString(text);
-    Alert.alert('Đã sao chép văn bản');
+    GlobalAlertManager.show('Thông báo', 'Đã sao chép văn bản');
   };
 
   useEffect(() => {
@@ -77,7 +78,9 @@ export const AddPeopleToGroupChat = () => {
           styles.header,
           {borderBottomWidth: 1, borderBottomColor: colors.gray, marginTop: 10},
         ]}>
-        <TouchableOpacity style={styles.iconBack} onPress={() => navigation.goBack()}>
+        <TouchableOpacity
+          style={styles.iconBack}
+          onPress={() => navigation.goBack()}>
           <Image source={require('../../../assets/icon/left.png')} />
         </TouchableOpacity>
         <Text style={styles.title}>Thêm người</Text>
@@ -100,7 +103,13 @@ export const AddPeopleToGroupChat = () => {
             htts: //ig.me/ksjhdkjskbjhsbjkbvsjbvksjhdkjskbjhsbjkbvsjbv
           </Text>
         </View>
-        <TouchableOpacity style={styles.btnCopy} onPress={() => copyToClipboard('htts: //ig.me/ksjhdkjskbjhsbjkbvsjbvksjhdkjskbjhsbjkbvsjbv')}>
+        <TouchableOpacity
+          style={styles.btnCopy}
+          onPress={() =>
+            copyToClipboard(
+              'htts: //ig.me/ksjhdkjskbjhsbjkbvsjbvksjhdkjskbjhsbjkbvsjbv',
+            )
+          }>
           <Text style={styles.textName}>Sao chép</Text>
         </TouchableOpacity>
       </View>

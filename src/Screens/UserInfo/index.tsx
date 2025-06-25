@@ -1,6 +1,5 @@
 import React, {useState, useRef, useMemo} from 'react';
 import {
-  Alert,
   Animated,
   Dimensions,
   FlatList,
@@ -29,6 +28,7 @@ import {
   updateRoomTheme,
 } from '../../../services/roomRedux/roomSlice';
 import {ModalRenameRoom} from '../../../components/ModalRenameRoom';
+import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
 const screenWidth = Dimensions.get('window').width - 8;
 const initialLayout = {width: Dimensions.get('window').width};
@@ -345,10 +345,10 @@ export const UserInfo = () => {
           dispatch(updateRoomTheme({roomId: roomId, theme: selectedBackground}))
             .unwrap()
             .then(() => {
-              Alert.alert('Thành công', 'Đã cập nhật chủ đề');
+              GlobalAlertManager.show('Thành công', 'Đã cập nhật chủ đề');
             })
             .catch(() => {
-              Alert.alert('Thất bại', 'Cập nhật chủ đề thất bại');
+              GlobalAlertManager.show('Thất bại', 'Cập nhật chủ đề thất bại');
             });
           setVisibleThemeModal(false);
         }}
@@ -388,11 +388,11 @@ export const UserInfo = () => {
           dispatch(updateRoomName({roomId: roomId, name: newName}))
             .unwrap()
             .then(() => {
-              Alert.alert('Thành công', 'Đã đổi tên nhóm');
+              GlobalAlertManager.show('Thành công', 'Đã đổi tên nhóm');
               setVisibleRenameModal(false);
             })
             .catch(() => {
-              Alert.alert('Lỗi', 'Không thể đổi tên nhóm');
+              GlobalAlertManager.show('Lỗi', 'Không thể đổi tên nhóm');
             });
         }}
       />

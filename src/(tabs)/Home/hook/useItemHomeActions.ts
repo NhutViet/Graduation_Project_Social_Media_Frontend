@@ -17,6 +17,7 @@ import {
   addLikedPost,
   removeLikedPost,
 } from '../../../../services/reactionRedux/reactionReducer';
+import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 
 export const useItemHomeActions = (props: ItemHomeProps, state: any) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -66,7 +67,7 @@ export const useItemHomeActions = (props: ItemHomeProps, state: any) => {
     dispatch(hidePost(_id))
       .unwrap()
       .catch(() => {
-        Alert.alert('Ẩn bài viết lỗi');
+        GlobalAlertManager.show('Thất bại', 'Ẩn bài viết lỗi');
       });
   }, [_id]);
 
@@ -80,8 +81,8 @@ export const useItemHomeActions = (props: ItemHomeProps, state: any) => {
       ])
         .then(() => setVisibleModalShare(true))
         .catch(() => {
-          Alert.alert(
-            'Lỗi',
+          GlobalAlertManager.show(
+            'Thất bại',
             'Không thể tải danh sách bạn bè. Vui lòng thử lại.',
           );
         });

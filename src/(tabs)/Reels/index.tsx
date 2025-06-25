@@ -8,9 +8,7 @@ import {
   View,
 } from 'react-native';
 import ReelsComponent from './components/reelsComponent';
-import {
-  useIsFocused,
-} from '@react-navigation/native';
+import {useIsFocused} from '@react-navigation/native';
 import {
   forwardRef,
   useCallback,
@@ -86,7 +84,7 @@ const Reels = forwardRef((props, ref) => {
   useFocusEffect(
     useCallback(() => {
       dispatch(fetchReelsWithMedia());
-    }, [dispatch]) 
+    }, [dispatch]),
   );
   ///////////////////////////////
 
