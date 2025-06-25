@@ -8,7 +8,6 @@ import {
   TouchableOpacity,
   Dimensions,
   GestureResponderEvent,
-  Alert,
 } from 'react-native';
 import {Modalize} from 'react-native-modalize';
 import {Portal} from 'react-native-portalize';
@@ -25,6 +24,7 @@ import {
   deleteStory,
   fetchGetPostedSotry,
 } from '@services/StoryRedux/StorySlice';
+import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
 // Data mẫu cho modal highlight
 const highlights = [
@@ -99,11 +99,11 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
       const result = await dispatch(deleteStory({storyId: currentStory._id}));
 
       if (deleteStory.fulfilled.match(result)) {
-        Alert.alert('Thành công', 'Tin của bạn đã được xoá');
+        GlobalAlertManager.show('Thành công', 'Tin của bạn đã được xoá');
         dispatch(fetchGetPostedSotry());
         navigation.goBack();
       } else {
-        Alert.alert('Thất bại', 'Không thể xoá story');
+        GlobalAlertManager.show('Thất bại', 'Không thể xoá story');
       }
     } catch (error) {
       console.log('Line 100', error);
@@ -280,7 +280,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
   const renderProgressBars = () => {
     return (
       <View style={styles.progressContainer}>
-        {stories.map((_, index) => {
+        {stories.map((_: any, index: number) => {
           const width = progressAnims[index].interpolate({
             inputRange: [0, 1],
             outputRange: ['0%', '100%'],

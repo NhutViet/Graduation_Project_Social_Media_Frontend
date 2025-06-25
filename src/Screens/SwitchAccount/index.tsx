@@ -25,6 +25,7 @@ import {
 import {resetStatus} from '../../../services/userRedux/userReducer';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import {Eye, EyeOff} from 'lucide-react-native';
+import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 import messaging from '@react-native-firebase/messaging';
 
 export const SwitchAccount = ({navigation}: any) => {
@@ -128,7 +129,8 @@ export const SwitchAccount = ({navigation}: any) => {
           );
 
           if (!fetchLogin.fulfilled.match(loginAction)) {
-            Alert.alert(
+            GlobalAlertManager.show(
+              'Thông báo',
               'Tài khoản này đã được đăng ký bằng hình thức khác.\nVui lòng dùng phương thức ban đầu.',
             );
           }
@@ -148,22 +150,26 @@ export const SwitchAccount = ({navigation}: any) => {
               fetchLogin({email, password: tempPassword}),
             );
             if (!fetchLogin.fulfilled.match(loginAction)) {
-              Alert.alert('Đăng nhập thất bại sau khi đăng ký.');
+              GlobalAlertManager.show(
+                'Thông báo',
+                'Đăng nhập thất bại sau khi đăng ký.',
+              );
             }
           } else {
-            Alert.alert(registerAction.payload?.message || 'Đăng ký thất bại');
+            GlobalAlertManager.show(
+              'Thông báo',
+              registerAction.payload?.message || 'Đăng ký thất bại',
+            );
           }
         }
       } else {
-        Alert.alert(
+        GlobalAlertManager.show(
+          'Thông báo',
           checkEmailAction.payload?.message || 'Kiểm tra email thất bại',
         );
       }
     } catch (error: any) {
-      console.log(
-        'Google sign-in or backend auth error:',
-        error.message || error,
-      );
+      GlobalAlertManager.show('Lỗi', error);
     }
   };
 

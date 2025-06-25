@@ -6,13 +6,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import {
-  SafeAreaView,
-  View,
-  ActivityIndicator,
-  ScrollView,
-  // ScrollView
-} from 'react-native';
+import {SafeAreaView, View, ActivityIndicator, ScrollView} from 'react-native';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {useIsFocused, useNavigation} from '@react-navigation/native';
@@ -26,7 +20,6 @@ import Animated, {
 import {AppDispatch, RootState} from '../../../services/store';
 import {fetchPostsWithMedia} from '../../../services/postRedux/postSlice';
 import {fetchFollowingStories} from '../../../services/StoryRedux/StorySlice';
-import {fetchCommentsByPost} from '../../../services/commentRedux/commentSlice';
 import Header from '../../../components/Header';
 import Story from './components/Story';
 import ItemHome from './components/ItemHome';
@@ -38,7 +31,7 @@ import {
   checkStorySeenInStorage,
   clearExpiredSeenStories,
 } from '../../../services/storage/storage';
-import {PostWithMedia} from '@services/postRedux/postTypes';
+import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
 const HEADER_HEIGHT = 100;
 const AnimatedFlatList = Animated.createAnimatedComponent(Animated.FlatList);
@@ -57,16 +50,14 @@ export const Home = forwardRef(({onReload}: any, ref) => {
   const [currentVisible, setCurrentVisible] = useState<string | null>(null);
   const [selectedPostId, setSelectedPostId] = useState<string>('');
   const [seenMap, setSeenMap] = useState<Record<string, boolean>>({});
-  const [allPost, setAllPost] = useState<PostWithMedia[]>([]);
-
-  const {posts, loading} = useSelector((state: RootState) => state.post);
+  const {posts, loading} = useSelector((state: RootState) => state?.post);
   const followingUsers = useSelector(
     (state: RootState) => state.stories.followingUsers,
   );
   const user = useSelector((state: RootState) => state.user.user);
 
   const reloadAllData = useCallback(() => {
-    dispatch(fetchPostsWithMedia());
+    dispatch(fetchPostsWithMedia({page: 1}));
     dispatch(fetchFollowingStories({page: 1}));
     clearExpiredSeenStories();
   }, []);
@@ -100,7 +91,9 @@ export const Home = forwardRef(({onReload}: any, ref) => {
 
   const onViewRef = useRef(({viewableItems}: {viewableItems: any[]}) => {
     const id = viewableItems[0]?.item?._id;
-    if (id) setCurrentVisible(id);
+    if (id && id !== currentVisible) {
+      setCurrentVisible(id);
+    }
   }).current;
 
   const prevScrollY = useSharedValue(0);
@@ -136,13 +129,34 @@ export const Home = forwardRef(({onReload}: any, ref) => {
     transform: [{translateY: headerTranslateY.value}],
   }));
 
-  useEffect(() => {
-    if (!loading && posts.length > 0) {
-      setAllPost(posts);
-    }
-  }, [loading]);
+  const renderItem = useCallback(
+    ({item}: {item: any}) => {
+      const shouldPlay = item._id === currentVisible;
+      return (
+        <ItemHome
+          _id={item._id}
+          type={item.type}
+          caption={item.caption}
+          createdAt={item.createdAt}
+          media={item.media}
+          user={item.user}
+          isLike={item.isLike}
+          isBookmarked={item.isBookmarked}
+          commentCount={item.commentCount}
+          likeCount={item.likeCount}
+          share={item.share}
+          music={item.music}
+          currentVisible={shouldPlay}
+          isFocused={isFocused}
+          sheetRef={sheetRef}
+          isFollow={item.isFollow}
+        />
+      );
+    },
+    [currentVisible, isFocused],
+  );
 
-  if (loading) {
+  if (loading && posts.length === 0) {
     return (
       <SafeAreaView
         style={{
@@ -172,36 +186,11 @@ export const Home = forwardRef(({onReload}: any, ref) => {
         />
       </Animated.View>
       <AnimatedFlatList
-        data={allPost}
+        data={posts}
         keyExtractor={item => item._id}
-        renderItem={({item}) => {
-          const shouldPlay = item._id === currentVisible;
-          console.log('re render', item._id);
-          return (
-            <ItemHome
-              _id={item._id}
-              type={item.type}
-              caption={item.caption}
-              createdAt={item.createdAt}
-              media={item.media}
-              user={item.user}
-              isLike={item.isLike}
-              isBookmarked={item.isBookmarked}
-              commentCount={item.commentCount}
-              likeCount={item.likeCount}
-              share={item.share}
-              music={item.music}
-              currentVisible={shouldPlay}
-              isFocused={isFocused}
-              sheetRef={sheetRef}
-              isFollow={item.isFollow}
-            />
-          );
-        }}
+        renderItem={renderItem}
         removeClippedSubviews={true}
-        extraData={currentVisible}
-        initialNumToRender={3}
-        maxToRenderPerBatch={5}
+        initialNumToRender={5}
         windowSize={7}
         onViewableItemsChanged={onViewRef}
         viewabilityConfig={{itemVisiblePercentThreshold: 70}}
@@ -241,7 +230,7 @@ export const Home = forwardRef(({onReload}: any, ref) => {
                       <Story
                         key={item._id}
                         name={isCurrentUser ? 'Tin của tôi' : item.handleName}
-                        image={item.profilePic}
+                        image={item?.profilePic}
                         status={item.stories.length > 0 ? 1 : 0}
                         hasStory={item.stories.length > 0}
                         isSeen={isSeen}

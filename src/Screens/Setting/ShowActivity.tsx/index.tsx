@@ -1,17 +1,11 @@
-import {
-  Alert,
-  SafeAreaView,
-  Switch,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {SafeAreaView, Switch, Text, TouchableOpacity, View} from 'react-native';
 import React, {useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
 import {createStyles} from '../../../StyleSheet/Setting.Styles';
 import {ChevronLeft} from 'lucide-react-native';
+import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 
 export const ShowActivity = () => {
   const navigation: any = useNavigation();
@@ -22,14 +16,8 @@ export const ShowActivity = () => {
 
   const handleShowActivityToogle = async () => {
     try {
-      // if (!response.ok) {
-      //   const errorData = await response.json();
-      //   console.error('Failed to update privacy settings:', errorData);
-      //   Alert.alert('Failed', 'Unable to update privacy status');
-      //   return;
-      // }
       setIsActive(!isActive);
-      Alert.alert(
+      GlobalAlertManager.show(
         'Thành công',
         `Chuyển sang chế độ ${!isActive ? 'online' : 'offline'}`,
       );
@@ -70,14 +58,15 @@ export const ShowActivity = () => {
             />
           </View>
           <Text style={styles.privacyDescription}>
-            Cho phép các tài khoản bạn theo dõi và bất kỳ ai bạn nhắn tin xem thời gian bạn
-            hoạt động lần cuối hoặc hiện đang hoạt động trên ứng dụng Instagram. Khi
-            tắt tùy chọn này, bạn sẽ không thể xem trạng thái hoạt động của
-            các tài khoản khác.
+            Cho phép các tài khoản bạn theo dõi và bất kỳ ai bạn nhắn tin xem
+            thời gian bạn hoạt động lần cuối hoặc hiện đang hoạt động trên ứng
+            dụng Instagram. Khi tắt tùy chọn này, bạn sẽ không thể xem trạng
+            thái hoạt động của các tài khoản khác.
             <Text style={styles.learnMore}>Tìm hiểu thêm.{'\n'}</Text>
             {'\n'}
             <Text style={styles.privacyDescription}>
-              Bạn vẫn có thể sử dụng ứng dụng khi trang thái hoạt động đang tắt..
+              Bạn vẫn có thể sử dụng ứng dụng khi trang thái hoạt động đang
+              tắt..
             </Text>
           </Text>
         </View>

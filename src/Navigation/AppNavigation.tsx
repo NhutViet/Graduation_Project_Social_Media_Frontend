@@ -54,7 +54,7 @@ import {
   UserFollowScreen,
   ViewReels,
   SeenStoryOwner,
-  TagSo
+  TagSo,
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 import ProfileComp from '../Screens/Profile';
@@ -64,6 +64,7 @@ import Profile from '../(tabs)/Profile/index';
 import AllPostOfUserScreen from '../../components/AllPostOfUserScreen';
 import AllPostOfCollection from '../../components/AllPostOfCollection';
 import ZegoCallScreen from '../Screens/ZegoCloud/ZegoCallScreen';
+import AllReels from '../../components/AllReels';
 import {navigationRef} from '../NavigationService';
 
 export type RootStackParamList = {
@@ -106,6 +107,7 @@ const AppNavigator = () => {
           component={AllPostOfUserScreen}
         />
         <Stack.Screen name="TagSo" component={TagSo} />
+        <Stack.Screen name="AllReels" component={AllReels} />
         <Stack.Screen name="Profile" component={Profile} />
         <Stack.Screen name="ViewReels" component={ViewReels} />
         <Stack.Screen name="ZegoCallScreen" component={ZegoCallScreen} />

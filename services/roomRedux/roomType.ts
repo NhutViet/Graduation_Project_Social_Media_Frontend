@@ -24,7 +24,7 @@ export interface Room {
   user_ids: RoomUser[];
   createdAt: string;
   updatedAt: string;
-  latestMessage: LatestMessage;
+  latestMessage?: LatestMessage;
   __v: number;
 }
 

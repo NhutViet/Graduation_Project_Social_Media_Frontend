@@ -15,7 +15,7 @@ export interface ItemHomeProps {
   sheetRef: any;
   likeCount: number;
   commentCount: number;
-  music?: MusicInfo;
+  music?: Music;
   musicInfo?: MusicInfo;
   isFollow: boolean;
   isBookmarked?: boolean;
@@ -27,10 +27,17 @@ interface User {
   profilePic: string;
 }
 
-interface MusicInfo {
-  link: string;
+interface Music {
+  musicId: string;
   timeStart?: number;
   timeEnd?: number;
+}
+
+interface MusicInfo {
+  link?: string;
+  song?: string;
+  author?: string;
+  coverImg?: string;
 }
 
 export interface HandleBookmarkParams {

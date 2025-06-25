@@ -21,6 +21,7 @@ import {
   getItemsOfPlaylist,
   switchBookmark,
 } from '../../../services/bookmarkRedux/bookmarkSlice';
+import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
 export const AddCollectionScreen = () => {
   const {theme} = useTheme();
@@ -38,7 +39,20 @@ export const AddCollectionScreen = () => {
   }, [playlists]);
 
   const allItems = useMemo(() => {
-    return Object.values(itemsByPlaylist).flat();
+    return Object.values(itemsByPlaylist)
+      .flat()
+      .filter(item => {
+        if (!item?.media || item.media.length === 0) return false;
+
+        const isVideo = item.itemType === 'reel';
+        const mediaItem: any = item.media[0];
+
+        if (isVideo) {
+          return mediaItem?.videoUrl?.split('/')[3];
+        } else {
+          return !!mediaItem?.imageUrl;
+        }
+      });
   }, [itemsByPlaylist, playlists]);
 
   const [selectedPostIds, setSelectedPostIds] = useState<string[]>([]);
@@ -58,12 +72,12 @@ export const AddCollectionScreen = () => {
 
   const handleSave = async () => {
     if (!name.trim()) {
-      Alert.alert('Lỗi', 'Vui lòng nhập tên bộ sưu tập');
+      GlobalAlertManager.show('Lỗi', 'Vui lòng nhập tên bộ sưu tập');
       return;
     }
 
     if (selectedPostIds.length === 0) {
-      Alert.alert('Lỗi', 'Vui lòng chọn ít nhất 1 bài viết');
+      GlobalAlertManager.show('Lỗi', 'Vui lòng chọn ít nhất 1 bài viết');
       return;
     }
 
@@ -86,11 +100,11 @@ export const AddCollectionScreen = () => {
         }),
       ).unwrap();
 
-      Alert.alert('Thông báo', 'Tạo danh sách mới thành công.')
+      GlobalAlertManager.show('Thông báo', 'Tạo danh sách mới thành công.');
       // 3. Quay lại màn hình trước
       navigation.goBack();
     } catch (err: any) {
-      Alert.alert('Lỗi', err.message || 'Không thể tạo bộ sưu tập');
+      GlobalAlertManager.show('Lỗi', err.message || 'Không thể tạo bộ sưu tập');
     }
   };
 
@@ -225,7 +239,7 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   postItem: {
-    width: '31.5%',
+    width: '31%',
     aspectRatio: 1,
     margin: '1%',
     borderRadius: 8,

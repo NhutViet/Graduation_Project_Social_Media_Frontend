@@ -14,7 +14,7 @@ import {
   checkStorySeenInStorage,
   markStoryAsSeen,
 } from '../../../../services/storage/storage';
-import {Story} from '@services/StoryRedux/StoryType';
+import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 
 export const handleBookmark = async ({
   isBookmarked,
@@ -102,9 +102,9 @@ export const handleFollowToggle = async ({
       }),
     ).unwrap();
   } catch (error) {
-    Alert.alert(
+    GlobalAlertManager.show(
+      'Thất bại',
       `${actionType === 'follow' ? 'Theo dõi' : 'Bỏ theo dõi'} thất bại`,
-      'Vui lòng thử lại sau.',
     );
     setFollow(isFollowing);
   }
@@ -131,44 +131,49 @@ export const handleUserPress = async (
     ).unwrap();
 
     if (!detailRes || !detailRes.length) {
-      Alert.alert('Không tìm thấy story để hiển thị');
+      GlobalAlertManager.show('Lỗi', 'Không tìm thấy story để hiển thị');
       return;
     }
 
     //  Gọi seenStory cho từng story
     const seenedStories = await Promise.all(
-      detailRes.map(async story => {
-        try {
-          // Chỉ trigger, không dùng kết quả
-          await dispatch(seenStory({storyId: story._id}));
+      detailRes.map(
+        async (story: {_id: string; createdAt: string; mediaUrl: string}) => {
+          try {
+            // Chỉ trigger, không dùng kết quả
+            await dispatch(seenStory({storyId: story._id}));
 
-          const hasSeen = await checkStorySeenInStorage(
-            story._id,
-            story.createdAt,
-          );
-          if (!hasSeen) {
-            await markStoryAsSeen(story._id, story.createdAt);
-          }
+            const hasSeen = await checkStorySeenInStorage(
+              story._id,
+              story.createdAt,
+            );
+            if (!hasSeen) {
+              await markStoryAsSeen(story._id, story.createdAt);
+            }
 
-          return {
-            ...story,
-            uriVideo: story.mediaUrl.endsWith('.m3u8') ? story.mediaUrl : null,
-            image:
-              story.mediaUrl.endsWith('.jpg') || story.mediaUrl.endsWith('.png')
+            return {
+              ...story,
+              uriVideo: story.mediaUrl.endsWith('.m3u8')
                 ? story.mediaUrl
                 : null,
-          };
-        } catch (err) {
-          console.error('❌ seenStory error', err);
-          return null;
-        }
-      }),
+              image:
+                story.mediaUrl.endsWith('.jpg') ||
+                story.mediaUrl.endsWith('.png')
+                  ? story.mediaUrl
+                  : null,
+            };
+          } catch (err) {
+            console.error('❌ seenStory error', err);
+            return null;
+          }
+        },
+      ),
     );
 
     const validStories = seenedStories.filter(s => s);
 
     if (!validStories.length) {
-      Alert.alert('Không có story hợp lệ để hiển thị');
+      GlobalAlertManager.show('Lỗi', 'Không có story hợp lệ để hiển thị');
       return;
     }
 
@@ -183,7 +188,7 @@ export const handleUserPress = async (
     });
   } catch (error) {
     console.error('❌ fetchStoryDetails or seenStory failed:', error);
-    Alert.alert('Lỗi khi tải story');
+    GlobalAlertManager.show('Lỗi', 'Lỗi khi tải story');
   }
 };
 
@@ -230,7 +235,7 @@ export const handleHighlightPress = async (
     const validStories = seenedStories.filter(s => s);
 
     if (!validStories.length) {
-      Alert.alert('Không có story hợp lệ để hiển thị');
+      GlobalAlertManager.show('Lỗi', 'Không có story hợp lệ để hiển thị');
       return;
     }
 
@@ -245,6 +250,6 @@ export const handleHighlightPress = async (
     });
   } catch (error) {
     console.error('handleHighlightPress error:', error);
-    Alert.alert('Lỗi khi tải highlight');
+    GlobalAlertManager.show('Thất bại', 'Lỗi khi tải highlight');
   }
 };
