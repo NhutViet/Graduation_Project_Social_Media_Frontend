@@ -22,7 +22,7 @@ const ItemList: React.FC<ItemProps> = ({ uri, handle, name, onhandleItem, onhand
         <Text style={[styles.handle, { color: colors.text }]} numberOfLines={1} ellipsizeMode='tail'>
           {handle}
         </Text>
-        <Text style={[styles.name, { color: colors.lightDark }]} numberOfLines={1} ellipsizeMode='tail'>
+        <Text style={[styles.name, { color: colors.textSecondary }]} numberOfLines={1} ellipsizeMode='tail'>
           {name}
         </Text>
       </View>

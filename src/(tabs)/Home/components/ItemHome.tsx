@@ -42,7 +42,6 @@ const ItemHome = (props: ItemHomeProps) => {
     media,
     user,
     musicInfo,
-    openComment,
     sheetRef,
     isFocused,
     currentVisible,

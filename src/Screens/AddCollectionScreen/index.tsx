@@ -38,7 +38,20 @@ export const AddCollectionScreen = () => {
   }, [playlists]);
 
   const allItems = useMemo(() => {
-    return Object.values(itemsByPlaylist).flat();
+    return Object.values(itemsByPlaylist)
+      .flat()
+      .filter(item => {
+        if (!item?.media || item.media.length === 0) return false;
+
+        const isVideo = item.itemType === 'reel';
+        const mediaItem: any = item.media[0];
+
+        if (isVideo) {
+          return mediaItem?.videoUrl?.split('/')[3];
+        } else {
+          return !!mediaItem?.imageUrl;
+        }
+      });
   }, [itemsByPlaylist, playlists]);
 
   const [selectedPostIds, setSelectedPostIds] = useState<string[]>([]);
@@ -86,7 +99,7 @@ export const AddCollectionScreen = () => {
         }),
       ).unwrap();
 
-      Alert.alert('Thông báo', 'Tạo danh sách mới thành công.')
+      Alert.alert('Thông báo', 'Tạo danh sách mới thành công.');
       // 3. Quay lại màn hình trước
       navigation.goBack();
     } catch (err: any) {
@@ -225,7 +238,7 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   postItem: {
-    width: '31.5%',
+    width: '31%',
     aspectRatio: 1,
     margin: '1%',
     borderRadius: 8,
