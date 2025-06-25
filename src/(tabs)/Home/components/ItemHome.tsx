@@ -28,6 +28,7 @@ import {useItemHomeUtils} from '../util/itemHomeUtils';
 import {useItemHomeAudio} from '../hook/useItemHomeAudio';
 import {ItemHomeHeader} from './ItemHomeHeader';
 import {ItemHomeActions} from './ItemHomeActions';
+import {fetchCommentsByPost} from '@services/commentRedux/commentSlice';
 
 Sound.setCategory('Playback');
 const screenWidth = Dimensions.get('window').width;
@@ -42,6 +43,7 @@ const ItemHome = (props: ItemHomeProps) => {
     user,
     musicInfo,
     openComment,
+    sheetRef,
     isFocused,
     currentVisible,
     isLike,
@@ -94,6 +96,11 @@ const ItemHome = (props: ItemHomeProps) => {
       navigation.navigate('ProfileComp', {
         userID: user._id,
       });
+  };
+
+  const handleOpenComment = (postId: string) => {
+    dispatch(fetchCommentsByPost(postId));
+    sheetRef.current?.open();
   };
 
   const handleMediaScroll = (event: any) => {
@@ -173,7 +180,7 @@ const ItemHome = (props: ItemHomeProps) => {
           commentCount={commentCount}
           share={share}
           onLikePress={actions.handleLike}
-          onCommentPress={() => openComment(_id)}
+          onCommentPress={() => handleOpenComment(_id)}
           onSharePress={actions.handleOpenModalShare}
           onBookmarkPress={actions.handleBookmarkAction}
           onReactionModalPress={modal.handleOpenReactionModal}

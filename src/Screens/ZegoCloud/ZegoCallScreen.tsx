@@ -8,40 +8,21 @@ import {useSocket} from '../../../services/SocketContext';
 export default function ZegoCallScreen({route}: any) {
   const {userID, userName, callID, image, isCaller} = route.params;
   const navigation = useNavigation();
-  const callStartTimeRef = useRef<number | null>(null);
   const {socket} = useSocket();
-  const [hasOtherUser, setHasOtherUser] = useState(false);
   const [callEnded, setCallEnded] = useState(false);
+  const [callDuration, setCallDuration] = useState(0);
 
-  useEffect(() => {
-    callStartTimeRef.current = Date.now();
-
-    const waitTimeout = setTimeout(() => {
-      if (!hasOtherUser && isCaller) {
-        handleCallCancelled(true);
-      }
-    }, 30 * 1000);
-
-    return () => clearTimeout(waitTimeout);
-  }, []);
-
-  const handleCallCancelled = (isTimeoutMissed = false) => {
+  const handleCallCancelled = () => {
     if (callEnded) return;
-
     setCallEnded(true);
-
-    const duration =
-      callStartTimeRef.current !== null
-        ? Math.floor((Date.now() - callStartTimeRef.current) / 1000)
-        : 0;
 
     if (socket && isCaller) {
       socket.emit('callEnded', {
         roomId: callID,
         senderId: userID,
         callType: 'video',
-        missed: isTimeoutMissed || !hasOtherUser,
-        duration: duration,
+        missed: false,
+        duration: callDuration,
       });
     }
 
@@ -52,11 +33,21 @@ export default function ZegoCallScreen({route}: any) {
     if (!socket) return;
 
     socket.on('callCancelled', handleCallCancelled);
-
     return () => {
       socket.off('callCancelled', handleCallCancelled);
     };
   }, [socket]);
+
+  useEffect(() => {
+    const start = Date.now();
+
+    const interval = setInterval(() => {
+      const duration = Math.floor((Date.now() - start) / 1000);
+      setCallDuration(duration);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -75,19 +66,6 @@ export default function ZegoCallScreen({route}: any) {
           showMicrophoneToggleButton: true,
           showAudioOutputButton: true,
           showEndCallButton: true,
-          onUserJoin: (user: any) => {
-            if (user.userID !== userID) {
-              setHasOtherUser(true);
-            }
-          },
-          onUserLeave: (user: any) => {
-            if (user.userID !== userID) {
-              setHasOtherUser(false);
-              if (!isCaller) {
-                handleCallCancelled();
-              }
-            }
-          },
           onCallEnd: () => {
             handleCallCancelled();
           },

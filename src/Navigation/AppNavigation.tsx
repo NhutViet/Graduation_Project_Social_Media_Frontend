@@ -54,6 +54,7 @@ import {
   UserFollowScreen,
   ViewReels,
   SeenStoryOwner,
+  TagSo
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 import ProfileComp from '../Screens/Profile';
@@ -85,6 +86,7 @@ export type RootStackParamList = {
     callID: string;
     image: string;
   };
+  ProfileComp: {userID: string};
 };
 
 const Stack = createStackNavigator();
@@ -103,6 +105,7 @@ const AppNavigator = () => {
           name="AllPostOfUserScreen"
           component={AllPostOfUserScreen}
         />
+        <Stack.Screen name="TagSo" component={TagSo} />
         <Stack.Screen name="Profile" component={Profile} />
         <Stack.Screen name="ViewReels" component={ViewReels} />
         <Stack.Screen name="ZegoCallScreen" component={ZegoCallScreen} />
