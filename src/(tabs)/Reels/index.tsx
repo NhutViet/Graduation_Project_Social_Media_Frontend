@@ -8,9 +8,7 @@ import {
   View,
 } from 'react-native';
 import ReelsComponent from './components/reelsComponent';
-import {
-  useIsFocused,
-} from '@react-navigation/native';
+import {useIsFocused} from '@react-navigation/native';
 import {
   forwardRef,
   useCallback,
@@ -32,7 +30,7 @@ import {fetchCommentsByPost} from '../../../services/commentRedux/commentSlice';
 import BottomSheetComment, {
   BottomSheetCommentRef,
 } from '../Home/components/CommentSection';
-import { useFocusEffect } from '@react-navigation/native';
+import {useFocusEffect} from '@react-navigation/native';
 
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
@@ -47,7 +45,6 @@ const Reels = forwardRef((props, ref) => {
 
   const [currentVisible, setCurrentVisible] = useState<string | null>(null);
   const [isCurrentBookmarked, setIsCurrentBookmarked] = useState(false);
-  const [isCurrentFollowing, setIsCurrentFollowing] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any | null>(null);
 
   const onViewRef = useRef(({viewableItems}: {viewableItems: any[]}) => {
@@ -73,7 +70,7 @@ const Reels = forwardRef((props, ref) => {
   useFocusEffect(
     useCallback(() => {
       dispatch(fetchReelsWithMedia());
-    }, [dispatch]) 
+    }, [dispatch]),
   );
   ///////////////////////////////
 

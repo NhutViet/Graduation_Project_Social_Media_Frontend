@@ -54,7 +54,7 @@ import {
   UserFollowScreen,
   ViewReels,
   SeenStoryOwner,
-  TagSo
+  TagSo,
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 import ProfileComp from '../Screens/Profile';

@@ -42,7 +42,6 @@ const ItemHome = (props: ItemHomeProps) => {
     media,
     user,
     musicInfo,
-    openComment,
     sheetRef,
     isFocused,
     currentVisible,
@@ -106,7 +105,9 @@ const ItemHome = (props: ItemHomeProps) => {
   const handleMediaScroll = (event: any) => {
     const offsetX = event.nativeEvent.contentOffset.x;
     const newIndex = Math.round(offsetX / screenWidth);
-    state.setCurrentIndex(newIndex);
+    if (newIndex !== state.currentIndex) {
+      state.setCurrentIndex(newIndex);
+    }
   };
 
   return (

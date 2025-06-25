@@ -8,7 +8,6 @@ import {
   SafeAreaView,
   StatusBar,
   Alert,
-  Modal,
 } from 'react-native';
 import VideoPlayer from 'react-native-video';
 import {useNavigation, useRoute} from '@react-navigation/native';
@@ -26,6 +25,7 @@ import {
 } from '../../../services/bookmarkRedux/bookmarkSlice';
 import {Check} from 'lucide-react-native';
 import {FlashList} from '@shopify/flash-list';
+import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
 interface RouteParams {
   title: string;
@@ -55,14 +55,9 @@ export const PlaylistsScreen = () => {
   const palette = Colors[theme];
 
   const dispatch = useDispatch<AppDispatch>();
-  const {
-    itemsByPlaylist,
-    playlists,
-    isError,
-    isSuccess,
-    isloading,
-    messageError,
-  } = useSelector((state: RootState) => state.bookmark);
+  const {itemsByPlaylist, playlists} = useSelector(
+    (state: RootState) => state.bookmark,
+  );
   const [playlistItems, setPlaylistItems] = useState(
     itemsByPlaylist[playlistId] ?? [],
   );
@@ -286,37 +281,42 @@ export const PlaylistsScreen = () => {
           setIsSelect(false);
           setListSelected([]);
           switchRef.current?.close();
-        }).catch(res => {
-          Alert.alert('Lỗi', res?.response?.data?.message || 'Chuyển danh mục thất bại.')
+        })
+        .catch(res => {
+          GlobalAlertManager.show(
+            'Lỗi',
+            res?.response?.data?.message || 'Chuyển danh mục thất bại.',
+          );
         });
     },
     [listSelected, refreshToken, dispatch],
   );
 
-  const removeListBookmark = useCallback(
-    () => {
-      dispatch(
-        removeBookmark({
-          postIds: listSelected,
-          refreshToken,
-        }),
-      )
-        .unwrap()
-        .then(() => {
-          //chỉnh hiển thị
-          setPlaylistItems(prev =>
-            prev.filter(item => !listSelected.includes(item._id)),
-          );
-          //reset chọn
-          setIsSelect(false);
-          setListSelected([]);
-          switchRef.current?.close();
-        }).catch(res =>{
-          Alert.alert('Lỗi', res?.response?.data?.message || 'Bỏ lưu thất bại.')
-        });
-    },
-    [listSelected, refreshToken, dispatch],
-  );
+  const removeListBookmark = useCallback(() => {
+    dispatch(
+      removeBookmark({
+        postIds: listSelected,
+        refreshToken,
+      }),
+    )
+      .unwrap()
+      .then(() => {
+        //chỉnh hiển thị
+        setPlaylistItems(prev =>
+          prev.filter(item => !listSelected.includes(item._id)),
+        );
+        //reset chọn
+        setIsSelect(false);
+        setListSelected([]);
+        switchRef.current?.close();
+      })
+      .catch(res => {
+        GlobalAlertManager.show(
+          'Lỗi',
+          res?.response?.data?.message || 'Bỏ lưu thất bại.',
+        );
+      });
+  }, [listSelected, refreshToken, dispatch]);
 
   return (
     <SafeAreaView style={styles.playlistsContainer}>
