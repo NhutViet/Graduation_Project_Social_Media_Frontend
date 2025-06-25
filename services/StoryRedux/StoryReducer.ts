@@ -6,13 +6,15 @@ import {
   seenStory,
   toggleLikeStory,
   fetchStoryDetails,
-  createHighlightStory, // New thunk
+  createHighlightStory,
+  fetchHighlightStory, // New thunk
 } from './StorySlice';
 
 interface StoryState {
   followingUsers: userFollow[];
   storyDetails: Story[];
   myStories: Story[];
+  highlightStories: Story[];
   loading: boolean;
   error: string | null;
 }
@@ -21,6 +23,7 @@ const initialState: StoryState = {
   followingUsers: [],
   storyDetails: [],
   myStories: [],
+  highlightStories: [],
   loading: false,
   error: null,
 };
@@ -28,7 +31,11 @@ const initialState: StoryState = {
 const storySlice = createSlice({
   name: 'stories',
   initialState,
-  reducers: {},
+  reducers: {
+    clearHighlightStories: state => {
+      state.highlightStories = [];
+    },
+  },
   extraReducers: builder => {
     builder
       // ====== FOLLOWING STORIES ======
@@ -52,16 +59,16 @@ const storySlice = createSlice({
             if (!exists) {
               state.storyDetails.push({
                 _id: storyId,
-                userId: user._id,
+                ownerId: user._id,
                 type: 'stories',
                 mediaUrl: '',
-                viewsCount: 0,
                 isArchived: false,
-                viewerId: [],
+                thumbnail: '',
+                viewedByUsers: [],
                 likedByUsers: [],
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
-              } as Story);
+              });
             }
           }
         }
@@ -205,8 +212,25 @@ const storySlice = createSlice({
       .addCase(createHighlightStory.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Không thể tạo highlight';
+      })
+      // ====== GET HIGHLIGHT STORY ======
+
+      .addCase(fetchHighlightStory.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(
+        fetchHighlightStory.fulfilled,
+        (state, action: PayloadAction<Story[]>) => {
+          state.loading = false;
+          state.highlightStories = action.payload;
+        },
+      )
+      .addCase(fetchHighlightStory.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Không thể lấy highlight stories';
       });
   },
 });
-
+export const {clearHighlightStories} = storySlice.actions;
 export default storySlice.reducer;

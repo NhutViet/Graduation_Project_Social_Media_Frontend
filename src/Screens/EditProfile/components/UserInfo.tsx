@@ -83,7 +83,7 @@ export const UserInfo: React.FC<UserInfoProps> = ({title, subtitle, rows}) => {
                   onChange={(event, selectedDate) => {
                     setShowPickerIndex(null);
                     if (selectedDate && row.onDateChange) {
-                      const iso = selectedDate.toISOString().split('')[0];
+                      const iso = selectedDate.toISOString().split('T')[0];
                       row.onDateChange(iso);
                     }
                   }}

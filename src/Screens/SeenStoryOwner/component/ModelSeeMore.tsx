@@ -13,9 +13,11 @@ import {FlashList} from '@shopify/flash-list';
 const ModalSeeMore = ({
   visible,
   onClose,
+  onDelete,
 }: {
   visible: boolean;
   onClose: () => void;
+  onDelete: () => void;
 }) => {
   return (
     <Modal
@@ -36,7 +38,7 @@ const ModalSeeMore = ({
               </TouchableOpacity>
             </View>
             <View style={styles.mid}>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={onDelete}>
                 <Text style={styles.txtRemoveStory}>Xoá tin</Text>
               </TouchableOpacity>
             </View>
