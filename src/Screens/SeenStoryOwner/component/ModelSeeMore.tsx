@@ -14,10 +14,12 @@ const ModalSeeMore = ({
   visible,
   onClose,
   onDelete,
+  users,
 }: {
   visible: boolean;
   onClose: () => void;
   onDelete: () => void;
+  users?: any[];
 }) => {
   return (
     <Modal

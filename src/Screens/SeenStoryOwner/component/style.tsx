@@ -39,6 +39,22 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  pause: {
+    position: 'absolute',
+    right: 50,
+    top: 23,
+    borderRadius: 50,
+    width: 30,
+    height: 30,
+  },
+  mute: {
+    position: 'absolute',
+    right: 90,
+    top: 23,
+    borderRadius: 50,
+    width: 30,
+    height: 30,
+  },
   iconCloser: {
     width: 15,
     height: 15,

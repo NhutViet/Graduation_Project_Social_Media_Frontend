@@ -12,6 +12,7 @@ interface MediaSectionProps {
   onMusicLoad?: (data: {duration: number}) => void;
   onMusicEnd?: () => void;
   paused?: boolean;
+  muted?: boolean;
 }
 
 export const MediaSection = forwardRef(
@@ -24,6 +25,7 @@ export const MediaSection = forwardRef(
       onMusicLoad,
       onMusicEnd,
       paused,
+      muted,
     }: MediaSectionProps,
     ref,
   ) => {
@@ -78,6 +80,9 @@ export const MediaSection = forwardRef(
         });
 
         soundRef.current = sound;
+        if (paused) {
+          sound.pause();
+        }
       });
 
       return () => {
@@ -88,6 +93,21 @@ export const MediaSection = forwardRef(
         }
       };
     }, [selectedItem]); // ✅ Không chỉ là selectedItem.music.link
+    useEffect(() => {
+      if (soundRef.current) {
+        if (paused) {
+          soundRef.current.pause();
+        } else {
+          soundRef.current.play();
+        }
+      }
+    }, [paused]);
+
+    useEffect(() => {
+      if (soundRef.current) {
+        soundRef.current.setVolume(muted ? 0 : 1);
+      }
+    }, [muted]);
 
     return (
       <View style={styles.ViewMedia}>
@@ -104,6 +124,7 @@ export const MediaSection = forwardRef(
               playInBackground={false}
               playWhenInactive={false}
               paused={paused}
+              muted={muted}
               onLayout={event => {
                 const {width, height} = event.nativeEvent.layout;
                 onMediaLayout?.({width, height});

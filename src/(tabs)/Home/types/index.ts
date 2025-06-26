@@ -31,6 +31,7 @@ interface MusicInfo {
   link: string;
   timeStart?: number;
   timeEnd?: number;
+  song?: string;
 }
 
 export interface HandleBookmarkParams {

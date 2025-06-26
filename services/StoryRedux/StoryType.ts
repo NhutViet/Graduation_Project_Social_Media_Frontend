@@ -23,6 +23,14 @@ export interface Story {
     x: number;
     y: number;
   };
+
+  tags?: {
+    user: UserMini;
+    position: {
+      x: number;
+      y: number;
+    };
+  }[];
   isSeen?: boolean;
 }
 

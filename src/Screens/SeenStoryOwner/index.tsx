@@ -20,36 +20,14 @@ import HighlightViewModal from './component/HighlightViewModal';
 import {MediaSection} from './component/MediaSection';
 import {styles} from './component/style';
 import debounce from 'lodash/debounce';
-import ModalSeeMore from './component/ModelSeeMore';
+
 import {
   deleteStory,
   fetchGetPostedSotry,
 } from '@services/StoryRedux/StorySlice';
-
-// Data mẫu cho modal highlight
-const highlights = [
-  {
-    id: '1',
-    name: 'Trip',
-    isAdded: true,
-    imageURL:
-      'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-  },
-  {
-    id: '2',
-    name: 'Food',
-    isAdded: true,
-    imageURL:
-      'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-  },
-  {
-    id: '3',
-    name: 'Friends',
-    isAdded: false,
-    imageURL:
-      'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-  },
-];
+import SeenStoryOwnerHeader from './component/Header';
+import SeenStoryOwnerBottom from './component/BottomBar';
+import ModalSeeMore from './component/ModelSeeMore';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -66,7 +44,9 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
   const [visible, setVisible] = useState(false);
   const [visibleSeeMore, setVisibleSeeMore] = useState(false);
   const [mediaSize, setMediaSize] = useState({width: 0, height: 0});
-
+  const progressValues = useRef<number[]>(stories.map(() => 0)).current;
+  const [isMuted, setIsMuted] = useState(false);
+  console.log('story>>>>>>>>', stories);
   const progressAnims = useRef<Animated.Value[]>(
     (stories || []).map(() => new Animated.Value(0)),
   ).current;
@@ -112,36 +92,51 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
 
   const getItemDuration = () => {
     const currentStory = stories[currentIndex];
+
+    // Nếu là video .m3u8 thì lấy duration video
     if (currentStory?.mediaUrl?.endsWith('.m3u8') && videoDuration) {
       return videoDuration * 1000;
     }
-    if (currentStory?.music?.link && musicDuration) {
-      return Math.max(musicDuration * 1000, imageDuration);
-    }
+
+    // Nếu là ảnh (không phải video), thì chỉ lấy imageDuration
     return imageDuration;
   };
 
-  const startProgressAnimation = () => {
+  const startProgressAnimation = (forceRestart = false) => {
     if (animationRef.current) {
       animationRef.current.stop();
     }
 
-    if (progressAnims[currentIndex]) {
-      progressAnims[currentIndex].setValue(0);
-      const duration = getItemDuration();
+    const anim = progressAnims[currentIndex];
+    if (!anim) return;
 
-      animationRef.current = Animated.timing(progressAnims[currentIndex], {
-        toValue: 1,
-        duration,
-        useNativeDriver: false,
-      });
-
-      animationRef.current.start(({finished}) => {
-        if (finished) {
-          goToNextStory();
-        }
-      });
+    // Nếu reset thì đặt lại
+    if (forceRestart || progressValues[currentIndex] >= 1) {
+      anim.setValue(0);
+      progressValues[currentIndex] = 0;
     }
+
+    const remainingDuration =
+      (1 - progressValues[currentIndex]) * getItemDuration();
+
+    animationRef.current = Animated.timing(anim, {
+      toValue: 1,
+      duration: remainingDuration,
+      useNativeDriver: false,
+    });
+
+    // Theo dõi giá trị tiến độ để cập nhật lại `progressValues`
+    const listenerId = anim.addListener(({value}) => {
+      progressValues[currentIndex] = value;
+    });
+
+    animationRef.current.start(({finished}) => {
+      anim.removeListener(listenerId);
+      if (finished) {
+        progressValues[currentIndex] = 1;
+        goToNextStory();
+      }
+    });
   };
 
   const goToNextStory = () => {
@@ -169,23 +164,22 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
     });
   };
 
+  // pause story
   const toggleVideoPause = () => {
-    if (!selectedItem?.mediaUrl?.endsWith('.m3u8')) {
-      return;
-    }
-
     setIsVideoPaused(prev => {
       const newState = !prev;
-
       if (newState) {
-        animationRef.current?.stop();
+        animationRef.current?.stop(); // pause
       } else {
-        startProgressAnimation();
+        startProgressAnimation(); // không truyền true => không reset
       }
       return newState;
     });
   };
-
+  // mute story
+  const toggleMute = () => {
+    setIsMuted(prev => !prev);
+  };
   const debouncedHandleTouch = useRef(
     debounce((locationX: number | null) => {
       if (locationX == null) {
@@ -265,7 +259,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
     return () => {
       animationRef.current?.stop();
     };
-  }, [currentIndex, isVideoPaused]);
+  }, [currentIndex]);
 
   useEffect(() => {
     return () => {
@@ -277,26 +271,6 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
     navigation.goBack();
   };
 
-  const renderProgressBars = () => {
-    return (
-      <View style={styles.progressContainer}>
-        {stories.map((_, index) => {
-          const width = progressAnims[index].interpolate({
-            inputRange: [0, 1],
-            outputRange: ['0%', '100%'],
-          });
-          return (
-            <View key={index} style={styles.progressBarWrapper}>
-              <Animated.View
-                style={[styles.progressBar, {width, backgroundColor: '#fff'}]}
-              />
-            </View>
-          );
-        })}
-      </View>
-    );
-  };
-
   const getCaptionPosition = (xPercent: number, yPercent: number) => {
     const width = mediaSize.width || screenWidth;
     const height = mediaSize.height || screenHeight;
@@ -305,7 +279,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
       top: (yPercent / 100) * height,
     };
   };
-
+  // caption
   const renderCaption = () => {
     const content = selectedItem?.content;
     if (!content?.text) return null;
@@ -323,6 +297,40 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
         {content.text}
       </Text>
     );
+  };
+  // tag
+  const renderTags = () => {
+    const tags = selectedItem?.tags || [];
+    console.log('tag>>>>>>>>>>>', tags);
+
+    return tags.map((tag, index) => {
+      const {user, position} = tag;
+      if (!user) return null;
+
+      const {x, y} = position;
+      const {username, handleName} = user;
+
+      const tagPosition = getCaptionPosition(x * 100, y * 100);
+
+      return (
+        <View
+          key={index}
+          style={{
+            position: 'absolute',
+            left: tagPosition.left,
+            top: tagPosition.top,
+            backgroundColor: 'rgba(0, 0, 0, 0.6)',
+            paddingHorizontal: 10,
+            paddingVertical: 5,
+            borderRadius: 12,
+            zIndex: 10,
+          }}>
+          <Text style={{color: '#fff', fontSize: 14, fontWeight: '500'}}>
+            @{handleName}
+          </Text>
+        </View>
+      );
+    });
   };
 
   const renderMusicInfo = () => {
@@ -351,21 +359,14 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
         style={styles.mediaWrapper}
         onStartShouldSetResponder={() => true}
         onResponderRelease={handleTouch}>
-        <View style={styles.header}>
-          <View style={styles.mediaItems}>{renderProgressBars()}</View>
-          <TouchableOpacity style={styles.viewUser}>
-            <Image style={styles.avatar} source={{uri: user?.profilePic}} />
-            <Text style={styles.nameUser}>{user?.username}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.btnCloser}
-            onPress={handleCloserPress}>
-            <Image
-              style={styles.iconCloser}
-              source={require('../../../assets/icon/closer.png')}
-            />
-          </TouchableOpacity>
-        </View>
+        <SeenStoryOwnerHeader
+          onClose={handleCloserPress}
+          progressAnims={progressAnims}
+          pause={isVideoPaused}
+          onTogglePause={toggleVideoPause}
+          mute={isMuted}
+          onToggleMute={toggleMute}
+        />
         {stories[currentIndex] ? (
           <MediaSection
             selectedItem={stories[currentIndex]}
@@ -376,61 +377,33 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
             onMusicLoad={onMusicLoad}
             onMusicEnd={onMusicEnd}
             paused={isVideoPaused}
+            muted={isMuted}
           />
         ) : null}
         {renderCaption()}
+        {renderTags()}
         {renderMusicInfo()}
       </View>
-      <View style={styles.viewBottom}>
-        <TouchableOpacity
-          style={styles.viewIconItem}
-          onPress={() => setVisible(true)}>
-          <Image
-            style={styles.icon}
-            source={require('../../../assets/icon/users.png')}
-          />
-          <Text style={styles.txtIcon}>Hoạt động</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.viewIconItem}
-          onPress={() => setVisibleSeeMore(true)}>
-          <Image
-            style={styles.icon}
-            source={require('../../../assets/icon/ellipsis.png')}
-          />
-          <Text style={styles.txtIcon}>Xem thêm</Text>
-        </TouchableOpacity>
+
+      <SeenStoryOwnerBottom
+        onShowPeopleSeen={() => setVisible(true)}
+        onShowMore={() => setVisibleSeeMore(true)}
+        visible={visible}
+        users={selectedItem?.viewedByUsers || []}
+        onClose={() => setVisible(false)}
+        onDelete={handleDeleteStory}
+      />
+
+      <Portal>
         <ModelPeopleSeen
           visible={visible}
           onClose={() => setVisible(false)}
           users={selectedItem?.viewedByUsers || []}
         />
-      </View>
-
-      <Portal>
-        <HighlightViewModal
-          ref={viewModalRef}
-          data={highlights}
-          onAddNew={handleOpenAddModal}
-        />
-      </Portal>
-
-      <Portal>
         <ModalSeeMore
           visible={visibleSeeMore}
           onClose={() => setVisibleSeeMore(false)}
           onDelete={handleDeleteStory}
-        />
-      </Portal>
-
-      <Portal>
-        <HighlightAddModal
-          ref={addModalRef}
-          onAdd={handleAddHighlight}
-          onBack={handleOnBackAddModal}
-          imageSource={
-            'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg'
-          }
         />
       </Portal>
     </SafeAreaView>

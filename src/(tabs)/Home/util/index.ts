@@ -125,7 +125,6 @@ export const handleUserPress = async (
   }
 
   try {
-    //  Gọi API fetchStoryDetails để lấy thông tin đầy đủ các story
     const detailRes = await dispatch(
       fetchStoryDetails({storyIds: item.stories}),
     ).unwrap();
@@ -135,13 +134,10 @@ export const handleUserPress = async (
       return;
     }
 
-    //  Gọi seenStory cho từng story
     const seenedStories = await Promise.all(
       detailRes.map(async story => {
         try {
-          // Chỉ trigger, không dùng kết quả
           await dispatch(seenStory({storyId: story._id}));
-
           const hasSeen = await checkStorySeenInStorage(
             story._id,
             story.createdAt,
@@ -150,8 +146,34 @@ export const handleUserPress = async (
             await markStoryAsSeen(story._id, story.createdAt);
           }
 
+          // ✅ Populate tags.user nếu bị thiếu
+          const populatedTags = (story.tags || []).map(tag => {
+            const userDetail = tag.user;
+
+            // Nếu tag.user chỉ là _id (string), thêm thông tin giả tạm thời
+            if (typeof userDetail === 'string') {
+              const foundUser =
+                story.viewedByUsers?.find((u: any) => u._id === userDetail) ||
+                storyDetails
+                  .flatMap(s => s.viewedByUsers || [])
+                  .find((u: any) => u._id === userDetail);
+
+              return {
+                ...tag,
+                user: foundUser || {
+                  _id: userDetail,
+                  handleName: 'unknown',
+                  username: 'unknown',
+                },
+              };
+            }
+
+            return tag;
+          });
+
           return {
             ...story,
+            tags: populatedTags,
             uriVideo: story.mediaUrl.endsWith('.m3u8') ? story.mediaUrl : null,
             image:
               story.mediaUrl.endsWith('.jpg') || story.mediaUrl.endsWith('.png')
