@@ -52,7 +52,7 @@ export const Privacy = () => {
     await dispatch(changePassword({ recentPassword, newPassword })).unwrap();
     GlobalAlertManager.show('Thành công', 'Đổi mật khẩu thành công!');
   } catch (err: any) {
-    GlobalAlertManager.show('Lỗi', err || 'Đổi mật khẩu thất bại');
+    return GlobalAlertManager.show('Thông báo', 'Sai mật khẩu hiện tại');
   }
 };
 
@@ -176,7 +176,7 @@ export const Privacy = () => {
                 />
                 {!isValid && (
                   <Text style={styles.error}>
-                    Mật khẩu phải có ít nhất 6 ký tự và bao gồm chữ, số và ký tự đặc biệt (!$@%).
+                    Mật khẩu phải có ít nhất 3 ký tự và bao gồm chữ, số và ký tự đặc biệt ${specialChars}.
                   </Text>
                 )}
               </View>
@@ -238,12 +238,12 @@ export const Privacy = () => {
   );
 };
 
+const specialChars = '!@#$%^&*()_+-=[]{}|;:",.<>?/~`';
 const isValidPassword = (password: string): boolean => {
   if (password.length < 3) {
     return false;
   }
 
-  const specialChars = '!@#$%^&*()_+-=[]{}|;:",.<>?/~`';
   const passwordChars = password.split('');
 
   const hasLetter = passwordChars.some(char => /[a-zA-Z]/.test(char));
