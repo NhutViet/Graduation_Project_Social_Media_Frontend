@@ -27,7 +27,7 @@ import {
   removeBookmark,
   saveBookmark,
 } from '../../../../services/bookmarkRedux/bookmarkSlice';
-import { Bookmark, Languages, Captions, Fullscreen, QrCode, Eye, EyeOff, Flag } from 'lucide-react-native';
+import { Bookmark, Languages, Captions, Fullscreen, QrCode, Eye, EyeOff, Flag, RotateCwSquare, Combine, AudioLines } from 'lucide-react-native';
 
 const height = Dimensions.get('window').height * 0.7;
 
@@ -123,19 +123,13 @@ const BottomSheetReels = forwardRef<BottomSheetReelsRef, BottomSheetReelsProps>(
               </TouchableOpacity>
               <TouchableOpacity style={styles.headerBlock}>
                 <View style={styles.blockIcon}>
-                  <Image
-                    style={styles.icon}
-                    source={require('../../../../assets/icon/remix_reels.png')}
-                  />
+                  <RotateCwSquare color={Colors.black}/>
                 </View>
                 <Text style={styles.textHeader}>Remix</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.headerBlock}>
                 <View style={styles.blockIcon}>
-                  <Image
-                    style={styles.icon}
-                    source={require('../../../../assets/icon/sequence.png')}
-                  />
+                  <Combine color={Colors.black}/>
                 </View>
                 <Text style={styles.textHeader}>Sequence</Text>
               </TouchableOpacity>
@@ -192,10 +186,7 @@ const BottomSheetReels = forwardRef<BottomSheetReelsRef, BottomSheetReelsProps>(
 
             <TouchableOpacity style={styles.buttonFeature}>
               <View style={styles.blockIcon}>
-                <Image
-                  style={styles.icon}
-                  source={require('../../../../assets/icon/equalizer.png')}
-                />
+                <AudioLines color={Colors.black}/>
               </View>
               <Text style={styles.textNormal}>
                 Quản lý tùy chọn về nội dung

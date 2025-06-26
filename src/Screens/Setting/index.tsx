@@ -27,7 +27,8 @@ import {
   Ban,
   Bookmark,
   CircleCheck,
-  CircleAlert
+  CircleAlert,
+  ClockFading
 } from 'lucide-react-native';
 import PersonalDetails from './PersonalDetail';
 import ContactInfo from './ContactInfo';
@@ -461,10 +462,7 @@ export const Setting = () => {
                   styles.settingIconContainer,
                   {backgroundColor: mColor.gray},
                 ]}>
-                <Image
-                  source={require('../../../assets/icon/clock.png')}
-                  style={{width: 20, height: 20, tintColor: mColor.text}}
-                />
+                <ClockFading color={mColor.text}/>
               </View>
               <View style={styles.settingContent}>
                 <Text style={[styles.settingTitle, {color: mColor.text}]}>

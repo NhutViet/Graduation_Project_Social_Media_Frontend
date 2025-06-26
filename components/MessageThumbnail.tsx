@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { Camera } from 'lucide-react-native';
 import {useProfileEditingStyles} from '../src/Screens/EditProfile/components/ProfileEditingStyles';
+import { CircleUserRound } from 'lucide-react-native';
 
 export interface MessageThumbnailProps {
   id: string;
@@ -39,12 +40,15 @@ const MessageThumbnail: React.FC<MessageThumbnailProps> = ({
 
   return (
     <TouchableOpacity style={styles.messageThumbnail} onPress={onPress}>
-      <Image
-        source={
-          avatarUri ? {uri: avatarUri} : require('../assets/icon/account.png')
-        }
-        style={styles.messageAvatar}
-      />
+      {avatarUri ? 
+        <Image
+          source={
+            {uri: avatarUri}
+          }
+          style={styles.messageAvatar}
+        /> :
+        <CircleUserRound size={50}/>
+      }
       <View style={styles.messageTextContainer}>
         <Text
           style={styles.messageUsername}

@@ -15,7 +15,7 @@ import {
   unlikePost,
 } from '../../../../services/reactionRedux/reactionSlice';
 import {useTheme} from '../../../util/ThemeContext';
-import { Heart, MessageCircle, Send, EllipsisVertical, Music4 } from 'lucide-react-native';
+import { Heart, MessageCircle, Send, EllipsisVertical, Music4, CircleUserRound } from 'lucide-react-native';
 import {relationAction} from '@services/relationRedux/relationSlice';
 import TagMarker from './TagMarker';
 
@@ -180,10 +180,7 @@ const ReelsComponent = (props: any) => {
                 {user.profilePic ? (
                   <Image style={styles.img} source={{uri: user.profilePic}} />
                 ) : (
-                  <Image
-                    style={styles.img}
-                    source={require('../../../../assets/icon/account.png')}
-                  />
+                  <CircleUserRound color={"#fff"}/>
                 )}
               </TouchableOpacity>
             </TouchableOpacity>

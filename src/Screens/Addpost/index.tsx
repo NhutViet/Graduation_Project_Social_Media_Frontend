@@ -21,7 +21,7 @@ import {FlashList} from '@shopify/flash-list';
 import {getAddPostStyles} from '../../StyleSheet/AddPostStyles';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
-import { X, ChevronRight, Images, CameraOff, Check } from 'lucide-react-native';
+import { X, ChevronRight, Images, CameraOff, Check, Film } from 'lucide-react-native';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
 const menu: string[] = ['Tất cả', 'Băng hình', 'Hình ảnh'];
@@ -346,19 +346,15 @@ export const AddPost = () => {
                     )}
                     {/* Icon video */}
                     {item.node.type.startsWith('video') && (
-                      <Image
-                        source={require('../../../assets/icon/reels.png')}
+                      <Film 
                         style={{
                           position: 'absolute',
                           bottom: 5,
                           right: 5,
-                          width: 20,
-                          height: 20,
-                          tintColor: color.white,
                           backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                          resizeMode: 'contain',
                           borderRadius: 3,
                         }}
+                        color={color.white}
                       />
                     )}
                   </TouchableOpacity>

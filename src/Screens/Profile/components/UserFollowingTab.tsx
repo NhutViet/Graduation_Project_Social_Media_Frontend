@@ -231,10 +231,7 @@ const UserFollowingTab = ({route}: any) => {
         </Text>
       </TouchableOpacity>
       <TouchableOpacity>
-        <Image
-          source={require('../../../../assets/icon/menu-dots-vertical.png')}
-          style={[styles.moreIcon, {tintColor: color.text}]}
-        />
+        <EllipsisVertical size={13} color={color.text}/>
       </TouchableOpacity>
     </View>
   );
@@ -258,10 +255,7 @@ const UserFollowingTab = ({route}: any) => {
         <Text style={styles.followText}>Theo dõi</Text>
       </TouchableOpacity>
       <TouchableOpacity>
-        <Image
-          source={require('../../../../assets/icon/menu-dots-vertical.png')}
-          style={[styles.moreIcon, {tintColor: color.text}]}
-        />
+        <EllipsisVertical size={13} color={color.text}/>
       </TouchableOpacity>
     </View>
   );

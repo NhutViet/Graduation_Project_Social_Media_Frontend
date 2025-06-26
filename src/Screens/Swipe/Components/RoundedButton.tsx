@@ -9,7 +9,7 @@ import {
 import React, {useCallback, useRef} from 'react';
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
-import { Heart } from 'lucide-react-native';
+import { Heart, UserRound, X } from 'lucide-react-native';
 
 const RoundedButton = (props: any) => {
   const {theme} = useTheme();
@@ -53,19 +53,7 @@ const RoundedButton = (props: any) => {
         transform: [{scale}]
       }]}>
         {type && (
-          <Image
-            source={
-              type == 'nope'
-                ? require('../../../../assets/icon/close_small.png')
-                : require('../../../../assets/icon/infor_user.png')
-            }
-            style={{
-              width: 33,
-              height: 33,
-              resizeMode: 'contain',
-              tintColor: color.black,
-            }}
-          />
+          type == 'nope' ? <X size={33} color={color.black}/> : <UserRound size={33} color={color.black}/>
         )}
         {heart && (
           <Heart size={55} color={color.background} fill={color.background}/>

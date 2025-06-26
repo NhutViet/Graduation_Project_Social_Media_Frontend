@@ -25,7 +25,7 @@ import {
 } from '../../../services/bookmarkRedux/bookmarkSlice';
 import {Check} from 'lucide-react-native';
 import {FlashList} from '@shopify/flash-list';
-import { ChevronLeft, Ellipsis, X } from 'lucide-react-native';
+import { ChevronLeft, Ellipsis, X, Film } from 'lucide-react-native';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
 interface RouteParams {
@@ -212,10 +212,7 @@ export const PlaylistsScreen = () => {
         />
         {isVideo && (
           <View style={styles.videoIconContainer}>
-            <Image
-              source={require('../../../assets/icon/reels.png')}
-              style={styles.videoIcon}
-            />
+            <Film size={16} color={styles.videoIcon.tintColor}/>
           </View>
         )}
         {isSelec && (

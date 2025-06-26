@@ -18,7 +18,7 @@ import Video from 'react-native-video';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../../../services/store';
 import {fetchGetPostedSotry} from '../../../../../services/StoryRedux/StorySlice';
-import { History } from 'lucide-react-native';
+import { History, CircleFadingArrowUp } from 'lucide-react-native';
 import {handleUserPress} from '../../../../(tabs)/Home/util/index';
 
 const formatMonthText = (dateString?: string): string => {
@@ -101,10 +101,7 @@ const StoriesTab = () => {
         </View>
         {item.saved && (
           <TouchableOpacity style={styles.heartIcon}>
-            <Image
-              source={require('../../../../../assets/icon/highlight.png')}
-              style={styles.icon}
-            />
+            <CircleFadingArrowUp color={color.text}/>
           </TouchableOpacity>
         )}
       </View>

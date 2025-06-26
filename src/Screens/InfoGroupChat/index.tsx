@@ -25,6 +25,7 @@ import {
   ChevronRight,
   PenLine,
   LogOut,
+  ChevronLeft
 } from 'lucide-react-native';
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {RootStackParamList} from '../../Navigation/AppNavigation';

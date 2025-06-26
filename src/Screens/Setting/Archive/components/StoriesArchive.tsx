@@ -23,6 +23,7 @@ import {fetchGetPostedSotry} from '../../../../../services/StoryRedux/StorySlice
 import {Alert} from 'react-native';
 import HighlightCreateModal from './HighlightCreateModal';
 import {GlobalAlertManager} from '../../../../../components/Global/AlertModal';
+import { CircleFadingArrowUp, CircleFadingPlus } from 'lucide-react-native';
 
 // Giả lập action creator (thay bằng action thực tế khi có API)
 const fetchCreateHighlight =
@@ -137,10 +138,7 @@ const StoryArchive = () => {
             component={StoriesTab}
             options={{
               tabBarIcon: () => (
-                <Image
-                  source={require('../../../../../assets/icon/story.png')}
-                  style={{tintColor: color.text, width: 20, height: 20}}
-                />
+                <CircleFadingPlus color={color.text}/>
               ),
               tabBarShowLabel: false,
             }}
@@ -150,10 +148,7 @@ const StoryArchive = () => {
             component={HighlightsTab}
             options={{
               tabBarIcon: () => (
-                <Image
-                  source={require('../../../../../assets/icon/highlight.png')}
-                  style={{tintColor: color.text, width: 20, height: 20}}
-                />
+                <CircleFadingArrowUp color={color.text}/>
               ),
               tabBarShowLabel: false,
             }}

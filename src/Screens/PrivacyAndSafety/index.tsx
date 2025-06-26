@@ -5,7 +5,7 @@ import { ChevronLeft, Info, Ban, Bug } from 'lucide-react-native';
 import {Colors} from '../../../assets/color/Colors';
 import {useTheme} from '../../util/ThemeContext';
 import Header from '../../../components/Header';
-import { ChevronRight, Flag } from 'lucide-react-native';
+import { ChevronRight, Flag, UserLock } from 'lucide-react-native';
 
 export const PrivacyAndSafety = () => {
   const navigation = useNavigation();
@@ -71,7 +71,7 @@ export const PrivacyAndSafety = () => {
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, {color: color.text}]}>Những người có thể liên hệ tới bạn</Text>
           <TouchableOpacity style={styles.row}>
-            <Image style={[styles.rowIcon, {tintColor: color.text}]} source={require('../../../assets/icon/block-user.png')}/>
+            <UserLock size={24} style={{marginRight: 12}} color={color.text}/>
             <Text style={[styles.rowText, {color: color.text}]}>Hạn chế</Text>
             <View style={{flex: 1, alignItems: 'flex-end'}}>
                 <ChevronRight color={color.textSecondary}/>

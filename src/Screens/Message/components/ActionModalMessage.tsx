@@ -12,7 +12,7 @@ import {
 import {Message} from '@services/messageRedux/messageType';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '@services/store';
-import { Copy, Trash2 } from 'lucide-react-native';
+import { Copy, Trash2, Reply } from 'lucide-react-native';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 
 interface Props {
@@ -109,10 +109,7 @@ const ActionModalMessage = ({visible, onClose, content, setChat}: Props) => {
           </View>
           <View style={styles.actionContainer}>
             <TouchableOpacity style={styles.featureContainer}>
-              <Image
-                style={styles.icon}
-                source={require('../../../../assets/icon/reply.png')}
-              />
+              <Reply size={24} color={Colors.black} strokeWidth={2} />
               <Text style={styles.text} numberOfLines={1}>
                 Trả lời
               </Text>

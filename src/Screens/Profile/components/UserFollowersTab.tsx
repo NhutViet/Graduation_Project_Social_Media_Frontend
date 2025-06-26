@@ -20,7 +20,7 @@ import {
   relationAction,
 } from '../../../../services/relationRedux/relationSlice';
 import {createRoom} from '../../../../services/roomRedux/roomSlice';
-import { Search, X } from 'lucide-react-native';
+import { Search, X, Ban } from 'lucide-react-native';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 
 const UserFollowersTab = ({route}: any) => {
@@ -191,11 +191,7 @@ const UserFollowersTab = ({route}: any) => {
     return (
       <View
         style={[styles.emptyContainer, {backgroundColor: color.background}]}>
-        <Image
-          source={require('../../../../assets/icon/block-user.png')}
-          style={styles.emptyImage}
-          resizeMode="contain"
-        />
+        <Ban style={{marginBottom: 24}} color={color.text} size={50}/>
         <Text style={[styles.emptyTitle, {color: color.text}]}>
           Người dùng hiện tại chưa có người theo dõi
         </Text>

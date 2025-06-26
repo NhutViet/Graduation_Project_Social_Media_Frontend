@@ -22,6 +22,7 @@ import {
   switchBookmark,
 } from '../../../services/bookmarkRedux/bookmarkSlice';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+import { Film, Images } from 'lucide-react-native';
 
 export const AddCollectionScreen = () => {
   const {theme} = useTheme();
@@ -127,14 +128,7 @@ export const AddCollectionScreen = () => {
           style={styles.postItem}>
           <Image source={{uri: thumbnail}} style={styles.postImage} />
           <View style={styles.iconOverlay}>
-            <Image
-              style={styles.icon}
-              source={
-                isVideo
-                  ? require('../../../assets/icon/reels.png')
-                  : require('../../../assets/icon/gallery.png')
-              }
-            />
+            {isVideo ? <Film size={18} color="#fff"/> : <Images size={18} color="#fff"/>}
           </View>
           {isSelected && (
             <View style={styles.overlayCheck}>
