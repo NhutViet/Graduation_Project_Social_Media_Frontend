@@ -4,16 +4,16 @@ import {useSelector, shallowEqual} from 'react-redux';
 import {RootState} from '../../../../services/store';
 
 export const useItemHomeState = (props: ItemHomeProps) => {
-  const {_id, isLike, likeCount, isFollow, isBookmarked} = props;
+  const {_id, isLike, likeCount, isFollow, isBookmarked, user} = props;
 
   const [muted, setMuted] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [visibleModalShare, setVisibleModalShare] = useState(false);
   const [follow, setFollow] = useState(isFollow);
   const [isLiked, setIsLiked] = useState(isLike);
   const [numLike, setNumLike] = useState(likeCount);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isBookmark, setIsBookmark] = useState(isBookmarked);
+  const postUserID = user._id;
 
   const {
     likePosts,
@@ -24,6 +24,7 @@ export const useItemHomeState = (props: ItemHomeProps) => {
     loading,
     itemsByPlaylist,
     playlists,
+    rooms
   } = useSelector(
     (state: RootState) => ({
       likePosts: state.reactions.likePosts,
@@ -34,6 +35,7 @@ export const useItemHomeState = (props: ItemHomeProps) => {
       loading: state.relation.loading,
       itemsByPlaylist: state.bookmark.itemsByPlaylist,
       playlists: state.bookmark.playlists,
+      rooms: state.rooms.rooms
     }),
     shallowEqual,
   );
@@ -43,8 +45,6 @@ export const useItemHomeState = (props: ItemHomeProps) => {
     setMuted,
     isModalVisible,
     setIsModalVisible,
-    visibleModalShare,
-    setVisibleModalShare,
     follow,
     setFollow,
     isLiked,
@@ -63,5 +63,7 @@ export const useItemHomeState = (props: ItemHomeProps) => {
     loading,
     itemsByPlaylist,
     playlists,
+    postUserID,
+    rooms
   };
 };

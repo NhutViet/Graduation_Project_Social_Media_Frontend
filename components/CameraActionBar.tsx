@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useCameraStyles } from '../src/StyleSheet/CameraStyles';
+import { Square, Zap, Repeat, Smile } from 'lucide-react-native';
 
 export type ActionBarProps = {
   mode: string;
@@ -27,10 +28,10 @@ const ActionBar: React.FC<ActionBarProps> = ({
   return (
     <View style={styles.actionBarContainer}>
       <TouchableOpacity style={styles.sideButton} onPress={onLeft1}>
-        <Image source={require('../assets/icon/square.png')} style={styles.sideButton}/>
+        <Square style={styles.sideButton}/>
       </TouchableOpacity>
       <TouchableOpacity style={styles.sideButton} onPress={onLeft2}>
-        <Image source={require('../assets/icon/lightning.png')} style={styles.sideButton}/>
+        <Zap style={styles.sideButton}/>
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -41,10 +42,10 @@ const ActionBar: React.FC<ActionBarProps> = ({
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.sideButton} onPress={onRight1}>
-        <Image source={require('../assets/icon/remix.png')} style={styles.sideButton}/>
+        <Repeat style={styles.sideButton}/>
       </TouchableOpacity>
       <TouchableOpacity style={styles.sideButton} onPress={onRight2}>
-        <Image source={require('../assets/icon/smiley.png')} style={styles.sideButton}/>
+        <Smile style={styles.sideButton}/>
       </TouchableOpacity>
     </View>
   );

@@ -1,16 +1,27 @@
 import { ConfigOption } from "../../components/BottomSheetOptions";
 import { IntentionOptionConfig } from "../../components/BottomSheetIntentions";
+import {
+  Bookmark,
+  Heart,
+  Star,
+  User,
+  Info,
+  EyeOff,
+  Flag,
+  Repeat,
+} from 'lucide-react-native'
+import { LucideProps } from 'lucide-react-native'
 
 // Centralized icon imports
 const icons = {
-  bookmark: require("../../assets/icon/bookmark.png"),
-  remix: require("../../assets/icon/remix.png"),
-  star: require("../../assets/icon/star.png"),
-  unfollow: require("../../assets/icon/unfollow.png"),
-  account: require("../../assets/icon/account.png"),
-  info: require("../../assets/icon/info.png"),
-  blind: require("../../assets/icon/blind.png"),
-  report: require("../../assets/icon/report.png"),
+  bookmark: Bookmark,
+  remix: Repeat,
+  star: Star,
+  unfollow: User,
+  account: User,
+  info: Info,
+  blind: EyeOff,
+  report: Flag,
 };
 
 // Top row of options

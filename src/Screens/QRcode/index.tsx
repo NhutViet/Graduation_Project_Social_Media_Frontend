@@ -15,6 +15,8 @@ import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import RNFS from 'react-native-fs';
 import LinearGradient from 'react-native-linear-gradient';
+import { X, ScanQrCode, Send, Link, ArrowDownToLine } from 'lucide-react-native';
+
 export const ScreenQRCode = ({navigation}: any) => {
   const qrCodeRef = useRef<any>(null);
   const {theme} = useTheme();
@@ -37,18 +39,12 @@ export const ScreenQRCode = ({navigation}: any) => {
             <TouchableOpacity
             style={styles.btn}
             onPress={() => navigation.navigate('BottomTabs')}>
-            <Image
-              style={styles.iconClose}
-              source={require('../../../assets/icon/x.png')}
-            />
+            <X color={"fff"}/>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.btn}
             onPress={() => navigation.navigate('QRScanner')}>
-            <Image
-              style={styles.iconClose}
-              source={require('../../../assets/icon/Qscan.png')}
-            />
+            <ScanQrCode color={"fff"}/>
           </TouchableOpacity>
           </View>
 
@@ -71,26 +67,17 @@ export const ScreenQRCode = ({navigation}: any) => {
           </View>
           <View style={styles.footer}>
             <TouchableOpacity style={styles.btnBottom}>
-              <Image
-                style={styles.icon}
-                source={require('../../../assets/icon/share.png')}
-              />
+              <Send color={"#000"}/>
               <Text style={styles.txtBottom}>Chia sẻ</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.btnBottom}>
-              <Image
-                style={styles.icon}
-                source={require('../../../assets/icon/link.png')}
-              />
+              <Link color={"#000"}/>
               <Text style={styles.txtBottom}>Sao chép</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.btnBottom}
               onPress={hanldeDownloadQRCode}>
-              <Image
-                style={styles.icon}
-                source={require('../../../assets/icon/download.png')}
-              />
+              <ArrowDownToLine color={"#000"}/>
               <Text style={styles.txtBottom}>Tải xuống</Text>
             </TouchableOpacity>
           </View>

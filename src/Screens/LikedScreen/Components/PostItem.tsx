@@ -3,6 +3,7 @@ import React from 'react';
 import Video from 'react-native-video';
 import { useTheme } from '../../../util/ThemeContext';
 import { Colors } from '../../../../assets/color/Colors';
+import { Clapperboard, Images, CircleCheck } from 'lucide-react-native';
 
 const {width} = Dimensions.get('window');
 
@@ -22,18 +23,18 @@ const PostItem = (props: any) => {
           muted={true}
           paused={true}
         />
-        <Image source={require('../../../../assets/icon/clapperboard.png')} style={[styles.note, {tintColor: color.background}]}/>
+        <Clapperboard style={{position: 'absolute', top: 10, right: 10}} color={color.background}/>
         </View>
       ) : (data.image_url.length > 1 || (data.image_url.length > 0 && data.video.length > 0)) ? (
         <View>
             <Image source={{uri: data.image_url[0]}} style={styles.container}/>
-            <Image source={require('../../../../assets/icon/gallery.png')} style={[styles.note, {tintColor: color.background}]}/>
+            <Images style={{position: 'absolute', top: 10, right: 10}} color={color.background}/>
         </View>
       ) : (
         <Image source={{uri: data.image_url[0]}} style={styles.container}/>
       )}
       {isSelect ? (
-        <Image source={require('../../../../assets/icon/checked.png')} style={[styles.tick, {tintColor: color.text}]}/>
+        <CircleCheck style={{position: 'absolute', bottom: 5, right: 5, zIndex: 1,}} color={color.text}/>
       ) : (
         <View style={[styles.rounded, {borderColor: color.textSecondary}]}/>
       )}

@@ -16,6 +16,7 @@ import {getSwipeStyles} from '../../StyleSheet/SwipeStyles';
 import {useTheme} from '../../util/ThemeContext';
 import RoundedButton from './Components/RoundedButton';
 import {useNavigation} from '@react-navigation/native';
+import { ChevronLeft } from 'lucide-react-native';
 
 export const Swipe = () => {
   const {theme} = useTheme();
@@ -78,7 +79,7 @@ export const Swipe = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.row}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.box}>
-          <Image source={require('../../../assets/icon/left.png')} style={styles.back}/>
+          <ChevronLeft color={styles.back.tintColor}/>
         </TouchableOpacity>
         <Text style={styles.title}>Kết bạn</Text>
         <View style={styles.box}></View>

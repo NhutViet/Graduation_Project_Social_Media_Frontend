@@ -34,6 +34,7 @@ import {
   addToBookmark,
   removeFromBookmark,
 } from '../../../../services/musicRedux/musicReducer';
+import { ChevronLeft, Search, X, Bookmark } from 'lucide-react-native';
 
 const maxHeight = Dimensions.get('window').height;
 const height = Dimensions.get('window').height * 0.8;
@@ -227,10 +228,7 @@ const BottomSheet = forwardRef<BottomSheetRef, Props>(
             ]}>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
               <View style={styles.blockIcon}>
-                <Image
-                  style={[styles.icon, {tintColor: color.text}]}
-                  source={require('../../../../assets/icon/search.png')}
-                />
+                <Search color={color.text}/>
               </View>
               <TextInput
                 value={search}
@@ -244,10 +242,7 @@ const BottomSheet = forwardRef<BottomSheetRef, Props>(
               <TouchableOpacity
                 style={[styles.blockIcon, {padding: 5}]}
                 onPress={() => setSearch('')}>
-                <Image
-                  style={styles.icon}
-                  source={require('../../../../assets/icon/closer.png')}
-                />
+                <X color={color.text}/>
               </TouchableOpacity>
             ) : null}
           </View>
@@ -276,10 +271,7 @@ const BottomSheet = forwardRef<BottomSheetRef, Props>(
                 <TouchableOpacity
                   onPress={() => setShowSavedView(false)}
                   style={styles.blockIcon}>
-                  <Image
-                    style={[styles.icon, {tintColor: color.text}]}
-                    source={require('../../../../assets/icon/left.png')}
-                  />
+                  <ChevronLeft color={color.text}/>
                 </TouchableOpacity>
                 <Text style={[styles.textNormal, {color: color.text}]}>
                   Đã lưu
@@ -315,10 +307,7 @@ const BottomSheet = forwardRef<BottomSheetRef, Props>(
                 ]}
                 onPress={() => setShowSavedView(true)}>
                 <View style={styles.blockIcon}>
-                  <Image
-                    style={[styles.icon, {tintColor: color.text}]}
-                    source={require('../../../../assets/icon/bookmark.png')}
-                  />
+                  <Bookmark color={color.text}/>
                 </View>
                 <Text
                   style={[

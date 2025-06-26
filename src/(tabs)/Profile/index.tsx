@@ -223,7 +223,7 @@ const Profile = () => {
 
         <View style={styles.bioContainer}>
           <Text style={[styles.displayName, {color: color.text}]}>
-            {user?.handleName}
+            {user?.username}
           </Text>
           <View style={styles.modeContainer}>
             <Moon size={14} color={color.textSecondary} />

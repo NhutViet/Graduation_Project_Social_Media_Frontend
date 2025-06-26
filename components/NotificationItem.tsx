@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { useNotificationStyles } from '../src/StyleSheet/NotificationStyles';
+import { CircleUserRound } from 'lucide-react-native';
 
 interface Notification {
   id: string;
@@ -55,10 +56,7 @@ interface Notification {
                     },
                   ]}
                 >
-                  <Image 
-                    style={styles.userIcon}
-                    source={require('../assets/icon/account.png')}
-                  />
+                  <CircleUserRound style={styles.userIcon}/>
                 </View>
               </View>
             </LinearGradient>
@@ -66,10 +64,7 @@ interface Notification {
         ) : (
           <View style={styles.imageIconContainer}>
             <View style={styles.imageIcon}>
-              <Image 
-                style={styles.userIcon}
-                source={require('../assets/icon/account.png')}
-              />
+              <CircleUserRound style={styles.userIcon}/>
             </View>
           </View>
         );

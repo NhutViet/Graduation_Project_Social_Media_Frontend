@@ -14,6 +14,7 @@ import { RootState } from '../../../../services/store';
 const TopTab = createMaterialTopTabNavigator();
 
 interface UserFollowScreenParams {
+  handlename?: string;
   userID?: string;
   screen: string;
 }
@@ -24,7 +25,6 @@ export const UserFollowScreen = () => {
   const navigation: any = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];
-  const user = useSelector((state: RootState) => state.user.user);
   const route = useRoute<UserFollowScreenRouteProp>();
   const initialRouteName = (route.params as {screen?: string})?.screen || 'UserFollowersTab';
   console.log('Navigate to initial tab:', initialRouteName);
@@ -32,7 +32,7 @@ export const UserFollowScreen = () => {
     <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
       <View style={{height: 60}}>
         <Header
-          title= {user?.username}
+          title= {route.params.handlename}
           iconBack={require('../../../../assets/icon/left.png')}
           func={() => navigation.goBack()}
           navigation={navigation}

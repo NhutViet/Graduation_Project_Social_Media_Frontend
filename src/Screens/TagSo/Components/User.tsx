@@ -2,6 +2,7 @@ import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import React from 'react';
 import {useTheme} from '../../../../src/util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
+import { X } from 'lucide-react-native';
 
 const User = (props: any) => {
   const {theme} = useTheme();
@@ -34,7 +35,7 @@ const User = (props: any) => {
       </View>
       {isDelete && (
         <TouchableOpacity onPress={func}>
-        <Image source={require('../../../../assets/icon/closer.png')} style={{width: 10, height: 10, tintColor: colors.textSecondary, resizeMode: 'contain'}}/>
+        <X size={13} color={colors.textSecondary}/>
       </TouchableOpacity>
       )}
     </TouchableOpacity>
