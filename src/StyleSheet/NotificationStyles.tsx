@@ -42,6 +42,7 @@ export const useNotificationStyles = () => {
           flexDirection: 'row',
           alignItems: 'center',
           paddingHorizontal: 16,
+          paddingVertical: 10,
         },
         storyRing: {
           width: 44,
@@ -80,8 +81,6 @@ export const useNotificationStyles = () => {
         },
         textContainer: {
           flex: 1,
-          height: 84,
-          width: 204,
           marginLeft: 12,
           justifyContent: 'center',
         },
@@ -139,8 +138,8 @@ export const useNotificationStyles = () => {
           resizeMode: 'contain',
         },
         userIcon: {
-          width: 44,
-          height: 44,
+          width: 50,
+          height: 50,
           borderRadius: 22,
           resizeMode: 'cover',
         },
