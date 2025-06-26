@@ -6,31 +6,41 @@ const useNotificationListener = () => {
   const {notificationSocket} = useSocket();
 
   useEffect(() => {
-    if (!notificationSocket) return;
+    notificationSocket?.onAny((event, ...args) => {
+      console.log('📥 Event:', event, args);
+    });
+  }, [notificationSocket]);
+
+  useEffect(() => {
+    if (!notificationSocket) return console.log('hong có');
 
     const handleNotification = (payload: any) => {
-      Toast.show({
-        type: 'info',
-        text1: 'Thông báo mới.',
-        text2: payload?.content || 'Bạn có thông báo mới',
-        position: 'top',
-        visibilityTime: 2000,
-      });
+      // Toast.show({
+      //   type: 'info',
+      //   text1: 'Thông báo mới.',
+      //   text2: payload?.caption || 'Bạn có thông báo mới',
+      //   position: 'top',
+      //   visibilityTime: 2000,
+      // });
+      console.log('nhận đượcthoong báo nè: ', payload);
     };
 
     // Lắng nghe các sự kiện từ server
     notificationSocket.on('new_notification', handleNotification);
 
     // Tuỳ loại
-    notificationSocket.on('new_post', handleNotification);
-    notificationSocket.on('new_like', handleNotification);
+    notificationSocket.on('post_like', handleNotification);
+    notificationSocket.on('new_post_like', handleNotification);
     notificationSocket.on('new_comment', handleNotification);
 
+    notificationSocket.onAny((event, ...args) => {
+      console.log('📥 Event from server:', event, args);
+    });
     return () => {
       // Cleanup để tránh double lắng nghe
       notificationSocket.off('new_notification', handleNotification);
       notificationSocket.off('new_post', handleNotification);
-      notificationSocket.off('new_like', handleNotification);
+      notificationSocket.off('new_post_like', handleNotification);
       notificationSocket.off('new_comment', handleNotification);
     };
   }, [notificationSocket]);
