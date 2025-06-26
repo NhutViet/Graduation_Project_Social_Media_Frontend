@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, Text, Image, TouchableOpacity} from 'react-native';
 import {styles} from './styles';
-import {Pause, Play, VolumeX, Volume2} from 'lucide-react-native';
+import {Pause, Play, VolumeX, Volume2, X} from 'lucide-react-native';
 
 export const Header = ({
   onClose,
