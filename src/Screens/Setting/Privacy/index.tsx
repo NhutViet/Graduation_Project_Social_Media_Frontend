@@ -1,5 +1,4 @@
 import {
-  Alert,
   Image,
   SafeAreaView,
   ScrollView,
@@ -51,9 +50,9 @@ export const Privacy = () => {
   const handleChangPassword = async (recentPassword: string, newPassword: string) => {
   try {
     await dispatch(changePassword({ recentPassword, newPassword })).unwrap();
-    Alert.alert('Thành công', 'Đổi mật khẩu thành công!');
+    GlobalAlertManager.show('Thành công', 'Đổi mật khẩu thành công!');
   } catch (err: any) {
-    Alert.alert('Lỗi', err || 'Đổi mật khẩu thất bại');
+    GlobalAlertManager.show('Lỗi', err || 'Đổi mật khẩu thất bại');
   }
 };
 
@@ -240,25 +239,16 @@ export const Privacy = () => {
 };
 
 const isValidPassword = (password: string): boolean => {
-  if (password.length < 6) {
+  if (password.length < 3) {
     return false;
   }
 
-  let hasLetter = false;
-  let hasDigit = false;
-  let hasSpecialChar = false;
-  const secialChars = '!$@%';
+  const specialChars = '!@#$%^&*()_+-=[]{}|;:",.<>?/~`';
+  const passwordChars = password.split('');
 
-  for (let i = 0; i < password.length; i++) {
-    const char = password[i];
-    if (/[a-zA-Z]/.test(char)) {
-      hasLetter = true;
-    } else if (/[0-9]/.test(char)) {
-      hasDigit = true;
-    } else if (secialChars.includes(char)) {
-      hasSpecialChar = true;
-    }
-  }
+  const hasLetter = passwordChars.some(char => /[a-zA-Z]/.test(char));
+  const hasDigit = passwordChars.some(char => /[0-9]/.test(char));
+  const hasSpecialChar = passwordChars.some(char => specialChars.includes(char));
 
   return hasDigit && hasLetter && hasSpecialChar;
 };
