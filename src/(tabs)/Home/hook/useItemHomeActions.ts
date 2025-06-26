@@ -20,6 +20,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { fetchMyRooms } from '@services/roomRedux/roomSlice';
 import { ModalShareHandle } from '../components/ModalShare';
+import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 
 export const useItemHomeActions = (props: ItemHomeProps, state: any, modalShareRef: React.RefObject<ModalShareHandle>) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -69,7 +70,7 @@ export const useItemHomeActions = (props: ItemHomeProps, state: any, modalShareR
     dispatch(hidePost(_id))
       .unwrap()
       .catch(() => {
-        Alert.alert('Ẩn bài viết lỗi');
+        GlobalAlertManager.show('Thất bại', 'Ẩn bài viết lỗi');
       });
   }, [_id]);
 
@@ -84,8 +85,8 @@ export const useItemHomeActions = (props: ItemHomeProps, state: any, modalShareR
       ])
         .then(() => {modalShareRef.current?.open();})
         .catch(() => {
-          Alert.alert(
-            'Lỗi',
+          GlobalAlertManager.show(
+            'Thất bại',
             'Không thể tải danh sách bạn bè. Vui lòng thử lại.',
           );
         });

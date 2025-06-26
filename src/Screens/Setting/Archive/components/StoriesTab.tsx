@@ -19,6 +19,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../../../services/store';
 import {fetchGetPostedSotry} from '../../../../../services/StoryRedux/StorySlice';
 import { History } from 'lucide-react-native';
+import {handleUserPress} from '../../../../(tabs)/Home/util/index';
 
 const formatMonthText = (dateString?: string): string => {
   if (!dateString) return '--\n--';
@@ -52,6 +53,10 @@ const StoriesTab = () => {
   const navigation: any = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];
+  const user = useSelector((state: RootState) => state.user.user);
+  const storyDetails = useSelector(
+    (state: RootState) => state.stories.storyDetails,
+  );
 
   useEffect(() => {
     dispatch(fetchGetPostedSotry());
@@ -59,18 +64,20 @@ const StoriesTab = () => {
 
   const renderItem = ({item}: {item: any}) => {
     const handleOpenStory = (item: any) => {
-      const isVideo = item.mediaUrl?.endsWith('.m3u8');
-      const isImage = /\.(jpg|jpeg|png|gif)$/i.test(item.mediaUrl || '');
+      if (!user) {
+        console.warn('⚠️ Không có thông tin user!');
+        return;
+      }
 
-      navigation.navigate('SeenStoryOwner', {
-        stories: [
-          {
-            ...item,
-            uriVideo: isVideo ? item.mediaUrl : null,
-            image: isImage ? item.mediaUrl : null,
-          },
-        ],
-      });
+      const mockUserItem = {
+        _id: user._id,
+        handleName: user.handleName,
+        profilePic: user.profilePic,
+        username: user.username,
+        stories: [item._id],
+      };
+
+      handleUserPress(mockUserItem, dispatch, navigation, storyDetails, user);
     };
 
     return (
@@ -117,7 +124,10 @@ const StoriesTab = () => {
       style={[styles.container, {backgroundColor: color.background}]}>
       {myStories.length > 0 ? (
         <FlatList
-          data={myStories}
+          data={[...myStories].sort(
+            (a, b) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+          )}
           renderItem={renderItem}
           keyExtractor={item => item._id} // Đảm bảo keyExtractor rõ ràng
           numColumns={3}

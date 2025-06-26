@@ -32,19 +32,19 @@ export const MessageBox = (props: any) => {
   const color = Colors[theme];
   const styles = MessageBoxStyles(theme);
   const {onBack} = props;
-
   const dispatch = useDispatch<AppDispatch>();
   const {rooms} = useSelector((state: RootState) => state.rooms);
   const [seenMap, setSeenMap] = useState<Record<string, boolean>>({});
-
   const followingUsers = useSelector(
     (state: RootState) => state.stories.followingUsers,
   );
-
   const user = useSelector((state: RootState) => state.user?.user);
   const storyDetails = useSelector(
     (state: RootState) => state.stories.storyDetails,
   );
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const searchInputRef = useRef<TextInput>(null);
+
   useEffect(() => {
     dispatch(fetchFollowingStories({page: 1}));
     clearExpiredSeenStories();
@@ -77,9 +77,15 @@ export const MessageBox = (props: any) => {
     }
   }, [followingUsers, storyDetails]);
 
-  // State management
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const searchInputRef = useRef<TextInput>(null);
+  const filteredRooms = rooms.filter(room => {
+    const otherUsers = room.user_ids.filter(u => u._id !== user?._id);
+    const nameChat =
+      room.name?.trim().length > 0
+        ? room.name
+        : otherUsers[0]?.handleName || '';
+
+    return nameChat.toLowerCase().includes(searchQuery.toLowerCase());
+  });
 
   return (
     <SafeAreaView style={styles.container}>
@@ -122,13 +128,14 @@ export const MessageBox = (props: any) => {
             onChangeText={setSearchQuery}
           />
           {searchQuery.length > 0 && (
-            <TouchableOpacity style={styles.clearButton}>
+            <TouchableOpacity
+              style={styles.clearButton}
+              onPress={() => setSearchQuery('')}>
               <X size={15} color={color.text}/>
             </TouchableOpacity>
           )}
         </View>
       </View>
-      {/* Stories Section */}
       <View style={styles.storiesContainer}>
         <View>
           <ScrollView
@@ -156,7 +163,7 @@ export const MessageBox = (props: any) => {
                   <Story
                     key={item._id}
                     name={isCurrentUser ? 'Tin của tôi' : item.handleName}
-                    image={item.profilePic}
+                    image={item?.profilePic}
                     status={item.stories.length > 0 ? 1 : 0}
                     hasStory={item.stories.length > 0}
                     isSeen={isSeen}
@@ -193,7 +200,7 @@ export const MessageBox = (props: any) => {
       {/* Messages List */}
       <View style={styles.messagesListContainer}>
         <FlashList
-          data={rooms}
+          data={filteredRooms}
           renderItem={({item}) => {
             const filteredUsers = item.user_ids.filter(
               u => u._id !== user?._id,
@@ -211,7 +218,7 @@ export const MessageBox = (props: any) => {
               <ItemNewMessage
                 roomId={item._id}
                 nameChat={nameChat}
-                latestMessage={item.latestMessage}
+                latestMessage={item?.latestMessage}
                 img1={user1?.profilePic || ''}
                 img2={user2?.profilePic || ''}
               />

@@ -9,7 +9,10 @@ import {
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../services/store';
-import {toggleLikeStory} from '../../../services/StoryRedux/StorySlice';
+import {
+  fetchFollowingStories,
+  toggleLikeStory,
+} from '../../../services/StoryRedux/StorySlice';
 import {styles} from './components/styles';
 import {Header} from './components/Header';
 import {ProgressBar} from './components/ProgressBar';
@@ -26,7 +29,9 @@ export const SeenStory = ({route, navigation}: any) => {
   const [musicDuration, setMusicDuration] = useState<number | null>(null);
   const [isLiked, setIsLiked] = useState(false);
   const [mediaSize, setMediaSize] = useState({width: 0, height: 0});
-
+  const progressAnims = useRef<Animated.Value[]>(
+    routeStories.map(() => new Animated.Value(0)),
+  ).current;
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.user.user);
 
@@ -38,15 +43,16 @@ export const SeenStory = ({route, navigation}: any) => {
   const imageDuration = 15000;
 
   const getItemDuration = () => {
-    if (selectedItem?.uriVideo && videoDuration) return videoDuration * 1000;
-    if (selectedItem?.music?.link && musicDuration)
-      return Math.max(musicDuration * 1000, imageDuration);
+    if (selectedItem?.uriVideo && videoDuration) {
+      return videoDuration * 1000;
+    }
+
+    if (!selectedItem?.uriVideo && selectedItem?.music?.link && musicDuration) {
+      return imageDuration; // ✅ Luôn cố định 15s dù nhạc dài
+    }
+
     return imageDuration;
   };
-
-  const progressAnims = useRef<Animated.Value[]>(
-    routeStories.map(() => new Animated.Value(0)),
-  ).current;
 
   const animationRef = useRef<Animated.CompositeAnimation | null>(null);
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -101,6 +107,9 @@ export const SeenStory = ({route, navigation}: any) => {
   const handleLike = async () => {
     try {
       await dispatch(toggleLikeStory({storyId: selectedItem._id})).unwrap();
+
+      dispatch(fetchFollowingStories({page: 1}));
+
       setIsLiked(prev => !prev);
       Animated.sequence([
         Animated.timing(scaleAnim, {
@@ -169,13 +178,22 @@ export const SeenStory = ({route, navigation}: any) => {
   }, [currentIndex]);
 
   useEffect(() => {
-    const hasVideo = selectedItem?.uriVideo && videoDuration;
-    const hasMusic = selectedItem?.music?.link && musicDuration;
+    const hasVideo =
+      !!selectedItem?.uriVideo && typeof videoDuration === 'number';
+    const hasOnlyMusic =
+      !selectedItem?.uriVideo &&
+      selectedItem?.music?.link &&
+      typeof musicDuration === 'number';
     const isImage = !selectedItem?.uriVideo && !selectedItem?.music?.link;
 
-    if (hasVideo || hasMusic || isImage) {
-      startProgressAnimation();
-    }
+    // ⛔️ Đừng chạy nếu chưa có duration đầy đủ
+    if (
+      (hasVideo && videoDuration == null) ||
+      (hasOnlyMusic && musicDuration == null)
+    )
+      return;
+
+    startProgressAnimation();
   }, [videoDuration, musicDuration, selectedItem?._id]);
 
   return (
@@ -197,14 +215,14 @@ export const SeenStory = ({route, navigation}: any) => {
           item={selectedItem}
           ref={videoRef}
           onLoad={d => {
-            setVideoDuration(d.duration);
-            startProgressAnimation(); // ✅ thêm để đảm bảo kích hoạt progress
+            setVideoDuration(d.duration); // chỉ set duration
+            // KHÔNG gọi startProgressAnimation ở đây nữa
           }}
           onEnd={goToNextStory}
           onMediaLayout={setMediaSize}
           onMusicLoad={seconds => {
-            setMusicDuration(seconds);
-            startProgressAnimation(); // ✅ thêm để kích hoạt sau khi load nhạc
+            setMusicDuration(seconds); // chỉ set musicDuration
+            // KHÔNG gọi startProgressAnimation ở đây
           }}
           onMusicEnd={goToNextStory}
         />

@@ -37,7 +37,7 @@ const GridView: React.FC<GridViewProps> = ({data, onPressItem}) => {
             return (
               <View style={Styles.styles.gridItem}>
                 {isVideo ? (
-                  <TouchableOpacity onPress={onPressItem}>
+                  <TouchableOpacity onPress={() => onPressItem?.(item)}>
                     <Video
                       source={{uri: uri}}
                       style={[
@@ -52,7 +52,7 @@ const GridView: React.FC<GridViewProps> = ({data, onPressItem}) => {
                     />
                   </TouchableOpacity>
                 ) : (
-                <TouchableOpacity onPress={onPressItem}>
+                <TouchableOpacity onPress={() => onPressItem?.(item)}>
                   <Image
                     source={{uri: uri}}
                     style={[

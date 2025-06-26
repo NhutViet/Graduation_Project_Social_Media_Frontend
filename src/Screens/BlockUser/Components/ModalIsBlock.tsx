@@ -18,7 +18,7 @@ const ModalIsBlock = (props: any) => {
       <View style={styles.topContainer}>
         <Image source={{uri: uri}} style={styles.image}/>
         <Text style={[styles.question, {color: color.text}]}>Chặn {handle}?</Text>
-        <Text style={[styles.note, {color: color.lessBlack}]}>
+        <Text style={[styles.note, {color: color.textSecondary}]}>
           Điều này cũng sẽ chặn bất kỳ tài khoản nào khác mà họ có hoặc có thể tạo trong tương lai.
         </Text>
         <View style={styles.notiContainer}>

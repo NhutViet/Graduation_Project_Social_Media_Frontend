@@ -42,20 +42,20 @@ export const ItemHomeActions: React.FC<ItemHomeActionsProps> = ({
           <Heart style={ItemHomeStyles.icon} fill={isLiked ? "black" : "none"} color={iconColor}/>
         </TouchableOpacity>
         <Text
-          style={{ color: iconColor, marginHorizontal: 8 }}
+          style={{color: iconColor, marginHorizontal: 8}}
           onPress={onReactionModalPress}>
           {formatNumber(numLike)}
         </Text>
         <TouchableOpacity style={ItemHomeStyles.iconBlock} onPress={onCommentPress}>
           <MessageCircle style={ItemHomeStyles.icon} color={iconColor}/>
         </TouchableOpacity>
-        <Text style={{ color: iconColor, marginHorizontal: 8 }}>
+        <Text style={{color: iconColor, marginHorizontal: 8}}>
           {formatNumber(commentCount)}
         </Text>
         <TouchableOpacity style={ItemHomeStyles.iconBlock} onPress={onSharePress}>
           <Send style={ItemHomeStyles.icon} color={iconColor}/>
         </TouchableOpacity>
-        <Text style={{ color: iconColor, marginHorizontal: 8 }}>
+        <Text style={{color: iconColor, marginHorizontal: 8}}>
           {formatNumber(share)}
         </Text>
       </View>

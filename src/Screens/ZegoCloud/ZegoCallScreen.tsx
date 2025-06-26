@@ -1,47 +1,29 @@
-import React, {useEffect, useRef, useState} from 'react';
-import {StyleSheet, View, Image, Alert} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {StyleSheet, View, Image} from 'react-native';
 import {ZegoUIKitPrebuiltCall} from '@zegocloud/zego-uikit-prebuilt-call-rn';
 import {CallAppID, CallAppSign} from '../../../services/api';
 import {useNavigation} from '@react-navigation/native';
 import {useSocket} from '../../../services/SocketContext';
+import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
 export default function ZegoCallScreen({route}: any) {
   const {userID, userName, callID, image, isCaller} = route.params;
   const navigation = useNavigation();
-  const callStartTimeRef = useRef<number | null>(null);
   const {socket} = useSocket();
-  const [hasOtherUser, setHasOtherUser] = useState(false);
   const [callEnded, setCallEnded] = useState(false);
+  const [callDuration, setCallDuration] = useState(0);
 
-  useEffect(() => {
-    callStartTimeRef.current = Date.now();
-
-    const waitTimeout = setTimeout(() => {
-      if (!hasOtherUser && isCaller) {
-        handleCallCancelled(true);
-      }
-    }, 30 * 1000);
-
-    return () => clearTimeout(waitTimeout);
-  }, []);
-
-  const handleCallCancelled = (isTimeoutMissed = false) => {
+  const handleCallCancelled = () => {
     if (callEnded) return;
-
     setCallEnded(true);
-
-    const duration =
-      callStartTimeRef.current !== null
-        ? Math.floor((Date.now() - callStartTimeRef.current) / 1000)
-        : 0;
 
     if (socket && isCaller) {
       socket.emit('callEnded', {
         roomId: callID,
         senderId: userID,
         callType: 'video',
-        missed: isTimeoutMissed || !hasOtherUser,
-        duration: duration,
+        missed: false,
+        duration: callDuration,
       });
     }
 
@@ -52,11 +34,21 @@ export default function ZegoCallScreen({route}: any) {
     if (!socket) return;
 
     socket.on('callCancelled', handleCallCancelled);
-
     return () => {
       socket.off('callCancelled', handleCallCancelled);
     };
   }, [socket]);
+
+  useEffect(() => {
+    const start = Date.now();
+
+    const interval = setInterval(() => {
+      const duration = Math.floor((Date.now() - start) / 1000);
+      setCallDuration(duration);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -75,19 +67,6 @@ export default function ZegoCallScreen({route}: any) {
           showMicrophoneToggleButton: true,
           showAudioOutputButton: true,
           showEndCallButton: true,
-          onUserJoin: (user: any) => {
-            if (user.userID !== userID) {
-              setHasOtherUser(true);
-            }
-          },
-          onUserLeave: (user: any) => {
-            if (user.userID !== userID) {
-              setHasOtherUser(false);
-              if (!isCaller) {
-                handleCallCancelled();
-              }
-            }
-          },
           onCallEnd: () => {
             handleCallCancelled();
           },
@@ -95,7 +74,7 @@ export default function ZegoCallScreen({route}: any) {
             isDurationVisible: true,
             onDurationUpdate: (duration: number) => {
               if (duration === 9 * 60 + 30) {
-                Alert.alert(
+                GlobalAlertManager.show(
                   'Thông báo',
                   'Cuộc gọi sẽ tự động kết thúc sau 30 giây',
                 );

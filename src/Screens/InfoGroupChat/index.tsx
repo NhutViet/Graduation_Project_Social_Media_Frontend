@@ -25,10 +25,8 @@ import {
   ChevronRight,
   PenLine,
   LogOut,
-  ChevronLeft,
 } from 'lucide-react-native';
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
-import {launchImageLibrary} from 'react-native-image-picker';
 import {RootStackParamList} from '../../Navigation/AppNavigation';
 import ModalTheme from '../Message/components/ModalTheme';
 import {
@@ -38,6 +36,7 @@ import {
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../services/store';
 import {ModalRenameRoom} from '../../../components/ModalRenameRoom';
+import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
 export const InforGroupChat = () => {
   const {theme} = useTheme();
@@ -71,13 +70,6 @@ export const InforGroupChat = () => {
           return;
         }
       }
-
-      // launchImageLibrary({mediaType: 'photo'}, response => {
-      //   if (response.didCancel) return;
-      //   if (response.assets && response.assets.length > 0) {
-      //     setImageUri(response.assets[0].uri || '');
-      //   }
-      // });
     } catch (error) {
       console.error('Error:', error);
     }
@@ -234,7 +226,11 @@ export const InforGroupChat = () => {
           <ChevronRight size={24} color={color.text} />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.btn}>
+        <TouchableOpacity
+          style={styles.btn}
+          onPress={() => {
+            navigation.navigate('CreateGroupScreen');
+          }}>
           <View style={styles.menuItem}>
             <View style={styles.menuIcon}>
               <Users size={24} color={color.text} />
@@ -271,10 +267,10 @@ export const InforGroupChat = () => {
           dispatch(updateRoomTheme({roomId: roomId, theme: selectedBackground}))
             .unwrap()
             .then(() => {
-              Alert.alert('Thành công', 'Đã cập nhật chủ đề');
+              GlobalAlertManager.show('Thành công', 'Đã cập nhật chủ đề');
             })
             .catch(() => {
-              Alert.alert('Thất bại', 'Cập nhật chủ đề thất bại');
+              GlobalAlertManager.show('Thất bại', 'Cập nhật chủ đề thất bại');
             });
           setVisibleThemeModal(false);
         }}
@@ -288,11 +284,11 @@ export const InforGroupChat = () => {
           dispatch(updateRoomName({roomId: roomId, name: newName}))
             .unwrap()
             .then(() => {
-              Alert.alert('Thành công', 'Đã đổi tên nhóm');
+              GlobalAlertManager.show('Thành công', 'Đã đổi tên nhóm');
               setVisibleRenameModal(false);
             })
             .catch(() => {
-              Alert.alert('Lỗi', 'Không thể đổi tên nhóm');
+              GlobalAlertManager.show('Lỗi', 'Không thể đổi tên nhóm');
             });
         }}
       />
@@ -375,7 +371,7 @@ const styles = StyleSheet.create({
   iconW: {
     width: '75%',
     height: '75%',
-    resizeMode: 'contain',
+    resizeMode: 'cover',
     borderRadius: 40,
     top: 0,
     left: 0,

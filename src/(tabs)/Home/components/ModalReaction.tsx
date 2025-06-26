@@ -11,7 +11,6 @@ import {Modalize} from 'react-native-modalize';
 import {FlashList} from '@shopify/flash-list';
 import {Colors} from '../../../../assets/color/Colors';
 import {useTheme} from '../../../util/ThemeContext';
-import {useNavigation} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../../services/store';
 import {Likers} from '../../../../services/likersRedux/likersSlice';
@@ -28,7 +27,7 @@ const ModalReaction = forwardRef<Modalize, ModalReactionProps>(
 
     //redux
     const dispatch = useDispatch<AppDispatch>();
-    const {listLikers, isLoading} = useSelector(
+    const {isLoading} = useSelector(
       (state: RootState) => state.likers,
     );
     const {refreshToken} = useSelector((state: RootState) => state.user);

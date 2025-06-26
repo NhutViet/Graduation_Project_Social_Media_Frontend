@@ -12,20 +12,14 @@ export interface ItemHomeProps {
   user: User;
   currentVisible: boolean;
   isFocused: boolean;
-  openComment: (postId: string) => void;
+  sheetRef: any;
   likeCount: number;
   commentCount: number;
-  music?: MusicInfo;
+  music?: Music;
   musicInfo?: MusicInfo;
   isFollow: boolean;
   isBookmarked?: boolean;
   RoomItem: RoomItem;
-}
-
-interface User {
-  _id: string;
-  handleName: string;
-  profilePic: string;
 }
 
 interface RoomItem {
@@ -35,10 +29,23 @@ interface RoomItem {
   latestMessage: string;
 }
 
-interface MusicInfo {
-  link: string;
+interface User {
+  _id: string;
+  handleName: string;
+  profilePic: string;
+}
+
+interface Music {
+  musicId: string;
   timeStart?: number;
   timeEnd?: number;
+}
+
+interface MusicInfo {
+  link?: string;
+  song?: string;
+  author?: string;
+  coverImg?: string;
 }
 
 export interface HandleBookmarkParams {

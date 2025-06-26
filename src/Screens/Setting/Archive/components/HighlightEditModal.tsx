@@ -7,17 +7,13 @@ import {
   Image,
   FlatList,
   StyleSheet,
-  Dimensions,
   Modal,
-  Alert,
-  Platform,
 } from 'react-native';
 import {ChevronLeft} from 'lucide-react-native';
 import * as ImagePicker from 'react-native-image-picker';
 import {Colors} from '../../../../../assets/color/Colors';
 import {useTheme} from '../../../../util/ThemeContext';
-const {width} = Dimensions.get('window');
-const ITEM_SIZE = (width - 4) / 3;
+import {GlobalAlertManager} from '../../../../../components/Global/AlertModal';
 
 const HighlightEditModal = ({
   isOpen,
@@ -33,13 +29,22 @@ const HighlightEditModal = ({
   setIsProcessing,
 }: any) => {
   const [highlightName, setHighlightName] = useState('');
-  const [coverImage, setCoverImage] = useState(null);
+  const [coverImage, setCoverImage] = useState<string | null>(null);
+  const [isCustomCover, setIsCustomCover] = useState(false);
 
   const {theme} = useTheme();
   const color = Colors[theme];
+
+  // lấy ảnh đầu tiên của select item
+  React.useEffect(() => {
+    if (!isCustomCover && selectedStories.length > 0) {
+      setCoverImage(selectedStories[0].mediaUrl);
+    }
+  }, [selectedStories, isCustomCover]);
+
   const pickImage = () => {
     const options = {
-      mediaType: 'photo',
+      mediaType: 'photo' as const,
       includeBase64: false,
       maxHeight: 200,
       maxWidth: 200,
@@ -48,49 +53,60 @@ const HighlightEditModal = ({
     ImagePicker.launchImageLibrary(options, response => {
       if (response.didCancel) {
         console.log('User cancelled image picker');
-      } else if (response.error) {
-        Alert.alert(
+      } else if (response.errorCode || response.errorMessage) {
+        GlobalAlertManager.show(
           'Lỗi',
           'Không thể truy cập thư viện ảnh. Vui lòng thử lại.',
         );
       } else if (response.assets && response.assets.length > 0) {
-        setCoverImage(response.assets[0].uri);
+        setIsCustomCover(true); // đánh dấu là đã tự chọn
+        setCoverImage(response.assets[0].uri ?? null);
       }
     });
   };
 
   const handleSave = async () => {
-    if (isProcessing) return; // ✅ CHẶN xử lý nếu đang gửi API
+    if (isProcessing) return;
 
     if (!highlightName.trim()) {
-      Alert.alert('Vui lòng nhập tên highlight.');
+      GlobalAlertManager.show('Thông báo', 'Vui lòng nhập tên highlight.');
+      return;
+    }
+
+    if (selectedStories.length === 0) {
+      GlobalAlertManager.show('Thông báo', 'Vui lòng chọn ít nhất một story.');
       return;
     }
 
     setIsProcessing(true);
 
     try {
-      let uploadedCoverUrl = '';
+      let uploadedCoverUrl = coverImage ?? '';
 
-      if (coverImage) {
-        uploadedCoverUrl = await uploadImageToR2(coverImage, {
+      if (uploadedCoverUrl.startsWith('file://')) {
+        uploadedCoverUrl = await uploadImageToR2(uploadedCoverUrl, {
           showUploadModal,
           hideUploadModal,
           setProgress,
         });
+      } else if (!isCustomCover && uploadedCoverUrl.startsWith('http')) {
+        console.log('Ảnh đã là public URL, bỏ qua upload:', uploadedCoverUrl);
+        // Không làm gì
       }
 
       const storyIds = selectedStories.map((s: any) => s._id);
       await onSaveHighlight(storyIds, highlightName, uploadedCoverUrl);
 
-      // reset state
+      // reset
       setHighlightName('');
       setCoverImage(null);
-
-      // callback đóng modal và reset
+      setIsCustomCover(false);
       onComplete();
     } catch (error) {
-      Alert.alert('Lỗi', 'Không thể lưu highlight. Vui lòng thử lại.');
+      GlobalAlertManager.show(
+        'Lỗi',
+        'Không thể lưu highlight. Vui lòng thử lại.',
+      );
     } finally {
       setIsProcessing(false);
     }
@@ -142,7 +158,11 @@ const HighlightEditModal = ({
             <FlatList
               data={selectedStories}
               renderItem={({item}) => (
-                <Image source={{uri: item.mediaUrl}} style={styles.image} />
+                <Image
+                  resizeMode="cover"
+                  source={{uri: item.mediaUrl}}
+                  style={styles.image}
+                />
               )}
               keyExtractor={item => item._id}
               numColumns={3}
@@ -196,7 +216,7 @@ const styles = StyleSheet.create({
   },
   save: {
     fontSize: 16,
-    color: 'blue',
+    color: '#3897F0',
     fontWeight: '500',
   },
   input: {
@@ -208,12 +228,13 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   row: {
-    marginBottom: 10,
+    marginBottom: 5,
   },
   image: {
-    width: ITEM_SIZE,
-    height: ITEM_SIZE,
+    width: '33%',
+    height: 200,
     margin: 1,
+    borderRadius: 5,
   },
   coverImage: {
     width: 80,

@@ -20,6 +20,7 @@ import {
   removeFromBookmark,
 } from '../../../../services/musicRedux/musicReducer';
 import { Bookmark } from 'lucide-react-native';
+import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 
 const ItemMusic = (props: any) => {
   const {
@@ -59,7 +60,7 @@ const ItemMusic = (props: any) => {
         .catch(res => {
           setIsSave(true);
           if (isError) {
-            Alert.alert('Thông báo', messageError);
+            GlobalAlertManager.show('Thông báo', messageError);
           }
         });
     } else {
@@ -75,7 +76,7 @@ const ItemMusic = (props: any) => {
         .catch(res => {
           setIsSave(false);
           if (isError) {
-            Alert.alert('Thông báo', messageError);
+            GlobalAlertManager.show('Thông báo', messageError);
           }
         });
     }

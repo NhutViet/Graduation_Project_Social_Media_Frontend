@@ -1,5 +1,5 @@
 import {
-    Alert,
+  Alert,
   Image,
   SafeAreaView,
   StyleSheet,
@@ -14,9 +14,10 @@ import {FlashList} from '@shopify/flash-list';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {AddPeopleToGroupChatStyles} from '../../StyleSheet/AddPeopleToGroupChatStyles';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { ChevronLeft, Link, Search, X, CircleCheck } from 'lucide-react-native';
+import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
 export const AddPeopleToGroupChat = () => {
   const [users, setUsers] = useState<any>(list);
@@ -30,7 +31,7 @@ export const AddPeopleToGroupChat = () => {
 
   const copyToClipboard = (text: string) => {
     Clipboard.setString(text);
-    Alert.alert('Đã sao chép văn bản');
+    GlobalAlertManager.show('Thông báo', 'Đã sao chép văn bản');
   };
 
   useEffect(() => {
@@ -98,7 +99,13 @@ export const AddPeopleToGroupChat = () => {
             htts: //ig.me/ksjhdkjskbjhsbjkbvsjbvksjhdkjskbjhsbjkbvsjbv
           </Text>
         </View>
-        <TouchableOpacity style={styles.btnCopy} onPress={() => copyToClipboard('htts: //ig.me/ksjhdkjskbjhsbjkbvsjbvksjhdkjskbjhsbjkbvsjbv')}>
+        <TouchableOpacity
+          style={styles.btnCopy}
+          onPress={() =>
+            copyToClipboard(
+              'htts: //ig.me/ksjhdkjskbjhsbjkbvsjbvksjhdkjskbjhsbjkbvsjbv',
+            )
+          }>
           <Text style={styles.textName}>Sao chép</Text>
         </TouchableOpacity>
       </View>

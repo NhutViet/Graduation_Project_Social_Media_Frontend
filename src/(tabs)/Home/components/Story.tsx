@@ -2,14 +2,12 @@ import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {Colors} from '../../../../assets/color/Colors';
 import {useTheme} from '../../../util/ThemeContext';
-import {useNavigation} from '@react-navigation/native';
 import {Plus} from 'lucide-react-native';
 
 const Story = (props: any) => {
   const {
     name,
     image,
-    status,
     func,
     isStory = true,
     isHashTag = false,
@@ -31,7 +29,11 @@ const Story = (props: any) => {
           source={
             isHashTag
               ? require('../../../../assets/icon/hash.png')
-              : {uri: image}
+              : image
+              ? {uri: image}
+              : {
+                  uri: 'https://i.pinimg.com/736x/09/80/62/098062ede8791dc791c3110250d2a413.jpg',
+                }
           }
         />
       </View>
@@ -79,9 +81,8 @@ const Story = (props: any) => {
           </View>
         )}
       </TouchableOpacity>
-      {!isStory && (
-        <Text style={[styles.text, {color: color.text}]}>{name}</Text>
-      )}
+
+      <Text style={[styles.text, {color: color.text}]}>{name}</Text>
     </View>
   );
 };

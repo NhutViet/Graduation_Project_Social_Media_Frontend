@@ -28,6 +28,7 @@ import {useItemHomeUtils} from '../util/itemHomeUtils';
 import {useItemHomeAudio} from '../hook/useItemHomeAudio';
 import {ItemHomeHeader} from './ItemHomeHeader';
 import {ItemHomeActions} from './ItemHomeActions';
+import {fetchCommentsByPost} from '@services/commentRedux/commentSlice';
 
 Sound.setCategory('Playback');
 const screenWidth = Dimensions.get('window').width;
@@ -40,7 +41,8 @@ const ItemHome = (props: ItemHomeProps) => {
     createdAt,
     media,
     user,
-    openComment,
+    musicInfo,
+    sheetRef,
     isFocused,
     currentVisible,
     isLike,
@@ -67,9 +69,7 @@ const ItemHome = (props: ItemHomeProps) => {
     state.reactions.likePosts.includes(_id),
   );
 
-  const currentUserID = useSelector((state: RootState) => 
-    state.user.user?._id
-  );
+  const currentUserID = useSelector((state: RootState) => state.user.user?._id);
 
   useEffect(() => {
     state.setIsLiked(isLikedFromRedux);
@@ -79,7 +79,7 @@ const ItemHome = (props: ItemHomeProps) => {
 
   useEffect(() => {
     state.setNumLike(likeCount);
-  },[likeCount]);
+  }, [likeCount]);
 
   useEffect(() => {
     state.setIsLiked(isLike);
@@ -91,19 +91,25 @@ const ItemHome = (props: ItemHomeProps) => {
   }, [_id, isLike]);
 
   const handleUserPress = () => {
-    if(user._id === currentUserID)
-      console.log("This is your current proflie")
+    if (user._id === currentUserID) console.log('This is your current proflie');
     else
-    navigation.navigate('ProfileComp', {
-      userID: user._id,
-      handlename: user.handleName
-    });
+      navigation.navigate('ProfileComp', {
+        userID: user._id,
+        handlename: user.handleName
+      });
+  };
+
+  const handleOpenComment = (postId: string) => {
+    dispatch(fetchCommentsByPost(postId));
+    sheetRef.current?.open();
   };
 
   const handleMediaScroll = (event: any) => {
     const offsetX = event.nativeEvent.contentOffset.x;
     const newIndex = Math.round(offsetX / screenWidth);
-    state.setCurrentIndex(newIndex);
+    if (newIndex !== state.currentIndex) {
+      state.setCurrentIndex(newIndex);
+    }
   };
 
   return (
@@ -153,6 +159,7 @@ const ItemHome = (props: ItemHomeProps) => {
           borderColor={utils.borderColor}
           iconTintColor={utils.iconTintColor}
           follow={state.follow}
+          song={musicInfo?.song}
           onUserPress={handleUserPress}
           onFollowPress={actions.handleFollowAction}
           onOptionsPress={modal.openOptions}
@@ -176,7 +183,7 @@ const ItemHome = (props: ItemHomeProps) => {
           commentCount={commentCount}
           share={share}
           onLikePress={actions.handleLike}
-          onCommentPress={() => openComment(_id)}
+          onCommentPress={() => handleOpenComment(_id)}
           onSharePress={actions.handleOpenModalShare}
           onBookmarkPress={actions.handleBookmarkAction}
           onReactionModalPress={modal.handleOpenReactionModal}

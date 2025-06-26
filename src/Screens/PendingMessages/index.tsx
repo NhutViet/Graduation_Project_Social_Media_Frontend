@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {FlashList} from '@shopify/flash-list';
-import {useProfileEditingStyles} from '../../../src/StyleSheet/ProfileEditingStyles';
+import {useProfileEditingStyles} from '../EditProfile/components/ProfileEditingStyles';
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import ItemNewMessage from '../NewMessage/component/itemNewMessage';
 import {useDispatch, useSelector} from 'react-redux';

@@ -163,7 +163,7 @@ export const MusicSavedScreen = () => {
               {item.title}
             </Text>
             <Text style={[styles.subtitle, {color: colors.textSecondary}]} numberOfLines={1}>
-              {item.artist} · {item.reels} · {item.duration}
+              {item.artist}
             </Text>
           </View>
         </View>
@@ -171,7 +171,7 @@ export const MusicSavedScreen = () => {
           style={[
             styles.playButton,
             {
-              backgroundColor: isThisPlaying ? colors.primary : colors.textSecondary,
+              backgroundColor: theme === 'light' ? 'rgba(0,0,0,0.1)' : 'rgba(255, 255, 255, 0.2)',
             },
           ]}
           onPress={() => handlePlayPress(item.id, item.audioUrl)}>
