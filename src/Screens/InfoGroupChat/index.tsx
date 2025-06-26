@@ -87,10 +87,7 @@ export const InforGroupChat = () => {
       style={[styles.container, {backgroundColor: color.background}]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Image
-            source={require('../../../assets/icon/left.png')}
-            style={{width: 20, height: 20, tintColor: color.text}}
-          />
+          <ChevronLeft color={color.text}/>
         </TouchableOpacity>
       </View>
 

@@ -5,6 +5,7 @@ import {Styles} from '../../../StyleSheet/Profile.Styles';
 import Video from 'react-native-video';
 import {Colors} from '../../../../assets/color/Colors';
 import {useNavigation} from '@react-navigation/native';
+import { CameraOff } from 'lucide-react-native';
 
 interface GridViewProps {
   data: any[];
@@ -69,10 +70,7 @@ const GridView: React.FC<GridViewProps> = ({data, onPressItem}) => {
         />
       ) : (
         <View style={[Styles.styles.centerItem]}>
-          <Image
-            source={require('../../../../assets/icon/no_photo.png')}
-            style={Styles.styles.imgNoPhoto}
-          />
+          <CameraOff size={60} color={Styles.styles.imgNoPhoto.tintColor} style={{marginVertical: 10}}/>
           <Text style={Styles.styles.textno}>Bạn chưa đăng nội dung nào.</Text>
         </View>
       )}

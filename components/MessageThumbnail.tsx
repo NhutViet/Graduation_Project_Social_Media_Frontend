@@ -7,6 +7,7 @@ import {
   ImageSourcePropType,
 } from 'react-native';
 import {useProfileEditingStyles} from '../src/StyleSheet/ProfileEditingStyles';
+import { Camera } from 'lucide-react-native';
 
 export interface MessageThumbnailProps {
   id: string;
@@ -58,10 +59,7 @@ const MessageThumbnail: React.FC<MessageThumbnailProps> = ({
           {snippet} {time}
         </Text>
       </View>
-      <Image
-        source={require('../assets/icon/camera.png')}
-        style={styles.messageIcon}
-      />
+      <Camera style={styles.messageIcon}/>
     </TouchableOpacity>
   );
 };

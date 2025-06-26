@@ -33,6 +33,7 @@ import BottomSheetComment, {
   BottomSheetCommentRef,
 } from '../Home/components/CommentSection';
 import { useFocusEffect } from '@react-navigation/native';
+import { ChevronDown, Camera } from 'lucide-react-native';
 
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
@@ -99,17 +100,11 @@ const Reels = forwardRef((props, ref) => {
         <TouchableOpacity style={styles.rowContainer}>
           <Text style={styles.textHeader}>Reels</Text>
           <View style={styles.iconDownContainer}>
-            <Image
-              style={styles.icon}
-              source={require('../../../assets/icon/down.png')}
-            />
+            <ChevronDown style={{position: 'absolute'}} color={Colors.dark.text}/>
           </View>
         </TouchableOpacity>
         <TouchableOpacity style={styles.iconContainer}>
-          <Image
-            style={styles.icon}
-            source={require('../../../assets/icon/camera.png')}
-          />
+          <Camera color={Colors.dark.text}/>
         </TouchableOpacity>
       </View>
       <FlashList
@@ -177,8 +172,9 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   iconDownContainer: {
+    position: 'relative',
     width: 12,
-    height: 12,
+    height: 20,
   },
   iconContainer: {
     width: 20,

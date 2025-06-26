@@ -17,6 +17,7 @@ import {
 } from '../../../../services/reactionRedux/reactionSlice';
 import {useTheme} from '../../../util/ThemeContext';
 import { relationAction } from '@services/relationRedux/relationSlice';
+import { Heart, MessageCircle, Send, EllipsisVertical, Music4 } from 'lucide-react-native';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height - 60;
@@ -163,17 +164,7 @@ const ReelsComponent = (props: any) => {
         <View style={styles.block2}>
           <View style={styles.containerVertical}>
             <TouchableOpacity style={styles.iconContainer} onPress={handleLike}>
-              <Image
-                style={[
-                  styles.icon,
-                  {tintColor: isLiked ? color.error : '#fff'},
-                ]}
-                source={
-                  isLiked
-                    ? require('../../../../assets/icon/heart_fill.png')
-                    : require('../../../../assets/icon/heart.png')
-                }
-              />
+              <Heart color={isLiked ? Colors.error : "#fff"} fill={isLiked ? Colors.error : "none"}/>
             </TouchableOpacity>
             <Text style={styles.textNormal}>{formatNumber(numLike)}</Text>
           </View>
@@ -181,37 +172,25 @@ const ReelsComponent = (props: any) => {
             <TouchableOpacity
               style={styles.iconContainer}
               onPress={openComment}>
-              <Image
-                style={styles.icon}
-                source={require('../../../../assets/icon/comment.png')}
-              />
+              <MessageCircle color={"#fff"}/>
             </TouchableOpacity>
             <Text style={styles.textNormal}>{formatNumber(commentCount)}</Text>
           </View>
           <View style={styles.containerVertical}>
             <TouchableOpacity style={styles.iconContainer}>
-              <Image
-                style={styles.icon}
-                source={require('../../../../assets/icon/share.png')}
-              />
+              <Send color={"#fff"}/>
             </TouchableOpacity>
             <Text style={styles.textNormal}>{formatNumber(share)}</Text>
           </View>
           <TouchableOpacity
             style={[styles.containerVertical, styles.iconContainer]}
             onPress={showBottomSheet}>
-            <Image
-              style={styles.icon}
-              source={require('../../../../assets/icon/menu-dots-vertical.png')}
-            />
+            <EllipsisVertical color={"#fff"}/>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.iconMusicContainer}
             onPress={() => navigation.navigate('SaveMusic')}>
-            <Image
-              style={styles.icon}
-              source={require('../../../../assets/icon/musical-note.png')}
-            />
+            <Music4 size={20} style={{position: "absolute"}} color={"#fff"}/>
           </TouchableOpacity>
         </View>
       </View>
@@ -294,12 +273,15 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   iconMusicContainer: {
+    position: 'relative',
     width: 25,
     height: 25,
     padding: 5,
     borderRadius: 2,
     borderColor: Colors.dark.text,
     borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   video: {
     width: '100%',

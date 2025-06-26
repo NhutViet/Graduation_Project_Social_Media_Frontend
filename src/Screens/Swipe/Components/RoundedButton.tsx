@@ -9,6 +9,7 @@ import {
 import React, {useCallback, useRef} from 'react';
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
+import { Heart } from 'lucide-react-native';
 
 const RoundedButton = (props: any) => {
   const {theme} = useTheme();
@@ -67,15 +68,7 @@ const RoundedButton = (props: any) => {
           />
         )}
         {heart && (
-          <Image
-            source={require('../../../../assets/icon/heart_fill.png')}
-            style={{
-              width: 55,
-              height: 55,
-              resizeMode: 'contain',
-              tintColor: color.background,
-            }}
-          />
+          <Heart size={55} color={color.background} fill={color.background}/>
         )}
       </Animated.View>
     </TouchableOpacity>

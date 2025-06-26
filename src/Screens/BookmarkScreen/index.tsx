@@ -20,6 +20,7 @@ import {
   Playlist,
   Playlist as PlaylistType,
 } from '../../../services/bookmarkRedux/bookmarkTypes';
+import { ChevronLeft, SquarePlus } from 'lucide-react-native';
 
 export const BookmarkScreen = () => {
   const navigation = useNavigation<any>();
@@ -78,18 +79,12 @@ export const BookmarkScreen = () => {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Image
-              source={require('../../../assets/icon/left.png')}
-              style={styles.icon}
-            />
+            <ChevronLeft color={styles.icon.tintColor}/>
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Đã lưu</Text>
           <TouchableOpacity
             onPress={() => navigation.navigate('AddCollection' as never)}>
-            <Image
-              source={require('../../../assets/icon/Plus.png')}
-              style={styles.icon}
-            />
+            <SquarePlus color={styles.icon.tintColor}/>
           </TouchableOpacity>
         </View>
 

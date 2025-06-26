@@ -27,6 +27,7 @@ import {
   removeBookmark,
   saveBookmark,
 } from '../../../../services/bookmarkRedux/bookmarkSlice';
+import { Bookmark, Languages, Captions, Fullscreen, QrCode, Eye, EyeOff, Flag } from 'lucide-react-native';
 
 const height = Dimensions.get('window').height * 0.7;
 
@@ -114,17 +115,7 @@ const BottomSheetReels = forwardRef<BottomSheetReelsRef, BottomSheetReelsProps>(
                 style={styles.headerBlock}
                 onPress={handleBookmarkAction}>
                 <View style={styles.blockIcon}>
-                  <Image
-                    style={[
-                      styles.icon,
-                      {tintColor: isBookmark ? '#F2C641' : colors.black},
-                    ]}
-                    source={
-                      isBookmark
-                        ? require('../../../../assets/icon/bookmark_fill.png')
-                        : require('../../../../assets/icon/bookmark.png')
-                    }
-                  />
+                  <Bookmark color={isBookmark ? "#F2C641" : colors.black} fill={isBookmark ? "#F2C641" : "none"}/>
                 </View>
                 <Text style={styles.textHeader}>
                   {isBookmark ? 'Đã lưu' : 'Lưu'}
@@ -152,40 +143,28 @@ const BottomSheetReels = forwardRef<BottomSheetReelsRef, BottomSheetReelsProps>(
 
             <TouchableOpacity style={styles.buttonFeature}>
               <View style={styles.blockIcon}>
-                <Image
-                  style={styles.icon}
-                  source={require('../../../../assets/icon/translation.png')}
-                />
+                <Languages color={Colors.black}/>
               </View>
               <Text style={styles.textNormal}>Bản dịch</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.buttonFeature}>
               <View style={styles.blockIcon}>
-                <Image
-                  style={styles.icon}
-                  source={require('../../../../assets/icon/cc.png')}
-                />
+                <Captions color={Colors.black}/>
               </View>
               <Text style={styles.textNormal}>Phụ đề</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.buttonFeature}>
               <View style={styles.blockIcon}>
-                <Image
-                  style={styles.icon}
-                  source={require('../../../../assets/icon/full_screen.png')}
-                />
+                <Fullscreen color={Colors.black}/>
               </View>
               <Text style={styles.textNormal}>Xem toàn màn hình</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.buttonFeature}>
               <View style={styles.blockIcon}>
-                <Image
-                  style={styles.icon}
-                  source={require('../../../../assets/icon/qrlink.png')}
-                />
+                <QrCode color={Colors.black}/>
               </View>
               <Text style={styles.textNormal}>Mã QR</Text>
             </TouchableOpacity>
@@ -193,28 +172,19 @@ const BottomSheetReels = forwardRef<BottomSheetReelsRef, BottomSheetReelsProps>(
             <View style={styles.feelingContainer}>
               <TouchableOpacity style={styles.buttonFeeling}>
                 <View style={styles.blockIcon}>
-                  <Image
-                    style={styles.icon}
-                    source={require('../../../../assets/icon/view.png')}
-                  />
+                  <Eye color={Colors.black}/>
                 </View>
                 <Text style={styles.textNormal}>Quan tâm</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.buttonFeeling}>
                 <View style={styles.blockIcon}>
-                  <Image
-                    style={styles.icon}
-                    source={require('../../../../assets/icon/hide.png')}
-                  />
+                  <EyeOff color={Colors.black}/>
                 </View>
                 <Text style={styles.textNormal}>Không quan tâm</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.buttonFeeling}>
                 <View style={styles.blockIcon}>
-                  <Image
-                    style={[styles.icon, {tintColor: 'red'}]}
-                    source={require('../../../../assets/icon/report.png')}
-                  />
+                  <Flag color={"red"}/>
                 </View>
                 <Text style={[styles.textNormal, {color: 'red'}]}>Báo cáo</Text>
               </TouchableOpacity>

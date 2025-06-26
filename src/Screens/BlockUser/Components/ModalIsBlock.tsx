@@ -2,6 +2,11 @@ import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import React from 'react';
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
+import {
+  MessageSquareOff,
+  BellOff,
+  Settings,
+} from 'lucide-react-native'
 
 const ModalIsBlock = (props: any) => {
   const {uri, handle, onHandleBlock} = props;
@@ -17,17 +22,32 @@ const ModalIsBlock = (props: any) => {
           Điều này cũng sẽ chặn bất kỳ tài khoản nào khác mà họ có hoặc có thể tạo trong tương lai.
         </Text>
         <View style={styles.notiContainer}>
-          <Image source={require('../../../../assets/icon/no_comment.png')} style={styles.icon}/>
+          <MessageSquareOff
+            size={25}
+            strokeWidth={2}
+            color={color.text}
+            style={styles.icon}
+          />
           <Text style={[styles.noti, {color: color.text}]}>
             Họ sẽ không thể nhắn tin cho bạn hoặc tìm thấy hồ sơ hay nội dung của bạn trên Cirla.
           </Text>
         </View>
         <View style={styles.notiContainer}>
-          <Image source={require('../../../../assets/icon/no_notification.png')} style={styles.icon}/>
+          <BellOff
+            size={25}
+            strokeWidth={2}
+            color={color.text}
+            style={styles.icon}
+          />
           <Text style={[styles.noti, {color: color.text}]}>Họ sẽ không được thông báo rằng bạn đã chặn họ.</Text>
         </View>
         <View style={styles.notiContainer}>
-          <Image source={require('../../../../assets/icon/setting.png')} style={styles.icon}/>
+          <Settings
+            size={25}
+            strokeWidth={2}
+            color={color.text}
+            style={styles.icon}
+          />
           <Text style={[styles.noti, {color: color.text}]}>Bạn có thể bỏ chặn họ bất cứ lúc nào trong phần Cài đặt.</Text>
         </View>
       </View>

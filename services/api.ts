@@ -1,5 +1,5 @@
-// export const BASE_URL = 'http://cirla.io.vn';
-export const BASE_URL = 'http://172.16.1.12:4001';
+export const BASE_URL = 'http://cirla.io.vn';
+// export const BASE_URL = 'http://172.16.1.12:4001';
 export const CallAppID = 1540310098;
 export const CallAppSign =
   '3c3dfbc5dcb04d97848e4a1b9e91a7bc8c66db7cbbbe41f188f40101ee33e5f6';
@@ -15,6 +15,7 @@ export const API = {
   HIDDEN_POST: 'user-hidden-post/hide',
   GET_POST: 'posts/user/all',
   GET_TAGGING_POST: 'posts/tags',
+  GET_LIKED_POSTS: '/post-like/liked-posts',
 
   //// comment
   GET_COMMENT_POST: 'comments/post',

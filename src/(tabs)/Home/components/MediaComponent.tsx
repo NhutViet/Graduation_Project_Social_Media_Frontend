@@ -4,6 +4,7 @@ import Video from 'react-native-video';
 import {Colors} from '../../../../assets/color/Colors';
 import {ItemHomeStyles} from '../component_styles/ItemHomeStyles';
 import {Media} from '../../../../services/postRedux/postTypes';
+import { Volume2, VolumeOff } from 'lucide-react-native';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -101,14 +102,7 @@ export const RenderMuteButton: React.FC<RenderMuteButtonProps> = ({
     <TouchableOpacity
       style={ItemHomeStyles.muteButton}
       onPress={() => setMuted(!muted)}>
-      <Image
-        source={
-          muted
-            ? require('../../../../assets/icon/mute.png')
-            : require('../../../../assets/icon/volume.png')
-        }
-        style={[{tintColor: Colors.dark.text}, ItemHomeStyles.icon]}
-      />
+      {muted ? <Volume2 color={Colors.dark.text}/> : <VolumeOff color={Colors.dark.text}/>}
     </TouchableOpacity>
   );
 };

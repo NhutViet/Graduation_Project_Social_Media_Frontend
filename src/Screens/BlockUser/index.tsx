@@ -21,6 +21,7 @@ import { useTheme } from '../../util/ThemeContext';
 import { Modalize } from 'react-native-modalize';
 import ModalIsBlock from './Components/ModalIsBlock';
 import {Colors} from '../../../assets/color/Colors'
+import { ChevronLeft, Search } from 'lucide-react-native';
 
 export const BlockUser = () => {
     const {theme} = useTheme();
@@ -90,7 +91,7 @@ export const BlockUser = () => {
       )}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Image source={require('../../../assets/icon/left.png')} style={styles.iconBack} />
+          <ChevronLeft color={colors.text}/>
         </TouchableOpacity>
         <Text style={styles.title}>Chặn tài khoản</Text>
         <View style={{ width: 14 }} />
@@ -103,7 +104,7 @@ export const BlockUser = () => {
           placeholderTextColor={colors.textSecondary}
           style={styles.inputBox}
         />
-        <Image source={require('../../../assets/icon/search.png')} style={styles.iconSearch} />
+        <Search style={{position: 'absolute', left: 35}} color={colors.textSecondary}/>
         {searchText !== '' && (
           <TouchableOpacity onPress={() => setSearchText('')}>
             <Text style={styles.cancel}>Hủy</Text>

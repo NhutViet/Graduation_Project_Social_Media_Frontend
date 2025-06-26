@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import NotificationSection from '../../../components/NotificationSection';
 import {useNotificationStyles} from '../../StyleSheet/NotificationStyles';
+import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 
 // Mock data for notifications
 const notificationData = {
@@ -99,10 +100,7 @@ const Header: React.FC<{onBackPress: () => void}> = ({onBackPress}) => {
   return (
     <View style={styles.header}>
       <TouchableOpacity style={styles.backButton} onPress={onBackPress}>
-        <Image
-          style={styles.backIcon}
-          source={require('../../../assets/icon/left.png')}
-        />
+        <ChevronLeft/>
       </TouchableOpacity>
       <Text style={styles.headerTitle}>Thông báo</Text>
       <View style={styles.backIcon}/>
@@ -140,10 +138,7 @@ export const NotificationsScreen = ({navigation}: any) => {
 
           {hasRequests && <View style={styles.specialDot} />}
 
-          <Image
-            style={styles.backIcon}
-            source={require('../../../assets/icon/right.png')}
-          />
+          <ChevronRight/>
         </TouchableOpacity>
 
         <NotificationSection

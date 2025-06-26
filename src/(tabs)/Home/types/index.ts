@@ -19,12 +19,20 @@ export interface ItemHomeProps {
   musicInfo?: MusicInfo;
   isFollow: boolean;
   isBookmarked?: boolean;
+  RoomItem: RoomItem;
 }
 
 interface User {
   _id: string;
   handleName: string;
   profilePic: string;
+}
+
+interface RoomItem {
+  _id: string;
+  name: string;
+  avatars: string[];
+  latestMessage: string;
 }
 
 interface MusicInfo {

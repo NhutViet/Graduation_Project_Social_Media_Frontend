@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { ItemHomeStyles } from '../component_styles/ItemHomeStyles';
 import { formatNumber } from '../util';
+import { Heart, MessageCircle, Send, Bookmark } from 'lucide-react-native';
 
 interface ItemHomeActionsProps {
   iconColor: string;
@@ -38,14 +39,7 @@ export const ItemHomeActions: React.FC<ItemHomeActionsProps> = ({
     <View style={[ItemHomeStyles.rowContainer, { justifyContent: 'space-between' }]}>
       <View style={ItemHomeStyles.rowContainer}>
         <TouchableOpacity style={ItemHomeStyles.iconBlock} onPress={onLikePress}>
-          <Image
-            style={[{ tintColor: likedColor }, ItemHomeStyles.icon]}
-            source={
-              isLiked
-                ? require('../../../../assets/icon/heart_fill.png')
-                : require('../../../../assets/icon/heart.png')
-            }
-          />
+          <Heart style={ItemHomeStyles.icon} fill={isLiked ? "black" : "none"} color={iconColor}/>
         </TouchableOpacity>
         <Text
           style={{ color: iconColor, marginHorizontal: 8 }}
@@ -53,33 +47,20 @@ export const ItemHomeActions: React.FC<ItemHomeActionsProps> = ({
           {formatNumber(numLike)}
         </Text>
         <TouchableOpacity style={ItemHomeStyles.iconBlock} onPress={onCommentPress}>
-          <Image
-            style={[{ tintColor: iconColor }, ItemHomeStyles.icon]}
-            source={require('../../../../assets/icon/comment.png')}
-          />
+          <MessageCircle style={ItemHomeStyles.icon} color={iconColor}/>
         </TouchableOpacity>
         <Text style={{ color: iconColor, marginHorizontal: 8 }}>
           {formatNumber(commentCount)}
         </Text>
         <TouchableOpacity style={ItemHomeStyles.iconBlock} onPress={onSharePress}>
-          <Image
-            style={[{ tintColor: iconColor }, ItemHomeStyles.icon]}
-            source={require('../../../../assets/icon/share.png')}
-          />
+          <Send style={ItemHomeStyles.icon} color={iconColor}/>
         </TouchableOpacity>
         <Text style={{ color: iconColor, marginHorizontal: 8 }}>
           {formatNumber(share)}
         </Text>
       </View>
       <TouchableOpacity style={ItemHomeStyles.iconBlock} onPress={onBookmarkPress}>
-        <Image
-          style={[{ tintColor: bookmarkColor }, ItemHomeStyles.icon]}
-          source={
-            isBookmarked
-              ? require('../../../../assets/icon/bookmark_fill.png')
-              : require('../../../../assets/icon/bookmark.png')
-          }
-        />
+        <Bookmark size={27} style={ItemHomeStyles.icon} fill={isBookmarked ? bookmarkColor : "none"} color={isBookmarked ? bookmarkColor : iconColor}/>
       </TouchableOpacity>
     </View>
   );

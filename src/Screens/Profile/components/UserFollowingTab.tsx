@@ -17,6 +17,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import { AppDispatch, RootState } from '../../../../services/store';
 import { fetchFollowing, relationAction, fetchRecommendations } from '../../../../services/relationRedux/relationSlice';
 import {createRoom} from '../../../../services/roomRedux/roomSlice';
+import { EllipsisVertical, UserRoundPlus, Funnel } from 'lucide-react-native';
 
 const UserFollowingTab = ({route}: any) => {
     const userID: string = route.params?.userID;
@@ -169,10 +170,7 @@ const UserFollowingTab = ({route}: any) => {
                   </Text>
                 </TouchableOpacity>
           <TouchableOpacity>
-            <Image
-              source={require('../../../../assets/icon/menu-dots-vertical.png')}
-              style={[styles.moreIcon, {tintColor: color.text}]}
-            />
+            <EllipsisVertical size={13} color={color.text}/>
           </TouchableOpacity>
         </View>
     );
@@ -194,10 +192,7 @@ const UserFollowingTab = ({route}: any) => {
             <Text style={styles.followText}>Theo dõi</Text>
           </TouchableOpacity>
           <TouchableOpacity>
-            <Image
-              source={require('../../../../assets/icon/menu-dots-vertical.png')}
-              style={[styles.moreIcon, {tintColor: color.text}]}
-            />
+            <EllipsisVertical size={13} color={color.text}/>
           </TouchableOpacity>
         </View>
     );
@@ -221,11 +216,7 @@ const UserFollowingTab = ({route}: any) => {
         <ScrollView style={[styles.container, {backgroundColor: color.background}]}>
               {!isLoading && following.length === 0 ? 
                 <View style={{ backgroundColor: color.background, flex: 1, alignItems: 'center', justifyContent: 'center', padding: 20, }}>
-                  <Image
-                    source={require('../../../../assets/icon/invite.png')}
-                    style={{width: 200, height: 200, marginBottom: 24,}}
-                    resizeMode="contain"
-                  />
+                  <UserRoundPlus size={60} style={{marginBottom: 24}}/>
                   <Text style={{ color: color.text, fontSize: 20, fontWeight: 'bold', marginBottom: 8, }}>
                     Người dùng chưa theo dõi ai
                   </Text>
@@ -248,10 +239,7 @@ const UserFollowingTab = ({route}: any) => {
                       <Text style={{color: color.text, fontSize: 18}}>
                         Sắp xếp theo <Text style={{color: color.text, fontSize: 18, fontWeight: 'bold'}}>Mặc định</Text>
                       </Text>
-                      <Image
-                        source={require('../../../../assets/icon/icon_sort.png')}
-                        style={[styles.sortIcon, {tintColor: color.text}]}
-                      />
+                      <Funnel color={color.text}/>
                     </TouchableOpacity>
                   }
                 />

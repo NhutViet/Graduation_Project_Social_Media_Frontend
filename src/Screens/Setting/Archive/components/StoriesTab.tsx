@@ -18,6 +18,7 @@ import Video from 'react-native-video';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../../../services/store';
 import {fetchGetPostedSotry} from '../../../../../services/StoryRedux/StorySlice';
+import { History } from 'lucide-react-native';
 
 const formatMonthText = (dateString?: string): string => {
   if (!dateString) return '--\n--';
@@ -142,15 +143,7 @@ const StoriesTab = () => {
               justifyContent: 'center',
               alignItems: 'center',
             }}>
-            <Image
-              style={{
-                width: 70,
-                height: 70,
-                resizeMode: 'contain',
-                tintColor: color.text,
-              }}
-              source={require('../../../../../assets/icon/archiveStory.png')}
-            />
+            <History size={70} color={color.text}/>
           </View>
           <Text
             style={{

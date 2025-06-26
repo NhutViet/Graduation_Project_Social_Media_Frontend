@@ -17,6 +17,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import { AppDispatch, RootState } from '../../../../services/store';
 import { fetchFollowers, fetchFollowing, relationAction } from '../../../../services/relationRedux/relationSlice';
 import {createRoom} from '../../../../services/roomRedux/roomSlice';
+import { Search, X } from 'lucide-react-native';
 
 const UserFollowersTab = ({route}: any) => {
     const navigation: any = useNavigation();
@@ -103,10 +104,7 @@ const UserFollowersTab = ({route}: any) => {
         </TouchableOpacity>
         <TouchableOpacity style={styles.cancelButton}>
           <View style={{width: 10, height: 10, overflow: 'hidden'}}>
-            <Image
-              source={require('../../../../assets/icon/x.png')}
-              style={[styles.cancelImage, {tintColor: color.text}]}
-            />
+            <X size={13} color={color.text}/>
           </View>
         </TouchableOpacity>
       </View>
@@ -212,10 +210,7 @@ const UserFollowersTab = ({route}: any) => {
               styles.searchBarContainer,
               {backgroundColor: color.background, borderColor: color.text},
             ]}>
-            <Image
-              source={require('../../../../assets/icon/search.png')}
-              style={[styles.searchIcon, {tintColor: color.text}]}
-            />
+            <Search size={15} style={{marginRight: 15}} color={color.text}/>
             <TextInput
               style={[styles.searchBar, {borderColor: color.border}]}
               placeholder="Tìm kiếm"

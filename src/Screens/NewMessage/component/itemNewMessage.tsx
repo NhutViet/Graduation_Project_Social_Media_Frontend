@@ -2,6 +2,7 @@ import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Colors} from '../../../../assets/color/Colors';
 import {useTheme} from '../../../util/ThemeContext';
 import {useNavigation} from '@react-navigation/native';
+import { ChevronRight } from 'lucide-react-native';
 
 interface ItemNewMessageProps {
   roomId: string;
@@ -63,10 +64,7 @@ const ItemNewMessage: React.FC<ItemNewMessageProps> = ({
         </View>
       </View>
       <View style={styles.blockIcon}>
-        <Image
-          style={[styles.img, {tintColor: color.text}]}
-          source={require('../../../../assets/icon/rightArrow.png')}
-        />
+        <ChevronRight color={color.text}/>
       </View>
     </TouchableOpacity>
   );

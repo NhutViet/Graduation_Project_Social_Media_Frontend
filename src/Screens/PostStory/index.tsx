@@ -18,6 +18,7 @@ import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {useNavigation} from '@react-navigation/native';
 import BottomSheet, {BottomSheetRef} from './BottomSheet/BottomSheetMusic';
+import { ChevronLeft } from 'lucide-react-native';
 
 const ITEM_SIZE = Dimensions.get('window').width * 0.25 - 1;
 
@@ -168,10 +169,7 @@ const PostStory = () => {
         <TouchableOpacity
           style={styles.headerIcon}
           onPress={() => navigation.navigate('BottomTabs')}>
-          <Image
-            style={[styles.icon, {tintColor: color.text}]}
-            source={require('../../../assets/icon/left.png')}
-          />
+          <ChevronLeft color={color.text}/>
         </TouchableOpacity>
       </View>
 

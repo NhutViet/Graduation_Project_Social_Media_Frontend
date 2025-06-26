@@ -4,6 +4,7 @@ import { Heart, MessageCircle, Tag, Smile, Share2, Video, Bookmark, ThumbsDown, 
 import {Colors} from '../../../../assets/color/Colors';
 import {useTheme} from '../../../util/ThemeContext';
 import {useNavigation} from '@react-navigation/native';
+import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 
 interface Item {
   label: string;
@@ -34,7 +35,7 @@ const Section: React.FC<SectionProps> = ({ title, items }) => {
             {item.icon}
             <Text style={[styles.itemLabel, {color: color.text}]}>{item.label}</Text>
           </View>
-          <Image source={require('../../../../assets/icon/right.png')} style={{tintColor: color.textSecondary}}/>
+          <ChevronRight color={color.textSecondary}/>
         </TouchableOpacity>
       ))}
     </View>
@@ -98,10 +99,7 @@ export const YourActivity = () => {
               onPress={() => navigation.goBack()}
               activeOpacity={0.7}
             >
-              <Image
-                source={require('../../../../assets/icon/left.png')}
-                style={[styles.backIcon, {tintColor: color.text}]}
-              />
+              <ChevronLeft color={color.text}/>
             </TouchableOpacity>
           </View>
 

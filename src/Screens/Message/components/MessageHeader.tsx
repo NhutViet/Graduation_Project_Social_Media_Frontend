@@ -1,6 +1,7 @@
 import React from 'react';
 import {View, TouchableOpacity, Image, Text} from 'react-native';
 import {Colors} from '../../../../assets/color/Colors';
+import { ChevronLeft, Video, Info } from 'lucide-react-native';
 
 interface MessageHeaderProps {
   user1?: any;
@@ -31,10 +32,7 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
       ]}>
       <View style={styles.rowContainer2}>
         <TouchableOpacity style={styles.blockIcon} onPress={handleGoBack}>
-          <Image
-            style={styles.icon}
-            source={require('../../../../assets/icon/left.png')}
-          />
+          <ChevronLeft style={styles.icon} size={24} color={Colors.black} strokeWidth={2}/>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -94,16 +92,10 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
         <TouchableOpacity
           style={styles.blockIcon}
           onPress={handleCall}>
-          <Image
-            style={styles.icon}
-            source={require('../../../../assets/icon/videoCamera.png')}
-          />
+          <Video style={styles.icon} size={24} color={Colors.black} strokeWidth={2}/>
         </TouchableOpacity>
         <TouchableOpacity style={styles.blockIcon}>
-          <Image
-            style={styles.icon}
-            source={require('../../../../assets/icon/info.png')}
-          />
+          <Info style={styles.icon} size={24} color={Colors.black} strokeWidth={2}/>
         </TouchableOpacity>
       </View>
     </View>

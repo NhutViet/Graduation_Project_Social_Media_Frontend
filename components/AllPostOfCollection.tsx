@@ -18,6 +18,7 @@ import {Colors} from '../assets/color/Colors';
 import {fetchCommentsByPost} from '../services/commentRedux/commentSlice';
 import {useDispatch} from 'react-redux';
 import {AppDispatch} from '../services/store';
+import { ChevronLeft } from 'lucide-react-native';
 
 interface RouteParams {
   posts: any[]; // danh sách post được truyền vào
@@ -62,10 +63,7 @@ const AllPostOfCollection = () => {
     <SafeAreaView style={{flex: 1}}>
       <View style={[styles.header, {backgroundColor: colors.background}]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Image
-            source={require('../assets/icon/left.png')}
-            style={[styles.iconBack, {tintColor: colors.text}]}
-          />
+          <ChevronLeft size={20} color={colors.text}/>
         </TouchableOpacity>
         <Text style={[styles.title, {color: colors.text}]}>
           {playlistName}

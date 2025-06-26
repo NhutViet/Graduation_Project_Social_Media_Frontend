@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import React, {useState} from 'react';
 import {FlashList} from '@shopify/flash-list';
+import { UsersRound, X } from 'lucide-react-native';
 
 const ModalPeopleSeen = ({
   visible,
@@ -70,17 +71,11 @@ const ModalPeopleSeen = ({
           <Pressable style={styles.content}>
             <View style={styles.header}>
               <View style={{flexDirection: 'row'}}>
-                <Image
-                  style={styles.icon}
-                  source={require('../../../../assets/icon/users.png')}
-                />
+                <UsersRound color={"#fff"}/>
                 <Text style={styles.quantity}>100</Text>
               </View>
               <TouchableOpacity onPress={onClose}>
-                <Image
-                  style={styles.icon}
-                  source={require('../../../../assets/icon/x.png')}
-                />
+                <X color={"#fff"}/>
               </TouchableOpacity>
             </View>
             <FlashList

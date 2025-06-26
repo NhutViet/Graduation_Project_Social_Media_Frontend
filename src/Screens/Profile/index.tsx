@@ -55,6 +55,7 @@ const ProfileComp = ({route}: any) => {
   const {theme} = useTheme();
   const styles = createStyles(theme);
   const userID: string = route.params?.userID;
+  const handleName: string = route.params?.handlename;
   const modalOptionRef = useRef<Modalize>(null);
   const myUserId = useSelector((state: RootState) => state.user.user?._id);
 
@@ -66,6 +67,7 @@ const ProfileComp = ({route}: any) => {
     navigation.navigate('UserFollowScreen', {
       screen: initialTab,
       userID: userID,
+      handlename: handleName
     });
   };
 

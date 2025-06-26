@@ -2,6 +2,7 @@ import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import React from 'react';
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
+import { Search, X } from 'lucide-react-native';
 
 interface HistoryItemProps {
   name: string;
@@ -27,15 +28,7 @@ const HistoryItem: React.FC<HistoryItemProps> = ({ name, onPress, onDelete }) =>
             borderWidth: 1,
             marginRight: 15,
             borderRadius: 50,}}>
-        <Image
-          source={require('../../../../assets/icon/search.png')}
-          style={{
-            width: 15,
-            height: 15,
-            resizeMode: 'contain',
-            tintColor: color.text,
-          }}
-        />
+        <Search size={15} color={color.text} />
         </View>
         <Text
           style={{
@@ -48,15 +41,7 @@ const HistoryItem: React.FC<HistoryItemProps> = ({ name, onPress, onDelete }) =>
         </Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={onDelete} style={styles.deleteButton}>
-        <Image
-          source={require('../../../../assets/icon/closer.png')}
-          style={{
-            width: 10,
-            height: 10,
-            resizeMode: 'contain',
-            tintColor: color.text,
-          }}
-        />
+        <X size={15} color={color.text}/>
       </TouchableOpacity>
     </View>
   );

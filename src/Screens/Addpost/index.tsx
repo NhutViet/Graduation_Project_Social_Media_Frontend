@@ -21,6 +21,7 @@ import {FlashList} from '@shopify/flash-list';
 import {getAddPostStyles} from '../../StyleSheet/AddPostStyles';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
+import { X, ChevronRight, Images, CameraOff, Check } from 'lucide-react-native';
 
 const menu: string[] = ['Tất cả', 'Băng hình', 'Hình ảnh'];
 
@@ -219,10 +220,7 @@ export const AddPost = () => {
       <View style={styles.container}>
         <View style={styles.rowSpace}>
           <TouchableOpacity onPress={() => navigation.navigate('BottomTabs')}>
-            <Image
-              source={require('../../../assets/icon/x.png')}
-              style={styles.iconR}
-            />
+            <X size={30} color={color.text}/>
           </TouchableOpacity>
           <Text style={styles.title}>Bài đăng mới</Text>
           <TouchableOpacity onPress={handleNext}>
@@ -255,10 +253,7 @@ export const AddPost = () => {
               style={styles.row}
               onPress={() => setShowModalFilter(true)}>
               <Text style={styles.textR}>{filter}</Text>
-              <Image
-                source={require('../../../assets/icon/right.png')}
-                style={styles.iconRR}
-              />
+              <ChevronRight size={12} color={color.text} style={styles.iconRR}/>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={toggleSelectMode}
@@ -266,18 +261,12 @@ export const AddPost = () => {
                 styles.btnCir,
                 {backgroundColor: isMultiSelect ? color.gray : 'transparent'},
               ]}>
-              <Image
-                source={require('../../../assets/icon/gallery.png')}
-                style={[styles.icon]}
-              />
+              <Images size={20} color={color.text}/>
             </TouchableOpacity>
           </View>
           {medias.length === 0 ? (
             <View style={styles.emtyContainer}>
-              <Image
-                source={require('../../../assets/icon/no_photo.png')}
-                style={styles.iconEmty}
-              />
+              <CameraOff size={30} style={{marginBottom: 15}} color={color.text}/>
               <Text style={[styles.notFound]}>Không tìm thấy 🙂‍↔️!</Text>
             </View>
           ) : (
@@ -386,10 +375,7 @@ export const AddPost = () => {
                     onPress={() => handleFilter(item.item)}>
                     <Text style={styles.textR}>{item.item}</Text>
                     {filter === item.item && (
-                      <Image
-                        source={require('../../../assets/icon/check.png')}
-                        style={styles.iconCheck}
-                      />
+                      <Check color={color.primary}/>
                     )}
                   </TouchableOpacity>
                 );

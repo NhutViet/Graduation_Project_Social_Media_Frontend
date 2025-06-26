@@ -19,6 +19,7 @@ import {
 import ItemHome from '../src/(tabs)/Home/components/ItemHome';
 import {useTheme} from '../src/util/ThemeContext';
 import {Colors} from '../assets/color/Colors';
+import { ChevronLeft } from 'lucide-react-native';
 
 const AllPostOfUserScreen = () => {
   const route = useRoute();
@@ -60,10 +61,7 @@ const AllPostOfUserScreen = () => {
     <SafeAreaView style={{flex: 1}}>
       <View style={[styles.header, {backgroundColor: colors.background}]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Image
-            source={require('../assets/icon/left.png')}
-            style={[styles.iconBack, {tintColor: colors.text}]}
-          />
+          <ChevronLeft size={20} color={colors.text}/>
         </TouchableOpacity>
         <Text style={[styles.title, {color: colors.text}]}>
           Tất cả bài viết

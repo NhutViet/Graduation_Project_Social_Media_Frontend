@@ -18,6 +18,7 @@ import { fetchBlocking, relationAction } from '../../../services/relationRedux/r
 import ItemUnlock from './Components/ItemUnlock';
 import { BlockedAccountsStyles } from '../../StyleSheet/BlockedAccountsStyles';
 import { useTheme } from '../../util/ThemeContext';
+import { ChevronLeft, Plus } from 'lucide-react-native';
 
 export const BlockedAccounts = () => {
   const navigation = useNavigation<NavigationProp<any>>();
@@ -67,11 +68,11 @@ export const BlockedAccounts = () => {
 
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Image source={require('../../../assets/icon/left.png')} style={styles.icon} />
+          <ChevronLeft color={styles.icon.tintColor}/>
         </TouchableOpacity>
         <Text style={styles.title}>Tài khoản bị chặn</Text>
         <TouchableOpacity onPress={() => navigation.navigate('BlockUser')}>
-          <Image source={require('../../../assets/icon/add.png')} style={styles.icon} />
+          <Plus color={styles.icon.tintColor}/>
         </TouchableOpacity>
       </View>
 

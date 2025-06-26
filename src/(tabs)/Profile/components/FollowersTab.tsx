@@ -17,6 +17,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import { AppDispatch, RootState } from '../../../../services/store';
 import { fetchFollowers, relationAction } from '../../../../services/relationRedux/relationSlice';
 import {createRoom} from '../../../../services/roomRedux/roomSlice';
+import { UserRound, X, UserRoundX, Search } from 'lucide-react-native';
 
 const FollowersTab = () => {
   const navigation: any = useNavigation();
@@ -56,7 +57,7 @@ const FollowersTab = () => {
   const renderItem = ({item}: {item: typeof followers[0]}) => (
     <View style={styles.userContainer}>
       <TouchableOpacity style={styles.touchableInfo}>
-        {item.profilePic ? <Image source={{uri: item.profilePic}} style={styles.avatar} /> : <Image source={require("../../../../assets/icon/user.png")} style={styles.avatar}/>}
+        {item.profilePic ? <Image source={{uri: item.profilePic}} style={styles.avatar} /> : <UserRound style={styles.avatar}/>}
         <View style={styles.userInfo}>
           <Text style={[styles.handle, {color: color.text}]}>
             {item.handleName}
@@ -86,10 +87,7 @@ const FollowersTab = () => {
       </TouchableOpacity>
       <TouchableOpacity style={styles.cancelButton}>
         <View style={{width: 10, height: 10, overflow: 'hidden'}}>
-          <Image
-            source={require('../../../../assets/icon/x.png')}
-            style={[styles.cancelImage, {tintColor: color.text}]}
-          />
+          <X style={styles.cancelImage} color={color.text}/>
         </View>
       </TouchableOpacity>
     </View>
@@ -168,11 +166,7 @@ const FollowersTab = () => {
   if (!followers || followers.length === 0) {
     return (
       <View style={[styles.emptyContainer, { backgroundColor: color.background }]}>
-        <Image
-          source={require('../../../../assets/icon/block-user.png')}
-          style={styles.emptyImage}
-          resizeMode="contain"
-        />
+        <UserRoundX size={60} style={styles.emptyImage} color={color.text}/>
         <Text style={[styles.emptyTitle, { color: color.text }]}>
           Bạn chưa có người theo dõi
         </Text>
@@ -195,10 +189,7 @@ const FollowersTab = () => {
             styles.searchBarContainer,
             {backgroundColor: color.background, borderColor: color.text},
           ]}>
-          <Image
-            source={require('../../../../assets/icon/search.png')}
-            style={[styles.searchIcon, {tintColor: color.text}]}
-          />
+          <Search style={styles.searchIcon} color={color.text}/>
           <TextInput
             style={[styles.searchBar, {borderColor: color.border}]}
             placeholder="Tìm kiếm"

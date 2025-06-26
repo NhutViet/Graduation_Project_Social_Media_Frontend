@@ -11,6 +11,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTheme } from '../../../../util/ThemeContext';
 import { useNotificationSettingsStyles } from '../../../../StyleSheet/NotificationSetingsStyles';
 import { notificationOptions } from '../NotificationConfig';
+import { ChevronLeft } from 'lucide-react-native';
 
 interface RouteParams {
   optionKey: string;
@@ -69,10 +70,7 @@ export const NotificationOption = () => {
             style={styles.backButton}
             onPress={() => navigation.goBack()}
           >
-            <Image
-              source={require('../../../../../assets/icon/left.png')}
-              style={[styles.backIcon, { resizeMode: 'contain' }]}
-            />
+            <ChevronLeft color={styles.backIcon.tintColor}/>
           </TouchableOpacity>
           <Text style={styles.headerTitle}>{title}</Text>
           <View style={styles.headerSpacer} />

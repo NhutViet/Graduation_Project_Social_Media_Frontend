@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import React, {useState} from 'react';
 import {FlashList} from '@shopify/flash-list';
+import { X } from 'lucide-react-native';
 
 const ModalSeeMore = ({
   visible,
@@ -29,10 +30,7 @@ const ModalSeeMore = ({
             <View style={styles.header}>
               <Text style={styles.title}>Tin Đang hoạt động</Text>
               <TouchableOpacity onPress={onClose}>
-                <Image
-                  style={styles.icon}
-                  source={require('../../../../assets/icon/x.png')}
-                />
+                <X color={"#fff"}/>
               </TouchableOpacity>
             </View>
             <View style={styles.mid}>
