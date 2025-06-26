@@ -19,8 +19,8 @@ import {
   useNavigation,
   useRoute,
 } from '@react-navigation/native';
-import {useDispatch, useSelector} from 'react-redux';
-import {AppDispatch, RootState} from '../../../services/store';
+import {useDispatch} from 'react-redux';
+import {AppDispatch} from '../../../services/store';
 import {uploadPostWithMedia} from '../../../services/postRedux/postSlice';
 import Toast from 'react-native-toast-message';
 import VideoModal from './Components/VideoModal';
@@ -31,6 +31,7 @@ import {uploadImageToR2, uploadToCloudflare} from '../../core/upload';
 import {useUploadProgress} from '../../../services/UploadProgressManager';
 import {PhotoIdentifier} from '@react-native-camera-roll/camera-roll';
 import {TaggedMedia} from '../TagSo';
+import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
 type Params = {
   updated?: TaggedMedia[];
@@ -77,8 +78,8 @@ export const PostSetting = () => {
 
   const handleUploadAll = async () => {
     if (!mediaWithTags || mediaWithTags.length === 0) {
-      Alert.alert(
-        'Chưa chọn phương tiện',
+      GlobalAlertManager.show(
+        'Thông báo',
         'Hãy chọn ít nhất một ảnh hoặc video',
       );
       return;
@@ -86,7 +87,7 @@ export const PostSetting = () => {
 
     for (const media of mediaWithTags) {
       if (!media.node.image.uri) {
-        Alert.alert('Lỗi', 'URI của media không hợp lệ');
+        GlobalAlertManager.show('Lỗi', 'URI của media không hợp lệ');
         return;
       }
     }
@@ -147,8 +148,8 @@ export const PostSetting = () => {
 
           uploadedMedia.push(uploadedItem);
         } catch (err) {
-          Alert.alert(
-            'Upload thất bại',
+          GlobalAlertManager.show(
+            'Thất bại',
             `Không thể upload ${isVideo ? 'video' : 'ảnh'}: ${uri}`,
           );
           return;
@@ -198,7 +199,7 @@ export const PostSetting = () => {
         });
       }
     } catch (error) {
-      Alert.alert('Lỗi', 'Đã có lỗi xảy ra khi upload');
+      GlobalAlertManager.show('Lỗi', 'Đã có lỗi xảy ra khi upload');
       console.error(error);
     }
   };

@@ -87,7 +87,7 @@ const MessageStyles = (theme: ThemeType) => {
     iconW: {
       width: '75%',
       height: '75%',
-      resizeMode: 'contain',
+      resizeMode: 'cover',
       borderRadius: 25,
       top: 0,
       left: 0,

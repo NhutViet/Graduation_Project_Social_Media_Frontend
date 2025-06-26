@@ -180,25 +180,25 @@ export const Styles = {
 
     // Highlights section
     highlightsContainer: {
-      height: 100,
-      flex: 0,
       marginVertical: 10,
+      paddingHorizontal: 10,
+      minHeight: 90,
     },
     highlightItem: {
+      width: 80,
       alignItems: 'center',
-      marginVertical: 10,
-      marginRight: 15,
+      marginRight: 10,
     },
     highlightImageContainer: {
-      padding: 1,
-      borderRadius: 35,
-      borderWidth: 1,
+      borderRadius: 50,
+      borderWidth: 2,
       borderColor: '#DBDBDB',
     },
     highlightImage: {
       width: 64,
       height: 64,
-      borderRadius: 32,
+      borderRadius: 50,
+      resizeMode: 'cover',
     },
     highlightText: {
       fontSize: 12,

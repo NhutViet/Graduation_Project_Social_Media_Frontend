@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   TextInput,
   Alert,
-  ActivityIndicator
+  ActivityIndicator,
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
 import {FlashList} from '@shopify/flash-list';
@@ -14,9 +14,13 @@ import {Colors} from '../../../../assets/color/Colors';
 import {useTheme} from '../../../util/ThemeContext';
 import {useNavigation} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
-import { AppDispatch, RootState } from '../../../../services/store';
-import { fetchFollowers, relationAction } from '../../../../services/relationRedux/relationSlice';
+import {AppDispatch, RootState} from '../../../../services/store';
+import {
+  fetchFollowers,
+  relationAction,
+} from '../../../../services/relationRedux/relationSlice';
 import {createRoom} from '../../../../services/roomRedux/roomSlice';
+import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 
 const FollowersTab = () => {
   const navigation: any = useNavigation();
@@ -24,9 +28,11 @@ const FollowersTab = () => {
   const color = Colors[theme];
   const userID = useSelector((state: RootState) => state.user?.user?._id);
   const dispatch = useDispatch<AppDispatch>();
-  const {followers: reduxFollowers, loading, error} = useSelector(
-    (state: RootState) => state.relation,
-  );
+  const {
+    followers: reduxFollowers,
+    loading,
+    error,
+  } = useSelector((state: RootState) => state.relation);
 
   const [followers, setFollowers] = useState(reduxFollowers);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -41,22 +47,29 @@ const FollowersTab = () => {
     if (userID) {
       dispatch(fetchFollowers({userId: userID}))
         .unwrap()
-        .then((data) => {
+        .then(data => {
           setFollowers(data);
         })
-        .catch((err) => {
+        .catch(err => {
           console.error('Error fetching followers:', err);
         })
         .finally(() => {
           setIsLoading(false);
         });
     }
-  }, [dispatch, userID])
+  }, [dispatch, userID]);
 
-  const renderItem = ({item}: {item: typeof followers[0]}) => (
+  const renderItem = ({item}: {item: (typeof followers)[0]}) => (
     <View style={styles.userContainer}>
       <TouchableOpacity style={styles.touchableInfo}>
-        {item.profilePic ? <Image source={{uri: item.profilePic}} style={styles.avatar} /> : <Image source={require("../../../../assets/icon/user.png")} style={styles.avatar}/>}
+        {item.profilePic ? (
+          <Image source={{uri: item.profilePic}} style={styles.avatar} />
+        ) : (
+          <Image
+            source={require('../../../../assets/icon/user.png')}
+            style={styles.avatar}
+          />
+        )}
         <View style={styles.userInfo}>
           <Text style={[styles.handle, {color: color.text}]}>
             {item.handleName}
@@ -95,7 +108,7 @@ const FollowersTab = () => {
     </View>
   );
 
-  const handleActionButton = async (item: typeof followers[0]) => {
+  const handleActionButton = async (item: (typeof followers)[0]) => {
     if (item.isFollowing) {
       console.log(item.isFollowing);
       try {
@@ -106,44 +119,41 @@ const FollowersTab = () => {
             type: 'waiting',
           }),
         ).unwrap();
-      
+
         const {room} = res;
-      
+
         const otherUsers = room.user_ids.filter(user => user._id !== userID);
         const img1 = otherUsers[0]?.profilePic;
         const img2 = userID
           ? room.user_ids.find(user => user._id === userID)?.profilePic
           : undefined;
-      
+
         navigation.navigate('MessageScreen', {
           room: room._id,
           img1,
           img2,
         });
       } catch (error) {
-            console.log('Tạo room thất bại:', error);
+        console.log('Tạo room thất bại:', error);
       }
     } else {
-      try{
+      try {
         await dispatch(
           relationAction({
             targetId: item._id,
-            action: "follow"
-          })
+            action: 'follow',
+          }),
         ).unwrap();
 
-        setFollowers((prevFollowers) =>
-        prevFollowers.map((follower) =>
-          follower._id === item._id
-            ? { ...follower, isFollowing: true }
-            : follower
-        )
-      );
-      } catch (error){
-        Alert.alert(
-            "Theo dõi thất bại",
-            'Vui lòng thử lại sau.',
-          );
+        setFollowers(prevFollowers =>
+          prevFollowers.map(follower =>
+            follower._id === item._id
+              ? {...follower, isFollowing: true}
+              : follower,
+          ),
+        );
+      } catch (error) {
+        GlobalAlertManager.show('Thất bại', 'Vui lòng thử lại sau');
         console.log(error);
       }
     }
@@ -160,23 +170,24 @@ const FollowersTab = () => {
   if (isError) {
     return (
       <View style={styles.center}>
-        <Text style={[styles.errorText, { color: color.text }]}>{error}</Text>
+        <Text style={[styles.errorText, {color: color.text}]}>{error}</Text>
       </View>
     );
   }
 
   if (!followers || followers.length === 0) {
     return (
-      <View style={[styles.emptyContainer, { backgroundColor: color.background }]}>
+      <View
+        style={[styles.emptyContainer, {backgroundColor: color.background}]}>
         <Image
           source={require('../../../../assets/icon/block-user.png')}
           style={styles.emptyImage}
           resizeMode="contain"
         />
-        <Text style={[styles.emptyTitle, { color: color.text }]}>
+        <Text style={[styles.emptyTitle, {color: color.text}]}>
           Bạn chưa có người theo dõi
         </Text>
-        <Text style={[styles.emptySubtitle, { color: color.textSecondary }]}>
+        <Text style={[styles.emptySubtitle, {color: color.textSecondary}]}>
           Khi có người theo dõi bạn, họ sẽ xuất hiện ở đây
         </Text>
       </View>
@@ -313,8 +324,8 @@ const styles = StyleSheet.create({
   listContent: {
     paddingTop: 70,
   },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  errorText: { fontSize: 16 },
+  center: {flex: 1, justifyContent: 'center', alignItems: 'center'},
+  errorText: {fontSize: 16},
   emptyContainer: {
     flex: 1,
     alignItems: 'center',

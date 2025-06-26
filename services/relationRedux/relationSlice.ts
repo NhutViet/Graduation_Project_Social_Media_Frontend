@@ -17,8 +17,6 @@ export const fetchFollowers = createAsyncThunk<
         },
       });
 
-      console.log('Server response:', response.data);
-
       if (!response.data || !Array.isArray(response.data.followers)) {
         return rejectWithValue('Dữ liệu trả về không hợp lệ');
       }

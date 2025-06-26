@@ -41,6 +41,7 @@ const ItemHome = (props: ItemHomeProps) => {
     createdAt,
     media,
     user,
+    musicInfo,
     sheetRef,
     isFocused,
     currentVisible,
@@ -104,7 +105,9 @@ const ItemHome = (props: ItemHomeProps) => {
   const handleMediaScroll = (event: any) => {
     const offsetX = event.nativeEvent.contentOffset.x;
     const newIndex = Math.round(offsetX / screenWidth);
-    state.setCurrentIndex(newIndex);
+    if (newIndex !== state.currentIndex) {
+      state.setCurrentIndex(newIndex);
+    }
   };
 
   return (
@@ -154,6 +157,7 @@ const ItemHome = (props: ItemHomeProps) => {
           borderColor={utils.borderColor}
           iconTintColor={utils.iconTintColor}
           follow={state.follow}
+          song={musicInfo?.song}
           onUserPress={handleUserPress}
           onFollowPress={actions.handleFollowAction}
           onOptionsPress={modal.openOptions}

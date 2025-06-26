@@ -1,26 +1,20 @@
 import {
-  Alert,
-  Dimensions,
   Image,
   SafeAreaView,
   ScrollView,
-  StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
 import React, {useRef, useState} from 'react';
 import {data as list} from './Data';
-import {FlashList} from '@shopify/flash-list';
 import {ChangePasswordStyles} from '../../StyleSheet/ChangePasswordStyles';
 import {useTheme} from '../../util/ThemeContext';
 import {useNavigation} from '@react-navigation/native';
 import {Modalize} from 'react-native-modalize';
 import EditText from './Components/EditText';
 import {Colors} from '../../../assets/color/Colors';
-
-const {height} = Dimensions.get('window');
+import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
 export const ChangePassword = () => {
   const {theme} = useTheme();
@@ -128,7 +122,8 @@ export const ChangePassword = () => {
               )}
               <Text style={styles.textXL}>Đổi mật khẩu</Text>
               <Text style={styles.textL}>
-                Mật khẩu phải có ít nhất 6 ký tự và bao gồm chữ, số và ký tự đặc biệt (!$@%).
+                Mật khẩu phải có ít nhất 6 ký tự và bao gồm chữ, số và ký tự đặc
+                biệt (!$@%).
               </Text>
             </View>
             <View style={styles.inputContainer}>
@@ -154,7 +149,8 @@ export const ChangePassword = () => {
                 />
                 {!isValid && (
                   <Text style={styles.error}>
-                    Mật khẩu phải có ít nhất 6 ký tự và bao gồm chữ, số và ký tự đặc biệt (!$@%).
+                    Mật khẩu phải có ít nhất 6 ký tự và bao gồm chữ, số và ký tự
+                    đặc biệt (!$@%).
                   </Text>
                 )}
               </View>
@@ -188,7 +184,8 @@ export const ChangePassword = () => {
                   styles.textM,
                   {color: color.text, flex: 1, textAlign: 'justify'},
                 ]}>
-                Đăng xuất khỏi các thiết bị khác. Chọn mục này nếu có người khác đã sử dụng tài khoản của bạn.
+                Đăng xuất khỏi các thiết bị khác. Chọn mục này nếu có người khác
+                đã sử dụng tài khoản của bạn.
               </Text>
             </View>
           </ScrollView>
@@ -217,7 +214,10 @@ export const ChangePassword = () => {
                   setIsMatch(true);
                 }
 
-                Alert.alert('Đổi mật khẩu thành công!');
+                GlobalAlertManager.show(
+                  'Thông báo',
+                  'Đổi mật khẩu thành công!',
+                );
                 modalRef.current?.close();
               }}>
               <Text style={[styles.textL, {color: color.background}]}>

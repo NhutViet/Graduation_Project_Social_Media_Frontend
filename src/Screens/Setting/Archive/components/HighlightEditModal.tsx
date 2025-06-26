@@ -7,16 +7,13 @@ import {
   Image,
   FlatList,
   StyleSheet,
-  Dimensions,
   Modal,
-  Alert,
-  Platform,
 } from 'react-native';
 import {ChevronLeft} from 'lucide-react-native';
 import * as ImagePicker from 'react-native-image-picker';
 import {Colors} from '../../../../../assets/color/Colors';
 import {useTheme} from '../../../../util/ThemeContext';
-const {width} = Dimensions.get('window');
+import {GlobalAlertManager} from '../../../../../components/Global/AlertModal';
 
 const HighlightEditModal = ({
   isOpen,
@@ -32,7 +29,7 @@ const HighlightEditModal = ({
   setIsProcessing,
 }: any) => {
   const [highlightName, setHighlightName] = useState('');
-  const [coverImage, setCoverImage] = useState(null);
+  const [coverImage, setCoverImage] = useState<string | null>(null);
   const [isCustomCover, setIsCustomCover] = useState(false);
 
   const {theme} = useTheme();
@@ -47,7 +44,7 @@ const HighlightEditModal = ({
 
   const pickImage = () => {
     const options = {
-      mediaType: 'photo',
+      mediaType: 'photo' as const,
       includeBase64: false,
       maxHeight: 200,
       maxWidth: 200,
@@ -56,14 +53,14 @@ const HighlightEditModal = ({
     ImagePicker.launchImageLibrary(options, response => {
       if (response.didCancel) {
         console.log('User cancelled image picker');
-      } else if (response.error) {
-        Alert.alert(
+      } else if (response.errorCode || response.errorMessage) {
+        GlobalAlertManager.show(
           'Lỗi',
           'Không thể truy cập thư viện ảnh. Vui lòng thử lại.',
         );
       } else if (response.assets && response.assets.length > 0) {
         setIsCustomCover(true); // đánh dấu là đã tự chọn
-        setCoverImage(response.assets[0].uri);
+        setCoverImage(response.assets[0].uri ?? null);
       }
     });
   };
@@ -72,12 +69,12 @@ const HighlightEditModal = ({
     if (isProcessing) return;
 
     if (!highlightName.trim()) {
-      Alert.alert('Vui lòng nhập tên highlight.');
+      GlobalAlertManager.show('Thông báo', 'Vui lòng nhập tên highlight.');
       return;
     }
 
     if (selectedStories.length === 0) {
-      Alert.alert('Vui lòng chọn ít nhất một story.');
+      GlobalAlertManager.show('Thông báo', 'Vui lòng chọn ít nhất một story.');
       return;
     }
 
@@ -106,8 +103,10 @@ const HighlightEditModal = ({
       setIsCustomCover(false);
       onComplete();
     } catch (error) {
-      console.error('❌ Upload highlight cover failed:', error);
-      Alert.alert('Lỗi', 'Không thể lưu highlight. Vui lòng thử lại.');
+      GlobalAlertManager.show(
+        'Lỗi',
+        'Không thể lưu highlight. Vui lòng thử lại.',
+      );
     } finally {
       setIsProcessing(false);
     }

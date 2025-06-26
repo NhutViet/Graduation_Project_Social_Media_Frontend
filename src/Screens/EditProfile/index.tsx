@@ -21,6 +21,9 @@ import {ChevronLeft, SquarePen, Check} from 'lucide-react-native';
 import {SEX, VN_PROVINCES} from './DataAddress/VN_PROVINCES';
 import {uploadImageToR2} from '../../core/upload';
 import {useUploadProgress} from '../../../services/UploadProgressManager';
+import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+import {useTheme} from '../../../src/util/ThemeContext';
+import {Colors} from '../../../assets/color/Colors';
 
 async function requestCameraPermission() {
   if (Platform.OS !== 'android') return true;
@@ -43,7 +46,6 @@ export const EditProfile = () => {
   const styles = useProfileEditingStyles();
   const dispatch = useDispatch<AppDispatch>();
   const {showUploadModal, hideUploadModal, setProgress} = useUploadProgress(); // Lấy các callback từ hook
-
   const [username, setUsername] = useState(user?.username);
   const [bio, setBio] = useState(user?.bio);
   const [email, setEmail] = useState(user?.email);
@@ -55,6 +57,8 @@ export const EditProfile = () => {
   const [handleName, setHandleName] = useState(user?.handleName);
   const [profilePic, setProfilePic] = useState(user?.profilePic);
   const [modalVisible, setModalVisible] = useState(false);
+  const {theme} = useTheme();
+  const palette = Colors[theme];
 
   // Hàm upload ảnh và cập nhật profilePic
   const uploadProfilePic = async (uri: string) => {
@@ -68,7 +72,10 @@ export const EditProfile = () => {
       setProfilePic(publicUrl); // Cập nhật với URL từ Cloudflare
     } catch (error) {
       console.error('Upload profile picture failed:', error);
-      Alert.alert('Lỗi', 'Không thể upload ảnh đại diện. Vui lòng thử lại.');
+      GlobalAlertManager.show(
+        'Lỗi',
+        'Không thể upload ảnh đại diện. Vui lòng thử lại.',
+      );
     } finally {
       hideUploadModal(); // Ẩn modal dù thành công hay thất bại
       setModalVisible(false); // Đóng modal
@@ -79,7 +86,9 @@ export const EditProfile = () => {
     launchImageLibrary({mediaType: 'photo'}, async response => {
       if (response.assets && response.assets.length > 0) {
         const uri = response.assets[0].uri;
-        await uploadProfilePic(uri);
+        if (uri) {
+          await uploadProfilePic(uri);
+        }
       }
     });
   };
@@ -98,7 +107,9 @@ export const EditProfile = () => {
         console.log('Camera error: ', response.errorMessage);
       } else if (response.assets && response.assets.length > 0) {
         const uri = response.assets[0].uri;
-        await uploadProfilePic(uri);
+        if (uri) {
+          await uploadProfilePic(uri);
+        }
       }
     });
   };
@@ -116,7 +127,7 @@ export const EditProfile = () => {
         profilePic,
       }),
     );
-    Alert.alert('Thông báo', 'Sửa thông tin của bạn thành công');
+    GlobalAlertManager.show('Thông báo', 'Sửa thông tin của bạn thành công');
     setEdit(false);
   };
 
@@ -126,7 +137,7 @@ export const EditProfile = () => {
         <TouchableOpacity
           hitSlop={{top: 20, bottom: 20, left: 20, right: 20}}
           onPress={() => navigation.goBack()}>
-          <ChevronLeft size={35} style={styles.iconLeft} />
+          <ChevronLeft size={35} color={palette.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Chỉnh sửa hồ sơ</Text>
         <TouchableOpacity
@@ -167,8 +178,9 @@ export const EditProfile = () => {
                 },
                 {
                   label: 'Tên tài khoản *',
+                  onChangeText: setHandleName,
                   value: handleName,
-                  editable: false,
+                  editable: edit,
                   type: 'text',
                 },
                 {

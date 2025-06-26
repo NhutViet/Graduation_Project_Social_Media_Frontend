@@ -1,8 +1,7 @@
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Colors} from '../../../../assets/color/Colors';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import Video from 'react-native-video';
-
 import {Dimensions} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../../services/store';
@@ -37,6 +36,7 @@ const ReelsComponent = (props: any) => {
     isLike,
     commentCount,
     openComment,
+    openReactionModal,
     isFollow,
   } = props;
   const navigation = useNavigation<any>();
@@ -130,18 +130,36 @@ const ReelsComponent = (props: any) => {
   return (
     <View style={styles.container}>
       <View style={styles.video}>
-        <Video
-          source={{uri: media[0]?.videoUrl}}
-          resizeMode="contain"
-          style={{width: '100%', height: '100%'}}
-          repeat
-          paused={!currentVisible || !isFocused}
-          muted={muted}
-          maxBitRate={0}
-          progressUpdateInterval={500}
-        />
+        {media[0]?.videoUrl ? (
+          <Video
+            source={{uri: media[0].videoUrl}}
+            resizeMode="contain"
+            style={{width: '100%', height: '100%'}}
+            repeat
+            paused={!currentVisible || !isFocused}
+            muted={muted}
+            maxBitRate={1500000}
+            progressUpdateInterval={500}
+          />
+        ) : (
+          <View
+            style={{
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <Text style={{color: 'white'}}>Không có video</Text>
+          </View>
+        )}
         <View
-          style={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1}}>
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 1,
+          }}>
           {media[0]?.tags?.map((tag: any, index: number) => (
             <TagMarker
               key={index}
@@ -157,7 +175,16 @@ const ReelsComponent = (props: any) => {
         <View style={styles.block1}>
           <View style={styles.rowContainer}>
             <TouchableOpacity style={styles.imgContainer}>
-              <Image style={styles.img} source={{uri: user.profilePic}} />
+              <TouchableOpacity style={styles.imgContainer}>
+                {user.profilePic ? (
+                  <Image style={styles.img} source={{uri: user.profilePic}} />
+                ) : (
+                  <Image
+                    style={styles.img}
+                    source={require('../../../../assets/icon/account.png')}
+                  />
+                )}
+              </TouchableOpacity>
             </TouchableOpacity>
             <Text style={styles.name}>{user.handleName}</Text>
             {user._id !== currentUserId && (
@@ -187,7 +214,9 @@ const ReelsComponent = (props: any) => {
                 }
               />
             </TouchableOpacity>
-            <Text style={styles.textNormal}>{formatNumber(numLike)}</Text>
+            <TouchableOpacity onPress={() => openReactionModal(_id, isLiked)}>
+              <Text style={styles.textNormal}>{formatNumber(numLike)}</Text>
+            </TouchableOpacity>
           </View>
           <View style={styles.containerVertical}>
             <TouchableOpacity
@@ -278,6 +307,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-end',
     backgroundColor: Colors.dark.transparent,
+    zIndex: 1,
   },
   block1: {
     width: '80%',

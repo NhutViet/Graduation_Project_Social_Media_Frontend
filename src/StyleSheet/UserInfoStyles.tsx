@@ -42,7 +42,7 @@ const UserInfoStyles = (theme: ThemeType) => {
     imgUser: {
       width: '100%',
       height: '100%',
-      resizeMode: 'contain',
+      resizeMode: 'cover',
     },
     nameUser: {
       color: color.text,

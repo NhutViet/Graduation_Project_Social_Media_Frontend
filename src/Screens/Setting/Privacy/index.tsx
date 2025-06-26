@@ -12,6 +12,7 @@ import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
 import {createStyles} from '../../../StyleSheet/Setting.Styles';
 import {ChevronLeft} from 'lucide-react-native';
+import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 
 export const Privacy = () => {
   const navigation: any = useNavigation();
@@ -22,14 +23,8 @@ export const Privacy = () => {
 
   const handlePrivacyToogle = async () => {
     try {
-      // if (!response.ok) {
-      //   const errorData = await response.json();
-      //   console.error('Failed to update privacy settings:', errorData);
-      //   Alert.alert('Failed', 'Unable to update privacy status');
-      //   return;
-      // }
       setIsPrivate(!isPrivate);
-      Alert.alert(
+      GlobalAlertManager.show(
         'Thành công',
         `Chuyển sang chế độ ${!isPrivate ? 'riêng tư' : 'công khai'}`,
       );
@@ -70,8 +65,9 @@ export const Privacy = () => {
             />
           </View>
           <Text style={styles.privacyDescription}>
-            Khi tài khoản của bạn ở chế độ riêng tư, chỉ những người bạn chấp thuận mới có thể xem
-            ảnh và video của bạn. Những người theo dõi hiện tại của bạn sẽ không bị ảnh hưởng.{' '}
+            Khi tài khoản của bạn ở chế độ riêng tư, chỉ những người bạn chấp
+            thuận mới có thể xem ảnh và video của bạn. Những người theo dõi hiện
+            tại của bạn sẽ không bị ảnh hưởng.{' '}
             <TouchableOpacity onPress={() => console.log('VIEW MORE')}>
               <Text style={styles.learnMore}>Tìm hiều thêm</Text>
             </TouchableOpacity>
