@@ -3,6 +3,7 @@ import React from 'react';
 import Video from 'react-native-video';
 import {useTheme} from '../../../util/ThemeContext';
 import {SearchStyles} from '../../../StyleSheet/SearchStyles';
+import { Images } from 'lucide-react-native';
 
 const GridMedia = (props: any) => {
   const {images, item, index, currentVisibleIndex, isFocused, func, isFocusedPage, isPause} = props;
@@ -46,37 +47,25 @@ const GridMedia = (props: any) => {
         {smallImage1 && (
           <TouchableOpacity>
             <Image source={{uri: smallImage1.uri}} style={styles.smallImage} />
-            <Image
-              source={require('../../../../assets/icon/gallery.png')}
-              style={styles.iconDif}
-            />
+            <Images style={styles.iconDif}/>
           </TouchableOpacity>
         )}
         {smallImage2 && (
           <TouchableOpacity>
             <Image source={{uri: smallImage2.uri}} style={styles.smallImage} />
-            <Image
-              source={require('../../../../assets/icon/gallery.png')}
-              style={styles.iconDif}
-            />
+            <Images style={styles.iconDif}/>
           </TouchableOpacity>
         )}
         {smallImage3 && (
           <TouchableOpacity>
             <Image source={{uri: smallImage3.uri}} style={styles.smallImage} />
-            <Image
-              source={require('../../../../assets/icon/gallery.png')}
-              style={styles.iconDif}
-            />
+            <Images style={styles.iconDif}/>
           </TouchableOpacity>
         )}
         {smallImage4 && (
           <TouchableOpacity>
             <Image source={{uri: smallImage4.uri}} style={styles.smallImage} />
-            <Image
-              source={require('../../../../assets/icon/gallery.png')}
-              style={styles.iconDif}
-            />
+            <Images style={styles.iconDif}/>
           </TouchableOpacity>
         )}
       </View>

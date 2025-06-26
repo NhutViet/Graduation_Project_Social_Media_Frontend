@@ -15,10 +15,18 @@ export interface ItemHomeProps {
   sheetRef: any;
   likeCount: number;
   commentCount: number;
-  music?: MusicInfo;
+  music?: Music;
   musicInfo?: MusicInfo;
   isFollow: boolean;
   isBookmarked?: boolean;
+  RoomItem: RoomItem;
+}
+
+interface RoomItem {
+  _id: string;
+  name: string;
+  avatars: string[];
+  latestMessage: string;
 }
 
 interface User {
@@ -27,11 +35,18 @@ interface User {
   profilePic: string;
 }
 
-interface MusicInfo {
-  link: string;
+interface Music {
+  musicId: string;
   timeStart?: number;
   timeEnd?: number;
   song?: string;
+}
+
+interface MusicInfo {
+  link?: string;
+  song?: string;
+  author?: string;
+  coverImg?: string;
 }
 
 export interface HandleBookmarkParams {

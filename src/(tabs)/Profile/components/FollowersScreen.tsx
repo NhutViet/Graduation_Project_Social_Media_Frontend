@@ -25,7 +25,7 @@ const FollowersScreen = () => {
     <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
       <View style={{width: '100%', height: 60}}>
         <Header
-          title= {user?.username}
+          title= {user?.handleName}
           iconBack={require('../../../../assets/icon/left.png')}
           func={() => navigation.goBack()}
           navigation={navigation}

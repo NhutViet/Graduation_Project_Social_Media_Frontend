@@ -1,5 +1,5 @@
 import {
-    Alert,
+  Alert,
   Image,
   SafeAreaView,
   StyleSheet,
@@ -14,8 +14,10 @@ import {FlashList} from '@shopify/flash-list';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {AddPeopleToGroupChatStyles} from '../../StyleSheet/AddPeopleToGroupChatStyles';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import Clipboard from '@react-native-clipboard/clipboard';
+import { ChevronLeft, Link, Search, X, CircleCheck } from 'lucide-react-native';
+import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
 export const AddPeopleToGroupChat = () => {
   const [users, setUsers] = useState<any>(list);
@@ -29,7 +31,7 @@ export const AddPeopleToGroupChat = () => {
 
   const copyToClipboard = (text: string) => {
     Clipboard.setString(text);
-    Alert.alert('Đã sao chép văn bản');
+    GlobalAlertManager.show('Thông báo', 'Đã sao chép văn bản');
   };
 
   useEffect(() => {
@@ -78,16 +80,13 @@ export const AddPeopleToGroupChat = () => {
           {borderBottomWidth: 1, borderBottomColor: colors.gray, marginTop: 10},
         ]}>
         <TouchableOpacity style={styles.iconBack} onPress={() => navigation.goBack()}>
-          <Image source={require('../../../assets/icon/left.png')} />
+          <ChevronLeft color={colors.text}/>
         </TouchableOpacity>
         <Text style={styles.title}>Thêm người</Text>
         <View style={styles.iconBack} />
       </View>
       <View style={styles.header}>
-        <Image
-          source={require('../../../assets/icon/link.png')}
-          style={styles.icon}
-        />
+        <Link color={colors.text}/>
         <View style={styles.max}>
           <Text style={styles.invite}>Liên kết mời</Text>
           <Text
@@ -100,7 +99,13 @@ export const AddPeopleToGroupChat = () => {
             htts: //ig.me/ksjhdkjskbjhsbjkbvsjbvksjhdkjskbjhsbjkbvsjbv
           </Text>
         </View>
-        <TouchableOpacity style={styles.btnCopy} onPress={() => copyToClipboard('htts: //ig.me/ksjhdkjskbjhsbjkbvsjbvksjhdkjskbjhsbjkbvsjbv')}>
+        <TouchableOpacity
+          style={styles.btnCopy}
+          onPress={() =>
+            copyToClipboard(
+              'htts: //ig.me/ksjhdkjskbjhsbjkbvsjbvksjhdkjskbjhsbjkbvsjbv',
+            )
+          }>
           <Text style={styles.textName}>Sao chép</Text>
         </TouchableOpacity>
       </View>
@@ -114,10 +119,7 @@ export const AddPeopleToGroupChat = () => {
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
         />
-        <Image
-          source={require('../../../assets/icon/search.png')}
-          style={[styles.iconBack, {position: 'absolute', left: 30}]}
-        />
+        <Search size={15} style={{position: 'absolute', left: 30}} color={colors.text}/>
         {searchText !== '' && (
           <TouchableOpacity
             onPress={() => setSearchText('')}
@@ -128,10 +130,7 @@ export const AddPeopleToGroupChat = () => {
               borderRadius: 20,
               padding: 1,
             }}>
-            <Image
-              source={require('../../../assets/icon/closer.png')}
-              style={styles.iconCloser}
-            />
+            <X size={15} color={colors.text}/>
           </TouchableOpacity>
         )}
       </View>
@@ -152,10 +151,7 @@ export const AddPeopleToGroupChat = () => {
                   <TouchableOpacity
                     onPress={() => onDeleteSelect(item)}
                     style={styles.btnDelete}>
-                    <Image
-                      source={require('../../../assets/icon/closer.png')}
-                      style={styles.iconDelete}
-                    />
+                    <X size={15} color={colors.background}/>
                   </TouchableOpacity>
                 </View>
               );
@@ -194,10 +190,7 @@ export const AddPeopleToGroupChat = () => {
                 </View>
                 <TouchableOpacity onPress={() => onHandleSelect(item)}>
                   {isSelect ? (
-                    <Image
-                      source={require('../../../assets/icon/checked.png')}
-                      style={styles.tick}
-                    />
+                    <CircleCheck size={26} fill={colors.primary} color={colors.background}/>
                   ) : (
                     <View style={styles.circle} />
                   )}

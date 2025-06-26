@@ -2,11 +2,12 @@ import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Colors} from '../../../../assets/color/Colors';
 import {useTheme} from '../../../util/ThemeContext';
 import {useNavigation} from '@react-navigation/native';
+import { ChevronRight } from 'lucide-react-native';
 
 interface ItemNewMessageProps {
   roomId: string;
   nameChat: string;
-  latestMessage: {
+  latestMessage?: {
     content: string;
   };
   img1?: string;
@@ -57,16 +58,17 @@ const ItemNewMessage: React.FC<ItemNewMessageProps> = ({
         </View>
         <View>
           <Text style={[styles.nameChat, {color: color.text}]}>{nameChat}</Text>
-          <Text style={[styles.textNormal, {color: color.text}]}>
-            {latestMessage.content}
-          </Text>
+          {latestMessage?.content && (
+            <Text
+              style={[styles.textNormal, {color: color.text}]}
+              numberOfLines={1}>
+              {latestMessage?.content}
+            </Text>
+          )}
         </View>
       </View>
       <View style={styles.blockIcon}>
-        <Image
-          style={[styles.img, {tintColor: color.text}]}
-          source={require('../../../../assets/icon/rightArrow.png')}
-        />
+        <ChevronRight color={color.text}/>
       </View>
     </TouchableOpacity>
   );
@@ -97,7 +99,7 @@ const styles = StyleSheet.create({
   iconW: {
     width: '75%',
     height: '75%',
-    resizeMode: 'contain',
+    resizeMode: 'cover',
     borderRadius: 25,
     top: 0,
     left: 0,

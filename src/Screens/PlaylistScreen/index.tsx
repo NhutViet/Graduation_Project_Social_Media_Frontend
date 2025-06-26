@@ -8,7 +8,6 @@ import {
   SafeAreaView,
   StatusBar,
   Alert,
-  Modal,
 } from 'react-native';
 import VideoPlayer from 'react-native-video';
 import {useNavigation, useRoute} from '@react-navigation/native';
@@ -26,6 +25,8 @@ import {
 } from '../../../services/bookmarkRedux/bookmarkSlice';
 import {Check} from 'lucide-react-native';
 import {FlashList} from '@shopify/flash-list';
+import { ChevronLeft, Ellipsis, X, Film } from 'lucide-react-native';
+import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
 interface RouteParams {
   title: string;
@@ -55,14 +56,9 @@ export const PlaylistsScreen = () => {
   const palette = Colors[theme];
 
   const dispatch = useDispatch<AppDispatch>();
-  const {
-    itemsByPlaylist,
-    playlists,
-    isError,
-    isSuccess,
-    isloading,
-    messageError,
-  } = useSelector((state: RootState) => state.bookmark);
+  const {itemsByPlaylist, playlists} = useSelector(
+    (state: RootState) => state.bookmark,
+  );
   const [playlistItems, setPlaylistItems] = useState(
     itemsByPlaylist[playlistId] ?? [],
   );
@@ -105,8 +101,13 @@ export const PlaylistsScreen = () => {
         } as never,
       );
     } else {
-      setSelectedItem(item);
-      modalizeRef.current?.open();
+      navigation.navigate(
+        'AllReels',
+        {
+          reels: playlistItems,
+          initialId: item._id,
+        }
+      )
     }
   };
 
@@ -211,10 +212,7 @@ export const PlaylistsScreen = () => {
         />
         {isVideo && (
           <View style={styles.videoIconContainer}>
-            <Image
-              source={require('../../../assets/icon/reels.png')}
-              style={styles.videoIcon}
-            />
+            <Film size={16} color={styles.videoIcon.tintColor}/>
           </View>
         )}
         {isSelec && (
@@ -286,37 +284,42 @@ export const PlaylistsScreen = () => {
           setIsSelect(false);
           setListSelected([]);
           switchRef.current?.close();
-        }).catch(res => {
-          Alert.alert('Lỗi', res?.response?.data?.message || 'Chuyển danh mục thất bại.')
+        })
+        .catch(res => {
+          GlobalAlertManager.show(
+            'Lỗi',
+            res?.response?.data?.message || 'Chuyển danh mục thất bại.',
+          );
         });
     },
     [listSelected, refreshToken, dispatch],
   );
 
-  const removeListBookmark = useCallback(
-    () => {
-      dispatch(
-        removeBookmark({
-          postIds: listSelected,
-          refreshToken,
-        }),
-      )
-        .unwrap()
-        .then(() => {
-          //chỉnh hiển thị
-          setPlaylistItems(prev =>
-            prev.filter(item => !listSelected.includes(item._id)),
-          );
-          //reset chọn
-          setIsSelect(false);
-          setListSelected([]);
-          switchRef.current?.close();
-        }).catch(res =>{
-          Alert.alert('Lỗi', res?.response?.data?.message || 'Bỏ lưu thất bại.')
-        });
-    },
-    [listSelected, refreshToken, dispatch],
-  );
+  const removeListBookmark = useCallback(() => {
+    dispatch(
+      removeBookmark({
+        postIds: listSelected,
+        refreshToken,
+      }),
+    )
+      .unwrap()
+      .then(() => {
+        //chỉnh hiển thị
+        setPlaylistItems(prev =>
+          prev.filter(item => !listSelected.includes(item._id)),
+        );
+        //reset chọn
+        setIsSelect(false);
+        setListSelected([]);
+        switchRef.current?.close();
+      })
+      .catch(res => {
+        GlobalAlertManager.show(
+          'Lỗi',
+          res?.response?.data?.message || 'Bỏ lưu thất bại.',
+        );
+      });
+  }, [listSelected, refreshToken, dispatch]);
 
   return (
     <SafeAreaView style={styles.playlistsContainer}>
@@ -334,10 +337,7 @@ export const PlaylistsScreen = () => {
           {isSelec ? (
             <Text style={styles.textTop}>Hủy bỏ</Text>
           ) : (
-            <Image
-              source={require('../../../assets/icon/left.png')}
-              style={styles.icon}
-            />
+            <ChevronLeft color={styles.icon.tintColor}/>
           )}
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{title}</Text>
@@ -347,10 +347,7 @@ export const PlaylistsScreen = () => {
               {isAllSelected ? 'Bỏ chọn tất cả' : 'Chọn tất cả'}
             </Text>
           ) : (
-            <Image
-              source={require('../../../assets/icon/ellipsis.png')}
-              style={styles.icon}
-            />
+            <Ellipsis color={styles.icon.tintColor}/>
           )}
         </TouchableOpacity>
       </View>
@@ -391,10 +388,7 @@ export const PlaylistsScreen = () => {
           onClose={() => setSelectedItem(null)}>
           <View style={styles.modalizeContent}>
             <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
-              <Image
-                source={require('../../../assets/icon/closer.png')}
-                style={styles.closeIcon}
-              />
+              <X color={"white"}/>
             </TouchableOpacity>
             {selectedItem &&
               (selectedItem.type === 'reel' ? (

@@ -22,7 +22,8 @@ import {
 } from '../../../services/userRedux/userSlice';
 import {resetStatus} from '../../../services/userRedux/userReducer';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
-import {Eye, EyeOff} from 'lucide-react-native';
+import {Eye, EyeOff, CircleCheck, CircleAlert} from 'lucide-react-native';
+import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
 export const SwitchAccount = ({navigation}: any) => {
   const [email, setEmail] = useState('');
@@ -107,7 +108,8 @@ export const SwitchAccount = ({navigation}: any) => {
           );
 
           if (!fetchLogin.fulfilled.match(loginAction)) {
-            Alert.alert(
+            GlobalAlertManager.show(
+              'Thông báo',
               'Tài khoản này đã được đăng ký bằng hình thức khác.\nVui lòng dùng phương thức ban đầu.',
             );
           }
@@ -127,22 +129,26 @@ export const SwitchAccount = ({navigation}: any) => {
               fetchLogin({email, password: tempPassword}),
             );
             if (!fetchLogin.fulfilled.match(loginAction)) {
-              Alert.alert('Đăng nhập thất bại sau khi đăng ký.');
+              GlobalAlertManager.show(
+                'Thông báo',
+                'Đăng nhập thất bại sau khi đăng ký.',
+              );
             }
           } else {
-            Alert.alert(registerAction.payload?.message || 'Đăng ký thất bại');
+            GlobalAlertManager.show(
+              'Thông báo',
+              registerAction.payload?.message || 'Đăng ký thất bại',
+            );
           }
         }
       } else {
-        Alert.alert(
+        GlobalAlertManager.show(
+          'Thông báo',
           checkEmailAction.payload?.message || 'Kiểm tra email thất bại',
         );
       }
     } catch (error: any) {
-      console.log(
-        'Google sign-in or backend auth error:',
-        error.message || error,
-      );
+      GlobalAlertManager.show('Lỗi', error);
     }
   };
 
@@ -240,10 +246,7 @@ export const SwitchAccount = ({navigation}: any) => {
       <Modal visible={successModal} transparent animationType="fade">
         <View style={styles.modal}>
           <View style={styles.modalContainer}>
-            <Image
-              source={require('../../../assets/icon/success.png')}
-              style={[styles.iconNoti, {tintColor: color.primary}]}
-            />
+            <CircleCheck size={50} color={color.white} fill={color.primary}/>
             <Text style={[styles.textNoti, {color: color.primary}]}>
               Đăng nhập thành công
             </Text>
@@ -254,10 +257,7 @@ export const SwitchAccount = ({navigation}: any) => {
       <Modal visible={errorModal} transparent animationType="fade">
         <View style={styles.modal}>
           <View style={styles.modalContainer}>
-            <Image
-              source={require('../../../assets/icon/danger.png')}
-              style={[styles.iconNoti, {tintColor: color.error}]}
-            />
+            <CircleAlert size={50} color={color.white} fill={color.error}/>
             <Text style={[styles.textNoti, {color: color.error}]}>
               Đã có lỗi xảy ra
             </Text>

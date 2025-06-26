@@ -1,9 +1,10 @@
-import React, {useEffect, useRef, useState} from 'react';
-import {StyleSheet, View, Image, Alert} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {StyleSheet, View, Image} from 'react-native';
 import {ZegoUIKitPrebuiltCall} from '@zegocloud/zego-uikit-prebuilt-call-rn';
 import {CallAppID, CallAppSign} from '../../../services/api';
 import {useNavigation} from '@react-navigation/native';
 import {useSocket} from '../../../services/SocketContext';
+import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
 export default function ZegoCallScreen({route}: any) {
   const {userID, userName, callID, image, isCaller} = route.params;
@@ -73,7 +74,7 @@ export default function ZegoCallScreen({route}: any) {
             isDurationVisible: true,
             onDurationUpdate: (duration: number) => {
               if (duration === 9 * 60 + 30) {
-                Alert.alert(
+                GlobalAlertManager.show(
                   'Thông báo',
                   'Cuộc gọi sẽ tự động kết thúc sau 30 giây',
                 );

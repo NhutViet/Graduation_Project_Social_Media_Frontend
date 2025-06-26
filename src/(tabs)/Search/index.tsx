@@ -30,6 +30,7 @@ import ExploreSection from './Components/ExploreTile';
 import { useDebounce } from 'use-debounce';
 import { fetchSearchPost, fetchSearchUser, clearSearchResults } from '../../../services/searchRedux/searchSlice';
 import { selectSearchLoading } from '../../../services/searchRedux/searchType';
+import { ChevronLeft, SearchIcon } from 'lucide-react-native';
 
 const SEARCH_HISTORY_KEY = 'search_history';
 
@@ -315,7 +316,7 @@ export const Search: React.FC = () => {
       <View style={styles.searchContainer}>
         {isShowResult && (
           <TouchableOpacity onPress={handleBack}>
-            <Image source={require('../../../assets/icon/left.png')} style={[styles.icon, { marginRight: 10 }]} />
+            <ChevronLeft size={17} style={[styles.icon, { marginRight: 10 }]} color={color.text} />
           </TouchableOpacity>
         )}
         <View style={styles.row}>
@@ -330,7 +331,7 @@ export const Search: React.FC = () => {
             onSubmitEditing={handleSearchSubmit}
             returnKeyType="search"
           />
-          <Image source={require('../../../assets/icon/search.png')} style={styles.iconSearch} />
+          <SearchIcon size={17} style={styles.iconSearch} color={color.text} />
         </View>
         {isFocused && (
           <TouchableOpacity onPress={handleCancel}>

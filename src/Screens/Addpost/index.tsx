@@ -21,6 +21,8 @@ import {FlashList} from '@shopify/flash-list';
 import {getAddPostStyles} from '../../StyleSheet/AddPostStyles';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
+import { X, ChevronRight, Images, CameraOff, Check, Film } from 'lucide-react-native';
+import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
 const menu: string[] = ['Tất cả', 'Băng hình', 'Hình ảnh'];
 
@@ -128,7 +130,7 @@ export const AddPost = () => {
 
     if (isVideo) {
       if (isImageAlreadySelected) {
-        Alert.alert(
+        GlobalAlertManager.show(
           'Thông báo',
           'Không thể chọn cả video và ảnh cùng một lúc!!!',
         );
@@ -147,7 +149,7 @@ export const AddPost = () => {
       }
     } else {
       if (isVideoAlreadySelected) {
-        Alert.alert(
+        GlobalAlertManager.show(
           'Thông báo',
           'Không thể chọn cả video và ảnh cùng một lúc!!!',
         );
@@ -165,6 +167,11 @@ export const AddPost = () => {
           );
           setSelectedMedia(selectedItems[selectedItems.length - 2]);
         } else {
+          if (selectedItems.length >= 10) {
+            Alert.alert('Thông báo', 'Chỉ được chọn tối đa 10 ảnh!');
+            return;
+          }
+
           setSelectedItems(prev => [...prev, item]);
           setSelectedMedia(item);
         }
@@ -183,7 +190,10 @@ export const AddPost = () => {
 
   const handleNext = () => {
     if (selectedItems.length === 0) {
-      Alert.alert('Thông báo', 'Hãy chọn ít nhất một video hoặc ảnh');
+      GlobalAlertManager.show(
+        'Thông báo',
+        'Hãy chọn ít nhất một video hoặc ảnh',
+      );
       return;
     }
     navigation.navigate('PostSetting', {selectedMedia: selectedItems});
@@ -219,10 +229,7 @@ export const AddPost = () => {
       <View style={styles.container}>
         <View style={styles.rowSpace}>
           <TouchableOpacity onPress={() => navigation.navigate('BottomTabs')}>
-            <Image
-              source={require('../../../assets/icon/x.png')}
-              style={styles.iconR}
-            />
+            <X size={30} color={color.text}/>
           </TouchableOpacity>
           <Text style={styles.title}>Bài đăng mới</Text>
           <TouchableOpacity onPress={handleNext}>
@@ -255,10 +262,7 @@ export const AddPost = () => {
               style={styles.row}
               onPress={() => setShowModalFilter(true)}>
               <Text style={styles.textR}>{filter}</Text>
-              <Image
-                source={require('../../../assets/icon/right.png')}
-                style={styles.iconRR}
-              />
+              <ChevronRight size={12} color={color.text} style={styles.iconRR}/>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={toggleSelectMode}
@@ -266,18 +270,12 @@ export const AddPost = () => {
                 styles.btnCir,
                 {backgroundColor: isMultiSelect ? color.gray : 'transparent'},
               ]}>
-              <Image
-                source={require('../../../assets/icon/gallery.png')}
-                style={[styles.icon]}
-              />
+              <Images size={20} color={color.text}/>
             </TouchableOpacity>
           </View>
           {medias.length === 0 ? (
             <View style={styles.emtyContainer}>
-              <Image
-                source={require('../../../assets/icon/no_photo.png')}
-                style={styles.iconEmty}
-              />
+              <CameraOff size={30} style={{marginBottom: 15}} color={color.text}/>
               <Text style={[styles.notFound]}>Không tìm thấy 🙂‍↔️!</Text>
             </View>
           ) : (
@@ -348,19 +346,15 @@ export const AddPost = () => {
                     )}
                     {/* Icon video */}
                     {item.node.type.startsWith('video') && (
-                      <Image
-                        source={require('../../../assets/icon/reels.png')}
+                      <Film 
                         style={{
                           position: 'absolute',
                           bottom: 5,
                           right: 5,
-                          width: 20,
-                          height: 20,
-                          tintColor: color.white,
                           backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                          resizeMode: 'contain',
                           borderRadius: 3,
                         }}
+                        color={color.white}
                       />
                     )}
                   </TouchableOpacity>
@@ -389,10 +383,7 @@ export const AddPost = () => {
                     onPress={() => handleFilter(item.item)}>
                     <Text style={styles.textR}>{item.item}</Text>
                     {filter === item.item && (
-                      <Image
-                        source={require('../../../assets/icon/check.png')}
-                        style={styles.iconCheck}
-                      />
+                      <Check color={color.primary}/>
                     )}
                   </TouchableOpacity>
                 );

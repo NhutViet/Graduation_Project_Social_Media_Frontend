@@ -18,7 +18,6 @@ import Video from 'react-native-video';
 import Draggable from 'react-native-draggable';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import Sound from 'react-native-sound';
-import axios from 'axios';
 import {BASE_URL} from '../../../services/api';
 import {useUploadProgress} from '../../../services/UploadProgressManager';
 import {useSelector} from 'react-redux';
@@ -26,6 +25,8 @@ import {RootState} from '../../../services/store';
 import {uploadImageToR2, uploadToCloudflare} from '../../core/upload';
 import axiosInstance from '../../../services/axiosInstance';
 import {Dimensions} from 'react-native';
+import {X, ChevronRight} from 'lucide-react-native';
+import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -253,7 +254,7 @@ export const EditStory = ({route, navigation}: any) => {
           });
         }
       } catch (error) {
-        Alert.alert(
+        GlobalAlertManager.show(
           'Upload thất bại',
           `Không thể upload ${
             selectedItem?.type.includes('video') ? 'video' : 'ảnh'
@@ -302,13 +303,13 @@ export const EditStory = ({route, navigation}: any) => {
       );
 
       if (res.data) {
-        Alert.alert('Thông báo', 'Đăng story thành công.');
+        GlobalAlertManager.show('Thông báo', 'Đăng story thành công.');
       }
 
       hideUploadModal();
       navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
     } catch (error: any) {
-      Alert.alert(
+      GlobalAlertManager.show(
         'Lỗi!!!',
         error?.response?.data?.message || 'Đăng story thất bại.',
       );
@@ -326,10 +327,7 @@ export const EditStory = ({route, navigation}: any) => {
             <TouchableOpacity
               style={styles.btnCloser}
               onPress={handleCloserPress}>
-              <Image
-                style={styles.iconCloser}
-                source={require('../../../assets/icon/closer.png')}
-              />
+              <X size={15} color={'#fff'} />
             </TouchableOpacity>
             <View style={styles.viewHeaderRight}>
               <TouchableOpacity
@@ -340,10 +338,7 @@ export const EditStory = ({route, navigation}: any) => {
               <TouchableOpacity
                 style={styles.btnCloser}
                 onPress={handleUploadStory}>
-                <Image
-                  style={styles.iconCloser}
-                  source={require('../../../assets/icon/rightArrow.png')}
-                />
+                <ChevronRight size={15} color={'#fff'} />
               </TouchableOpacity>
             </View>
           </View>

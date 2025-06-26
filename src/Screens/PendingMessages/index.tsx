@@ -15,6 +15,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '@services/store';
 import {fetchMyWaitingRooms} from '@services/roomRedux/roomSlice';
 import {Room} from '@services/roomRedux/roomType';
+import { ChevronLeft, ChevronDown, Video, SquarePen, Search } from 'lucide-react-native';
 
 export const PendingMessages: React.FC = () => {
   const styles = useProfileEditingStyles();
@@ -39,40 +40,25 @@ export const PendingMessages: React.FC = () => {
       {/* Header */}
       <View style={styles.headerRow}>
         <TouchableOpacity onPress={() => nav.goBack()}>
-          <Image
-            source={require('../../../assets/icon/left.png')}
-            style={styles.headerIcon}
-          />
+          <ChevronLeft size={15} color={styles.headerIcon.tintColor} style={{marginLeft: 8}}/>
         </TouchableOpacity>
         <Text style={styles.headerUsername}>{user?.handleName}</Text>
         <TouchableOpacity>
-          <Image
-            source={require('../../../assets/icon/down.png')}
-            style={styles.headerSmallIcon}
-          />
+          <ChevronLeft size={12} color={styles.headerSmallIcon.tintColor} style={{marginLeft: 4}}/>
         </TouchableOpacity>
         <View style={styles.headerRightIcons}>
           <TouchableOpacity style={{marginRight: 16}}>
-            <Image
-              source={require('../../../assets/icon/videoCamera.png')}
-              style={styles.headerIcon}
-            />
+            <Video size={15} color={styles.headerIcon.tintColor} style={{marginLeft: 8}}/>
           </TouchableOpacity>
           <TouchableOpacity>
-            <Image
-              source={require('../../../assets/icon/newMessage.png')}
-              style={styles.headerIcon}
-            />
+            <SquarePen size={15} color={styles.headerIcon.tintColor} style={{marginLeft: 8}}/>
           </TouchableOpacity>
         </View>
       </View>
 
       {/* Search Bar */}
       <View style={localStyles.searchContainer}>
-        <Image
-          source={require('../../../assets/icon/search.png')}
-          style={localStyles.searchIcon}
-        />
+        <Search style={{marginRight: 10}}/>
         <TextInput
           style={localStyles.searchInput}
           placeholder="Tìm kiếm"

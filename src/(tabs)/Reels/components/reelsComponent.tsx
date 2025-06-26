@@ -1,8 +1,7 @@
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Colors} from '../../../../assets/color/Colors';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import Video from 'react-native-video';
-
 import {Dimensions} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../../services/store';
@@ -16,6 +15,7 @@ import {
   unlikePost,
 } from '../../../../services/reactionRedux/reactionSlice';
 import {useTheme} from '../../../util/ThemeContext';
+import { Heart, MessageCircle, Send, EllipsisVertical, Music4, CircleUserRound } from 'lucide-react-native';
 import {relationAction} from '@services/relationRedux/relationSlice';
 import TagMarker from './TagMarker';
 
@@ -37,6 +37,7 @@ const ReelsComponent = (props: any) => {
     isLike,
     commentCount,
     openComment,
+    openReactionModal,
     isFollow,
   } = props;
   const navigation = useNavigation<any>();
@@ -130,18 +131,36 @@ const ReelsComponent = (props: any) => {
   return (
     <View style={styles.container}>
       <View style={styles.video}>
-        <Video
-          source={{uri: media[0]?.videoUrl}}
-          resizeMode="contain"
-          style={{width: '100%', height: '100%'}}
-          repeat
-          paused={!currentVisible || !isFocused}
-          muted={muted}
-          maxBitRate={0}
-          progressUpdateInterval={500}
-        />
+        {media[0]?.videoUrl ? (
+          <Video
+            source={{uri: media[0].videoUrl}}
+            resizeMode="contain"
+            style={{width: '100%', height: '100%'}}
+            repeat
+            paused={!currentVisible || !isFocused}
+            muted={muted}
+            maxBitRate={1500000}
+            progressUpdateInterval={500}
+          />
+        ) : (
+          <View
+            style={{
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <Text style={{color: 'white'}}>Không có video</Text>
+          </View>
+        )}
         <View
-          style={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1}}>
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 1,
+          }}>
           {media[0]?.tags?.map((tag: any, index: number) => (
             <TagMarker
               key={index}
@@ -157,7 +176,13 @@ const ReelsComponent = (props: any) => {
         <View style={styles.block1}>
           <View style={styles.rowContainer}>
             <TouchableOpacity style={styles.imgContainer}>
-              <Image style={styles.img} source={{uri: user.profilePic}} />
+              <TouchableOpacity style={styles.imgContainer}>
+                {user.profilePic ? (
+                  <Image style={styles.img} source={{uri: user.profilePic}} />
+                ) : (
+                  <CircleUserRound color={"#fff"}/>
+                )}
+              </TouchableOpacity>
             </TouchableOpacity>
             <Text style={styles.name}>{user.handleName}</Text>
             {user._id !== currentUserId && (
@@ -175,55 +200,35 @@ const ReelsComponent = (props: any) => {
         <View style={styles.block2}>
           <View style={styles.containerVertical}>
             <TouchableOpacity style={styles.iconContainer} onPress={handleLike}>
-              <Image
-                style={[
-                  styles.icon,
-                  {tintColor: isLiked ? color.error : '#fff'},
-                ]}
-                source={
-                  isLiked
-                    ? require('../../../../assets/icon/heart_fill.png')
-                    : require('../../../../assets/icon/heart.png')
-                }
-              />
+              <Heart color={isLiked ? Colors.error : "#fff"} fill={isLiked ? Colors.error : "none"}/>
             </TouchableOpacity>
-            <Text style={styles.textNormal}>{formatNumber(numLike)}</Text>
+            <TouchableOpacity onPress={() => openReactionModal(_id, isLiked)}>
+              <Text style={styles.textNormal}>{formatNumber(numLike)}</Text>
+            </TouchableOpacity>
           </View>
           <View style={styles.containerVertical}>
             <TouchableOpacity
               style={styles.iconContainer}
               onPress={openComment}>
-              <Image
-                style={styles.icon}
-                source={require('../../../../assets/icon/comment.png')}
-              />
+              <MessageCircle color={"#fff"}/>
             </TouchableOpacity>
             <Text style={styles.textNormal}>{formatNumber(commentCount)}</Text>
           </View>
           <View style={styles.containerVertical}>
             <TouchableOpacity style={styles.iconContainer}>
-              <Image
-                style={styles.icon}
-                source={require('../../../../assets/icon/share.png')}
-              />
+              <Send color={"#fff"}/>
             </TouchableOpacity>
             <Text style={styles.textNormal}>{formatNumber(share)}</Text>
           </View>
           <TouchableOpacity
             style={[styles.containerVertical, styles.iconContainer]}
             onPress={showBottomSheet}>
-            <Image
-              style={styles.icon}
-              source={require('../../../../assets/icon/menu-dots-vertical.png')}
-            />
+            <EllipsisVertical color={"#fff"}/>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.iconMusicContainer}
             onPress={() => navigation.navigate('SaveMusic')}>
-            <Image
-              style={styles.icon}
-              source={require('../../../../assets/icon/musical-note.png')}
-            />
+            <Music4 size={20} style={{position: "absolute"}} color={"#fff"}/>
           </TouchableOpacity>
         </View>
       </View>
@@ -278,6 +283,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-end',
     backgroundColor: Colors.dark.transparent,
+    zIndex: 1,
   },
   block1: {
     width: '80%',
@@ -306,12 +312,15 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   iconMusicContainer: {
+    position: 'relative',
     width: 25,
     height: 25,
     padding: 5,
     borderRadius: 2,
     borderColor: Colors.dark.text,
     borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   video: {
     width: '100%',

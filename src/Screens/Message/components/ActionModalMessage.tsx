@@ -12,6 +12,8 @@ import {
 import {Message} from '@services/messageRedux/messageType';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '@services/store';
+import { Copy, Trash2, Reply } from 'lucide-react-native';
+import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 
 interface Props {
   visible: boolean;
@@ -107,19 +109,13 @@ const ActionModalMessage = ({visible, onClose, content, setChat}: Props) => {
           </View>
           <View style={styles.actionContainer}>
             <TouchableOpacity style={styles.featureContainer}>
-              <Image
-                style={styles.icon}
-                source={require('../../../../assets/icon/reply.png')}
-              />
+              <Reply size={24} color={Colors.black} strokeWidth={2} />
               <Text style={styles.text} numberOfLines={1}>
                 Trả lời
               </Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.featureContainer}>
-              <Image
-                style={styles.icon}
-                source={require('../../../../assets/icon/copy.png')}
-              />
+              <Copy size={24} color={Colors.black} strokeWidth={2} />
               <Text style={styles.text} numberOfLines={1}>
                 Sao chép
               </Text>
@@ -142,27 +138,27 @@ const ActionModalMessage = ({visible, onClose, content, setChat}: Props) => {
                         );
                         onClose();
                       } else {
-                        Alert.alert(
-                          'Không thể xoá',
+                        GlobalAlertManager.show(
+                          'Thất bại',
                           reason || 'Bạn không thể xoá tin nhắn này',
                         );
                       }
                     } else {
                       const reason = resultAction.payload || 'Xoá thất bại';
-                      Alert.alert('Lỗi', reason);
+                      GlobalAlertManager.show('Lỗi', reason);
                     }
                   } catch (err) {
                     console.error('❌ Lỗi xoá tin nhắn:', err);
-                    Alert.alert('Lỗi', 'Đã xảy ra lỗi khi xoá tin nhắn');
+                    GlobalAlertManager.show(
+                      'Lỗi',
+                      'Đã xảy ra lỗi khi xoá tin nhắn',
+                    );
                   } finally {
                     onClose();
                   }
                 }
               }}>
-              <Image
-                style={styles.icon}
-                source={require('../../../../assets/icon/trash.png')}
-              />
+              <Trash2 size={24} color={Colors.black} strokeWidth={2} />
               <Text style={styles.text} numberOfLines={1}>
                 Xoá tin nhắn
               </Text>

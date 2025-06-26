@@ -1,8 +1,9 @@
 import React, {forwardRef, useEffect, useRef} from 'react';
 import {View, Image, Text, Alert} from 'react-native';
-import Video from 'react-native-video';
+import Video, {VideoRef} from 'react-native-video';
 import Sound from 'react-native-sound';
 import {styles} from './style';
+import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 
 interface MediaSectionProps {
   selectedItem: any;
@@ -15,7 +16,7 @@ interface MediaSectionProps {
   muted?: boolean;
 }
 
-export const MediaSection = forwardRef(
+export const MediaSection = forwardRef<VideoRef, MediaSectionProps>(
   (
     {
       selectedItem,
@@ -50,7 +51,7 @@ export const MediaSection = forwardRef(
       }
 
       if (!isValidUrl(musicLink)) {
-        Alert.alert('Lỗi phát nhạc', 'URL nhạc không hợp lệ.');
+        GlobalAlertManager.show('Lỗi phát nhạc', 'URL nhạc không hợp lệ.');
         return;
       }
 
@@ -59,10 +60,9 @@ export const MediaSection = forwardRef(
         soundRef.current.stop(() => soundRef.current?.release());
       }
 
-      const sound = new Sound(musicLink, null, error => {
+      const sound = new Sound(musicLink, undefined, error => {
         if (error) {
-          console.warn('❌ Music error:', error);
-          Alert.alert('Lỗi phát nhạc', 'Không thể tải nhạc.');
+          GlobalAlertManager.show('Lỗi phát nhạc', 'Không thể tải nhạc');
           return;
         }
 

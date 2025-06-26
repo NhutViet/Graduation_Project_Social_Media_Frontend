@@ -14,7 +14,7 @@ import {
   checkStorySeenInStorage,
   markStoryAsSeen,
 } from '../../../../services/storage/storage';
-import {Story} from '@services/StoryRedux/StoryType';
+import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 
 export const handleBookmark = async ({
   isBookmarked,
@@ -102,9 +102,9 @@ export const handleFollowToggle = async ({
       }),
     ).unwrap();
   } catch (error) {
-    Alert.alert(
+    GlobalAlertManager.show(
+      'Thất bại',
       `${actionType === 'follow' ? 'Theo dõi' : 'Bỏ theo dõi'} thất bại`,
-      'Vui lòng thử lại sau.',
     );
     setFollow(isFollowing);
   }
@@ -130,7 +130,7 @@ export const handleUserPress = async (
     ).unwrap();
 
     if (!detailRes || !detailRes.length) {
-      Alert.alert('Không tìm thấy story để hiển thị');
+      GlobalAlertManager.show('Lỗi', 'Không tìm thấy story để hiển thị');
       return;
     }
 
@@ -179,6 +179,10 @@ export const handleUserPress = async (
               story.mediaUrl.endsWith('.jpg') || story.mediaUrl.endsWith('.png')
                 ? story.mediaUrl
                 : null,
+            image:
+              story.mediaUrl.endsWith('.jpg') || story.mediaUrl.endsWith('.png')
+                ? story.mediaUrl
+                : null,
           };
         } catch (err) {
           console.error('❌ seenStory error', err);
@@ -190,7 +194,7 @@ export const handleUserPress = async (
     const validStories = seenedStories.filter(s => s);
 
     if (!validStories.length) {
-      Alert.alert('Không có story hợp lệ để hiển thị');
+      GlobalAlertManager.show('Lỗi', 'Không có story hợp lệ để hiển thị');
       return;
     }
 
@@ -205,7 +209,7 @@ export const handleUserPress = async (
     });
   } catch (error) {
     console.error('❌ fetchStoryDetails or seenStory failed:', error);
-    Alert.alert('Lỗi khi tải story');
+    GlobalAlertManager.show('Lỗi', 'Lỗi khi tải story');
   }
 };
 
@@ -252,7 +256,7 @@ export const handleHighlightPress = async (
     const validStories = seenedStories.filter(s => s);
 
     if (!validStories.length) {
-      Alert.alert('Không có story hợp lệ để hiển thị');
+      GlobalAlertManager.show('Lỗi', 'Không có story hợp lệ để hiển thị');
       return;
     }
 
@@ -267,6 +271,6 @@ export const handleHighlightPress = async (
     });
   } catch (error) {
     console.error('handleHighlightPress error:', error);
-    Alert.alert('Lỗi khi tải highlight');
+    GlobalAlertManager.show('Thất bại', 'Lỗi khi tải highlight');
   }
 };

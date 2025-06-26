@@ -19,6 +19,8 @@ import {
   addToBookmark,
   removeFromBookmark,
 } from '../../../../services/musicRedux/musicReducer';
+import { Bookmark } from 'lucide-react-native';
+import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 
 const ItemMusic = (props: any) => {
   const {
@@ -58,7 +60,7 @@ const ItemMusic = (props: any) => {
         .catch(res => {
           setIsSave(true);
           if (isError) {
-            Alert.alert('Thông báo', messageError);
+            GlobalAlertManager.show('Thông báo', messageError);
           }
         });
     } else {
@@ -74,7 +76,7 @@ const ItemMusic = (props: any) => {
         .catch(res => {
           setIsSave(false);
           if (isError) {
-            Alert.alert('Thông báo', messageError);
+            GlobalAlertManager.show('Thông báo', messageError);
           }
         });
     }
@@ -102,14 +104,7 @@ const ItemMusic = (props: any) => {
       </View>
 
       <TouchableOpacity style={styles.playBlock} onPress={handleBookmark}>
-        <Image
-          style={[styles.play, {tintColor: isSave ? '#F2C641' : color.text}]}
-          source={
-            isSave
-              ? require('../../../../assets/icon/bookmark_fill.png')
-              : require('../../../../assets/icon/bookmark.png')
-          }
-        />
+        <Bookmark color={isSave ? "#F2C641" : color.text} fill={isSave ? "#F2C641" : "none"}/>
       </TouchableOpacity>
     </TouchableOpacity>
   );

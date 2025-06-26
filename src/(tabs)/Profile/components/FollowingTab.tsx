@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
-  ActivityIndicator
+  ActivityIndicator,
 } from 'react-native';
 import {FlashList} from '@shopify/flash-list';
 import React, {useState, useEffect} from 'react';
@@ -14,9 +14,15 @@ import {Colors} from '../../../../assets/color/Colors';
 import {useTheme} from '../../../util/ThemeContext';
 import {useNavigation} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
-import { AppDispatch, RootState } from '../../../../services/store';
-import { fetchFollowing, relationAction, fetchRecommendations } from '../../../../services/relationRedux/relationSlice';
+import {AppDispatch, RootState} from '../../../../services/store';
+import {
+  fetchFollowing,
+  relationAction,
+  fetchRecommendations,
+} from '../../../../services/relationRedux/relationSlice';
 import {createRoom} from '../../../../services/roomRedux/roomSlice';
+import { EllipsisVertical, UserRoundPlus, Funnel } from 'lucide-react-native';
+import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 
 const categoriesData = [
   {
@@ -48,14 +54,17 @@ const FollowingTab = () => {
   const color = Colors[theme];
   const userID = useSelector((state: RootState) => state.user?.user?._id);
   const dispatch = useDispatch<AppDispatch>();
-  const {following: reduxFollowing, recommendations: reduxRecommendatinos, loading, error} = useSelector(
-    (state: RootState) => state.relation,
-  );
-  
+  const {
+    following: reduxFollowing,
+    recommendations: reduxRecommendatinos,
+    loading,
+    error,
+  } = useSelector((state: RootState) => state.relation);
+
   const [following, setFollowing] = useState(reduxFollowing);
   const [recommendations, setRecommendations] = useState(reduxRecommendatinos);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isError, setIsError] = useState<string | null>(null)
+  const [isError, setIsError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!userID) return;
@@ -64,8 +73,8 @@ const FollowingTab = () => {
     setIsError(null);
 
     Promise.all([
-      dispatch(fetchFollowing({ userId: userID })).unwrap(),
-      dispatch(fetchRecommendations({ limit: 10 })).unwrap(),
+      dispatch(fetchFollowing({userId: userID})).unwrap(),
+      dispatch(fetchRecommendations({limit: 10})).unwrap(),
     ])
       .then(([followData, recData]) => {
         setFollowing(followData);
@@ -76,9 +85,9 @@ const FollowingTab = () => {
         setIsError(typeof err === 'string' ? err : 'Tải dữ liệu thất bại');
       })
       .finally(() => setIsLoading(false));
-    }, [dispatch, userID]);
-  
-  const handleMessagingPress = async (item: typeof following[0]) => {
+  }, [dispatch, userID]);
+
+  const handleMessagingPress = async (item: (typeof following)[0]) => {
     try {
       const res = await dispatch(
         createRoom({
@@ -87,15 +96,15 @@ const FollowingTab = () => {
           type: 'waiting',
         }),
       ).unwrap();
-          
+
       const {room} = res;
-          
+
       const otherUsers = room.user_ids.filter(user => user._id !== userID);
       const img1 = otherUsers[0]?.profilePic;
       const img2 = userID
         ? room.user_ids.find(user => user._id === userID)?.profilePic
         : undefined;
-          
+
       navigation.navigate('MessageScreen', {
         room: room._id,
         img1,
@@ -104,26 +113,23 @@ const FollowingTab = () => {
     } catch (error) {
       console.log('Tạo room thất bại:', error);
     }
-  }
+  };
 
-  const handleFollowPress = async (item: typeof recommendations[0]) => {
-    try{
+  const handleFollowPress = async (item: (typeof recommendations)[0]) => {
+    try {
       await dispatch(
         relationAction({
           targetId: item._id,
-          action: "follow"
-        })
+          action: 'follow',
+        }),
       ).unwrap();
 
       setRecommendations(curr => curr.filter(u => u._id !== item._id));
-    } catch (error){
-      Alert.alert(
-          "Theo dõi thất bại",
-          'Vui lòng thử lại sau.',
-        );
+    } catch (error) {
+      GlobalAlertManager.show('Thất bại', 'Vui lòng thử lại sau');
       console.log(error);
     }
-  }
+  };
 
   const renderCategoryItem = ({item}: {item: any}) => (
     <TouchableOpacity>
@@ -143,7 +149,7 @@ const FollowingTab = () => {
     </TouchableOpacity>
   );
 
-  const renderSortItem = ({item}: {item: typeof following[0]}) => (
+  const renderSortItem = ({item}: {item: (typeof following)[0]}) => (
     <View style={[styles.suggestedItem, {backgroundColor: color.background}]}>
       <TouchableOpacity style={styles.touchableInfo}>
         <Image source={{uri: item.profilePic}} style={styles.profilePic} />
@@ -156,20 +162,18 @@ const FollowingTab = () => {
           </Text>
         </View>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => handleMessagingPress(item)}
+      <TouchableOpacity
+        onPress={() => handleMessagingPress(item)}
         style={[styles.messageButton, {borderColor: color.text}]}>
         <Text style={[styles.messageText, {color: color.text}]}>Nhắn tin</Text>
       </TouchableOpacity>
       <TouchableOpacity>
-        <Image
-          source={require('../../../../assets/icon/menu-dots-vertical.png')}
-          style={[styles.moreIcon, {tintColor: color.text}]}
-        />
+        <EllipsisVertical color={color.text}/>
       </TouchableOpacity>
     </View>
   );
 
-  const renderRecommendItem = ({item}: {item: typeof recommendations[0]}) => (
+  const renderRecommendItem = ({item}: {item: (typeof recommendations)[0]}) => (
     <View style={[styles.suggestedItem, {backgroundColor: color.background}]}>
       <TouchableOpacity style={styles.touchableInfo}>
         <Image source={{uri: item.profilePic}} style={styles.profilePic} />
@@ -182,25 +186,24 @@ const FollowingTab = () => {
           </Text>
         </View>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => handleFollowPress(item)} style={styles.followButton}>
+      <TouchableOpacity
+        onPress={() => handleFollowPress(item)}
+        style={styles.followButton}>
         <Text style={styles.followText}>Theo dõi</Text>
       </TouchableOpacity>
       <TouchableOpacity>
-        <Image
-          source={require('../../../../assets/icon/menu-dots-vertical.png')}
-          style={[styles.moreIcon, {tintColor: color.text}]}
-        />
+        <EllipsisVertical color={color.text}/>
       </TouchableOpacity>
     </View>
   );
 
   if (isLoading) {
-    return <ActivityIndicator style={{ marginTop: 20 }} size="large" />;
+    return <ActivityIndicator style={{marginTop: 20}} size="large" />;
   }
   if (isError) {
     return (
-      <View style={{ padding: 20 }}>
-        <Text style={{ color: color.text, textAlign: 'center' }}>{error}</Text>
+      <View style={{padding: 20}}>
+        <Text style={{color: color.text, textAlign: 'center'}}>{error}</Text>
       </View>
     );
   }
@@ -219,21 +222,36 @@ const FollowingTab = () => {
           </Text>
         }
       />
-      {!isLoading && following.length === 0 ? 
-        <View style={{ backgroundColor: color.background, flex: 1, alignItems: 'center', justifyContent: 'center', padding: 20, }}>
-          <Image
-            source={require('../../../../assets/icon/invite.png')}
-            style={{width: 200, height: 200, marginBottom: 24,}}
-            resizeMode="contain"
-          />
-          <Text style={{ color: color.text, fontSize: 20, fontWeight: 'bold', marginBottom: 8, }}>
+      {!isLoading && following.length === 0 ? (
+        <View
+          style={{
+            backgroundColor: color.background,
+            flex: 1,
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 20,
+          }}>
+          <UserRoundPlus size={60} color={color.text}/>
+          <Text
+            style={{
+              color: color.text,
+              fontSize: 20,
+              fontWeight: 'bold',
+              marginBottom: 8,
+            }}>
             Bạn chưa theo dõi ai
           </Text>
-          <Text style={{ color: color.textSecondary, fontSize: 14, textAlign: 'center', marginBottom: 24, }}>
+          <Text
+            style={{
+              color: color.textSecondary,
+              fontSize: 14,
+              textAlign: 'center',
+              marginBottom: 24,
+            }}>
             Khám phá người dùng để kết nối và bắt đầu theo dõi
           </Text>
-        </View> :
-
+        </View>
+      ) : (
         <FlashList
           data={following}
           keyExtractor={item => item._id}
@@ -249,16 +267,17 @@ const FollowingTab = () => {
                 marginTop: 10,
               }}>
               <Text style={{color: color.text, fontSize: 18}}>
-                Sắp xếp theo <Text style={{color: color.text, fontSize: 18, fontWeight: 'bold'}}>Mặc định</Text>
+                Sắp xếp theo{' '}
+                <Text
+                  style={{color: color.text, fontSize: 18, fontWeight: 'bold'}}>
+                  Mặc định
+                </Text>
               </Text>
-              <Image
-                source={require('../../../../assets/icon/icon_sort.png')}
-                style={[styles.sortIcon, {tintColor: color.text}]}
-              />
+              <Funnel color={color.text}/>
             </TouchableOpacity>
           }
         />
-      }
+      )}
       <FlashList
         data={recommendations}
         keyExtractor={item => item._id}

@@ -8,7 +8,6 @@ import {
   TouchableOpacity,
   Dimensions,
   GestureResponderEvent,
-  Alert,
 } from 'react-native';
 import {Modalize} from 'react-native-modalize';
 import {Portal} from 'react-native-portalize';
@@ -20,7 +19,6 @@ import HighlightViewModal from './component/HighlightViewModal';
 import {MediaSection} from './component/MediaSection';
 import {styles} from './component/style';
 import debounce from 'lodash/debounce';
-
 import {
   deleteStory,
   fetchGetPostedSotry,
@@ -79,11 +77,11 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
       const result = await dispatch(deleteStory({storyId: currentStory._id}));
 
       if (deleteStory.fulfilled.match(result)) {
-        Alert.alert('Thành công', 'Tin của bạn đã được xoá');
+        GlobalAlertManager.show('Thành công', 'Tin của bạn đã được xoá');
         dispatch(fetchGetPostedSotry());
         navigation.goBack();
       } else {
-        Alert.alert('Thất bại', 'Không thể xoá story');
+        GlobalAlertManager.show('Thất bại', 'Không thể xoá story');
       }
     } catch (error) {
       console.log('Line 100', error);

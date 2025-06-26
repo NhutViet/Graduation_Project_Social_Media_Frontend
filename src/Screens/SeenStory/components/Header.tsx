@@ -45,10 +45,7 @@ export const Header = ({
       )}
     </TouchableOpacity>
     <TouchableOpacity style={styles.btnCloser} onPress={onClose}>
-      <Image
-        style={styles.iconCloser}
-        source={require('../../../../assets/icon/closer.png')}
-      />
+      <X color={'#fff'} />
     </TouchableOpacity>
   </View>
 );

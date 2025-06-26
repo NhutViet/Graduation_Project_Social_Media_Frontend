@@ -10,6 +10,7 @@ import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
 import {useState} from 'react';
 import {FlashList} from '@shopify/flash-list';
+import { Heart } from 'lucide-react-native';
 
 const width = Dimensions.get('window').width - 96;
 
@@ -105,10 +106,7 @@ const CommentComponent = ({onReply, ...props}: CommentComponentProps) => {
           </View>
           <View style={{alignItems: 'center', marginTop: 20}}>
             <TouchableOpacity style={styles.blockIcon}>
-              <Image
-                style={[styles.icon, {tintColor: color.text}]}
-                source={require('../../../../assets/icon/heart.png')}
-              />
+              <Heart style={[styles.icon]} color={color.text}/>
             </TouchableOpacity>
             <Text style={[styles.text, {color: color.text}]}>4</Text>
           </View>
@@ -197,10 +195,7 @@ const CommentComponent = ({onReply, ...props}: CommentComponentProps) => {
         </View>
         <View style={styles.heartContainer}>
           <TouchableOpacity style={styles.blockIcon}>
-            <Image
-              style={[styles.icon, {tintColor: color.text}]}
-              source={require('../../../../assets/icon/heart.png')}
-            />
+            <Heart style={[styles.icon]} color={color.text}/>
           </TouchableOpacity>
           <Text style={[styles.text, {color: color.text}]}>4</Text>
         </View>
