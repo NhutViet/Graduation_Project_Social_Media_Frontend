@@ -70,4 +70,8 @@ export const API = {
   ////Search
   POST_SEARCH_POST: 'posts/search',
   POST_SEARCH_USER: 'users/search',
+
+  ////Notification
+  GET_ALL_NOTIFICATION: 'notifications/all',
+  POST_FCM_TOKEN: 'users/fcm-token',
 };

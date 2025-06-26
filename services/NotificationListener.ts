@@ -6,23 +6,16 @@ const useNotificationListener = () => {
   const {notificationSocket} = useSocket();
 
   useEffect(() => {
-    notificationSocket?.onAny((event, ...args) => {
-      console.log('📥 Event:', event, args);
-    });
-  }, [notificationSocket]);
-
-  useEffect(() => {
     if (!notificationSocket) return console.log('hong có');
 
     const handleNotification = (payload: any) => {
-      // Toast.show({
-      //   type: 'info',
-      //   text1: 'Thông báo mới.',
-      //   text2: payload?.caption || 'Bạn có thông báo mới',
-      //   position: 'top',
-      //   visibilityTime: 2000,
-      // });
-      console.log('nhận đượcthoong báo nè: ', payload);
+      Toast.show({
+        type: 'info',
+        text1: 'Thông báo mới.',
+        text2: payload?.caption || 'Bạn có thông báo mới',
+        position: 'top',
+        visibilityTime: 2000,
+      });
     };
 
     // Lắng nghe các sự kiện từ server
@@ -33,9 +26,6 @@ const useNotificationListener = () => {
     notificationSocket.on('new_post_like', handleNotification);
     notificationSocket.on('new_comment', handleNotification);
 
-    notificationSocket.onAny((event, ...args) => {
-      console.log('📥 Event from server:', event, args);
-    });
     return () => {
       // Cleanup để tránh double lắng nghe
       notificationSocket.off('new_notification', handleNotification);
