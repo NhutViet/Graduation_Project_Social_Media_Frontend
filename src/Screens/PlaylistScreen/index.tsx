@@ -25,6 +25,7 @@ import {
 } from '../../../services/bookmarkRedux/bookmarkSlice';
 import {Check} from 'lucide-react-native';
 import {FlashList} from '@shopify/flash-list';
+import { ChevronLeft, Ellipsis, X, Film } from 'lucide-react-native';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
 interface RouteParams {
@@ -211,10 +212,7 @@ export const PlaylistsScreen = () => {
         />
         {isVideo && (
           <View style={styles.videoIconContainer}>
-            <Image
-              source={require('../../../assets/icon/reels.png')}
-              style={styles.videoIcon}
-            />
+            <Film size={16} color={styles.videoIcon.tintColor}/>
           </View>
         )}
         {isSelec && (
@@ -339,10 +337,7 @@ export const PlaylistsScreen = () => {
           {isSelec ? (
             <Text style={styles.textTop}>Hủy bỏ</Text>
           ) : (
-            <Image
-              source={require('../../../assets/icon/left.png')}
-              style={styles.icon}
-            />
+            <ChevronLeft color={styles.icon.tintColor}/>
           )}
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{title}</Text>
@@ -352,10 +347,7 @@ export const PlaylistsScreen = () => {
               {isAllSelected ? 'Bỏ chọn tất cả' : 'Chọn tất cả'}
             </Text>
           ) : (
-            <Image
-              source={require('../../../assets/icon/ellipsis.png')}
-              style={styles.icon}
-            />
+            <Ellipsis color={styles.icon.tintColor}/>
           )}
         </TouchableOpacity>
       </View>
@@ -396,10 +388,7 @@ export const PlaylistsScreen = () => {
           onClose={() => setSelectedItem(null)}>
           <View style={styles.modalizeContent}>
             <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
-              <Image
-                source={require('../../../assets/icon/closer.png')}
-                style={styles.closeIcon}
-              />
+              <X color={"white"}/>
             </TouchableOpacity>
             {selectedItem &&
               (selectedItem.type === 'reel' ? (

@@ -17,6 +17,7 @@ import {Peoples as list} from './Data';
 import {FlashList} from '@shopify/flash-list';
 import {PeopleGroupChatStyles} from '../../StyleSheet/PeopleGroupChatStyles';
 import {useNavigation} from '@react-navigation/native';
+import { ChevronLeft, UserRoundPlus } from 'lucide-react-native';
 
 export const PeopleGroupChat = () => {
   const {theme} = useTheme();
@@ -39,18 +40,12 @@ export const PeopleGroupChat = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Image
-            source={require('../../../assets/icon/left.png')}
-            style={styles.icon}
-          />
+          <ChevronLeft color={colors.text}/>
         </TouchableOpacity>
         <Text style={styles.title}>Mọi người</Text>
         <TouchableOpacity
           onPress={() => navigation.navigate('AddPeopleToGroupChat')}>
-          <Image
-            source={require('../../../assets/icon/invite.png')}
-            style={styles.icon}
-          />
+          <UserRoundPlus color={colors.text}/>
         </TouchableOpacity>
       </View>
       <ScrollView style={styles.container}>

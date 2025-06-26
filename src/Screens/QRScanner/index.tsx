@@ -3,6 +3,7 @@ import { Alert, StyleSheet, View, Platform, PermissionsAndroid, Dimensions, Touc
 import { Camera, useCameraDevices, useCodeScanner, getCameraDevice, Code } from 'react-native-vision-camera';
 import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
+import { ChevronLeft } from 'lucide-react-native';
 
 const { width, height } = Dimensions.get('window');
 const SCAN_AREA_SIZE = width * 0.7;
@@ -163,7 +164,7 @@ export const QRScanner = () => {
       <TouchableOpacity style={styles.backButton} onPress={() => {
           navigation.goBack();
       }}>
-        <Image source={require('../../../assets/icon/left.png')} style={styles.buttonImage}/>
+        <ChevronLeft color={"#fff"}/>
       </TouchableOpacity>
       <TouchableOpacity style={styles.libraryButton}>
         

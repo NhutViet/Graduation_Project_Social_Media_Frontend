@@ -4,6 +4,7 @@ import {useTheme} from '../src/util/ThemeContext';
 import {Colors} from '../assets/color/Colors';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RootStackParamList} from '../src/Navigation/AppNavigation';
+import { Camera } from 'lucide-react-native';
 
 const rooms = ['room1', 'room2'];
 
@@ -43,10 +44,7 @@ const MessageItem = (props: any) => {
         </View>
       </View>
       <TouchableOpacity style={styles.iconBlock}>
-        <Image
-          style={[styles.icon, {tintColor: color.text}]}
-          source={require('../assets/icon/camera.png')}
-        />
+        <Camera style={[styles.icon]} color={color.text}/>
       </TouchableOpacity>
     </TouchableOpacity>
   );

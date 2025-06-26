@@ -20,6 +20,7 @@ import {
   relationAction,
 } from '../../../../services/relationRedux/relationSlice';
 import {createRoom} from '../../../../services/roomRedux/roomSlice';
+import { Search, X, Ban } from 'lucide-react-native';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 
 const UserFollowersTab = ({route}: any) => {
@@ -114,10 +115,7 @@ const UserFollowersTab = ({route}: any) => {
       </TouchableOpacity>
       <TouchableOpacity style={styles.cancelButton}>
         <View style={{width: 10, height: 10, overflow: 'hidden'}}>
-          <Image
-            source={require('../../../../assets/icon/x.png')}
-            style={[styles.cancelImage, {tintColor: color.text}]}
-          />
+          <X size={13} color={color.text}/>
         </View>
       </TouchableOpacity>
     </View>
@@ -193,11 +191,7 @@ const UserFollowersTab = ({route}: any) => {
     return (
       <View
         style={[styles.emptyContainer, {backgroundColor: color.background}]}>
-        <Image
-          source={require('../../../../assets/icon/block-user.png')}
-          style={styles.emptyImage}
-          resizeMode="contain"
-        />
+        <Ban style={{marginBottom: 24}} color={color.text} size={50}/>
         <Text style={[styles.emptyTitle, {color: color.text}]}>
           Người dùng hiện tại chưa có người theo dõi
         </Text>
@@ -220,15 +214,18 @@ const UserFollowersTab = ({route}: any) => {
             styles.searchBarContainer,
             {backgroundColor: color.background, borderColor: color.text},
           ]}>
-          <Image
-            source={require('../../../../assets/icon/search.png')}
-            style={[styles.searchIcon, {tintColor: color.text}]}
-          />
-          <TextInput
-            style={[styles.searchBar, {borderColor: color.border}]}
-            placeholder="Tìm kiếm"
-            placeholderTextColor={color.text}
-          />
+          <View
+            style={[
+              styles.searchBarContainer,
+              {backgroundColor: color.background, borderColor: color.text},
+            ]}>
+            <Search size={15} style={{marginRight: 15}} color={color.text}/>
+            <TextInput
+              style={[styles.searchBar, {borderColor: color.border}]}
+              placeholder="Tìm kiếm"
+              placeholderTextColor={color.text}
+            />
+          </View>
         </View>
       </View>
       <FlashList

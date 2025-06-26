@@ -29,7 +29,7 @@ import {
   fetchCommentsByPost,
 } from '../../../../services/commentRedux/commentSlice';
 import Toast from 'react-native-toast-message';
-import {Send} from 'lucide-react-native';
+import {Send, Sticker} from 'lucide-react-native';
 import {Portal} from 'react-native-portalize';
 
 export type BottomSheetCommentRef = {
@@ -201,10 +201,7 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
                       </TouchableOpacity>
                     ) : (
                       <TouchableOpacity style={styles.blockIcon}>
-                        <Image
-                          style={[styles.icon, {tintColor: color.text}]}
-                          source={require('../../../../assets/icon/sticker.png')}
-                        />
+                        <Sticker style={styles.icon} color={color.text}/>
                       </TouchableOpacity>
                     )}
                   </View>

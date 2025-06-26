@@ -17,11 +17,15 @@ import {
   addLikedPost,
   removeLikedPost,
 } from '../../../../services/reactionRedux/reactionReducer';
+import { useNavigation } from '@react-navigation/native';
+import { fetchMyRooms } from '@services/roomRedux/roomSlice';
+import { ModalShareHandle } from '../components/ModalShare';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 
-export const useItemHomeActions = (props: ItemHomeProps, state: any) => {
+export const useItemHomeActions = (props: ItemHomeProps, state: any, modalShareRef: React.RefObject<ModalShareHandle>) => {
   const dispatch = useDispatch<AppDispatch>();
   const {_id, user, likeCount} = props;
+  const navigation: any = useNavigation();
 
   const {
     isLiked,
@@ -32,7 +36,6 @@ export const useItemHomeActions = (props: ItemHomeProps, state: any) => {
     refreshToken,
     userID,
     loading,
-    setVisibleModalShare,
     follow,
     setFollow,
     isBookmark,
@@ -76,10 +79,11 @@ export const useItemHomeActions = (props: ItemHomeProps, state: any) => {
 
     if (userID) {
       Promise.all([
+        dispatch(fetchMyRooms()),
         dispatch(fetchFollowers({userId: userID})),
         dispatch(fetchFollowing({userId: userID})),
       ])
-        .then(() => setVisibleModalShare(true))
+        .then(() => {modalShareRef.current?.open();})
         .catch(() => {
           GlobalAlertManager.show(
             'Thất bại',
@@ -87,16 +91,20 @@ export const useItemHomeActions = (props: ItemHomeProps, state: any) => {
           );
         });
     }
-  }, [dispatch, userID, loading, setVisibleModalShare]);
+  }, [dispatch, userID, loading, modalShareRef]);
 
   const handleFollowAction = useCallback(() => {
+    if (user._id === userID) {
+      navigation.navigate('Account');
+      return;
+    }
     handleFollowToggle({
       userId: user._id,
       follow,
       setFollow,
       dispatch,
     });
-  }, [user._id, follow, dispatch]);
+  }, [user._id, userID, follow, setFollow, dispatch, navigation]);
 
   const handleBookmarkAction = useCallback(() => {
     handleBookmark({

@@ -3,6 +3,7 @@ import React, { forwardRef, useState } from 'react'
 import { Modalize } from 'react-native-modalize'
 import { Colors } from '../../../../assets/color/Colors'
 import { useTheme } from '../../../util/ThemeContext'
+import { ChevronLeft } from 'lucide-react-native'
 
 interface HighlightAddModalProps {
   onAdd: (name: string) => void;
@@ -38,7 +39,7 @@ const HighlightAddModal = forwardRef<Modalize, HighlightAddModalProps>(({ onAdd,
     >
       <View style={{flex: 1, flexDirection: 'row', alignItems: 'center', position: 'relative', backgroundColor: color.background}}>
         <TouchableOpacity onPress={onBack} style={{position: 'absolute', width: 30, height: 30,justifyContent: 'center', alignItems: 'center', zIndex: 1}}>
-            <Image source={require('../../../../assets/icon/left.png')} style={{resizeMode: 'contain', width: '70%', height: '70%'}}/>
+            <ChevronLeft/>
         </TouchableOpacity>
         <Text style={[styles.modalTitle, {color: color.text}]}>Thêm tin nổi bật</Text>
       </View>
