@@ -2,6 +2,7 @@ import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import React from 'react';
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
+import { Ellipsis } from 'lucide-react-native';
 
 const ItemList = (props: any) => {
   const {uri, handle, name, onHandleMessage, isMine = false, isAdmin=false} = props;
@@ -19,7 +20,7 @@ const ItemList = (props: any) => {
       </View>
       {!isMine && (
         <View style={styles.row}>
-          <Image source={require('../../../../assets/icon/ellipsis.png')} style={styles.ellipses}/>
+          <Ellipsis/>
           <TouchableOpacity style={[styles.btnContainer, {borderColor: colors.text}]}>
             <Text style={[styles.message, {color: colors.text, fontSize: 14}]}>Tin nhắn</Text>
           </TouchableOpacity>

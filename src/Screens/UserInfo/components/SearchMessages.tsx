@@ -6,6 +6,7 @@ import MessageBoxStyles from '../../../StyleSheet/MessageBoxStyles';
 import { useTheme } from '../../../util/ThemeContext';
 import { Colors } from '../../../../assets/color/Colors';
 import { getUserById, Message as MsgType } from '../../../MockData/message.mock';
+import { ChevronLeft } from 'lucide-react-native';
 
 // Highlight component (as in MessageBox)
 const HighlightedText = ({ text, highlight, normalColor, grayColor }: { text: string; highlight: string; normalColor: string; grayColor: string; }) => {
@@ -66,7 +67,7 @@ export const SearchMessages = () => {
       {/* header above search bar */}
       <View style={{ flexDirection: 'row', alignItems: 'center', padding: 12, backgroundColor: color.background, }}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={{ width: 24, height: 24, marginRight: 16 }}>
-          <Image source={require('../../../../assets/icon/left.png')} style={{ width: '100%', height: '100%', tintColor: color.text, resizeMode: 'contain' }} />
+          <ChevronLeft color={color.text}/>
         </TouchableOpacity>
         <Text style={{ flex: 1, textAlign: 'center', fontSize: 16, fontWeight: '600', color: color.text }}>Tìm kiếm tin nhắn</Text>
         <View style={{ width: 24 }} />

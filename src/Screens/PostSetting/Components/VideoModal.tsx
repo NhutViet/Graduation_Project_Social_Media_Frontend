@@ -12,6 +12,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
 import Video from 'react-native-video';
+import { Pause, Play } from 'lucide-react-native';
 
 const VideoModal = (props: any) => {
   const {uri, visible, onClose} = props;
@@ -166,25 +167,9 @@ const VideoModal = (props: any) => {
                     }}
                     onPress={() => setIsPause(!isPause)}>
                     {isPause ? (
-                      <Image
-                        source={require('../../../../assets/icon/play.png')}
-                        style={{
-                          width: 15,
-                          height: 15,
-                          resizeMode: 'contain',
-                          tintColor: color.background,
-                        }}
-                      />
+                      <Play size={15} color={color.background}/>
                     ) : (
-                      <Image
-                        source={require('../../../../assets/icon/pause.png')}
-                        style={{
-                          width: 15,
-                          height: 15,
-                          resizeMode: 'contain',
-                          tintColor: color.background,
-                        }}
-                      />
+                      <Pause size={15} color={color.background}/>
                     )}
                   </TouchableOpacity>
                 )}

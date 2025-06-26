@@ -11,6 +11,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../../util/ThemeContext';
 import { useNotificationSettingsStyles } from '../../../StyleSheet/NotificationSetingsStyles';
+import { ChevronLeft, ChevronRight, Bell } from 'lucide-react-native';
 
 export const Notifications = () => {
   const { theme } = useTheme();
@@ -63,10 +64,7 @@ export const Notifications = () => {
             thumbColor={pauseAll ? styles.switchThumbActive.backgroundColor : styles.switchThumb.backgroundColor}
           />
         ) : (
-          <Image
-            source={require('../../../../assets/icon/right.png')}
-            style={[styles.rightIcon, { resizeMode: 'contain' }]}
-          />
+          <ChevronRight color={styles.rightIcon.tintColor}/>
         )}
       </TouchableOpacity>
     );
@@ -81,10 +79,7 @@ export const Notifications = () => {
             style={styles.backButton}
             onPress={() => navigation.goBack()}
           >
-            <Image
-              source={require('../../../../assets/icon/left.png')}
-              style={[styles.backIcon, { resizeMode: 'contain' }]}
-            />
+            <ChevronLeft color={styles.backIcon.tintColor}/>
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Thông báo</Text>
           <View style={styles.headerSpacer} />
@@ -93,10 +88,7 @@ export const Notifications = () => {
         {/* Notification Banner */}
         <View style={styles.bannerContainer}>
           <View style={styles.bellIconContainer}>
-            <Image
-              source={require('../../../../assets/icon/bell.png')}
-              style={[styles.bellIcon, { resizeMode: 'contain' }]}
-            />
+            <Bell color={styles.bellIcon.tintColor}/>
           </View>
           <View style={styles.bannerTextContainer}>
             <Text style={styles.bannerText}>

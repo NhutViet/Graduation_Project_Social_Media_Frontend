@@ -29,6 +29,7 @@ import BottomSheet, {
 } from '../PostStory/BottomSheet/BottomSheetMusic';
 import {uploadImageToR2, uploadToCloudflare} from '../../core/upload';
 import {useUploadProgress} from '../../../services/UploadProgressManager';
+import { Menu, Clapperboard, ChevronLeft } from 'lucide-react-native';
 import {PhotoIdentifier} from '@react-native-camera-roll/camera-roll';
 import {TaggedMedia} from '../TagSo';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
@@ -212,10 +213,7 @@ export const PostSetting = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.rowSpace}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Image
-            source={require('../../../assets/icon/left.png')}
-            style={styles.iconR}
-          />
+          <ChevronLeft color={color.text}/>
         </TouchableOpacity>
         <Text style={styles.title}>Bài viết mới</Text>
         <View style={styles.iconR}></View>
@@ -256,10 +254,7 @@ export const PostSetting = () => {
               />
               {selectedMedia[0].node.type.startsWith('video') && (
                 <View style={styles.reelsContainer}>
-                  <Image
-                    source={require('../../../assets/icon/clapperboard.png')}
-                    style={styles.iconReels}
-                  />
+                  <Clapperboard color={color.background}/>
                 </View>
               )}
             </TouchableOpacity>
@@ -275,10 +270,7 @@ export const PostSetting = () => {
           onChangeText={setCaption}
         />
         <TouchableOpacity style={styles.btnTD}>
-          <Image
-            source={require('../../../assets/icon/Menu.png')}
-            style={styles.icon}
-          />
+          <Menu color={color.text}/>
           <Text style={[styles.textR, {fontWeight: 'normal'}]}>
             Thăm dò ý kiến
           </Text>

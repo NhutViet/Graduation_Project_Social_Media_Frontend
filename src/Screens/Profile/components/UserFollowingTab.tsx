@@ -20,6 +20,7 @@ import {
   fetchRecommendations,
 } from '../../../../services/relationRedux/relationSlice';
 import {createRoom} from '../../../../services/roomRedux/roomSlice';
+import { EllipsisVertical, UserRoundPlus, Funnel } from 'lucide-react-native';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 
 const UserFollowingTab = ({route}: any) => {
@@ -78,6 +79,64 @@ const UserFollowingTab = ({route}: any) => {
       }
     };
 
+    const renderSortItem = ({item}: {item: typeof following[0]}) => (
+        <View style={[styles.suggestedItem, {backgroundColor: color.background}]}>
+          <TouchableOpacity style={styles.touchableInfo}>
+            <Image source={{uri: item.profilePic}} style={styles.profilePic} />
+            <View style={styles.suggestedInfo}>
+              <Text style={[styles.handle, {color: color.text}]}>
+                {item.handleName}
+              </Text>
+              <Text style={[styles.username, {color: color.textSecondary}]}>
+                {item.username}
+              </Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+                  style={[
+                    styles.actionButton,
+                    item.isMeFollowing
+                      ? [styles.messageButton, {borderColor: color.text}]
+                      : styles.followButton,
+                  ]}
+                  onPress={() => handleActionButton(item)}>
+                  <Text
+                    style={[
+                      styles.buttonText,
+                      item.isMeFollowing
+                        ? [styles.messageText, {color: color.text}]
+                        : styles.followText,
+                    ]}>
+                    {item.isMeFollowing ? 'Nhắn tin' : 'Theo dõi'}
+                  </Text>
+                </TouchableOpacity>
+          <TouchableOpacity>
+            <EllipsisVertical size={13} color={color.text}/>
+          </TouchableOpacity>
+        </View>
+    );
+    
+      const renderRecommendItem = ({item}: {item: typeof recommendations[0]}) => (
+        <View style={[styles.suggestedItem, {backgroundColor: color.background}]}>
+          <TouchableOpacity style={styles.touchableInfo}>
+            <Image source={{uri: item.profilePic}} style={styles.profilePic} />
+            <View style={styles.suggestedInfo}>
+              <Text style={[styles.handle, {color: color.text}]}>
+                {item.handleName}
+              </Text>
+              <Text style={[styles.username, {color: color.textSecondary}]}>
+                {item.username}
+              </Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => handleFollowPress(item)} style={styles.followButton}>
+            <Text style={styles.followText}>Theo dõi</Text>
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <EllipsisVertical size={13} color={color.text}/>
+          </TouchableOpacity>
+        </View>
+    );
     fetchAndCombine();
   }, [dispatch, userID]);
 
@@ -172,10 +231,7 @@ const UserFollowingTab = ({route}: any) => {
         </Text>
       </TouchableOpacity>
       <TouchableOpacity>
-        <Image
-          source={require('../../../../assets/icon/menu-dots-vertical.png')}
-          style={[styles.moreIcon, {tintColor: color.text}]}
-        />
+        <EllipsisVertical size={13} color={color.text}/>
       </TouchableOpacity>
     </View>
   );
@@ -199,10 +255,7 @@ const UserFollowingTab = ({route}: any) => {
         <Text style={styles.followText}>Theo dõi</Text>
       </TouchableOpacity>
       <TouchableOpacity>
-        <Image
-          source={require('../../../../assets/icon/menu-dots-vertical.png')}
-          style={[styles.moreIcon, {tintColor: color.text}]}
-        />
+        <EllipsisVertical size={13} color={color.text}/>
       </TouchableOpacity>
     </View>
   );
@@ -233,11 +286,7 @@ const UserFollowingTab = ({route}: any) => {
             justifyContent: 'center',
             padding: 20,
           }}>
-          <Image
-            source={require('../../../../assets/icon/invite.png')}
-            style={{width: 200, height: 200, marginBottom: 24}}
-            resizeMode="contain"
-          />
+          <UserRoundPlus size={60} style={{marginBottom: 24}}/>
           <Text
             style={{
               color: color.text,
@@ -270,10 +319,7 @@ const UserFollowingTab = ({route}: any) => {
                   Mặc định
                 </Text>
               </Text>
-              <Image
-                source={require('../../../../assets/icon/icon_sort.png')}
-                style={[styles.sortIcon, {tintColor: color.text}]}
-              />
+              <Funnel color={color.text}/>
             </TouchableOpacity>
           }
         />

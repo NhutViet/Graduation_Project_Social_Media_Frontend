@@ -2,6 +2,7 @@ import React from 'react';
 import {View, Text, Image} from 'react-native';
 import {useBookmarkStyles} from '../../../StyleSheet/BookmarkedStyles';
 import { Colors } from '../../../../assets/color/Colors';
+import { Plus } from 'lucide-react-native';
 
 // Ảnh mặc định nếu không có thumbnail hợp lệ
 
@@ -43,7 +44,7 @@ const BookmarkedPlaylist: React.FC<Props> = ({title, thumbnails, coverImg}) => {
     if (count === 1) {
       return imagesToShow[0] === coverImg ? (
         <View style={[styles.fullImage, {justifyContent: 'center', alignItems: 'center'}]}>
-          <Image source={require('../../../../assets/icon/add.png')} style={{width: 50, height: 50, tintColor: Colors.textSecondary}} resizeMode="contain" />
+          <Plus color={Colors.textSecondary} size={50}/>
         </View>
       ) : (
         <Image

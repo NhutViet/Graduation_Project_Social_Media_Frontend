@@ -3,6 +3,7 @@ import {View, Text, Image, TouchableOpacity} from 'react-native';
 import {ItemHomeStyles} from '../component_styles/ItemHomeStyles';
 import {useSelector} from 'react-redux';
 import {RootState} from '../../../../services/store';
+import { EllipsisVertical } from 'lucide-react-native';
 
 interface ItemHomeHeaderProps {
   user: any;
@@ -65,10 +66,7 @@ export const ItemHomeHeader: React.FC<ItemHomeHeaderProps> = ({
         <TouchableOpacity
           onPress={onOptionsPress}
           style={ItemHomeStyles.iconBlock}>
-          <Image
-            source={require('../../../../assets/icon/menu-dots-vertical.png')}
-            style={[{tintColor: iconTintColor}, ItemHomeStyles.icon]}
-          />
+          <EllipsisVertical color={iconTintColor}/>
         </TouchableOpacity>
       </View>
     </View>

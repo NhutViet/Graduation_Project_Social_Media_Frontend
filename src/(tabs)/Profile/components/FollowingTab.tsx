@@ -21,6 +21,7 @@ import {
   fetchRecommendations,
 } from '../../../../services/relationRedux/relationSlice';
 import {createRoom} from '../../../../services/roomRedux/roomSlice';
+import { EllipsisVertical, UserRoundPlus, Funnel } from 'lucide-react-native';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 
 const categoriesData = [
@@ -167,10 +168,7 @@ const FollowingTab = () => {
         <Text style={[styles.messageText, {color: color.text}]}>Nhắn tin</Text>
       </TouchableOpacity>
       <TouchableOpacity>
-        <Image
-          source={require('../../../../assets/icon/menu-dots-vertical.png')}
-          style={[styles.moreIcon, {tintColor: color.text}]}
-        />
+        <EllipsisVertical color={color.text}/>
       </TouchableOpacity>
     </View>
   );
@@ -194,10 +192,7 @@ const FollowingTab = () => {
         <Text style={styles.followText}>Theo dõi</Text>
       </TouchableOpacity>
       <TouchableOpacity>
-        <Image
-          source={require('../../../../assets/icon/menu-dots-vertical.png')}
-          style={[styles.moreIcon, {tintColor: color.text}]}
-        />
+        <EllipsisVertical color={color.text}/>
       </TouchableOpacity>
     </View>
   );
@@ -236,11 +231,7 @@ const FollowingTab = () => {
             justifyContent: 'center',
             padding: 20,
           }}>
-          <Image
-            source={require('../../../../assets/icon/invite.png')}
-            style={{width: 200, height: 200, marginBottom: 24}}
-            resizeMode="contain"
-          />
+          <UserRoundPlus size={60} color={color.text}/>
           <Text
             style={{
               color: color.text,
@@ -282,10 +273,7 @@ const FollowingTab = () => {
                   Mặc định
                 </Text>
               </Text>
-              <Image
-                source={require('../../../../assets/icon/icon_sort.png')}
-                style={[styles.sortIcon, {tintColor: color.text}]}
-              />
+              <Funnel color={color.text}/>
             </TouchableOpacity>
           }
         />

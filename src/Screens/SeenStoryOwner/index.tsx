@@ -19,6 +19,7 @@ import HighlightViewModal from './component/HighlightViewModal';
 import {MediaSection} from './component/MediaSection';
 import {styles} from './component/style';
 import debounce from 'lodash/debounce';
+import { X, UsersRound, Ellipsis } from 'lucide-react-native';
 import ModalSeeMore from './component/ModelSeeMore';
 import {
   deleteStory,
@@ -360,10 +361,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
           <TouchableOpacity
             style={styles.btnCloser}
             onPress={handleCloserPress}>
-            <Image
-              style={styles.iconCloser}
-              source={require('../../../assets/icon/closer.png')}
-            />
+            <X color={"#fff"}/>
           </TouchableOpacity>
         </View>
         {stories[currentIndex] ? (
@@ -385,19 +383,13 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
         <TouchableOpacity
           style={styles.viewIconItem}
           onPress={() => setVisible(true)}>
-          <Image
-            style={styles.icon}
-            source={require('../../../assets/icon/users.png')}
-          />
+          <UsersRound style={{marginBottom: 3}} color={"#fff"}/>
           <Text style={styles.txtIcon}>Hoạt động</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.viewIconItem}
           onPress={() => setVisibleSeeMore(true)}>
-          <Image
-            style={styles.icon}
-            source={require('../../../assets/icon/ellipsis.png')}
-          />
+          <Ellipsis style={{marginBottom: 3}} color={"#fff"}/>
           <Text style={styles.txtIcon}>Xem thêm</Text>
         </TouchableOpacity>
         <ModelPeopleSeen

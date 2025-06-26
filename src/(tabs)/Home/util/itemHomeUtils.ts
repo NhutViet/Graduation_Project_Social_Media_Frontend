@@ -3,9 +3,11 @@ import { Colors } from '../../../../assets/color/Colors';
 import { ItemHomeProps } from '../types';
 import { useTheme } from '../../../util/ThemeContext';
 
+type RoomItem = ItemHomeProps['RoomItem'];
+
 export const useItemHomeUtils = (props: ItemHomeProps, state: any) => {
   const { type, _id } = props;
-  const { isLiked, isBookmark, followers, following } = state;
+  const { isLiked, isBookmark, followers, following, rooms } = state;
   
   const {theme} = useTheme();
   const color = Colors[theme];
@@ -30,6 +32,20 @@ export const useItemHomeUtils = (props: ItemHomeProps, state: any) => {
     }));
   }, [followers, following]);
 
+  const roomItems: RoomItem[] = useMemo(() => {
+    return rooms.map((r: any) => ({
+      _id: r._id,
+      name: r.name || '',
+      avatars: r.user_ids.map((u: any) => u.profilePic),
+    }));
+  }, [rooms]);
+
+  const items = useMemo(() => {
+    const roomsList = roomItems.map(r => ({ kind: 'room' as const, data: r }));
+    const friendsList = follows.map(f => ({ kind: 'friend' as const, data: f }));
+    return [...roomsList, ...friendsList];
+  }, [roomItems, follows]);
+
   return {
     color,
     isReel,
@@ -39,6 +55,6 @@ export const useItemHomeUtils = (props: ItemHomeProps, state: any) => {
     iconColor,
     likedColor,
     bookmarkColor,
-    follows,
+    items,
   };
 };
