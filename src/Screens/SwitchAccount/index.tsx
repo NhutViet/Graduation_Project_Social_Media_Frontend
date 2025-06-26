@@ -24,7 +24,7 @@ import {
 } from '../../../services/userRedux/userSlice';
 import {resetStatus} from '../../../services/userRedux/userReducer';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
-import {Eye, EyeOff} from 'lucide-react-native';
+import {Eye, EyeOff, CircleCheck, CircleAlert} from 'lucide-react-native';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 import messaging from '@react-native-firebase/messaging';
 
@@ -267,10 +267,7 @@ export const SwitchAccount = ({navigation}: any) => {
       <Modal visible={successModal} transparent animationType="fade">
         <View style={styles.modal}>
           <View style={styles.modalContainer}>
-            <Image
-              source={require('../../../assets/icon/success.png')}
-              style={[styles.iconNoti, {tintColor: color.primary}]}
-            />
+            <CircleCheck size={50} color={color.white} fill={color.primary}/>
             <Text style={[styles.textNoti, {color: color.primary}]}>
               Đăng nhập thành công
             </Text>
@@ -281,10 +278,7 @@ export const SwitchAccount = ({navigation}: any) => {
       <Modal visible={errorModal} transparent animationType="fade">
         <View style={styles.modal}>
           <View style={styles.modalContainer}>
-            <Image
-              source={require('../../../assets/icon/danger.png')}
-              style={[styles.iconNoti, {tintColor: color.error}]}
-            />
+            <CircleAlert size={50} color={color.white} fill={color.error}/>
             <Text style={[styles.textNoti, {color: color.error}]}>
               Đã có lỗi xảy ra
             </Text>

@@ -13,6 +13,7 @@ import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {useState} from 'react';
 import {FlashList} from '@shopify/flash-list';
+import { ChevronLeft } from 'lucide-react-native';
 
 const NewMessage = () => {
   const navigation: any = useNavigation();
@@ -72,10 +73,7 @@ const NewMessage = () => {
         <TouchableOpacity
           style={styles.blockIcon}
           onPress={() => navigation.goBack()}>
-          <Image
-            style={[styles.icon, {tintColor: color.text}]}
-            source={require('../../../assets/icon/left.png')}
-          />
+          <ChevronLeft color={color.text}/>
         </TouchableOpacity>
         <Text style={[styles.title, {color: color.text}]}>Tin nhắn mới</Text>
         <View style={styles.block}></View>

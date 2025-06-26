@@ -1,6 +1,7 @@
 import React from 'react';
 import {View, Text, Image, TouchableOpacity} from 'react-native';
 import {styles} from './style';
+import { X } from 'lucide-react-native';
 
 export const Header = ({
   onClose,
@@ -17,10 +18,7 @@ export const Header = ({
       <Text style={styles.nameUser}>{username}</Text>
     </TouchableOpacity>
     <TouchableOpacity style={styles.btnCloser} onPress={onClose}>
-      <Image
-        style={styles.iconCloser}
-        source={require('../../../../assets/icon/closer.png')}
-      />
+      <X color={"#fff"}/>
     </TouchableOpacity>
   </View>
 );

@@ -3,12 +3,13 @@ import {View, Text, Image, TouchableOpacity} from 'react-native';
 import {useBottomSheetStyles} from '../src/StyleSheet/BottomSheetStyles';
 import {useTheme} from '../src/util/ThemeContext';
 import {Colors} from '../assets/color/Colors';
+import { LucideProps } from 'lucide-react-native'
 
 export interface ConfigOption {
-  id: string;
-  icon: any;
-  label: string;
-  labelColor?: string;
+  id: string
+  icon: React.ComponentType<LucideProps>
+  label: string
+  labelColor?: string
 }
 
 export interface BottomSheetOptionsProps {
@@ -38,57 +39,63 @@ const BottomSheetOptions: React.FC<BottomSheetOptionsProps> = ({
       {/* Horizontal row */}
       {topOptions.length > 0 && (
         <View style={styles.horizontalContainer}>
-          {topOptions.map((opt, idx) => (
-            <React.Fragment key={opt.id}>
-              <TouchableOpacity
-                style={styles.horizontalButton}
-                onPress={() => handlePress(opt.id)}>
-                <Image
-                  source={isBookmarked && opt.id === 'bookmark' ? require('../assets/icon/bookmark_fill.png') : opt.icon}
-                  style={[styles.topIcon, { tintColor: isBookmarked && opt.id === 'bookmark' ? '#F2C641' : palette.text }]}
-                  resizeMode="contain"
-                />
-                <Text style={[styles.topLabel, { color: palette.text }]}>  
-                  {isBookmarked && opt.id ? 'Đã lưu' :opt.label}
-                </Text>
-              </TouchableOpacity>
-              {/* only render an invisible spacer if this ain't the last item */}
-              {idx < topOptions.length - 1 && <View style={{ width: spacing.s }} />}
-            </React.Fragment>
-          ))}
+           {topOptions.map((opt, idx) => {
+            const Icon = opt.icon
+            const isBm = opt.id === 'bookmark' && isBookmarked
+            return (
+              <React.Fragment key={opt.id}>
+                <TouchableOpacity
+                  style={styles.horizontalButton}
+                  onPress={() => handlePress(opt.id)}
+                >
+                  <Icon
+                    size={24}
+                    strokeWidth={2}
+                    color={isBm ? "black" : palette.text}
+                    fill={isBm ? "black" : 'none'}
+                  />
+                  <Text style={[styles.topLabel, { color: palette.text }]}>
+                    {isBm ? 'Đã lưu' : opt.label}
+                  </Text>
+                </TouchableOpacity>
+                {idx < topOptions.length - 1 && <View style={{ width: Colors.spacing.s }} />}
+              </React.Fragment>
+            )
+          })}
         </View>
       )}
 
       {/* Vertical lists */}
       {listOptionGroups.map((group, gIdx) => (
         <View key={gIdx} style={styles.verticalSectionContainer}>
-          {group.map((opt, idx) => (
-            <React.Fragment key={opt.id}>
-              <TouchableOpacity
-                style={styles.listItem}
-                onPress={() => handlePress(opt.id)}>
-                <Image
-                  source={opt.icon}
-                  style={[
-                    styles.listIcon,
-                    { tintColor: opt.labelColor ?? palette.text },
-                  ]}
-                  resizeMode="contain"
-                />
-                <Text
-                  style={[
-                    styles.listLabel,
-                    { color: opt.labelColor || palette.text },
-                  ]}>
-                  {opt.label}
-                </Text>
-              </TouchableOpacity>
-              {/* separator if not last item */}
-              {idx < group.length - 1 && (
-                <View style={styles.listSeparator} />
-              )}
-            </React.Fragment>
-          ))}
+          {group.map((opt, idx) => {
+            const Icon = opt.icon
+            const isReport = opt.id === 'report'
+            return (
+              <React.Fragment key={opt.id}>
+                <TouchableOpacity
+                  style={styles.listItem}
+                  onPress={() => handlePress(opt.id)}
+                >
+                  <Icon
+                    size={20}
+                    strokeWidth={2}
+                    color={opt.labelColor ?? palette.text}
+                    style={{marginRight: spacing.m}}
+                  />
+                  <Text
+                    style={[
+                      styles.listLabel,
+                      { color: opt.labelColor || palette.text },
+                    ]}
+                  >
+                    {opt.label}
+                  </Text>
+                </TouchableOpacity>
+                {idx < group.length - 1 && <View style={styles.listSeparator} />}
+              </React.Fragment>
+            )
+          })}
         </View>
       ))}
     </View>

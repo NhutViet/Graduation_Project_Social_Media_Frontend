@@ -24,6 +24,7 @@ import ReelsComponent from '../src/(tabs)/Reels/components/reelsComponent';
 import {useTheme} from '../src/util/ThemeContext';
 import {IHandles} from 'react-native-modalize/lib/options';
 import ModalReaction from '../src/(tabs)/Home/components/ModalReaction';
+import { ChevronLeft, Camera } from 'lucide-react-native';
 
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
@@ -83,18 +84,12 @@ const AllReels = () => {
           style={styles.rowContainer}
           onPress={() => navigation.goBack()}>
           <View style={styles.iconDownContainer}>
-            <Image
-              style={styles.icon}
-              source={require('../assets/icon/left.png')}
-            />
+            <ChevronLeft color={Colors.dark.text}/>
           </View>
           <Text style={styles.textHeader}>Reels</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.iconContainer}>
-          <Image
-            style={styles.icon}
-            source={require('../assets/icon/camera.png')}
-          />
+          <Camera color={Colors.dark.text}/>
         </TouchableOpacity>
       </View>
 

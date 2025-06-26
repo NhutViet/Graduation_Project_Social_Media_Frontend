@@ -7,7 +7,14 @@ import {Colors} from '../../../assets/color/Colors';
 import {useTheme} from '../../util/ThemeContext';
 import {Portal} from 'react-native-portalize';
 import LinkQRModal from './components/LinkQRModal';
-
+import {
+  ChevronLeft,
+  Copy,
+  Send,
+  QrCode,
+  Upload,
+  Repeat,
+} from 'lucide-react-native'
 
 export const LinkToGroup = () => {
   const navigation: any = useNavigation();
@@ -46,7 +53,7 @@ export const LinkToGroup = () => {
       <View style={{width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: color.background, height: Dimensions.get('window').height * 0.1}}>
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <TouchableOpacity onPress={() => navigation.goBack()} style={{width: 20, height: 20, marginLeft: 20, zIndex: 1}}>
-                <Image source={require('../../../assets/icon/left.png')} style={{resizeMode: 'contain', width: '100%', height: '100%'}}/>
+                <ChevronLeft size={24} color={color.text} strokeWidth={2} />
             </TouchableOpacity>
         </View>
         <View style={{alignItems: 'center'}}>
@@ -68,29 +75,29 @@ export const LinkToGroup = () => {
         <View style={{width: '100%', borderWidth: 3, borderColor: color.gray}}/>
 
         <TouchableOpacity style={styles.row} onPress={copyToClipboard}>
-            <Image source={require('../../../assets/icon/copy.png')} style={styles.icon} />
+            <Copy size={20} color={color.text} strokeWidth={2} />
             <Text style={[styles.rowText, {color: color.text}]}>Sao chép</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.row}>
-            <Image source={require('../../../assets/icon/share.png')} style={styles.icon} />
+            <Send size={20} color={color.text} strokeWidth={2} />
             <Text style={[styles.rowText, {color: color.text}]}>Gửi trên Cirla</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.row} onPress={() => setModalVisible(true)}>
-            <Image source={require('../../../assets/icon/qrlink.png')} style={styles.icon} />
+            <QrCode size={20} color={color.text} strokeWidth={2} />
             <Text style={[styles.rowText, {color: color.text}]}>Mã QR</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.row}>
-            <Image source={require('../../../assets/icon/upload.png')} style={styles.icon} />
+            <Upload size={20} color={color.text} strokeWidth={2} />
             <Text style={[styles.rowText, {color: color.text}]}>Chia sẻ</Text>
         </TouchableOpacity>
 
         <View style={{width: '100%', borderWidth: 3, borderColor: color.gray}}/>
 
         <TouchableOpacity style={styles.row}>
-            <Image source={require('../../../assets/icon/repost.png')} style={[styles.icon, {tintColor: '#dd0131'}]} />
+            <Repeat size={20} color="#dd0131" strokeWidth={2} />
             <Text style={styles.resetText}>Đặt lại liên kết</Text>
         </TouchableOpacity>
         <Portal>
