@@ -36,7 +36,8 @@ export interface User {
 export interface Media {
     _id: string;
     postID: string;
-    videoUrl: string;
+    videoUrl?: string;
+    imageUrl?: string;
     tags?: Tags[];
 }
 

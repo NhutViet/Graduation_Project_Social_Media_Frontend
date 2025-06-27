@@ -88,7 +88,7 @@ export const getLikedPosts = createAsyncThunk<
         params: { page, limit },
         headers: { Authorization: `Bearer ${refreshToken}` },
       });
-      return res.data;
+      return res.data as ResGetLikedPosts;
     } catch (error: any) {
       return rejectWithValue({
         message: error?.response?.data?.message || 'Lấy bài đã thích thất bại',

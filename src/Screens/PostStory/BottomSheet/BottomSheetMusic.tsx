@@ -306,7 +306,7 @@ const BottomSheet = forwardRef<BottomSheetRef, Props>(
                   {backgroundColor: color.backgroundSecondary},
                 ]}
                 onPress={() => setShowSavedView(true)}>
-                <View style={styles.blockIcon}>
+                <View style={[styles.blockIcon, {marginRight: 5}]}>
                   <Bookmark color={color.text}/>
                 </View>
                 <Text

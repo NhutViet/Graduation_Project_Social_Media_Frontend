@@ -36,10 +36,10 @@ export const ItemHomeActions: React.FC<ItemHomeActionsProps> = ({
   onReactionModalPress,
 }) => {
   return (
-    <View style={[ItemHomeStyles.rowContainer, { justifyContent: 'space-between' }]}>
+    <View style={[{ flexDirection: 'row', justifyContent: 'space-between'}]}>
       <View style={ItemHomeStyles.rowContainer}>
         <TouchableOpacity style={ItemHomeStyles.iconBlock} onPress={onLikePress}>
-          <Heart style={ItemHomeStyles.icon} fill={isLiked ? "black" : "none"} color={iconColor}/>
+          <Heart style={ItemHomeStyles.icon} fill={isLiked ? likedColor : "none"} color={isLiked ? likedColor : iconColor}/>
         </TouchableOpacity>
         <Text
           style={{color: iconColor, marginHorizontal: 8}}
@@ -59,8 +59,8 @@ export const ItemHomeActions: React.FC<ItemHomeActionsProps> = ({
           {formatNumber(share)}
         </Text>
       </View>
-      <TouchableOpacity style={ItemHomeStyles.iconBlock} onPress={onBookmarkPress}>
-        <Bookmark size={27} style={ItemHomeStyles.icon} fill={isBookmarked ? bookmarkColor : "none"} color={isBookmarked ? bookmarkColor : iconColor}/>
+      <TouchableOpacity style={[ItemHomeStyles.iconBlock, {marginRight: 8}]} onPress={onBookmarkPress}>
+        <Bookmark style={ItemHomeStyles.icon} fill={isBookmarked ? bookmarkColor : "none"} color={isBookmarked ? bookmarkColor : iconColor}/>
       </TouchableOpacity>
     </View>
   );

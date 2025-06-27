@@ -5,16 +5,21 @@ import {
   Text,
   TouchableOpacity,
   View,
+  ActivityIndicator
 } from 'react-native';
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useState, useEffect} from 'react';
 import {FlashList} from '@shopify/flash-list';
-import {Post as data} from './Data';
 import PostItem from './Components/PostItem';
 import {LikedStyles} from '../../StyleSheet/LikedStyles';
 import {useTheme} from '../../util/ThemeContext';
 import FilterModal from './Components/filter';
 import {useNavigation} from '@react-navigation/native';
 import { ChevronLeft, ChevronDown } from 'lucide-react-native';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState} from '../../../services/store';
+import { getLikedPosts } from '@services/postUserRedux/postUserSlice';
+import { unlikePost } from '@services/reactionRedux/reactionSlice';
+
 
 const Filter = [
   {id: 'sort', label: 'Mới nhất đến cũ nhất'},
@@ -26,6 +31,14 @@ export const LikedScreen = () => {
   const [selected, setSelected] = useState<any[]>([]);
   const {theme} = useTheme();
   const styles = LikedStyles(theme);
+  const {currentUserId, refreshToken, likedPosts, isLoading} = useSelector((state: RootState) => ({
+    currentUserId: state.user.user?._id,
+    refreshToken: state.user.refreshToken,
+    likedPosts: state.postUser.likedPosts,
+    isLoading: state.postUser.isLoading,
+  }), shallowEqual);
+
+  const dispatch = useDispatch<AppDispatch>();
 
   // Filter states
   const [filterType, setFilterType] = useState<'date' | 'sort' | 'content'>(
@@ -51,18 +64,33 @@ export const LikedScreen = () => {
     }
   };
 
+  useEffect(() => {
+    dispatch(getLikedPosts({refreshToken}));
+  }, [dispatch, refreshToken]);
+
   const onHandleSelect = useCallback(
     (item: any) => {
-      const isSelected = selected.some(prev => prev.postID === item.postID);
-      if (isSelected) {
-        const filter = selected.filter(prev => prev.postID !== item.postID);
-        setSelected(filter);
-      } else {
-        setSelected(prev => [...prev, item]);
-      }
+      setSelected(prev => {
+        if (prev.some(i => i._id === item._id)) {
+          return prev.filter(i => i._id !== item._id);
+        }
+        return [...prev, item];
+      });
     },
-    [selected],
+    []
   );
+
+  const onUnlike = () => {
+    selected.forEach(item => {
+      dispatch(unlikePost({postId: item._id, refreshToken}));
+      console.log(item._id);
+    });
+    setSelected([]);
+    // refetch
+    dispatch(getLikedPosts({refreshToken}));
+  };
+
+  const data = likedPosts.items;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -114,32 +142,42 @@ export const LikedScreen = () => {
         }}
       />
 
-      <View style={styles.container}>
-        <FlashList
-          data={data}
-          numColumns={3}
-          estimatedItemSize={200}
-          showsVerticalScrollIndicator={false}
-          renderItem={({item}) => {
-            const isSelected = selected.some(
-              prev => prev.postID === item.postID,
-            );
-            return (
-              <PostItem
-                data={item}
-                onHandle={() => onHandleSelect(item)}
-                isSelect={isSelected}
-              />
-            );
-          }}
-          extraData={selected}
-        />
-      </View>
+      {isLoading && <ActivityIndicator size="large" color={styles.textFilter.color} style={{marginTop: 20}} />}
 
+      {!isLoading && data.length === 0 && (
+        <View style={styles.container}>
+          <Text style={styles.title}>Chưa có bài nào được thích.</Text>
+        </View>
+      )}
+
+      {!isLoading && data.length > 0 && (
+        <View style={styles.container}>
+          <FlashList
+            data={data}
+            numColumns={3}
+            estimatedItemSize={200}
+            showsVerticalScrollIndicator={false}
+            renderItem={({item}) => {
+              const isSelect = selected.some(i => i._id === item._id);
+              return (
+                <PostItem
+                  data={item}
+                  onHandle={() => onHandleSelect(item)}
+                  isSelect={isSelect}
+                />
+              );
+            }}
+            extraData={selected}
+          />
+        </View>
+      )}
+      
       {selected.length > 0 && (
-        <TouchableOpacity style={styles.horiContainer}>
-          <Text style={styles.unlike}>Bỏ thích ({selected.length})</Text>
-        </TouchableOpacity>
+        <View style={styles.unlikeContainer}>
+          <TouchableOpacity style={styles.horiContainer} onPress={onUnlike}>
+            <Text style={styles.unlike}>Bỏ thích ({selected.length})</Text>
+          </TouchableOpacity>
+        </View>
       )}
     </SafeAreaView>
   );
