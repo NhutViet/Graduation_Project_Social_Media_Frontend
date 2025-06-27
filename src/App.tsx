@@ -1,5 +1,5 @@
 import 'react-native-gesture-handler';
-import React, {useEffect, useRef} from 'react';
+import React, {useEffect} from 'react';
 import {enableScreens} from 'react-native-screens';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import AppNavigator from './Navigation/AppNavigation';
@@ -16,16 +16,13 @@ import {Buffer} from 'buffer';
 import {TabLoadingProvider} from '../services/TabLoadingContext';
 import {SocketProvider} from '../services/SocketContext';
 import {requestCallPermissions, setupCallKeep} from '@services/CallKeepService';
-import {KeyboardAvoidingView} from 'react-native';
+import {KeyboardAvoidingView, PermissionsAndroid, Platform} from 'react-native';
 import {
   GlobalAlert,
   GlobalAlertManager,
   GlobalAlertRef,
 } from '../components/Global/AlertModal';
-import {useNotificationHandler} from '@services/notification/useNotification';
-import NotificationModal from '@services/notification/NotificationModal';
-import {navigationRef} from './NavigationService';
-
+import NotificationManager from '@services/NotificationManager';
 global.Buffer = Buffer;
 if (__DEV__) {
   import('./config/ReactotronConfig').then(() =>
@@ -40,6 +37,7 @@ const App = () => {
   //     await requestCallPermissions();
   //     setupCallKeep();
   //   };
+
   //   initCallKeep();
   // }, []);
   const handleAlertRef = (ref: GlobalAlertRef | null) => {
@@ -47,37 +45,30 @@ const App = () => {
       GlobalAlertManager.setAlertRef(ref);
     }
   };
-  
-  const {modalData, clearModal} = useNotificationHandler(data => {
-    if (!navigationRef.isReady()) return;
 
-    switch (data?.type) {
-      case 'post':
-        navigationRef.navigate('PostDetail', {postId: data.id});
-        break;
-      case 'call':
-        navigationRef.navigate('ZegoCallScreen', {
-          callID: data.callId,
-          userID: data.userId,
-          userName: data.userName,
-          image: data.image,
-          isCaller: false,
-        });
-        break;
-      case 'message':
-        navigationRef.navigate('MessageScreen', {roomId: data.roomId});
-        break;
-
-      default:
-        break;
+  useEffect(() => {
+  const requestNotificationPermission = async () => {
+    if (Platform.OS === 'android' && Platform.Version >= 33) {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
+      );
+      if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('🔕 Người dùng từ chối quyền thông báo');
+      } else {
+        console.log('✅ Đã được cấp quyền thông báo');
+      }
     }
-  });
+  };
+
+  requestNotificationPermission();
+}, []);
 
   return (
     <GestureHandlerRootView style={{flex: 1}}>
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
           <SocketProvider>
+            <NotificationManager />
             <ThemeProvider>
               <KeyboardAvoidingView style={{flex: 1}}>
                 <SafeAreaProvider>
@@ -87,41 +78,6 @@ const App = () => {
                         <AppNavigator />
                         <Toast />
                         <GlobalAlert ref={handleAlertRef} />
-
-                        {modalData && (
-                          <NotificationModal
-                            visible={true}
-                            title={modalData.title}
-                            body={modalData.body}
-                            onClose={clearModal}
-                            onAction={() => {
-                              clearModal();
-                              if (modalData.data) {
-                                switch (modalData.data.type) {
-                                  case 'post':
-                                    navigationRef.navigate('PostDetail', {
-                                      postId: modalData.data.id,
-                                    });
-                                    break;
-                                  case 'call':
-                                    navigationRef.navigate('ZegoCallScreen', {
-                                      callID: modalData.data.callId,
-                                      userID: modalData.data.userId,
-                                      userName: modalData.data.userName,
-                                      image: modalData.data.image,
-                                      isCaller: false,
-                                    });
-                                    break;
-                                  case 'message':
-                                    navigationRef.navigate('MessageScreen', {
-                                      roomId: modalData.data.roomId,
-                                    });
-                                    break;
-                                }
-                              }
-                            }}
-                          />
-                        )}
                       </TabLoadingProvider>
                     </UploadProvider>
                   </Host>

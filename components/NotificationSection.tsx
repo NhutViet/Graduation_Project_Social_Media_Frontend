@@ -1,27 +1,38 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
-import NotificationItem, { Notification } from './NotificationItem';
-import { useNotificationStyles } from '../src/StyleSheet/NotificationStyles';
+import {View, Text, FlatList} from 'react-native';
+import NotificationItem from './NotificationItem';
+import {useNotificationStyles} from '../src/StyleSheet/NotificationStyles';
+import {Noti} from '@services/notificationRedux/notificationTypes';
 
 interface NotificationSectionProps {
   title: string;
-  notifications: Notification[];
+  notifications: Noti[];
 }
 
-const NotificationSection: React.FC<NotificationSectionProps> = ({ title, notifications }) => {
+const NotificationSection: React.FC<NotificationSectionProps> = ({
+  title,
+  notifications,
+}) => {
   const styles = useNotificationStyles();
   return (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>{title}</Text>
-      <FlatList
-        data={notifications}
-        keyExtractor={(item) => item.id}
-            renderItem={({ item }) => ( <NotificationItem notification={item} stackTime /> )}
-        scrollEnabled={false}
-      />
+      {notifications.length > 0 ? (
+        <FlatList
+          data={notifications}
+          keyExtractor={item => item.id}
+          renderItem={({item}) => (
+            <NotificationItem notification={item} stackTime />
+          )}
+          scrollEnabled={false}
+        />
+      ) : (
+        <Text style={[styles.sectionTitle, {fontWeight: '400'}]}>
+          Không có thông báo nào.
+        </Text>
+      )}
     </View>
   );
 };
 
 export default NotificationSection;
-
