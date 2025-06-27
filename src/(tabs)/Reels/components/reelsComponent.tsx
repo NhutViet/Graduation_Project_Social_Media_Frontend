@@ -57,7 +57,7 @@ const ReelsComponent = (props: any) => {
   //like
   const dispatch = useDispatch<AppDispatch>();
   const {likePosts} = useSelector((state: RootState) => state.reactions);
-  const currentUserId = useSelector((state: RootState) => state.user.user?._id);
+  const currentUser = useSelector((state: RootState) => state.user.user);
   const {refreshToken} = useSelector((state: RootState) => state.user);
   const isLikedFromRedux = useSelector((state: RootState) =>
     state.reactions.likePosts.includes(_id),
@@ -100,7 +100,15 @@ const ReelsComponent = (props: any) => {
     } else {
       setIsLiked(!isLiked);
       setNumLike((prev: number) => prev + 1);
-      dispatch(likePost({postId: _id, refreshToken}))
+      dispatch(
+        likePost({
+          postId: _id,
+          refreshToken,
+          senderId: currentUser?._id ?? '',
+          receiverId: user?._id,
+          handleName: currentUser?.handleName ?? '',
+        }),
+      )
         .unwrap()
         .then(res => {
           dispatch(addLikedPost(_id));
@@ -176,7 +184,7 @@ const ReelsComponent = (props: any) => {
               </TouchableOpacity>
             </TouchableOpacity>
             <Text style={styles.name}>{user.handleName}</Text>
-            {user._id !== currentUserId && (
+            {user._id !== currentUser?._id && (
               <TouchableOpacity onPress={toggleFollow} style={styles.btnFollow}>
                 <Text style={{fontSize: 14, color: Colors.dark.text}}>
                   {follow ? 'Đang theo dõi' : 'Theo dõi'}

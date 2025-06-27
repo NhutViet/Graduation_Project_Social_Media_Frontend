@@ -51,6 +51,7 @@ const ItemHome = (props: ItemHomeProps) => {
     likeCount,
     share,
     music,
+    setSelectedPostId,
   } = props;
   const navigation: any = useNavigation();
   const dispatch = useDispatch<AppDispatch>();
@@ -99,6 +100,7 @@ const ItemHome = (props: ItemHomeProps) => {
 
   const handleOpenComment = (postId: string) => {
     dispatch(fetchCommentsByPost(postId));
+    setSelectedPostId(postId);
     sheetRef.current?.open();
   };
 

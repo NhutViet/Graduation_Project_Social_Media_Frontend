@@ -61,12 +61,6 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
     } | null>(null);
     const inputRef = useRef<TextInput>(null);
 
-    const [currentPostId, setCurrentPostId] = useState(postId);
-
-    useEffect(() => {
-      if (postId) setCurrentPostId(postId);
-    }, [postId]);
-
     useImperativeHandle(ref, () => ({
       open: () => {
         modalizeRef.current?.open();
@@ -82,7 +76,7 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
       if (!comment.trim()) return;
 
       const payload = {
-        postID: currentPostId,
+        postID: postId,
         content: comment.trim(),
         parentID: replyTo?.id || '',
         mediaUrl: null,
@@ -92,14 +86,13 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
         await dispatch(addComment(payload)).unwrap();
         setComment('');
         setReplyTo(null);
-        dispatch(fetchCommentsByPost(currentPostId));
+        dispatch(fetchCommentsByPost(postId));
       } catch (error) {
         Toast.show({
           type: 'error',
           text1: 'Failed',
           text2: 'Failed to add comment!',
         });
-        console.log('Failed to add comment:', error);
       }
     };
 

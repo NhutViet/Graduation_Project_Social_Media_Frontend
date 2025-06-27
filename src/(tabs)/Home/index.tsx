@@ -31,7 +31,6 @@ import {
   checkStorySeenInStorage,
   clearExpiredSeenStories,
 } from '../../../services/storage/storage';
-import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
 const HEADER_HEIGHT = 100;
 const AnimatedFlatList = Animated.createAnimatedComponent(Animated.FlatList);
@@ -150,6 +149,7 @@ export const Home = forwardRef(({onReload}: any, ref) => {
           isFocused={isFocused}
           sheetRef={sheetRef}
           isFollow={item.isFollow}
+          setSelectedPostId={setSelectedPostId}
         />
       );
     },

@@ -70,4 +70,7 @@ export const API = {
   ////Search
   POST_SEARCH_POST: 'posts/search',
   POST_SEARCH_USER: 'users/search',
+
+  ////Notification
+  NOTIFICATION_API: 'notification/send',
 };

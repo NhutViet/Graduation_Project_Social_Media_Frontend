@@ -1,5 +1,5 @@
 import 'react-native-gesture-handler';
-import React from 'react';
+import React, {useEffect} from 'react';
 import {enableScreens} from 'react-native-screens';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import AppNavigator from './Navigation/AppNavigation';
@@ -24,6 +24,7 @@ import {
   GlobalAlertManager,
   GlobalAlertRef,
 } from '../components/Global/AlertModal';
+import {createNotificationChannel} from '@services/notification/notification';
 
 global.Buffer = Buffer;
 if (__DEV__) {
@@ -34,6 +35,10 @@ if (__DEV__) {
 enableScreens();
 
 const App = () => {
+  useEffect(() => {
+    createNotificationChannel();
+  }, []);
+
   const {modalData, clearModal} = useNotificationHandler(data => {
     if (!navigationRef.isReady()) return;
 
