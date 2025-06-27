@@ -80,8 +80,8 @@ export const useItemHomeActions = (props: ItemHomeProps, state: any, modalShareR
     if (userID) {
       Promise.all([
         dispatch(fetchMyRooms()),
-        dispatch(fetchFollowers({userId: userID})),
-        dispatch(fetchFollowing({userId: userID})),
+        // dispatch(fetchFollowers({userId: userID})),
+        // dispatch(fetchFollowing({userId: userID})),
       ])
         .then(() => {modalShareRef.current?.open();})
         .catch(() => {

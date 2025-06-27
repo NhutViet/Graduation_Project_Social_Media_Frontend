@@ -1,9 +1,7 @@
 import { useMemo } from 'react';
 import { Colors } from '../../../../assets/color/Colors';
-import { ItemHomeProps } from '../types';
+import { ItemHomeProps, RoomItem } from '../types';
 import { useTheme } from '../../../util/ThemeContext';
-
-type RoomItem = ItemHomeProps['RoomItem'];
 
 export const useItemHomeUtils = (props: ItemHomeProps, state: any) => {
   const { type, _id } = props;
@@ -19,18 +17,18 @@ export const useItemHomeUtils = (props: ItemHomeProps, state: any) => {
   const likedColor = isLiked ? color.error : iconColor;
   const bookmarkColor = isBookmark ? '#F2C641' : iconColor;
 
-  const follows = useMemo(() => {
-    const allUsers = [...followers, ...following];
-    const uniqueUsers = allUsers.filter(
-      (user, index, self) => index === self.findIndex(u => u._id === user._id)
-    );
+  // const follows = useMemo(() => {
+  //   const allUsers = [...followers, ...following];
+  //   const uniqueUsers = allUsers.filter(
+  //     (user, index, self) => index === self.findIndex(u => u._id === user._id)
+  //   );
 
-    return uniqueUsers.map(user => ({
-      _id: user._id,
-      name: user.username,
-      avatar: user.profilePic,
-    }));
-  }, [followers, following]);
+  //   return uniqueUsers.map(user => ({
+  //     _id: user._id,
+  //     name: user.username,
+  //     avatar: user.profilePic,
+  //   }));
+  // }, [followers, following]);
 
   const roomItems: RoomItem[] = useMemo(() => {
     return rooms.map((r: any) => ({
@@ -42,9 +40,12 @@ export const useItemHomeUtils = (props: ItemHomeProps, state: any) => {
 
   const items = useMemo(() => {
     const roomsList = roomItems.map(r => ({ kind: 'room' as const, data: r }));
-    const friendsList = follows.map(f => ({ kind: 'friend' as const, data: f }));
-    return [...roomsList, ...friendsList];
-  }, [roomItems, follows]);
+    // const friendsList = follows.map(f => ({ kind: 'friend' as const, data: f }));
+
+    //, ...friendsList
+    return [...roomsList];
+    //, follows
+  }, [roomItems]);
 
   return {
     color,
