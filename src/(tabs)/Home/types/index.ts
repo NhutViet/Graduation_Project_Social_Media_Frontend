@@ -39,6 +39,7 @@ interface Music {
   musicId: string;
   timeStart?: number;
   timeEnd?: number;
+  song?: string;
 }
 
 interface MusicInfo {

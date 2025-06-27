@@ -194,3 +194,22 @@ export const getPublicProfile = createAsyncThunk<
     });
   }
 });
+
+export const changePassword = createAsyncThunk<
+  User,
+  { recentPassword: string; newPassword: string },
+  { rejectValue: string }
+>('auth/changePassword', async (payload, { rejectWithValue }) => {
+  try {
+    const response = await axiosInstance.patch(
+      `${API.CHANGE_PASSWORD}`,
+      payload,
+      { headers: { token: 'refresh' } }
+    );
+    return response.data.data;
+  } catch (error: any) {
+    return rejectWithValue(
+      error.response?.data?.error || 'Không thể thay đổi mật khẩu'
+    );
+  }
+});

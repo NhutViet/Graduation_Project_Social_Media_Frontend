@@ -23,7 +23,7 @@ import {fetchGetPostedSotry} from '../../../../../services/StoryRedux/StorySlice
 import {Alert} from 'react-native';
 import HighlightCreateModal from './HighlightCreateModal';
 import {GlobalAlertManager} from '../../../../../components/Global/AlertModal';
-import { CircleFadingArrowUp, CircleFadingPlus } from 'lucide-react-native';
+import {CircleFadingArrowUp, CircleFadingPlus} from 'lucide-react-native';
 
 // Giả lập action creator (thay bằng action thực tế khi có API)
 const fetchCreateHighlight =
@@ -137,9 +137,7 @@ const StoryArchive = () => {
             name="StoriesTab"
             component={StoriesTab}
             options={{
-              tabBarIcon: () => (
-                <CircleFadingPlus color={color.text}/>
-              ),
+              tabBarIcon: () => <CircleFadingPlus color={color.text} />,
               tabBarShowLabel: false,
             }}
           />
@@ -147,9 +145,7 @@ const StoryArchive = () => {
             name="HighlightsTab"
             component={HighlightsTab}
             options={{
-              tabBarIcon: () => (
-                <CircleFadingArrowUp color={color.text}/>
-              ),
+              tabBarIcon: () => <CircleFadingArrowUp color={color.text} />,
               tabBarShowLabel: false,
             }}
           />
@@ -166,8 +162,8 @@ const StoryArchive = () => {
             scrollViewProps={{
               showsVerticalScrollIndicator: false,
             }}>
-              <View style={{height: modalContentHeight}}>
-                <View style={{marginTop: 35, height: modalContentHeight}}>
+            <View style={{height: modalContentHeight}}>
+              <View style={{marginTop: 35, height: modalContentHeight}}>
                 <TouchableOpacity style={styles.modalPressable}>
                   <Text style={[styles.modalText, {color: color.text}]}>
                     Kho lưu trữ tin
@@ -183,8 +179,8 @@ const StoryArchive = () => {
                     Kho lưu trữ buổi phát trực tiếp
                   </Text>
                 </TouchableOpacity>
-            </View>
               </View>
+            </View>
           </Modalize>
         </Portal>
         <Portal>
@@ -199,35 +195,35 @@ const StoryArchive = () => {
             scrollViewProps={{
               showsVerticalScrollIndicator: false,
             }}>
-              <View style={{height: modalContentHeight}}>
-                <View style={{marginTop: 35}}>
-                  <View style={{paddingVertical: 20, justifyContent: 'center'}}>
-                    <Text
-                      style={{
-                        fontSize: 15,
-                        fontWeight: '500',
-                        color: color.text,
-                      }}>
-                      Lựa chọn khác
-                    </Text>
-                  </View>
-                  <View
-                    style={{flex: 1, borderWidth: 1, borderColor: color.gray}}
-                  />
-                  <TouchableOpacity
-                    style={styles.modalPressable}
-                    onPress={openHighlightCreateModal}>
-                    <Text style={[styles.modalText, {color: color.text}]}>
-                      Tạo tin nổi bật
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.modalPressable}>
-                    <Text style={[styles.modalText, {color: color.text}]}>
-                      Cài đặt
-                    </Text>
-                  </TouchableOpacity>
+            <View style={{height: modalContentHeight}}>
+              <View style={{marginTop: 35}}>
+                <View style={{paddingVertical: 20, justifyContent: 'center'}}>
+                  <Text
+                    style={{
+                      fontSize: 15,
+                      fontWeight: '500',
+                      color: color.text,
+                    }}>
+                    Lựa chọn khác
+                  </Text>
                 </View>
+                <View
+                  style={{flex: 1, borderWidth: 1, borderColor: color.gray}}
+                />
+                <TouchableOpacity
+                  style={styles.modalPressable}
+                  onPress={openHighlightCreateModal}>
+                  <Text style={[styles.modalText, {color: color.text}]}>
+                    Tạo tin nổi bật
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.modalPressable}>
+                  <Text style={[styles.modalText, {color: color.text}]}>
+                    Cài đặt
+                  </Text>
+                </TouchableOpacity>
               </View>
+            </View>
           </Modalize>
         </Portal>
         <HighlightCreateModal
