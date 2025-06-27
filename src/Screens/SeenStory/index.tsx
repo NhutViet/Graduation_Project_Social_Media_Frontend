@@ -28,6 +28,8 @@ export const SeenStory = ({route, navigation}: any) => {
   const [videoDuration, setVideoDuration] = useState<number | null>(null);
   const [musicDuration, setMusicDuration] = useState<number | null>(null);
   const [isLiked, setIsLiked] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
   const [mediaSize, setMediaSize] = useState({width: 0, height: 0});
   const progressAnims = useRef<Animated.Value[]>(
     routeStories.map(() => new Animated.Value(0)),
@@ -62,18 +64,24 @@ export const SeenStory = ({route, navigation}: any) => {
     animationRef.current?.stop();
 
     const anim = progressAnims[currentIndex];
-    anim.setValue(0);
 
-    const duration = getItemDuration();
+    // ⚠️ Chỉ reset nếu anim đang ở 0
+    anim.stopAnimation(value => {
+      if (value === 0 || value >= 1) {
+        anim.setValue(0);
+      }
 
-    animationRef.current = Animated.timing(anim, {
-      toValue: 1,
-      duration,
-      useNativeDriver: false,
-    });
+      const duration = getItemDuration() * (1 - value); // phần còn lại
 
-    animationRef.current.start(({finished}) => {
-      if (finished) goToNextStory();
+      animationRef.current = Animated.timing(anim, {
+        toValue: 1,
+        duration,
+        useNativeDriver: false,
+      });
+
+      animationRef.current.start(({finished}) => {
+        if (finished) goToNextStory();
+      });
     });
   };
 
@@ -97,6 +105,10 @@ export const SeenStory = ({route, navigation}: any) => {
       setCurrentIndex(currentIndex - 1);
     }
   };
+  // pause
+  const togglePause = () => setIsPaused(prev => !prev);
+  // mute
+  const toggleMute = () => setIsMuted(prev => !prev);
 
   const handleTouch = (event: any) => {
     const {locationX} = event.nativeEvent;
@@ -128,6 +140,15 @@ export const SeenStory = ({route, navigation}: any) => {
     }
   };
 
+  const getCaptionPosition = (xPercent: number, yPercent: number) => {
+    const width = mediaSize.width || screenWidth;
+    const height = mediaSize.height || screenHeight;
+    return {
+      left: (xPercent / 100) * width,
+      top: (yPercent / 100) * height,
+    };
+  };
+
   const renderCaption = () => {
     const content = selectedItem?.content;
     if (!content?.text) return null;
@@ -149,6 +170,39 @@ export const SeenStory = ({route, navigation}: any) => {
         {content.text}
       </Text>
     );
+  };
+
+  const renderTags = () => {
+    const tags = selectedItem?.tags || [];
+
+    return tags.map((tag, index) => {
+      const {user, position} = tag;
+      if (!user) return null;
+
+      const {x, y} = position;
+      const {username, handleName} = user;
+
+      const tagPosition = getCaptionPosition(x * 100, y * 100);
+
+      return (
+        <View
+          key={index}
+          style={{
+            position: 'absolute',
+            left: tagPosition.left,
+            top: tagPosition.top,
+            backgroundColor: 'rgba(0, 0, 0, 0.6)',
+            paddingHorizontal: 10,
+            paddingVertical: 5,
+            borderRadius: 12,
+            zIndex: 10,
+          }}>
+          <Text style={{color: '#fff', fontSize: 14, fontWeight: '500'}}>
+            @{handleName}
+          </Text>
+        </View>
+      );
+    });
   };
 
   useEffect(() => {
@@ -193,8 +247,17 @@ export const SeenStory = ({route, navigation}: any) => {
     )
       return;
 
-    startProgressAnimation();
-  }, [videoDuration, musicDuration, selectedItem?._id]);
+    if (!isPaused) {
+      startProgressAnimation();
+    }
+  }, [videoDuration, musicDuration, selectedItem?._id, isPaused]);
+  useEffect(() => {
+    if (!isPaused) {
+      startProgressAnimation();
+    } else {
+      stopCurrentAnimation();
+    }
+  }, [isPaused]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -206,6 +269,10 @@ export const SeenStory = ({route, navigation}: any) => {
           onClose={() => navigation.goBack()}
           username={creator?.username}
           profilePic={creator?.profilePic}
+          pause={isPaused}
+          onTogglePause={togglePause}
+          mute={isMuted}
+          onToggleMute={toggleMute}
         />
         <ProgressBar
           progressAnims={progressAnims}
@@ -225,8 +292,11 @@ export const SeenStory = ({route, navigation}: any) => {
             // KHÔNG gọi startProgressAnimation ở đây
           }}
           onMusicEnd={goToNextStory}
+          paused={isPaused}
+          muted={isMuted}
         />
         {renderCaption()}
+        {renderTags()}
       </TouchableOpacity>
       <Footer onLike={handleLike} isLiked={isLiked} scaleAnim={scaleAnim} />
     </SafeAreaView>
