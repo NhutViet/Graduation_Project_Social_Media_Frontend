@@ -16,6 +16,7 @@ import {
 } from '../../../../services/reactionRedux/reactionSlice';
 import {useTheme} from '../../../util/ThemeContext';
 import {relationAction} from '@services/relationRedux/relationSlice';
+import TagMarker from './TagMarker';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height - 60;
@@ -148,7 +149,7 @@ const ReelsComponent = (props: any) => {
             bottom: 0,
             zIndex: 1,
           }}>
-          {/* {media[0]?.tags?.map((tag: any, index: number) => (
+          {media[0]?.tags?.map((tag: any, index: number) => (
             <TagMarker
               key={index}
               tag={tag}
@@ -156,7 +157,7 @@ const ReelsComponent = (props: any) => {
                 navigation.navigate('ProfileComp', {userID: userId});
               }}
             />
-          ))} */}
+          ))}
         </View>
       </View>
       <View style={styles.bottomContainer}>

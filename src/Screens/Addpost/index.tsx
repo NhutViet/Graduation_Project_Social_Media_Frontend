@@ -365,7 +365,10 @@ export const AddPost = () => {
                           right: 5,
                           width: 20,
                           height: 20,
-                          tintColor: color.primary,
+                          tintColor: color.white,
+                          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                          resizeMode: 'contain',
+                          borderRadius: 3,
                         }}
                       />
                     )}

@@ -7,7 +7,7 @@ const Section = (props: any) => {
   const {theme} = useTheme();
   const color = Colors[theme];
 
-  const {title, iconLeft, iconRight, func} = props;
+  const {title, iconLeft, iconRight, func, backData} = props;
   return (
     <TouchableOpacity
       style={{
@@ -32,6 +32,7 @@ const Section = (props: any) => {
         numberOfLines={1}>
         {title}
       </Text>
+      {backData && <Text style={{color: color.textSecondary, fontSize: 16, marginRight: 5}}>{backData}</Text>}
       <Image
         source={iconRight}
         style={{

@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useRef, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {useTheme} from '../../util/ThemeContext';
 import {getAddPostStyles} from '../../StyleSheet/AddPostStyles';
 import {FlashList} from '@shopify/flash-list';
@@ -19,8 +19,8 @@ import {
   useNavigation,
   useRoute,
 } from '@react-navigation/native';
-import {useDispatch} from 'react-redux';
-import {AppDispatch} from '../../../services/store';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '../../../services/store';
 import {uploadPostWithMedia} from '../../../services/postRedux/postSlice';
 import Toast from 'react-native-toast-message';
 import VideoModal from './Components/VideoModal';
@@ -30,12 +30,13 @@ import BottomSheet, {
 import {uploadImageToR2, uploadToCloudflare} from '../../core/upload';
 import {useUploadProgress} from '../../../services/UploadProgressManager';
 import {PhotoIdentifier} from '@react-native-camera-roll/camera-roll';
-// import {TaggedMedia} from '../TagSo';
+import {TaggedMedia} from '../TagSo';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
-// type Params = {
-//   updated?: TaggedMedia[];
-// };
+type Params = {
+  updated?: TaggedMedia[];
+};
+
 
 export const PostSetting = () => {
   const {theme} = useTheme();
@@ -54,34 +55,70 @@ export const PostSetting = () => {
 
   //lâys dữ liệu
   const route = useRoute();
-  const {selectedMedia}: any = route.params || [];
+  const {selectedMedia, updated} = route.params as {
+    selectedMedia: PhotoIdentifier[];
+    updated?: TaggedMedia[];
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      if (updated) {
+        setMediaWithTags(updated);
+      }
+    }, [updated]),
+  );
+
+  const [mediaWithTags, setMediaWithTags] = useState<TaggedMedia[]>(
+    selectedMedia.map(item => ({...item, tags: []})),
+  );
+
   const [caption, setCaption] = useState('');
   //modal xem video
   const [isModal, setIsModal] = useState(false);
   const {showUploadModal, hideUploadModal, setProgress} = useUploadProgress();
 
   const handleUploadAll = async () => {
-    // if (!mediaWithTags || mediaWithTags.length === 0) {
-    //   GlobalAlertManager.show(
-    //     'Thông báo',
-    //     'Hãy chọn ít nhất một ảnh hoặc video',
-    //   );
-    //   return;
-    // }
+    if (!mediaWithTags || mediaWithTags.length === 0) {
+      Alert.alert(
+        'Chưa chọn phương tiện',
+        'Hãy chọn ít nhất một ảnh hoặc video',
+      );
+      return;
+    }
 
-    // for (const media of mediaWithTags) {
-    //   if (!media.node.image.uri) {
-    //     GlobalAlertManager.show('Lỗi', 'URI của media không hợp lệ');
-    //     return;
-    //   }
-    // }
+    for (const media of mediaWithTags) {
+      if (!media.node.image.uri) {
+        Alert.alert('Lỗi', 'URI của media không hợp lệ');
+        return;
+      }
+    }
 
     try {
-      const uploadedMedia: {imageUrl?: string; videoUrl?: string}[] = [];
+      const uploadedMedia: {
+        imageUrl?: string;
+        videoUrl?: string;
+        tags?: {
+          userId: string;
+          handleName: string;
+          positionX: number;
+          positionY: number;
+        }[];
+      }[] = [];
 
-      for (const media of selectedMedia) {
+      for (const media of mediaWithTags) {
         const uri = media.node.image.uri;
         const isVideo = media.node.type.startsWith('video');
+
+        let uploadedItem: {
+          imageUrl?: string;
+          videoUrl?: string;
+          tags?: {
+            userId: string;
+            handleName: string;
+            positionX: number;
+            positionY: number;
+          }[];
+        } = {};
 
         try {
           if (isVideo) {
@@ -90,17 +127,27 @@ export const PostSetting = () => {
               hideUploadModal,
               setProgress,
             });
-            uploadedMedia.push({
-              videoUrl: `https://videodelivery.net/${videoUrl}/manifest/video.m3u8`,
-            });
+            uploadedItem.videoUrl = `https://videodelivery.net/${videoUrl}/manifest/video.m3u8`;
           } else {
             const imageUrl = await uploadImageToR2(uri, {
               showUploadModal,
               hideUploadModal,
               setProgress,
             });
-            uploadedMedia.push({imageUrl});
+            uploadedItem.imageUrl = imageUrl;
           }
+
+          //nếu có tags
+          if (media.tags && media.tags.length > 0) {
+            uploadedItem.tags = media.tags.map(tag => ({
+              userId: tag.user._id,
+              handleName: tag.user.handleName,
+              positionX: tag.position.x,
+              positionY: tag.position.y,
+            }));
+          }
+
+          uploadedMedia.push(uploadedItem);
         } catch (err) {
           GlobalAlertManager.show(
             'Thất bại',
@@ -140,6 +187,11 @@ export const PostSetting = () => {
           text1: '🎉 Thành công',
           text2: 'Bài viết của bạn đã được tải lên!',
         });
+        setMediaWithTags([]);
+        navigation.reset({
+          index: 0,
+          routes: [{name: 'BottomTabs'}],
+        });
       } else {
         Toast.show({
           type: 'error',
@@ -151,6 +203,10 @@ export const PostSetting = () => {
       GlobalAlertManager.show('Lỗi', 'Đã có lỗi xảy ra khi upload');
       console.error(error);
     }
+  };
+
+  const countAllTag = (media: TaggedMedia[]): number => {
+    return media.reduce((sum, item) => sum + (item.tags?.length ?? 0), 0);
   };
 
   return (
@@ -232,6 +288,12 @@ export const PostSetting = () => {
           title={'Gắn thẻ người khác'}
           iconRight={require('../../../assets/icon/right.png')}
           iconLeft={require('../../../assets/icon/tag.png')}
+          backData={countAllTag(mediaWithTags).toString()}
+          func={() =>
+            navigation.navigate('TagSo', {
+              selectedMedia: mediaWithTags,
+            })
+          }
         />
         <Section
           title={'Thêm vị trí'}
