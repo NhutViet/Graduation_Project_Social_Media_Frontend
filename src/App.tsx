@@ -23,7 +23,10 @@ import {
 } from '../components/Global/AlertModal';
 import NotificationManager from '@services/NotificationManager';
 import NotificationModal from '@services/notification/NotificationModal';
-import {useNotification} from '@services/NotificationContext';
+import {
+  NotificationProvider,
+  useNotification,
+} from '@services/NotificationContext';
 global.Buffer = Buffer;
 if (__DEV__) {
   import('./config/ReactotronConfig').then(() =>
@@ -71,31 +74,33 @@ const App = () => {
   }, []);
 
   return (
-    <GestureHandlerRootView style={{flex: 1}}>
-      <Provider store={store}>
-        <PersistGate loading={null} persistor={persistor}>
-          <SocketProvider>
-            <NotificationManager />
-            <ThemeProvider>
-              <KeyboardAvoidingView style={{flex: 1}}>
-                <SafeAreaProvider>
-                  <Host>
-                    <UploadProvider>
-                      <TabLoadingProvider>
-                        <AppNavigator />
-                        <Toast />
-                        <GlobalAlert ref={handleAlertRef} />
-                        <NotificationHandler />
-                      </TabLoadingProvider>
-                    </UploadProvider>
-                  </Host>
-                </SafeAreaProvider>
-              </KeyboardAvoidingView>
-            </ThemeProvider>
-          </SocketProvider>
-        </PersistGate>
-      </Provider>
-    </GestureHandlerRootView>
+    <NotificationProvider>
+      <GestureHandlerRootView style={{flex: 1}}>
+        <Provider store={store}>
+          <PersistGate loading={null} persistor={persistor}>
+            <SocketProvider>
+              <NotificationManager />
+              <ThemeProvider>
+                <KeyboardAvoidingView style={{flex: 1}}>
+                  <SafeAreaProvider>
+                    <Host>
+                      <UploadProvider>
+                        <TabLoadingProvider>
+                          <AppNavigator />
+                          <Toast />
+                          <GlobalAlert ref={handleAlertRef} />
+                          <NotificationHandler />
+                        </TabLoadingProvider>
+                      </UploadProvider>
+                    </Host>
+                  </SafeAreaProvider>
+                </KeyboardAvoidingView>
+              </ThemeProvider>
+            </SocketProvider>
+          </PersistGate>
+        </Provider>
+      </GestureHandlerRootView>
+    </NotificationProvider>
   );
 };
 
