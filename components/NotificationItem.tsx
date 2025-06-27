@@ -1,24 +1,29 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
-} from 'react-native';
+import {View, Text, TouchableOpacity, Image} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { useNotificationStyles } from '../src/StyleSheet/NotificationStyles';
-import { Noti } from '@services/notificationRedux/notificationTypes';
+import {useNotificationStyles} from '../src/StyleSheet/NotificationStyles';
+import {Noti} from '@services/notificationRedux/notificationTypes';
+import {useNavigation} from '@react-navigation/native';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import 'dayjs/locale/vi'; // Dùng tiếng Việt
+
+dayjs.extend(relativeTime);
+dayjs.locale('vi');
 
 interface Props {
   notification: Noti;
   stackTime?: boolean;
 }
 
-const NotificationItem: React.FC<Props> = ({ notification, stackTime = false }) => {
+const NotificationItem: React.FC<Props> = ({
+  notification,
+  stackTime = false,
+}) => {
   const styles = useNotificationStyles();
-  const { type, isRead, createdAt, actors, caption } = notification;
+  const navigation = useNavigation<any>();
 
-  const mainActor = actors[0]; // Hiện tại chỉ lấy 1 người đầu
+  const mainActor = notification.actors[0]; // Hiện tại chỉ lấy 1 người đầu
   const profilePic = mainActor?.profilePic;
   const username = mainActor?.username;
 
@@ -27,15 +32,14 @@ const NotificationItem: React.FC<Props> = ({ notification, stackTime = false }) 
       <View>
         <LinearGradient
           colors={['#C13584', '#F77737', '#FFDC80']}
-          style={styles.storyRing}
-        >
+          style={styles.storyRing}>
           <View style={styles.imageIconContainer}>
             <View style={styles.imageIcon}>
               <Image
                 style={styles.userIcon}
                 source={
                   profilePic
-                    ? { uri: profilePic }
+                    ? {uri: profilePic}
                     : require('../assets/icon/account.png')
                 }
               />
@@ -47,45 +51,44 @@ const NotificationItem: React.FC<Props> = ({ notification, stackTime = false }) 
   };
 
   const formatTime = (isoTime: string) => {
-    const created = new Date(isoTime);
-    const now = new Date();
-    const diffMs = now.getTime() - created.getTime();
-    const diffMins = Math.floor(diffMs / (1000 * 60));
-    const diffHours = Math.floor(diffMins / 60);
-    const diffDays = Math.floor(diffHours / 24);
-
-    if (diffMins < 60) return `${diffMins} phút`;
-    if (diffHours < 24) return `${diffHours} giờ`;
-    if (diffDays < 7) return `${diffDays} ngày`;
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)} tuần`;
-    return `${Math.floor(diffDays / 30)} tháng`;
+    return dayjs(isoTime).fromNow();
   };
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.contentContainer}>
+      <TouchableOpacity
+        style={styles.contentContainer}
+        onPress={() =>
+          navigation.navigate('PostDetailScreen', {postId: notification.postId})
+        }>
         {renderProfileImage()}
         <View style={styles.textContainer}>
           {stackTime ? (
             <>
-              <Text numberOfLines={2} style={styles.contentText} ellipsizeMode='tail'>
-                {caption}
+              <Text
+                numberOfLines={2}
+                style={styles.contentText}
+                ellipsizeMode="tail">
+                {notification.caption}
               </Text>
               <Text style={[styles.timeText]}>
-                {formatTime(createdAt)}
+                {formatTime(notification.createdAt)}
               </Text>
             </>
           ) : (
             <Text numberOfLines={2} style={styles.contentText}>
-              <Text style={{ fontWeight: 'bold' }}>{username}</Text>{' '}
-              {caption}
-              <Text style={styles.timeText}> • {formatTime(createdAt)}</Text>
+              <Text style={{fontWeight: 'bold'}}>{username}</Text>{' '}
+              {notification.caption}
+              <Text style={styles.timeText}>
+                {' '}
+                • {formatTime(notification.createdAt)}
+              </Text>
             </Text>
           )}
         </View>
 
         {/* Tùy loại hành động có thể hiện thêm nút */}
-        {type === 'request' ? (
+        {notification.type === 'request' ? (
           <View style={styles.actionButtonsContainer}>
             <TouchableOpacity style={styles.confirmButton}>
               <Text style={styles.actionButtonTextConfirm}>Xác nhận</Text>
@@ -94,7 +97,7 @@ const NotificationItem: React.FC<Props> = ({ notification, stackTime = false }) 
               <Text style={styles.actionButtonTextDelete}>Xóa</Text>
             </TouchableOpacity>
           </View>
-        ) : type === 'follow' ? (
+        ) : notification.type === 'follow' ? (
           <TouchableOpacity style={styles.actionButton}>
             <Text style={styles.actionButtonTextConfirm}>Theo dõi</Text>
           </TouchableOpacity>

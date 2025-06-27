@@ -15,9 +15,11 @@ import ItemHome from '../src/(tabs)/Home/components/ItemHome';
 import {useTheme} from '../src/util/ThemeContext';
 import {Colors} from '../assets/color/Colors';
 import {fetchCommentsByPost} from '../services/commentRedux/commentSlice';
-import {useDispatch} from 'react-redux';
-import {AppDispatch} from '../services/store';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '../services/store';
 import axios from 'axios'; // hoặc dùng custom hook fetch
+import axiosInstance from '@services/axiosInstance';
+import { API } from '@services/api';
 
 interface RouteParams {
   postId: string;
@@ -34,12 +36,17 @@ const PostDetailScreen = () => {
   const {postId} = route.params as RouteParams;
 
   const [post, setPost] = useState<any | null>(null);
+  const {refreshToken} = useSelector((state: RootState) => state.user);
   const [selectedPostId, setSelectedPostId] = useState('');
   const sheetRef = useRef<BottomSheetCommentRef>(null);
 
   const fetchPostById = async () => {
     try {
-      const {data} = await axios.get(`https://your-api.com/post/${postId}`);
+      const {data} = await axiosInstance.get(`posts/${postId}`, {
+        headers: {
+          Authorization: `Bearer ${refreshToken}`
+        }
+      });
       setPost(data);
     } catch (error) {
       console.log('Lỗi lấy post:', error);

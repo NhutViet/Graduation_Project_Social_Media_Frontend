@@ -15,7 +15,9 @@ export interface Noti {
     type: string;
     isRead: boolean;
     createdAt: string;
-    post?: Post;
     actors: User[];
     caption: string;
+    extraCount: number;
+    postId: string;
+    image?: string | null;
 }
