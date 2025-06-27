@@ -139,6 +139,33 @@ export const LikedScreen = () => {
     return filteredData;
   }, [data, filterType, sortOrder, selectedDate, selectedContents]);
 
+  const getFilterLabel = (id: 'date' | 'sort' | 'content') => {
+    switch (id) {
+      case 'date':
+        switch (selectedDate) {
+          case 'week': return 'Tuần trước';
+          case 'month': return 'Tháng trước';
+          case 'year': return 'Năm trước';
+          default: return 'Tất cả các ngày';
+        }
+      case 'sort':
+        return sortOrder === 'newest'
+          ? 'Mới nhất đến cũ nhất'
+          : 'Cũ nhất đến mới nhất';
+      case 'content':
+        if (selectedContents.length === 0) return 'Tất cả loại nội dung';
+        // giả sử bạn chỉ chọn 1 loại, hoặc join nhiều
+        return selectedContents
+          .map(c =>
+            c === 'posts' ? 'Bài đăng'
+            : c === 'reels' ? 'Reels'
+            : c === 'threads' ? 'Threads'
+            : c
+          )
+          .join(', ');
+    }
+  };
+
   const filteredData = filterData();
 
   return (
@@ -163,7 +190,9 @@ export const LikedScreen = () => {
               }}
               style={styles.filterContainer}
               key={item.id}>
-              <Text style={styles.textFilter}>{item.label}</Text>
+              <Text style={styles.textFilter}>
+                {getFilterLabel(item.id as 'date' | 'sort' | 'content')}
+              </Text>
               <ChevronDown color={styles.iconBack.tintColor}/>
             </TouchableOpacity>
           ))}
