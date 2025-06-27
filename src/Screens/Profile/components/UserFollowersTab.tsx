@@ -206,27 +206,15 @@ const UserFollowersTab = ({route}: any) => {
     <View style={{flex: 1, backgroundColor: color.background}}>
       <View
         style={[
-          styles.searchBarArea,
-          {backgroundColor: color.background, borderBottomColor: color.border},
+          styles.searchBarContainer,
+          {backgroundColor: color.background, borderColor: color.text},
         ]}>
-        <View
-          style={[
-            styles.searchBarContainer,
-            {backgroundColor: color.background, borderColor: color.text},
-          ]}>
-          <View
-            style={[
-              styles.searchBarContainer,
-              {backgroundColor: color.background, borderColor: color.text},
-            ]}>
-            <Search size={15} style={{marginRight: 15}} color={color.text}/>
-            <TextInput
-              style={[styles.searchBar, {borderColor: color.border}]}
-              placeholder="Tìm kiếm"
-              placeholderTextColor={color.text}
-            />
-          </View>
-        </View>
+        <Search size={15} style={{marginRight: 15}} color={color.text}/>
+        <TextInput
+          style={[styles.searchBar, {borderColor: color.border}]}
+          placeholder="Tìm kiếm"
+          placeholderTextColor={color.text}
+        />
       </View>
       <FlashList
         data={followers}

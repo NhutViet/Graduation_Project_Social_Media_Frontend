@@ -19,14 +19,6 @@ export interface ItemHomeProps {
   musicInfo?: MusicInfo;
   isFollow: boolean;
   isBookmarked?: boolean;
-  RoomItem: RoomItem;
-}
-
-interface RoomItem {
-  _id: string;
-  name: string;
-  avatars: string[];
-  latestMessage: string;
 }
 
 interface User {

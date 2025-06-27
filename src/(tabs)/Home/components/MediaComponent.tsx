@@ -133,7 +133,7 @@ export const RenderMuteButton = React.memo(
       <TouchableOpacity
         style={ItemHomeStyles.muteButton}
         onPress={() => setMuted(!muted)}>
-        {muted ? <Volume2 color={Colors.dark.text}/> : <VolumeOff color={Colors.dark.text}/>}
+        {muted ? <VolumeOff color={Colors.dark.text}/> : <Volume2 color={Colors.dark.text}/>}
       </TouchableOpacity>
     );
   },

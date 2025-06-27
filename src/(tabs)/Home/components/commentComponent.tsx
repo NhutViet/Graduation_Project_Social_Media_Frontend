@@ -104,7 +104,7 @@ const CommentComponent = ({onReply, ...props}: CommentComponentProps) => {
               </TouchableOpacity>
             </View>
           </View>
-          <View style={{alignItems: 'center', marginTop: 20}}>
+          <View style={{alignItems: 'center', marginTop: 20, marginRight: 10}}>
             <TouchableOpacity style={styles.blockIcon}>
               <Heart style={[styles.icon]} color={color.text}/>
             </TouchableOpacity>

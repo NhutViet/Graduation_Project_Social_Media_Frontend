@@ -20,7 +20,7 @@ const initialLoad: Load = { items: [], pagination: emptyPagination };
 interface PostUser {
   posts: Load | {};
   reels: Load | {};
-  likedPosts: Load | {};  
+  likedPosts: Load;  
   isLoading: boolean;
   isSuccess: boolean;
   isError: boolean;
@@ -44,7 +44,7 @@ const PostUserReducer = createSlice({
     clearPostsAndReels(state) {
       state.posts = {};
       state.reels = {};
-      state.likedPosts = {};
+      state.likedPosts = initialLoad;
     },
   },
   extraReducers: builder => {
@@ -114,7 +114,6 @@ const PostUserReducer = createSlice({
         state.isError = false;
         state.isSuccess = false;
         state.errorMessage = '';
-        state.likedPosts = {};
       })
       .addCase(getLikedPosts.fulfilled, (state, action) => {
         state.isLoading = false;
@@ -129,6 +128,7 @@ const PostUserReducer = createSlice({
         state.isError = true;
         state.errorMessage =
           action.payload?.message || 'Lấy bài đã thích thất bại.';
+        state.likedPosts = initialLoad;
       });
   },
 });

@@ -60,5 +60,11 @@ export const LikedStyles = (theme: 'light' | 'dark') => {
         paddingLeft: 24,
         paddingVertical: 10,
     },
+    unlikeContainer: {
+        backgroundColor: Colors.lightGray,
+        borderRadius: 10,
+        marginHorizontal: 10,
+        marginBottom: 10
+    }
   });
 }

@@ -4,40 +4,78 @@ import Video from 'react-native-video';
 import { useTheme } from '../../../util/ThemeContext';
 import { Colors } from '../../../../assets/color/Colors';
 import { Clapperboard, Images, CircleCheck } from 'lucide-react-native';
+import { Media, Item } from '@services/postUserRedux/postUserType';
 
 const {width} = Dimensions.get('window');
 
-const PostItem = (props: any) => {
-    const {theme} = useTheme();
-    const color = Colors[theme];
-  const {data, onHandle, isSelect} = props;
+interface Props {
+  data: Item;
+  onHandle: () => void;
+  isSelect: boolean;
+}
+
+const PostItem = ({ data, onHandle, isSelect }: Props) => {
+  const {theme} = useTheme();
+  const color = Colors[theme];
+
+  const media = data.media ?? [];
+
+  const images = media
+    .filter((m): m is Media => typeof (m as any).imageUrl === 'string')
+    .map(m => m.imageUrl!);
+
+  const videos = media
+    .filter((m): m is Media => typeof (m as any).videoUrl === 'string')
+    .map(m => m.videoUrl!);
+
+    let content: React.ReactNode;
+    if (images.length === 0 && videos.length > 0) {
+      content = (
+        <View>
+          <Video
+            source={{ uri: videos[0] }}
+            resizeMode="cover"
+            style={styles.container}
+            muted
+            paused
+          />
+          <Clapperboard
+            style={styles.icon}
+            color={color.background}
+            size={20}
+          />
+        </View>
+      );
+    } else if (images.length >= 1 || (images.length > 0 && videos.length > 0)) {
+      content = (
+        <View>
+          <Image source={{ uri: images[0] }} style={styles.container} />
+          <Images style={styles.icon} color={color.background} size={20} />
+        </View>
+      );
+    } else {
+      // không có media: placeholder
+      content = (
+        <View style={[styles.container, styles.placeholder]}>
+          <Text style={{ color: color.textSecondary }}>—</Text>
+        </View>
+      );
+    }
+
   return (
     <TouchableOpacity onPress={onHandle} style={{width: (width)/3,
         aspectRatio: 1,}}>
-      {(data.image_url.length === 0 && data.video.length > 0) ? (
-        <View>
-            <Video
-          source={{uri: data.video[0]}}
-          resizeMode="cover"
-          style={[styles.container]}
-          muted={true}
-          paused={true}
-        />
-        <Clapperboard style={{position: 'absolute', top: 10, right: 10}} color={color.background}/>
-        </View>
-      ) : (data.image_url.length > 1 || (data.image_url.length > 0 && data.video.length > 0)) ? (
-        <View>
-            <Image source={{uri: data.image_url[0]}} style={styles.container}/>
-            <Images style={{position: 'absolute', top: 10, right: 10}} color={color.background}/>
-        </View>
-      ) : (
-        <Image source={{uri: data.image_url[0]}} style={styles.container}/>
-      )}
-      {isSelect ? (
-        <CircleCheck style={{position: 'absolute', bottom: 5, right: 5, zIndex: 1,}} color={color.text}/>
-      ) : (
-        <View style={[styles.rounded, {borderColor: color.textSecondary}]}/>
-      )}
+        {content}
+        {isSelect ? (
+          <CircleCheck
+            style={styles.check}
+            color={color.background}
+            fill={color.primary}
+            size={20}
+          />
+        ) : (
+          <View style={[styles.rounded, { borderColor: color.textSecondary }]} />
+        )}
     </TouchableOpacity>
   );
 };
@@ -49,6 +87,20 @@ const styles = StyleSheet.create({
         width: (width)/3,
         aspectRatio: 1,
         resizeMode: 'cover',
+    },
+    wrapper: {
+      width: width / 3,
+      aspectRatio: 1,
+    },
+    placeholder: {
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: '#f0f0f0',
+    },
+    icon: {
+      position: 'absolute',
+      top: 10,
+      right: 10,
     },
     rounded: {
         width: 20,
@@ -76,5 +128,11 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 10,
         right: 10,
+    },
+    check: {
+      position: 'absolute',
+      bottom: 5,
+      right: 5,
+      zIndex: 1,
     },
 });
