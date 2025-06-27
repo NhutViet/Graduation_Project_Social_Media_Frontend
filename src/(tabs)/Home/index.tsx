@@ -31,6 +31,8 @@ import {
   checkStorySeenInStorage,
   clearExpiredSeenStories,
 } from '../../../services/storage/storage';
+import {PostWithMedia} from '@services/postRedux/postTypes';
+import { useSocket } from '@services/SocketContext';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
 const HEADER_HEIGHT = 100;
@@ -42,6 +44,7 @@ export const Home = forwardRef(({onReload}: any, ref) => {
   const color = Colors[theme];
   const isFocused = useIsFocused();
   const dispatch = useDispatch<AppDispatch>();
+  const {connectNotificationSocket} = useSocket();
 
   const storyDetails = useSelector(
     (state: RootState) => state.stories.storyDetails,
@@ -65,6 +68,13 @@ export const Home = forwardRef(({onReload}: any, ref) => {
   useImperativeHandle(ref, () => ({
     reload: reloadAllData,
   }));
+
+  useEffect(() => {
+    if (user?._id) {
+      connectNotificationSocket();
+    }
+  }, []);
+
 
   useEffect(() => {
     reloadAllData();
