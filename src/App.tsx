@@ -1,5 +1,5 @@
 import 'react-native-gesture-handler';
-import React, {useEffect, useRef} from 'react';
+import React from 'react';
 import {enableScreens} from 'react-native-screens';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import AppNavigator from './Navigation/AppNavigation';
@@ -15,12 +15,15 @@ import Toast from 'react-native-toast-message';
 import {Buffer} from 'buffer';
 import {TabLoadingProvider} from '../services/TabLoadingContext';
 import {SocketProvider} from '../services/SocketContext';
-import {requestCallPermissions, setupCallKeep} from '@services/CallKeepService';
 import {KeyboardAvoidingView} from 'react-native';
 import {useNotificationHandler} from '@services/notification/useNotification';
 import NotificationModal from '@services/notification/NotificationModal';
 import {navigationRef} from './NavigationService';
-import { GlobalAlert, GlobalAlertManager, GlobalAlertRef } from 'components/Global/AlertModal';
+import {
+  GlobalAlert,
+  GlobalAlertManager,
+  GlobalAlertRef,
+} from '../components/Global/AlertModal';
 
 global.Buffer = Buffer;
 if (__DEV__) {
@@ -31,14 +34,6 @@ if (__DEV__) {
 enableScreens();
 
 const App = () => {
-  // useEffect(() => {
-  //   const initCallKeep = async () => {
-  //     await requestCallPermissions();
-  //     setupCallKeep();
-  //   };
-
-  //   initCallKeep();
-  // }, []);
   const {modalData, clearModal} = useNotificationHandler(data => {
     if (!navigationRef.isReady()) return;
 
