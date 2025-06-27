@@ -19,7 +19,7 @@ export interface ItemHomeProps {
   musicInfo?: MusicInfo;
   isFollow: boolean;
   isBookmarked?: boolean;
-  setSelectedPostId: any;
+  setSelectedPostId?: any;
 }
 
 interface User {

@@ -59,7 +59,7 @@ export const RenderMediaItem = React.memo(
     }
 
     return (
-      <View style={{width: screenWidth, height: item.videoUrl ? 600 : 460}}>
+      <View style={{width: screenWidth, height: item.videoUrl ? 600 : 520}}>
         {item.videoUrl ? (
           <Video
             source={{uri: item.videoUrl}}
@@ -68,7 +68,7 @@ export const RenderMediaItem = React.memo(
             repeat
             paused={!currentVisible || !isFocused}
             muted={muted}
-            maxBitRate={1500000}
+            maxBitRate={0}
             progressUpdateInterval={500}
             onLoad={({naturalSize}) => {
               setVideoSize({
@@ -80,7 +80,7 @@ export const RenderMediaItem = React.memo(
         ) : (
           <Image
             source={{uri: item.imageUrl ?? ''}}
-            style={{width: screenWidth, height: 460}}
+            style={{width: screenWidth, height: 520}}
             resizeMode="cover"
           />
         )}

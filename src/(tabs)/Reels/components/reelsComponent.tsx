@@ -88,7 +88,15 @@ const ReelsComponent = (props: any) => {
     if (isLiked) {
       setIsLiked(!isLiked);
       setNumLike((prev: number) => prev - 1);
-      dispatch(unlikePost({postId: _id, refreshToken}))
+      dispatch(
+        unlikePost({
+          postId: _id,
+          refreshToken,
+          senderId: currentUser?._id ?? '',
+          receiverId: user?._id,
+          handleName: currentUser?.handleName ?? '',
+        }),
+      )
         .unwrap()
         .then(res => {
           dispatch(removeLikedPost({postId: _id}));

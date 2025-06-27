@@ -60,18 +60,41 @@ export const likePost = createAsyncThunk(
 export const unlikePost = createAsyncThunk(
   'reactions/unlikePost',
   async (
-    {postId, refreshToken}: {postId: string; refreshToken: string},
+    {postId, refreshToken, senderId, receiverId, handleName}: LikePostParams,
     thunkAPI,
   ) => {
     try {
       if (!refreshToken) {
         return thunkAPI.rejectWithValue('Mời bạn đăng nhập để tiếp tục');
       }
+
       const res = await axiosInstance.delete(`post-like/${postId}`, {
         headers: {
           Authorization: `Bearer ${refreshToken}`,
         },
       });
+
+      if (res.status === 200) {
+        await axiosInstance.post(
+          API.NOTIFICATION_API,
+          {
+            receiverIds: [receiverId],
+            senderId,
+            title: `💔 ${handleName} đã bỏ thích bài viết của bạn`,
+            body: 'Có vẻ như cảm xúc đã thay đổi...',
+            data: {
+              type: 'unlike',
+              postId,
+            },
+          },
+          {
+            headers: {
+              token: 'refresh',
+            },
+          },
+        );
+      }
+
       return {postId};
     } catch (error: any) {
       return thunkAPI.rejectWithValue(
