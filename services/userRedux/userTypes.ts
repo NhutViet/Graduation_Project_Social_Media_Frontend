@@ -22,6 +22,7 @@ export interface UserRes {
 
 export interface EditUserDto {
   username?: string;
+  handleName?: string;
   bio?: string;
   email?: string;
   phoneNumber?: string;
@@ -43,4 +44,3 @@ export interface PublicUserRes {
   userFollowing: boolean;
   userBlocked: boolean;
 }
-

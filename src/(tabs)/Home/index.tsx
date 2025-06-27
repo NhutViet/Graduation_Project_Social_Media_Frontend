@@ -205,48 +205,70 @@ export const Home = forwardRef(({onReload}: any, ref) => {
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={{paddingHorizontal: 10}}>
-                {followingUsers
-                  .filter(item => {
-                    const isCurrentUser =
+                {[
+                  // 1. Đưa "Tin của tôi" lên đầu
+                  ...followingUsers.filter(
+                    item =>
                       item._id === user?._id ||
-                      item.handleName === user?.handleName;
-                    const hasStory = item.stories?.length > 0;
-                    return isCurrentUser || hasStory;
-                  })
-                  .map(item => {
-                    const isCurrentUser =
-                      item._id === user?._id ||
-                      item.handleName === user?.handleName;
+                      item.handleName === user?.handleName,
+                  ),
+                  // 2. Sắp xếp những người còn lại: có story lên trước
+                  ...followingUsers
+                    .filter(
+                      item =>
+                        item._id !== user?._id &&
+                        item.handleName !== user?.handleName,
+                    )
+                    .sort(
+                      (a, b) =>
+                        (b.stories?.length > 0 ? 1 : 0) -
+                        (a.stories?.length > 0 ? 1 : 0),
+                    ),
+                ].map(item => {
+                  const isCurrentUser =
+                    item._id === user?._id ||
+                    item.handleName === user?.handleName;
 
-                    const story = storyDetails.find(
-                      s => s._id === item.stories?.[0],
-                    );
-                    const viewedByUsers = (story as any)?.viewedByUsers || [];
-                    const isSeen =
-                      viewedByUsers.includes(user?.handleName) ||
-                      seenMap[item.stories?.[0]] === true;
+                  const story = storyDetails.find(
+                    s => s._id === item.stories?.[0],
+                  );
 
-                    return (
-                      <Story
-                        key={item._id}
-                        name={isCurrentUser ? 'Tin của tôi' : item.handleName}
-                        image={item?.profilePic}
-                        status={item.stories.length > 0 ? 1 : 0}
-                        hasStory={item.stories.length > 0}
-                        isSeen={isSeen}
-                        isCurrentUser={isCurrentUser}
-                        func={() =>
+                  let isSeen = false;
+                  if (story) {
+                    isSeen =
+                      story.isSeen === true || seenMap[story._id] === true;
+                  }
+
+                  const hasStory = item.stories?.length > 0;
+
+                  return (
+                    <Story
+                      key={item._id}
+                      name={isCurrentUser ? 'Tin của tôi' : item.handleName}
+                      image={item?.profilePic}
+                      status={hasStory ? 1 : 0}
+                      hasStory={hasStory}
+                      isSeen={isSeen}
+                      isCurrentUser={isCurrentUser}
+                      func={() => {
+                        if (hasStory) {
                           handleUserPress(
                             item,
                             dispatch,
                             navigation,
                             storyDetails,
                             user,
-                          )
+                          );
+                        } else {
+                          navigation.navigate('ProfileComp', {
+                            userID: item._id,
+                            handlename: item.handleName,
+                          });
                         }
-                      />
-                    );
-                  })}
+                      }}
+                    />
+                  );
+                })}
               </ScrollView>
             </View>
           </View>

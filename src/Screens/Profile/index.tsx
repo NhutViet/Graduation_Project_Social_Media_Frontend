@@ -68,7 +68,7 @@ const ProfileComp = ({route}: any) => {
     navigation.navigate('UserFollowScreen', {
       screen: initialTab,
       userID: userID,
-      handlename: handleName
+      handlename: handleName,
     });
   };
 
@@ -370,7 +370,7 @@ const ProfileComp = ({route}: any) => {
           isBlocked={isBlock}
         />
         {/* Story Highlights */}
-        {!isBlock && (
+        {highlightStories?.length > 0 ? (
           <StoryComponent
             isPrivate={isPrivate}
             highlights={highlightStories}
@@ -378,6 +378,10 @@ const ProfileComp = ({route}: any) => {
             dispatch={dispatch}
             navigation={navigation}
           />
+        ) : (
+          <Text style={styles.txtEmtyHighlightStory}>
+            Người dùng chưa có highlight story nào
+          </Text>
         )}
         {/* Posts Grid/Video Tabs */}
         {!isBlock && (
@@ -533,6 +537,11 @@ export const createStyles = (theme: 'light' | 'dark') => {
       flexDirection: 'row',
       borderBottomWidth: 1,
       borderColor: Colors.border,
+    },
+    txtEmtyHighlightStory: {
+      color: color.text,
+      textAlign: 'center',
+      padding: 25,
     },
     tab: {
       flex: 1,

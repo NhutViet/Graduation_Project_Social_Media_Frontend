@@ -277,9 +277,18 @@ const Profile = () => {
               contentContainerStyle={{paddingVertical: 5}}
             />
           ) : (
-            <Text style={{color: color.text}}>
-              Không có highlight stories nào
-            </Text>
+            <TouchableOpacity onPress={() => navigation.navigate('Archive')}>
+              <Text
+                style={[
+                  {
+                    color: color.text,
+                    textAlign: 'center',
+                    marginTop: 30,
+                  },
+                ]}>
+                Hãy tạo tin nổi bật mà bạn muốn
+              </Text>
+            </TouchableOpacity>
           )}
         </View>
         <ModalCreate

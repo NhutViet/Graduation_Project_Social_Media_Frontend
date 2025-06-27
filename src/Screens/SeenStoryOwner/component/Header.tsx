@@ -1,5 +1,5 @@
 // SeenStoryOwnerHeader.tsx
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, Text, Image, TouchableOpacity, Animated} from 'react-native';
 import {styles} from './style';
 import {Pause, Play, VolumeX, Volume2} from 'lucide-react-native';
@@ -14,6 +14,7 @@ interface Props {
   mute: boolean;
   onToggleMute: () => void;
   onTogglePause: () => void;
+  createdAt?: string;
 }
 
 const SeenStoryOwnerHeader: React.FC<Props> = ({
@@ -23,9 +24,47 @@ const SeenStoryOwnerHeader: React.FC<Props> = ({
   onTogglePause,
   mute,
   onToggleMute,
+  createdAt,
 }) => {
   const user = useSelector((state: RootState) => state.user.user);
+  const [timeAgo, setTimeAgo] = useState('');
+  useEffect(() => {
+    if (!createdAt) return;
 
+    const updateTimeAgo = () => {
+      const now = new Date();
+      const created = new Date(createdAt);
+
+      // Lấy offset múi giờ hiện tại (ví dụ: -420 phút = GMT+7)
+      const timezoneOffset = now.getTimezoneOffset(); // đơn vị: phút
+      const localCreated = new Date(
+        created.getTime() - timezoneOffset * 60 * 1000,
+      );
+
+      const diffMs = now.getTime() - localCreated.getTime();
+
+      if (diffMs >= 24 * 60 * 60 * 1000) {
+        setTimeAgo('');
+        return;
+      }
+
+      const seconds = Math.floor(diffMs / 1000);
+      const minutes = Math.floor(seconds / 60);
+      const hours = Math.floor(minutes / 60);
+
+      if (hours > 0) {
+        setTimeAgo(`${hours} giờ trước`);
+      } else if (minutes > 0) {
+        setTimeAgo(`${minutes} phút trước`);
+      } else {
+        setTimeAgo(`${seconds} giây trước`);
+      }
+    };
+
+    updateTimeAgo();
+    const interval = setInterval(updateTimeAgo, 1000);
+    return () => clearInterval(interval);
+  }, [createdAt]);
   const renderProgressBars = () => {
     return (
       <View style={styles.progressContainer}>
@@ -52,6 +91,7 @@ const SeenStoryOwnerHeader: React.FC<Props> = ({
       <TouchableOpacity style={styles.viewUser}>
         <Image style={styles.avatar} source={{uri: user?.profilePic}} />
         <Text style={styles.nameUser}>{user?.username}</Text>
+        {timeAgo ? <Text style={styles.textTime}>{timeAgo}</Text> : null}
       </TouchableOpacity>
       <TouchableOpacity style={styles.mute} onPress={onToggleMute}>
         {mute ? (

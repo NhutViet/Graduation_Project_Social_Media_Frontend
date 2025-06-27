@@ -117,7 +117,8 @@ export const handleUserPress = async (
   storyDetails: any[],
   user: any,
 ) => {
-  const isCurrentUser = item._id === user?._id;
+  const isCurrentUser =
+    item._id === user?._id || item.handleName === user?.handleName;
 
   if (!item.stories.length && isCurrentUser) {
     navigation.navigate('UpStory');
@@ -173,6 +174,7 @@ export const handleUserPress = async (
 
           return {
             ...story,
+            isSeen: true,
             tags: populatedTags,
             uriVideo: story.mediaUrl.endsWith('.m3u8') ? story.mediaUrl : null,
             image:

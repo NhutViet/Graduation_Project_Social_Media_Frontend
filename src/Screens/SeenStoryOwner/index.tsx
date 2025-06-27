@@ -26,6 +26,7 @@ import {
 import SeenStoryOwnerHeader from './component/Header';
 import SeenStoryOwnerBottom from './component/BottomBar';
 import ModalSeeMore from './component/ModelSeeMore';
+import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -74,17 +75,19 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
       const currentStory = stories[currentIndex];
       if (!currentStory?._id) return;
 
-      const result = await dispatch(deleteStory({storyId: currentStory._id}));
+      console.log('🧪 Deleting story:', currentStory);
 
-      if (deleteStory.fulfilled.match(result)) {
-        GlobalAlertManager.show('Thành công', 'Tin của bạn đã được xoá');
-        dispatch(fetchGetPostedSotry());
+      await dispatch(deleteStory({storyId: currentStory._id})).unwrap();
+
+      GlobalAlertManager.show('Thành công', 'Tin của bạn đã được xoá');
+      await dispatch(fetchGetPostedSotry()).unwrap();
+
+      setTimeout(() => {
         navigation.goBack();
-      } else {
-        GlobalAlertManager.show('Thất bại', 'Không thể xoá story');
-      }
+      }, 1000); // Delay để alert hiển thị
     } catch (error) {
-      console.log('Line 100', error);
+      console.error('❌ Xoá story thất bại:', error);
+      GlobalAlertManager.show('Thất bại', 'Không thể xoá story');
     }
   };
 
@@ -364,6 +367,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
           onTogglePause={toggleVideoPause}
           mute={isMuted}
           onToggleMute={toggleMute}
+          createdAt={selectedItem?.createdAt}
         />
         {stories[currentIndex] ? (
           <MediaSection

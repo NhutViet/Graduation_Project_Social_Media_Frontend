@@ -273,6 +273,7 @@ export const SeenStory = ({route, navigation}: any) => {
           onTogglePause={togglePause}
           mute={isMuted}
           onToggleMute={toggleMute}
+          createdAt={selectedItem?.createdAt}
         />
         <ProgressBar
           progressAnims={progressAnims}
@@ -282,14 +283,12 @@ export const SeenStory = ({route, navigation}: any) => {
           item={selectedItem}
           ref={videoRef}
           onLoad={d => {
-            setVideoDuration(d.duration); // chỉ set duration
-            // KHÔNG gọi startProgressAnimation ở đây nữa
+            setVideoDuration(d.duration);
           }}
           onEnd={goToNextStory}
           onMediaLayout={setMediaSize}
           onMusicLoad={seconds => {
-            setMusicDuration(seconds); // chỉ set musicDuration
-            // KHÔNG gọi startProgressAnimation ở đây
+            setMusicDuration(seconds);
           }}
           onMusicEnd={goToNextStory}
           paused={isPaused}

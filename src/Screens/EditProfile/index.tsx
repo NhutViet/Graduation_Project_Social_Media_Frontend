@@ -118,8 +118,8 @@ export const EditProfile = () => {
     dispatch(
       fetchEditUser({
         username,
+        handleName,
         bio,
-        email,
         phoneNumber,
         gender,
         address,
@@ -127,6 +127,7 @@ export const EditProfile = () => {
         profilePic,
       }),
     );
+
     GlobalAlertManager.show('Thông báo', 'Sửa thông tin của bạn thành công');
     setEdit(false);
   };
@@ -177,7 +178,7 @@ export const EditProfile = () => {
                   type: 'text',
                 },
                 {
-                  label: 'Tên tài khoản *',
+                  label: 'Tên tài khoản',
                   onChangeText: setHandleName,
                   value: handleName,
                   editable: edit,

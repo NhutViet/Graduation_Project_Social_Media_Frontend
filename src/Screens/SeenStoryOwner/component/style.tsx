@@ -28,6 +28,12 @@ export const styles = StyleSheet.create({
     fontWeight: '500',
     marginLeft: 8,
   },
+  textTime: {
+    color: '#999',
+    fontSize: 14,
+    fontWeight: '500',
+    marginLeft: 8,
+  },
   btnCloser: {
     position: 'absolute',
     right: 10,
