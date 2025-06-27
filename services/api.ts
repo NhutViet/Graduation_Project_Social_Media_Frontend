@@ -47,6 +47,7 @@ export const API = {
   REGISTER: 'users/register',
   /// User
   GET_PUBLIC_PROFILE: '/users/public',
+  CHANGE_PASSWORD: '/users/password',
   ////bookmark
   POST_SAVE_BOOKMARK: 'bookmark-playlists/add-default',
   DELETE_BOOKMARK: 'bookmark-items/remove',
