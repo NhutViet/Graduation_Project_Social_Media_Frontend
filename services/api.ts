@@ -47,6 +47,7 @@ export const API = {
   REGISTER: 'users/register',
   /// User
   GET_PUBLIC_PROFILE: '/users/public',
+  CHANGE_PASSWORD: '/users/password',
   ////bookmark
   POST_SAVE_BOOKMARK: 'bookmark-playlists/add-default',
   DELETE_BOOKMARK: 'bookmark-items/remove',
@@ -71,4 +72,8 @@ export const API = {
   ////Search
   POST_SEARCH_POST: 'posts/search',
   POST_SEARCH_USER: 'users/search',
+
+  ////Notification
+  GET_ALL_NOTIFICATION: 'notifications/all',
+  POST_FCM_TOKEN: 'users/fcm-token',
 };
