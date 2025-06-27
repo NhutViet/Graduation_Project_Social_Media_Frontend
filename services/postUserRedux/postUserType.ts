@@ -70,6 +70,19 @@ export interface Item {
     user?: User;
     commentCount?: number;
     isBookmarked?: boolean;
+    likedAt?: string;
+}
+
+export type UserPostItem = Item;
+
+export interface LikedPostItem extends Item {
+  type: 'post' | 'reel';
+  likedAt: string;
+}
+
+export interface LoadLiked {
+  items: LikedPostItem[];
+  pagination: Pagination;
 }
 
 export interface Pagination {
@@ -110,6 +123,6 @@ export interface ReqGetLikedPosts {
 
 export interface ResGetLikedPosts {
   message: string;
-  data: Item[];
+  data: LikedPostItem[];
   pagination: Pagination;
 }

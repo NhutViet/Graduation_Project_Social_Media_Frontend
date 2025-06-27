@@ -19,7 +19,7 @@ import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState} from '../../../services/store';
 import { getLikedPosts } from '@services/postUserRedux/postUserSlice';
 import { unlikePost } from '@services/reactionRedux/reactionSlice';
-
+import { LikedPostItem } from '@services/postUserRedux/postUserType';
 
 const Filter = [
   {id: 'sort', label: 'Mới nhất đến cũ nhất'},
@@ -31,8 +31,7 @@ export const LikedScreen = () => {
   const [selected, setSelected] = useState<any[]>([]);
   const {theme} = useTheme();
   const styles = LikedStyles(theme);
-  const {currentUserId, refreshToken, likedPosts, isLoading} = useSelector((state: RootState) => ({
-    currentUserId: state.user.user?._id,
+  const {refreshToken, likedPosts, isLoading} = useSelector((state: RootState) => ({
     refreshToken: state.user.refreshToken,
     likedPosts: state.postUser.likedPosts,
     isLoading: state.postUser.isLoading,
@@ -90,7 +89,57 @@ export const LikedScreen = () => {
     dispatch(getLikedPosts({refreshToken}));
   };
 
-  const data = likedPosts.items;
+  const data: LikedPostItem[] = likedPosts.items;
+
+  const filterData = useCallback(() => {
+    if (!data || data.length === 0) return [];
+
+    let filteredData = [...data];
+
+    switch (filterType) {
+      case 'sort': {
+        filteredData.sort((a, b) => {
+          const dateA = new Date(a.likedAt).getTime();
+          const dateB = new Date(b.likedAt).getTime();
+          return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+        });
+        break;
+      }
+      case 'date': {
+        const now = new Date();
+        filteredData = filteredData.filter(item => {
+          const likedDate = new Date(item.likedAt);
+          if (selectedDate === 'week') {
+            const lastWeek = new Date();
+            lastWeek.setDate(now.getDate() - 7);
+            return likedDate >= lastWeek && likedDate <= now;
+          }
+          if (selectedDate === 'month') {
+            const lastMonth = new Date();
+            lastMonth.setMonth(now.getMonth() - 1);
+            return likedDate >= lastMonth && likedDate <= now;
+          }
+          if (selectedDate === 'year') {
+            const lastYear = new Date();
+            lastYear.setFullYear(now.getFullYear() - 1);
+            return likedDate >= lastYear && likedDate <= now;
+          }
+          return true; // 'all'
+        });
+        break;
+      }
+      case 'content': {
+        filteredData = filteredData.filter(item =>
+          selectedContents.includes(item.type)
+        );
+        break;
+      }
+    }
+
+    return filteredData;
+  }, [data, filterType, sortOrder, selectedDate, selectedContents]);
+
+  const filteredData = filterData();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -150,7 +199,7 @@ export const LikedScreen = () => {
         </View>
       )}
 
-      {!isLoading && data.length > 0 && (
+      {!isLoading && data.length > 0 && filteredData.length > 0 && (
         <View style={styles.container}>
           <FlashList
             data={data}

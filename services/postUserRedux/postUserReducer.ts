@@ -1,5 +1,5 @@
 import {createSlice} from '@reduxjs/toolkit';
-import {Load, Pagination} from './postUserType';
+import {Load, Pagination, LoadLiked} from './postUserType';
 import {
   getPostsAndReelsOfUser,
   getPostsOfUser,
@@ -15,12 +15,16 @@ const emptyPagination: Pagination = {
   hasNextPage: false,
   hasPrevPage: false,
 };
-const initialLoad: Load = { items: [], pagination: emptyPagination };
+
+const initialLiked: LoadLiked = {
+  items: [],
+  pagination: emptyPagination,
+};
 
 interface PostUser {
   posts: Load | {};
   reels: Load | {};
-  likedPosts: Load;  
+  likedPosts: LoadLiked;  
   isLoading: boolean;
   isSuccess: boolean;
   isError: boolean;
@@ -30,7 +34,7 @@ interface PostUser {
 const initialState: PostUser = {
   posts: {},
   reels: {},
-  likedPosts: initialLoad, 
+  likedPosts: initialLiked, 
   isLoading: false,
   isSuccess: false,
   isError: false,
@@ -44,7 +48,7 @@ const PostUserReducer = createSlice({
     clearPostsAndReels(state) {
       state.posts = {};
       state.reels = {};
-      state.likedPosts = initialLoad;
+      state.likedPosts = initialLiked;
     },
   },
   extraReducers: builder => {
@@ -128,7 +132,7 @@ const PostUserReducer = createSlice({
         state.isError = true;
         state.errorMessage =
           action.payload?.message || 'Lấy bài đã thích thất bại.';
-        state.likedPosts = initialLoad;
+        state.likedPosts = initialLiked;
       });
   },
 });
