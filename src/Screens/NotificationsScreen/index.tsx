@@ -107,10 +107,10 @@ export const NotificationsScreen = ({navigation}: any) => {
               title="Trước đó"
               notifications={groupedNotifications.earlier}
             />
-            <NotificationSection
+            {/* <NotificationSection
               title="Đề xuất cho bạn"
               notifications={groupedNotifications.suggested}
-            />
+            /> */}
           </>
         )}
       </ScrollView>
