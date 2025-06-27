@@ -1,39 +1,36 @@
 import {useEffect} from 'react';
 import {useSocket} from './SocketContext';
-import Toast from 'react-native-toast-message';
+import {useNotification} from './NotificationContext';
 
 const useNotificationListener = () => {
   const {notificationSocket} = useSocket();
+  const {showNotification} = useNotification();
 
   useEffect(() => {
-    if (!notificationSocket) return console.log('hong có');
+    if (!notificationSocket) return console.log('No socket');
 
     const handleNotification = (payload: any) => {
-      Toast.show({
-        type: 'info',
-        text1: 'Thông báo mới.',
-        text2: payload?.caption || 'Bạn có thông báo mới',
-        position: 'top',
-        visibilityTime: 2000,
+      showNotification({
+        title: 'Thông báo mới',
+        body: payload?.caption || 'Bạn có thông báo mới',
+        onAction: () => {
+          console.log('User tapped the notification!');
+        },
       });
     };
 
-    // Lắng nghe các sự kiện từ server
     notificationSocket.on('new_notification', handleNotification);
-
-    // Tuỳ loại
     notificationSocket.on('post_like', handleNotification);
     notificationSocket.on('new_post_like', handleNotification);
     notificationSocket.on('new_comment', handleNotification);
 
     return () => {
-      // Cleanup để tránh double lắng nghe
       notificationSocket.off('new_notification', handleNotification);
-      notificationSocket.off('new_post', handleNotification);
+      notificationSocket.off('post_like', handleNotification);
       notificationSocket.off('new_post_like', handleNotification);
       notificationSocket.off('new_comment', handleNotification);
     };
-  }, [notificationSocket]);
+  }, [notificationSocket, showNotification]);
 };
 
 export default useNotificationListener;

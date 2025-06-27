@@ -36,6 +36,8 @@ const mockRequests: Noti[] = Array.from({ length: 10 }).map((_, i) => ({
     handleName: `Người dùng ${i + 1}`,
     profilePic: '',
   }],
+  extraCount: 0,
+  postId: '',
 }));
 
 const mockRecommended: Noti[] = Array.from({ length: 10 }).map((_, i) => ({
@@ -50,6 +52,8 @@ const mockRecommended: Noti[] = Array.from({ length: 10 }).map((_, i) => ({
     handleName: `Người dùng ${i + 11}`,
     profilePic: '',
   }],
+  extraCount: 0,
+  postId: '',
 }));
 
 const Header: React.FC<{ navigation: any }> = ({ navigation }) => {

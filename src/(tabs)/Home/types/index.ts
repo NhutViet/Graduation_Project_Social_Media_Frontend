@@ -19,7 +19,7 @@ export interface ItemHomeProps {
   musicInfo?: MusicInfo;
   isFollow: boolean;
   isBookmarked?: boolean;
-  RoomItem: RoomItem;
+  // RoomItem: RoomItem;
 }
 
 interface RoomItem {

@@ -22,6 +22,8 @@ import {
   GlobalAlertRef,
 } from '../components/Global/AlertModal';
 import NotificationManager from '@services/NotificationManager';
+import NotificationModal from '@services/notification/NotificationModal';
+import {useNotification} from '@services/NotificationContext';
 global.Buffer = Buffer;
 if (__DEV__) {
   import('./config/ReactotronConfig').then(() =>
@@ -37,22 +39,36 @@ const App = () => {
     }
   };
 
-  useEffect(() => {
-  const requestNotificationPermission = async () => {
-    if (Platform.OS === 'android' && Platform.Version >= 33) {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
-      );
-      if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('🔕 Người dùng từ chối quyền thông báo');
-      } else {
-        console.log('✅ Đã được cấp quyền thông báo');
-      }
-    }
+  const NotificationHandler = () => {
+    const {notification, hideNotification} = useNotification();
+
+    return (
+      <NotificationModal
+        visible={notification.visible}
+        title={notification.title}
+        body={notification.body}
+        onClose={hideNotification}
+        onAction={notification.onAction}
+      />
+    );
   };
 
-  requestNotificationPermission();
-}, []);
+  useEffect(() => {
+    const requestNotificationPermission = async () => {
+      if (Platform.OS === 'android' && Platform.Version >= 33) {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+        );
+        if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+          console.log('🔕 Người dùng từ chối quyền thông báo');
+        } else {
+          console.log('✅ Đã được cấp quyền thông báo');
+        }
+      }
+    };
+
+    requestNotificationPermission();
+  }, []);
 
   return (
     <GestureHandlerRootView style={{flex: 1}}>
@@ -69,6 +85,7 @@ const App = () => {
                         <AppNavigator />
                         <Toast />
                         <GlobalAlert ref={handleAlertRef} />
+                        <NotificationHandler />
                       </TabLoadingProvider>
                     </UploadProvider>
                   </Host>
