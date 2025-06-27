@@ -28,6 +28,7 @@ import {
   updateRoomTheme,
 } from '../../../services/roomRedux/roomSlice';
 import {ModalRenameRoom} from '../../../components/ModalRenameRoom';
+import { ChevronLeft, UserRound, Search, Bell, Ellipsis, ChevronRight } from 'lucide-react-native';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
 const screenWidth = Dimensions.get('window').width - 8;
@@ -127,23 +128,12 @@ export const UserInfo = () => {
       <TouchableOpacity
         style={styles.iconBack}
         onPress={() => navigation.goBack()}>
-        <Image
-          style={{
-            width: '100%',
-            height: '100%',
-            tintColor: color.text,
-            resizeMode: 'contain',
-          }}
-          source={require('../../../assets/icon/left.png')}
-        />
+        <ChevronLeft color={color.text}/>
       </TouchableOpacity>
       <View style={styles.featureContainer}>
         <View style={styles.blockFeature}>
           <TouchableOpacity style={styles.blockIcon}>
-            <Image
-              style={styles.icon}
-              source={require('../../../assets/icon/user.png')}
-            />
+            <UserRound color={color.text}/>
           </TouchableOpacity>
           <Text style={styles.text} numberOfLines={1}>
             Trang tài khoản
@@ -153,10 +143,7 @@ export const UserInfo = () => {
           <TouchableOpacity
             style={styles.blockIcon}
             onPress={() => navigation.navigate('SearchMessages', {userId: 1})}>
-            <Image
-              style={styles.icon}
-              source={require('../../../assets/icon/search.png')}
-            />
+            <Search color={color.text}/>
           </TouchableOpacity>
           <Text style={styles.text} numberOfLines={1}>
             Tìm kiếm tin nhắn
@@ -166,10 +153,7 @@ export const UserInfo = () => {
           <TouchableOpacity
             style={styles.blockIcon}
             onPress={openNotifications}>
-            <Image
-              style={styles.icon}
-              source={require('../../../assets/icon/bell.png')}
-            />
+            <Bell color={color.text}/>
           </TouchableOpacity>
           <Text style={styles.text} numberOfLines={1}>
             Tắt thông báo
@@ -177,10 +161,7 @@ export const UserInfo = () => {
         </View>
         <View style={styles.blockFeature}>
           <TouchableOpacity style={styles.blockIcon}>
-            <Image
-              style={styles.icon}
-              source={require('../../../assets/icon/ellipsis.png')}
-            />
+            <Ellipsis color={color.text}/>
           </TouchableOpacity>
           <Text style={styles.text} numberOfLines={1}>
             Thêm tùy chọn
@@ -229,10 +210,7 @@ export const UserInfo = () => {
               />
               <Text style={styles.nameUser}>{item.label}</Text>
             </View>
-            <Image
-              source={require('../../../assets/icon/rightArrow.png')}
-              style={styles.rightArrow}
-            />
+            <ChevronRight color={color.text}/>
           </TouchableOpacity>
         ))}
       </View>

@@ -25,17 +25,20 @@ import {RootState} from '../../../services/store';
 import {uploadImageToR2, uploadToCloudflare} from '../../core/upload';
 import axiosInstance from '../../../services/axiosInstance';
 import {Dimensions} from 'react-native';
+import {X, ChevronRight} from 'lucide-react-native';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 
 export const EditStory = ({route, navigation}: any) => {
+  const {followingUsers} = useSelector((state: RootState) => state.stories);
   const {selectedItem, selectedMusic, songUrl} = route.params;
   const [videoDuration, setVideoDuration] = useState<number | null>(null);
   const [videoCurrentTime, setVideoCurrentTime] = useState(0);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [hasShownModal, setHasShownModal] = useState(false);
+  const [filteredSuggestions, setFilteredSuggestions] = useState([]);
   const [caption, setCaption] = useState('');
   const progressAnim = useRef(new Animated.Value(0)).current;
   const animationRef = useRef<Animated.CompositeAnimation | null>(null);
@@ -54,7 +57,7 @@ export const EditStory = ({route, navigation}: any) => {
 
   const {showUploadModal, hideUploadModal, setProgress} = useUploadProgress();
 
-  const imageDuration = 10000; // 10 seconds for images
+  const imageDuration = 15000; // 15 seconds for images
 
   const getItemDuration = () => {
     if (selectedItem?.type.includes('video') && videoDuration) {
@@ -172,6 +175,30 @@ export const EditStory = ({route, navigation}: any) => {
     console.log('Done pressed, closing modal with caption:', caption);
     setIsModalVisible(false);
     setHasShownModal(true);
+  };
+
+  const onChangeCaption = (text: string) => {
+    setCaption(text);
+
+    const match = text.match(/@([a-zA-Z0-9._]*)$/);
+    if (match) {
+      const keyword = match[1].toLowerCase();
+      const filtered = followingUsers.filter(user =>
+        user.handleName.toLowerCase().includes(keyword),
+      );
+      setFilteredSuggestions(filtered);
+    } else {
+      setFilteredSuggestions([]);
+    }
+  };
+
+  const handleSuggestionPress = (user: any) => {
+    const updated = caption.replace(
+      /@([a-zA-Z0-9._]*)$/,
+      `@${user.handleName} `,
+    );
+    setCaption(updated);
+    setFilteredSuggestions([]);
   };
 
   const handleCloserPress = () => {
@@ -300,10 +327,7 @@ export const EditStory = ({route, navigation}: any) => {
             <TouchableOpacity
               style={styles.btnCloser}
               onPress={handleCloserPress}>
-              <Image
-                style={styles.iconCloser}
-                source={require('../../../assets/icon/closer.png')}
-              />
+              <X size={15} color={'#fff'} />
             </TouchableOpacity>
             <View style={styles.viewHeaderRight}>
               <TouchableOpacity
@@ -314,13 +338,11 @@ export const EditStory = ({route, navigation}: any) => {
               <TouchableOpacity
                 style={styles.btnCloser}
                 onPress={handleUploadStory}>
-                <Image
-                  style={styles.iconCloser}
-                  source={require('../../../assets/icon/rightArrow.png')}
-                />
+                <ChevronRight size={15} color={'#fff'} />
               </TouchableOpacity>
             </View>
           </View>
+
           <View style={styles.mediaItems}>{renderProgressBar()}</View>
           <View style={styles.mediaWrapper}>
             <TouchableWithoutFeedback onPress={handleScreenTap}>
@@ -389,12 +411,34 @@ export const EditStory = ({route, navigation}: any) => {
                 <TextInput
                   style={styles.textInput}
                   value={caption}
-                  onChangeText={setCaption}
+                  onChangeText={onChangeCaption}
                   placeholderTextColor="#aaa"
                   multiline
                   autoFocus
                   returnKeyType="done"
                 />
+
+                {filteredSuggestions.length > 0 && (
+                  <View
+                    style={{
+                      position: 'absolute',
+                      top: '56%',
+                      left: 20,
+                      right: 20,
+                      backgroundColor: '#222',
+                      borderRadius: 8,
+                    }}>
+                    {filteredSuggestions.map((user, index) => (
+                      <TouchableOpacity
+                        key={index}
+                        onPress={() => handleSuggestionPress(user)}
+                        style={{padding: 10}}>
+                        <Text style={{color: '#fff'}}>@{user.handleName}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
+
                 <TouchableOpacity
                   style={styles.doneButton}
                   onPress={handleDonePress}>
@@ -485,6 +529,8 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   textInput: {
+    position: 'absolute',
+    top: '50%',
     width: 300,
     color: '#fff',
     fontSize: 18,
@@ -505,15 +551,18 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
   },
   modalContent: {
-    padding: 20,
+    flex: 1,
     borderRadius: 10,
     alignItems: 'center',
     width: '80%',
   },
   doneButton: {
+    position: 'absolute',
+    top: 15,
+    right: 0,
     backgroundColor: '#555',
     paddingVertical: 10,
     paddingHorizontal: 20,

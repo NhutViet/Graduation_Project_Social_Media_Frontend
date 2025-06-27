@@ -1,38 +1,41 @@
-import { getAllNotification } from "@services/notificationRedux/notificationSlices";
-import { Noti } from "@services/notificationRedux/notificationTypes";
-import { AppDispatch, RootState } from "@services/store";
-import NotificationSection from "../../../components/NotificationSection";
-import { useEffect } from "react";
-import { Image, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from "react-native";
-import { useDispatch, useSelector } from "react-redux";
-import { useNotificationStyles } from "../../../src/StyleSheet/NotificationStyles";
+import React, { useEffect } from 'react';
+import {
+  SafeAreaView,
+  ScrollView,
+  View,
+  Text,
+  TouchableOpacity,
+} from 'react-native';
+import NotificationSection from '../../../components/NotificationSection';
+import { useNotificationStyles } from '../../StyleSheet/NotificationStyles';
+import { getAllNotification } from '@services/notificationRedux/notificationSlices';
+import { Noti } from '@services/notificationRedux/notificationTypes';
+import { AppDispatch, RootState } from '@services/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 
 const Header: React.FC<{ onBackPress: () => void }> = ({ onBackPress }) => {
   const styles = useNotificationStyles();
   return (
     <View style={styles.header}>
       <TouchableOpacity style={styles.backButton} onPress={onBackPress}>
-        <Image
-          style={styles.backIcon}
-          source={require('../../../assets/icon/left.png')}
-        />
+        <ChevronLeft />
       </TouchableOpacity>
       <Text style={styles.headerTitle}>Thông báo</Text>
-      {/* Placeholder để cân layout */}
       <View style={styles.backIcon} />
       <View style={styles.backIcon} />
     </View>
   );
 };
 
-export const NotificationsScreen = ({navigation}: any) => {
+export const NotificationsScreen = ({ navigation }: any) => {
   const styles = useNotificationStyles();
   const dispatch = useDispatch<AppDispatch>();
 
   const { notifications, isLoading } = useSelector(
-    (state: RootState) => state.notifications,
+    (state: RootState) => state.notifications
   );
-  const {refreshToken} = useSelector((state: RootState) => state.user)
+  const { refreshToken } = useSelector((state: RootState) => state.user);
 
   const handleBackPress = () => navigation?.goBack();
 
@@ -48,9 +51,10 @@ export const NotificationsScreen = ({navigation}: any) => {
 
   // Phân loại theo type hoặc thời gian
   const now = new Date();
-  notifications.forEach(noti => {
+  notifications.forEach((noti) => {
     const createdAt = new Date(noti.createdAt);
-    const diffInDays = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24);
+    const diffInDays =
+      (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24);
 
     if (noti.type === 'suggested' || noti.type === 'others') {
       groupedNotifications.suggested.push(noti);
@@ -61,18 +65,21 @@ export const NotificationsScreen = ({navigation}: any) => {
     }
   });
 
+  const hasRequests = notifications.some((n) => n.type === 'request');
+
   return (
     <SafeAreaView style={styles.container}>
       <Header onBackPress={handleBackPress} />
 
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={{paddingBottom: 16}}>
-
+        contentContainerStyle={{ paddingBottom: 16 }}
+      >
         {/* Yêu cầu theo dõi */}
         <TouchableOpacity
           style={styles.contentContainer}
-          onPress={() => navigation.navigate('FollowerRequests')}>
+          onPress={() => navigation.navigate('FollowerRequests')}
+        >
           <View style={styles.iconContainer}>
             <Text style={styles.iconText}>👤</Text>
           </View>
@@ -82,15 +89,14 @@ export const NotificationsScreen = ({navigation}: any) => {
             <Text style={styles.timeText}>ark</Text>
           </View>
 
-          <View style={styles.specialDot} />
-          <Image
-            style={styles.backIcon}
-            source={require('../../../assets/icon/right.png')}
-          />
+          {hasRequests && <View style={styles.specialDot} />}
+          <ChevronRight />
         </TouchableOpacity>
 
         {isLoading ? (
-          <Text style={{textAlign: 'center', marginTop: 20}}>Đang tải...</Text>
+          <Text style={{ textAlign: 'center', marginTop: 20 }}>
+            Đang tải...
+          </Text>
         ) : (
           <>
             <NotificationSection

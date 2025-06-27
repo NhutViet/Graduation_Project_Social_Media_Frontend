@@ -1,6 +1,13 @@
 import {Colors} from '../../../../assets/color/Colors';
 import React from 'react';
 import {View, TouchableOpacity, Image, TextInput} from 'react-native';
+import {
+  Camera,
+  Send,
+  Mic,
+  Image as ImageIcon,
+  CirclePlus,
+} from 'lucide-react-native'
 
 interface MessageInputProps {
   message: string;
@@ -19,6 +26,8 @@ const MessageInput: React.FC<MessageInputProps> = ({
   styles,
   color,
 }) => {
+  const iconSize = 20
+  const iconColor = color.text
   return (
     <View
       style={[
@@ -26,10 +35,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
         {backgroundColor: 'rgba(255, 255, 255, 0.6)', zIndex: 20},
       ]}>
       <TouchableOpacity style={styles.blockCamera}>
-        <Image
-          style={{tintColor: color.text, width: 20, height: 20}}
-          source={require('../../../../assets/icon/camera.png')}
-        />
+        <Camera size={iconSize} color={iconColor} strokeWidth={2} />
       </TouchableOpacity>
 
       <TextInput
@@ -45,32 +51,20 @@ const MessageInput: React.FC<MessageInputProps> = ({
 
       {message.trim().length > 0 ? (
         <TouchableOpacity style={styles.blockCamera} onPress={sendMessage}>
-          <Image
-            style={{tintColor: color.text, width: 20, height: 20}}
-            source={require('../../../../assets/icon/share.png')}
-          />
+          <Send size={iconSize} color={iconColor} strokeWidth={2} />
         </TouchableOpacity>
       ) : (
         <View style={styles.rowContainer}>
           <TouchableOpacity style={styles.blockIcon1}>
-            <Image
-              style={styles.icon}
-              source={require('../../../../assets/icon/Microphone.png')}
-            />
+            <Mic size={iconSize} color={iconColor} strokeWidth={2} />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.blockIcon1}
             onPress={pickImageAndSend}>
-            <Image
-              style={styles.icon}
-              source={require('../../../../assets/icon/Picture.png')}
-            />
+            <ImageIcon size={iconSize} color={iconColor} strokeWidth={2} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.blockIcon1}>
-            <Image
-              style={styles.icon}
-              source={require('../../../../assets/icon/another.png')}
-            />
+             <CirclePlus size={iconSize} color={iconColor} strokeWidth={2} />
           </TouchableOpacity>
         </View>
       )}

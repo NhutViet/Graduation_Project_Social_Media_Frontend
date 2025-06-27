@@ -22,6 +22,8 @@ const mockUser = {
   handleName: 'Demo User',
   profilePic: '', // URL ảnh nếu có
 };
+import { ChevronLeft, Search } from 'lucide-react-native';
+
 
 const mockRequests: Noti[] = Array.from({ length: 10 }).map((_, i) => ({
   id: `req${i + 1}`,
@@ -56,10 +58,7 @@ const Header: React.FC<{ navigation: any }> = ({ navigation }) => {
   return (
     <View style={styles.header}>
       <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-        <Image 
-          style={styles.backIcon}
-          source={require('../../../assets/icon/left.png')}
-        />
+        <ChevronLeft/>
       </TouchableOpacity>
       <Text style={styles.headerTitle}>Yêu cầu theo dõi</Text>
       <Text style={styles.headerManageText}>Quản lý</Text>
@@ -80,10 +79,7 @@ export const FollowerRequests: React.FC<{ navigation: any }> = ({ navigation }) 
       <Header navigation={navigation} />
       <ScrollView style={styles.scrollView} contentContainerStyle={{ paddingBottom: 16 }}>
         <View style={styles.searchBar}>
-          <Image
-            style={styles.searchIcon}
-            source={require('../../../assets/icon/search.png')}
-          />
+          <Search style={{marginRight: 8, opacity: 0.7}}/>
           <TextInput
             style={styles.searchPlaceholderText}
             placeholder="Tìm kiếm"

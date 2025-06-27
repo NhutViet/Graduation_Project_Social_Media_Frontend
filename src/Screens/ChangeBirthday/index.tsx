@@ -5,6 +5,7 @@ import {ChangeBirthdayStyles} from '../../StyleSheet/ChangeBirthdayStyles';
 import {useTheme} from '../../util/ThemeContext';
 import {useNavigation} from '@react-navigation/native';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+import { ChevronLeft } from 'lucide-react-native';
 
 export const ChangeBirthday = () => {
   const [day, setDay] = useState(1);
@@ -71,11 +72,8 @@ export const ChangeBirthday = () => {
   return (
     <View style={styles.container}>
       <View style={{flex: 1}}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Image
-            source={require('../../../assets/icon/left.png')}
-            style={styles.iconBack}
-          />
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <ChevronLeft color={styles.iconBack.tintColor}/>
         </TouchableOpacity>
         <Text style={styles.title}>Chỉnh sửa ngày sinh của bạn</Text>
 

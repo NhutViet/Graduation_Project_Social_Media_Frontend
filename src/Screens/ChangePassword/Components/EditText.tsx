@@ -1,7 +1,6 @@
 import {
   Image,
   StyleSheet,
-  Text,
   TextInput,
   TouchableOpacity,
   View,
@@ -9,6 +8,7 @@ import {
 import React, {useState} from 'react';
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
+import { Eye, EyeOff } from 'lucide-react-native';
 
 const EditText = (props: any) => {
   const {theme} = useTheme();
@@ -37,14 +37,7 @@ const EditText = (props: any) => {
           onPress={() => {
             setIsVibisblePass(!isVisiblePass);
           }}>
-          <Image
-            source={
-              isVisiblePass
-                ? require('../../../../assets/icon/eye-filled.png')
-                : require('../../../../assets/icon/eye-invisible-filled.png')
-            }
-            style={{width: 20, height: 15, tintColor: color.textSecondary}}
-          />
+          {isVisiblePass ? <Eye color={color.textSecondary} fill={color.textSecondary}/> : <EyeOff color={color.textSecondary} fill={color.textSecondary}/>}
         </TouchableOpacity>
       )}
     </View>

@@ -3,6 +3,7 @@ import React, { forwardRef, useRef } from 'react'
 import { Modalize } from 'react-native-modalize'
 import { Colors } from '../../../../assets/color/Colors'
 import { useTheme } from '../../../util/ThemeContext'
+import { Check } from 'lucide-react-native'
 
 interface HighlightViewModalProps {
   data: HighlightItem[];
@@ -28,7 +29,7 @@ const HighlightViewModal = forwardRef<Modalize, HighlightViewModalProps>(({ data
         <Image source={{ uri: item.imageURL }} style={styles.circleExisting} />
         {item.isAdded && (
           <View style={styles.overlay}>
-            <Image source={require('../../../../assets/icon/check.png')} style={styles.checkMark} />
+            <Check color={"#fff"}/>
           </View>
         )}
       </View>

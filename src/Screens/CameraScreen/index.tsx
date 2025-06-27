@@ -4,6 +4,7 @@ import CameraVision, { CameraVisionHandle } from '../../../components/CameraVisi
 import ActionBar from '../../../components/CameraActionBar';
 import ModeSelector from '../../../components/CameraModeSelector';
 import { useCameraStyles } from '../../../src/StyleSheet/CameraStyles';
+import { ChevronLeft, Sun } from 'lucide-react-native';
 
 const modes = ['Bình thường', 'Chân dung', 'Video', 'Toàn cảnh'];
 
@@ -48,16 +49,10 @@ export const CameraScreen = ({ navigation, onBack }: any) => {
           <CameraVision ref={cameraRef} style={styles.preview} />
             <View style={styles.topBar}>
             <TouchableOpacity onPress={onBack}>
-              <Image
-                source={require('../../../assets/icon/left.png')}
-                style={styles.topIcon}
-              />
+              <ChevronLeft color={"#fff"}/>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => {/* TODO: brightness control */}}>
-              <Image
-                source={require('../../../assets/icon/sun.png')}
-                style={styles.topIcon}
-              />
+              <Sun color={"#fff"}/>
             </TouchableOpacity>
           </View>
           <ModeSelector

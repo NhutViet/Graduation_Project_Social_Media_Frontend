@@ -6,8 +6,10 @@ import {
   postSecondList,
   reportChoices,
 } from '../../../config/postOptions';
+import { useNavigation } from '@react-navigation/native';
 
 export const useItemHomeModal = (actions: any, state: any) => {
+  const navigation: any = useNavigation();
   const intentRef = useRef<Modalize>(null);
   const sheetRef = useRef<Modalize>(null);
   const modalReactionRef = useRef<Modalize>(null);
@@ -74,18 +76,24 @@ export const useItemHomeModal = (actions: any, state: any) => {
     () => {
       return postFirstList.map(opt => {
         if (opt.id === 'unfollow') {
+          const isOwnPost = state.postUserID === state.userID;
           return {
             ...opt,
-            label: state.follow ? 'Bỏ theo dõi' : 'Theo dõi',
+            label: isOwnPost
+              ? 'Tài khoản của bạn'
+              : state.follow
+              ? 'Bỏ theo dõi'
+              : 'Theo dõi',
+            onPress: () => handleOptionSelect(opt.id)
+          };
+        } else {
+          return {
+            ...opt,
             onPress: () => handleOptionSelect(opt.id),
           };
         }
-        return {
-          ...opt,
-          onPress: () => handleOptionSelect(opt.id),
-        };
       });
-    }, [handleOptionSelect, state.follow]);
+    }, [handleOptionSelect, state.follow, state.postUserID, state.userID, navigation, postFirstList]);
 
   const secondListOptions = useMemo(
     () =>

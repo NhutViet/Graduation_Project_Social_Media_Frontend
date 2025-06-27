@@ -1,12 +1,13 @@
 import React from 'react';
-import {View, Text, TouchableOpacity, Image} from 'react-native';
+import { View, Text, TouchableOpacity, Image } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import {useNotificationStyles} from '../src/StyleSheet/NotificationStyles';
-import {Noti} from '@services/notificationRedux/notificationTypes';
-import {useNavigation} from '@react-navigation/native';
+import { useNotificationStyles } from '../src/StyleSheet/NotificationStyles';
+import { Noti } from '@services/notificationRedux/notificationTypes';
+import { useNavigation } from '@react-navigation/native';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import 'dayjs/locale/vi'; // Dùng tiếng Việt
+import { CircleUserRound } from 'lucide-react-native';
 
 dayjs.extend(relativeTime);
 dayjs.locale('vi');
@@ -23,29 +24,55 @@ const NotificationItem: React.FC<Props> = ({
   const styles = useNotificationStyles();
   const navigation = useNavigation<any>();
 
-  const mainActor = notification.actors[0]; // Hiện tại chỉ lấy 1 người đầu
+  const mainActor = notification.actors[0]; // Chỉ lấy người đầu tiên
   const profilePic = mainActor?.profilePic;
   const username = mainActor?.username;
 
   const renderProfileImage = () => {
-    return (
+    const hasStoryRing = true; // Có thể điều chỉnh logic sau này
+    const showProfileImage = !!profilePic;
+
+    return hasStoryRing ? (
       <View>
         <LinearGradient
           colors={['#C13584', '#F77737', '#FFDC80']}
-          style={styles.storyRing}>
+          style={styles.storyRing}
+        >
           <View style={styles.imageIconContainer}>
-            <View style={styles.imageIcon}>
-              <Image
-                style={styles.userIcon}
-                source={
-                  profilePic
-                    ? {uri: profilePic}
-                    : require('../assets/icon/account.png')
-                }
-              />
+            <View
+              style={[
+                styles.imageIcon,
+                {
+                  width: hasStoryRing ? 40 : 44,
+                  height: hasStoryRing ? 40 : 44,
+                  borderRadius: hasStoryRing ? 20 : 22,
+                },
+              ]}
+            >
+              {showProfileImage ? (
+                <Image
+                  style={styles.userIcon}
+                  source={{ uri: profilePic }}
+                />
+              ) : (
+                <CircleUserRound style={styles.userIcon} />
+              )}
             </View>
           </View>
         </LinearGradient>
+      </View>
+    ) : (
+      <View style={styles.imageIconContainer}>
+        <View style={styles.imageIcon}>
+          {showProfileImage ? (
+            <Image
+              style={styles.userIcon}
+              source={{ uri: profilePic }}
+            />
+          ) : (
+            <CircleUserRound style={styles.userIcon} />
+          )}
+        </View>
       </View>
     );
   };
@@ -59,8 +86,9 @@ const NotificationItem: React.FC<Props> = ({
       <TouchableOpacity
         style={styles.contentContainer}
         onPress={() =>
-          navigation.navigate('PostDetailScreen', {postId: notification.postId})
-        }>
+          navigation.navigate('PostDetailScreen', { postId: notification.postId })
+        }
+      >
         {renderProfileImage()}
         <View style={styles.textContainer}>
           {stackTime ? (
@@ -68,26 +96,24 @@ const NotificationItem: React.FC<Props> = ({
               <Text
                 numberOfLines={2}
                 style={styles.contentText}
-                ellipsizeMode="tail">
+                ellipsizeMode="tail"
+              >
                 {notification.caption}
               </Text>
-              <Text style={[styles.timeText]}>
+              <Text style={styles.timeText}>
                 {formatTime(notification.createdAt)}
               </Text>
             </>
           ) : (
             <Text numberOfLines={2} style={styles.contentText}>
-              <Text style={{fontWeight: 'bold'}}>{username}</Text>{' '}
+              <Text style={{ fontWeight: 'bold' }}>{username}</Text>{' '}
               {notification.caption}
-              <Text style={styles.timeText}>
-                {' '}
-                • {formatTime(notification.createdAt)}
-              </Text>
+              <Text style={styles.timeText}> • {formatTime(notification.createdAt)}</Text>
             </Text>
           )}
         </View>
 
-        {/* Tùy loại hành động có thể hiện thêm nút */}
+        {/* Các loại thông báo có thể có thêm hành động */}
         {notification.type === 'request' ? (
           <View style={styles.actionButtonsContainer}>
             <TouchableOpacity style={styles.confirmButton}>

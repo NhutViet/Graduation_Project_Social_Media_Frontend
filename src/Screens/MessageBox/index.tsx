@@ -24,6 +24,7 @@ import {
   checkStorySeenInStorage,
   clearExpiredSeenStories,
 } from '../../../services/storage/storage';
+import { ChevronLeft, Sparkle, SquarePen, Search, X } from 'lucide-react-native';
 
 export const MessageBox = (props: any) => {
   const navigation: any = useNavigation();
@@ -96,25 +97,16 @@ export const MessageBox = (props: any) => {
               navigation.goBack();
               onBack && onBack();
             }}>
-            <Image
-              source={require('../../../assets/icon/left.png')}
-              style={styles.icon}
-            />
+            <ChevronLeft color={color.text}/>
           </TouchableOpacity>
           <Text style={styles.name}>{user?.handleName}</Text>
         </View>
         <View style={styles.headerBlock}>
           <TouchableOpacity style={styles.iconBlock}>
-            <Image
-              style={styles.icon}
-              source={require('../../../assets/icon/star_mess.png')}
-            />
+            <Sparkle color={color.text} fill={color.text}/>
           </TouchableOpacity>
           <TouchableOpacity style={styles.iconBlock}>
-            <Image
-              style={styles.icon}
-              source={require('../../../assets/icon/new_mess.png')}
-            />
+            <SquarePen color={color.text}/>
           </TouchableOpacity>
         </View>
       </View>
@@ -122,10 +114,7 @@ export const MessageBox = (props: any) => {
       <View style={styles.searchContainer}>
         <View style={styles.searchBlock}>
           <View style={styles.iconBlock}>
-            <Image
-              style={styles.icon}
-              source={require('../../../assets/icon/search.png')}
-            />
+            <Search color={color.text}/>
           </View>
           <TextInput
             ref={searchInputRef}
@@ -142,10 +131,7 @@ export const MessageBox = (props: any) => {
             <TouchableOpacity
               style={styles.clearButton}
               onPress={() => setSearchQuery('')}>
-              <Image
-                style={styles.clearIcon}
-                source={require('../../../assets/icon/close_small.png')}
-              />
+              <X size={15} color={color.text}/>
             </TouchableOpacity>
           )}
         </View>

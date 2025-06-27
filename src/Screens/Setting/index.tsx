@@ -23,6 +23,12 @@ import {
   User,
   Lock,
   UserRoundCheck,
+  SquareActivity,
+  Ban,
+  Bookmark,
+  CircleCheck,
+  CircleAlert,
+  ClockFading
 } from 'lucide-react-native';
 import PersonalDetails from './PersonalDetail';
 import ContactInfo from './ContactInfo';
@@ -246,10 +252,7 @@ export const Setting = () => {
                   styles.settingIconContainer,
                   {backgroundColor: mColor.gray},
                 ]}>
-                <Image
-                  source={require('../../../assets/icon/yourActivity.png')}
-                  style={{width: 25, height: 25, tintColor: mColor.text}}
-                />
+                <SquareActivity size={22} color={mColor.text}/>
               </View>
               <View style={styles.settingContent}>
                 <Text style={[styles.settingTitle, {color: mColor.text}]}>
@@ -273,10 +276,7 @@ export const Setting = () => {
                   styles.settingIconContainer,
                   {backgroundColor: mColor.gray},
                 ]}>
-                <Image
-                  source={require('../../../assets/icon/block.png')}
-                  style={{width: 20, height: 20, tintColor: mColor.text}}
-                />
+                <Ban size={22} color={mColor.text}/>
               </View>
               <View style={styles.settingContent}>
                 <Text style={[styles.settingTitle, {color: mColor.text}]}>
@@ -465,10 +465,7 @@ export const Setting = () => {
                   styles.settingIconContainer,
                   {backgroundColor: mColor.gray},
                 ]}>
-                <Image
-                  source={require('../../../assets/icon/clock.png')}
-                  style={{width: 20, height: 20, tintColor: mColor.text}}
-                />
+                <ClockFading color={mColor.text}/>
               </View>
               <View style={styles.settingContent}>
                 <Text style={[styles.settingTitle, {color: mColor.text}]}>
@@ -492,10 +489,7 @@ export const Setting = () => {
                   styles.settingIconContainer,
                   {backgroundColor: mColor.gray},
                 ]}>
-                <Image
-                  source={require('../../../assets/icon/bookmark.png')}
-                  style={{width: 20, height: 20, tintColor: mColor.text}}
-                />
+                <Bookmark size={22} color={mColor.text}/>
               </View>
               <View style={styles.settingContent}>
                 <Text style={[styles.settingTitle, {color: mColor.text}]}>
@@ -562,15 +556,9 @@ export const Setting = () => {
         <View style={styles.modal}>
           <View style={styles.modalContainer}>
             {isSuccess ? (
-              <Image
-                source={require('../../../assets/icon/success.png')}
-                style={[styles.iconNoti, {tintColor: mColor.primary}]}
-              />
+              <CircleCheck size={60} color={mColor.white} fill={mColor.primary}/>
             ) : (
-              <Image
-                source={require('../../../assets/icon/danger.png')}
-                style={[styles.iconNoti, {tintColor: mColor.error}]}
-              />
+              <CircleAlert size={60} color={mColor.white} fill={mColor.error}/>
             )}
             <Text
               style={[

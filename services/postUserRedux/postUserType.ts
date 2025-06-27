@@ -100,3 +100,15 @@ export interface ResGetPostsAndReels {
     posts: Load;
     reels: Load;
 }
+
+export interface ReqGetLikedPosts {
+  page?: number;
+  limit?: number;
+  refreshToken: string;
+}
+
+export interface ResGetLikedPosts {
+  message: string;
+  data: Item[];
+  pagination: Pagination;
+}

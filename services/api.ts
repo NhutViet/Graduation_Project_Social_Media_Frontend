@@ -15,6 +15,7 @@ export const API = {
   HIDDEN_POST: 'user-hidden-post/hide',
   GET_POST: 'posts/user/all',
   GET_TAGGING_POST: 'posts/tags',
+  GET_LIKED_POSTS: '/post-like/liked-posts',
 
   //// comment
   GET_COMMENT_POST: 'comments/post',
@@ -46,6 +47,7 @@ export const API = {
   REGISTER: 'users/register',
   /// User
   GET_PUBLIC_PROFILE: '/users/public',
+  CHANGE_PASSWORD: '/users/password',
   ////bookmark
   POST_SAVE_BOOKMARK: 'bookmark-playlists/add-default',
   DELETE_BOOKMARK: 'bookmark-items/remove',

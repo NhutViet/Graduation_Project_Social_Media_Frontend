@@ -14,6 +14,7 @@ import { useTheme } from '../../../util/ThemeContext';
 import { Colors } from '../../../../assets/color/Colors';
 import UserInfoStyles from '../../../StyleSheet/UserInfoStyles';
 import { getUserById, currentUser, User } from '../../../MockData/message.mock';
+import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 
 export const EditNickname = () => {
   const navigation: any = useNavigation();
@@ -57,10 +58,7 @@ export const EditNickname = () => {
       {/* Header */}
       <View style={styles.headerRow}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backIcon}>
-          <Image
-            source={require('../../../../assets/icon/left.png')}
-            style={styles.iconSmall}
-          />
+          <ChevronLeft color={color.text}/>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Biệt danh</Text>
         <View style={styles.placeholder} />
@@ -85,10 +83,7 @@ export const EditNickname = () => {
               <Text style={[styles.userName, { color: 'black'}]}>{user.name}</Text>
               <Text style={[styles.userNickname, { color: 'black' }]}>{user.name}</Text>
             </View>
-            <Image
-              source={require('../../../../assets/icon/right.png')}
-              style={styles.rightArrowSmall}
-            />
+            <ChevronRight size={15} color={color.lightDark}/>
           </TouchableOpacity>
         ))}
       </View>

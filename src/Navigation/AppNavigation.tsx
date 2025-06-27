@@ -97,7 +97,7 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="Splash"
+        initialRouteName="BottomTabs"
         screenOptions={{headerShown: false}}>
         <Stack.Screen
           name="AllPostOfCollection"
