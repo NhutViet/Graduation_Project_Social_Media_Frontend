@@ -48,7 +48,14 @@ export const useItemHomeActions = (props: ItemHomeProps, state: any) => {
 
     const action = optimisticLike ? likePost : unlikePost;
 
-    dispatch(action({postId: _id, refreshToken}))
+    dispatch(
+      action({
+        postId: _id,
+        refreshToken,
+        receiverId: user._id,
+        handleName: user.handleName,
+      }),
+    )
       .unwrap()
       .then(() => {
         if (optimisticLike) {
