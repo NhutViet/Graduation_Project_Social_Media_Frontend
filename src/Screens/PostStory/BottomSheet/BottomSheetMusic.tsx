@@ -34,7 +34,7 @@ import {
   addToBookmark,
   removeFromBookmark,
 } from '../../../../services/musicRedux/musicReducer';
-import { ChevronLeft, Search, X, Bookmark } from 'lucide-react-native';
+import {ChevronLeft, Search, X, Bookmark} from 'lucide-react-native';
 
 const maxHeight = Dimensions.get('window').height;
 const height = Dimensions.get('window').height * 0.8;
@@ -228,7 +228,7 @@ const BottomSheet = forwardRef<BottomSheetRef, Props>(
             ]}>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
               <View style={styles.blockIcon}>
-                <Search color={color.text}/>
+                <Search color={color.text} />
               </View>
               <TextInput
                 value={search}
@@ -242,7 +242,7 @@ const BottomSheet = forwardRef<BottomSheetRef, Props>(
               <TouchableOpacity
                 style={[styles.blockIcon, {padding: 5}]}
                 onPress={() => setSearch('')}>
-                <X color={color.text}/>
+                <X color={color.text} />
               </TouchableOpacity>
             ) : null}
           </View>
@@ -271,7 +271,7 @@ const BottomSheet = forwardRef<BottomSheetRef, Props>(
                 <TouchableOpacity
                   onPress={() => setShowSavedView(false)}
                   style={styles.blockIcon}>
-                  <ChevronLeft color={color.text}/>
+                  <ChevronLeft color={color.text} />
                 </TouchableOpacity>
                 <Text style={[styles.textNormal, {color: color.text}]}>
                   Đã lưu
@@ -283,17 +283,18 @@ const BottomSheet = forwardRef<BottomSheetRef, Props>(
                 renderScene={renderScene}
                 onIndexChange={setIndex}
                 initialLayout={{width: Dimensions.get('window').width}}
-                renderTabBar={props => (
+                renderTabBar={tabBarProps => (
                   <TabBar
-                    {...props}
-                    indicatorStyle={{backgroundColor: color.text}}
+                    {...tabBarProps}
+                    indicatorStyle={{backgroundColor: color.primary}}
+                    activeColor={color.primary}
+                    inactiveColor={color.text}
                     style={{
-                      backgroundColor: color.transparent,
-                      marginBottom: 10,
+                      backgroundColor: color.background,
+                      shadowColor: 'transparent',
+                      borderBottomWidth: 0.5,
+                      borderBottomColor: color.gray,
                     }}
-                    // labelStyle={{color: color.text, textTransform: 'none'}}
-                    pressColor="transparent"
-                    pressOpacity={1}
                   />
                 )}
               />
@@ -307,7 +308,7 @@ const BottomSheet = forwardRef<BottomSheetRef, Props>(
                 ]}
                 onPress={() => setShowSavedView(true)}>
                 <View style={styles.blockIcon}>
-                  <Bookmark color={color.text}/>
+                  <Bookmark color={color.text} />
                 </View>
                 <Text
                   style={[
@@ -452,6 +453,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
     backgroundColor: Colors.transparent,
+    paddingTop: 15,
   },
   noti: {
     fontSize: 16,

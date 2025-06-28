@@ -16,6 +16,7 @@ const SearchUser: React.FC = React.memo(() => {
 
   const renderItem = React.useCallback(({item}: {item: any}) => (
     <User
+      id={item._id}
       name={item.username}
       image={item.profilePic}
       handle={item.handleName}

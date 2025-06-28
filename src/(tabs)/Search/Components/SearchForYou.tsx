@@ -1,19 +1,40 @@
-import React, { useCallback, useMemo, useEffect, useRef } from 'react';
-import { Dimensions, Image, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
+import React, { useCallback, useMemo, useRef } from 'react';
+import {
+  Dimensions,
+  Image,
+  Text,
+  TouchableOpacity,
+  View,
+  StyleSheet,
+} from 'react-native';
 import { useTheme } from '../../../util/ThemeContext';
 import { Colors } from '../../../../assets/color/Colors';
 import { FlashList } from '@shopify/flash-list';
-import Video from 'react-native-video';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../../services/store';
+import { useNavigation } from '@react-navigation/native';
 
 const screenWidth = Dimensions.get('window').width;
 const mediasHeight = ((screenWidth - 4) / 3) * 2;
 const mediasWidth = (screenWidth - 4) / 3;
 
-// Move shuffle outside component to prevent recreating
+// Hàm chuyển video m3u8 Cloudflare thành ảnh thumbnail
+const convertToImage = (uri: string): string => {
+  if (
+    uri.includes('videodelivery.net') &&
+    uri.includes('/manifest/') &&
+    !uri.endsWith('.jpg')
+  ) {
+    const parts = uri.split('/');
+    const videoId = parts[3];
+    return `https://videodelivery.net/${videoId}/thumbnails/thumbnail.jpg?time=2s`;
+  }
+  return uri;
+};
+
+// Hàm xáo trộn danh sách
 const shuffleArray = <T,>(array: T[]): T[] => {
-  const arr = [...array]; // Create copy
+  const arr = [...array];
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [arr[i], arr[j]] = [arr[j], arr[i]];
@@ -38,35 +59,48 @@ const SearchForYou: React.FC<SearchForYouProps> = ({
 }) => {
   const { theme } = useTheme();
   const color = Colors[theme];
-  
-  // Track video refs for cleanup
-  const shuffleCache = useRef<{data: any[], shuffled: any[]}>({data: [], shuffled: []});
+  const navigation = useNavigation<any>();
 
-  const viewabilityConfig = useMemo(() => ({ 
-    viewAreaCoveragePercentThreshold: 50 
-  }), []);
+  const shuffleCache = useRef<{ data: any[]; shuffled: any[] }>({
+    data: [],
+    shuffled: [],
+  });
 
-  const { posts, reels, isLoading } = useSelector((state: RootState) => state.search);
+  const viewabilityConfig = useMemo(
+    () => ({ viewAreaCoveragePercentThreshold: 50 }),
+    []
+  );
+
+  const { posts, reels, isLoading } = useSelector(
+    (state: RootState) => state.search
+  );
 
   const postItems = (posts as any)?.items || [];
   const reelItems = (reels as any)?.items || [];
 
-  // Optimize shuffling with caching
   const randomList = useMemo(() => {
     const combined = [...postItems, ...reelItems];
-    
-    // Only reshuffle if data actually changed
     if (JSON.stringify(combined) !== JSON.stringify(shuffleCache.current.data)) {
       shuffleCache.current.data = combined;
       shuffleCache.current.shuffled = shuffleArray(combined);
     }
-    
     return shuffleCache.current.shuffled;
-  }, [postItems.length, reelItems.length]); // Depend on lengths, not arrays
+  }, [postItems.length, reelItems.length]);
 
   const extra = useMemo(
     () => ({ currentVisibleIndex, isFocusedPage, isPause }),
     [currentVisibleIndex, isFocusedPage, isPause]
+  );
+
+  const handlePressItem = useCallback(
+    (item: any) => {
+      navigation.navigate('AllPostOfCollection', {
+        posts: randomList,
+        targetPostId: item._id,
+        playlistName: searchText || 'Kết quả tìm kiếm',
+      });
+    },
+    [navigation, randomList, searchText]
   );
 
   const renderMediaItem = useCallback(
@@ -74,54 +108,46 @@ const SearchForYou: React.FC<SearchForYouProps> = ({
       const media = item.media?.[0];
       if (!media) return null;
 
+      // Ưu tiên render image nếu là Cloudflare video
+      const shouldUseImageOnly = !!media.videoUrl;
+
       return (
-        <TouchableOpacity key={item._id || index} style={styles.itemContainer}>
-          {media.videoUrl ? (
-            <Video
-              source={{ uri: media.videoUrl }}
-              style={styles.media}
-              resizeMode="cover"
-              repeat
-              muted
-              paused={true}
-              onError={(error) => {
-                console.warn('Video error:', error);
-              }}
-              // Add cleanup props
-              playInBackground={false}
-              playWhenInactive={false}
-            />
-          ) : media.imageUrl ? (
-            <Image 
-              source={{ uri: media.imageUrl }} 
-              style={styles.media} 
-              resizeMode="cover"
-              // Add error handling for images
-              onError={() => console.warn('Image load error')}
-            />
-          ) : (
+        <TouchableOpacity
+          key={item._id || index}
+          style={styles.itemContainer}
+          onPress={() => handlePressItem(item)}
+        >
+          {shouldUseImageOnly ? (
             <Image
-              source={require('../../../../assets/icon/black.png')}
+              source={{ uri: convertToImage(media.videoUrl) }}
               style={styles.media}
-              resizeMode="contain"
+              resizeMode="cover"
+            />
+          ) : media.imageUrl && (
+            <Image
+              source={{ uri: media.imageUrl }}
+              style={styles.media}
+              resizeMode="cover"
             />
           )}
         </TouchableOpacity>
       );
     },
-    [currentVisibleIndex, isFocusedPage, isPause]
+    [handlePressItem]
   );
 
   if (isLoading) {
     return (
-      <View style={[styles.center, { backgroundColor: color.background }]}> 
-        <Text style={[styles.loadingText, { color: color.textSecondary }]}>Đang tải...</Text>
+      <View style={[styles.center, { backgroundColor: color.background }]}>
+        <Text style={[styles.loadingText, { color: color.textSecondary }]}>
+          Đang tải...
+        </Text>
       </View>
     );
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: color.background }]}>  
+    <View style={[styles.container, { backgroundColor: color.background }]}>
       {randomList.length > 0 ? (
         <FlashList
           data={randomList}
@@ -133,7 +159,7 @@ const SearchForYou: React.FC<SearchForYouProps> = ({
           extraData={extra}
           removeClippedSubviews
           keyExtractor={(item, idx) => item._id || `search-${idx}`}
-          getItemType={() => 'media-item'} // Add item type for better performance
+          getItemType={() => 'media-item'}
         />
       ) : (
         <View style={styles.center}>
@@ -150,8 +176,23 @@ export default React.memo(SearchForYou);
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
-  loadingText: { fontSize: 18, fontWeight: '500' },
-  itemContainer: { marginBottom: 2 },
-  media: { width: mediasWidth, height: mediasHeight, marginRight: 2, backgroundColor: Colors.black, },
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  loadingText: {
+    fontSize: 18,
+    fontWeight: '500',
+  },
+  itemContainer: {
+    marginBottom: 2,
+  },
+  media: {
+    width: mediasWidth,
+    height: mediasHeight,
+    marginRight: 2,
+    backgroundColor: Colors.black,
+  },
 });
