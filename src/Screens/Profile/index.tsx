@@ -101,10 +101,6 @@ const ProfileComp = ({route}: any) => {
     modalOptionRef.current?.open();
   };
 
-  const closeOptionModal = () => {
-    modalOptionRef.current?.close();
-  };
-
   const [isPrivate, setIsPrivate] = useState(UserMock.isPrivate);
 
   const [isFollowing, setIsFollowing] = useState(false);

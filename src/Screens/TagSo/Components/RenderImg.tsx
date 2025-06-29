@@ -14,7 +14,7 @@ import TagMarker from './TagMarker';
 import Video from 'react-native-video';
 
 const {width: screenWidth} = Dimensions.get('window');
-const IMAGE_HEIGHT = 460;
+const IMAGE_HEIGHT = 520;
 
 const RenderImg = ({
   media,

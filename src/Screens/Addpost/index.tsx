@@ -23,7 +23,7 @@ import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
-const menu: string[] = ['Tất cả', 'Băng hình', 'Hình ảnh'];
+const menu: string[] = ['Tất cả', 'Thước phim', 'Hình ảnh'];
 
 export const AddPost = () => {
   const {theme} = useTheme();
@@ -37,7 +37,6 @@ export const AddPost = () => {
   const [selectedMedia, setSelectedMedia] = useState<PhotoIdentifier | null>(
     null,
   );
-  const isVideo = selectedMedia?.node.type.startsWith('video');
   const [selectedItems, setSelectedItems] = useState<PhotoIdentifier[]>([]);
   const [isMultiSelect, setIsMultiSelect] = useState(false);
 

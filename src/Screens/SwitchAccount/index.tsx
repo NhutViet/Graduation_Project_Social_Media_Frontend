@@ -27,6 +27,8 @@ import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import {Eye, EyeOff} from 'lucide-react-native';
 import messaging from '@react-native-firebase/messaging';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+import { getMessaging, getToken } from 'firebase/messaging';
+import { app } from '../../../services/firebase';
 
 export const SwitchAccount = ({navigation}: any) => {
   const [email, setEmail] = useState('');
@@ -57,26 +59,38 @@ export const SwitchAccount = ({navigation}: any) => {
   };
 
   const handleLogin = async () => {
-    if (email === '' || password === '') {
-      if (email === '') setErrorEmail('Vui lòng nhập đầy đủ thông tin.');
-      if (password === '') setErrorPassword('Vui lòng nhập đầy đủ thông tin.');
-    } else if (!email.includes('.') || !email.includes('@')) {
-      setErrorEmail('Email không đúng định dạng');
-      setErrorPassword('');
-    } else {
-      setErrorEmail('');
-      setErrorPassword('');
+  if (email === '' || password === '') {
+    if (email === '') setErrorEmail('Vui lòng nhập đầy đủ thông tin.');
+    if (password === '') setErrorPassword('Vui lòng nhập đầy đủ thông tin.');
+  } else if (!email.includes('.') || !email.includes('@')) {
+    setErrorEmail('Email không đúng định dạng');
+    setErrorPassword('');
+  } else {
+    setErrorEmail('');
+    setErrorPassword('');
 
-      const permissionGranted = await requestNotificationPermission();
-      if (!permissionGranted) {
-        Alert.alert('Bạn cần cấp quyền thông báo để sử dụng ứng dụng.');
+    const permissionGranted = await requestNotificationPermission();
+    if (!permissionGranted) {
+      Alert.alert('Bạn cần cấp quyền thông báo để sử dụng ứng dụng.');
+      return;
+    }
+
+    try {
+      const messaging = getMessaging(app); // 👈 dùng app đã khởi tạo
+      const fcmToken = await getToken(messaging);
+      console.log('token fcm:', fcmToken);
+
+      if (!fcmToken) {
+        Alert.alert('Không lấy được FCM token. Vui lòng thử lại.');
         return;
       }
 
-      const fcmToken = await messaging().getToken();
-      dispatch(fetchLogin({email, password, fcmToken}));
+      dispatch(fetchLogin({ email, password, fcmToken }));
+    } catch (error) {
+      console.error('Lỗi lấy FCM token:', error);
     }
-  };
+  }
+};
 
   useEffect(() => {
     if (isSuccess && !isLoading) {
