@@ -99,8 +99,8 @@ const AllPostOfCollection = () => {
           nestedScrollEnabled={false}
           maintainVisibleContentPosition={{minIndexForVisible: 0}}
           getItemLayout={(_, index) => ({
-            length: 200,
-            offset: 200 * index,
+            length: 500,
+            offset: 500 * index,
             index,
           })}
         />
