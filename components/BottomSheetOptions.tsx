@@ -29,7 +29,6 @@ const BottomSheetOptions: React.FC<BottomSheetOptionsProps> = ({
   const { theme } = useTheme();
   const palette = Colors[theme];
   const styles = useBottomSheetStyles();
-  const spacing = Colors.spacing;
 
   const handlePress = (id: string) => {
     onSelect(id);

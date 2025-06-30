@@ -41,7 +41,6 @@ export const Home = forwardRef(({onReload}: any, ref) => {
   const color = Colors[theme];
   const isFocused = useIsFocused();
   const dispatch = useDispatch<AppDispatch>();
-
   const storyDetails = useSelector(
     (state: RootState) => state.stories.storyDetails,
   );

@@ -1,6 +1,5 @@
 import {useCallback} from 'react';
 import {useDispatch} from 'react-redux';
-import {Alert} from 'react-native';
 import {AppDispatch} from '../../../../services/store';
 import {
   likePost,
@@ -19,22 +18,24 @@ import {
 } from '../../../../services/reactionRedux/reactionReducer';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 
-export const useItemHomeActions = (props: ItemHomeProps, state: any) => {
+export const useItemHomeActions = (
+  props: ItemHomeProps,
+  state: any,
+  isFollow: boolean,
+) => {
   const dispatch = useDispatch<AppDispatch>();
   const {_id, user, likeCount} = props;
 
   const {
     isLiked,
     setIsLiked,
-    numLike,
     setNumLike,
     likePosts,
     refreshToken,
     userID,
+    handleName,
     loading,
     setVisibleModalShare,
-    follow,
-    setFollow,
     isBookmark,
     setIsBookmark,
     playlists,
@@ -48,7 +49,15 @@ export const useItemHomeActions = (props: ItemHomeProps, state: any) => {
 
     const action = optimisticLike ? likePost : unlikePost;
 
-    dispatch(action({postId: _id, refreshToken}))
+    dispatch(
+      action({
+        postId: _id,
+        refreshToken,
+        senderId: userID,
+        receiverId: user._id,
+        handleName: handleName,
+      }),
+    )
       .unwrap()
       .then(() => {
         if (optimisticLike) {
@@ -92,11 +101,10 @@ export const useItemHomeActions = (props: ItemHomeProps, state: any) => {
   const handleFollowAction = useCallback(() => {
     handleFollowToggle({
       userId: user._id,
-      follow,
-      setFollow,
+      follow: isFollow,
       dispatch,
     });
-  }, [user._id, follow, dispatch]);
+  }, [user._id, isFollow, dispatch]);
 
   const handleBookmarkAction = useCallback(() => {
     handleBookmark({

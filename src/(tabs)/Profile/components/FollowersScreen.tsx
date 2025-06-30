@@ -19,6 +19,7 @@ const FollowersScreen = () => {
   const color = Colors[theme];
   const route = useRoute();
   const user = useSelector((state: RootState) => state.user.user);
+
   const routeParams = route.params as {screen?: string};
   const indexFromParams = routeParams?.screen === 'FollowingTab' ? 1 : 0;
 
@@ -43,6 +44,7 @@ const FollowersScreen = () => {
           navigation={navigation}
         />
       </View>
+
       <TabView
         navigationState={{index, routes}}
         renderScene={renderScene}

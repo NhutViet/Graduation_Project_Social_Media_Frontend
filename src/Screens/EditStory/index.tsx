@@ -316,7 +316,7 @@ export const EditStory = ({route, navigation}: any) => {
                 onPress={handleUploadStory}>
                 <Image
                   style={styles.iconCloser}
-                  source={require('../../../assets/icon/rightArrow.png')}
+                  source={require('../../../assets/icon/right.png')}
                 />
               </TouchableOpacity>
             </View>

@@ -5,7 +5,6 @@ import {
   Image,
   TouchableOpacity,
   TextInput,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
@@ -100,7 +99,7 @@ const FollowersTab = () => {
       <TouchableOpacity style={styles.cancelButton}>
         <View style={{width: 10, height: 10, overflow: 'hidden'}}>
           <Image
-            source={require('../../../../assets/icon/x.png')}
+            source={require('../../../../assets/icon/closer.png')}
             style={[styles.cancelImage, {tintColor: color.text}]}
           />
         </View>

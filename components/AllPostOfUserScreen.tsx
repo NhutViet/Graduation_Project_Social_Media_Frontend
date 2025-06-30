@@ -26,7 +26,6 @@ const AllPostOfUserScreen = () => {
   const listRef = useRef<FlatList<any>>(null);
   const sheetRef = useRef<BottomSheetCommentRef>(null);
   const isFocused = useIsFocused();
-  const dispatch = useDispatch<AppDispatch>();
 
   const {targetPostId} = route.params as {targetPostId: string};
   const {items: PostsItem}: any = useSelector(
@@ -44,6 +43,7 @@ const AllPostOfUserScreen = () => {
     const id = viewableItems[0]?.item?._id;
     if (id) setCurrentVisible(id);
   }, []);
+
 
   return (
     <SafeAreaView style={{flex: 1}}>

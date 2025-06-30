@@ -174,12 +174,6 @@ const UserFollowingTab = ({userID}: Props) => {
           {item.isMeFollowing ? 'Nhắn tin' : 'Theo dõi'}
         </Text>
       </TouchableOpacity>
-      <TouchableOpacity>
-        <Image
-          source={require('../../../../assets/icon/menu-dots-vertical.png')}
-          style={[styles.moreIcon, {tintColor: color.text}]}
-        />
-      </TouchableOpacity>
     </View>
   );
 
@@ -200,12 +194,6 @@ const UserFollowingTab = ({userID}: Props) => {
         onPress={() => handleFollowPress(item)}
         style={styles.followButton}>
         <Text style={styles.followText}>Theo dõi</Text>
-      </TouchableOpacity>
-      <TouchableOpacity>
-        <Image
-          source={require('../../../../assets/icon/menu-dots-vertical.png')}
-          style={[styles.moreIcon, {tintColor: color.text}]}
-        />
       </TouchableOpacity>
     </View>
   );
@@ -371,7 +359,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 6,
     borderRadius: 10,
-    marginRight: 10,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -380,7 +367,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 6,
     borderRadius: 10,
-    marginRight: 10,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
