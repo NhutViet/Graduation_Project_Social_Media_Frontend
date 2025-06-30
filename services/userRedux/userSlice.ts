@@ -170,7 +170,8 @@ export const fetchEditUser = createAsyncThunk<
 
       return response.data.user;
     } catch (error) {
-      console.log('Edit user line 152:', error);
+      console.error('Edit user error:', error);
+      return rejectWithValue('Could not update user');
     }
   },
 );

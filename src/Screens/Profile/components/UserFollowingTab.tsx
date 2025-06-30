@@ -22,8 +22,11 @@ import {
 import {createRoom} from '../../../../services/roomRedux/roomSlice';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 
-const UserFollowingTab = ({route}: any) => {
-  const userID: string = route.params?.userID;
+type Props = {
+  userID: string;
+};
+
+const UserFollowingTab = ({userID}: Props) => {
   const navigation: any = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];

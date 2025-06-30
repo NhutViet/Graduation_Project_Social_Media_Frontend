@@ -5,9 +5,14 @@ import {
   postFirstList,
   postSecondList,
   reportChoices,
+  icons,
 } from '../../../config/postOptions';
 
-export const useItemHomeModal = (actions: any, state: any) => {
+export const useItemHomeModal = (
+  actions: any,
+  state: any,
+  isFollow: boolean,
+) => {
   const intentRef = useRef<Modalize>(null);
   const sheetRef = useRef<Modalize>(null);
   const modalReactionRef = useRef<Modalize>(null);
@@ -70,22 +75,22 @@ export const useItemHomeModal = (actions: any, state: any) => {
     [handleOptionSelect],
   );
 
-  const firstListOptions = useMemo(
-    () => {
-      return postFirstList.map(opt => {
-        if (opt.id === 'unfollow') {
-          return {
-            ...opt,
-            label: state.follow ? 'Bỏ theo dõi' : 'Theo dõi',
-            onPress: () => handleOptionSelect(opt.id),
-          };
-        }
+  const firstListOptions = useMemo(() => {
+    return postFirstList.map(opt => {
+      if (opt.id === 'unfollow') {
         return {
           ...opt,
+          label: isFollow ? 'Bỏ theo dõi' : 'Theo dõi',
+          icon: isFollow ? icons.unfollow : icons.follow,
           onPress: () => handleOptionSelect(opt.id),
         };
-      });
-    }, [handleOptionSelect, state.follow]);
+      }
+      return {
+        ...opt,
+        onPress: () => handleOptionSelect(opt.id),
+      };
+    });
+  }, [handleOptionSelect, state.follow]);
 
   const secondListOptions = useMemo(
     () =>

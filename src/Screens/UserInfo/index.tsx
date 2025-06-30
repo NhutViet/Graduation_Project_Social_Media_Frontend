@@ -230,7 +230,7 @@ export const UserInfo = () => {
               <Text style={styles.nameUser}>{item.label}</Text>
             </View>
             <Image
-              source={require('../../../assets/icon/rightArrow.png')}
+              source={require('../../../assets/icon/right.png')}
               style={styles.rightArrow}
             />
           </TouchableOpacity>

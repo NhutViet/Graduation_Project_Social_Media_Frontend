@@ -144,7 +144,7 @@ export const MessageBox = (props: any) => {
               onPress={() => setSearchQuery('')}>
               <Image
                 style={styles.clearIcon}
-                source={require('../../../assets/icon/close_small.png')}
+                source={require('../../../assets/icon/closer.png')}
               />
             </TouchableOpacity>
           )}

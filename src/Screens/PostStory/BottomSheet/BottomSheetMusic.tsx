@@ -291,17 +291,18 @@ const BottomSheet = forwardRef<BottomSheetRef, Props>(
                 renderScene={renderScene}
                 onIndexChange={setIndex}
                 initialLayout={{width: Dimensions.get('window').width}}
-                renderTabBar={props => (
+                renderTabBar={tabBarProps => (
                   <TabBar
-                    {...props}
-                    indicatorStyle={{backgroundColor: color.text}}
+                    {...tabBarProps}
+                    indicatorStyle={{backgroundColor: color.primary}}
+                    activeColor={color.primary}
+                    inactiveColor={color.text}
                     style={{
-                      backgroundColor: color.transparent,
-                      marginBottom: 10,
+                      backgroundColor: color.background,
+                      shadowColor: 'transparent',
+                      borderBottomWidth: 0.5,
+                      borderBottomColor: color.gray,
                     }}
-                    // labelStyle={{color: color.text, textTransform: 'none'}}
-                    pressColor="transparent"
-                    pressOpacity={1}
                   />
                 )}
               />
@@ -463,6 +464,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
     backgroundColor: Colors.transparent,
+    paddingTop: 15,
   },
   noti: {
     fontSize: 16,

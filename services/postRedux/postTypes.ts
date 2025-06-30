@@ -14,7 +14,13 @@ export interface Tags {
   positionY: number;
 }
 
-export interface Post {
+export interface UserPost {
+  _id: string;
+  handleName: string;
+  profilePic?: string;
+}
+
+export interface PostWithMedia {
   _id: string;
   userID: string;
   type: string;
@@ -24,7 +30,7 @@ export interface Post {
   isEnable: boolean;
   location?: string;
   isArchived?: boolean;
-  view_count: number;
+  viewCount: number;
   share?: number;
   createdAt?: string;
   updatedAt?: string;
@@ -32,18 +38,11 @@ export interface Post {
   isLike?: boolean;
   isFollow: boolean;
   isBookmarked?: boolean;
-}
-
-export interface UserPost {
-  _id: string;
-  handleName: string;
-  profilePic?: string;
-}
-
-export interface PostWithMedia {
-  post: Post;
   media: Media[];
   user: UserPost;
+  music?: MusicPost;
+  musicInfo?: Music;
+  commentCount?: number;
 }
 
 export interface MediaItem {

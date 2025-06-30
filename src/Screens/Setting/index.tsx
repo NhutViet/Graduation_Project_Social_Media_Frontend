@@ -167,37 +167,6 @@ export const Setting = () => {
             </Text>
 
             <TouchableOpacity
-              onPress={() => navigation.navigate('EditProfile')}
-              style={[
-                styles.settingItem,
-                {
-                  backgroundColor: mColor.background,
-                  borderBottomColor: mColor.border,
-                  borderBottomWidth: 0,
-                },
-              ]}>
-              <View
-                style={[
-                  styles.settingIconContainer,
-                  {backgroundColor: mColor.gray},
-                ]}>
-                <User size={22} stroke={mColor.text} />
-              </View>
-              <View style={styles.settingContent}>
-                <Text style={[styles.settingTitle, {color: mColor.text}]}>
-                  Thông tin tài khoản
-                </Text>
-                <Text
-                  style={[
-                    styles.settingDescription,
-                    {color: mColor.textSecondary},
-                  ]}>
-                  Cập nhật thông tin tài khoản
-                </Text>
-              </View>
-              <ChevronRight size={20} stroke={mColor.textSecondary} />
-            </TouchableOpacity>
-            <TouchableOpacity
               style={[
                 styles.settingItem,
                 {

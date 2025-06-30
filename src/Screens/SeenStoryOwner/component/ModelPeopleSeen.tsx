@@ -79,7 +79,7 @@ const ModalPeopleSeen = ({
               <TouchableOpacity onPress={onClose}>
                 <Image
                   style={styles.icon}
-                  source={require('../../../../assets/icon/x.png')}
+                  source={require('../../../../assets/icon/closer.png')}
                 />
               </TouchableOpacity>
             </View>

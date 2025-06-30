@@ -1,6 +1,5 @@
-import {StyleSheet, Text, View} from 'react-native';
-import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
-import React, {useEffect} from 'react';
+import {Dimensions, View} from 'react-native';
+import React, { useState} from 'react';
 import Header from '../../../../components/Header';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import FollowersTab from './FollowersTab';
@@ -8,10 +7,11 @@ import FollowingTab from './FollowingTab';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {Colors} from '../../../../assets/color/Colors';
 import {useTheme} from '../../../util/ThemeContext';
-import {useDispatch, useSelector} from 'react-redux';
-import { RootState } from '../../../../services/store';
+import { useSelector} from 'react-redux';
+import {RootState} from '../../../../services/store';
+import {SceneMap, TabBar, TabView} from 'react-native-tab-view';
 
-const TopTab = createMaterialTopTabNavigator();
+const initialLayout = {width: Dimensions.get('window').width};
 
 const FollowersScreen = () => {
   const navigation: any = useNavigation();
@@ -19,53 +19,50 @@ const FollowersScreen = () => {
   const color = Colors[theme];
   const route = useRoute();
   const user = useSelector((state: RootState) => state.user.user);
-  const initialRouteName = (route.params as {screen?: string})?.screen || 'FollowersTab';
-  
+  const routeParams = route.params as {screen?: string};
+  const indexFromParams = routeParams?.screen === 'FollowingTab' ? 1 : 0;
+
+  const [index, setIndex] = useState(indexFromParams);
+  const [routes] = useState([
+    {key: 'followers', title: 'Người theo dõi'},
+    {key: 'following', title: 'Đang theo dõi'},
+  ]);
+
+  const renderScene = SceneMap({
+    followers: FollowersTab,
+    following: FollowingTab,
+  });
+
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
       <View style={{width: '100%', height: 60}}>
         <Header
-          title= {user?.username}
+          title={user?.username}
           iconBack={require('../../../../assets/icon/left.png')}
           func={() => navigation.goBack()}
           navigation={navigation}
         />
       </View>
-      <View style={{width: '100%', height: '100%'}}>
-        <TopTab.Navigator
-          initialRouteName={initialRouteName}
-          backBehavior='none'
-          screenOptions={{
-            tabBarLabelStyle: {
-              fontSize: 18,
-              fontWeight: 'bold',
-              textAlign: 'center',
-              textTransform: 'capitalize',
-              padding: 4,
-              color: '#000000'
-            },
-            tabBarStyle: {
+      <TabView
+        navigationState={{index, routes}}
+        renderScene={renderScene}
+        renderTabBar={tabBarProps => (
+          <TabBar
+            {...tabBarProps}
+            indicatorStyle={{backgroundColor: color.primary}}
+            activeColor={color.primary}
+            inactiveColor={color.text}
+            style={{
               backgroundColor: color.background,
-            },
-            tabBarIndicatorStyle: {
-              backgroundColor: color.text,
-              height: 3,
-            },
-            tabBarActiveTintColor: color.text,
-            tabBarInactiveTintColor: color.textSecondary,
-          }}>
-          <TopTab.Screen
-            name="FollowersTab"
-            component={FollowersTab}
-            options={{title: 'Người theo dõi'}}
+              shadowColor: 'transparent',
+              borderBottomWidth: 0.5,
+              borderBottomColor: color.gray,
+            }}
           />
-          <TopTab.Screen
-            name="FollowingTab"
-            component={FollowingTab}
-            options={{title: 'Đang theo dõi', }}
-          />
-        </TopTab.Navigator>
-      </View>
+        )}
+        onIndexChange={setIndex}
+        initialLayout={initialLayout}
+      />
     </SafeAreaView>
   );
 };
