@@ -188,10 +188,12 @@ const ItemHome = (props: ItemHomeProps) => {
           onReactionModalPress={modal.handleOpenReactionModal}
         />
 
-        <Text style={[ItemHomeStyles.title, {color: utils.iconColor}]}>
-          {caption}
-        </Text>
-        <Text style={{color: utils.iconColor, fontSize: 12}}>
+        {caption.trim() !== '' && (
+          <Text style={[ItemHomeStyles.title, {color: utils.iconColor}]}>
+            {caption}
+          </Text>
+        )}
+        <Text style={{color: utils.iconColor, fontSize: 12, marginTop: 5}}>
           {formatTimeAgo(createdAt)}
         </Text>
       </View>
