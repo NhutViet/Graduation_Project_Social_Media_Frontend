@@ -24,6 +24,7 @@ export const useItemHomeState = (props: ItemHomeProps) => {
     loading,
     itemsByPlaylist,
     playlists,
+    rooms
   } = useSelector(
     (state: RootState) => ({
       likePosts: state.reactions.likePosts,
@@ -34,6 +35,7 @@ export const useItemHomeState = (props: ItemHomeProps) => {
       loading: state.relation.loading,
       itemsByPlaylist: state.bookmark.itemsByPlaylist,
       playlists: state.bookmark.playlists,
+      rooms: state.rooms.rooms
     }),
     shallowEqual,
   );

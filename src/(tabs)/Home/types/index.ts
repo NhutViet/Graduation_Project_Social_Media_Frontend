@@ -48,3 +48,10 @@ export interface HandleBookmarkParams {
   setIsBookmarked: (v: boolean) => void;
   dispatch: AppDispatch;
 }
+
+export interface RoomItem {
+  _id: string;
+  name: string;
+  avatars: string[];
+  latestMessage: string;
+}

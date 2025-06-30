@@ -18,6 +18,7 @@ import {
   removeLikedPost,
 } from '../../../../services/reactionRedux/reactionReducer';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
+import { fetchMyRooms } from '@services/roomRedux/roomSlice';
 
 export const useItemHomeActions = (props: ItemHomeProps, state: any) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -76,8 +77,9 @@ export const useItemHomeActions = (props: ItemHomeProps, state: any) => {
 
     if (userID) {
       Promise.all([
-        dispatch(fetchFollowers({userId: userID})),
-        dispatch(fetchFollowing({userId: userID})),
+        dispatch(fetchMyRooms()),
+        // dispatch(fetchFollowers({userId: userID})),
+        // dispatch(fetchFollowing({userId: userID})),
       ])
         .then(() => setVisibleModalShare(true))
         .catch(() => {
