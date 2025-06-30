@@ -8,9 +8,8 @@ import {
   Dimensions,
   Image,
 } from 'react-native';
-import {X, ChevronRight, Mail, Phone} from 'lucide-react-native';
-import {useSelector} from 'react-redux';
-import {RootState} from '../../../../services/store';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../../services/store';
 import { Colors } from '@assets/color/Colors';
 import { useTheme } from '../../../../src/util/ThemeContext';
 
@@ -23,7 +22,7 @@ const ContactInformation: React.FC<ContactInformationProps> = ({
   isVisible,
   onClose,
 }) => {
-  const {theme} = useTheme();
+  const { theme } = useTheme();
   const colors = Colors[theme];
   const styles = StyleSheet.create({
     modalContainer: {
@@ -107,15 +106,34 @@ const ContactInformation: React.FC<ContactInformationProps> = ({
 
           <View style={styles.section}>
             <View style={styles.menuItem}>
-              <Mail size={24} color={colors.text} style={styles.menuIcon} />
-              <View style={{flex: 0}}>
+              <Image
+                source={require('@assets/icon/mail.png')}
+                resizeMode="cover"
+                style={[
+                  styles.menuIcon
+                  , {
+                    tintColor: colors.text,
+                    width: 18,
+                    height: 18
+                  }]}
+              />
+              <View style={{ flex: 0 }}>
                 <Text style={styles.menuText}>{user?.email}</Text>
-                <Text style={styles.pendingText}>Đang chờ xác nhận</Text>
               </View>
             </View>
 
             <View style={styles.menuItem}>
-              <Phone size={24} color={colors.text} style={styles.menuIcon} />
+              <Image
+                source={require('@assets/icon/phone.png')}
+                resizeMode="cover"
+                style={[
+                  styles.menuIcon
+                  , {
+                    tintColor: colors.text,
+                    width: 18,
+                    height: 18
+                  }]}
+              />
               <Text style={styles.menuText}>{user?.phoneNumber}</Text>
 
             </View>

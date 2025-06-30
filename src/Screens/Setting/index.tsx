@@ -91,7 +91,7 @@ export const Setting = () => {
                 justifyContent: 'space-between',
               }}>
               <Text style={[styles.sectionTitle, {color: mColor.text}]}>
-                Tham chiếu tài khoản
+                Tài khoản
               </Text>
 
               <Image
@@ -158,14 +158,6 @@ export const Setting = () => {
               </View>
               <ChevronRight size={20} stroke={mColor.textSecondary} />
             </TouchableOpacity>
-          </View>
-
-          {/* Account Section */}
-          <View style={styles.section}>
-            <Text style={[styles.sectionTitle, {color: mColor.text}]}>
-              Tài khoản
-            </Text>
-
             <TouchableOpacity
               style={[
                 styles.settingItem,
@@ -197,33 +189,6 @@ export const Setting = () => {
               </View>
               <ChevronRight size={20} stroke={mColor.textSecondary} />
             </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.settingItem,
-                {
-                  backgroundColor: mColor.background,
-                  borderBottomColor: mColor.border,
-                  borderBottomWidth: 0,
-                },
-              ]}
-              onPress={() => navigation.navigate('YourActivity')}>
-              <View
-                style={[
-                  styles.settingIconContainer,
-                  {backgroundColor: mColor.gray},
-                ]}>
-                <Image
-                  source={require('../../../assets/icon/yourActivity.png')}
-                  style={{width: 25, height: 25, tintColor: mColor.text}}
-                />
-              </View>
-              <View style={styles.settingContent}>
-                <Text style={[styles.settingTitle, {color: mColor.text}]}>
-                  Hoạt động của bạn
-                </Text>
-              </View>
-              <ChevronRight size={20} stroke={mColor.textSecondary} />
-            </TouchableOpacity>
 
             <TouchableOpacity
               style={[
@@ -251,8 +216,6 @@ export const Setting = () => {
               </View>
               <ChevronRight size={20} stroke={mColor.textSecondary} />
             </TouchableOpacity>
-
-            {/* Tương tự cho các settingItem khác trong Account Section */}
           </View>
 
           {/* Preferences Section */}
