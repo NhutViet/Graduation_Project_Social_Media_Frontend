@@ -5,6 +5,7 @@ import {
   postFirstList,
   postSecondList,
   reportChoices,
+  icons
 } from '../../../config/postOptions';
 
 export const useItemHomeModal = (actions: any, state: any) => {
@@ -77,6 +78,7 @@ export const useItemHomeModal = (actions: any, state: any) => {
           return {
             ...opt,
             label: state.follow ? 'Bỏ theo dõi' : 'Theo dõi',
+            icon: state.follow ? icons.unfollow : icons.follow,
             onPress: () => handleOptionSelect(opt.id),
           };
         }
