@@ -11,7 +11,7 @@ import {
   Video,
   FileText,
   Image as ImageIcon,
-  Bookmark,
+  CircleFadingArrowUp,
   Camera,
   Sparkles,
 } from 'lucide-react-native';
@@ -81,7 +81,7 @@ const ModalCreate: React.FC<ModalCreateProps> = ({
               onClose();
             }}>
             <View style={styles.icon}>
-              <Bookmark size={24} color={color.text} />
+              <CircleFadingArrowUp size={24} color={color.text} />
             </View>
             <Text style={[styles.label, {color: color.text}]}>Tin nổi bật</Text>
           </TouchableOpacity>
