@@ -16,6 +16,12 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import {useCallback, useRef, useState} from 'react';
+import BottomSheetComment, {
+  BottomSheetCommentRef,
+} from '../src/(tabs)/Home/components/CommentSection';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '../services/store';
 import ItemHome from '../src/(tabs)/Home/components/ItemHome';
 import {useTheme} from '../src/util/ThemeContext';
 import {Colors} from '../assets/color/Colors';
@@ -78,7 +84,7 @@ const AllPostOfUserScreen = () => {
       </SafeAreaView>
     );
   }
-
+  
   return (
     <SafeAreaView style={{flex: 1}}>
       <View style={[styles.header, {backgroundColor: colors.background}]}>
@@ -93,6 +99,7 @@ const AllPostOfUserScreen = () => {
         </Text>
         <View style={styles.iconBack} />
       </View>
+
       <View style={{flex: 1, backgroundColor: colors.background}}>
         <FlatList
           ref={listRef}
@@ -105,12 +112,24 @@ const AllPostOfUserScreen = () => {
             const shouldPlay = item._id === currentVisible;
             return (
               <ItemHome
-                {...item}
-                isFocused={isFocused}
+                _id={item._id}
+                type={item.type}
+                caption={item.caption}
+                createdAt={item.createdAt}
+                media={item.media}
+                user={item.user}
+                isLike={item.isLike}
+                isBookmarked={item.isBookmarked}
+                commentCount={item.commentCount}
+                likeCount={item.likeCount}
+                share={item.share}
+                music={item.music}
                 currentVisible={shouldPlay}
                 openComment={handleOpenComment}
-                setSelectedPostId={setSelectedPostId}
+                isFocused={isFocused}
                 sheetRef={sheetRef}
+                isFollow={item.isFollow}
+                setSelectedPostId={setSelectedPostId}
               />
             );
           }}
@@ -123,8 +142,8 @@ const AllPostOfUserScreen = () => {
             minIndexForVisible: 0,
           }}
           getItemLayout={(_, index) => ({
-            length: 200,
-            offset: 200 * index,
+            length: 500,
+            offset: 500 * index,
             index,
           })}
         />

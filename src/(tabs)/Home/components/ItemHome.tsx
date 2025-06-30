@@ -52,12 +52,13 @@ const ItemHome = (props: ItemHomeProps) => {
     share,
     music,
     setSelectedPostId,
+    isFollow,
   } = props;
   const navigation: any = useNavigation();
   const dispatch = useDispatch<AppDispatch>();
 
   const state = useItemHomeState(props);
-  const actions = useItemHomeActions(props, state);
+  const actions = useItemHomeActions(props, state, isFollow);
   const modal = useItemHomeModal(actions, state);
   const utils = useItemHomeUtils(props, state);
 
@@ -117,7 +118,7 @@ const ItemHome = (props: ItemHomeProps) => {
       <BottomSheetOptionsModal
         sheetRef={modal.sheetRef}
         isBookmarked={state.isBookmark}
-        isFollowing={state.follow}
+        isFollowing={isFollow}
         topOptions={modal.topOptions}
         firstListOptions={modal.firstListOptions}
         secondListOptions={modal.secondListOptions}
@@ -158,7 +159,7 @@ const ItemHome = (props: ItemHomeProps) => {
           textColor={utils.textColor}
           borderColor={utils.borderColor}
           iconTintColor={utils.iconTintColor}
-          follow={state.follow}
+          follow={isFollow}
           onUserPress={handleUserPress}
           onFollowPress={actions.handleFollowAction}
           onOptionsPress={modal.openOptions}
@@ -188,10 +189,12 @@ const ItemHome = (props: ItemHomeProps) => {
           onReactionModalPress={modal.handleOpenReactionModal}
         />
 
-        <Text style={[ItemHomeStyles.title, {color: utils.iconColor}]}>
-          {caption}
-        </Text>
-        <Text style={{color: utils.iconColor, fontSize: 12}}>
+        {caption.trim() !== '' && (
+          <Text style={[ItemHomeStyles.title, {color: utils.iconColor}]}>
+            {caption}
+          </Text>
+        )}
+        <Text style={{color: utils.iconColor, fontSize: 12, marginTop: 5}}>
           {formatTimeAgo(createdAt)}
         </Text>
       </View>
@@ -213,12 +216,4 @@ const ItemHome = (props: ItemHomeProps) => {
   );
 };
 
-const areEqual = (prev: ItemHomeProps, next: ItemHomeProps) => {
-  return (
-    prev._id === next._id &&
-    prev.currentVisible === next.currentVisible &&
-    prev.isFocused === next.isFocused
-  );
-};
-
-export default React.memo(ItemHome, areEqual);
+export default ItemHome;

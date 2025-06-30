@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {PhotoIdentifier} from '@react-native-camera-roll/camera-roll';
 import RenderImg from './Components/RenderImg';
@@ -75,32 +75,35 @@ export const TagSo = () => {
   };
 
   const handleRemoveTag = (user: TagUser) => {
-  const newMedia = media.map((m, index) => {
-    if (index === currentImageIndex) {
-      const newTags = (m.tags ?? []).filter(tag => tag.user._id !== user.user._id);
-      return {
-        ...m,
-        tags: JSON.parse(JSON.stringify(newTags)), // clone sâu
-      };
-    }
-    return m;
-  });
+    const newMedia = media.map((m, index) => {
+      if (index === currentImageIndex) {
+        const newTags = (m.tags ?? []).filter(
+          tag => tag.user._id !== user.user._id,
+        );
+        return {
+          ...m,
+          tags: JSON.parse(JSON.stringify(newTags)), // clone sâu
+        };
+      }
+      return m;
+    });
 
-  const newUpdate = update.map((u, index) => {
-    if (index === currentImageIndex) {
-      const newTags = (u.tags ?? []).filter(tag => tag.user._id !== user.user._id);
-      return {
-        ...u,
-        tags: JSON.parse(JSON.stringify(newTags)), // clone sâu
-      };
-    }
-    return u;
-  });
+    const newUpdate = update.map((u, index) => {
+      if (index === currentImageIndex) {
+        const newTags = (u.tags ?? []).filter(
+          tag => tag.user._id !== user.user._id,
+        );
+        return {
+          ...u,
+          tags: JSON.parse(JSON.stringify(newTags)), // clone sâu
+        };
+      }
+      return u;
+    });
 
-  setMedia(newMedia);
-  setUpdate(newUpdate);
-};
-
+    setMedia(newMedia);
+    setUpdate(newUpdate);
+  };
 
   return (
     <SafeAreaView style={{flex: 1}}>

@@ -37,7 +37,6 @@ type Params = {
   updated?: TaggedMedia[];
 };
 
-
 export const PostSetting = () => {
   const {theme} = useTheme();
   const color = Colors[theme];
@@ -305,11 +304,6 @@ export const PostSetting = () => {
           iconRight={require('../../../assets/icon/right.png')}
           iconLeft={require('../../../assets/icon/add_song.png')}
           func={() => sheetRef.current?.open()}
-        />
-        <Section
-          title={'Đối tượng'}
-          iconRight={require('../../../assets/icon/right.png')}
-          iconLeft={require('../../../assets/icon/eye.png')}
         />
         <View style={styles.divi}></View>
         <Section

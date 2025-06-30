@@ -229,7 +229,7 @@ export const AddPost = () => {
         <View style={styles.rowSpace}>
           <TouchableOpacity onPress={() => navigation.navigate('BottomTabs')}>
             <Image
-              source={require('../../../assets/icon/x.png')}
+              source={require('../../../assets/icon/closer.png')}
               style={styles.iconR}
             />
           </TouchableOpacity>

@@ -1,19 +1,8 @@
 import React, {useRef, useState} from 'react';
-import {
-  Alert,
-  Image,
-  PermissionsAndroid,
-  Platform,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
-import RNFS from 'react-native-fs';
 import LinearGradient from 'react-native-linear-gradient';
 export const ScreenQRCode = ({navigation}: any) => {
   const qrCodeRef = useRef<any>(null);
@@ -33,13 +22,13 @@ export const ScreenQRCode = ({navigation}: any) => {
         start={{x: 0.5, y: 0}}
         end={{x: 0.5, y: 1}}
         style={styles.linear}>
-          <View style={styles.Header}>
-            <TouchableOpacity
+        <View style={styles.Header}>
+          <TouchableOpacity
             style={styles.btn}
             onPress={() => navigation.navigate('BottomTabs')}>
             <Image
               style={styles.iconClose}
-              source={require('../../../assets/icon/x.png')}
+              source={require('../../../assets/icon/closer.png')}
             />
           </TouchableOpacity>
           <TouchableOpacity
@@ -50,10 +39,9 @@ export const ScreenQRCode = ({navigation}: any) => {
               source={require('../../../assets/icon/Qscan.png')}
             />
           </TouchableOpacity>
-          </View>
+        </View>
 
         <View style={styles.content}>
-          
           <View style={styles.ViewQR}>
             <QRCode
               value={linkQR}
@@ -128,7 +116,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 20,
-
   },
   ViewQR: {
     width: '100%',
@@ -136,11 +123,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 15
-    ,
+    borderRadius: 15,
   },
   btnBottom: {
-    width: "32%",
+    width: '32%',
     backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',

@@ -1,4 +1,3 @@
-import {Alert} from 'react-native';
 import {relationAction} from '../../../../services/relationRedux/relationSlice';
 import {AppDispatch} from '../../../../services/store';
 import {
@@ -83,17 +82,13 @@ export const formatNumber = (num: number): string => {
 export const handleFollowToggle = async ({
   userId,
   follow,
-  setFollow,
   dispatch,
 }: {
   userId: string;
   follow: boolean;
-  setFollow: (follow: boolean) => void;
   dispatch: AppDispatch;
 }) => {
-  const isFollowing = follow;
-  const actionType = isFollowing ? 'unfollow' : 'follow';
-  setFollow(!isFollowing);
+  const actionType = follow ? 'unfollow' : 'follow';
   try {
     await dispatch(
       relationAction({
@@ -102,11 +97,11 @@ export const handleFollowToggle = async ({
       }),
     ).unwrap();
   } catch (error) {
+    console.error('[ERROR] handleFollowToggle failed:', error);
     GlobalAlertManager.show(
       'Thất bại',
       `${actionType === 'follow' ? 'Theo dõi' : 'Bỏ theo dõi'} thất bại`,
     );
-    setFollow(isFollowing);
   }
 };
 
