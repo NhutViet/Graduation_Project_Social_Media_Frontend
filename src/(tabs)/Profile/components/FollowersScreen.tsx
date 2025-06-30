@@ -31,18 +31,17 @@ const FollowersScreen = () => {
           navigation={navigation}
         />
       </View>
-      <View style={{width: '100%', height: '100%'}}>
+      <View style={{width: '100%', height: '100%', backgroundColor: color.text}}>
         <TopTab.Navigator
           initialRouteName={initialRouteName}
           backBehavior="none"
           screenOptions={{
             tabBarLabelStyle: {
-              fontSize: 18,
-              fontWeight: 'bold',
-              textAlign: 'center',
               textTransform: 'capitalize',
-              padding: 4,
+              textShadowColor: '#000000',
               color: '#000000',
+              backgroundColor: '#000000',
+              textDecorationColor: '#000000',
             },
             tabBarStyle: {
               backgroundColor: color.background,
@@ -51,8 +50,8 @@ const FollowersScreen = () => {
               backgroundColor: color.text,
               height: 3,
             },
-            tabBarActiveTintColor: color.text,
-            tabBarInactiveTintColor: color.textSecondary,
+            tabBarActiveTintColor: '#000000',
+            tabBarInactiveTintColor: '#000000',
           }}>
           <TopTab.Screen
             name="FollowersTab"
