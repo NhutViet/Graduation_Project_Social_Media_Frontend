@@ -186,7 +186,7 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
                       ]}
                       value={comment}
                       onChangeText={setComment}
-                      onSubmitEditing={handleSendComment}
+                      onSubmitEditing={() => handleSendComment()}
                     />
                     {comment.length > 0 ? (
                       <TouchableOpacity onPress={handleSendComment}>

@@ -128,7 +128,11 @@ const UserReducer = createSlice({
       })
       .addCase(fetchEditUser.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.user = action.payload;
+        if (state.user) {
+          state.user = { ...state.user, ...action.payload };
+        } else {
+          state.user = action.payload;
+        }
       })
       .addCase(fetchEditUser.rejected, (state, action) => {
         state.isLoading = false;

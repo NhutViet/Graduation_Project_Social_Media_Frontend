@@ -1,9 +1,11 @@
 import React, {useState} from 'react';
-import {View, Text, TouchableOpacity, Platform} from 'react-native';
+import {View, Text, TouchableOpacity, Platform, TextInput} from 'react-native';
 import {AutoGrowingInput} from '../../../../components/AutoGrowTexts';
 import {useProfileEditingStyles} from './ProfileEditingStyles';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import {Picker} from '@react-native-picker/picker';
+import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
+import DateTimePicker from '@react-native-community/datetimepicker';
+
 type Row = {
   label: string;
   value?: string;
@@ -23,8 +25,9 @@ type UserInfoProps = {
 
 export const UserInfo: React.FC<UserInfoProps> = ({title, subtitle, rows}) => {
   const styles = useProfileEditingStyles();
+  const [editingDateIndex, setEditingDateIndex] = useState<number | null>(null);
+  const [tempDateInput, setTempDateInput] = useState<string>('');
   const [showPickerIndex, setShowPickerIndex] = useState<number | null>(null);
-
   const safeDate = (input?: string): Date => {
     const parsed = new Date(input || '');
     return isNaN(parsed.getTime()) ? new Date() : parsed;
@@ -37,10 +40,20 @@ export const UserInfo: React.FC<UserInfoProps> = ({title, subtitle, rows}) => {
 
       {rows.map((row, idx) => (
         <View key={idx} style={styles.row}>
-          <Text style={styles.label}>{row.label}</Text>
+          {(() => {
+            const baseText = row.label.replace(/\*/g, '');
+            const hasStar = row.label.includes('*');
+
+            return (
+              <Text style={styles.label}>
+                {baseText}
+                {hasStar && <Text style={styles.asterisk}>*</Text>}
+              </Text>
+            );
+          })()}
 
           {row.type === 'dropdown' ? (
-            <View style={styles.input}>
+            <View style={[styles.input, styles.dropdownContainer]}>
               <Picker
                 selectedValue={row.value}
                 enabled={!!row.editable}
@@ -48,7 +61,7 @@ export const UserInfo: React.FC<UserInfoProps> = ({title, subtitle, rows}) => {
                 style={[
                   styles.textSex,
                   {
-                    height: Platform.OS === 'ios' ? 150 : undefined,
+                    height: Platform.OS === 'ios' ? 40 : 40, 
                   },
                 ]}>
                 <Picker.Item
@@ -67,38 +80,61 @@ export const UserInfo: React.FC<UserInfoProps> = ({title, subtitle, rows}) => {
           ) : row.type === 'date' ? (
             <>
               <TouchableOpacity
-                style={styles.input}
-                onPress={() => row.editable && setShowPickerIndex(idx)}>
-                <Text style={styles.txtDate}>
-                  {row.value || row.placeholder || 'Chọn ngày'}
-                </Text>
-              </TouchableOpacity>
+                  style={[styles.input, { paddingLeft: 16 }]}
+                  onPress={() => row.editable && setShowPickerIndex(idx)}>
+                  <Text style={styles.txtDate}>
+                    {row.value || row.placeholder || 'Chọn ngày'}
+                  </Text>
+                </TouchableOpacity>
 
-              {showPickerIndex === idx && (
-                <DateTimePicker
-                  value={safeDate(row.value)}
-                  mode="date"
-                  display="default"
-                  maximumDate={new Date()}
-                  onChange={(event, selectedDate) => {
-                    setShowPickerIndex(null);
-                    if (selectedDate && row.onDateChange) {
-                      const iso = selectedDate.toISOString().split('')[0];
-                      row.onDateChange(iso);
-                    }
-                  }}
-                />
-              )}
+                {showPickerIndex === idx && (
+                  <DateTimePicker
+                    value={safeDate(row.value)}
+                    mode="date"
+                    display="default"
+                    maximumDate={new Date()}
+                    onChange={(event, selectedDate) => {
+                      setShowPickerIndex(null);
+                      if (selectedDate && row.onDateChange) {
+                      // format as dd/MM/yyyy
+                      const day   = String(selectedDate.getDate()).padStart(2, '0');
+                      const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+                      const year  = selectedDate.getFullYear();
+                      const formatted = `${day}/${month}/${year}`;
+                      row.onDateChange(formatted);
+                      }
+                    }}
+                  />
+                )}
             </>
           ) : (
-            <AutoGrowingInput
-              style={[styles.input, {minHeight: 40}]}
-              value={row.value}
-              onChangeText={row.onChangeText}
-              placeholder={row.placeholder ?? row.label}
-              placeholderTextColor="#979797"
-              editable={row.editable}
-            />
+            !row.editable ? (
+              <Text 
+                style={[
+                  styles.input, 
+                  styles.textContainer, 
+                  {
+                    borderBottomWidth: 0.5,
+                    paddingVertical: 8,
+                    fontSize: 16,
+                    fontWeight: '400',
+                  }
+                ]}
+                numberOfLines={1}
+                ellipsizeMode="tail" 
+              >
+                {row.value || row.placeholder}
+              </Text>
+            ) : (
+              <AutoGrowingInput
+                style={[styles.input, styles.textContainer]}
+                value={row.value}
+                onChangeText={row.onChangeText}
+                placeholder={row.placeholder ?? row.label}
+                placeholderTextColor="#979797"
+                editable={row.editable}
+              />
+            )
           )}
         </View>
       ))}
