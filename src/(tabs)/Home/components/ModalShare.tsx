@@ -122,7 +122,7 @@ const ModalShare: React.FC<ModalShareProps> = ({visible, onClose, friends}) => {
           )}
 
           {/* Gửi tin nhắn nếu có người được chọn */}
-          {selectedFriendIds.length > 0 ? (
+          {selectedFriendIds.length > 0 && (
             <>
               <TextInput
                 placeholder="Soạn tin nhắn..."
@@ -135,18 +135,6 @@ const ModalShare: React.FC<ModalShareProps> = ({visible, onClose, friends}) => {
                 <Text style={styles.sendButtonText}>Gửi</Text>
               </TouchableOpacity>
             </>
-          ) : (
-            <View style={styles.shareActions}>
-              <TouchableOpacity style={styles.actionItem}>
-                <MessageCircle size={20} color="white" />
-                <Text style={styles.actionLabel}>Thêm vào tin</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.actionItem}>
-                <Link size={20} color="white" />
-                <Text style={styles.actionLabel}>Sao chép liên kết</Text>
-              </TouchableOpacity>
-            </View>
           )}
         </Pressable>
       </Pressable>
