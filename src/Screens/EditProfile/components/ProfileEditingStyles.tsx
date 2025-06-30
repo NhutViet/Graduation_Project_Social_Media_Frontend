@@ -33,11 +33,12 @@ export const useProfileEditingStyles = () => {
           textAlign: 'left',
           color: palette.text,
         },
+        
         row: {
           flexDirection: 'row',
-          alignItems: 'center',
+          alignItems: 'center', 
           marginBottom: 16,
-          flex: 1,
+          minHeight: 44, 
         },
         label: {
           fontSize: 15,
@@ -45,17 +46,20 @@ export const useProfileEditingStyles = () => {
           color: palette.text,
           textAlign: 'left',
           marginRight: 15,
-          width: '30%',
+          width: 110, 
+          flexShrink: 0, 
         },
         input: {
-          flex: 3,
+          flex: 1,
           fontSize: 16,
           fontWeight: '400',
           borderBottomWidth: 2,
-          paddingVertical: 4,
+          paddingVertical: 8,
           borderBottomColor: palette.gray,
           color: palette.text,
+          minHeight: 40, 
           maxHeight: 100,
+          justifyContent: 'center',
         },
         screen: {
           flex: 1,
@@ -248,11 +252,33 @@ export const useProfileEditingStyles = () => {
         },
         txtDate: {
           color: palette.text,
+          fontSize: 16,
+          fontWeight: '400',
+        },
+        txtDatePlaceholder: {
+          color: '#979797',
+          fontSize: 16,
+          fontWeight: '400',
         },
         asterisk: {
           color: 'red',     
           fontSize: 15,     
           fontWeight: '400',
+        },
+        dropdownContainer: {
+          paddingVertical: 0, 
+          paddingHorizontal: 0,
+          height: 1,
+          marginTop: 4,
+        },
+        dateContainer: {
+          justifyContent: 'center',
+          paddingHorizontal: 16,
+          marginTop: 4,
+        },
+        textContainer: {
+          paddingHorizontal: 16,
+          marginTop: 4,
         },
       }),
     [palette],

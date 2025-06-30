@@ -26,7 +26,8 @@ export const UserInfo: React.FC<UserInfoProps> = ({title, subtitle, rows}) => {
   const [showPickerIndex, setShowPickerIndex] = useState<number | null>(null);
 
   const safeDate = (input?: string): Date => {
-    const parsed = new Date(input || '');
+    const [d, m, y] = (input || '').split('/');
+    const parsed = new Date(Number(y), Number(m) - 1, Number(d));
     return isNaN(parsed.getTime()) ? new Date() : parsed;
   };
 
@@ -50,7 +51,7 @@ export const UserInfo: React.FC<UserInfoProps> = ({title, subtitle, rows}) => {
           })()}
 
           {row.type === 'dropdown' ? (
-            <View style={styles.input}>
+            <View style={[styles.input, styles.dropdownContainer]}>
               <Picker
                 selectedValue={row.value}
                 enabled={!!row.editable}
@@ -58,7 +59,7 @@ export const UserInfo: React.FC<UserInfoProps> = ({title, subtitle, rows}) => {
                 style={[
                   styles.textSex,
                   {
-                    height: Platform.OS === 'ios' ? 150 : undefined,
+                    height: Platform.OS === 'ios' ? 40 : 40, 
                   },
                 ]}>
                 <Picker.Item
@@ -77,9 +78,9 @@ export const UserInfo: React.FC<UserInfoProps> = ({title, subtitle, rows}) => {
           ) : row.type === 'date' ? (
             <>
               <TouchableOpacity
-                style={styles.input}
+                style={[styles.input, styles.dateContainer]}
                 onPress={() => row.editable && setShowPickerIndex(idx)}>
-                <Text style={styles.txtDate}>
+                <Text style={row.value ? styles.txtDate : styles.txtDatePlaceholder}>
                   {row.value || row.placeholder || 'Chọn ngày'}
                 </Text>
               </TouchableOpacity>
@@ -92,23 +93,53 @@ export const UserInfo: React.FC<UserInfoProps> = ({title, subtitle, rows}) => {
                   maximumDate={new Date()}
                   onChange={(event, selectedDate) => {
                     setShowPickerIndex(null);
-                    if (selectedDate && row.onDateChange) {
-                      const iso = selectedDate.toISOString().split('')[0];
-                      row.onDateChange(iso);
+
+                    const dismissed = event.type === 'dismissed' || !selectedDate;
+                    if (dismissed) {
+                      // clear out the value
+                      row.onDateChange?.('');
+                      return;
                     }
+
+                    const day = selectedDate.getDate();
+                    const month = selectedDate.getMonth() + 1;
+                    const year = selectedDate.getFullYear();
+                    const dd = String(day).padStart(2, '0');
+                    const mm = String(month).padStart(2, '0');
+                    const formatted = `${dd}/${mm}/${year}`;
+                    row.onDateChange?.(formatted);
                   }}
                 />
               )}
             </>
           ) : (
-            <AutoGrowingInput
-              style={[styles.input, {minHeight: 40}]}
-              value={row.value}
-              onChangeText={row.onChangeText}
-              placeholder={row.placeholder ?? row.label}
-              placeholderTextColor="#979797"
-              editable={row.editable}
-            />
+            !row.editable ? (
+              <Text 
+                style={[
+                  styles.input, 
+                  styles.textContainer, 
+                  {
+                    borderBottomWidth: 2,
+                    paddingVertical: 8,
+                    fontSize: 16,
+                    fontWeight: '400',
+                  }
+                ]}
+                numberOfLines={1}
+                ellipsizeMode="tail" 
+              >
+                {row.value || row.placeholder}
+              </Text>
+            ) : (
+              <AutoGrowingInput
+                style={[styles.input, styles.textContainer]}
+                value={row.value}
+                onChangeText={row.onChangeText}
+                placeholder={row.placeholder ?? row.label}
+                placeholderTextColor="#979797"
+                editable={row.editable}
+              />
+            )
           )}
         </View>
       ))}

@@ -16,7 +16,7 @@ import {useNavigation} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../services/store';
 import {fetchEditUser} from '../../../services/userRedux/userSlice';
-import {ChevronLeft, SquarePen, Check} from 'lucide-react-native';
+import {ChevronLeft} from 'lucide-react-native';
 import {SEX, VN_PROVINCES} from './DataAddress/VN_PROVINCES';
 import {uploadImageToR2} from '../../core/upload';
 import {useUploadProgress} from '../../../services/UploadProgressManager';
@@ -146,11 +146,6 @@ export const EditProfile = () => {
           <Text style={[styles.headerText, {color: '#3897F0'}]}>
             {edit ? 'Hoàn tất' : 'Sửa'}
           </Text>
-          {edit ? (
-            <Check size={20} color={'#3897F0'} />
-          ) : (
-            <SquarePen size={20} color={'#3897F0'} />
-          )}
         </TouchableOpacity>
       </View>
       <ScrollView>
@@ -197,13 +192,6 @@ export const EditProfile = () => {
                   editable: edit,
                   type: 'date',
                 },
-              ]}
-            />
-
-            <UserInfo
-              title="Chuyển sang Professional Account"
-              subtitle="Thông tin cá nhân"
-              rows={[
                 {
                   label: 'Email *',
                   value: email,
