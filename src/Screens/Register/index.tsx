@@ -100,7 +100,7 @@ export const Register = ({navigation}: any) => {
             }}
             placeholder="Email"
             placeholderTextColor={Colors.light.lightDark}
-            style={SwitchStyles.input}
+            style={[SwitchStyles.input, {marginBottom: 5}]}
           />
           {!(errorEmail === '') && (
             <Text style={styles.errorText}>{errorEmail}</Text>
@@ -113,6 +113,7 @@ export const Register = ({navigation}: any) => {
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 alignItems: 'center',
+                marginBottom: 5
               },
             ]}>
             <TextInput
@@ -131,9 +132,9 @@ export const Register = ({navigation}: any) => {
                 isPassWord ? setIsPassWord(false) : setIsPassWord(true)
               }>
               {isPassWord ? (
-                <EyeOff size={24} color={'#000'} />
+                <EyeOff strokeWidth={1.5} size={20} color={'#000'} />
               ) : (
-                <Eye size={24} color={'#000'} />
+                <Eye strokeWidth={1.5} size={20} color={'#000'} />
               )}
             </TouchableOpacity>
           </View>
@@ -149,6 +150,7 @@ export const Register = ({navigation}: any) => {
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 alignItems: 'center',
+                marginBottom: 5
               },
             ]}>
             <TextInput
@@ -167,9 +169,9 @@ export const Register = ({navigation}: any) => {
                 isRePassWord ? setIsRePassWord(false) : setIsRePassWord(true)
               }>
               {isRePassWord ? (
-                <EyeOff size={24} color={'#000'} />
+                <EyeOff strokeWidth={1.5} size={20} color={'#000'} />
               ) : (
-                <Eye size={24} color={'#000'} />
+                <Eye strokeWidth={1.5} size={20} color={'#000'} />
               )}
             </TouchableOpacity>
           </View>
