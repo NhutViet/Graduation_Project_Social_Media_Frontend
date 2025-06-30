@@ -117,6 +117,7 @@ const ItemHome = (props: ItemHomeProps) => {
       <BottomSheetOptionsModal
         sheetRef={modal.sheetRef}
         isBookmarked={state.isBookmark}
+        onBookmarkPress={actions.handleBookmarkAction}
         isFollowing={state.follow}
         topOptions={modal.topOptions}
         firstListOptions={modal.firstListOptions}
