@@ -61,14 +61,13 @@ const ModalShare: React.FC<ModalShareProps> = ({visible, onClose, friends}) => {
             <Search size={20} color="#aaa" />
             <TextInput
               placeholder="Tìm kiếm"
-              style={[styles.searchInput, {backgroundColor: color.backgroundSecondary}]}
-              placeholderTextColor= {color.textSecondary}
+              style={[styles.searchInput, {color: color.text}]}
+              placeholderTextColor= {color.text}
             />
             <UserPlus size={20} color="#aaa" />
           </View>
 
           {friends.length > 0 ? (
-            // Danh sách bạn bè
           <FlashList
             data={friends}
             numColumns={3}
@@ -94,7 +93,14 @@ const ModalShare: React.FC<ModalShareProps> = ({visible, onClose, friends}) => {
                       />
                       {isSelected && (
                         <View style={styles.checkmark}>
-                          <CheckCircle2 size={20} color="#4A90E2" />
+                          <Image
+                            style={{
+                              width: 20,
+                              height: 20,
+                              tintColor: color.primary
+                            }}
+                            source={require('@assets/icon/success.png')}
+                          />
                         </View>
                       )}
                     </View>
@@ -194,7 +200,6 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     marginLeft: 10,
-    color: '#fff',
   },
   friendListContainer: {
     paddingBottom: 16,
@@ -217,7 +222,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 4,
     right: 4,
-    backgroundColor: '#000',
+    backgroundColor: 'white',
     borderRadius: 10,
   },
   friendName: {
