@@ -2,26 +2,25 @@ import { ConfigOption } from "../../components/BottomSheetOptions";
 import { IntentionOptionConfig } from "../../components/BottomSheetIntentions";
 
 // Centralized icon imports
-const icons = {
+export const icons = {
   bookmark: require("../../assets/icon/bookmark.png"),
   remix: require("../../assets/icon/remix.png"),
   star: require("../../assets/icon/star.png"),
+  follow: require('../../assets/icon/follow.png'),
   unfollow: require("../../assets/icon/unfollow.png"),
   account: require("../../assets/icon/account.png"),
   info: require("../../assets/icon/info.png"),
   blind: require("../../assets/icon/blind.png"),
-  report: require("../../assets/icon/report.png"),
+  report: require("../../assets/icon/problem.png"),
 };
 
 // Top row of options
 export const postTopOptions: Omit<ConfigOption, 'onPress'>[] = [
   { id: 'bookmark', icon: icons.bookmark, label: 'Lưu' },
-  { id: 'remix',    icon: icons.remix,    label: 'Remix' },
 ];
 
 // First vertical group
 export const postFirstList: Omit<ConfigOption, 'onPress'>[] = [
-  { id: 'favorite', icon: icons.star,    label: 'Thêm vào mục yêu thích' },
   { id: 'unfollow', icon: icons.unfollow,label: 'Bỏ theo dõi' },
 ];
 

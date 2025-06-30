@@ -52,8 +52,6 @@ const BottomSheetOptions: React.FC<BottomSheetOptionsProps> = ({
                   {isBookmarked && opt.id ? 'Đã lưu' :opt.label}
                 </Text>
               </TouchableOpacity>
-              {/* only render an invisible spacer if this ain't the last item */}
-              {idx < topOptions.length - 1 && <View style={{ width: spacing.s }} />}
             </React.Fragment>
           ))}
         </View>
