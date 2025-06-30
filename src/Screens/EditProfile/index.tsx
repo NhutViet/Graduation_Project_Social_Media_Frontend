@@ -7,7 +7,6 @@ import {
   Modal,
   SafeAreaView,
   ScrollView,
-  Alert,
 } from 'react-native';
 import {useProfileEditingStyles} from './components/ProfileEditingStyles';
 import {UserInfo} from './components/UserInfo';
@@ -124,6 +123,7 @@ export const EditProfile = () => {
         gender,
         address,
         dateOfBirth,
+        handleName,
         profilePic,
       }),
     );
@@ -179,7 +179,8 @@ export const EditProfile = () => {
                 {
                   label: 'Tên tài khoản *',
                   value: handleName,
-                  editable: false,
+                  onChangeText: setHandleName,
+                  editable: edit,
                   type: 'text',
                 },
                 {

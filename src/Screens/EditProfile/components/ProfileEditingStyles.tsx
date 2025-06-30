@@ -249,6 +249,11 @@ export const useProfileEditingStyles = () => {
         txtDate: {
           color: palette.text,
         },
+        asterisk: {
+          color: 'red',     
+          fontSize: 15,     
+          fontWeight: '400',
+        },
       }),
     [palette],
   );

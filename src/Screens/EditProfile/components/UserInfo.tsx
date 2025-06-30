@@ -37,7 +37,17 @@ export const UserInfo: React.FC<UserInfoProps> = ({title, subtitle, rows}) => {
 
       {rows.map((row, idx) => (
         <View key={idx} style={styles.row}>
-          <Text style={styles.label}>{row.label}</Text>
+          {(() => {
+            const baseText = row.label.replace(/\*/g, '');
+            const hasStar = row.label.includes('*');
+
+            return (
+              <Text style={styles.label}>
+                {baseText}
+                {hasStar && <Text style={styles.asterisk}>*</Text>}
+              </Text>
+            );
+          })()}
 
           {row.type === 'dropdown' ? (
             <View style={styles.input}>
