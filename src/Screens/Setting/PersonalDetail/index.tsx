@@ -1,7 +1,6 @@
 import React from 'react';
-import {View, Text, TouchableOpacity, StyleSheet, Modal} from 'react-native';
+import {View, Text, TouchableOpacity, StyleSheet, Modal, Image} from 'react-native';
 import {useTheme} from '@react-navigation/native';
-import {X, ChevronRight} from 'lucide-react-native';
 import {useSelector} from 'react-redux';
 import {RootState} from '../../../../services/store';
 
@@ -23,10 +22,12 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
     header: {
       flexDirection: 'row',
       alignItems: 'center',
-      padding: 16,
+      paddingTop: 16,
+      paddingStart: 16,
     },
     closeButton: {
-      paddingLeft: 8,
+      width: 18,
+      height: 18,
     },
     title: {
       marginBottom: 24,
@@ -74,8 +75,12 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
       onRequestClose={onClose}>
       <View style={styles.modalContainer}>
         <View style={styles.header}>
-          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <X size={24} color={colors.text} />
+          <TouchableOpacity onPress={onClose}>
+            <Image
+              source={require('@assets/icon/x.png')}
+              resizeMode="cover"
+              style={styles.closeButton}
+            />
           </TouchableOpacity>
         </View>
 
@@ -88,46 +93,39 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
           </Text>
 
           <View style={styles.section}>
-            <TouchableOpacity style={styles.menuItem}>
+            <View style={styles.menuItem}>
               <Text style={styles.menuText}>Tên tài khoản</Text>
               <Text style={styles.menuValue}>{user?.username}</Text>
-              <ChevronRight size={16} color={colors.text} />
-            </TouchableOpacity>
+            </View>
 
-            <TouchableOpacity style={styles.menuItem}>
+            <View style={styles.menuItem}>
               <Text style={styles.menuText}>Thông tin liên hệ</Text>
               <Text style={styles.menuValue}>{user?.email}</Text>
-              <ChevronRight size={16} color={colors.text} />
-            </TouchableOpacity>
+            </View>
 
-            <TouchableOpacity style={styles.menuItem}>
+            <View style={styles.menuItem}>
               <Text style={styles.menuText}>Số điện thoại</Text>
               <Text style={styles.menuValue}>{user?.phoneNumber}</Text>
-              <ChevronRight size={16} color={colors.text} />
-            </TouchableOpacity>
+            </View>
 
-            <TouchableOpacity style={styles.menuItem}>
+            <View style={styles.menuItem}>
               <Text style={styles.menuText}>Giới tính</Text>
               <Text style={styles.menuValue}>{user?.gender}</Text>
-              <ChevronRight size={16} color={colors.text} />
-            </TouchableOpacity>
+            </View>
 
-            <TouchableOpacity style={styles.menuItem}>
+            <View style={styles.menuItem}>
               <Text style={styles.menuText}>Ngày sinh</Text>
               <Text style={styles.menuValue}>{user?.dateOfBirth}</Text>
-              <ChevronRight size={16} color={colors.text} />
-            </TouchableOpacity>
+            </View>
 
-            <TouchableOpacity style={styles.menuItem}>
+            <View style={styles.menuItem}>
               <Text style={styles.menuText}>Địa chỉ</Text>
               <Text style={styles.menuValue}>{user?.address}</Text>
-              <ChevronRight size={16} color={colors.text} />
-            </TouchableOpacity>
+            </View>
 
-            <TouchableOpacity style={styles.menuItem}>
+            <View style={styles.menuItem}>
               <Text style={styles.menuText}>Xác nhận danh tính</Text>
-              <ChevronRight size={16} color={colors.text} />
-            </TouchableOpacity>
+            </View>
           </View>
         </View>
       </View>
