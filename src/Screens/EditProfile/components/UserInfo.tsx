@@ -119,7 +119,7 @@ export const UserInfo: React.FC<UserInfoProps> = ({title, subtitle, rows}) => {
                   styles.input, 
                   styles.textContainer, 
                   {
-                    borderBottomWidth: 2,
+                    borderBottomWidth: 0.5,
                     paddingVertical: 8,
                     fontSize: 16,
                     fontWeight: '400',

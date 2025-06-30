@@ -53,7 +53,7 @@ export const useProfileEditingStyles = () => {
           flex: 1,
           fontSize: 16,
           fontWeight: '400',
-          borderBottomWidth: 2,
+          borderBottomWidth: 0.5,
           paddingVertical: 8,
           borderBottomColor: palette.gray,
           color: palette.text,
@@ -279,6 +279,7 @@ export const useProfileEditingStyles = () => {
         textContainer: {
           paddingHorizontal: 16,
           marginTop: 4,
+          borderBottomWidth: 0.5,
         },
       }),
     [palette],
