@@ -1,3 +1,6 @@
+
+import {View} from 'react-native';
+import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 import {Dimensions, View} from 'react-native';
 import React, { useState} from 'react';
 import Header from '../../../../components/Header';
@@ -7,8 +10,8 @@ import FollowingTab from './FollowingTab';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {Colors} from '../../../../assets/color/Colors';
 import {useTheme} from '../../../util/ThemeContext';
-import { useSelector} from 'react-redux';
-import {RootState} from '../../../../services/store';
+import {useSelector} from 'react-redux';
+import { RootState } from '../../../../services/store';
 import {SceneMap, TabBar, TabView} from 'react-native-tab-view';
 
 const initialLayout = {width: Dimensions.get('window').width};
@@ -19,19 +22,7 @@ const FollowersScreen = () => {
   const color = Colors[theme];
   const route = useRoute();
   const user = useSelector((state: RootState) => state.user.user);
-  const routeParams = route.params as {screen?: string};
-  const indexFromParams = routeParams?.screen === 'FollowingTab' ? 1 : 0;
-
-  const [index, setIndex] = useState(indexFromParams);
-  const [routes] = useState([
-    {key: 'followers', title: 'Người theo dõi'},
-    {key: 'following', title: 'Đang theo dõi'},
-  ]);
-
-  const renderScene = SceneMap({
-    followers: FollowersTab,
-    following: FollowingTab,
-  });
+  const initialRouteName = (route.params as {screen?: string})?.screen || 'FollowersTab';
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
@@ -43,26 +34,40 @@ const FollowersScreen = () => {
           navigation={navigation}
         />
       </View>
-      <TabView
-        navigationState={{index, routes}}
-        renderScene={renderScene}
-        renderTabBar={tabBarProps => (
-          <TabBar
-            {...tabBarProps}
-            indicatorStyle={{backgroundColor: color.primary}}
-            activeColor={color.primary}
-            inactiveColor={color.text}
-            style={{
+      <View style={{width: '100%', height: '100%', backgroundColor: color.text}}>
+        <TopTab.Navigator
+          initialRouteName={initialRouteName}
+          backBehavior="none"
+          screenOptions={{
+            tabBarLabelStyle: {
+              textTransform: 'capitalize',
+              textShadowColor: '#000000',
+              color: '#000000',
+              backgroundColor: '#000000',
+              textDecorationColor: '#000000',
+            },
+            tabBarStyle: {
               backgroundColor: color.background,
-              shadowColor: 'transparent',
-              borderBottomWidth: 0.5,
-              borderBottomColor: color.gray,
-            }}
+            },
+            tabBarIndicatorStyle: {
+              backgroundColor: color.text,
+              height: 3,
+            },
+            tabBarActiveTintColor: '#000000',
+            tabBarInactiveTintColor: '#000000',
+          }}>
+          <TopTab.Screen
+            name="FollowersTab"
+            component={FollowersTab}
+            options={{title: 'Người theo dõi'}}
           />
-        )}
-        onIndexChange={setIndex}
-        initialLayout={initialLayout}
-      />
+          <TopTab.Screen
+            name="FollowingTab"
+            component={FollowingTab}
+            options={{title: 'Đang theo dõi' }}
+          />
+        </TopTab.Navigator>
+      </View>
     </SafeAreaView>
   );
 };

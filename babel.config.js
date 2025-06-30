@@ -8,7 +8,7 @@ module.exports = {
         root: ['./'],
         alias: {
           '@services': './services',
-          '@icon': './assets/icons',
+          '@assets': './assets',
         },
       },
     ],
