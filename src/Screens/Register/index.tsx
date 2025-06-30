@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   View,
   StyleSheet,
-  Alert,
   Modal,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
@@ -84,7 +83,7 @@ export const Register = ({navigation}: any) => {
         style={styles.linear}
       />
       <TouchableOpacity onPress={() => navigation.goBack()}>
-        <ChevronLeft size={35} color={'#000'} />
+        <Image style={styles.icon} source={require('@assets/icon/left.png')} />
       </TouchableOpacity>
       <View style={styles.container}>
         <Image
@@ -113,7 +112,7 @@ export const Register = ({navigation}: any) => {
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                marginBottom: 5
+                marginBottom: 5,
               },
             ]}>
             <TextInput
@@ -150,7 +149,7 @@ export const Register = ({navigation}: any) => {
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                marginBottom: 5
+                marginBottom: 5,
               },
             ]}>
             <TextInput

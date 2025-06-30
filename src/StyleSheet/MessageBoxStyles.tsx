@@ -38,6 +38,7 @@ const MessageBoxStyles = (theme: ThemeType) => {
       fontSize: Colors.typography.fontSizes.l,
       fontWeight: Colors.typography.fontWeights.semiBold as FontWeight,
       color: color.text,
+      marginLeft: 6,
     },
     searchContainer: {
       width: '100%',

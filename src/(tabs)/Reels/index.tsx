@@ -30,18 +30,15 @@ import {fetchCommentsByPost} from '../../../services/commentRedux/commentSlice';
 import BottomSheetComment, {
   BottomSheetCommentRef,
 } from '../Home/components/CommentSection';
-import { useFocusEffect } from '@react-navigation/native';
-import { Modalize } from 'react-native-modalize';
+import {useFocusEffect} from '@react-navigation/native';
+import {Modalize} from 'react-native-modalize';
 import ModalReaction from '../Home/components/ModalReaction';
-import { IHandles } from 'react-native-modalize/lib/options';
 
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
 
 const Reels = forwardRef((props, ref) => {
   const isFocused = useIsFocused();
-  const {theme, toggleTheme} = useTheme();
-  const color = Colors[theme];
 
   const sheetRef: any = useRef<BottomSheetReelsRef>(null);
   const sheetRefComment: any = useRef<BottomSheetCommentRef>(null);
@@ -50,7 +47,6 @@ const Reels = forwardRef((props, ref) => {
   const [isCurrentBookmarked, setIsCurrentBookmarked] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any | null>(null);
 
-  //lấy danh sách lượt like
   const modalReactionRef = useRef<Modalize>(null);
   const [reactionPostId, setReactionPostId] = useState<string>('');
   const [reactionIsLiked, setReactionIsLiked] = useState<boolean>(false);
@@ -97,9 +93,9 @@ const Reels = forwardRef((props, ref) => {
           flex: 1,
           justifyContent: 'center',
           alignItems: 'center',
-          backgroundColor: color.background,
+          backgroundColor: Colors.black,
         }}>
-        <ActivityIndicator size="large" color={color.text} />
+        <ActivityIndicator size="large" color={Colors.white} />
       </SafeAreaView>
     );
   }
@@ -145,7 +141,9 @@ const Reels = forwardRef((props, ref) => {
                 dispatch(fetchCommentsByPost(item._id));
                 sheetRefComment.current?.open();
               }}
-              openReactionModal={() => openReactionModal(item._id, item.isLiked)}
+              openReactionModal={() =>
+                openReactionModal(item._id, item.isLiked)
+              }
             />
           );
         }}
@@ -157,9 +155,17 @@ const Reels = forwardRef((props, ref) => {
         }}
         estimatedItemSize={height}
       />
-      <BottomSheetReels ref={sheetRef} isBookmarked={isCurrentBookmarked} selectedItem={selectedItem}/>
+      <BottomSheetReels
+        ref={sheetRef}
+        isBookmarked={isCurrentBookmarked}
+        selectedItem={selectedItem}
+      />
       <BottomSheetComment ref={sheetRefComment} postId={selectedPostId} />
-      <ModalReaction ref={modalReactionRef} postId={reactionPostId} isLiked={reactionIsLiked}/>
+      <ModalReaction
+        ref={modalReactionRef}
+        postId={reactionPostId}
+        isLiked={reactionIsLiked}
+      />
     </SafeAreaView>
   );
 });
@@ -167,6 +173,7 @@ const Reels = forwardRef((props, ref) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.black,
   },
   header: {
     position: 'absolute',
@@ -177,7 +184,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: Colors.dark.transparent,
+    backgroundColor: Colors.transparent,
   },
   rowContainer: {
     flexDirection: 'row',
@@ -186,7 +193,7 @@ const styles = StyleSheet.create({
   textHeader: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: Colors.dark.text,
+    color: Colors.white,
     marginRight: 8,
   },
   iconDownContainer: {
@@ -201,7 +208,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     resizeMode: 'contain',
-    tintColor: Colors.dark.text,
+    tintColor: Colors.white,
   },
 });
 
