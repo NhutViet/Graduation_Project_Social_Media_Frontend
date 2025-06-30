@@ -153,7 +153,7 @@ export const Setting = () => {
               </View>
               <View style={styles.settingContent}>
                 <Text style={[styles.settingTitle, {color: mColor.text}]}>
-                  Thông tin liên hệ
+                  Thông tin liên lạc
                 </Text>
               </View>
               <ChevronRight size={20} stroke={mColor.textSecondary} />

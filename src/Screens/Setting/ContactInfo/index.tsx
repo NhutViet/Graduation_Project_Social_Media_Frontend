@@ -6,11 +6,13 @@ import {
   StyleSheet,
   Modal,
   Dimensions,
+  Image,
 } from 'react-native';
-import {useTheme} from '@react-navigation/native';
 import {X, ChevronRight, Mail, Phone} from 'lucide-react-native';
 import {useSelector} from 'react-redux';
 import {RootState} from '../../../../services/store';
+import { Colors } from '@assets/color/Colors';
+import { useTheme } from '../../../../src/util/ThemeContext';
 
 interface ContactInformationProps {
   isVisible: boolean;
@@ -21,7 +23,8 @@ const ContactInformation: React.FC<ContactInformationProps> = ({
   isVisible,
   onClose,
 }) => {
-  const {colors} = useTheme();
+  const {theme} = useTheme();
+  const colors = Colors[theme];
   const styles = StyleSheet.create({
     modalContainer: {
       flex: 1,
@@ -30,7 +33,8 @@ const ContactInformation: React.FC<ContactInformationProps> = ({
     header: {
       flexDirection: 'row',
       alignItems: 'center',
-      padding: 16,
+      paddingTop: 16,
+      paddingLeft: 16,
     },
     title: {
       fontSize: 24,
@@ -82,7 +86,15 @@ const ContactInformation: React.FC<ContactInformationProps> = ({
       <View style={styles.modalContainer}>
         <View style={styles.header}>
           <TouchableOpacity onPress={onClose}>
-            <X size={24} color={colors.text} />
+            <Image
+              source={require('@assets/icon/x.png')}
+              resizeMode="cover"
+              style={{
+                tintColor: colors.text,
+                width: 18,
+                height: 18
+              }}
+            />
           </TouchableOpacity>
         </View>
 
@@ -94,31 +106,21 @@ const ContactInformation: React.FC<ContactInformationProps> = ({
           </Text>
 
           <View style={styles.section}>
-            <TouchableOpacity style={styles.menuItem}>
+            <View style={styles.menuItem}>
               <Mail size={24} color={colors.text} style={styles.menuIcon} />
               <View style={{flex: 0}}>
                 <Text style={styles.menuText}>{user?.email}</Text>
                 <Text style={styles.pendingText}>Đang chờ xác nhận</Text>
               </View>
-              <ChevronRight
-                size={20}
-                color={colors.text}
-                style={{marginRight: 10}}
-              />
-            </TouchableOpacity>
+            </View>
 
-            <TouchableOpacity style={styles.menuItem}>
+            <View style={styles.menuItem}>
               <Phone size={24} color={colors.text} style={styles.menuIcon} />
               <Text style={styles.menuText}>{user?.phoneNumber}</Text>
-              <ChevronRight
-                size={20}
-                color={colors.text}
-                style={{marginRight: 10}}
-              />
-            </TouchableOpacity>
-          </View>
 
-          <TouchableOpacity
+            </View>
+          </View>
+          {/* <TouchableOpacity
             style={[
               styles.menuItem,
               {
@@ -131,7 +133,7 @@ const ContactInformation: React.FC<ContactInformationProps> = ({
               style={[styles.menuText, {color: '#fff', textAlign: 'center'}]}>
               Thêm liên hệ mới
             </Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </View>
     </Modal>
