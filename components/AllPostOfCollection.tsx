@@ -15,9 +15,6 @@ import BottomSheetComment, {
 import ItemHome from '../src/(tabs)/Home/components/ItemHome';
 import {useTheme} from '../src/util/ThemeContext';
 import {Colors} from '../assets/color/Colors';
-import {fetchCommentsByPost} from '../services/commentRedux/commentSlice';
-import {useDispatch} from 'react-redux';
-import {AppDispatch} from '../services/store';
 
 interface RouteParams {
   posts: any[]; // danh sách post được truyền vào
@@ -25,13 +22,11 @@ interface RouteParams {
   playlistName: string;
 }
 
-
 const AllPostOfCollection = () => {
   const route = useRoute();
   const navigation = useNavigation();
   const {theme} = useTheme();
   const colors = Colors[theme];
-  const dispatch = useDispatch<AppDispatch>();
   const isFocused = useIsFocused();
 
   const {posts, targetPostId, playlistName} = route.params as RouteParams;
@@ -49,15 +44,6 @@ const AllPostOfCollection = () => {
     if (id) setCurrentVisible(id);
   }, []);
 
-  const handleOpenComment = useCallback(
-    (postId: string) => {
-      setSelectedPostId(postId);
-      dispatch(fetchCommentsByPost(postId));
-      sheetRef.current?.open();
-    },
-    [dispatch],
-  );
-
   return (
     <SafeAreaView style={{flex: 1}}>
       <View style={[styles.header, {backgroundColor: colors.background}]}>
@@ -67,9 +53,7 @@ const AllPostOfCollection = () => {
             style={[styles.iconBack, {tintColor: colors.text}]}
           />
         </TouchableOpacity>
-        <Text style={[styles.title, {color: colors.text}]}>
-          {playlistName}
-        </Text>
+        <Text style={[styles.title, {color: colors.text}]}>{playlistName}</Text>
         <View style={styles.iconBack} />
       </View>
 
@@ -85,10 +69,23 @@ const AllPostOfCollection = () => {
             const shouldPlay = item._id === currentVisible;
             return (
               <ItemHome
-                {...item}
-                isFocused={isFocused}
+                _id={item._id}
+                type={item.type}
+                caption={item.caption}
+                createdAt={item.createdAt}
+                media={item.media}
+                user={item.user}
+                isLike={item.isLike}
+                isBookmarked={item.isBookmarked}
+                commentCount={item.commentCount}
+                likeCount={item.likeCount}
+                share={item.share}
+                music={item.music}
                 currentVisible={shouldPlay}
-                openComment={handleOpenComment}
+                isFocused={isFocused}
+                sheetRef={sheetRef}
+                isFollow={item.isFollow}
+                setSelectedPostId={setSelectedPostId}
               />
             );
           }}
