@@ -28,6 +28,7 @@ export interface EditUserDto {
   gender?: string;
   address?: string;
   dateOfBirth?: string;
+  handleName?: string;
   profilePic?: string;
 }
 
