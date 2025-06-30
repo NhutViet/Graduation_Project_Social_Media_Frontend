@@ -23,30 +23,6 @@ import {
 import {createRoom} from '../../../../services/roomRedux/roomSlice';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 
-const categoriesData = [
-  {
-    id: '1',
-    title: 'Ít tương tác',
-    description: 'abc',
-    multiImage:
-      'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-  },
-  {
-    id: '2',
-    title: 'Hiển thị nhiều trên feed',
-    description: 'abc',
-    multiImage:
-      'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-  },
-  {
-    id: '3',
-    title: 'Các nhà sáng tạo và doanh nhân',
-    description: 'abc',
-    multiImage:
-      'https://i.pinimg.com/736x/8c/71/92/8c7192c084765c076ef33024c0b34406.jpg',
-  },
-];
-
 const FollowingTab = () => {
   const navigation: any = useNavigation();
   const {theme} = useTheme();
@@ -215,18 +191,6 @@ const FollowingTab = () => {
 
   return (
     <ScrollView style={[styles.container, {backgroundColor: color.background}]}>
-      <FlashList
-        data={categoriesData}
-        keyExtractor={item => item.id}
-        renderItem={renderCategoryItem}
-        showsVerticalScrollIndicator={false}
-        estimatedItemSize={10}
-        ListHeaderComponent={
-          <Text style={[styles.sectionHeader, {color: color.text}]}>
-            Danh mục
-          </Text>
-        }
-      />
       {!isLoading && following.length === 0 ? (
         <View
           style={{
@@ -267,27 +231,6 @@ const FollowingTab = () => {
           renderItem={renderSortItem}
           showsVerticalScrollIndicator={false}
           estimatedItemSize={10}
-          ListHeaderComponent={
-            <TouchableOpacity
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginTop: 10,
-              }}>
-              <Text style={{color: color.text, fontSize: 18}}>
-                Sắp xếp theo{' '}
-                <Text
-                  style={{color: color.text, fontSize: 18, fontWeight: 'bold'}}>
-                  Mặc định
-                </Text>
-              </Text>
-              <Image
-                source={require('../../../../assets/icon/icon_sort.png')}
-                style={[styles.sortIcon, {tintColor: color.text}]}
-              />
-            </TouchableOpacity>
-          }
         />
       )}
       <FlashList

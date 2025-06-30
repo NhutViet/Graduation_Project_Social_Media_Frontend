@@ -1,6 +1,6 @@
-import {StyleSheet, Text, View} from 'react-native';
+import {View} from 'react-native';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
-import React, {useEffect} from 'react';
+import React from 'react';
 import Header from '../../../../components/Header';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import FollowersTab from './FollowersTab';
@@ -8,7 +8,7 @@ import FollowingTab from './FollowingTab';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {Colors} from '../../../../assets/color/Colors';
 import {useTheme} from '../../../util/ThemeContext';
-import {useDispatch, useSelector} from 'react-redux';
+import {useSelector} from 'react-redux';
 import { RootState } from '../../../../services/store';
 
 const TopTab = createMaterialTopTabNavigator();
@@ -20,7 +20,7 @@ const FollowersScreen = () => {
   const route = useRoute();
   const user = useSelector((state: RootState) => state.user.user);
   const initialRouteName = (route.params as {screen?: string})?.screen || 'FollowersTab';
-  
+
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
       <View style={{width: '100%', height: 60}}>
@@ -34,7 +34,7 @@ const FollowersScreen = () => {
       <View style={{width: '100%', height: '100%'}}>
         <TopTab.Navigator
           initialRouteName={initialRouteName}
-          backBehavior='none'
+          backBehavior="none"
           screenOptions={{
             tabBarLabelStyle: {
               fontSize: 18,
@@ -42,7 +42,7 @@ const FollowersScreen = () => {
               textAlign: 'center',
               textTransform: 'capitalize',
               padding: 4,
-              color: '#000000'
+              color: '#000000',
             },
             tabBarStyle: {
               backgroundColor: color.background,
@@ -62,7 +62,7 @@ const FollowersScreen = () => {
           <TopTab.Screen
             name="FollowingTab"
             component={FollowingTab}
-            options={{title: 'Đang theo dõi', }}
+            options={{title: 'Đang theo dõi' }}
           />
         </TopTab.Navigator>
       </View>
