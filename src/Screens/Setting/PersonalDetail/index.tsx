@@ -1,8 +1,9 @@
 import React from 'react';
 import {View, Text, TouchableOpacity, StyleSheet, Modal, Image} from 'react-native';
-import {useTheme} from '@react-navigation/native';
 import {useSelector} from 'react-redux';
-import {RootState} from '../../../../services/store';
+import {RootState} from '@services/store';
+import {Colors} from '@assets/color/Colors';
+import { useTheme } from '../../../../src/util/ThemeContext';
 
 interface PersonalDetailsProps {
   isVisible: boolean;
@@ -13,7 +14,8 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
   isVisible,
   onClose,
 }) => {
-  const {colors} = useTheme();
+  const {theme} = useTheme();
+  const colors = Colors[theme];
   const styles = StyleSheet.create({
     modalContainer: {
       flex: 1,
@@ -28,6 +30,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
     closeButton: {
       width: 18,
       height: 18,
+      tintColor: colors.text,
     },
     title: {
       marginBottom: 24,
