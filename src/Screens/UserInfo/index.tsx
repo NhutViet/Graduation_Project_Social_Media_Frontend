@@ -44,7 +44,6 @@ export const UserInfo = () => {
   const dispatch = useDispatch<AppDispatch>();
   const animatedLeftValue = React.useRef(new Animated.Value(0)).current;
   const [visibleThemeModal, setVisibleThemeModal] = useState(false);
-  const [visibleRenameModal, setVisibleRenameModal] = useState(false);
   const rooms = useSelector((state: RootState) => state.rooms.rooms);
   const room = useMemo(
     () => rooms.find(r => r._id === roomId),
@@ -201,10 +200,6 @@ export const UserInfo = () => {
             icon: require('../../../assets/icon/users.png'),
             label: 'Tạo nhóm trò chuyện',
           },
-          {
-            icon: require('../../../assets/icon/edit.png'),
-            label: 'Đổi tên đoạn hội thoại',
-          },
         ].map((item, i) => (
           <TouchableOpacity
             style={styles.row}
@@ -215,8 +210,6 @@ export const UserInfo = () => {
               } else if (i == 1) {
               } else if (i == 2) {
                 navigation.navigate('CreateGroupScreen');
-              } else if (i == 3) {
-                setVisibleRenameModal(true);
               }
             }}>
             <View style={styles.infoRowContainer}>
@@ -379,23 +372,6 @@ export const UserInfo = () => {
           />
         </Modalize>
       </Portal>
-      <ModalRenameRoom
-        visible={visibleRenameModal}
-        onClose={() => setVisibleRenameModal(false)}
-        currentName={room?.name || ''}
-        theme={theme}
-        onSubmit={(newName: string) => {
-          dispatch(updateRoomName({roomId: roomId, name: newName}))
-            .unwrap()
-            .then(() => {
-              GlobalAlertManager.show('Thành công', 'Đã đổi tên nhóm');
-              setVisibleRenameModal(false);
-            })
-            .catch(() => {
-              GlobalAlertManager.show('Lỗi', 'Không thể đổi tên nhóm');
-            });
-        }}
-      />
     </SafeAreaView>
   );
 };

@@ -1,10 +1,11 @@
 import React, {useState} from 'react';
-import {View, Text, TouchableOpacity, Platform, TextInput} from 'react-native';
+import {View, Text, TouchableOpacity, Platform} from 'react-native';
 import {AutoGrowingInput} from '../../../../components/AutoGrowTexts';
 import {useProfileEditingStyles} from './ProfileEditingStyles';
 import {Picker} from '@react-native-picker/picker';
-import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import {useTheme} from '../../../../src/util/ThemeContext';
+import {Colors} from '@assets/color/Colors';
 
 type Row = {
   label: string;
@@ -32,6 +33,8 @@ export const UserInfo: React.FC<UserInfoProps> = ({title, subtitle, rows}) => {
     const parsed = new Date(input || '');
     return isNaN(parsed.getTime()) ? new Date() : parsed;
   };
+  const {theme} = useTheme();
+  const color = Colors[theme];
 
   return (
     <View style={styles.container}>
@@ -57,11 +60,12 @@ export const UserInfo: React.FC<UserInfoProps> = ({title, subtitle, rows}) => {
               <Picker
                 selectedValue={row.value}
                 enabled={!!row.editable}
+                dropdownIconColor={color.text}
                 onValueChange={val => row.onChangeText?.(val)}
                 style={[
                   styles.textSex,
                   {
-                    height: Platform.OS === 'ios' ? 40 : 40, 
+                    height: Platform.OS === 'ios' ? 40 : 40,
                   },
                 ]}>
                 <Picker.Item
@@ -80,61 +84,63 @@ export const UserInfo: React.FC<UserInfoProps> = ({title, subtitle, rows}) => {
           ) : row.type === 'date' ? (
             <>
               <TouchableOpacity
-                  style={[styles.input, { paddingLeft: 16 }]}
-                  onPress={() => row.editable && setShowPickerIndex(idx)}>
-                  <Text style={styles.txtDate}>
-                    {row.value || row.placeholder || 'Chọn ngày'}
-                  </Text>
-                </TouchableOpacity>
+                style={[styles.input, {paddingLeft: 16}]}
+                onPress={() => row.editable && setShowPickerIndex(idx)}>
+                <Text style={styles.txtDate}>
+                  {row.value || row.placeholder || 'Chọn ngày'}
+                </Text>
+              </TouchableOpacity>
 
-                {showPickerIndex === idx && (
-                  <DateTimePicker
-                    value={safeDate(row.value)}
-                    mode="date"
-                    display="default"
-                    maximumDate={new Date()}
-                    onChange={(event, selectedDate) => {
-                      setShowPickerIndex(null);
-                      if (selectedDate && row.onDateChange) {
+              {showPickerIndex === idx && (
+                <DateTimePicker
+                  value={safeDate(row.value)}
+                  mode="date"
+                  display="default"
+                  maximumDate={new Date()}
+                  onChange={(event, selectedDate) => {
+                    setShowPickerIndex(null);
+                    if (selectedDate && row.onDateChange) {
                       // format as dd/MM/yyyy
-                      const day   = String(selectedDate.getDate()).padStart(2, '0');
-                      const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
-                      const year  = selectedDate.getFullYear();
+                      const day = String(selectedDate.getDate()).padStart(
+                        2,
+                        '0',
+                      );
+                      const month = String(
+                        selectedDate.getMonth() + 1,
+                      ).padStart(2, '0');
+                      const year = selectedDate.getFullYear();
                       const formatted = `${day}/${month}/${year}`;
                       row.onDateChange(formatted);
-                      }
-                    }}
-                  />
-                )}
+                    }
+                  }}
+                />
+              )}
             </>
+          ) : !row.editable ? (
+            <Text
+              style={[
+                styles.input,
+                styles.textContainer,
+                {
+                  borderBottomWidth: 0.5,
+                  paddingVertical: 8,
+                  fontSize: 16,
+                  fontWeight: '400',
+                },
+              ]}
+              numberOfLines={1}
+              ellipsizeMode="tail">
+              {row.value || row.placeholder}
+            </Text>
           ) : (
-            !row.editable ? (
-              <Text 
-                style={[
-                  styles.input, 
-                  styles.textContainer, 
-                  {
-                    borderBottomWidth: 0.5,
-                    paddingVertical: 8,
-                    fontSize: 16,
-                    fontWeight: '400',
-                  }
-                ]}
-                numberOfLines={1}
-                ellipsizeMode="tail" 
-              >
-                {row.value || row.placeholder}
-              </Text>
-            ) : (
-              <AutoGrowingInput
-                style={[styles.input, styles.textContainer]}
-                value={row.value}
-                onChangeText={row.onChangeText}
-                placeholder={row.placeholder ?? row.label}
-                placeholderTextColor="#979797"
-                editable={row.editable}
-              />
-            )
+            <AutoGrowingInput
+              style={[styles.input, styles.textContainer]}
+              value={row.value}
+              onChangeText={row.onChangeText}
+              placeholder={row.placeholder ?? row.label}
+              placeholderTextColor="#979797"
+              editable={row.editable}
+            />
           )}
         </View>
       ))}
