@@ -59,7 +59,7 @@ const ItemHome = (props: ItemHomeProps) => {
 
   const state = useItemHomeState(props);
   const actions = useItemHomeActions(props, state, isFollow);
-  const modal = useItemHomeModal(actions, state);
+  const modal = useItemHomeModal(actions, state, isFollow);
   const utils = useItemHomeUtils(props, state);
 
   useEffect(() => {
@@ -118,7 +118,6 @@ const ItemHome = (props: ItemHomeProps) => {
       <BottomSheetOptionsModal
         sheetRef={modal.sheetRef}
         isBookmarked={state.isBookmark}
-        isFollowing={isFollow}
         topOptions={modal.topOptions}
         firstListOptions={modal.firstListOptions}
         secondListOptions={modal.secondListOptions}
