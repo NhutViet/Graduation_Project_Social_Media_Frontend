@@ -137,6 +137,7 @@ export const useNotificationStyles = () => {
           width: 20,
           height: 20,
           resizeMode: 'contain',
+          tintColor: palette.text,
         },
         userIcon: {
           width: 44,
