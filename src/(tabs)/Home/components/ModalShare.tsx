@@ -14,7 +14,6 @@ import {
   UserPlus,
   Link,
   MessageCircle,
-  CheckCircle2,
 } from 'lucide-react-native';
 import {FlashList} from '@shopify/flash-list';
 import {Colors} from '../../../../assets/color/Colors';
