@@ -1,8 +1,5 @@
-
-import {View} from 'react-native';
-import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 import {Dimensions, View} from 'react-native';
-import React, { useState} from 'react';
+import React from 'react';
 import Header from '../../../../components/Header';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import FollowersTab from './FollowersTab';
@@ -12,9 +9,9 @@ import {Colors} from '../../../../assets/color/Colors';
 import {useTheme} from '../../../util/ThemeContext';
 import {useSelector} from 'react-redux';
 import { RootState } from '../../../../services/store';
-import {SceneMap, TabBar, TabView} from 'react-native-tab-view';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
-const initialLayout = {width: Dimensions.get('window').width};
+const TopTab = createMaterialTopTabNavigator();
 
 const FollowersScreen = () => {
   const navigation: any = useNavigation();

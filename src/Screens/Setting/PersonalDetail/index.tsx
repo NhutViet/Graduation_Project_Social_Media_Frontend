@@ -1,9 +1,16 @@
 import React from 'react';
-import {View, Text, TouchableOpacity, StyleSheet, Modal, Image} from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Modal,
+  Image,
+} from 'react-native';
 import {useSelector} from 'react-redux';
 import {RootState} from '@services/store';
 import {Colors} from '@assets/color/Colors';
-import { useTheme } from '../../../../src/util/ThemeContext';
+import {useTheme} from '../../../../src/util/ThemeContext';
 
 interface PersonalDetailsProps {
   isVisible: boolean;
@@ -80,7 +87,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
         <View style={styles.header}>
           <TouchableOpacity onPress={onClose}>
             <Image
-              source={require('@assets/icon/x.png')}
+              source={require('@assets/icon/closer.png')}
               resizeMode="cover"
               style={styles.closeButton}
             />
