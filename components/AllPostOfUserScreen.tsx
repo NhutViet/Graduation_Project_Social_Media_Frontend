@@ -1,12 +1,10 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useRef, useState} from 'react';
 import {useIsFocused, useNavigation, useRoute} from '@react-navigation/native';
-import {FlashList} from '@shopify/flash-list';
 import BottomSheetComment, {
   BottomSheetCommentRef,
 } from '../src/(tabs)/Home/components/CommentSection';
-import {useDispatch, useSelector} from 'react-redux';
-import {AppDispatch, RootState} from '../services/store';
-import {fetchCommentsByPost} from '../services/commentRedux/commentSlice';
+import {useSelector} from 'react-redux';
+import {RootState} from '../services/store';
 import {
   FlatList,
   Image,
@@ -16,12 +14,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {useCallback, useRef, useState} from 'react';
-import BottomSheetComment, {
-  BottomSheetCommentRef,
-} from '../src/(tabs)/Home/components/CommentSection';
-import {useDispatch, useSelector} from 'react-redux';
-import {AppDispatch, RootState} from '../services/store';
 import ItemHome from '../src/(tabs)/Home/components/ItemHome';
 import {useTheme} from '../src/util/ThemeContext';
 import {Colors} from '../assets/color/Colors';
@@ -34,7 +26,6 @@ const AllPostOfUserScreen = () => {
   const listRef = useRef<FlatList<any>>(null);
   const sheetRef = useRef<BottomSheetCommentRef>(null);
   const isFocused = useIsFocused();
-  const dispatch = useDispatch<AppDispatch>();
 
   const {targetPostId} = route.params as {targetPostId: string};
   const {items: PostsItem}: any = useSelector(
@@ -53,16 +44,6 @@ const AllPostOfUserScreen = () => {
     if (id) setCurrentVisible(id);
   }, []);
 
-  const handleOpenComment = useCallback(
-    (postId: string) => {
-      console.log('Opening comment for post:', postId); // Debug log
-      setSelectedPostId(postId);
-      dispatch(fetchCommentsByPost(postId));
-      sheetRef.current?.open();
-    },
-    [dispatch],
-  );
-
   if (!PostsItem || !Array.isArray(PostsItem)) {
     return (
       <SafeAreaView style={{flex: 1}}>
@@ -78,13 +59,19 @@ const AllPostOfUserScreen = () => {
           </Text>
           <View style={styles.iconBack} />
         </View>
-        <View style={{flex: 1, backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center'}}>
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: colors.background,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
           <Text style={{color: colors.text}}>No posts available</Text>
         </View>
       </SafeAreaView>
     );
   }
-  
+
   return (
     <SafeAreaView style={{flex: 1}}>
       <View style={[styles.header, {backgroundColor: colors.background}]}>
@@ -125,7 +112,6 @@ const AllPostOfUserScreen = () => {
                 share={item.share}
                 music={item.music}
                 currentVisible={shouldPlay}
-                openComment={handleOpenComment}
                 isFocused={isFocused}
                 sheetRef={sheetRef}
                 isFollow={item.isFollow}

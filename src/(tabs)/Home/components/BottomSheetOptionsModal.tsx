@@ -8,7 +8,6 @@ import {Colors} from '../../../../assets/color/Colors';
 const BottomSheetOptionsModal = ({
   sheetRef,
   isBookmarked,
-  isFollowing,
   topOptions,
   firstListOptions,
   secondListOptions,
