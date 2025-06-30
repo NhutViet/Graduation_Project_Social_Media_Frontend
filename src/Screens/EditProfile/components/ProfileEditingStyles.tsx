@@ -13,7 +13,7 @@ export const useProfileEditingStyles = () => {
     () =>
       StyleSheet.create({
         container: {
-          borderTopWidth: 2,
+          borderTopWidth: 0.5,
           paddingVertical: 12,
           paddingHorizontal: 16,
           backgroundColor: palette.transparent,
@@ -72,7 +72,7 @@ export const useProfileEditingStyles = () => {
           alignItems: 'center',
           justifyContent: 'space-between',
           paddingHorizontal: 16,
-          borderBottomWidth: 1,
+          borderBottomWidth: 0.5,
           borderBottomColor: palette.gray,
         },
         headerText: {
@@ -165,7 +165,7 @@ export const useProfileEditingStyles = () => {
         },
         tabSwitch: {
           flexDirection: 'row',
-          borderBottomWidth: 1,
+          borderBottomWidth: 0.5,
           borderBottomColor: palette.transparent,
         },
         tabButton: {
