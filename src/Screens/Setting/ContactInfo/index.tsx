@@ -8,10 +8,10 @@ import {
   Dimensions,
   Image,
 } from 'react-native';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../../../services/store';
-import { Colors } from '@assets/color/Colors';
-import { useTheme } from '../../../../src/util/ThemeContext';
+import {useSelector} from 'react-redux';
+import {RootState} from '../../../../services/store';
+import {Colors} from '@assets/color/Colors';
+import {useTheme} from '../../../../src/util/ThemeContext';
 
 interface ContactInformationProps {
   isVisible: boolean;
@@ -22,7 +22,7 @@ const ContactInformation: React.FC<ContactInformationProps> = ({
   isVisible,
   onClose,
 }) => {
-  const { theme } = useTheme();
+  const {theme} = useTheme();
   const colors = Colors[theme];
   const styles = StyleSheet.create({
     modalContainer: {
@@ -86,12 +86,12 @@ const ContactInformation: React.FC<ContactInformationProps> = ({
         <View style={styles.header}>
           <TouchableOpacity onPress={onClose}>
             <Image
-              source={require('@assets/icon/x.png')}
+              source={require('@assets/icon/closer.png')}
               resizeMode="cover"
               style={{
                 tintColor: colors.text,
                 width: 18,
-                height: 18
+                height: 18,
               }}
             />
           </TouchableOpacity>
@@ -110,14 +110,15 @@ const ContactInformation: React.FC<ContactInformationProps> = ({
                 source={require('@assets/icon/mail.png')}
                 resizeMode="cover"
                 style={[
-                  styles.menuIcon
-                  , {
+                  styles.menuIcon,
+                  {
                     tintColor: colors.text,
                     width: 18,
-                    height: 18
-                  }]}
+                    height: 18,
+                  },
+                ]}
               />
-              <View style={{ flex: 0 }}>
+              <View style={{flex: 0}}>
                 <Text style={styles.menuText}>{user?.email}</Text>
               </View>
             </View>
@@ -127,15 +128,15 @@ const ContactInformation: React.FC<ContactInformationProps> = ({
                 source={require('@assets/icon/phone.png')}
                 resizeMode="cover"
                 style={[
-                  styles.menuIcon
-                  , {
+                  styles.menuIcon,
+                  {
                     tintColor: colors.text,
                     width: 18,
-                    height: 18
-                  }]}
+                    height: 18,
+                  },
+                ]}
               />
               <Text style={styles.menuText}>{user?.phoneNumber}</Text>
-
             </View>
           </View>
           {/* <TouchableOpacity
