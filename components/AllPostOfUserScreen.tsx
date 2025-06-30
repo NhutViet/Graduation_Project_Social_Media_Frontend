@@ -1,10 +1,4 @@
-import React, {useCallback, useRef, useState} from 'react';
 import {useIsFocused, useNavigation, useRoute} from '@react-navigation/native';
-import BottomSheetComment, {
-  BottomSheetCommentRef,
-} from '../src/(tabs)/Home/components/CommentSection';
-import {useSelector} from 'react-redux';
-import {RootState} from '../services/store';
 import {
   FlatList,
   Image,
@@ -14,6 +8,12 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import {useCallback, useRef, useState} from 'react';
+import BottomSheetComment, {
+  BottomSheetCommentRef,
+} from '../src/(tabs)/Home/components/CommentSection';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '../services/store';
 import ItemHome from '../src/(tabs)/Home/components/ItemHome';
 import {useTheme} from '../src/util/ThemeContext';
 import {Colors} from '../assets/color/Colors';
@@ -44,33 +44,6 @@ const AllPostOfUserScreen = () => {
     if (id) setCurrentVisible(id);
   }, []);
 
-  if (!PostsItem || !Array.isArray(PostsItem)) {
-    return (
-      <SafeAreaView style={{flex: 1}}>
-        <View style={[styles.header, {backgroundColor: colors.background}]}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Image
-              source={require('../assets/icon/left.png')}
-              style={[styles.iconBack, {tintColor: colors.text}]}
-            />
-          </TouchableOpacity>
-          <Text style={[styles.title, {color: colors.text}]}>
-            Tất cả bài viết
-          </Text>
-          <View style={styles.iconBack} />
-        </View>
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: colors.background,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-          <Text style={{color: colors.text}}>No posts available</Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
 
   return (
     <SafeAreaView style={{flex: 1}}>

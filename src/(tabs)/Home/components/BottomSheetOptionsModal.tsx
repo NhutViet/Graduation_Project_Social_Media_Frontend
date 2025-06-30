@@ -8,6 +8,7 @@ import {Colors} from '../../../../assets/color/Colors';
 const BottomSheetOptionsModal = ({
   sheetRef,
   isBookmarked,
+  onBookmarkPress,
   topOptions,
   firstListOptions,
   secondListOptions,
@@ -19,6 +20,7 @@ const BottomSheetOptionsModal = ({
   topOptions?: any[];
   firstListOptions: any[];
   secondListOptions: any[];
+  onBookmarkPress: () => void;
   onSelect: (value: any) => void;
 }) => {
   const {theme} = useTheme();
@@ -52,6 +54,7 @@ const BottomSheetOptionsModal = ({
             isBookmarked={isBookmarked}
             listOptionGroups={[firstListOptions, secondListOptions]}
             onSelect={onSelect}
+            onBookmarkPress={onBookmarkPress}
           />
         </Modalize>
       </Suspense>
