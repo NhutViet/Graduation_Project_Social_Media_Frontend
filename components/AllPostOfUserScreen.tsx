@@ -1,6 +1,6 @@
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {useIsFocused, useNavigation, useRoute} from '@react-navigation/native';
 import {FlashList} from '@shopify/flash-list';
-import {useCallback, useEffect, useRef, useState} from 'react';
 import BottomSheetComment, {
   BottomSheetCommentRef,
 } from '../src/(tabs)/Home/components/CommentSection';
@@ -39,8 +39,8 @@ const AllPostOfUserScreen = () => {
   const [selectedPostId, setSelectedPostId] = useState<string>('');
 
   const targetIndex = Array.isArray(PostsItem)
-  ? PostsItem.findIndex((post: any) => post._id === targetPostId)
-  : -1;
+    ? PostsItem.findIndex((post: any) => post._id === targetPostId)
+    : -1;
 
   const onViewRef = useCallback(({viewableItems}: {viewableItems: any[]}) => {
     const id = viewableItems[0]?.item?._id;
@@ -49,12 +49,35 @@ const AllPostOfUserScreen = () => {
 
   const handleOpenComment = useCallback(
     (postId: string) => {
+      console.log('Opening comment for post:', postId); // Debug log
       setSelectedPostId(postId);
       dispatch(fetchCommentsByPost(postId));
       sheetRef.current?.open();
     },
     [dispatch],
   );
+
+  if (!PostsItem || !Array.isArray(PostsItem)) {
+    return (
+      <SafeAreaView style={{flex: 1}}>
+        <View style={[styles.header, {backgroundColor: colors.background}]}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Image
+              source={require('../assets/icon/left.png')}
+              style={[styles.iconBack, {tintColor: colors.text}]}
+            />
+          </TouchableOpacity>
+          <Text style={[styles.title, {color: colors.text}]}>
+            Tất cả bài viết
+          </Text>
+          <View style={styles.iconBack} />
+        </View>
+        <View style={{flex: 1, backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center'}}>
+          <Text style={{color: colors.text}}>No posts available</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={{flex: 1}}>
@@ -86,12 +109,14 @@ const AllPostOfUserScreen = () => {
                 isFocused={isFocused}
                 currentVisible={shouldPlay}
                 openComment={handleOpenComment}
+                setSelectedPostId={setSelectedPostId}
+                sheetRef={sheetRef}
               />
             );
           }}
           showsVerticalScrollIndicator={false}
           scrollEventThrottle={16}
-          initialScrollIndex={targetIndex >=0 ? targetIndex : 0}
+          initialScrollIndex={targetIndex >= 0 ? targetIndex : 0}
           removeClippedSubviews={true}
           nestedScrollEnabled={false}
           maintainVisibleContentPosition={{
