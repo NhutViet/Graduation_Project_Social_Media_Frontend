@@ -41,9 +41,10 @@ export const useItemHomeUtils = (props: ItemHomeProps, state: any) => {
   const items = useMemo(() => {
     const roomsList = roomItems.map(r => ({ kind: 'room' as const, data: r }));
     // const friendsList = follows.map(f => ({ kind: 'friend' as const, data: f }));
-    return [...roomsList,{/* ...friendsList*/}];
-  }, [roomItems, {/*follows*/}]);
-
+    //, ...friendsList
+    return [...roomsList];
+    //, follows
+  }, [roomItems]);
 
   return {
     color,
@@ -54,6 +55,6 @@ export const useItemHomeUtils = (props: ItemHomeProps, state: any) => {
     iconColor,
     likedColor,
     bookmarkColor,
-    items
+    items,
   };
 };

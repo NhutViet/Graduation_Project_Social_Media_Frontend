@@ -19,8 +19,9 @@ import {
 } from '../../../../services/reactionRedux/reactionReducer';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 import { fetchMyRooms } from '@services/roomRedux/roomSlice';
+import { ModalShareHandle } from '../components/ModalShare';
 
-export const useItemHomeActions = (props: ItemHomeProps, state: any) => {
+export const useItemHomeActions = (props: ItemHomeProps, state: any, modalShareRef: React.RefObject<ModalShareHandle>) => {
   const dispatch = useDispatch<AppDispatch>();
   const {_id, user, likeCount} = props;
 
@@ -78,10 +79,10 @@ export const useItemHomeActions = (props: ItemHomeProps, state: any) => {
     if (userID) {
       Promise.all([
         dispatch(fetchMyRooms()),
-        // dispatch(fetchFollowers({userId: userID})),
-        // dispatch(fetchFollowing({userId: userID})),
+        dispatch(fetchFollowers({userId: userID})),
+        dispatch(fetchFollowing({userId: userID})),
       ])
-        .then(() => setVisibleModalShare(true))
+        .then(() => {modalShareRef.current?.open();})
         .catch(() => {
           GlobalAlertManager.show(
             'Thất bại',
@@ -89,7 +90,7 @@ export const useItemHomeActions = (props: ItemHomeProps, state: any) => {
           );
         });
     }
-  }, [dispatch, userID, loading, setVisibleModalShare]);
+  }, [dispatch, userID, loading, modalShareRef]);
 
   const handleFollowAction = useCallback(() => {
     handleFollowToggle({

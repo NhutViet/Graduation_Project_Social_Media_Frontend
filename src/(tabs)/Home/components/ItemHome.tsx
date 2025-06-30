@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useRef} from 'react';
 import {View, Text, FlatList, Dimensions} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
@@ -11,7 +11,7 @@ import {
   removeLikedPost,
 } from '../../../../services/reactionRedux/reactionReducer';
 import {AppDispatch, RootState} from '../../../../services/store';
-import ModalShare from './ModalShare';
+import ModalShare, {ModalShareHandle} from './ModalShare';
 import ModalReaction from './ModalReaction';
 import BottomSheetIntentionsModal from './BottomSheetIntentionsModal';
 import BottomSheetOptionsModal from './BottomSheetOptionsModal';
@@ -55,9 +55,10 @@ const ItemHome = (props: ItemHomeProps) => {
   } = props;
   const navigation: any = useNavigation();
   const dispatch = useDispatch<AppDispatch>();
+  const modalShareRef = useRef<ModalShareHandle>(null);
 
   const state = useItemHomeState(props);
-  const actions = useItemHomeActions(props, state);
+  const actions = useItemHomeActions(props, state, modalShareRef);
   const modal = useItemHomeModal(actions, state);
   const utils = useItemHomeUtils(props, state);
 
@@ -196,11 +197,12 @@ const ItemHome = (props: ItemHomeProps) => {
         </Text>
       </View>
 
-      <ModalShare
-        visible={state.visibleModalShare}
-        onClose={() => state.setVisibleModalShare(false)}
-        friends={utils.follows}
-      />
+      <Portal>
+        <ModalShare
+          ref={modalShareRef}
+          items={utils.items}
+        />
+      </Portal>
 
       <Portal>
         <ModalReaction

@@ -65,5 +65,6 @@ export const useItemHomeState = (props: ItemHomeProps) => {
     loading,
     itemsByPlaylist,
     playlists,
+    rooms
   };
 };
