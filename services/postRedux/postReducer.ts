@@ -19,7 +19,35 @@ const initialState: PostState = {
 const postReducer = createSlice({
   name: 'posts',
   initialState,
-  reducers: {},
+  reducers: {
+    updateIsFollowByUserId: (state, action) => {
+      const {userId, isFollow} = action.payload;
+
+      const updatedPosts = state.posts.map(item =>
+        item.userID === userId
+          ? {
+              ...item,
+              isFollow,
+            }
+          : item,
+      );
+
+      state.posts.length = 0;
+      state.posts.push(...updatedPosts);
+
+      const updatedReels = state.reels.map(item =>
+        item.userID === userId
+          ? {
+              ...item,
+              isFollow,
+            }
+          : item,
+      );
+
+      state.reels.length = 0;
+      state.reels.push(...updatedReels);
+    },
+  },
   extraReducers: builder => {
     builder
       .addCase(fetchPostsWithMedia.pending, state => {
@@ -57,4 +85,5 @@ const postReducer = createSlice({
   },
 });
 
+export const {updateIsFollowByUserId} = postReducer.actions;
 export default postReducer.reducer;

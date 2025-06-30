@@ -6,7 +6,7 @@ import {
   Image,
   Dimensions,
 } from 'react-native';
-import React, {forwardRef, useEffect, useRef, useState, useCallback} from 'react';
+import React, {forwardRef, useEffect, useState, useCallback} from 'react';
 import {Modalize} from 'react-native-modalize';
 import {FlashList} from '@shopify/flash-list';
 import {Colors} from '../../../../assets/color/Colors';
@@ -27,9 +27,7 @@ const ModalReaction = forwardRef<Modalize, ModalReactionProps>(
 
     //redux
     const dispatch = useDispatch<AppDispatch>();
-    const {isLoading} = useSelector(
-      (state: RootState) => state.likers,
-    );
+    const {isLoading} = useSelector((state: RootState) => state.likers);
     const {refreshToken} = useSelector((state: RootState) => state.user);
     const [users, setUsers] = useState<any[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -85,8 +83,9 @@ const ModalReaction = forwardRef<Modalize, ModalReactionProps>(
                 item.userFollowing
                   ? [styles.followButtonText, {color: color.text}]
                   : styles.followButtonText,
-              ]}>
-              {item.userFollowing ? 'Followed' : 'Follow'}
+              ]}
+              numberOfLines={1}>
+              {item.userFollowing ? 'Đã theo dõi' : 'Theo dõi'}
             </Text>
           </TouchableOpacity>
         )}
@@ -95,32 +94,31 @@ const ModalReaction = forwardRef<Modalize, ModalReactionProps>(
 
     return (
       <Modalize
-          ref={ref}
-          adjustToContentHeight
-          modalStyle={[styles.modal, {backgroundColor: color.modal}]}
-          handleStyle={styles.modalHandle}
-          handlePosition="inside"
-          onOpen={handleOpen}
-          onClose={handleClose}
-          panGestureEnabled={true}
-          onOverlayPress={() => ref && (ref as any).current?.close()}
-          HeaderComponent={
-            <View style={styles.modalHeader}>
-              <Text style={[styles.title, {color: color.text}]}>Lượt thích</Text>
-            </View>
-          }
-          scrollViewProps={{
-            showsVerticalScrollIndicator: false,
-            nestedScrollEnabled: true,
-          }}
-          >
-          <View style={{height: modalContentHeight}}>
-
+        ref={ref}
+        adjustToContentHeight
+        modalStyle={[styles.modal, {backgroundColor: color.modal}]}
+        handleStyle={styles.modalHandle}
+        handlePosition="inside"
+        onOpen={handleOpen}
+        onClose={handleClose}
+        panGestureEnabled={true}
+        onOverlayPress={() => ref && (ref as any).current?.close()}
+        HeaderComponent={
+          <View style={styles.modalHeader}>
+            <Text style={[styles.title, {color: color.text}]}>Lượt thích</Text>
+          </View>
+        }
+        scrollViewProps={{
+          showsVerticalScrollIndicator: false,
+          nestedScrollEnabled: true,
+        }}>
+        <View style={{height: modalContentHeight}}>
           {/* Content với chiều cao còn lại */}
           <View style={[styles.contentContainer, {height: modalContentHeight}]}>
             {isLoading ? (
               <View style={styles.centerContent}>
-                <Text style={[styles.loadingText, {color: color.textSecondary}]}>
+                <Text
+                  style={[styles.loadingText, {color: color.textSecondary}]}>
                   Đang tải...
                 </Text>
               </View>
@@ -142,7 +140,7 @@ const ModalReaction = forwardRef<Modalize, ModalReactionProps>(
             )}
           </View>
         </View>
-        </Modalize>
+      </Modalize>
     );
   },
 );
@@ -163,8 +161,8 @@ const styles = StyleSheet.create({
     borderRadius: 2,
   },
   modalHeader: {
-    paddingHorizontal: 16,
-    paddingVertical: 15,
+    paddingTop: 20,
+    paddingBottom: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
     justifyContent: 'center',
@@ -200,7 +198,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 15,
-    paddingVertical: 10,
+    paddingTop: 10,
   },
   avatar: {
     width: 50,
@@ -223,7 +221,7 @@ const styles = StyleSheet.create({
   followButton: {
     width: 89,
     paddingVertical: 6,
-    paddingHorizontal: 15,
+    paddingHorizontal: 8,
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
