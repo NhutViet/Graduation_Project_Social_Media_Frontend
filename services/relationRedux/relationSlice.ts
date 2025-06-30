@@ -2,91 +2,105 @@ import {createAsyncThunk} from '@reduxjs/toolkit';
 import {UserProfile} from './relationTypes';
 import axiosInstance from '../axiosInstance';
 import {API} from '../api';
+import {updateIsFollowByUserId} from '@services/postRedux/postReducer';
 
 export const fetchFollowers = createAsyncThunk<
-  UserProfile[], 
-  {userId: string}, 
+  UserProfile[],
+  {userId: string},
   {rejectValue: string}
->(
-  'relations/followers',
-  async ({userId}, {rejectWithValue}) => {
-    try {
-      const response = await axiosInstance.post(API.GET_FOLLOWERS, { userId }, {
+>('relations/followers', async ({userId}, {rejectWithValue}) => {
+  try {
+    const response = await axiosInstance.post(
+      API.GET_FOLLOWERS,
+      {userId},
+      {
         headers: {
-            token: 'refresh',
+          token: 'refresh',
         },
-      });
+      },
+    );
 
-      if (!response.data || !Array.isArray(response.data.followers)) {
-        return rejectWithValue('Dữ liệu trả về không hợp lệ');
-      }
-
-      return response.data.followers;
-    } catch (error: any) {
-      console.error('fetchFollowers error:', error);
-      
-      if (error.response) {
-        console.error('Error response:', error.response.data);
-        console.error('Error status:', error.response.status);
-      }
-      
-      return rejectWithValue(
-        error.response?.data?.message || 
-        error.message || 
-        'Lấy danh sách người theo dõi thất bại'
-      );
+    if (!response.data || !Array.isArray(response.data.followers)) {
+      return rejectWithValue('Dữ liệu trả về không hợp lệ');
     }
+
+    return response.data.followers;
+  } catch (error: any) {
+    console.error('fetchFollowers error:', error);
+
+    if (error.response) {
+      console.error('Error response:', error.response.data);
+      console.error('Error status:', error.response.status);
+    }
+
+    return rejectWithValue(
+      error.response?.data?.message ||
+        error.message ||
+        'Lấy danh sách người theo dõi thất bại',
+    );
   }
-);
+});
 
 export const fetchFollowing = createAsyncThunk<
-  UserProfile[], 
-  {userId: string}, 
+  UserProfile[],
+  {userId: string},
   {rejectValue: string}
->(
-  'relations/following',
-  async ({userId}, {rejectWithValue}) => {
-    try {
-      const response = await axiosInstance.post(API.GET_FOLLOWING, { userId }, {
+>('relations/following', async ({userId}, {rejectWithValue}) => {
+  try {
+    const response = await axiosInstance.post(
+      API.GET_FOLLOWING,
+      {userId},
+      {
         headers: {
-            token: 'refresh',
+          token: 'refresh',
         },
-      });
-      return response.data.following;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || error.message || 'Lấy danh sách người đang theo dõi thất bại');
-    }
+      },
+    );
+    return response.data.following;
+  } catch (error: any) {
+    return rejectWithValue(
+      error.response?.data?.message ||
+        error.message ||
+        'Lấy danh sách người đang theo dõi thất bại',
+    );
   }
-);
+});
 
 export const fetchBlocking = createAsyncThunk<
-  UserProfile[],           
-  { userId: string },       
-  { rejectValue: string }   
->(
-  'relations/blocking',
-  async ({ userId }, { rejectWithValue }) => {
-    try {
-      const response = await axiosInstance.post(API.GET_BLOCKING, { userId }, { 
-        headers: { 
-          token: 'refresh' 
-        } 
-      });
-      return response.data.blocking;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message || error.message || 'Lấy danh sách người bị chặn thất bại');
-    }
+  UserProfile[],
+  {userId: string},
+  {rejectValue: string}
+>('relations/blocking', async ({userId}, {rejectWithValue}) => {
+  try {
+    const response = await axiosInstance.post(
+      API.GET_BLOCKING,
+      {userId},
+      {
+        headers: {
+          token: 'refresh',
+        },
+      },
+    );
+    return response.data.blocking;
+  } catch (error: any) {
+    return rejectWithValue(
+      error.response?.data?.message ||
+        error.message ||
+        'Lấy danh sách người bị chặn thất bại',
+    );
   }
-);
+});
 
 export const relationAction = createAsyncThunk<
   any,
-  { targetId: string; action: 'follow' | 'unfollow' | 'block' | 'unblock' },
-  { rejectValue: string }
+  {
+    targetId: string;
+    action: 'follow' | 'unfollow' | 'block' | 'unblock';
+  },
+  {rejectValue: string}
 >(
   'relations/relationAction',
-  async ({ targetId, action }, { rejectWithValue }) => {
+  async ({targetId, action}, {dispatch, rejectWithValue}) => {
     try {
       const response = await axiosInstance.put(
         API.RELATION_ACTION,
@@ -98,45 +112,53 @@ export const relationAction = createAsyncThunk<
           headers: {
             token: 'refresh',
           },
-        }
+        },
       );
+
+      if (response.status >= 200 && response.status < 300) {
+        if (action === 'follow' || action === 'unfollow') {
+          dispatch(
+            updateIsFollowByUserId({
+              userId: targetId,
+              isFollow: action === 'follow',
+            }),
+          );
+        }
+      }
+
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || error.message || 'Thao tác quan hệ thất bại'
+        error.response?.data?.message ||
+          error.message ||
+          'Thao tác quan hệ thất bại',
       );
     }
-  }
+  },
 );
 
 export const fetchRecommendations = createAsyncThunk<
   UserProfile[],
-  { limit?: number },
-  { rejectValue: string }
->(
-  'relations/recommendations',
-  async ({ limit = 10 }, { rejectWithValue }) => {
-    try {
-      const response = await axiosInstance.get(
-        API.GET_RECOMMENDATIONS,
-        {
-          params: { limit },
-          headers: { token: 'refresh' },
-        }
-      );
+  {limit?: number},
+  {rejectValue: string}
+>('relations/recommendations', async ({limit = 10}, {rejectWithValue}) => {
+  try {
+    const response = await axiosInstance.get(API.GET_RECOMMENDATIONS, {
+      params: {limit},
+      headers: {token: 'refresh'},
+    });
 
-      const data = response.data;
-      if (!data || !Array.isArray(data.recommendations)) {
-        return rejectWithValue('Dữ liệu trả về không hợp lệ');
-      }
-      return data.recommendations;
-    } catch (error: any) {
-      console.error('fetchRecommendations error:', error);
-      return rejectWithValue(
-        error.response?.data?.message ||
-        error.message ||
-        'Lấy danh sách gợi ý thất bại'
-      );
+    const data = response.data;
+    if (!data || !Array.isArray(data.recommendations)) {
+      return rejectWithValue('Dữ liệu trả về không hợp lệ');
     }
+    return data.recommendations;
+  } catch (error: any) {
+    console.error('fetchRecommendations error:', error);
+    return rejectWithValue(
+      error.response?.data?.message ||
+        error.message ||
+        'Lấy danh sách gợi ý thất bại',
+    );
   }
-);
+});

@@ -7,8 +7,7 @@ import {
   Image,
   TouchableOpacity,
 } from 'react-native';
-import React, {useState} from 'react';
-import {FlashList} from '@shopify/flash-list';
+import React from 'react';
 
 const ModalSeeMore = ({
   visible,
@@ -31,7 +30,7 @@ const ModalSeeMore = ({
               <TouchableOpacity onPress={onClose}>
                 <Image
                   style={styles.icon}
-                  source={require('../../../../assets/icon/x.png')}
+                  source={require('../../../../assets/icon/closer.png')}
                 />
               </TouchableOpacity>
             </View>

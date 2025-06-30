@@ -1,12 +1,10 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useRef, useState} from 'react';
 import {useIsFocused, useNavigation, useRoute} from '@react-navigation/native';
-import {FlashList} from '@shopify/flash-list';
 import BottomSheetComment, {
   BottomSheetCommentRef,
 } from '../src/(tabs)/Home/components/CommentSection';
-import {useDispatch, useSelector} from 'react-redux';
-import {AppDispatch, RootState} from '../services/store';
-import {fetchCommentsByPost} from '../services/commentRedux/commentSlice';
+import {useSelector} from 'react-redux';
+import {RootState} from '../services/store';
 import {
   FlatList,
   Image,
@@ -28,7 +26,6 @@ const AllPostOfUserScreen = () => {
   const listRef = useRef<FlatList<any>>(null);
   const sheetRef = useRef<BottomSheetCommentRef>(null);
   const isFocused = useIsFocused();
-  const dispatch = useDispatch<AppDispatch>();
 
   const {targetPostId} = route.params as {targetPostId: string};
   const {items: PostsItem}: any = useSelector(
@@ -47,16 +44,6 @@ const AllPostOfUserScreen = () => {
     if (id) setCurrentVisible(id);
   }, []);
 
-  const handleOpenComment = useCallback(
-    (postId: string) => {
-      console.log('Opening comment for post:', postId); // Debug log
-      setSelectedPostId(postId);
-      dispatch(fetchCommentsByPost(postId));
-      sheetRef.current?.open();
-    },
-    [dispatch],
-  );
-
   if (!PostsItem || !Array.isArray(PostsItem)) {
     return (
       <SafeAreaView style={{flex: 1}}>
@@ -72,7 +59,13 @@ const AllPostOfUserScreen = () => {
           </Text>
           <View style={styles.iconBack} />
         </View>
-        <View style={{flex: 1, backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center'}}>
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: colors.background,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
           <Text style={{color: colors.text}}>No posts available</Text>
         </View>
       </SafeAreaView>
@@ -93,6 +86,7 @@ const AllPostOfUserScreen = () => {
         </Text>
         <View style={styles.iconBack} />
       </View>
+
       <View style={{flex: 1, backgroundColor: colors.background}}>
         <FlatList
           ref={listRef}
@@ -105,12 +99,23 @@ const AllPostOfUserScreen = () => {
             const shouldPlay = item._id === currentVisible;
             return (
               <ItemHome
-                {...item}
-                isFocused={isFocused}
+                _id={item._id}
+                type={item.type}
+                caption={item.caption}
+                createdAt={item.createdAt}
+                media={item.media}
+                user={item.user}
+                isLike={item.isLike}
+                isBookmarked={item.isBookmarked}
+                commentCount={item.commentCount}
+                likeCount={item.likeCount}
+                share={item.share}
+                music={item.music}
                 currentVisible={shouldPlay}
-                openComment={handleOpenComment}
-                setSelectedPostId={setSelectedPostId}
+                isFocused={isFocused}
                 sheetRef={sheetRef}
+                isFollow={item.isFollow}
+                setSelectedPostId={setSelectedPostId}
               />
             );
           }}
@@ -123,8 +128,8 @@ const AllPostOfUserScreen = () => {
             minIndexForVisible: 0,
           }}
           getItemLayout={(_, index) => ({
-            length: 200,
-            offset: 200 * index,
+            length: 500,
+            offset: 500 * index,
             index,
           })}
         />

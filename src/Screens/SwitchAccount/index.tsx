@@ -120,7 +120,12 @@ export const SwitchAccount = ({navigation}: any) => {
 
       if (fetchCheckEmail.fulfilled.match(checkEmailAction)) {
         const {exists} = checkEmailAction.payload;
-
+        let fcmToken = '';
+         try {
+          fcmToken = await messaging().getToken();
+        } catch (err) {
+          console.warn('Lấy FCM token thất bại:', err);
+        }
         if (exists) {
           dispatch(resetStatus());
           const fcmToken = await messaging().getToken();
@@ -187,13 +192,13 @@ export const SwitchAccount = ({navigation}: any) => {
           style={styles.logo}
           source={require('../../../assets/icon/logo.png')}
         />
-        <View style={SwitchStyles.body}>
+        <View style={[SwitchStyles.body]}>
           <TextInput
             value={email}
             onChangeText={setEmail}
             placeholder="Email"
             placeholderTextColor={Colors.light.lightDark}
-            style={SwitchStyles.input}
+            style={[SwitchStyles.input, {marginBottom: 5}]}
           />
           {!(errorEmail === '') && (
             <Text style={styles.errorText}>{errorEmail}</Text>
@@ -206,6 +211,7 @@ export const SwitchAccount = ({navigation}: any) => {
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 alignItems: 'center',
+                marginBottom: 5
               },
             ]}>
             <TextInput
@@ -221,9 +227,9 @@ export const SwitchAccount = ({navigation}: any) => {
                 isPassWord ? setIsPassWord(false) : setIsPassWord(true)
               }>
               {isPassWord ? (
-                <EyeOff size={24} color={'#000'} />
+                <EyeOff strokeWidth={1.5} size={20} color={'#000'} />
               ) : (
-                <Eye size={24} color={'#000'} />
+                <Eye strokeWidth={1.5} size={20} color={'#000'} />
               )}
             </TouchableOpacity>
           </View>

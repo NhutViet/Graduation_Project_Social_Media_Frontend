@@ -30,23 +30,21 @@ export const useBottomSheetStyles = () => {
         horizontalButton: {
           flex: 1,
           backgroundColor: palette.lessBlack,
-          height: 110,
           alignItems: 'center',
           justifyContent: 'center',
-          paddingVertical: spacing.s,
-          // marginHorizontal: spacing.xs,
+          paddingVertical: spacing.m,
           borderRadius: 8,
         } as ViewStyle,
 
         topIcon: {
-          width: 30,
-          height: 30,
-          marginBottom: spacing.s,
+          width: 25,
+          height: 25,
+          marginBottom: spacing.xs,
         } as ImageStyle,
 
         topLabel: {
-          fontSize: typography.fontSizes.l,
-          fontWeight: typography.fontWeights.regular as FontWeight,
+          fontSize: typography.fontSizes.m,
+          fontWeight: typography.fontWeights.medium as FontWeight,
           textAlign: 'center',
         } as TextStyle,
 
@@ -61,7 +59,7 @@ export const useBottomSheetStyles = () => {
         listItem: {
           flexDirection: 'row',
           alignItems: 'center',
-          paddingVertical: spacing.s,
+          paddingVertical: spacing.m,
           paddingHorizontal: spacing.m,
           marginHorizontal: spacing.xs,
         } as ViewStyle,
@@ -78,8 +76,8 @@ export const useBottomSheetStyles = () => {
         } as TextStyle,
 
         listSeparator: {
-          height: 1,
-          backgroundColor: palette.background,
+          height: 0.5,
+          backgroundColor: palette.lightDark,
           marginHorizontal: -spacing.m,
         } as ViewStyle,
         intentionContainer: { 

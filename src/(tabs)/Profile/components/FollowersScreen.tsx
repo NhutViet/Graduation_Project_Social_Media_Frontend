@@ -1,6 +1,8 @@
+
 import {View} from 'react-native';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
-import React from 'react';
+import {Dimensions, View} from 'react-native';
+import React, { useState} from 'react';
 import Header from '../../../../components/Header';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import FollowersTab from './FollowersTab';
@@ -10,8 +12,9 @@ import {Colors} from '../../../../assets/color/Colors';
 import {useTheme} from '../../../util/ThemeContext';
 import {useSelector} from 'react-redux';
 import { RootState } from '../../../../services/store';
+import {SceneMap, TabBar, TabView} from 'react-native-tab-view';
 
-const TopTab = createMaterialTopTabNavigator();
+const initialLayout = {width: Dimensions.get('window').width};
 
 const FollowersScreen = () => {
   const navigation: any = useNavigation();
@@ -25,7 +28,7 @@ const FollowersScreen = () => {
     <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
       <View style={{width: '100%', height: 60}}>
         <Header
-          title= {user?.username}
+          title={user?.username}
           iconBack={require('../../../../assets/icon/left.png')}
           func={() => navigation.goBack()}
           navigation={navigation}

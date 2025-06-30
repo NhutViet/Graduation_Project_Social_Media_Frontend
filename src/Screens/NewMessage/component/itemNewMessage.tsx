@@ -69,7 +69,7 @@ const ItemNewMessage: React.FC<ItemNewMessageProps> = ({
       <View style={styles.blockIcon}>
         <Image
           style={[styles.img, {tintColor: color.text}]}
-          source={require('../../../../assets/icon/rightArrow.png')}
+          source={require('../../../../assets/icon/right.png')}
         />
       </View>
     </TouchableOpacity>
