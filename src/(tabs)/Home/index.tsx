@@ -48,7 +48,12 @@ export const Home = forwardRef(({onReload}: any, ref) => {
   const [currentVisible, setCurrentVisible] = useState<string | null>(null);
   const [selectedPostId, setSelectedPostId] = useState<string>('');
   const [seenMap, setSeenMap] = useState<Record<string, boolean>>({});
-  const {posts, loading} = useSelector((state: RootState) => state?.post);
+  
+  // Add loading state for pagination
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasCalledLoadMore, setHasCalledLoadMore] = useState(false);
+  
+  const {posts, loading, page, hasNextPage} = useSelector((state: RootState) => state?.post);
   const followingUsers = useSelector(
     (state: RootState) => state.stories.followingUsers,
   );
@@ -58,15 +63,40 @@ export const Home = forwardRef(({onReload}: any, ref) => {
     dispatch(fetchPostsWithMedia({page: 1}));
     dispatch(fetchFollowingStories({page: 1}));
     clearExpiredSeenStories();
-  }, []);
+    setHasCalledLoadMore(false);
+  }, [dispatch]);
 
-  useImperativeHandle(ref, () => ({
-    reload: reloadAllData,
-  }));
+  useImperativeHandle(ref, () => ({ reload: reloadAllData }));
 
-  useEffect(() => {
-    reloadAllData();
-  }, []);
+  useEffect(reloadAllData, [reloadAllData]);
+
+  // Improved load more function with better state management
+  const loadMore = useCallback(async () => {
+    // Prevent multiple simultaneous calls
+    if (isLoadingMore || !hasNextPage || hasCalledLoadMore) {
+      return;
+    }
+
+    setIsLoadingMore(true);
+    setHasCalledLoadMore(true);
+    
+    try {
+      await dispatch(fetchPostsWithMedia({ page: page + 1 })).unwrap();
+    } catch (error) {
+      console.error('Error loading more posts:', error);
+    } finally {
+      setIsLoadingMore(false);
+      // Reset the flag after a delay to allow next load
+      setTimeout(() => setHasCalledLoadMore(false), 1000);
+    }
+  }, [dispatch, isLoadingMore, hasNextPage, page, hasCalledLoadMore]);
+
+  // Prefetch next page when user is halfway through current posts
+  const prefetchNextPage = useCallback(() => {
+    if (!isLoadingMore && hasNextPage && !hasCalledLoadMore) {
+      loadMore();
+    }
+  }, [loadMore, isLoadingMore, hasNextPage, hasCalledLoadMore]);
 
   useEffect(() => {
     const syncSeenStories = async () => {
@@ -91,6 +121,16 @@ export const Home = forwardRef(({onReload}: any, ref) => {
     const id = viewableItems[0]?.item?._id;
     if (id && id !== currentVisible) {
       setCurrentVisible(id);
+    }
+    
+    // Prefetch when user views posts in the last 30% of loaded content
+    if (viewableItems.length > 0 && posts.length > 0) {
+      const currentIndex = posts.findIndex(post => post._id === id);
+      const triggerPoint = Math.floor(posts.length * 0.7); 
+      
+      if (currentIndex >= triggerPoint) {
+        prefetchNextPage();
+      }
     }
   }).current;
 
@@ -155,6 +195,21 @@ export const Home = forwardRef(({onReload}: any, ref) => {
     [currentVisible, isFocused],
   );
 
+  // Render footer with loading indicator
+  const renderFooter = useCallback(() => {
+    if (!isLoadingMore) return null;
+    
+    return (
+      <View style={{
+        paddingVertical: 20,
+        alignItems: 'center',
+        backgroundColor: color.background,
+      }}>
+        <ActivityIndicator size="small" color={color.text} />
+      </View>
+    );
+  }, [isLoadingMore, color]);
+
   if (loading && posts.length === 0) {
     return (
       <SafeAreaView
@@ -189,14 +244,20 @@ export const Home = forwardRef(({onReload}: any, ref) => {
         keyExtractor={item => item._id}
         renderItem={renderItem}
         removeClippedSubviews={true}
-        initialNumToRender={5}
-        windowSize={7}
+        initialNumToRender={20} 
+        maxToRenderPerBatch={3} 
+        windowSize={5} 
+        updateCellsBatchingPeriod={50} 
         onViewableItemsChanged={onViewRef}
         viewabilityConfig={{itemVisiblePercentThreshold: 70}}
         scrollEventThrottle={16}
         onScroll={scrollHandler}
         showsVerticalScrollIndicator={false}
         nestedScrollEnabled
+        onEndReached={loadMore}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={renderFooter}
+        getItemLayout={undefined} 
         ListHeaderComponent={
           <View style={{position: 'relative', height: 160}}>
             <View style={{paddingTop: 48}}>
