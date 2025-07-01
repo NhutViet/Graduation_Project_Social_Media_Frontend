@@ -124,8 +124,8 @@ const styles = StyleSheet.create({
     gap: 10,
     paddingVertical: 10,
   },
-  tagText: {fontSize: 18, fontWeight: 'bold'},
-  countText: {fontSize: 16, fontWeight: '400'},
+  tagText: {fontSize: 16, fontWeight: 'bold'},
+  countText: {fontSize: 14, fontWeight: '400'},
   iconHash: {
     width: 22, height: 22,
     resizeMode: 'contain',
