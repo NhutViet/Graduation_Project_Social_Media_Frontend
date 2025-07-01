@@ -46,8 +46,8 @@ export const AddPost = () => {
 
   //phân loại ảnh và video
   const [filter, setFilter] = useState(() => {
-    if(type === 'video') return 'Thước phim';
-    if (type === 'image') return 'Hình ảnh';
+    if(type === 'video') return 'Videos';
+    if (type === 'image') return 'Photos';
     return 'Tất cả';
   });
   const [showModalFilter, setShowModalFilter] = useState(false);
