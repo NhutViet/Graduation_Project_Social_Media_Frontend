@@ -19,7 +19,6 @@ import {
 import {FlashList} from '@shopify/flash-list';
 import {Dimensions} from 'react-native';
 import {Colors} from '../../../assets/color/Colors';
-import {useTheme} from '../../util/ThemeContext';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../services/store';
 import {fetchReelsWithMedia} from '../../../services/postRedux/postSlice';
@@ -49,16 +48,6 @@ const Reels = forwardRef((props, ref) => {
   const [currentVisible, setCurrentVisible] = useState<string | null>(null);
   const [isCurrentBookmarked, setIsCurrentBookmarked] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any | null>(null);
-
-  const modalReactionRef = useRef<Modalize>(null);
-  const [reactionPostId, setReactionPostId] = useState<string>('');
-  const [reactionIsLiked, setReactionIsLiked] = useState<boolean>(false);
-
-  const openReactionModal = (postId: string, isLiked: boolean) => {
-    setReactionPostId(postId);
-    setReactionIsLiked(isLiked);
-    modalReactionRef.current?.open();
-  };
 
   const onViewRef = useRef(({viewableItems}: {viewableItems: any[]}) => {
     if (viewableItems.length > 0) {
@@ -142,9 +131,7 @@ const Reels = forwardRef((props, ref) => {
                 dispatch(fetchCommentsByPost(item._id));
                 sheetRefComment.current?.open();
               }}
-              openReactionModal={() =>
-                openReactionModal(item._id, item.isLiked)
-              }
+              openReactionModal={() =>{}}
               openShareModal={handleOpenShareModal}
             />
           );
@@ -163,18 +150,12 @@ const Reels = forwardRef((props, ref) => {
         selectedItem={selectedItem}
       />
       <BottomSheetComment ref={sheetRefComment} postId={selectedPostId} />
-      <ModalReaction
-        ref={modalReactionRef}
-        postId={reactionPostId}
-        isLiked={reactionIsLiked}
-      />
-
+      
       <Portal>
         <ModalShare
           ref={modalShareRef}
         />
       </Portal>
-
     </SafeAreaView>
   );
 });

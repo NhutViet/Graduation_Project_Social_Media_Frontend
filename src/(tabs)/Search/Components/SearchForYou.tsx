@@ -73,7 +73,7 @@ const SearchForYou: React.FC<SearchForYouProps> = ({
     [],
   );
 
-  const {posts, reels, isSuccess} = useSelector(
+  const {posts, reels, isSuccess, isLoading} = useSelector(
     (state: RootState) => state.search,
   );
 
@@ -146,7 +146,7 @@ const SearchForYou: React.FC<SearchForYouProps> = ({
 
   return (
   <View style={[styles.container, {backgroundColor: color.background}]}>
-    {!isSuccess ? (
+    {!isSuccess && isLoading ? (
       // Hiển thị vòng tròn quay khi chưa có dữ liệu thành công
       <View style={styles.center}>
         <ActivityIndicator size="large" color={color.primary} />

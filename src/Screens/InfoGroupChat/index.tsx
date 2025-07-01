@@ -4,12 +4,8 @@ import {
   Text,
   StyleSheet,
   Image,
-  ScrollView,
   TouchableOpacity,
-  Platform,
-  PermissionsAndroid,
   SafeAreaView,
-  Alert,
 } from 'react-native';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
@@ -55,25 +51,6 @@ export const InforGroupChat = () => {
     [rooms, roomId],
   );
 
-  const requestPermissionAndPickImage = async () => {
-    try {
-      if (Platform.OS === 'android') {
-        const permission =
-          Platform.Version >= 33
-            ? PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES
-            : PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE;
-
-        const granted = await PermissionsAndroid.request(permission);
-
-        if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-          console.warn('Permission denied');
-          return;
-        }
-      }
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
   return (
     <SafeAreaView
       style={[styles.container, {backgroundColor: color.background}]}>
@@ -110,9 +87,6 @@ export const InforGroupChat = () => {
           {!img2 && img1 && <Image style={styles.img} source={{uri: img1}} />}
         </TouchableOpacity>
         <Text style={[styles.name, {color: color.text}]}>{room?.name}</Text>
-        <TouchableOpacity onPress={requestPermissionAndPickImage}>
-          <Text style={styles.edit}>Đổi hình ảnh</Text>
-        </TouchableOpacity>
       </View>
 
       <View style={styles.actionRow}>

@@ -16,14 +16,14 @@ import {
   PhotoIdentifier,
   PhotoIdentifiersPage,
 } from '@react-native-camera-roll/camera-roll';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import {FlashList} from '@shopify/flash-list';
 import {getAddPostStyles} from '../../StyleSheet/AddPostStyles';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
-const menu: string[] = ['Tất cả', 'Băng hình', 'Hình ảnh'];
+const menu: string[] = ['Tất cả', 'Thước phim', 'Hình ảnh'];
 
 export const AddPost = () => {
   const {theme} = useTheme();
@@ -37,12 +37,19 @@ export const AddPost = () => {
   const [selectedMedia, setSelectedMedia] = useState<PhotoIdentifier | null>(
     null,
   );
-  const isVideo = selectedMedia?.node.type.startsWith('video');
+  
+  const route = useRoute();
+  const {type}: any = route.params || {};
+
   const [selectedItems, setSelectedItems] = useState<PhotoIdentifier[]>([]);
   const [isMultiSelect, setIsMultiSelect] = useState(false);
 
   //phân loại ảnh và video
-  const [filter, setFilter] = useState('Tất cả');
+  const [filter, setFilter] = useState(() => {
+    if(type === 'video') return 'Videos';
+    if (type === 'image') return 'Photos';
+    return 'Tất cả';
+  });
   const [showModalFilter, setShowModalFilter] = useState(false);
 
   const styles = getAddPostStyles(theme);

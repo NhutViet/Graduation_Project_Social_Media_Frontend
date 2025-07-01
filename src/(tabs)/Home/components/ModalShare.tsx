@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Dimensions,
+  TextStyle,
 } from 'react-native';
 import {
   Search,
@@ -107,6 +108,7 @@ const ModalShare = forwardRef<ModalShareHandle>((_, ref)  => {
     }
   };
 
+  type FontWeight = TextStyle['fontWeight'];
   const toggleSelectFriend = (id: string) => {
     setSelectedFriendIds(prev =>
       prev.includes(id) ? prev.filter(fid => fid !== id) : [...prev, id],
@@ -130,102 +132,128 @@ const ModalShare = forwardRef<ModalShareHandle>((_, ref)  => {
       alignSelf: 'center',
       width: 40,
       height: 5,
-      borderRadius: 3,
-      backgroundColor: '#666',
-      marginBottom: 10,
+      borderRadius: Colors.radius.xs,
+      backgroundColor: color.textSecondary,
+      marginBottom: Colors.spacing.s,
     },
     description: {
-      color: '#ccc',
-      fontSize: 13,
+      color: color.textSecondary,
+      fontSize: Colors.typography.fontSizes.s,
       textAlign: 'center',
-      paddingHorizontal: 10,
-      marginBottom: 10,
+      paddingHorizontal: Colors.spacing.s,
+      marginBottom: Colors.spacing.s,
+    },
+    learnMoreText: {
+      color: Colors.primary,
     },
     searchBox: {
       flexDirection: 'row',
       alignItems: 'center',
-      backgroundColor: '#2c2c2e',
-      borderRadius: 8,
-      paddingHorizontal: 10,
+      backgroundColor: color.search,
+      borderRadius: Colors.radius.s,
+      paddingHorizontal: Colors.spacing.s,
       height: 40,
-      marginBottom: 12,
+      marginBottom: Colors.spacing.m,
     },
     searchInput: {
       flex: 1,
-      marginLeft: 10,
+      marginLeft: Colors.spacing.s,
+      color: color.text,
+      fontSize: Colors.typography.fontSizes.m,
     },
     friendListContainer: {
-      paddingBottom: 16,
-      paddingHorizontal: 8,
+      paddingBottom: Colors.spacing.m,
+      paddingHorizontal: Colors.spacing.s,
       alignItems: 'center',
     },
     friendItem: {
       alignItems: 'center',
       justifyContent: 'center',
       width: 64,
-      marginBottom: 12,
+      marginBottom: Colors.spacing.m,
     },
     avatar: {
       width: 60,
       height: 60,
       borderRadius: 30,
-      marginBottom: 4,
+      marginBottom: Colors.spacing.xs,
     },
     checkmark: {
       position: 'absolute',
       bottom: 10,
       right: 4,
-      backgroundColor: 'white',
+      backgroundColor: Colors.white,
       borderRadius: 10,
       zIndex: 1
     },
     friendName: {
-      color: '#fff',
-      fontSize: 12,
+      color: color.textSecondary,
+      fontSize: Colors.typography.fontSizes.s,
       textAlign: 'center',
-      paddingHorizontal: 4,
+      paddingHorizontal: Colors.spacing.xs,
       flexWrap: 'wrap',
     },
     shareActions: {
       flexDirection: 'row',
       justifyContent: 'space-around',
       flexWrap: 'wrap',
-      rowGap: 12,
-      marginTop: 16,
+      rowGap: Colors.spacing.m,
+      marginTop: Colors.spacing.m,
     },
     actionItem: {
       alignItems: 'center',
       justifyContent: 'center',
       width: 72,
       height: 72,
-      marginBottom: 8,
+      marginBottom: Colors.spacing.s,
     },
     actionLabel: {
       color: color.text,
       fontSize: 11,
       textAlign: 'center',
-      marginTop: 4,
+      marginTop: Colors.spacing.xs,
     },
     messageInput: {
-      backgroundColor: '#2c2c2e',
-      borderRadius: 8,
-      color: '#fff',
-      paddingHorizontal: 12,
-      paddingVertical: 10,
-      marginTop: 16,
-      fontSize: 14,
+      backgroundColor: color.backgroundSecondary,
+      borderRadius: Colors.radius.s,
+      color: color.text,
+      paddingHorizontal: Colors.spacing.m,
+      paddingVertical: Colors.spacing.s,
+      marginTop: Colors.spacing.m,
+      fontSize: Colors.typography.fontSizes.m,
+      borderWidth: 1,
+      borderColor: color.border,
     },
     sendButton: {
-      backgroundColor: '#3B82F6',
-      paddingVertical: 12,
-      borderRadius: 8,
-      marginTop: 12,
+      backgroundColor: Colors.primary,
+      paddingVertical: Colors.spacing.m,
+      borderRadius: Colors.radius.s,
+      marginTop: Colors.spacing.m,
     },
     sendButtonText: {
-      color: '#fff',
+      color: Colors.white,
       textAlign: 'center',
-      fontWeight: '600',
-      fontSize: 16,
+      fontWeight: Colors.typography.fontWeights.semiBold,
+      fontSize: Colors.typography.fontSizes.l,
+    }, 
+    emptyStateText: {
+      height: 200,
+      textAlign: 'center',
+      fontSize: Colors.typography.fontSizes.xl,
+      margin: 30,
+      color: color.textSecondary,
+      fontWeight: Colors.typography.fontWeights.regular,
+      verticalAlign: 'middle',
+    },
+    actionIcon: {
+      width: 20,
+      height: 20,
+      tintColor: color.text,
+    },
+    checkmarkIcon: {
+      width: 20,
+      height: 20,
+      tintColor: Colors.primary,
     },
     loader: {
       marginTop: 40,
@@ -244,6 +272,7 @@ const ModalShare = forwardRef<ModalShareHandle>((_, ref)  => {
       marginTop: 10,
     },
   });
+
   return (
     <Modalize
       ref={modalizeRef}
@@ -327,16 +356,20 @@ const ModalShare = forwardRef<ModalShareHandle>((_, ref)  => {
                 style={[styles.messageInput, {backgroundColor: color.backgroundSecondary}]}
                 value={message}
                 onChangeText={setMessage}
+                multiline
               />
-              <TouchableOpacity style={[styles.sendButton]}>
+              <TouchableOpacity style={styles.sendButton}>
                 <Text style={styles.sendButtonText}>Gửi</Text>
               </TouchableOpacity>
             </View>
           ) : (
             <View style={styles.shareActions}>
               <TouchableOpacity style={styles.actionItem}>
-                <Link size={20} color={color.text} />
-                <Text style={[styles.actionLabel, {color: color.text}]}>Sao chép liên kết</Text>
+                <Image
+                  source={require('@assets/icon/link.png')}
+                  style={styles.actionIcon}
+                />
+                <Text style={styles.actionLabel}>Sao chép liên kết</Text>
               </TouchableOpacity>
             </View>
           )

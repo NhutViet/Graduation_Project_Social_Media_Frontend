@@ -55,7 +55,6 @@ const FilterModal: React.FC<FilterModalProps> = ({
         return [
           {id: 'posts', label: 'Bài đăng'},
           {id: 'reels', label: 'Reels'},
-          {id: 'threads', label: 'Threads'},
         ];
       default:
         return [];
@@ -142,10 +141,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
                 onPress={() => handleSelect(option.id)}>
                 <Text style={[styles.filterText, {color: colors.text}]}>
                   {option.label}
-                </Text>
-                {option.id === 'threads' ? (
-                  <ChevronRight size={20} color={colors.text} />
-                ) : multiSelect ? (
+                </Text>{ multiSelect ? (
                   <View
                     style={[
                       styles.radioButton,

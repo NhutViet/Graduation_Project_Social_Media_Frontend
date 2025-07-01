@@ -21,29 +21,17 @@ const ItemUnlock: React.FC<ItemUnlockProps> = ({
     <TouchableOpacity style={styles.container}>
       <View style={styles.leftContainer}>
         <View style={styles.imgContainer}>
-          <View
-            style={[
-              styles.outCircle,
-              {backgroundColor: colors.lightGray, borderColor: colors.gray},
-            ]}
-          />
           <Image
             source={{uri}}
-            style={[styles.imgMain, {borderColor: colors.background}]}
+            style={[styles.imgMain, {borderColor: colors.gray}]}
           />
         </View>
-        <View style={{flex: 1}}>
+        <View style={{flex: 1, justifyContent: 'center'}}>
           <Text
             style={[styles.textHandle, {color: colors.text}]}
             numberOfLines={1}
             ellipsizeMode="tail">
             {handle}
-          </Text>
-          <Text
-            style={[styles.textNote, {color: colors.textSecondary}]}
-            numberOfLines={2}
-            ellipsizeMode="tail">
-            Bao gồm các tài khoản khác mà họ có hoặc có thể tạo
           </Text>
         </View>
       </View>
@@ -75,31 +63,21 @@ const styles = StyleSheet.create({
   imgContainer: {
     width: 60,
     height: 60,
-  },
-  outCircle: {
-    width: 50,
-    height: 50,
-    borderRadius: 100,
-    borderWidth: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   imgMain: {
     width: 52,
     height: 52,
     borderWidth: 2,
-    borderRadius: 100,
+    borderRadius: 26, 
     resizeMode: 'cover',
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
   },
   textHandle: {
     fontSize: 14,
     fontWeight: 'bold',
   },
-  textNote: {
-    fontWeight: '400',
-    fontSize: 13,
-  },
+
   btn: {
     paddingVertical: 5,
     paddingHorizontal: 15,

@@ -165,7 +165,7 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
           </Text>
         </View>
 
-        <View style={styles.rowContainer}>
+        <View style={styles.rowContainer1}>
           <TouchableOpacity style={styles.blockIcon} onPress={handleCall}>
             <Image
               style={styles.icon}
