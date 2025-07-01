@@ -1,69 +1,29 @@
 import {
+  Dimensions,
   Image,
   StyleSheet,
   Text,
-  View,
-  Dimensions,
   TouchableOpacity,
+  View,
 } from 'react-native';
 import React, {useCallback, useRef, useState} from 'react';
-import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
-import Header from '../../../../../components/Header';
+import {TabView, SceneMap, TabBar} from 'react-native-tab-view';
 import {useNavigation} from '@react-navigation/native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {Colors} from '../../../../../assets/color/Colors';
 import {useTheme} from '../../../../util/ThemeContext';
+import {Colors} from '../../../../../assets/color/Colors';
 import {Modalize} from 'react-native-modalize';
 import {Portal} from 'react-native-portalize';
 import StoriesTab from './StoriesTab';
 import HighlightsTab from './HighlightsTab';
+import Header from '../../../../../components/Header';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../../../services/store';
 import {fetchGetPostedSotry} from '../../../../../services/StoryRedux/StorySlice';
-import {Alert} from 'react-native';
 import HighlightCreateModal from './HighlightCreateModal';
 import {GlobalAlertManager} from '../../../../../components/Global/AlertModal';
 
-const formatMonthText = (dateString?: string): string => {
-  if (!dateString) return '--\n--';
-
-  const date = new Date(dateString);
-  if (isNaN(date.getTime())) return '--\n--';
-
-  const months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ];
-  return `${date.getDate()}\n${months[date.getMonth()]}`;
-};
-
-// Giả lập action creator (thay bằng action thực tế khi có API)
-const fetchCreateHighlight =
-  (data: {storyIds: string[]}) => async (dispatch: AppDispatch) => {
-    try {
-      console.log('Creating highlight with storyIds:', data.storyIds);
-      return {success: true, data: {highlightId: 'fake-highlight-id'}};
-    } catch (error) {
-      console.error('Error creating highlight:', error);
-      throw error;
-    }
-  };
-
-const TopTab = createMaterialTopTabNavigator();
-
-// Định nghĩa ITEM_SIZE trong StoryArchive
-const {width} = Dimensions.get('window');
-const ITEM_SIZE = width / 3;
+const {width, height} = Dimensions.get('window');
 
 const StoryArchive = () => {
   const navigation: any = useNavigation();
@@ -75,30 +35,14 @@ const StoryArchive = () => {
   const ModalOptionRef = useRef<Modalize>(null);
   const [isHighlightModalOpen, setIsHighlightModalOpen] = useState(false);
 
-  const openArchiveModal = useCallback((): void => {
-    requestAnimationFrame(() => {
-      ModalArchiveRef.current?.open();
-    });
-  }, []);
-
-  const openOptionModal = useCallback((): void => {
-    requestAnimationFrame(() => {
-      ModalOptionRef.current?.open();
-    });
-  }, []);
-
   const openHighlightCreateModal = useCallback((): void => {
-    dispatch(fetchGetPostedSotry()); // Đảm bảo tải dữ liệu story trước
-    setIsHighlightModalOpen(true); // Mở modal chỉ khi nhấn
+    dispatch(fetchGetPostedSotry());
+    setIsHighlightModalOpen(true);
   }, [dispatch]);
 
   const closeHighlightModal = useCallback((): void => {
     setIsHighlightModalOpen(false);
   }, []);
-
-  const goBack = useCallback((): void => {
-    navigation.goBack();
-  }, [navigation]);
 
   const createHighlight = async (selectedStoryIds: string[]) => {
     if (selectedStoryIds.length === 0) {
@@ -106,162 +50,124 @@ const StoryArchive = () => {
       return;
     }
     try {
-      const response = await dispatch(
-        fetchCreateHighlight({storyIds: selectedStoryIds}),
-      );
-      if (response.success) {
-        GlobalAlertManager.show('Thành công', 'Tin nổi bật đã được tạo.');
-        closeHighlightModal();
-      }
+      // Gọi API
+      GlobalAlertManager.show('Thành công', 'Tin nổi bật đã được tạo.');
+      closeHighlightModal();
     } catch (error) {
-      GlobalAlertManager.show(
-        'Lỗi',
-        'Không thể tạo tin nổi bật. Vui lòng thử lại.',
-      );
+      GlobalAlertManager.show('Lỗi', 'Tạo thất bại, thử lại sau.');
     }
   };
 
+  const [index, setIndex] = useState(0);
+  const [routes] = useState([
+    {key: 'stories', title: 'Stories'},
+    {key: 'highlights', title: 'Highlights'},
+  ]);
+
+  const renderScene = SceneMap({
+    stories: StoriesTab,
+    highlights: HighlightsTab,
+  });
+
+
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
-      <View style={{width: '100%', height: 60}}>
+      <View style={{height: 60, overflow: 'hidden'}}>
         <Header
-          pressableTitle="Kho lưu trữ tin"
-          pressableTilFunc={openArchiveModal}
-          iconBack={require('../../../../../assets/icon/left.png')}
-          func={goBack}
-          iconLeft={require('../../../../../assets/icon/menu-dots-vertical.png')}
-          funcLeft={openOptionModal}
-          navigation={navigation}
-        />
+        pressableTitle="Kho lưu trữ tin"
+        pressableTilFunc={() => ModalArchiveRef.current?.open()}
+        iconBack={require('../../../../../assets/icon/left.png')}
+        func={() => navigation.goBack()}
+        iconLeft={require('../../../../../assets/icon/menu-dots-vertical.png')}
+        funcLeft={() => ModalOptionRef.current?.open()}
+        navigation={navigation}
+      />
       </View>
-      <View style={{width: '100%', height: '100%'}}>
-        <TopTab.Navigator
-          screenOptions={{
-            tabBarLabelStyle: {
-              fontSize: 16,
-              fontWeight: 'bold',
-              textAlign: 'center',
-              textTransform: 'lowercase',
-            },
-            tabBarStyle: {
+
+      <TabView
+        navigationState={{index, routes}}
+        renderScene={renderScene}
+        onIndexChange={setIndex}
+        initialLayout={{width: Dimensions.get('window').width}}
+        renderTabBar={tabBarProps => (
+          <TabBar
+            {...tabBarProps}
+            indicatorStyle={{backgroundColor: color.primary}}
+            activeColor={color.primary}
+            inactiveColor={color.text}
+            style={{
               backgroundColor: color.background,
-            },
-            tabBarIndicatorStyle: {
-              backgroundColor: color.text,
-              height: 3,
-            },
-            tabBarActiveTintColor: color.text,
-            tabBarInactiveTintColor: color.textSecondary,
-          }}>
-          <TopTab.Screen
-            name="StoriesTab"
-            component={StoriesTab}
-            options={{
-              tabBarIcon: () => (
-                <Image
-                  source={require('../../../../../assets/icon/story.png')}
-                  style={{tintColor: color.text, width: 20, height: 20}}
-                />
-              ),
-              tabBarShowLabel: false,
+              shadowColor: 'transparent',
+              borderBottomWidth: 0.5,
+              borderBottomColor: color.gray,
             }}
           />
-          <TopTab.Screen
-            name="HighlightsTab"
-            component={HighlightsTab}
-            options={{
-              tabBarIcon: () => (
-                <Image
-                  source={require('../../../../../assets/icon/highlight.png')}
-                  style={{tintColor: color.text, width: 20, height: 20}}
-                />
-              ),
-              tabBarShowLabel: false,
-            }}
-          />
-        </TopTab.Navigator>
-        <Portal>
-          <Modalize
-            ref={ModalArchiveRef}
-            adjustToContentHeight={false}
-            modalHeight={Dimensions.get('window').height * 0.3}
-            modalStyle={[styles.modal, {backgroundColor: color.modal}]}
-            handleStyle={styles.modalHandle}
-            handlePosition="inside"
-            panGestureEnabled={true}
-            onOverlayPress={() => ModalArchiveRef.current?.close()}
-            scrollViewProps={{
-              showsVerticalScrollIndicator: false,
-            }}>
-            <View style={{marginTop: 35}}>
-              <TouchableOpacity style={styles.modalPressable}>
+        )}
+      />
+
+      {/* Modal Archive */}
+      <Portal>
+        <Modalize
+          ref={ModalArchiveRef}
+          modalHeight={height * 0.3}
+          modalStyle={{backgroundColor: color.modal}}
+          handlePosition="inside"
+          handleStyle={styles.modalHandle}>
+          <View style={{marginTop: 35}}>
+            {[
+              'Kho lưu trữ tin',
+              'Kho lưu trữ bài viết',
+              'Kho lưu trữ buổi phát trực tiếp',
+            ].map((text, i) => (
+              <TouchableOpacity key={i} style={styles.modalPressable}>
                 <Text style={[styles.modalText, {color: color.text}]}>
-                  Kho lưu trữ tin
+                  {text}
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.modalPressable}>
-                <Text style={[styles.modalText, {color: color.text}]}>
-                  Kho lưu trữ bài viết
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.modalPressable}>
-                <Text style={[styles.modalText, {color: color.text}]}>
-                  Kho lưu trữ buổi phát trực tiếp
-                </Text>
-              </TouchableOpacity>
+            ))}
+          </View>
+        </Modalize>
+      </Portal>
+
+      {/* Modal Option */}
+      <Portal>
+        <Modalize
+          ref={ModalOptionRef}
+          modalHeight={height * 0.3}
+          modalStyle={{backgroundColor: color.modal}}
+          handlePosition="inside"
+          handleStyle={styles.modalHandle}>
+          <View style={{marginTop: 35}}>
+            <View style={{paddingVertical: 20, justifyContent: 'center'}}>
+              <Text
+                style={{fontSize: 15, fontWeight: '500', color: color.text}}>
+                Lựa chọn khác
+              </Text>
             </View>
-          </Modalize>
-        </Portal>
-        <Portal>
-          <Modalize
-            ref={ModalOptionRef}
-            adjustToContentHeight={false}
-            modalHeight={Dimensions.get('window').height * 0.3}
-            modalStyle={[styles.modal, {backgroundColor: color.modal}]}
-            handleStyle={styles.modalHandle}
-            handlePosition="inside"
-            panGestureEnabled={true}
-            onOverlayPress={() => ModalOptionRef.current?.close()}
-            scrollViewProps={{
-              showsVerticalScrollIndicator: false,
-            }}>
-            <View style={{marginTop: 35}}>
-              <View style={{paddingVertical: 20, justifyContent: 'center'}}>
-                <Text
-                  style={{
-                    fontSize: 15,
-                    fontWeight: '500',
-                    color: color.text,
-                  }}>
-                  Lựa chọn khác
-                </Text>
-              </View>
-              <View
-                style={{flex: 1, borderWidth: 1, borderColor: color.gray}}
-              />
-              <TouchableOpacity
-                style={styles.modalPressable}
-                onPress={openHighlightCreateModal}>
-                <Text style={[styles.modalText, {color: color.text}]}>
-                  Tạo tin nổi bật
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.modalPressable}>
-                <Text style={[styles.modalText, {color: color.text}]}>
-                  Cài đặt
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </Modalize>
-        </Portal>
-        <HighlightCreateModal
-          isOpen={isHighlightModalOpen}
-          onClose={closeHighlightModal}
-          myStories={myStories}
-          loading={loading}
-          onCreateHighlight={createHighlight}
-        />
-      </View>
+            <View style={{borderWidth: 1, borderColor: color.gray}} />
+            <TouchableOpacity
+              style={styles.modalPressable}
+              onPress={openHighlightCreateModal}>
+              <Text style={[styles.modalText, {color: color.text}]}>
+                Tạo tin nổi bật
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.modalPressable}>
+              <Text style={[styles.modalText, {color: color.text}]}>
+                Cài đặt
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </Modalize>
+      </Portal>
+
+      <HighlightCreateModal
+        isOpen={isHighlightModalOpen}
+        onClose={closeHighlightModal}
+        myStories={myStories}
+        loading={loading}
+        onCreateHighlight={createHighlight}
+      />
     </SafeAreaView>
   );
 };

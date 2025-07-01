@@ -170,9 +170,7 @@ const Profile = () => {
   const handleLengthBio = (bioText?: string) => {
     const MAX_LINES = 4;
     if (!bioText) {
-      return (
-        <Text style={[styles.bioText, {color: color.text}]} />
-      );
+      return <Text style={[styles.bioText, {color: color.text}]} />;
     }
 
     return (
@@ -183,8 +181,7 @@ const Profile = () => {
           onTextLayout={({nativeEvent}) => {
             setNeedsTruncation(nativeEvent.lines.length > MAX_LINES);
           }}
-          style={[styles.bioText, {color: color.text}]}
-        >
+          style={[styles.bioText, {color: color.text}]}>
           {bioText}
         </Text>
 
@@ -352,7 +349,24 @@ const Profile = () => {
         <ModalCreate
           visible={visibleModalCreate}
           onClose={() => setVisibleModalCreate(false)}
-          onSelect={id => console.log('Selected:', id)}
+          onSelect={(id: string) => {
+            switch (id) {
+              case 'reels':
+                navigation.navigate('AddPost', {type: 'video'});
+                break;
+              case 'post':
+                navigation.navigate('AddPost');
+                break;
+              case 'story':
+                navigation.navigate('UpStory');
+                break;
+              case 'highlight':
+                navigation.navigate('Archive');
+                break;
+              default:
+                break;
+            }
+          }}
         />
       </View>
     </View>
@@ -403,9 +417,7 @@ const Profile = () => {
     switch (activeTab) {
       case 'grid':
         return isSuccess && PostsItem ? (
-          <PostsView
-            data={PostsItem}
-          />
+          <PostsView data={PostsItem} />
         ) : (
           <LoadingPlaceholder />
         );
