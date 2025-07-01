@@ -115,7 +115,7 @@ const StoryArchive = () => {
           handlePosition="inside"
           handleStyle={styles.modalHandle}>
             <View style={{height: modalContentHeight}}>
-              <View style={{marginTop: 35}}>
+              <View style={{flex: 1, marginTop: 35}}>
                 {[
                   'Kho lưu trữ tin',
                   'Kho lưu trữ bài viết',
@@ -141,7 +141,7 @@ const StoryArchive = () => {
           handlePosition="inside"
           handleStyle={styles.modalHandle}>
             <View style={{height: modalContentHeight}}>
-              <View style={{marginTop: 35}}>
+              <View style={{flex: 1, marginTop: 35}}>
                 <View style={{paddingVertical: 20, justifyContent: 'center'}}>
                   <Text
                     style={{fontSize: 15, fontWeight: '500', color: color.text}}>
