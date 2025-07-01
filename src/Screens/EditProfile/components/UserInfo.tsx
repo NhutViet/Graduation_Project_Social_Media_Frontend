@@ -5,7 +5,7 @@ import {useProfileEditingStyles} from './ProfileEditingStyles';
 import {Picker} from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {useTheme} from '../../../../src/util/ThemeContext';
-import {Colors} from '@assets/color/Colors';
+import {Colors} from '../../../../assets/color/Colors';
 
 type Row = {
   label: string;
