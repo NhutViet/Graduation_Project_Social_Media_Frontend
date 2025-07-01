@@ -193,7 +193,7 @@ const ItemHome = (props: ItemHomeProps) => {
           likeDisabled={likeLoading}  
           share={share}
           onCommentPress={() => handleOpenComment(_id)}
-          onSharePress={actions.handleOpenModalShare}
+          onSharePress={modal.handleOpenShareModal}
           onBookmarkPress={actions.handleBookmarkAction}
           onReactionModalPress={modal.handleOpenReactionModal}
         />
@@ -208,11 +208,11 @@ const ItemHome = (props: ItemHomeProps) => {
         </Text>
       </View>
 
-      <ModalShare
-        visible={state.visibleModalShare}
-        onClose={() => state.setVisibleModalShare(false)}
-        friends={utils.follows}
-      />
+      <Portal>
+        <ModalShare 
+          ref={modal.modalShareRef}
+        />
+      </Portal>
 
       <Portal>
         <ModalReaction

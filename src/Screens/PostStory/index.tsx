@@ -193,11 +193,6 @@ const PostStory = () => {
 
       <View style={styles.topSection}>
         <TopButton
-          icon={require('../../../assets/icon/iconAndYou.png')}
-          label="Template"
-          color={color.text}
-        />
-        <TopButton
           icon={require('../../../assets/icon/music.png')}
           label="Music"
           color={color.text}
@@ -272,13 +267,13 @@ const styles = StyleSheet.create({
   icon: {width: '100%', height: '100%', resizeMode: 'contain'},
   topSection: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     margin: 15,
   },
   btnTop: {
     borderWidth: 1,
     borderColor: '#CDD7E1',
-    width: '48%',
+    width: '75%',
     paddingVertical: 12,
     borderRadius: 8,
     justifyContent: 'center',

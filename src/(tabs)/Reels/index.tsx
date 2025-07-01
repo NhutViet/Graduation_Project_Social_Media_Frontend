@@ -32,6 +32,8 @@ import BottomSheetComment, {
 import {useFocusEffect} from '@react-navigation/native';
 import {Modalize} from 'react-native-modalize';
 import ModalReaction from '../Home/components/ModalReaction';
+import ModalShare from '../Home/components/ModalShare';
+import { Portal } from 'react-native-portalize';
 
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
@@ -41,6 +43,7 @@ const Reels = forwardRef((props, ref) => {
 
   const sheetRef: any = useRef<BottomSheetReelsRef>(null);
   const sheetRefComment: any = useRef<BottomSheetCommentRef>(null);
+  const modalShareRef = useRef<Modalize>(null);
 
   const [currentVisible, setCurrentVisible] = useState<string | null>(null);
   const [isCurrentBookmarked, setIsCurrentBookmarked] = useState(false);
@@ -55,6 +58,10 @@ const Reels = forwardRef((props, ref) => {
       }
     }
   });
+
+  const handleOpenShareModal = useCallback(() => {
+    modalShareRef.current?.open();
+  }, []);
 
   useImperativeHandle(ref, () => ({
     reload: () => {
@@ -101,12 +108,6 @@ const Reels = forwardRef((props, ref) => {
             />
           </View>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.iconContainer}>
-          <Image
-            style={styles.icon}
-            source={require('../../../assets/icon/camera.png')}
-          />
-        </TouchableOpacity>
       </View>
       <FlashList
         data={reels}
@@ -131,6 +132,7 @@ const Reels = forwardRef((props, ref) => {
                 sheetRefComment.current?.open();
               }}
               openReactionModal={() =>{}}
+              openShareModal={handleOpenShareModal}
             />
           );
         }}
@@ -148,6 +150,12 @@ const Reels = forwardRef((props, ref) => {
         selectedItem={selectedItem}
       />
       <BottomSheetComment ref={sheetRefComment} postId={selectedPostId} />
+      
+      <Portal>
+        <ModalShare
+          ref={modalShareRef}
+        />
+      </Portal>
     </SafeAreaView>
   );
 });

@@ -24,6 +24,7 @@ import HighlightCreateModal from './HighlightCreateModal';
 import {GlobalAlertManager} from '../../../../../components/Global/AlertModal';
 
 const {width, height} = Dimensions.get('window');
+const modalContentHeight = Dimensions.get('window').height * 0.3;
 
 const StoryArchive = () => {
   const navigation: any = useNavigation();
@@ -109,23 +110,25 @@ const StoryArchive = () => {
       <Portal>
         <Modalize
           ref={ModalArchiveRef}
-          modalHeight={height * 0.3}
+          adjustToContentHeight
           modalStyle={{backgroundColor: color.modal}}
           handlePosition="inside"
           handleStyle={styles.modalHandle}>
-          <View style={{marginTop: 35}}>
-            {[
-              'Kho lưu trữ tin',
-              'Kho lưu trữ bài viết',
-              'Kho lưu trữ buổi phát trực tiếp',
-            ].map((text, i) => (
-              <TouchableOpacity key={i} style={styles.modalPressable}>
-                <Text style={[styles.modalText, {color: color.text}]}>
-                  {text}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+            <View style={{height: modalContentHeight}}>
+              <View style={{flex: 1, marginTop: 35}}>
+                {[
+                  'Kho lưu trữ tin',
+                  'Kho lưu trữ bài viết',
+                  'Kho lưu trữ buổi phát trực tiếp',
+                ].map((text, i) => (
+                  <TouchableOpacity key={i} style={styles.modalPressable}>
+                    <Text style={[styles.modalText, {color: color.text}]}>
+                      {text}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
         </Modalize>
       </Portal>
 
@@ -133,31 +136,33 @@ const StoryArchive = () => {
       <Portal>
         <Modalize
           ref={ModalOptionRef}
-          modalHeight={height * 0.3}
+          adjustToContentHeight
           modalStyle={{backgroundColor: color.modal}}
           handlePosition="inside"
           handleStyle={styles.modalHandle}>
-          <View style={{marginTop: 35}}>
-            <View style={{paddingVertical: 20, justifyContent: 'center'}}>
-              <Text
-                style={{fontSize: 15, fontWeight: '500', color: color.text}}>
-                Lựa chọn khác
-              </Text>
+            <View style={{height: modalContentHeight}}>
+              <View style={{flex: 1, marginTop: 35}}>
+                <View style={{paddingVertical: 20, justifyContent: 'center'}}>
+                  <Text
+                    style={{fontSize: 15, fontWeight: '500', color: color.text}}>
+                    Lựa chọn khác
+                  </Text>
+                </View>
+                <View style={{borderWidth: 1, borderColor: color.gray}} />
+                <TouchableOpacity
+                  style={styles.modalPressable}
+                  onPress={openHighlightCreateModal}>
+                  <Text style={[styles.modalText, {color: color.text}]}>
+                    Tạo tin nổi bật
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.modalPressable}>
+                  <Text style={[styles.modalText, {color: color.text}]}>
+                    Cài đặt
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
-            <View style={{borderWidth: 1, borderColor: color.gray}} />
-            <TouchableOpacity
-              style={styles.modalPressable}
-              onPress={openHighlightCreateModal}>
-              <Text style={[styles.modalText, {color: color.text}]}>
-                Tạo tin nổi bật
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.modalPressable}>
-              <Text style={[styles.modalText, {color: color.text}]}>
-                Cài đặt
-              </Text>
-            </TouchableOpacity>
-          </View>
         </Modalize>
       </Portal>
 

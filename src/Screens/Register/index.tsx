@@ -41,21 +41,42 @@ export const Register = ({navigation}: any) => {
   );
 
   const handleRegister = async () => {
-    if (email === '' || password === '' || rePassword === '') {
-      if (email === '') setErrorEmail('Vui lòng nhập đầy đủ thông tin.');
-      if (password === '') setErrorPassword('Vui lòng nhập đầy đủ thông tin.');
-      if (rePassword === '')
-        setErrorRePassword('Vui lòng nhập đầy đủ thông tin.');
-    } else if (!email.includes('.') || !email.includes('@')) {
-      setErrorEmail('Email không đúng định dạng');
-      setErrorPassword('');
-    } else if (password !== rePassword) {
-      setErrorRePassword('Không trùng mật khẩu');
-    } else {
-      setErrorEmail('');
-      setErrorPassword('');
-      await dispatch(fetchRegister({email, password}));
+
+    setErrorEmail('');
+    setErrorPassword('');
+    setErrorRePassword('');
+
+    let valid = true;
+
+    if (!email) {
+      setErrorEmail('Vui lòng nhập đầy đủ thông tin.');
+      valid = false;
+    } else if (!email.includes('@') || !email.includes('.')) {
+      setErrorEmail('Email không đúng định dạng.');
+      valid = false;
     }
+
+    if (!password) {
+      setErrorPassword('Vui lòng nhập đầy đủ thông tin.');
+      valid = false;
+    } else if (!/^\d{6}$/.test(password)) {
+      setErrorPassword('Mật khẩu phải gồm đúng 6 chữ số và không có ký tự đặc biệt.');
+      valid = false;
+    }
+
+    if (!rePassword) {
+      setErrorRePassword('Vui lòng nhập đầy đủ thông tin.');
+      valid = false;
+    } else if (password !== rePassword) {
+      setErrorRePassword('Mật khẩu nhập lại không trùng khớp.');
+      valid = false;
+    }
+
+    if(!valid){
+      return;
+    }
+    
+    await dispatch(fetchRegister({email, password}));
   };
 
   useEffect(() => {

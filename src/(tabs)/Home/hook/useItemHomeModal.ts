@@ -16,6 +16,7 @@ export const useItemHomeModal = (
   const intentRef = useRef<Modalize>(null);
   const sheetRef = useRef<Modalize>(null);
   const modalReactionRef = useRef<Modalize>(null);
+  const modalShareRef = useRef<Modalize>(null);
 
   const {handleHidePost, handleFollowAction, handleBookmarkAction} = actions;
   const {setIsModalVisible} = state;
@@ -36,6 +37,10 @@ export const useItemHomeModal = (
 
   const handleOpenReactionModal = useCallback(() => {
     modalReactionRef.current?.open();
+  }, []);
+
+  const handleOpenShareModal = useCallback(() => {
+    modalShareRef.current?.open();
   }, []);
 
   /** Handle selecting an option from the first sheet */
@@ -114,10 +119,12 @@ export const useItemHomeModal = (
     intentRef,
     sheetRef,
     modalReactionRef,
+    modalShareRef,
     openOptions,
     openIntentions,
     closeOptions,
     handleOpenReactionModal,
+    handleOpenShareModal,
     handleOptionSelect,
     handleIntentionSelect,
     topOptions,
