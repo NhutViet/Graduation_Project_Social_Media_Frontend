@@ -35,7 +35,6 @@ export const useItemHomeActions = (
     userID,
     handleName,
     loading,
-    setVisibleModalShare,
     isBookmark,
     setIsBookmark,
     playlists,
@@ -80,24 +79,6 @@ export const useItemHomeActions = (
       });
   }, [_id]);
 
-  const handleOpenModalShare = useCallback(() => {
-    if (loading) return;
-
-    if (userID) {
-      Promise.all([
-        dispatch(fetchFollowers({userId: userID})),
-        dispatch(fetchFollowing({userId: userID})),
-      ])
-        .then(() => setVisibleModalShare(true))
-        .catch(() => {
-          GlobalAlertManager.show(
-            'Thất bại',
-            'Không thể tải danh sách bạn bè. Vui lòng thử lại.',
-          );
-        });
-    }
-  }, [dispatch, userID, loading, setVisibleModalShare]);
-
   const handleFollowAction = useCallback(() => {
     handleFollowToggle({
       userId: user._id,
@@ -119,7 +100,6 @@ export const useItemHomeActions = (
   return {
     handleLike,
     handleHidePost,
-    handleOpenModalShare,
     handleFollowAction,
     handleBookmarkAction,
   };

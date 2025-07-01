@@ -57,31 +57,42 @@ export const SwitchAccount = ({navigation}: any) => {
   };
 
   const handleLogin = async () => {
-    if (email === '' || password === '') {
-      if (email === '') setErrorEmail('Vui lòng nhập đầy đủ thông tin.');
-      if (password === '') setErrorPassword('Vui lòng nhập đầy đủ thông tin.');
-    } else if (!email.includes('.') || !email.includes('@')) {
+
+    setErrorEmail('');
+    setErrorPassword('');
+
+    let valid = true;
+    if(!email){
+      setErrorEmail('Vui lòng nhập đầy đủ thông tin.');
+      valid = false;
+    } else if (!email.includes('.') || !email.includes('@')){
       setErrorEmail('Email không đúng định dạng');
-      setErrorPassword('');
-    } else {
-      setErrorEmail('');
-      setErrorPassword('');
-
-      const permissionGranted = await requestNotificationPermission();
-      if (!permissionGranted) {
-        Alert.alert('Bạn cần cấp quyền thông báo để sử dụng ứng dụng.');
-        return;
-      }
-
-      let fcmToken = '';
-
-      try {
-        fcmToken = await messaging().getToken();
-      } catch (err) {
-        console.warn('Lấy FCM token thất bại:', err);
-      }
-      dispatch(fetchLogin({email, password, fcmToken}));
+      valid = false;
     }
+
+    if(!password){
+      setErrorPassword('Vui lòng nhập đầy đủ thông tin.');
+      valid = false;
+    }
+
+    if (!valid){
+      return;
+    }
+
+    const permissionGranted = await requestNotificationPermission();
+    if (!permissionGranted) {
+      Alert.alert('Bạn cần cấp quyền thông báo để sử dụng ứng dụng.');
+      return;
+    }
+
+    let fcmToken = '';
+
+    try {
+      fcmToken = await messaging().getToken();
+    } catch (err) {
+      console.warn('Lấy FCM token thất bại:', err);
+    }
+    dispatch(fetchLogin({email, password, fcmToken}));
   };
 
   useEffect(() => {

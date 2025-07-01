@@ -38,6 +38,7 @@ const ReelsComponent = (props: any) => {
     openComment,
     openReactionModal,
     isFollow,
+    openShareModal,
   } = props;
   const navigation = useNavigation<any>();
 
@@ -180,7 +181,7 @@ const ReelsComponent = (props: any) => {
         <View style={styles.block1}>
           <View style={styles.rowContainer}>
             <TouchableOpacity style={styles.imgContainer}>
-              <TouchableOpacity style={styles.imgContainer}>
+              <TouchableOpacity style={styles.imgContainer} onPress={() => navigation.navigate('ProfileComp', {userID: user._id})}>
                 {user.profilePic ? (
                   <Image style={styles.img} source={{uri: user.profilePic}} />
                 ) : (
@@ -235,7 +236,7 @@ const ReelsComponent = (props: any) => {
             <Text style={styles.textNormal}>{formatNumber(commentCount)}</Text>
           </View>
           <View style={styles.containerVertical}>
-            <TouchableOpacity style={styles.iconContainer}>
+            <TouchableOpacity style={styles.iconContainer} onPress={openShareModal}>
               <Image
                 style={styles.icon}
                 source={require('../../../../assets/icon/share.png')}
@@ -338,7 +339,7 @@ const styles = StyleSheet.create({
   },
   containerVertical: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 10,
   },
   iconMusicContainer: {
     width: 25,
