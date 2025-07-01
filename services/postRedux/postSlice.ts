@@ -7,7 +7,7 @@ export const fetchPostsWithMedia = createAsyncThunk<
   PostWithMedia[],
   {page: number; limit?: number},
   {rejectValue: any}
->('posts/fetchWithMedia', async ({page, limit = 10}, {rejectWithValue}) => {
+>('posts/fetchWithMedia', async ({page, limit = 20}, {rejectWithValue}) => {
   try {
     const response = await axiosInstance.get(API.GET_ALL_POST, {
       params: {page, limit},
