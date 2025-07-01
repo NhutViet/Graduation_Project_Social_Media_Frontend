@@ -33,12 +33,12 @@ export const useProfileEditingStyles = () => {
           textAlign: 'left',
           color: palette.text,
         },
-        
+
         row: {
           flexDirection: 'row',
-          alignItems: 'center', 
+          alignItems: 'center',
           marginBottom: 16,
-          minHeight: 44, 
+          minHeight: 44,
         },
         label: {
           fontSize: 15,
@@ -46,8 +46,8 @@ export const useProfileEditingStyles = () => {
           color: palette.text,
           textAlign: 'left',
           marginRight: 15,
-          width: 110, 
-          flexShrink: 0, 
+          width: 110,
+          flexShrink: 0,
         },
         input: {
           flex: 1,
@@ -57,7 +57,7 @@ export const useProfileEditingStyles = () => {
           paddingVertical: 8,
           borderBottomColor: palette.gray,
           color: palette.text,
-          minHeight: 40, 
+          minHeight: 40,
           maxHeight: 100,
           justifyContent: 'center',
         },
@@ -140,9 +140,9 @@ export const useProfileEditingStyles = () => {
           backgroundColor: palette.background,
         },
         headerIcon: {
-          width: 18,
-          height: 18,
-          marginLeft: 8,
+          width: 20,
+          height: 20,
+          marginRight: 8,
           tintColor: palette.text,
           resizeMode: 'contain',
         },
@@ -261,12 +261,12 @@ export const useProfileEditingStyles = () => {
           fontWeight: '400',
         },
         asterisk: {
-          color: 'red',     
-          fontSize: 15,     
+          color: 'red',
+          fontSize: 15,
           fontWeight: '400',
         },
         dropdownContainer: {
-          paddingVertical: 0, 
+          paddingVertical: 0,
           paddingHorizontal: 0,
           height: 1,
           marginTop: 4,

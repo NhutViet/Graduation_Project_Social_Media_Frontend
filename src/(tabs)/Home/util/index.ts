@@ -133,7 +133,7 @@ export const handleUserPress = async (
         ).unwrap();
 
         const stories = await Promise.all(
-          detailRes.map(async story => {
+          detailRes.map(async (story: any) => {
             try {
               await dispatch(seenStory({storyId: story._id}));
               const hasSeen = await checkStorySeenInStorage(
@@ -144,7 +144,7 @@ export const handleUserPress = async (
                 await markStoryAsSeen(story._id, story.createdAt);
               }
 
-              const populatedTags = (story.tags || []).map(tag => {
+              const populatedTags = (story.tags || []).map((tag: any) => {
                 const userDetail = tag.user;
                 if (typeof userDetail === 'string') {
                   const foundUser =
@@ -217,7 +217,6 @@ export const handleUserPress = async (
       storyGroupIndex: currentGroupIndex,
     });
   } catch (error) {
-    console.error('❌ fetchStoryDetails or seenStory failed:', error);
     GlobalAlertManager.show('Lỗi', 'Lỗi khi tải story');
   }
 };

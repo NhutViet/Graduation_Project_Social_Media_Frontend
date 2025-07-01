@@ -43,10 +43,16 @@ const MessageStyles = (theme: ThemeType) => {
       justifyContent: 'space-between',
     },
     rowContainer: {
-      width: '25%',
+      width: '30%',
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
+    },
+    rowContainer1: {
+      width: '25%',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'flex-end',
     },
     rowContainer2: {
       width: '40%',
@@ -56,7 +62,7 @@ const MessageStyles = (theme: ThemeType) => {
     blockIcon: {
       width: 20,
       height: 20,
-      marginRight: 10,
+      marginHorizontal: 10,
     },
     blockIcon1: {
       width: 20,
@@ -96,7 +102,7 @@ const MessageStyles = (theme: ThemeType) => {
     iconF: {
       width: '85%',
       height: '85%',
-      resizeMode: 'contain',
+      resizeMode: 'cover',
       borderRadius: 25,
       zIndex: 1,
       bottom: 0,

@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useRef, useState} from 'react';
 import {
   View,
   Text,
@@ -15,11 +15,18 @@ import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '@services/store';
 import {fetchMyWaitingRooms} from '@services/roomRedux/roomSlice';
 import {Room} from '@services/roomRedux/roomType';
+import MessageBoxStyles from '../../../src/StyleSheet/MessageBoxStyles';
+import {useTheme} from '../../../src/util/ThemeContext';
+import {Colors} from '@assets/color/Colors';
 
 export const PendingMessages: React.FC = () => {
   const styles = useProfileEditingStyles();
+  const {theme} = useTheme();
+  const color = Colors[theme];
+  const styles2 = MessageBoxStyles(theme);
   const nav = useNavigation();
-  const [searchText, setSearchText] = useState('');
+  const searchInputRef = useRef<TextInput>(null);
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [room, setRoom] = useState<Room[]>();
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.user.user);
@@ -52,15 +59,9 @@ export const PendingMessages: React.FC = () => {
           />
         </TouchableOpacity>
         <View style={styles.headerRightIcons}>
-          <TouchableOpacity style={{marginRight: 16}}>
-            <Image
-              source={require('../../../assets/icon/videoCamera.png')}
-              style={styles.headerIcon}
-            />
-          </TouchableOpacity>
           <TouchableOpacity>
             <Image
-              source={require('../../../assets/icon/newMessage.png')}
+              source={require('../../../assets/icon/new_mess.png')}
               style={styles.headerIcon}
             />
           </TouchableOpacity>
@@ -68,18 +69,36 @@ export const PendingMessages: React.FC = () => {
       </View>
 
       {/* Search Bar */}
-      <View style={localStyles.searchContainer}>
-        <Image
-          source={require('../../../assets/icon/search.png')}
-          style={localStyles.searchIcon}
-        />
-        <TextInput
-          style={localStyles.searchInput}
-          placeholder="Tìm kiếm"
-          placeholderTextColor={styles.tabSelected.backgroundColor}
-          value={searchText}
-          onChangeText={setSearchText}
-        />
+      <View style={styles.searchContainer}>
+        <View style={styles2.searchBlock}>
+          <View style={styles2.iconBlock}>
+            <Image
+              style={styles2.icon}
+              source={require('../../../assets/icon/search.png')}
+            />
+          </View>
+          <TextInput
+            ref={searchInputRef}
+            placeholder="Tìm kiếm đoạn hội thoại"
+            placeholderTextColor={color.text}
+            style={[
+              styles2.searchInput,
+              {paddingRight: searchQuery.length > 0 ? 40 : 0},
+            ]}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity
+              style={styles2.clearButton}
+              onPress={() => setSearchQuery('')}>
+              <Image
+                style={styles2.clearIcon}
+                source={require('../../../assets/icon/closer.png')}
+              />
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
 
       {/* FlashList */}

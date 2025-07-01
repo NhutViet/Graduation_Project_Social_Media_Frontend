@@ -55,7 +55,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
           <TouchableOpacity style={styles.blockIcon1}>
             <Image
               style={styles.icon}
-              source={require('../../../../assets/icon/Microphone.png')}
+              source={require('../../../../assets/icon/microphone.png')}
             />
           </TouchableOpacity>
           <TouchableOpacity
@@ -63,7 +63,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
             onPress={pickImageAndSend}>
             <Image
               style={styles.icon}
-              source={require('../../../../assets/icon/Picture.png')}
+              source={require('../../../../assets/icon/picture.png')}
             />
           </TouchableOpacity>
           <TouchableOpacity style={styles.blockIcon1}>

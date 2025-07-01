@@ -10,6 +10,7 @@ import {
 
 interface RoomState {
   rooms: Room[];
+  waitingRooms: Room[];
   loading: boolean;
   error: string | null;
   createdRoom: Room | null;
@@ -19,6 +20,7 @@ interface RoomState {
 
 const initialState: RoomState = {
   rooms: [],
+  waitingRooms: [],
   loading: false,
   error: null,
   createdRoom: null,
@@ -47,7 +49,7 @@ const roomSlice = createSlice({
 
       .addCase(fetchMyWaitingRooms.fulfilled, (state, action) => {
         state.loading = false;
-        state.rooms = action.payload;
+        state.waitingRooms = action.payload;
       })
 
       .addCase(updateRoomTheme.fulfilled, (state, action) => {
