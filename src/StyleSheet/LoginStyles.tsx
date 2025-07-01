@@ -106,7 +106,14 @@ const LoginStyles = () => {
     errorText: {
       fontSize: 12,
       color: Colors.error,
-      marginTop: 5,
+      marginLeft: 5,
+    },
+    icon: {
+      width: 20,
+      height: 20,
+      tintColor: Colors.black,
+      marginTop: 20,
+      marginLeft: 12,
     },
   });
 };

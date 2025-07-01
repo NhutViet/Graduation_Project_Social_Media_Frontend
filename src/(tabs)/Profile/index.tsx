@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   TouchableOpacity,
   View,
@@ -11,7 +11,7 @@ import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {FlashList} from '@shopify/flash-list';
-import {highlights, HighlightItem} from '../../MockData/story.mock';
+import {HighlightItem} from '../../MockData/story.mock';
 import {
   PlusSquare,
   Menu,
@@ -164,10 +164,45 @@ const Profile = () => {
     }
   };
 
+  // These two State Functionals below is for handle the length of bio
+  const [needsTruncation, setNeedsTruncation] = useState(false);
+  const [viewMoreBio, setViewMoreBio] = useState<Boolean>(false);
+  const handleLengthBio = (bioText?: string) => {
+    const MAX_LINES = 4;
+    if (!bioText) {
+      return (
+        <Text style={[styles.bioText, {color: color.text}]} />
+      );
+    }
+
+    return (
+      <View>
+        <Text
+          numberOfLines={viewMoreBio ? undefined : MAX_LINES}
+          ellipsizeMode="tail"
+          onTextLayout={({nativeEvent}) => {
+            setNeedsTruncation(nativeEvent.lines.length > MAX_LINES);
+          }}
+          style={[styles.bioText, {color: color.text}]}
+        >
+          {bioText}
+        </Text>
+
+        {needsTruncation && (
+          <TouchableOpacity onPress={() => setViewMoreBio(!viewMoreBio)}>
+            <Text style={{color: color.blue}}>
+              {viewMoreBio ? 'Thu gọn' : 'Xem thêm'}
+            </Text>
+          </TouchableOpacity>
+        )}
+      </View>
+    );
+  };
+
   const [activeTab, setActiveTab] = useState('grid');
 
   const renderHeader = () => (
-    <View>
+    <View style={{flex: 1}}>
       <View style={styles.header}>
         <View style={styles.usernameContainer}>
           <Lock size={16} color={color.text} />
@@ -192,7 +227,7 @@ const Profile = () => {
         </View>
       </View>
 
-      <View>
+      <View style={{flex: 1}}>
         <View style={styles.profileInfo}>
           <View style={styles.avatarContainer}>
             <Image
@@ -228,7 +263,7 @@ const Profile = () => {
               onPress={() => navigation.navigate('FollowersScreen')}>
               <View style={styles.statItem}>
                 <Text style={[styles.statNumber, {color: color.text}]}>
-                  {(followers?.length) ? followers?.length : 0}
+                  {followers?.length ? followers?.length : 0}
                 </Text>
                 <Text style={[styles.statLabel, {color: color.text}]}>
                   người theo dõi
@@ -236,13 +271,14 @@ const Profile = () => {
               </View>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => navigation.navigate('FollowersScreen', {
-                screen: "FollowingTab"
-              })}
-              >
+              onPress={() =>
+                navigation.navigate('FollowersScreen', {
+                  screen: 'FollowingTab',
+                })
+              }>
               <View style={styles.statItem}>
                 <Text style={[styles.statNumber, {color: color.text}]}>
-                  {(following?.length) ? following?.length : 0}
+                  {following?.length ? following?.length : 0}
                 </Text>
                 <Text style={[styles.statLabel, {color: color.text}]}>
                   đang theo dõi
@@ -254,16 +290,16 @@ const Profile = () => {
 
         <View style={styles.bioContainer}>
           <Text style={[styles.displayName, {color: color.text}]}>
-            {user?.handleName}
+            {user?.username}
           </Text>
           <View style={styles.modeContainer}>
             <Moon size={14} color={color.textSecondary} />
             <Text style={[styles.modeText, {color: color.textSecondary}]}>
               {' '}
-              {/* in quiet mode */} Ở chế độ lặng
+              {/* in quiet mode */} Ở chế độ im lặng
             </Text>
           </View>
-          <Text style={[styles.bioText, {color: color.text}]}>{user?.bio}</Text>
+          {handleLengthBio(user?.bio)}
         </View>
 
         <View style={styles.actionButtons}>
@@ -293,17 +329,26 @@ const Profile = () => {
             <Share2 size={18} color={color.text} />
           </TouchableOpacity>
         </View>
-
-        <View style={styles.highlightsContainer}>
-          <FlashList
-            horizontal
-            data={highlights}
-            renderItem={({item}) => renderStories({item})}
-            estimatedItemSize={50}
-            keyExtractor={item => item.id.toString()}
-            showsHorizontalScrollIndicator={false}
-          />
-        </View>
+        {/* Highlight stories */}
+        {/* <View style={styles.highlightsContainer}>
+          {loading ? (
+            <Text style={{color: color.text}}>Đang tải highlights...</Text>
+          ) : Array.isArray(highlightStories) && highlightStories.length > 0 ? (
+            <FlashList
+              horizontal
+              data={highlightStories}
+              renderItem={({item}) => renderStories({item})}
+              estimatedItemSize={90}
+              keyExtractor={item => item._id.toString()}
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{paddingVertical: 5}}
+            />
+          ) : (
+            <Text style={{color: color.text}}>
+              Không có highlight stories nào
+            </Text>
+          )}
+        </View> */}
         <ModalCreate
           visible={visibleModalCreate}
           onClose={() => setVisibleModalCreate(false)}

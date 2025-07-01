@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   View,
   StyleSheet,
-  Alert,
   Modal,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
@@ -84,7 +83,7 @@ export const Register = ({navigation}: any) => {
         style={styles.linear}
       />
       <TouchableOpacity onPress={() => navigation.goBack()}>
-        <ChevronLeft size={35} color={'#000'} />
+        <Image style={styles.icon} source={require('@assets/icon/left.png')} />
       </TouchableOpacity>
       <View style={styles.container}>
         <Image
@@ -100,7 +99,7 @@ export const Register = ({navigation}: any) => {
             }}
             placeholder="Email"
             placeholderTextColor={Colors.light.lightDark}
-            style={SwitchStyles.input}
+            style={[SwitchStyles.input, {marginBottom: 5}]}
           />
           {!(errorEmail === '') && (
             <Text style={styles.errorText}>{errorEmail}</Text>
@@ -113,6 +112,7 @@ export const Register = ({navigation}: any) => {
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 alignItems: 'center',
+                marginBottom: 5,
               },
             ]}>
             <TextInput
@@ -131,9 +131,9 @@ export const Register = ({navigation}: any) => {
                 isPassWord ? setIsPassWord(false) : setIsPassWord(true)
               }>
               {isPassWord ? (
-                <EyeOff size={24} color={'#000'} />
+                <EyeOff strokeWidth={1.5} size={20} color={'#000'} />
               ) : (
-                <Eye size={24} color={'#000'} />
+                <Eye strokeWidth={1.5} size={20} color={'#000'} />
               )}
             </TouchableOpacity>
           </View>
@@ -149,6 +149,7 @@ export const Register = ({navigation}: any) => {
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 alignItems: 'center',
+                marginBottom: 5,
               },
             ]}>
             <TextInput
@@ -167,9 +168,9 @@ export const Register = ({navigation}: any) => {
                 isRePassWord ? setIsRePassWord(false) : setIsRePassWord(true)
               }>
               {isRePassWord ? (
-                <EyeOff size={24} color={'#000'} />
+                <EyeOff strokeWidth={1.5} size={20} color={'#000'} />
               ) : (
-                <Eye size={24} color={'#000'} />
+                <Eye strokeWidth={1.5} size={20} color={'#000'} />
               )}
             </TouchableOpacity>
           </View>

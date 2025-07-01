@@ -14,13 +14,17 @@ const SearchUser: React.FC = React.memo(() => {
 
   const dataU = (users as any)?.items || [];
 
-  const renderItem = React.useCallback(({item}: {item: any}) => (
-    <User
-      name={item.username}
-      image={item.profilePic}
-      handle={item.handleName}
-    />
-  ), []);
+  const renderItem = React.useCallback(
+    ({item}: {item: any}) => (
+      <User
+        id={item._id}
+        name={item.username}
+        image={item.profilePic}
+        handle={item.handleName}
+      />
+    ),
+    [],
+  );
 
   if (isLoading) {
     return (
@@ -53,7 +57,8 @@ const SearchUser: React.FC = React.memo(() => {
           keyExtractor={item => item._id || item.username}
           estimatedItemSize={200}
           showsVerticalScrollIndicator={false}
-          removeClippedSubviews/>
+          removeClippedSubviews
+        />
       ) : (
         <View
           style={{

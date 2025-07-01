@@ -194,7 +194,7 @@ const ReelsComponent = (props: any) => {
             <Text style={styles.name}>{user.handleName}</Text>
             {user._id !== currentUser?._id && (
               <TouchableOpacity onPress={toggleFollow} style={styles.btnFollow}>
-                <Text style={{fontSize: 14, color: Colors.dark.text}}>
+                <Text style={{fontSize: 14, color: Colors.white}}>
                   {follow ? 'Đang theo dõi' : 'Theo dõi'}
                 </Text>
               </TouchableOpacity>
@@ -272,21 +272,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 5,
-    backgroundColor: Colors.light.transparent,
+    backgroundColor: Colors.transparent,
     borderWidth: 1,
     marginLeft: 10,
-    borderColor: Colors.light.background,
+    borderColor: Colors.white,
   },
   textNormal: {
     fontSize: 14,
-    color: Colors.light.background,
+    color: Colors.white,
     marginTop: 5,
   },
   container: {
     position: 'relative',
     width: width,
     height: height,
-    backgroundColor: Colors.dark.background,
+    backgroundColor: Colors.black,
   },
   rowContainer: {
     flexDirection: 'row',
@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     resizeMode: 'contain',
-    tintColor: Colors.dark.text,
+    tintColor: Colors.white,
   },
   bottomContainer: {
     position: 'absolute',
@@ -311,7 +311,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
-    backgroundColor: Colors.dark.transparent,
+    backgroundColor: Colors.transparent,
     zIndex: 1,
   },
   block1: {
@@ -331,7 +331,7 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: Colors.dark.text,
+    color: Colors.white,
   },
   block2: {
     alignItems: 'center',
@@ -345,7 +345,7 @@ const styles = StyleSheet.create({
     height: 25,
     padding: 5,
     borderRadius: 2,
-    borderColor: Colors.dark.text,
+    borderColor: Colors.white,
     borderWidth: 1,
   },
   video: {

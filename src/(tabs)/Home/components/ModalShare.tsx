@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   Modal,
   View,
@@ -13,12 +13,10 @@ import {
   Search,
   UserPlus,
   Link,
-  MessageCircle,
-  CheckCircle2,
 } from 'lucide-react-native';
-import {FlashList} from '@shopify/flash-list';
-import {Colors} from '../../../../assets/color/Colors';
-import {useTheme} from '../../../util/ThemeContext';
+import { FlashList } from '@shopify/flash-list';
+import { Colors } from '../../../../assets/color/Colors';
+import { useTheme } from '../../../util/ThemeContext';
 
 interface Friend {
   _id: string;
@@ -32,8 +30,8 @@ interface ModalShareProps {
   friends: Friend[];
 }
 
-const ModalShare: React.FC<ModalShareProps> = ({visible, onClose, friends}) => {
-  const {theme} = useTheme();
+const ModalShare: React.FC<ModalShareProps> = ({ visible, onClose, friends }) => {
+  const { theme } = useTheme();
   const color = Colors[theme];
   const [selectedFriendIds, setSelectedFriendIds] = useState<string[]>([]);
   const [message, setMessage] = useState('');
@@ -44,66 +42,190 @@ const ModalShare: React.FC<ModalShareProps> = ({visible, onClose, friends}) => {
     );
   };
 
+
+  const styles = StyleSheet.create({
+    overlay: {
+      flex: 1,
+      justifyContent: 'flex-end',
+      backgroundColor: 'rgba(0,0,0,0.4)',
+    },
+    modalContainer: {
+      flex: 1,
+      backgroundColor: '#1c1c1e',
+      borderTopLeftRadius: 16,
+      borderTopRightRadius: 16,
+      paddingHorizontal: 16,
+      paddingTop: 8,
+      paddingBottom: 20,
+      maxHeight: '70%',
+    },
+    handleBar: {
+      alignSelf: 'center',
+      width: 40,
+      height: 5,
+      borderRadius: 3,
+      backgroundColor: '#666',
+      marginBottom: 10,
+    },
+    description: {
+      color: '#ccc',
+      fontSize: 13,
+      textAlign: 'center',
+      paddingHorizontal: 10,
+      marginBottom: 10,
+    },
+    searchBox: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: '#2c2c2e',
+      borderRadius: 8,
+      paddingHorizontal: 10,
+      height: 40,
+      marginBottom: 12,
+    },
+    searchInput: {
+      flex: 1,
+      marginLeft: 10,
+    },
+    friendListContainer: {
+      paddingBottom: 16,
+      paddingHorizontal: 8,
+      alignItems: 'center',
+    },
+    friendItem: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: 64,
+      marginBottom: 12,
+    },
+    avatar: {
+      width: 60,
+      height: 60,
+      borderRadius: 30,
+      marginBottom: 4,
+    },
+    checkmark: {
+      position: 'absolute',
+      bottom: 4,
+      right: 4,
+      backgroundColor: 'white',
+      borderRadius: 10,
+    },
+    friendName: {
+      color: '#fff',
+      fontSize: 12,
+      textAlign: 'center',
+      paddingHorizontal: 4,
+      flexWrap: 'wrap',
+    },
+    shareActions: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      flexWrap: 'wrap',
+      rowGap: 12,
+      marginTop: 16,
+    },
+    actionItem: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: 72,
+      height: 72,
+      marginBottom: 8,
+    },
+    actionLabel: {
+      color: color.text,
+      fontSize: 11,
+      textAlign: 'center',
+      marginTop: 4,
+    },
+    messageInput: {
+      backgroundColor: '#2c2c2e',
+      borderRadius: 8,
+      color: '#fff',
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      marginTop: 16,
+      fontSize: 14,
+    },
+    sendButton: {
+      backgroundColor: '#3B82F6',
+      paddingVertical: 12,
+      borderRadius: 8,
+      marginTop: 12,
+    },
+    sendButtonText: {
+      color: '#fff',
+      textAlign: 'center',
+      fontWeight: '600',
+      fontSize: 16,
+    },
+  });
   return (
     <Modal visible={visible} animationType="slide" transparent>
       <Pressable style={styles.overlay} onPress={onClose}>
-        <Pressable style={[styles.modalContainer, {backgroundColor: color.background}]} onPress={() => {}}>
+        <Pressable style={[styles.modalContainer, { backgroundColor: color.background }]} onPress={() => { }}>
           <View style={styles.handleBar} />
 
-          <Text style={[styles.description, {color: color.text}]}>
+          <Text style={[styles.description, { color: color.text }]}>
             Liên kết mà bạn chia sẻ là dành riêng cho bạn và có thể được dùng để
             cải thiện gợi ý cũng như quảng cáo bạn nhìn thấy.{' '}
-            <Text style={{color: '#0095f6'}}>Tìm hiểu thêm</Text>
+            <Text style={{ color: '#0095f6' }}>Tìm hiểu thêm</Text>
           </Text>
 
           {/* Tìm kiếm */}
-          <View style={[styles.searchBox, {backgroundColor: color.search}]}>
+          <View style={[styles.searchBox, { backgroundColor: color.search }]}>
             <Search size={20} color="#aaa" />
             <TextInput
               placeholder="Tìm kiếm"
-              style={[styles.searchInput, {backgroundColor: color.backgroundSecondary}]}
-              placeholderTextColor= {color.textSecondary}
+              style={[styles.searchInput, { color: color.text }]}
+              placeholderTextColor={color.text}
             />
             <UserPlus size={20} color="#aaa" />
           </View>
 
           {friends.length > 0 ? (
-            // Danh sách bạn bè
-          <FlashList
-            data={friends}
-            numColumns={3}
-            estimatedItemSize={80}
-            showsVerticalScrollIndicator={false}
-            extraData={selectedFriendIds}
-            keyExtractor={item => item._id}
-            contentContainerStyle={{
-              paddingBottom: 16,
-              backgroundColor: color.background,
-            }}
-            renderItem={({item}) => {
-              const isSelected = selectedFriendIds.includes(item._id);
-              return (
-                <View style={{flex: 1, alignItems: 'center'}}>
-                  <TouchableOpacity
-                    onPress={() => toggleSelectFriend(item._id)}
-                    style={styles.friendItem}>
-                    <View>
-                      <Image
-                        source={{uri: item.avatar}}
-                        style={styles.avatar}
-                      />
-                      {isSelected && (
-                        <View style={styles.checkmark}>
-                          <CheckCircle2 size={20} color="#4A90E2" />
-                        </View>
-                      )}
-                    </View>
-                    <Text style={[styles.friendName, {color: color.textSecondary}]}>{item.name}</Text>
-                  </TouchableOpacity>
-                </View>
-              );
-            }}
-          />
+            <FlashList
+              data={friends}
+              numColumns={3}
+              estimatedItemSize={80}
+              showsVerticalScrollIndicator={false}
+              extraData={selectedFriendIds}
+              keyExtractor={item => item._id}
+              contentContainerStyle={{
+                paddingBottom: 16,
+                backgroundColor: color.background,
+              }}
+              renderItem={({ item }) => {
+                const isSelected = selectedFriendIds.includes(item._id);
+                return (
+                  <View style={{ flex: 1, alignItems: 'center' }}>
+                    <TouchableOpacity
+                      onPress={() => toggleSelectFriend(item._id)}
+                      style={styles.friendItem}>
+                      <View>
+                        <Image
+                          source={{ uri: item.avatar }}
+                          style={styles.avatar}
+                        />
+                        {isSelected && (
+                          <View style={styles.checkmark}>
+                            <Image
+                              style={{
+                                width: 20,
+                                height: 20,
+                                tintColor: color.primary
+                              }}
+                              source={require('@assets/icon/success.png')}
+                            />
+                          </View>
+                        )}
+                      </View>
+                      <Text style={[styles.friendName, { color: color.textSecondary }]}>{item.name}</Text>
+                    </TouchableOpacity>
+                  </View>
+                );
+              }}
+            />
           ) : (
             <Text style={{
               height: 200,
@@ -122,7 +244,7 @@ const ModalShare: React.FC<ModalShareProps> = ({visible, onClose, friends}) => {
               <TextInput
                 placeholder="Soạn tin nhắn..."
                 placeholderTextColor="#888"
-                style={[styles.messageInput, {backgroundColor: color.backgroundSecondary}]}
+                style={[styles.messageInput, { backgroundColor: color.backgroundSecondary }]}
                 value={message}
                 onChangeText={setMessage}
               />
@@ -133,12 +255,10 @@ const ModalShare: React.FC<ModalShareProps> = ({visible, onClose, friends}) => {
           ) : (
             <View style={styles.shareActions}>
               <TouchableOpacity style={styles.actionItem}>
-                <MessageCircle size={20} color="white" />
-                <Text style={styles.actionLabel}>Thêm vào tin</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.actionItem}>
-                <Link size={20} color="white" />
+                <Image
+                  source={require('@assets/icon/link.png')}
+                  style={{width: 20, height: 20, tintColor: color.text}}
+                />
                 <Text style={styles.actionLabel}>Sao chép liên kết</Text>
               </TouchableOpacity>
             </View>
@@ -150,122 +270,3 @@ const ModalShare: React.FC<ModalShareProps> = ({visible, onClose, friends}) => {
 };
 
 export default ModalShare;
-
-const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0,0,0,0.4)',
-  },
-  modalContainer: {
-    flex: 1,
-    backgroundColor: '#1c1c1e',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    paddingHorizontal: 16,
-    paddingTop: 8,
-    paddingBottom: 20,
-    maxHeight: '70%',
-  },
-  handleBar: {
-    alignSelf: 'center',
-    width: 40,
-    height: 5,
-    borderRadius: 3,
-    backgroundColor: '#666',
-    marginBottom: 10,
-  },
-  description: {
-    color: '#ccc',
-    fontSize: 13,
-    textAlign: 'center',
-    paddingHorizontal: 10,
-    marginBottom: 10,
-  },
-  searchBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#2c2c2e',
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    height: 40,
-    marginBottom: 12,
-  },
-  searchInput: {
-    flex: 1,
-    marginLeft: 10,
-    color: '#fff',
-  },
-  friendListContainer: {
-    paddingBottom: 16,
-    paddingHorizontal: 8,
-    alignItems: 'center',
-  },
-  friendItem: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 64,
-    marginBottom: 12,
-  },
-  avatar: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    marginBottom: 4,
-  },
-  checkmark: {
-    position: 'absolute',
-    bottom: 4,
-    right: 4,
-    backgroundColor: '#000',
-    borderRadius: 10,
-  },
-  friendName: {
-    color: '#fff',
-    fontSize: 12,
-    textAlign: 'center',
-    paddingHorizontal: 4,
-    flexWrap: 'wrap',
-  },
-  shareActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    flexWrap: 'wrap',
-    rowGap: 12,
-    marginTop: 16,
-  },
-  actionItem: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 72,
-    height: 72,
-    marginBottom: 8,
-  },
-  actionLabel: {
-    color: '#fff',
-    fontSize: 11,
-    textAlign: 'center',
-    marginTop: 4,
-  },
-  messageInput: {
-    backgroundColor: '#2c2c2e',
-    borderRadius: 8,
-    color: '#fff',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    marginTop: 16,
-    fontSize: 14,
-  },
-  sendButton: {
-    backgroundColor: '#3B82F6',
-    paddingVertical: 12,
-    borderRadius: 8,
-    marginTop: 12,
-  },
-  sendButtonText: {
-    color: '#fff',
-    textAlign: 'center',
-    fontWeight: '600',
-    fontSize: 16,
-  },
-});

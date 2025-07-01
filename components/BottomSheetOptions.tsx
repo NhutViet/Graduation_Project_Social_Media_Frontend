@@ -16,6 +16,7 @@ export interface BottomSheetOptionsProps {
   isBookmarked?: boolean;
   listOptionGroups: ConfigOption[][];
   onSelect: (id: string) => void;
+  onBookmarkPress: () => void;
 }
 
 const BottomSheetOptions: React.FC<BottomSheetOptionsProps> = ({
@@ -23,11 +24,11 @@ const BottomSheetOptions: React.FC<BottomSheetOptionsProps> = ({
   isBookmarked,
   listOptionGroups,
   onSelect,
+  onBookmarkPress
 }) => {
   const { theme } = useTheme();
   const palette = Colors[theme];
   const styles = useBottomSheetStyles();
-  const spacing = Colors.spacing;
 
   const handlePress = (id: string) => {
     onSelect(id);
@@ -42,18 +43,16 @@ const BottomSheetOptions: React.FC<BottomSheetOptionsProps> = ({
             <React.Fragment key={opt.id}>
               <TouchableOpacity
                 style={styles.horizontalButton}
-                onPress={() => handlePress(opt.id)}>
+                onPress={onBookmarkPress}>
                 <Image
                   source={isBookmarked && opt.id === 'bookmark' ? require('../assets/icon/bookmark_fill.png') : opt.icon}
                   style={[styles.topIcon, { tintColor: isBookmarked && opt.id === 'bookmark' ? '#F2C641' : palette.text }]}
                   resizeMode="contain"
                 />
                 <Text style={[styles.topLabel, { color: palette.text }]}>  
-                  {isBookmarked && opt.id ? 'Đã lưu' :opt.label}
+                  {isBookmarked && opt.id === 'bookmark' ? 'Đã lưu' : opt.label}
                 </Text>
               </TouchableOpacity>
-              {/* only render an invisible spacer if this ain't the last item */}
-              {idx < topOptions.length - 1 && <View style={{ width: spacing.s }} />}
             </React.Fragment>
           ))}
         </View>

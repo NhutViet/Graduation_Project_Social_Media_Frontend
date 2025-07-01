@@ -115,7 +115,7 @@ const UserFollowersTab = ({route}: any) => {
       <TouchableOpacity style={styles.cancelButton}>
         <View style={{width: 10, height: 10, overflow: 'hidden'}}>
           <Image
-            source={require('../../../../assets/icon/x.png')}
+            source={require('../../../../assets/icon/closer.png')}
             style={[styles.cancelImage, {tintColor: color.text}]}
           />
         </View>

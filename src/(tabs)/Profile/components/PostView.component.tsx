@@ -2,7 +2,6 @@ import React from 'react';
 import {TouchableOpacity, View, Image, Text} from 'react-native';
 import {FlashList} from '@shopify/flash-list';
 import {Styles} from '../../../StyleSheet/Profile.Styles';
-import Video from 'react-native-video';
 import {Colors} from '../../../../assets/color/Colors';
 import {useNavigation} from '@react-navigation/native';
 
@@ -10,9 +9,20 @@ interface GridViewProps {
   data: any[];
   onPressItem?: (item: any) => void;
 }
+const convertToImage = (uri: string): string => {
+  if (
+    uri.includes('videodelivery.net') &&
+    uri.includes('/manifest/') &&
+    !uri.endsWith('.jpg')
+  ) {
+    const parts = uri.split('/');
+    const videoId = parts[3];
+    return `https://videodelivery.net/${videoId}/thumbnails/thumbnail.jpg?time=2s`;
+  }
+  return uri;
+};
 
 const GridView: React.FC<GridViewProps> = ({data, onPressItem}) => {
-
   return (
     <>
       {data.length > 0 ? (
@@ -27,40 +37,28 @@ const GridView: React.FC<GridViewProps> = ({data, onPressItem}) => {
             let uri = null;
             let isVideo = false;
             if (media?.videoUrl) {
-              uri = media.videoUrl;
+              uri = convertToImage(media.videoUrl);
               isVideo = true;
             } else if (media?.imageUrl) {
               uri = media.imageUrl;
               isVideo = false;
             }
+
             return (
               <View style={Styles.styles.gridItem}>
-                {isVideo ? (
-                  <TouchableOpacity onPress={() => onPressItem?.(item)}>
-                    <Video
-                      source={{uri: uri}}
-                      style={[
-                        Styles.styles.gridImage,
-                        {
-                          width: Styles.itemSize - 2,
-                          height: Styles.itemSize - 2,
-                          backgroundColor: Colors.black,
-                        },
-                      ]}
-                      paused={true}
-                    />
-                  </TouchableOpacity>
-                ) : (
                 <TouchableOpacity onPress={() => onPressItem?.(item)}>
                   <Image
                     source={{uri: uri}}
                     style={[
                       Styles.styles.gridImage,
-                      {width: Styles.itemSize - 2, height: Styles.itemSize - 2},
+                      {
+                        width: Styles.itemSize - 2,
+                        height: Styles.itemSize - 2,
+                        backgroundColor: Colors.black,
+                      },
                     ]}
                   />
                 </TouchableOpacity>
-                )}
               </View>
             );
           }}
@@ -93,8 +91,7 @@ export const PostsView: React.FC<{data: any[]}> = ({data}) => {
 export const ReelsView: React.FC<{data: any[]}> = ({data}) => {
   const navigation = useNavigation<any>();
   const handlePress = () => {
-    navigation.navigate('ViewReels', {
-    });
+    navigation.navigate('ViewReels', {});
   };
   return <GridView data={data} onPressItem={handlePress} />;
 };

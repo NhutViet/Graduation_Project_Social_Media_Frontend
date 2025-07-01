@@ -2,7 +2,7 @@ import {Dimensions, StyleSheet, Text, View} from 'react-native';
 import React, {useState} from 'react';
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
-import {SceneMap, TabBar, TabView} from 'react-native-tab-view';
+import {TabBar, TabView} from 'react-native-tab-view';
 import SearchForYou from './SearchForYou';
 import HashTag from './HashTag';
 import SearchUser from './SearchUser';
