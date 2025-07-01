@@ -73,7 +73,13 @@ export const SwitchAccount = ({navigation}: any) => {
         return;
       }
 
-      const fcmToken = await messaging().getToken();
+      let fcmToken = '';
+
+      try {
+        fcmToken = await messaging().getToken();
+      } catch (err) {
+        console.warn('Lấy FCM token thất bại:', err);
+      }
       dispatch(fetchLogin({email, password, fcmToken}));
     }
   };

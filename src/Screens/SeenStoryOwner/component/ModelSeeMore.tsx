@@ -7,14 +7,20 @@ import {
   Image,
   TouchableOpacity,
 } from 'react-native';
-import React from 'react';
+import React, {useState} from 'react';
+import {FlashList} from '@shopify/flash-list';
+import {X} from 'lucide-react-native';
 
 const ModalSeeMore = ({
   visible,
   onClose,
+  onDelete,
+  users,
 }: {
   visible: boolean;
   onClose: () => void;
+  onDelete: () => void;
+  users?: any[];
 }) => {
   return (
     <Modal
@@ -28,14 +34,11 @@ const ModalSeeMore = ({
             <View style={styles.header}>
               <Text style={styles.title}>Tin Đang hoạt động</Text>
               <TouchableOpacity onPress={onClose}>
-                <Image
-                  style={styles.icon}
-                  source={require('../../../../assets/icon/closer.png')}
-                />
+                <X color={'#fff'} />
               </TouchableOpacity>
             </View>
             <View style={styles.mid}>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={onDelete}>
                 <Text style={styles.txtRemoveStory}>Xoá tin</Text>
               </TouchableOpacity>
             </View>

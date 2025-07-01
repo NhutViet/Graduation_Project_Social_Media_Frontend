@@ -1,8 +1,8 @@
 import React from 'react';
 import {View, TextInput, TouchableOpacity, Image, Animated} from 'react-native';
 import {styles} from './styles';
-import {Heart} from 'lucide-react-native';
-export const Footer = ({onLike, isLiked, scaleAnim}: any) => (
+import {Heart, Send} from 'lucide-react-native';
+export const Footer = ({onLike, isLiked, scaleAnim, onPressSend}: any) => (
   <View style={styles.viewBottom}>
     <TextInput
       style={styles.input}
@@ -19,10 +19,9 @@ export const Footer = ({onLike, isLiked, scaleAnim}: any) => (
           />
         </Animated.View>
       </TouchableOpacity>
-      <Image
-        style={styles.icon}
-        source={require('../../../../assets/icon/share.png')}
-      />
+      <TouchableOpacity onPress={onPressSend}>
+        <Send size={25} color={'#fff'} />
+      </TouchableOpacity>
     </View>
   </View>
 );
