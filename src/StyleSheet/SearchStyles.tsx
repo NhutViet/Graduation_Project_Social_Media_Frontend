@@ -42,7 +42,7 @@ export const SearchStyles = (theme: 'light' | 'dark') => {
       paddingRight: 10,
       paddingLeft: 40,
       paddingVertical: 5,
-      backgroundColor: color.search,
+      backgroundColor: color.lessBlack,
       color: color.text,
       borderRadius: 10,
     },

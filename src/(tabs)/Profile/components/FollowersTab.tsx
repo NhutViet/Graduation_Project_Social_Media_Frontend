@@ -203,16 +203,18 @@ const FollowersTab = () => {
         <View
           style={[
             styles.searchBarContainer,
-            {backgroundColor: color.background, borderColor: color.text},
           ]}>
+          <TextInput
+            style={[
+              styles.searchBar,
+              {color: color.text, backgroundColor: color.lessBlack},
+            ]}
+            placeholder="Tìm kiếm"
+            placeholderTextColor={color.text}
+          />
           <Image
             source={require('../../../../assets/icon/search.png')}
             style={[styles.searchIcon, {tintColor: color.text}]}
-          />
-          <TextInput
-            style={[styles.searchBar, {borderColor: color.border, color: color.text}]}
-            placeholder="Tìm kiếm"
-            placeholderTextColor={color.text}
           />
         </View>
       </View>
@@ -293,22 +295,23 @@ const styles = StyleSheet.create({
     height: 10,
   },
   searchIcon: {
-    width: 20,
-    height: 20,
-    marginRight: 5,
+    height: 15,
+    width: 15,
+    position: 'absolute',
+    left: 10,
+    resizeMode: 'contain',
   },
   searchBar: {
     flex: 1,
-    fontSize: 14,
+    paddingRight: 10,
+    paddingLeft: 40,
+    paddingVertical: 5,
+    borderRadius: 10,
   },
   searchBarContainer: {
-    flexDirection: 'row',
+    marginVertical: 3,
     alignItems: 'center',
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    height: 40,
-    marginHorizontal: 15,
-    borderWidth: 1,
+    flexDirection: 'row',
   },
   searchBarArea: {
     position: 'absolute',
@@ -318,7 +321,8 @@ const styles = StyleSheet.create({
     zIndex: 10,
     paddingHorizontal: 15,
     paddingVertical: 10,
-    borderBottomWidth: 1,
+    borderBottomWidth: 0.5,
+    marginBottom: 8,
   },
   listContent: {
     paddingTop: 70,

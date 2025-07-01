@@ -192,7 +192,7 @@ export const Search: React.FC = () => {
     if (keyword && !isLoading && !isError) {
       const hist = searchHistory.filter(item =>
         item.toLowerCase().includes(keyword),
-      );
+      ).slice(0, 2);
       const userItems = (users as UserR)?.items || [];
       return [
         ...hist.map((h, i) => ({
