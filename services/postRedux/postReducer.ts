@@ -7,6 +7,8 @@ interface PostState {
   reels: PostWithMedia[];
   loading: boolean;
   error: string | null;
+  page: number;
+  hasNextPage: boolean;
 }
 
 const initialState: PostState = {
@@ -14,6 +16,8 @@ const initialState: PostState = {
   reels: [],
   loading: false,
   error: null,
+  page: 1,
+  hasNextPage: true,  
 };
 
 const postReducer = createSlice({
@@ -56,7 +60,14 @@ const postReducer = createSlice({
       })
       .addCase(fetchPostsWithMedia.fulfilled, (state, action) => {
         state.loading = false;
-        state.posts = action.payload;
+        const { items, pagination } = action.payload;
+        if (action.meta.arg.page > 1) {
+          state.posts.push(...items);          
+        } else {
+          state.posts = items;                 
+        }
+        state.page = pagination.currentPage;
+        state.hasNextPage = pagination.hasNextPage;
       })
       .addCase(fetchPostsWithMedia.rejected, (state, action) => {
         state.loading = false;

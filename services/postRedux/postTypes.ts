@@ -73,3 +73,12 @@ export interface UploadPostPayload {
   music?: MusicPost;
   musicInfo?: Music;
 }
+
+export interface Pagination {
+  currentPage: number;
+  totalPages: number;
+  totalCount: number;
+  limit: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+}

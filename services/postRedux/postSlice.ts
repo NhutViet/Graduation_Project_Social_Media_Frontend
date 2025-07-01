@@ -1,26 +1,32 @@
 import {createAsyncThunk} from '@reduxjs/toolkit';
-import {PostWithMedia, UploadPostPayload} from './postTypes';
+import {PostWithMedia, UploadPostPayload, Pagination} from './postTypes';
 import axiosInstance from '../axiosInstance';
 import {API} from '../api';
 
 export const fetchPostsWithMedia = createAsyncThunk<
-  PostWithMedia[],
-  {page: number; limit?: number},
-  {rejectValue: any}
->('posts/fetchWithMedia', async ({page, limit = 10}, {rejectWithValue}) => {
-  try {
-    const response = await axiosInstance.get(API.GET_ALL_POST, {
-      params: {page, limit},
-      headers: {
-        token: 'refresh',
-      },
-    });
-
-    return response.data.items;
-  } catch (err: any) {
-    return rejectWithValue(err.response?.data || err.message);
+  { items: PostWithMedia[]; pagination: Pagination; isLoadMore: boolean }, 
+  { page: number; limit?: number },
+  { rejectValue: any }
+>(
+  'posts/fetchWithMedia',
+  async ({ page, limit = 10 }, { rejectWithValue, getState }) => {
+    try {
+      const { data } = await axiosInstance.get(API.GET_ALL_POST, {
+        params: { page, limit },
+        headers: { token: 'refresh' },
+      });
+      
+      return { 
+        items: data.items, 
+        pagination: data.pagination,
+        isLoadMore: page > 1 
+      };
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data || err.message);
+    }
   }
-});
+);
+
 
 export const fetchReelsWithMedia = createAsyncThunk<PostWithMedia[]>(
   'posts/fetchReelsWithMedia',

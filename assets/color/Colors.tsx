@@ -1,4 +1,4 @@
-import {Dimensions} from 'react-native';
+import {Dimensions, TextStyle} from 'react-native';
 
 const {width, height} = Dimensions.get('window');
 
@@ -29,10 +29,10 @@ const theme = {
       xxxl: 24,
     },
     fontWeights: {
-      regular: '400',
-      medium: '500',
-      semiBold: '600',
-      bold: '700',
+      regular: '400' as TextStyle['fontWeight'],
+      medium: '500' as TextStyle['fontWeight'],
+      semiBold: '600' as TextStyle['fontWeight'],
+      bold: '700' as TextStyle['fontWeight'],
     },
   },
   dimensions: {
