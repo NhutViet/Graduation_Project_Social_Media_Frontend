@@ -85,10 +85,9 @@ const NewMessage = () => {
         renderItem={({item}) => (
           <ItemNewMessage
             nameChat={item.nameChat}
-            userHandle1={item.userHandle1}
-            userHandle2={item.userHandle2}
             img1={item.img1}
             img2={item.img2}
+            roomId=""
           />
         )}
         estimatedItemSize={100}
@@ -109,13 +108,14 @@ const NewMessage = () => {
             </View>
 
             <ItemNewMessage
+              roomId=""
               nameChat="Group Chat"
-              userHandle1="Message people privately"
-              icon={require('../../../assets/icon/group_chat.png')}
+              img1={require('../../../assets/icon/group_chat.png')}
             />
             <ItemNewMessage
               nameChat="AI Chat"
-              icon={require('../../../assets/icon/ai.png')}
+              img1={require('../../../assets/icon/ai.png')}
+              roomId=""
             />
 
             <Text

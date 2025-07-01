@@ -61,10 +61,9 @@ export const useItemHomeActions = (
         senderId: userID,
         receiverId: user._id,
         handleName: handleName,
-      })
-    )
-      .unwrap()
-  
+      }),
+    ).unwrap();
+
     // Store the pending request
     pendingLikeRequest.current = requestPromise;
 
@@ -78,15 +77,24 @@ export const useItemHomeActions = (
       // No need to manually dispatch addLikedPost/removeLikedPost here
     } catch (error) {
       // Revert optimistic update on error
-      setIsLiked(!shouldLike);  
+      setIsLiked(!shouldLike);
       setNumLike((prev: number) => prev + (shouldLike ? -1 : 1));
       console.log('❌ Like/Unlike failed:', error);
     } finally {
       // Clear the pending request
       pendingLikeRequest.current = null;
     }
-  }, [isLiked, _id, refreshToken, userID, user._id, handleName, dispatch, setIsLiked, setNumLike]);
-
+  }, [
+    isLiked,
+    _id,
+    refreshToken,
+    userID,
+    user._id,
+    handleName,
+    dispatch,
+    setIsLiked,
+    setNumLike,
+  ]);
 
   const handleHidePost = useCallback(() => {
     dispatch(hidePost(_id))

@@ -14,6 +14,7 @@ import {useTheme} from '../../../util/ThemeContext';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../../services/store';
 import {Likers} from '../../../../services/likersRedux/likersSlice';
+import {handleFollowToggle} from '../util';
 
 interface ModalReactionProps {
   postId: string;
@@ -31,7 +32,7 @@ const ModalReaction = forwardRef<Modalize, ModalReactionProps>(
     const {refreshToken} = useSelector((state: RootState) => state.user);
     const [users, setUsers] = useState<any[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
-
+    const userId = useSelector((state: RootState) => state.user.user?._id);
     const modalContentHeight = Dimensions.get('window').height * 0.7;
 
     useEffect(() => {
@@ -77,7 +78,20 @@ const ModalReaction = forwardRef<Modalize, ModalReactionProps>(
                 ? [styles.disabledButton, {borderColor: color.text}]
                 : styles.activeButton,
             ]}
-            disabled={item.userFollowing}>
+            onPress={() => {
+              handleFollowToggle({
+                userId: item?.userId,
+                follow: item.userFollowing,
+                dispatch,
+              });
+              setUsers(prevUsers =>
+                prevUsers.map(u =>
+                  u.userId === item.userId
+                    ? {...u, userFollowing: !u.userFollowing}
+                    : u,
+                ),
+              );
+            }}>
             <Text
               style={[
                 item.userFollowing

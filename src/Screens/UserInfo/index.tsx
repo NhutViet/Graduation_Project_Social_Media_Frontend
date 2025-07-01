@@ -23,11 +23,7 @@ import {RootStackParamList} from '../../Navigation/AppNavigation';
 import ModalTheme from '../Message/components/ModalTheme';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../services/store';
-import {
-  updateRoomName,
-  updateRoomTheme,
-} from '../../../services/roomRedux/roomSlice';
-import {ModalRenameRoom} from '../../../components/ModalRenameRoom';
+import {updateRoomTheme} from '../../../services/roomRedux/roomSlice';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
 const screenWidth = Dimensions.get('window').width - 8;
@@ -44,11 +40,6 @@ export const UserInfo = () => {
   const dispatch = useDispatch<AppDispatch>();
   const animatedLeftValue = React.useRef(new Animated.Value(0)).current;
   const [visibleThemeModal, setVisibleThemeModal] = useState(false);
-  const rooms = useSelector((state: RootState) => state.rooms.rooms);
-  const room = useMemo(
-    () => rooms.find(r => r._id === roomId),
-    [rooms, roomId],
-  );
 
   React.useEffect(() => {
     Animated.timing(animatedLeftValue, {

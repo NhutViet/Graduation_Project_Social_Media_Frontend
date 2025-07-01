@@ -2,6 +2,7 @@ import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {FlashList} from '@shopify/flash-list';
 import {
   Image,
+  RefreshControl,
   SafeAreaView,
   ScrollView,
   Text,
@@ -43,6 +44,13 @@ export const MessageBox = (props: any) => {
   );
   const [searchQuery, setSearchQuery] = useState<string>('');
   const searchInputRef = useRef<TextInput>(null);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await dispatch(fetchMyRooms());
+    setRefreshing(false);
+  };
 
   useEffect(() => {
     dispatch(fetchFollowingStories({page: 1}));
@@ -183,6 +191,7 @@ export const MessageBox = (props: any) => {
                         navigation,
                         storyDetails,
                         user,
+                        followingUsers,
                       )
                     }
                   />
@@ -205,7 +214,6 @@ export const MessageBox = (props: any) => {
         </TouchableOpacity>
       </View>
 
-      {/* Messages List */}
       <View style={styles.messagesListContainer}>
         <FlashList
           data={filteredRooms}
@@ -234,6 +242,9 @@ export const MessageBox = (props: any) => {
           }}
           estimatedItemSize={100}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
         />
       </View>
     </SafeAreaView>

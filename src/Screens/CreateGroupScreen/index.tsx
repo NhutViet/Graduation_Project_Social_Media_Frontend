@@ -97,7 +97,7 @@ export const CreateGroupScreen = () => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <ArrowLeft size={24} color={color.text} />
         </TouchableOpacity>
-        <Text style={[styles.title, {color: color.text}]}>Tên nhóm chat</Text>
+        <Text style={[styles.title, {color: color.text}]}>Tạo nhóm trò chuyện</Text>
         <View style={{width: 24}} />
       </View>
 
@@ -177,7 +177,7 @@ export const CreateGroupScreen = () => {
         <TouchableOpacity
           style={styles.createButton}
           onPress={handleCreateRoom}>
-          <Text style={styles.createButtonText}>Tạo đoạn chat</Text>
+          <Text style={styles.createButtonText}>Tạo đoạn hội thoại</Text>
         </TouchableOpacity>
       )}
     </SafeAreaView>
