@@ -1,4 +1,4 @@
-import {useCallback} from 'react';
+import {useCallback, useRef} from 'react';
 import {useDispatch} from 'react-redux';
 import {AppDispatch} from '../../../../services/store';
 import {
@@ -23,6 +23,7 @@ export const useItemHomeActions = (
   state: any,
   isFollow: boolean,
 ) => {
+  const pendingLikeRequest = useRef<Promise<any> | null>(null);
   const dispatch = useDispatch<AppDispatch>();
   const {_id, user, likeCount} = props;
 
@@ -42,35 +43,50 @@ export const useItemHomeActions = (
     itemsByPlaylist,
   } = state;
 
-  const handleLike = useCallback(() => {
-    const optimisticLike = !isLiked;
-    setIsLiked(optimisticLike);
-    setNumLike((prev: number) => prev + (optimisticLike ? 1 : -1));
+  const handleLike = useCallback(async () => {
+    if (pendingLikeRequest.current) {
+      try {
+        await pendingLikeRequest.current;
+      } catch (error) {
+        // Ignore errors from previous requests
+      }
+    }
 
-    const action = optimisticLike ? likePost : unlikePost;
-
-    dispatch(
-      action({
+    // Determine the action based on current state
+    const shouldLike = !isLiked;
+    const requestPromise = dispatch(
+      (shouldLike ? likePost : unlikePost)({
         postId: _id,
         refreshToken,
         senderId: userID,
         receiverId: user._id,
         handleName: handleName,
-      }),
+      })
     )
       .unwrap()
-      .then(() => {
-        if (optimisticLike) {
-          dispatch(addLikedPost(_id));
-        } else {
-          dispatch(removeLikedPost({postId: _id}));
-        }
-      })
-      .catch(() => {
-        setIsLiked(!optimisticLike);
-        setNumLike(likeCount);
-      });
-  }, [isLiked, _id, refreshToken, likeCount, likePosts]);
+  
+    // Store the pending request
+    pendingLikeRequest.current = requestPromise;
+
+    // Optimistic update
+    setIsLiked(shouldLike);
+    setNumLike((prev: number) => prev + (shouldLike ? 1 : -1));
+
+    try {
+      await requestPromise;
+      // Success - Redux state is already updated by the fulfilled action
+      // No need to manually dispatch addLikedPost/removeLikedPost here
+    } catch (error) {
+      // Revert optimistic update on error
+      setIsLiked(!shouldLike);  
+      setNumLike((prev: number) => prev + (shouldLike ? -1 : 1));
+      console.log('❌ Like/Unlike failed:', error);
+    } finally {
+      // Clear the pending request
+      pendingLikeRequest.current = null;
+    }
+  }, [isLiked, _id, refreshToken, userID, user._id, handleName, dispatch, setIsLiked, setNumLike]);
+
 
   const handleHidePost = useCallback(() => {
     dispatch(hidePost(_id))

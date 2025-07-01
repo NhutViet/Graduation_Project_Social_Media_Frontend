@@ -21,10 +21,10 @@ import SearchResult from './Components/SearchResult';
 import {useIsFocused} from '@react-navigation/native';
 import {RootState} from '../../../services/store';
 import {useDispatch, useSelector} from 'react-redux';
-import {fetchPostsWithMedia} from '../../../services/postRedux/postSlice';
+// import {fetchPostsWithMedia} from '../../../services/postRedux/postSlice';
 import {AppDispatch} from '../../../services/store';
-import {Media} from '../../../services/postRedux/postTypes';
-import ExploreSection from './Components/ExploreTile';
+// import {PostWithMedia} from '@services/postRedux/postTypes';
+import ExploreSection, { ExploreMedia } from './Components/ExploreTile';
 import {useDebounce} from 'use-debounce';
 import {
   fetchSearchPost,
@@ -60,9 +60,6 @@ export const Search: React.FC = () => {
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [isInitializing, setIsInitializing] = useState(true);
 
-  // Initialization guard
-  const hasInitialized = useRef(false);
-
   // Refs
   const inputRef = useRef<TextInput>(null);
   const isFocusedPage = useIsFocused();
@@ -73,7 +70,7 @@ export const Search: React.FC = () => {
   const resultOpacity = useRef(new Animated.Value(0)).current;
 
   // View tracking
-  const [visibleIndexView1, setVisibleIndexView1] = useState<number | null>(
+  const [_visibleIndexView1, setVisibleIndexView1] = useState<number | null>(
     null,
   );
   const [visibleIndexView2, setVisibleIndexView2] = useState<number | null>(
@@ -139,33 +136,19 @@ export const Search: React.FC = () => {
     return cleanup;
   }, [cleanup]);
 
+  /**
+   * It's called once in HomeScreen
+   * No need to called it again
+   * */
+  // Initialization guard
+  // const hasInitialized = useRef(false);
   // Fetch posts once
-  useEffect(() => {
-    if (!hasInitialized.current) {
-      hasInitialized.current = true;
-      dispatch(fetchPostsWithMedia({page: 1}));
-    }
-  }, [dispatch]);
-
-  // Track initialization
-  useEffect(() => {
-    if (postsData.length > 0 && isInitializing) {
-      setIsInitializing(false);
-    }
-  }, [postsData, isInitializing]);
-
-  // Prepare media groups
-  const postMedia = useMemo(
-    () => postsData.flatMap(p => p.media || []),
-    [postsData],
-  );
-  const mediaGroups = useMemo(() => {
-    const groups: Media[][] = [];
-    for (let i = 0; i < postMedia.length; i += 5) {
-      groups.push(postMedia.slice(i, i + 5));
-    }
-    return groups;
-  }, [postMedia]);
+  // useEffect(() => {
+  //   if (!hasInitialized.current) {
+  //     hasInitialized.current = true;
+  //     dispatch(fetchPostsWithMedia({page: 1}));
+  //   }
+  // }, [dispatch]);
 
   // Screen dims for grid
   const screenDimensions = useMemo(() => {
@@ -200,7 +183,7 @@ export const Search: React.FC = () => {
       dispatch(fetchSearchUser({refreshToken, keyword, mode: 'username'}));
       dispatch(fetchSearchPost({refreshToken, keyword}));
     }
-    if (!keyword) lastSearch.current = '';
+    if (!keyword) {lastSearch.current = '';}
   }, [debouncedSearchText, dispatch, refreshToken]);
 
   // Combine history + users
@@ -234,11 +217,11 @@ export const Search: React.FC = () => {
   // History persistence
   const loadHistory = useCallback(async () => {
     const raw = await AsyncStorage.getItem(SEARCH_HISTORY_KEY);
-    if (raw) setSearchHistory(JSON.parse(raw));
+    if (raw) {setSearchHistory(JSON.parse(raw));}
   }, []);
 
   const saveHistory = useCallback(async (q: string) => {
-    if (!q) return;
+    if (!q) {return;}
     setSearchHistory(prev => {
       const updated = [q, ...prev.filter(x => x !== q)].slice(0, 10);
       AsyncStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(updated));
@@ -292,7 +275,7 @@ export const Search: React.FC = () => {
 
   // Handlers
   const handleSearchSubmit = useCallback(() => {
-    if (!searchText.trim()) return;
+    if (!searchText.trim()) {return;}
     saveHistory(searchText);
     setIsFocused(false);
     setIsShowResult(true);
@@ -339,18 +322,46 @@ export const Search: React.FC = () => {
     [deleteHistory, saveHistory],
   );
 
+  // A few things below is for the explore section
+  // Track initialization
+  useEffect(() => {
+    if (postsData.length > 0 && isInitializing) {
+      setIsInitializing(false);
+    }
+  }, [postsData, isInitializing]);
+
+  // Prepare media groups
+  // const postMedia = useMemo(
+  //   () => postsData.flatMap(p => p.media),
+  //   [postsData],
+  // );
+  const mediaGroups = useMemo(() => {
+    const groups: ExploreMedia[][] = [];
+    for (let i = 0; i < postsData.length; i += 5) {
+      const group = postsData.slice(i, i + 5)
+        .filter(post => post.media && post.media.length > 0)
+        .map(post => ({
+          _id: post._id,
+          media: post.media,
+        }));
+
+      if (group.length === 5) {
+        groups.push(group);
+      }
+    }
+    return groups;
+  }, [postsData]);
+  // console.log('>>>>>>>>>mediaGroups: ', mediaGroups);
   const renderExploreItem = useCallback(
-    ({item, index}: any) => (
-      <ExploreSection
-        media={item}
-        index={index}
-        currentVisibleIndex={visibleIndexView1}
-        isPause={isFocused || isShowResult}
-        isFocused={isFocused}
-        isFocusedPage={isFocusedPage}
-      />
-    ),
-    [isFocused, isShowResult, isFocusedPage, visibleIndexView1],
+    ({item, index}: any) => {
+      return (
+        <ExploreSection
+          media={item}
+          index={index}
+        />
+      );
+    },
+    [],
   );
 
   if (isInitializing) {

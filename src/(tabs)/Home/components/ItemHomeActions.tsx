@@ -12,6 +12,7 @@ interface ItemHomeActionsProps {
   numLike: number;
   commentCount: number;
   share: number;
+  likeDisabled?: boolean;  // disable like button while request pending
   onLikePress: () => void;
   onCommentPress: () => void;
   onSharePress: () => void;
@@ -28,6 +29,7 @@ export const ItemHomeActions: React.FC<ItemHomeActionsProps> = ({
   numLike,
   commentCount,
   share,
+  likeDisabled = false, 
   onLikePress,
   onCommentPress,
   onSharePress,
@@ -36,13 +38,16 @@ export const ItemHomeActions: React.FC<ItemHomeActionsProps> = ({
 }) => {
   return (
     <View
-      style={[ItemHomeStyles.rowContainer, {justifyContent: 'space-between'}]}>
+      style={[ItemHomeStyles.rowContainer, { justifyContent: 'space-between' }]}
+    >
       <View style={ItemHomeStyles.rowContainer}>
         <TouchableOpacity
-          style={ItemHomeStyles.iconBlock}
-          onPress={onLikePress}>
+          style={[ItemHomeStyles.iconBlock, { opacity: likeDisabled ? 0.5 : 1 }]}
+          onPress={onLikePress}
+          disabled={likeDisabled} // ignore taps when loading
+        >
           <Image
-            style={[{tintColor: likedColor}, ItemHomeStyles.icon]}
+            style={[{ tintColor: likedColor }, ItemHomeStyles.icon]}
             source={
               isLiked
                 ? require('../../../../assets/icon/heart_fill.png')
@@ -50,39 +55,46 @@ export const ItemHomeActions: React.FC<ItemHomeActionsProps> = ({
             }
           />
         </TouchableOpacity>
+
         <TouchableOpacity onPress={onReactionModalPress}>
-          <Text style={{color: iconColor, marginLeft: 8, marginRight: 16}}>
+          <Text style={{ color: iconColor, marginLeft: 8, marginRight: 16 }}>
             {formatNumber(numLike)}
           </Text>
         </TouchableOpacity>
+
         <TouchableOpacity
           style={ItemHomeStyles.iconBlock}
-          onPress={onCommentPress}>
+          onPress={onCommentPress}
+        >
           <Image
-            style={[{tintColor: iconColor}, ItemHomeStyles.icon]}
+            style={[{ tintColor: iconColor }, ItemHomeStyles.icon]}
             source={require('../../../../assets/icon/comment.png')}
           />
         </TouchableOpacity>
-        <Text style={{color: iconColor, marginLeft: 8, marginRight: 16}}>
+        <Text style={{ color: iconColor, marginLeft: 8, marginRight: 16 }}>
           {formatNumber(commentCount)}
         </Text>
+
         <TouchableOpacity
           style={ItemHomeStyles.iconBlock}
-          onPress={onSharePress}>
+          onPress={onSharePress}
+        >
           <Image
-            style={[{tintColor: iconColor}, ItemHomeStyles.icon]}
+            style={[{ tintColor: iconColor }, ItemHomeStyles.icon]}
             source={require('../../../../assets/icon/share.png')}
           />
         </TouchableOpacity>
-        <Text style={{color: iconColor, marginLeft: 8, marginRight: 16}}>
+        <Text style={{ color: iconColor, marginLeft: 8, marginRight: 16 }}>
           {formatNumber(share)}
         </Text>
       </View>
+
       <TouchableOpacity
         style={ItemHomeStyles.iconBlock}
-        onPress={onBookmarkPress}>
+        onPress={onBookmarkPress}
+      >
         <Image
-          style={[{tintColor: bookmarkColor}, ItemHomeStyles.icon]}
+          style={[{ tintColor: bookmarkColor }, ItemHomeStyles.icon]}
           source={
             isBookmarked
               ? require('../../../../assets/icon/bookmark_fill.png')

@@ -8,6 +8,7 @@ import {
   TextInput,
   Image,
   TouchableOpacity,
+  TextStyle,
 } from 'react-native';
 import {
   Search,
@@ -35,13 +36,12 @@ const ModalShare: React.FC<ModalShareProps> = ({ visible, onClose, friends }) =>
   const color = Colors[theme];
   const [selectedFriendIds, setSelectedFriendIds] = useState<string[]>([]);
   const [message, setMessage] = useState('');
-
+  type FontWeight = TextStyle['fontWeight'];
   const toggleSelectFriend = (id: string) => {
     setSelectedFriendIds(prev =>
       prev.includes(id) ? prev.filter(fid => fid !== id) : [...prev, id],
     );
   };
-
 
   const styles = StyleSheet.create({
     overlay: {
@@ -51,136 +51,163 @@ const ModalShare: React.FC<ModalShareProps> = ({ visible, onClose, friends }) =>
     },
     modalContainer: {
       flex: 1,
-      backgroundColor: '#1c1c1e',
-      borderTopLeftRadius: 16,
-      borderTopRightRadius: 16,
-      paddingHorizontal: 16,
-      paddingTop: 8,
-      paddingBottom: 20,
+      backgroundColor: color.background,
+      borderTopLeftRadius: Colors.radius.l,
+      borderTopRightRadius: Colors.radius.l,
+      paddingHorizontal: Colors.spacing.m,
+      paddingTop: Colors.spacing.s,
+      paddingBottom: Colors.spacing.l,
       maxHeight: '70%',
     },
     handleBar: {
       alignSelf: 'center',
       width: 40,
       height: 5,
-      borderRadius: 3,
-      backgroundColor: '#666',
-      marginBottom: 10,
+      borderRadius: Colors.radius.xs,
+      backgroundColor: color.textSecondary,
+      marginBottom: Colors.spacing.s,
     },
     description: {
-      color: '#ccc',
-      fontSize: 13,
+      color: color.textSecondary,
+      fontSize: Colors.typography.fontSizes.s,
       textAlign: 'center',
-      paddingHorizontal: 10,
-      marginBottom: 10,
+      paddingHorizontal: Colors.spacing.s,
+      marginBottom: Colors.spacing.s,
+    },
+    learnMoreText: {
+      color: Colors.primary,
     },
     searchBox: {
       flexDirection: 'row',
       alignItems: 'center',
-      backgroundColor: '#2c2c2e',
-      borderRadius: 8,
-      paddingHorizontal: 10,
+      backgroundColor: color.search,
+      borderRadius: Colors.radius.s,
+      paddingHorizontal: Colors.spacing.s,
       height: 40,
-      marginBottom: 12,
+      marginBottom: Colors.spacing.m,
     },
     searchInput: {
       flex: 1,
-      marginLeft: 10,
+      marginLeft: Colors.spacing.s,
+      color: color.text,
+      fontSize: Colors.typography.fontSizes.m,
     },
     friendListContainer: {
-      paddingBottom: 16,
-      paddingHorizontal: 8,
+      paddingBottom: Colors.spacing.m,
+      paddingHorizontal: Colors.spacing.s,
       alignItems: 'center',
     },
     friendItem: {
       alignItems: 'center',
       justifyContent: 'center',
       width: 64,
-      marginBottom: 12,
+      marginBottom: Colors.spacing.m,
     },
     avatar: {
       width: 60,
       height: 60,
       borderRadius: 30,
-      marginBottom: 4,
+      marginBottom: Colors.spacing.xs,
     },
     checkmark: {
       position: 'absolute',
       bottom: 4,
       right: 4,
-      backgroundColor: 'white',
+      backgroundColor: Colors.white,
       borderRadius: 10,
     },
     friendName: {
-      color: '#fff',
-      fontSize: 12,
+      color: color.textSecondary,
+      fontSize: Colors.typography.fontSizes.s,
       textAlign: 'center',
-      paddingHorizontal: 4,
+      paddingHorizontal: Colors.spacing.xs,
       flexWrap: 'wrap',
     },
     shareActions: {
       flexDirection: 'row',
       justifyContent: 'space-around',
       flexWrap: 'wrap',
-      rowGap: 12,
-      marginTop: 16,
+      rowGap: Colors.spacing.m,
+      marginTop: Colors.spacing.m,
     },
     actionItem: {
       alignItems: 'center',
       justifyContent: 'center',
       width: 72,
       height: 72,
-      marginBottom: 8,
+      marginBottom: Colors.spacing.s,
     },
     actionLabel: {
       color: color.text,
       fontSize: 11,
       textAlign: 'center',
-      marginTop: 4,
+      marginTop: Colors.spacing.xs,
     },
     messageInput: {
-      backgroundColor: '#2c2c2e',
-      borderRadius: 8,
-      color: '#fff',
-      paddingHorizontal: 12,
-      paddingVertical: 10,
-      marginTop: 16,
-      fontSize: 14,
+      backgroundColor: color.backgroundSecondary,
+      borderRadius: Colors.radius.s,
+      color: color.text,
+      paddingHorizontal: Colors.spacing.m,
+      paddingVertical: Colors.spacing.s,
+      marginTop: Colors.spacing.m,
+      fontSize: Colors.typography.fontSizes.m,
+      borderWidth: 1,
+      borderColor: color.border,
     },
     sendButton: {
-      backgroundColor: '#3B82F6',
-      paddingVertical: 12,
-      borderRadius: 8,
-      marginTop: 12,
+      backgroundColor: Colors.primary,
+      paddingVertical: Colors.spacing.m,
+      borderRadius: Colors.radius.s,
+      marginTop: Colors.spacing.m,
     },
     sendButtonText: {
-      color: '#fff',
+      color: Colors.white,
       textAlign: 'center',
-      fontWeight: '600',
-      fontSize: 16,
+      fontWeight: Colors.typography.fontWeights.semiBold,
+      fontSize: Colors.typography.fontSizes.l,
+    }, 
+    emptyStateText: {
+      height: 200,
+      textAlign: 'center',
+      fontSize: Colors.typography.fontSizes.xl,
+      margin: 30,
+      color: color.textSecondary,
+      fontWeight: Colors.typography.fontWeights.regular,
+      verticalAlign: 'middle',
+    },
+    actionIcon: {
+      width: 20,
+      height: 20,
+      tintColor: color.text,
+    },
+    checkmarkIcon: {
+      width: 20,
+      height: 20,
+      tintColor: Colors.primary,
     },
   });
+
   return (
     <Modal visible={visible} animationType="slide" transparent>
       <Pressable style={styles.overlay} onPress={onClose}>
-        <Pressable style={[styles.modalContainer, { backgroundColor: color.background }]} onPress={() => { }}>
+        <Pressable style={styles.modalContainer} onPress={() => { }}>
           <View style={styles.handleBar} />
 
-          <Text style={[styles.description, { color: color.text }]}>
+          <Text style={styles.description}>
             Liên kết mà bạn chia sẻ là dành riêng cho bạn và có thể được dùng để
             cải thiện gợi ý cũng như quảng cáo bạn nhìn thấy.{' '}
-            <Text style={{ color: '#0095f6' }}>Tìm hiểu thêm</Text>
+            <Text style={styles.learnMoreText}>Tìm hiểu thêm</Text>
           </Text>
 
           {/* Tìm kiếm */}
-          <View style={[styles.searchBox, { backgroundColor: color.search }]}>
-            <Search size={20} color="#aaa" />
+          <View style={styles.searchBox}>
+            <Search size={20} color={color.textSecondary} />
             <TextInput
               placeholder="Tìm kiếm"
-              style={[styles.searchInput, { color: color.text }]}
-              placeholderTextColor={color.text}
+              style={styles.searchInput}
+              placeholderTextColor={color.textSecondary}
             />
-            <UserPlus size={20} color="#aaa" />
+            <UserPlus size={20} color={color.textSecondary} />
           </View>
 
           {friends.length > 0 ? (
@@ -192,7 +219,7 @@ const ModalShare: React.FC<ModalShareProps> = ({ visible, onClose, friends }) =>
               extraData={selectedFriendIds}
               keyExtractor={item => item._id}
               contentContainerStyle={{
-                paddingBottom: 16,
+                paddingBottom: Colors.spacing.m,
                 backgroundColor: color.background,
               }}
               renderItem={({ item }) => {
@@ -210,32 +237,22 @@ const ModalShare: React.FC<ModalShareProps> = ({ visible, onClose, friends }) =>
                         {isSelected && (
                           <View style={styles.checkmark}>
                             <Image
-                              style={{
-                                width: 20,
-                                height: 20,
-                                tintColor: color.primary
-                              }}
+                              style={styles.checkmarkIcon}
                               source={require('@assets/icon/success.png')}
                             />
                           </View>
                         )}
                       </View>
-                      <Text style={[styles.friendName, { color: color.textSecondary }]}>{item.name}</Text>
+                      <Text style={styles.friendName}>{item.name}</Text>
                     </TouchableOpacity>
                   </View>
                 );
               }}
             />
           ) : (
-            <Text style={{
-              height: 200,
-              textAlign: 'center',
-              fontSize: 18,
-              margin: 30,
-              color: color.textSecondary,
-              fontWeight: '400',
-              verticalAlign: 'middle'
-            }}>Bạn không có người theo dõi hay đang theo dõi bất kỳ ai</Text>
+            <Text style={styles.emptyStateText}>
+              Bạn không có người theo dõi hay đang theo dõi bất kỳ ai
+            </Text>
           )}
 
           {/* Gửi tin nhắn nếu có người được chọn */}
@@ -243,12 +260,13 @@ const ModalShare: React.FC<ModalShareProps> = ({ visible, onClose, friends }) =>
             <>
               <TextInput
                 placeholder="Soạn tin nhắn..."
-                placeholderTextColor="#888"
-                style={[styles.messageInput, { backgroundColor: color.backgroundSecondary }]}
+                placeholderTextColor={color.textSecondary}
+                style={styles.messageInput}
                 value={message}
                 onChangeText={setMessage}
+                multiline
               />
-              <TouchableOpacity style={[styles.sendButton]}>
+              <TouchableOpacity style={styles.sendButton}>
                 <Text style={styles.sendButtonText}>Gửi</Text>
               </TouchableOpacity>
             </>
@@ -257,7 +275,7 @@ const ModalShare: React.FC<ModalShareProps> = ({ visible, onClose, friends }) =>
               <TouchableOpacity style={styles.actionItem}>
                 <Image
                   source={require('@assets/icon/link.png')}
-                  style={{width: 20, height: 20, tintColor: color.text}}
+                  style={styles.actionIcon}
                 />
                 <Text style={styles.actionLabel}>Sao chép liên kết</Text>
               </TouchableOpacity>
