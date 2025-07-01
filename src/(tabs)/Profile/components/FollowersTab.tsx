@@ -210,7 +210,7 @@ const FollowersTab = () => {
             style={[styles.searchIcon, {tintColor: color.text}]}
           />
           <TextInput
-            style={[styles.searchBar, {borderColor: color.border}]}
+            style={[styles.searchBar, {borderColor: color.border, color: color.text}]}
             placeholder="Tìm kiếm"
             placeholderTextColor={color.text}
           />
