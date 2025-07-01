@@ -1,5 +1,5 @@
-import React, {forwardRef, useEffect, useRef} from 'react';
-import {View, Image, Text, Alert} from 'react-native';
+import React, {forwardRef, useEffect, useRef, useState} from 'react';
+import {View, Image, Text, Alert, ActivityIndicator} from 'react-native';
 import Video, {VideoRef} from 'react-native-video';
 import Sound from 'react-native-sound';
 import {styles} from './style';
@@ -13,6 +13,8 @@ interface MediaSectionProps {
   onMusicLoad?: (data: {duration: number}) => void;
   onMusicEnd?: () => void;
   paused?: boolean;
+  muted?: boolean;
+  isVideoLoaded?: boolean;
 }
 
 export const MediaSection = forwardRef<VideoRef, MediaSectionProps>(
@@ -25,6 +27,8 @@ export const MediaSection = forwardRef<VideoRef, MediaSectionProps>(
       onMusicLoad,
       onMusicEnd,
       paused,
+      muted,
+      isVideoLoaded,
     }: MediaSectionProps,
     ref,
   ) => {
@@ -78,6 +82,9 @@ export const MediaSection = forwardRef<VideoRef, MediaSectionProps>(
         });
 
         soundRef.current = sound;
+        if (paused) {
+          sound.pause();
+        }
       });
 
       return () => {
@@ -88,27 +95,59 @@ export const MediaSection = forwardRef<VideoRef, MediaSectionProps>(
         }
       };
     }, [selectedItem]); // ✅ Không chỉ là selectedItem.music.link
+    useEffect(() => {
+      if (soundRef.current) {
+        if (paused) {
+          soundRef.current.pause();
+        } else {
+          soundRef.current.play();
+        }
+      }
+    }, [paused]);
+
+    useEffect(() => {
+      if (soundRef.current) {
+        soundRef.current.setVolume(muted ? 0 : 1);
+      }
+    }, [muted]);
 
     return (
       <View style={styles.ViewMedia}>
         {selectedItem?.mediaUrl ? (
           selectedItem.mediaUrl.endsWith('.m3u8') ? (
-            <Video
-              ref={ref}
-              source={{uri: selectedItem.mediaUrl}}
-              style={styles.media}
-              resizeMode="contain"
-              repeat={false}
-              onLoad={onLoad}
-              onEnd={onEnd}
-              playInBackground={false}
-              playWhenInactive={false}
-              paused={paused}
-              onLayout={event => {
-                const {width, height} = event.nativeEvent.layout;
-                onMediaLayout?.({width, height});
-              }}
-            />
+            <>
+              <Video
+                ref={ref}
+                source={{uri: selectedItem.mediaUrl}}
+                style={styles.media}
+                resizeMode="contain"
+                repeat={false}
+                onLoad={onLoad}
+                onEnd={onEnd}
+                playInBackground={false}
+                playWhenInactive={false}
+                paused={paused}
+                muted={muted}
+                onLayout={event => {
+                  const {width, height} = event.nativeEvent.layout;
+                  onMediaLayout?.({width, height});
+                }}
+              />
+              {!isVideoLoaded && selectedItem?.mediaUrl?.endsWith('.m3u8') && (
+                <ActivityIndicator
+                  size="large"
+                  color="#fff"
+                  style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    marginLeft: -15,
+                    marginTop: -15,
+                    zIndex: 20,
+                  }}
+                />
+              )}
+            </>
           ) : (
             <Image
               source={{uri: selectedItem.mediaUrl}}
