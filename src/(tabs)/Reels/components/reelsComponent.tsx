@@ -181,14 +181,13 @@ const ReelsComponent = (props: any) => {
         <View style={styles.block1}>
           <View style={styles.rowContainer}>
             <TouchableOpacity style={styles.imgContainer}>
-              <TouchableOpacity style={styles.imgContainer} onPress={() => navigation.navigate('ProfileComp', {userID: user._id})}>
-                {user.profilePic ? (
+              <TouchableOpacity
+                style={styles.imgContainer}
+                onPress={() =>
+                  navigation.navigate('ProfileComp', {userID: user._id})
+                }>
+                {user.profilePic && (
                   <Image style={styles.img} source={{uri: user.profilePic}} />
-                ) : (
-                  <Image
-                    style={styles.img}
-                    source={require('../../../../assets/icon/account.png')}
-                  />
                 )}
               </TouchableOpacity>
             </TouchableOpacity>
@@ -236,7 +235,9 @@ const ReelsComponent = (props: any) => {
             <Text style={styles.textNormal}>{formatNumber(commentCount)}</Text>
           </View>
           <View style={styles.containerVertical}>
-            <TouchableOpacity style={styles.iconContainer} onPress={openShareModal}>
+            <TouchableOpacity
+              style={styles.iconContainer}
+              onPress={openShareModal}>
               <Image
                 style={styles.icon}
                 source={require('../../../../assets/icon/share.png')}
@@ -307,7 +308,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: width,
     bottom: 0,
-    paddingBottom: 20,
+    paddingBottom: 10,
     paddingHorizontal: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -339,7 +340,7 @@ const styles = StyleSheet.create({
   },
   containerVertical: {
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 20,
   },
   iconMusicContainer: {
     width: 25,

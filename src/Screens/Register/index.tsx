@@ -41,7 +41,6 @@ export const Register = ({navigation}: any) => {
   );
 
   const handleRegister = async () => {
-
     setErrorEmail('');
     setErrorPassword('');
     setErrorRePassword('');
@@ -60,7 +59,9 @@ export const Register = ({navigation}: any) => {
       setErrorPassword('Vui lòng nhập đầy đủ thông tin.');
       valid = false;
     } else if (!/^\d{6}$/.test(password)) {
-      setErrorPassword('Mật khẩu phải gồm đúng 6 chữ số và không có ký tự đặc biệt.');
+      setErrorPassword(
+        'Mật khẩu phải gồm đúng 6 chữ số và không có ký tự đặc biệt.',
+      );
       valid = false;
     }
 
@@ -72,10 +73,10 @@ export const Register = ({navigation}: any) => {
       valid = false;
     }
 
-    if(!valid){
+    if (!valid) {
       return;
     }
-    
+
     await dispatch(fetchRegister({email, password}));
   };
 
@@ -142,7 +143,7 @@ export const Register = ({navigation}: any) => {
                 setPassword(text);
                 setErrorPassword('');
               }}
-              style={{width: '90%'}}
+              style={{width: '90%', color: Colors.black}}
               placeholder="Mật khẩu"
               secureTextEntry={isPassWord}
               placeholderTextColor={Colors.light.lightDark}
@@ -179,7 +180,7 @@ export const Register = ({navigation}: any) => {
                 setRePassword(text);
                 setErrorRePassword('');
               }}
-              style={{width: '90%'}}
+              style={{width: '90%', color: Colors.black}}
               placeholder="Nhập lại mật khẩu"
               secureTextEntry={isRePassWord}
               placeholderTextColor={Colors.light.lightDark}

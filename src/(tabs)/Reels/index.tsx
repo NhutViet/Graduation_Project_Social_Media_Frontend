@@ -31,9 +31,8 @@ import BottomSheetComment, {
 } from '../Home/components/CommentSection';
 import {useFocusEffect} from '@react-navigation/native';
 import {Modalize} from 'react-native-modalize';
-import ModalReaction from '../Home/components/ModalReaction';
 import ModalShare from '../Home/components/ModalShare';
-import { Portal } from 'react-native-portalize';
+import {Portal} from 'react-native-portalize';
 
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
@@ -131,7 +130,7 @@ const Reels = forwardRef((props, ref) => {
                 dispatch(fetchCommentsByPost(item._id));
                 sheetRefComment.current?.open();
               }}
-              openReactionModal={() =>{}}
+              openReactionModal={() => {}}
               openShareModal={handleOpenShareModal}
             />
           );
@@ -150,11 +149,9 @@ const Reels = forwardRef((props, ref) => {
         selectedItem={selectedItem}
       />
       <BottomSheetComment ref={sheetRefComment} postId={selectedPostId} />
-      
+
       <Portal>
-        <ModalShare
-          ref={modalShareRef}
-        />
+        <ModalShare ref={modalShareRef} />
       </Portal>
     </SafeAreaView>
   );
