@@ -1,5 +1,11 @@
 import {createSlice} from '@reduxjs/toolkit';
-import {fetchLogin, fetchLogout, fetchRegister, getPublicProfile, fetchEditUser} from './userSlice';
+import {
+  fetchLogin,
+  fetchLogout,
+  fetchRegister,
+  getPublicProfile,
+  fetchEditUser,
+} from './userSlice';
 import {User, PublicUserRes} from './userTypes';
 
 interface UserState {
@@ -14,6 +20,7 @@ interface UserState {
   isSuccessPublicProfile: boolean;
   isErrorPublicProfile: boolean;
   errorMessagePublicProfile: string;
+  loggedInUsers: User[];
 }
 
 const initialState: UserState = {
@@ -28,6 +35,7 @@ const initialState: UserState = {
   isSuccessPublicProfile: false,
   isErrorPublicProfile: false,
   errorMessagePublicProfile: '',
+  loggedInUsers: [],
 };
 
 const UserReducer = createSlice({
@@ -77,6 +85,12 @@ const UserReducer = createSlice({
         state.isSuccess = true;
         state.user = action.payload.user;
         state.refreshToken = action.payload.refreshToken;
+
+        const userId = action.payload.user._id;
+        const alreadyLoggedIn = state.loggedInUsers.some(u => u._id === userId);
+        if (!alreadyLoggedIn) {
+          state.loggedInUsers.push(action.payload.user);
+        }
       })
       .addCase(fetchLogin.rejected, (state, action) => {
         state.isLoading = false;
@@ -122,14 +136,14 @@ const UserReducer = createSlice({
         state.isError = true;
         state.errorMessage = action.payload?.message || 'Registration failed';
       })
-    
+
       .addCase(fetchEditUser.pending, state => {
         state.isLoading = true;
       })
       .addCase(fetchEditUser.fulfilled, (state, action) => {
         state.isLoading = false;
         if (state.user) {
-          state.user = { ...state.user, ...action.payload };
+          state.user = {...state.user, ...action.payload};
         } else {
           state.user = action.payload;
         }
@@ -154,11 +168,18 @@ const UserReducer = createSlice({
       .addCase(getPublicProfile.rejected, (state, action) => {
         state.isLoadingPublicProfile = false;
         state.isErrorPublicProfile = true;
-        state.errorMessagePublicProfile = action.payload?.message || 'Failed to get public profile';
+        state.errorMessagePublicProfile =
+          action.payload?.message || 'Failed to get public profile';
         state.publicProfile = null;
       });
   },
 });
 
-export const {resetStatus, setUser, resetUser, resetPublicProfileStatus, clearPublicProfile} = UserReducer.actions;
+export const {
+  resetStatus,
+  setUser,
+  resetUser,
+  resetPublicProfileStatus,
+  clearPublicProfile,
+} = UserReducer.actions;
 export default UserReducer.reducer;

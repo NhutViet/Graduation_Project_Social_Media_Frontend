@@ -57,31 +57,33 @@ export const SwitchAccount = ({navigation}: any) => {
   };
 
   const handleLogin = async () => {
-
     setErrorEmail('');
     setErrorPassword('');
 
     let valid = true;
-    if(!email){
+    if (!email) {
       setErrorEmail('Vui lòng nhập đầy đủ thông tin.');
       valid = false;
-    } else if (!email.includes('.') || !email.includes('@')){
+    } else if (!email.includes('.') || !email.includes('@')) {
       setErrorEmail('Email không đúng định dạng');
       valid = false;
     }
 
-    if(!password){
+    if (!password) {
       setErrorPassword('Vui lòng nhập đầy đủ thông tin.');
       valid = false;
     }
 
-    if (!valid){
+    if (!valid) {
       return;
     }
 
     const permissionGranted = await requestNotificationPermission();
     if (!permissionGranted) {
-      Alert.alert('Bạn cần cấp quyền thông báo để sử dụng ứng dụng.');
+      GlobalAlertManager.show(
+        'Thông báo',
+        'Bạn cần cấp quyền thông báo để sử dụng ứng dụng.',
+      );
       return;
     }
 
@@ -138,7 +140,7 @@ export const SwitchAccount = ({navigation}: any) => {
       if (fetchCheckEmail.fulfilled.match(checkEmailAction)) {
         const {exists} = checkEmailAction.payload;
         let fcmToken = '';
-         try {
+        try {
           fcmToken = await messaging().getToken();
         } catch (err) {
           console.warn('Lấy FCM token thất bại:', err);
@@ -228,7 +230,7 @@ export const SwitchAccount = ({navigation}: any) => {
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                marginBottom: 5
+                marginBottom: 5,
               },
             ]}>
             <TextInput
