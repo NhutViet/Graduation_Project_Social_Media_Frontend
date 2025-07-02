@@ -1,3 +1,4 @@
+/* eslint-disable react/react-in-jsx-scope */
 import {
   ActivityIndicator,
   Image,
@@ -208,16 +209,22 @@ const Reels = forwardRef((props, ref) => {
             />
           );
         }}
-        pagingEnabled
+        pagingEnabled={true}
+        // avoiding overscroll too fast
+        overScrollMode="never"
+        decelerationRate="fast"
+        disableHorizontalListHeightMeasurement={true}
+        estimatedFirstItemOffset={3}
         showsVerticalScrollIndicator={false}
+        estimatedItemSize={height}
+        estimatedListSize={{height, width}}
+        keyExtractor={(item: any) => item._id}
         onViewableItemsChanged={onViewRef.current}
+        // viewabilityConfig is for select which item is visible && play it
         viewabilityConfig={{
-          itemVisiblePercentThreshold: 50,
+          itemVisiblePercentThreshold: 90,
           minimumViewTime: 300,
         }}
-        estimatedItemSize={height}
-        keyExtractor={(item) => item._id}
-        maintainVisibleContentPosition={null}
       />
       <BottomSheetReels
         ref={sheetRef}
