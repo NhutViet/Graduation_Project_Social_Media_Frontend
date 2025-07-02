@@ -55,7 +55,7 @@ const Story = (props: any) => {
           <LinearGradient
             colors={
               !isSeen
-                ? ['#D300C4', '#FE393C', '#FED203']
+                ? ['#8A3FFC', '#00C6FF']
                 : ['#CCCCCC', '#E0E0E0', '#F0F0F0']
             }
             start={{x: 0, y: 0}}
