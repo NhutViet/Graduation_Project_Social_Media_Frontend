@@ -55,6 +55,7 @@ import {
   ViewReels,
   SeenStoryOwner,
   TagSo,
+  HighlightCreateScreen,
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 import ProfileComp from '../Screens/Profile';
@@ -177,6 +178,10 @@ const AppNavigator = () => {
         />
         <Stack.Screen name="PrivacyAndSafety" component={PrivacyAndSafety} />
         <Stack.Screen name="UserFollowScreen" component={UserFollowScreen} />
+        <Stack.Screen
+          name="HighlightCreateScreen"
+          component={HighlightCreateScreen}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

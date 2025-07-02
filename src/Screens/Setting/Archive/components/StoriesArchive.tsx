@@ -1,30 +1,30 @@
 import {
-  Dimensions,
   Image,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
+  Dimensions,
+  TouchableOpacity,
 } from 'react-native';
 import React, {useCallback, useRef, useState} from 'react';
-import {TabView, SceneMap, TabBar} from 'react-native-tab-view';
+import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
+import Header from '../../../../../components/Header';
 import {useNavigation} from '@react-navigation/native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {useTheme} from '../../../../util/ThemeContext';
 import {Colors} from '../../../../../assets/color/Colors';
+import {useTheme} from '../../../../util/ThemeContext';
 import {Modalize} from 'react-native-modalize';
 import {Portal} from 'react-native-portalize';
 import StoriesTab from './StoriesTab';
 import HighlightsTab from './HighlightsTab';
-import Header from '../../../../../components/Header';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../../../services/store';
-import {fetchGetPostedSotry} from '../../../../../services/StoryRedux/StorySlice';
-import HighlightCreateModal from './HighlightCreateModal';
-import {GlobalAlertManager} from '../../../../../components/Global/AlertModal';
 
-const {width, height} = Dimensions.get('window');
-const modalContentHeight = Dimensions.get('window').height * 0.3;
+const TopTab = createMaterialTopTabNavigator();
+
+// Định nghĩa ITEM_SIZE trong StoryArchive
+const {width} = Dimensions.get('window');
+const ITEM_SIZE = width / 3;
 
 const StoryArchive = () => {
   const navigation: any = useNavigation();
@@ -33,146 +33,116 @@ const StoryArchive = () => {
   const dispatch = useDispatch<AppDispatch>();
   const {myStories, loading} = useSelector((state: RootState) => state.stories);
   const ModalArchiveRef = useRef<Modalize>(null);
-  const ModalOptionRef = useRef<Modalize>(null);
-  const [isHighlightModalOpen, setIsHighlightModalOpen] = useState(false);
 
-  const openHighlightCreateModal = useCallback((): void => {
-    dispatch(fetchGetPostedSotry());
-    setIsHighlightModalOpen(true);
-  }, [dispatch]);
-
-  const closeHighlightModal = useCallback((): void => {
-    setIsHighlightModalOpen(false);
+  const openArchiveModal = useCallback((): void => {
+    requestAnimationFrame(() => {
+      ModalArchiveRef.current?.open();
+    });
   }, []);
 
-  const createHighlight = async (selectedStoryIds: string[]) => {
-    if (selectedStoryIds.length === 0) {
-      GlobalAlertManager.show('Lỗi', 'Vui lòng chọn ít nhất một story.');
-      return;
-    }
-    try {
-      // Gọi API
-      GlobalAlertManager.show('Thành công', 'Tin nổi bật đã được tạo.');
-      closeHighlightModal();
-    } catch (error) {
-      GlobalAlertManager.show('Lỗi', 'Tạo thất bại, thử lại sau.');
-    }
-  };
-
-  const [index, setIndex] = useState(0);
-  const [routes] = useState([
-    {key: 'stories', title: 'Stories'},
-    {key: 'highlights', title: 'Highlights'},
-  ]);
-
-  const renderScene = SceneMap({
-    stories: StoriesTab,
-    highlights: HighlightsTab,
-  });
-
+  const goBack = useCallback((): void => {
+    navigation.goBack();
+  }, [navigation]);
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
-      <View style={{height: 60, overflow: 'hidden'}}>
+      <View style={{width: '100%', height: 60}}>
         <Header
-        pressableTitle="Kho lưu trữ tin"
-        pressableTilFunc={() => ModalArchiveRef.current?.open()}
-        iconBack={require('../../../../../assets/icon/left.png')}
-        func={() => navigation.goBack()}
-        iconLeft={require('../../../../../assets/icon/menu-dots-vertical.png')}
-        funcLeft={() => ModalOptionRef.current?.open()}
-        navigation={navigation}
-      />
+          pressableTitle="Kho lưu trữ tin"
+          pressableTilFunc={openArchiveModal}
+          iconBack={require('../../../../../assets/icon/left.png')}
+          func={goBack}
+          iconLeft={require('../../../../../assets/icon/add.png')}
+          funcLeft={() => navigation.navigate('HighlightCreateScreen')}
+          navigation={navigation}
+        />
       </View>
+      <View style={{width: '100%', height: '100%'}}>
+        <TopTab.Navigator
+          tabBar={({state, descriptors, navigation, position}) => (
+            <View
+              style={{flexDirection: 'row', backgroundColor: color.background}}>
+              {state.routes.map((route, index) => {
+                const {options} = descriptors[route.key];
+                const isFocused = state.index === index;
+                const icon =
+                  route.name === 'StoriesTab'
+                    ? require('../../../../../assets/icon/story.png')
+                    : require('../../../../../assets/icon/highlight.png');
 
-      <TabView
-        navigationState={{index, routes}}
-        renderScene={renderScene}
-        onIndexChange={setIndex}
-        initialLayout={{width: Dimensions.get('window').width}}
-        renderTabBar={tabBarProps => (
-          <TabBar
-            {...tabBarProps}
-            indicatorStyle={{backgroundColor: color.primary}}
-            activeColor={color.primary}
-            inactiveColor={color.text}
-            style={{
-              backgroundColor: color.background,
-              shadowColor: 'transparent',
-              borderBottomWidth: 0.5,
-              borderBottomColor: color.gray,
-            }}
-          />
-        )}
-      />
+                const onPress = () => {
+                  const event = navigation.emit({
+                    type: 'tabPress',
+                    target: route.key,
+                    canPreventDefault: true,
+                  } as const);
 
-      {/* Modal Archive */}
-      <Portal>
-        <Modalize
-          ref={ModalArchiveRef}
-          adjustToContentHeight
-          modalStyle={{backgroundColor: color.modal}}
-          handlePosition="inside"
-          handleStyle={styles.modalHandle}>
-            <View style={{height: modalContentHeight}}>
-              <View style={{flex: 1, marginTop: 35}}>
-                {[
-                  'Kho lưu trữ tin',
-                  'Kho lưu trữ bài viết',
-                  'Kho lưu trữ buổi phát trực tiếp',
-                ].map((text, i) => (
-                  <TouchableOpacity key={i} style={styles.modalPressable}>
-                    <Text style={[styles.modalText, {color: color.text}]}>
-                      {text}
-                    </Text>
+                  if (!isFocused && !event.defaultPrevented) {
+                    navigation.navigate(route.name);
+                  }
+                };
+
+                return (
+                  <TouchableOpacity
+                    key={route.key}
+                    onPress={onPress}
+                    style={{
+                      flex: 1,
+                      alignItems: 'center',
+                      paddingVertical: 10,
+                      borderBottomWidth: isFocused ? 3 : 0,
+                      borderBottomColor: isFocused ? color.text : 'transparent',
+                    }}>
+                    <Image
+                      source={icon}
+                      style={{
+                        width: 22,
+                        height: 22,
+                        tintColor: isFocused ? color.text : color.textSecondary,
+                      }}
+                    />
                   </TouchableOpacity>
-                ))}
-              </View>
+                );
+              })}
             </View>
-        </Modalize>
-      </Portal>
+          )}>
+          <TopTab.Screen name="StoriesTab" component={StoriesTab} />
+          <TopTab.Screen name="HighlightsTab" component={HighlightsTab} />
+        </TopTab.Navigator>
 
-      {/* Modal Option */}
-      <Portal>
-        <Modalize
-          ref={ModalOptionRef}
-          adjustToContentHeight
-          modalStyle={{backgroundColor: color.modal}}
-          handlePosition="inside"
-          handleStyle={styles.modalHandle}>
-            <View style={{height: modalContentHeight}}>
-              <View style={{flex: 1, marginTop: 35}}>
-                <View style={{paddingVertical: 20, justifyContent: 'center'}}>
-                  <Text
-                    style={{fontSize: 15, fontWeight: '500', color: color.text}}>
-                    Lựa chọn khác
-                  </Text>
-                </View>
-                <View style={{borderWidth: 1, borderColor: color.gray}} />
-                <TouchableOpacity
-                  style={styles.modalPressable}
-                  onPress={openHighlightCreateModal}>
-                  <Text style={[styles.modalText, {color: color.text}]}>
-                    Tạo tin nổi bật
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.modalPressable}>
-                  <Text style={[styles.modalText, {color: color.text}]}>
-                    Cài đặt
-                  </Text>
-                </TouchableOpacity>
-              </View>
+        <Portal>
+          <Modalize
+            ref={ModalArchiveRef}
+            adjustToContentHeight={false}
+            modalHeight={Dimensions.get('window').height * 0.3}
+            modalStyle={[styles.modal, {backgroundColor: color.modal}]}
+            handleStyle={styles.modalHandle}
+            handlePosition="inside"
+            panGestureEnabled={true}
+            onOverlayPress={() => ModalArchiveRef.current?.close()}
+            scrollViewProps={{
+              showsVerticalScrollIndicator: false,
+            }}>
+            <View style={{marginTop: 35}}>
+              <TouchableOpacity style={styles.modalPressable}>
+                <Text style={[styles.modalText, {color: color.text}]}>
+                  Kho lưu trữ tin
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.modalPressable}>
+                <Text style={[styles.modalText, {color: color.text}]}>
+                  Kho lưu trữ bài viết
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.modalPressable}>
+                <Text style={[styles.modalText, {color: color.text}]}>
+                  Kho lưu trữ buổi phát trực tiếp
+                </Text>
+              </TouchableOpacity>
             </View>
-        </Modalize>
-      </Portal>
-
-      <HighlightCreateModal
-        isOpen={isHighlightModalOpen}
-        onClose={closeHighlightModal}
-        myStories={myStories}
-        loading={loading}
-        onCreateHighlight={createHighlight}
-      />
+          </Modalize>
+        </Portal>
+      </View>
     </SafeAreaView>
   );
 };
