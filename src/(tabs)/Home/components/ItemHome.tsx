@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {View, Text, FlatList, Dimensions} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
@@ -6,10 +6,6 @@ import {Portal} from 'react-native-portalize';
 import Sound from 'react-native-sound';
 import {ItemHomeStyles} from '../component_styles/ItemHomeStyles';
 import {formatTimeAgo} from '../util';
-import {
-  addLikedPost,
-  removeLikedPost,
-} from '../../../../services/reactionRedux/reactionReducer';
 import {AppDispatch, RootState} from '../../../../services/store';
 import ModalShare from './ModalShare';
 import ModalReaction from './ModalReaction';
@@ -57,39 +53,51 @@ const ItemHome = (props: ItemHomeProps) => {
   const navigation: any = useNavigation();
   const dispatch = useDispatch<AppDispatch>();
 
+  const [likeLoading, setLikeLoading] = useState(false);
+
   const state = useItemHomeState(props);
   const actions = useItemHomeActions(props, state, isFollow);
   const modal = useItemHomeModal(actions, state, isFollow);
-  const utils = useItemHomeUtils(props, state);
+  const utils = useItemHomeUtils(props, state);  
 
   useEffect(() => {
     state.setIsBookmark(isBookmarked);
   }, [isBookmarked]);
 
+  // Get Redux like state for this specific post
   const isLikedFromRedux = useSelector((state: RootState) =>
     state.reactions.likePosts.includes(_id),
   );
 
   const currentUserID = useSelector((state: RootState) => state.user.user?._id);
 
+  // Sync local state with Redux state 
   useEffect(() => {
     state.setIsLiked(isLikedFromRedux);
   }, [isLikedFromRedux]);
 
   useItemHomeAudio(props, state.muted);
 
+  // Initialize like count from props
   useEffect(() => {
     state.setNumLike(likeCount);
   }, [likeCount]);
 
+  // Initialize local state from props only once
   useEffect(() => {
     state.setIsLiked(isLike);
-    if (isLike) {
-      dispatch(addLikedPost(_id));
-    } else {
-      dispatch(removeLikedPost({postId: _id}));
+  }, [_id]); 
+
+  const handleLikePress = useCallback(async () => {
+    if (likeLoading) return;
+    setLikeLoading(true);
+
+    try {
+      await actions.handleLike();
+    } finally {
+      setLikeLoading(false);
     }
-  }, [_id, isLike]);
+  }, [actions, likeLoading]);  
 
   const handleUserPress = () => {
     if (user._id === currentUserID) console.log('This is your current proflie');
@@ -181,8 +189,9 @@ const ItemHome = (props: ItemHomeProps) => {
           isBookmarked={state.isBookmark}
           numLike={state.numLike}
           commentCount={commentCount}
+          onLikePress={handleLikePress}  
+          likeDisabled={likeLoading}  
           share={share}
-          onLikePress={actions.handleLike}
           onCommentPress={() => handleOpenComment(_id)}
           onSharePress={actions.handleOpenModalShare}
           onBookmarkPress={actions.handleBookmarkAction}

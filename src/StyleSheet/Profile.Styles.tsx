@@ -155,27 +155,24 @@ export const Styles = {
       marginTop: 15,
       gap: 8,
     },
-    editButton: {
+    headerButton: {
       flex: 1,
-      paddingVertical: 7,
       borderRadius: 8,
-      alignItems: 'center',
-    },
-    shareButton: {
-      flex: 1,
-      paddingVertical: 7,
-      borderRadius: 8,
+      paddingHorizontal: 2,
+      paddingVertical: 4,
       alignItems: 'center',
     },
     optionButton: {
       width: 35,
-      paddingVertical: 7,
       borderRadius: 8,
       alignItems: 'center',
+      justifyContent: 'center',
     },
     buttonText: {
       fontSize: 14,
       fontWeight: '600',
+      padding: 4,
+      justifyContent: 'center'
     },
 
     // Highlights section
@@ -246,6 +243,7 @@ export const Styles = {
       shadowOffset: {width: 0, height: 2},
       shadowOpacity: 0.25,
       shadowRadius: 3.84,
+      marginTop: 12,
     },
     tab: {
       flex: 1,

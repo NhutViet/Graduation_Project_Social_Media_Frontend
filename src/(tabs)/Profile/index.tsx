@@ -301,7 +301,7 @@ const Profile = () => {
 
         <View style={styles.actionButtons}>
           <TouchableOpacity
-            style={[styles.editButton, {backgroundColor: color.gray}]}
+            style={[styles.headerButton, {backgroundColor: color.gray}]}
             onPress={() => navigation.navigate('EditProfile')}>
             <Text
               numberOfLines={1}
@@ -311,7 +311,7 @@ const Profile = () => {
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.shareButton, {backgroundColor: color.gray}]}
+            style={[styles.headerButton, {backgroundColor: color.gray}]}
             onPress={() => navigation.navigate('QRCode')}>
             <Text
               numberOfLines={1}
