@@ -1,5 +1,5 @@
 import React, {forwardRef, useEffect, useRef} from 'react';
-import {Image, Text, View} from 'react-native';
+import {ActivityIndicator, Image, Text, View} from 'react-native';
 import Video from 'react-native-video';
 import Sound from 'react-native-sound';
 import {styles} from './styles';
@@ -18,6 +18,7 @@ interface MediaPlayerProps {
   onMediaLayout?: (size: {width: number; height: number}) => void;
   paused?: boolean;
   muted?: boolean;
+  isMediaLoading?: boolean;
 }
 
 export const MediaPlayer = forwardRef<any, MediaPlayerProps>(
@@ -31,6 +32,7 @@ export const MediaPlayer = forwardRef<any, MediaPlayerProps>(
       onMediaLayout,
       paused,
       muted,
+      isMediaLoading,
     },
     ref,
   ) => {
@@ -129,6 +131,22 @@ export const MediaPlayer = forwardRef<any, MediaPlayerProps>(
           />
         ) : (
           <Text style={styles.errorText}>Không có media để hiển thị</Text>
+        )}
+        {isMediaLoading && (
+          <View
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: 'rgba(0,0,0,0.2)',
+              zIndex: 2,
+            }}>
+            <ActivityIndicator size="large" color="#fff" />
+          </View>
         )}
       </View>
     );
