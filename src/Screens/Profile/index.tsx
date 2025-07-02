@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   ScrollView,
   SafeAreaView,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import {
@@ -22,7 +21,6 @@ import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {UserMock} from '../../MockData/user.mock';
 import {highlights} from '../../MockData/story.mock';
-import {PostData} from '../../MockData/posts.mock';
 import StoryComponent from './components/story.component';
 import ActionButtons from './components/actionButton.component';
 import UserInfo from './components/userInfo.component';
@@ -34,7 +32,7 @@ import {AppDispatch, RootState} from '../../../services/store';
 import {
   fetchFollowers,
   fetchFollowing,
-  relationAction
+  relationAction,
 } from '../../../services/relationRedux/relationSlice';
 import {getPublicProfile} from '../../../services/userRedux/userSlice';
 import {clearPublicProfile} from '../../../services/userRedux/userReducer';
@@ -66,6 +64,7 @@ const ProfileComp = ({route}: any) => {
     navigation.navigate('UserFollowScreen', {
       screen: initialTab,
       userID: userID,
+      profileName: publicProfile?.username,
     });
   };
 
