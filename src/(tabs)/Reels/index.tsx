@@ -1,3 +1,4 @@
+/* eslint-disable react/react-in-jsx-scope */
 import {
   ActivityIndicator,
   Image,
@@ -136,13 +137,22 @@ const Reels = forwardRef((props, ref) => {
             />
           );
         }}
-        pagingEnabled
+        pagingEnabled={true}
+        // avoiding overscroll too fast
+        overScrollMode="never"
+        decelerationRate="fast"
+        disableHorizontalListHeightMeasurement={true}
+        estimatedFirstItemOffset={3}
         showsVerticalScrollIndicator={false}
-        onViewableItemsChanged={onViewRef.current}
-        viewabilityConfig={{
-          itemVisiblePercentThreshold: 70,
-        }}
         estimatedItemSize={height}
+        estimatedListSize={{height, width}}
+        keyExtractor={(item: any) => item._id}
+        onViewableItemsChanged={onViewRef.current}
+        // viewabilityConfig is for select which item is visible && play it
+        viewabilityConfig={{
+          itemVisiblePercentThreshold: 90,
+          minimumViewTime: 300,
+        }}
       />
       <BottomSheetReels
         ref={sheetRef}
@@ -150,7 +160,7 @@ const Reels = forwardRef((props, ref) => {
         selectedItem={selectedItem}
       />
       <BottomSheetComment ref={sheetRefComment} postId={selectedPostId} />
-      
+
       <Portal>
         <ModalShare
           ref={modalShareRef}
