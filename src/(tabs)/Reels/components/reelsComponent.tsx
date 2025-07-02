@@ -65,6 +65,7 @@ const ReelsComponent = (props: any) => {
   );
   const [isLiked, setIsLiked] = useState(isLikedFromRedux);
   const [follow, setFollow] = useState(isFollow);
+  const mine = useSelector((state: RootState) => state.user.user);
 
   // Đồng bộ lại khi redux thay đổi (tránh lệch trạng thái nếu redux cập nhật sau)
   useEffect(() => {
@@ -93,7 +94,6 @@ const ReelsComponent = (props: any) => {
         unlikePost({
           postId: _id,
           refreshToken,
-          senderId: currentUser?._id ?? '',
           receiverId: user?._id,
           handleName: currentUser?.handleName ?? '',
         }),
@@ -113,7 +113,6 @@ const ReelsComponent = (props: any) => {
         likePost({
           postId: _id,
           refreshToken,
-          senderId: currentUser?._id ?? '',
           receiverId: user?._id,
           handleName: currentUser?.handleName ?? '',
         }),
@@ -137,6 +136,8 @@ const ReelsComponent = (props: any) => {
         relationAction({
           targetId: user._id,
           action: actionType,
+          senderId: mine?._id,
+          handleName: mine?.handleName,
         }),
       ).unwrap();
     } catch (error) {

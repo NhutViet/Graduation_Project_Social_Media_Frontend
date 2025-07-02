@@ -6,7 +6,7 @@ import {API} from '@services/api';
 export const likePost = createAsyncThunk(
   'reactions/likePost',
   async (
-    {postId, refreshToken, senderId, receiverId, handleName}: LikePostParams,
+    {postId, refreshToken, receiverId, handleName}: LikePostParams,
     thunkAPI,
   ) => {
     try {
@@ -27,12 +27,11 @@ export const likePost = createAsyncThunk(
         },
       );
 
-      if (res.status === 201) {
+      if (res.status >= 200 && res.status <= 300) {
         await axiosInstance.post(
           API.NOTIFICATION_API,
           {
             receiverIds: [receiverId],
-            senderId,
             title: `❤️ ${handleName} đã thích bài viết của bạn!`,
             body: 'Nhấn để xem chi tiết.',
             data: {
@@ -60,7 +59,7 @@ export const likePost = createAsyncThunk(
 export const unlikePost = createAsyncThunk(
   'reactions/unlikePost',
   async (
-    {postId, refreshToken, senderId, receiverId, handleName}: LikePostParams,
+    {postId, refreshToken, receiverId, handleName}: LikePostParams,
     thunkAPI,
   ) => {
     try {
@@ -74,12 +73,11 @@ export const unlikePost = createAsyncThunk(
         },
       });
 
-      if (res.status === 201) {
+      if (res.status >= 200 && res.status <= 300) {
         await axiosInstance.post(
           API.NOTIFICATION_API,
           {
             receiverIds: [receiverId],
-            senderId,
             title: `💔 ${handleName} đã bỏ thích bài viết của bạn`,
             body: 'Có vẻ như cảm xúc đã thay đổi...',
             data: {

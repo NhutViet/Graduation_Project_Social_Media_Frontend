@@ -30,7 +30,6 @@ export interface AddCommentPayload {
 
 export interface ReqComment {
   payload: AddCommentPayload;
-  senderId?: string;
   receiverId?: string;
   handleName?: string;
   postId: string;

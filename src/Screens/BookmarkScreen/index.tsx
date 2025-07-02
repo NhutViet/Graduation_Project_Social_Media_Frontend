@@ -41,7 +41,7 @@ export const BookmarkScreen = () => {
   );
 
   const handlePlaylistPress = (playlistId: string, title: string) => {
-    if (title === 'Music') {
+    if (title === 'Âm nhạc') {
       navigation.navigate('MusicSaved', {playlistId, title});
     } else {
       navigation.navigate('PlaylistsScreen', {playlistId, title});

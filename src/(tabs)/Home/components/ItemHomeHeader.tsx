@@ -11,7 +11,7 @@ interface ItemHomeHeaderProps {
   iconTintColor: string;
   follow: boolean;
   onUserPress: () => void;
-  onFollowPress: () => void;
+  onFollowPress: (mine: any) => void;
   onOptionsPress: () => void;
 }
 
@@ -26,6 +26,7 @@ export const ItemHomeHeader: React.FC<ItemHomeHeaderProps> = ({
   onOptionsPress,
 }) => {
   const userId = useSelector((state: RootState) => state.user?.user?._id);
+  const mine = useSelector((state: RootState) => state.user?.user);
   return (
     <View style={ItemHomeStyles.headerItem}>
       <View style={ItemHomeStyles.rowContainer}>
@@ -50,7 +51,7 @@ export const ItemHomeHeader: React.FC<ItemHomeHeaderProps> = ({
         {user._id !== userId && 
         <TouchableOpacity
           style={[ItemHomeStyles.btnFollow, { borderColor }]}
-          onPress={onFollowPress}>
+          onPress={() => onFollowPress(mine)}>
           <Text style={[ItemHomeStyles.textNormal, { color: textColor }]}>
             {follow ? 'Đã theo dõi' : 'Theo dõi'}
           </Text>

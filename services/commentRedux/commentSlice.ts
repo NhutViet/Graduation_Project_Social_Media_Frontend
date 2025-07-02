@@ -25,7 +25,7 @@ export const fetchCommentsByPost = createAsyncThunk<
 
 export const addComment = createAsyncThunk<any, ReqComment>(
   'comments/add',
-  async ({payload, senderId, handleName, receiverId, postId}, {rejectWithValue}) => {
+  async ({payload, handleName, receiverId, postId}, {rejectWithValue}) => {
     try {
       const response = await axiosInstance.post(API.ADD_COMMENT, payload, {
         headers: {
@@ -38,7 +38,6 @@ export const addComment = createAsyncThunk<any, ReqComment>(
           API.NOTIFICATION_API,
           {
             receiverIds: [receiverId],
-            senderId,
             title: `${handleName} đã bình luận bài viết của bạn`,
             body: 'Nhấn vào để xem chi tiết...',
             data: {

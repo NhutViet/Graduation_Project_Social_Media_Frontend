@@ -96,11 +96,13 @@ export const relationAction = createAsyncThunk<
   {
     targetId: string;
     action: 'follow' | 'unfollow' | 'block' | 'unblock';
+    senderId?: string;
+    handleName?: string;
   },
   {rejectValue: string}
 >(
   'relations/relationAction',
-  async ({targetId, action}, {dispatch, rejectWithValue}) => {
+  async ({targetId, action, senderId, handleName}, {dispatch, rejectWithValue}) => {
     try {
       const response = await axiosInstance.put(
         API.RELATION_ACTION,
@@ -124,6 +126,26 @@ export const relationAction = createAsyncThunk<
             }),
           );
         }
+      }
+
+      if (response.status >= 200 && response.status <= 300 && action === 'follow') {
+        await axiosInstance.post(
+          API.NOTIFICATION_API,
+          {
+            receiverIds: [targetId],
+            title: `${handleName} đã theo dõi bạn`,
+            body: 'Nhấn vào để xem chi tiết...',
+            data: {
+              type: 'follow',
+              userId: senderId,
+            },
+          },
+          {
+            headers: {
+              token: 'refresh',
+            },
+          },
+        );
       }
 
       return response.data;
