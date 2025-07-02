@@ -192,9 +192,6 @@ export const MusicSavedScreen = () => {
           <ChevronLeft size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, {color: colors.text}]}>{title}</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('LikedScreen' as never)}>
-          <Share2 size={24} color={colors.text} />
-        </TouchableOpacity>
       </View>
 
       <FlashList<MusicItem>

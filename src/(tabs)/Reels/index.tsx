@@ -151,7 +151,7 @@ const Reels = forwardRef((props, ref) => {
       <BottomSheetComment ref={sheetRefComment} postId={selectedPostId} />
 
       <Portal>
-        <ModalShare ref={modalShareRef} />
+        <ModalShare ref={modalShareRef} isDark={true} />
       </Portal>
     </SafeAreaView>
   );

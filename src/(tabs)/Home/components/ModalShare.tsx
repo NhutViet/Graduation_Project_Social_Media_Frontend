@@ -43,9 +43,18 @@ export interface ModalShareHandle {
   close: () => void;
 }
 
-const ModalShare = forwardRef<ModalShareHandle>((_, ref)  => {
+interface ModalShareProps {
+  isDark? : boolean
+}
+
+const ModalShare = forwardRef<ModalShareHandle, ModalShareProps>(({isDark}, ref)  => {
   const { theme } = useTheme();
-  const color = Colors[theme];
+  let color;
+  if ( isDark ) {
+    color = Colors.dark;
+  } else {
+    color = Colors[theme];
+  }
   const [selectedFriendIds, setSelectedFriendIds] = useState<string[]>([]);
   const [message, setMessage] = useState('');
 
@@ -119,11 +128,11 @@ const ModalShare = forwardRef<ModalShareHandle>((_, ref)  => {
 
   const styles = StyleSheet.create({
     modal: {
-      paddingHorizontal: 16,
-      paddingTop: 8,
-      paddingBottom: 16,
-      borderTopLeftRadius: 16,
-      borderTopRightRadius: 16,
+      paddingHorizontal: Colors.spacing.m,
+      paddingTop: Colors.spacing.s,
+      paddingBottom: Colors.spacing.l,
+      borderTopLeftRadius: Colors.radius.l,
+      borderTopRightRadius: Colors.radius.l,
     },
     headerContainer: {
       marginBottom: 12,
@@ -149,7 +158,6 @@ const ModalShare = forwardRef<ModalShareHandle>((_, ref)  => {
     searchBox: {
       flexDirection: 'row',
       alignItems: 'center',
-      backgroundColor: color.search,
       borderRadius: Colors.radius.s,
       paddingHorizontal: Colors.spacing.s,
       height: 40,
@@ -271,6 +279,11 @@ const ModalShare = forwardRef<ModalShareHandle>((_, ref)  => {
       textAlign: 'center',
       marginTop: 10,
     },
+    emptyContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center'
+    }
   });
 
   return (
@@ -293,7 +306,7 @@ const ModalShare = forwardRef<ModalShareHandle>((_, ref)  => {
               cải thiện gợi ý cũng như quảng cáo bạn nhìn thấy.{' '}
               <Text style={{ color: '#0095f6' }}>Tìm hiểu thêm</Text>
             </Text>
-            <View style={[styles.searchBox, { backgroundColor: color.search }]}>
+            <View style={[styles.searchBox, { backgroundColor: color.backgroundSecondary }]}>
               <Search size={20} color="#aaa" />
               <TextInput
                 placeholder="Tìm kiếm"
@@ -308,6 +321,12 @@ const ModalShare = forwardRef<ModalShareHandle>((_, ref)  => {
         {/* Content */}
         {loading ? (
           <ActivityIndicator size="large" color={color.text} style={styles.loader} />
+        ) : items.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Text style={[styles.emptyStateText, { color: color.textSecondary }]}>
+              Chưa có mục nào để chia sẻ
+            </Text>
+          </View>
         ) : (
           <FlashList
             data={items}
