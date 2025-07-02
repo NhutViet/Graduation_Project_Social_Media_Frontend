@@ -145,21 +145,21 @@ export const getAddPostStyles = (theme: 'light' | 'dark') => {
     emtyContainer: {
       width: '100%',
       flex: 1,
-      justifyContent: 'center',
+      marginTop: 60,
       alignItems: 'center',
     },
     iconEmty: {
-      width: '30%',
-      height: '30%',
+      width: '25%',
+      height: '25%',
       marginBottom: 15,
       resizeMode: 'contain',
-      tintColor: color.text,
+      tintColor: color.textSecondary,
     },
     notFound: {
-      fontSize: 30,
+      fontSize: 20,
       fontWeight: '500',
       textAlign: 'center',
-      color: color.text,
+      color: color.textSecondary,
     },
     reels: {
       width: '90%',
