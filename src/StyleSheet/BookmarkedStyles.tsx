@@ -39,13 +39,13 @@ export const useBookmarkStyles = () => {
           marginBottom: spacing.m,
         } as ViewStyle,
         icon: {
-          width: 24,
-          height: 24,
+          width: 20,
+          height: 20,
           tintColor: palette.text,
           resizeMode: 'contain',
         } as ImageStyle,
         headerTitle: {
-          fontSize: typography.fontSizes.m,
+          fontSize: typography.fontSizes.l,
           fontWeight: '600',
           color: palette.text,
         } as TextStyle,
