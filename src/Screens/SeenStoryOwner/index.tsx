@@ -442,6 +442,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
             paused={isVideoPaused}
             muted={isMuted}
             isVideoLoaded={isVideoLoaded}
+            isMediaLoading={isMediaLoading}
           />
         ) : null}
         {renderCaption()}
