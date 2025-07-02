@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   TouchableOpacity,
   View,
@@ -10,7 +10,6 @@ import {
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {FlashList} from '@shopify/flash-list';
 import {HighlightItem} from '../../MockData/story.mock';
 import {
   PlusSquare,
@@ -36,6 +35,9 @@ import {
 } from '../../../services/relationRedux/relationSlice';
 import {getPostsAndReelsOfUser} from '../../../services/postUserRedux/postUserSlice';
 import {fetchReels} from '@services/reelRedux/reelSlice';
+import ACNavigateModal, {
+  ACNavigateRef,
+} from '../../../src/Screens/AccountCenter/components/ACNavigateModal';
 
 const Profile = () => {
   const navigation: any = useNavigation();
@@ -43,7 +45,6 @@ const Profile = () => {
   const color = Colors[theme];
   const {styles} = Styles;
   const user = useSelector((state: RootState) => state.user.user);
-
   const dispatch = useDispatch<AppDispatch>();
   const userId = useSelector((state: RootState) => state.user?.user?._id);
   const {followers, following} = useSelector(
@@ -57,13 +58,12 @@ const Profile = () => {
     (state: RootState) => state.postUser.reels,
   );
   const {isSuccess} = useSelector((state: RootState) => state.postUser);
-
   const [visibleModalCreate, setVisibleModalCreate] = useState(false);
-
   const [isSwitchAccountVisible, setSwitchAccountVisible] = useState(false);
   const handleUsernamePress = () => {
     setSwitchAccountVisible(true);
   };
+  const acModalRef = useRef<ACNavigateRef>(null);
 
   const [isViewMoreVisible, setViewMoreVisible] = useState(false);
 
@@ -202,7 +202,7 @@ const Profile = () => {
     <View style={{flex: 1}}>
       <View style={styles.header}>
         <View style={styles.usernameContainer}>
-          <Lock size={16} color={color.text} />
+          <Lock size={20} color={color.text} />
           <TouchableOpacity onPress={handleUsernamePress}>
             <Text style={[styles.username, {color: color.text}]}>
               {user?.handleName}
@@ -460,12 +460,18 @@ const Profile = () => {
       <SwitchAccount
         visible={isSwitchAccountVisible}
         onClose={() => setSwitchAccountVisible(false)}
+        navigation={navigation}
+        onAddAccountPress={() => {
+          setSwitchAccountVisible(false);
+          setTimeout(() => acModalRef.current?.open(), 200);
+        }}
       />
       <ViewMore
         visible={isViewMoreVisible}
         onClose={() => setViewMoreVisible(false)}
         postId="123456"
       />
+      <ACNavigateModal ref={acModalRef} />
     </SafeAreaView>
   );
 };

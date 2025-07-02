@@ -67,6 +67,7 @@ import AllPostOfCollection from '../../components/AllPostOfCollection';
 import ZegoCallScreen from '../Screens/ZegoCloud/ZegoCallScreen';
 import {navigationRef} from '../NavigationService';
 import AllReels from '../../components/AllReels';
+import AccountCenter from '../../src/Screens/AccountCenter';
 
 export type RootStackParamList = {
   MessageScreen: {
@@ -182,6 +183,7 @@ const AppNavigator = () => {
           name="HighlightCreateScreen"
           component={HighlightCreateScreen}
         />
+        <Stack.Screen name="AccountCenter" component={AccountCenter} />
       </Stack.Navigator>
     </NavigationContainer>
   );
