@@ -107,9 +107,9 @@ const ItemHome = (props: ItemHomeProps) => {
       });
   };
 
-  const handleOpenComment = (postId: string) => {
+  const handleOpenComment = (postId: string, receiverId: string) => {
     dispatch(fetchCommentsByPost(postId));
-    setSelectedPostId(postId);
+    setSelectedPostId({postId, receiverId});
     sheetRef.current?.open();
   };
 
@@ -192,7 +192,7 @@ const ItemHome = (props: ItemHomeProps) => {
           onLikePress={handleLikePress}  
           likeDisabled={likeLoading}  
           share={share}
-          onCommentPress={() => handleOpenComment(_id)}
+          onCommentPress={() => handleOpenComment(_id, user._id)}
           onSharePress={modal.handleOpenShareModal}
           onBookmarkPress={actions.handleBookmarkAction}
           onReactionModalPress={modal.handleOpenReactionModal}

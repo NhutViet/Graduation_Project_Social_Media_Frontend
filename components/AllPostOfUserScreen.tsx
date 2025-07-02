@@ -33,7 +33,7 @@ const AllPostOfUserScreen = () => {
   );
 
   const [currentVisible, setCurrentVisible] = useState<string | null>(null);
-  const [selectedPostId, setSelectedPostId] = useState<string>('');
+  const [selectedPostId, setSelectedPostId] = useState<{postId: string, receiverId: string}>({postId: '', receiverId: ''});
 
   const targetIndex = Array.isArray(PostsItem)
     ? PostsItem.findIndex((post: any) => post._id === targetPostId)
@@ -106,7 +106,7 @@ const AllPostOfUserScreen = () => {
             index,
           })}
         />
-        <BottomSheetComment ref={sheetRef} postId={selectedPostId} />
+        <BottomSheetComment ref={sheetRef} postId={selectedPostId.postId} receiverId={selectedPostId.receiverId}/>
       </View>
     </SafeAreaView>
   );

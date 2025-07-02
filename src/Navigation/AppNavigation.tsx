@@ -52,7 +52,6 @@ import {
   PrivacyAndSafety,
   Splash,
   UserFollowScreen,
-  ViewReels,
   SeenStoryOwner,
   TagSo,
 } from '../Screens';
@@ -109,7 +108,6 @@ const AppNavigator = () => {
         <Stack.Screen name="AllReels" component={AllReels} />
         <Stack.Screen name="TagSo" component={TagSo} />
         <Stack.Screen name="Profile" component={Profile} />
-        <Stack.Screen name="ViewReels" component={ViewReels} />
         <Stack.Screen name="ZegoCallScreen" component={ZegoCallScreen} />
         <Stack.Screen name="ChangeBirthday" component={ChangeBirthday} />
         <Stack.Screen name="ChangePassword" component={ChangePassword} />

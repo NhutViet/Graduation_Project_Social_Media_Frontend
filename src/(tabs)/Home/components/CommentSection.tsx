@@ -39,12 +39,13 @@ export type BottomSheetCommentRef = {
 
 interface Props {
   postId: string;
+  receiverId?: string;
 }
 
 const height = Dimensions.get('window').height * 0.85;
 
 const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
-  ({postId}, ref) => {
+  ({postId, receiverId}, ref) => {
     const modalizeRef = useRef<Modalize>(null);
     const dispatch = useDispatch<AppDispatch>();
     const user = useSelector((state: RootState) => state.user.user);
@@ -83,7 +84,7 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
       };
 
       try {
-        await dispatch(addComment(payload)).unwrap();
+        await dispatch(addComment({payload, senderId: user?._id, handleName: user?.handleName, postId: postId, receiverId: receiverId})).unwrap();
         setComment('');
         setReplyTo(null);
         dispatch(fetchCommentsByPost(postId));
