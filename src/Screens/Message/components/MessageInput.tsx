@@ -53,18 +53,18 @@ const MessageInput: React.FC<MessageInputProps> = ({
       ) : (
         <View style={styles.rowContainer}>
           <TouchableOpacity style={styles.blockIcon1}>
-            {/* <Image
+            <Image
               style={styles.icon}
-              source={require('../../../../assets/icon/microphone.png')}
-            /> */}
+              source={require('../../../../assets/icon/Microphone.png')}
+            />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.blockIcon1}
             onPress={pickImageAndSend}>
-            {/* <Image
+            <Image
               style={styles.icon}
-              source={require('../../../../assets/icon/picture.png')}
-            /> */}
+              source={require('../../../../assets/icon/Picture.png')}
+            />
           </TouchableOpacity>
           <TouchableOpacity style={styles.blockIcon1}>
             <Image

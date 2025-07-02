@@ -33,7 +33,7 @@ export const addComment = createAsyncThunk<any, ReqComment>(
         },
       });
 
-      if (response.status === 201) {
+      if (response.status >= 200 && response.status <= 300) {
         await axiosInstance.post(
           API.NOTIFICATION_API,
           {

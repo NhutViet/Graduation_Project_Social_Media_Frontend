@@ -44,6 +44,7 @@ export const PostSetting = () => {
   const navigation: any = useNavigation();
   const dispatch = useDispatch<AppDispatch>();
   const sheetRef = useRef<BottomSheetRef>(null);
+  const user = useSelector((state: RootState) => state.user.user);
   const [selectedMusic, setSelectedMusic] = useState<{
     musicId: string;
     timeStart: number;
@@ -178,7 +179,7 @@ export const PostSetting = () => {
       };
       console.log('body: ', JSON.stringify(body, null, 2));
 
-      const resultAction = await dispatch(uploadPostWithMedia(body));
+      const resultAction = await dispatch(uploadPostWithMedia({payload: body, handleName: user?.handleName}));
 
       if (uploadPostWithMedia.fulfilled.match(resultAction)) {
         Toast.show({
