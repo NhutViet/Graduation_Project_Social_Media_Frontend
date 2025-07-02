@@ -27,7 +27,7 @@ const ModalIsBlock = (props: any) => {
           <Text style={[styles.noti, {color: color.text}]}>Họ sẽ không được thông báo rằng bạn đã chặn họ.</Text>
         </View>
         <View style={styles.notiContainer}>
-          <Image source={require('../../../../assets/icon/setting.png')} style={[styles.icon, {tintColor: color.textSecondary}]}/>
+          <Image source={require('../../../../assets/icon/setting-block.png')} style={[styles.icon, {tintColor: color.textSecondary}]}/>
           <Text style={[styles.noti, {color: color.text}]}>Bạn có thể bỏ chặn họ bất cứ lúc nào trong phần Cài đặt.</Text>
         </View>
       </View>
@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
     borderRadius: 200,
   },
   icon: {
-    width: 25, height: 25,
+    width: 20, height: 20,
     resizeMode: 'contain',
     marginRight: 20,
   },

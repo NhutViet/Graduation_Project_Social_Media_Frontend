@@ -15,6 +15,7 @@ interface MediaSectionProps {
   paused?: boolean;
   muted?: boolean;
   isVideoLoaded?: boolean;
+  isMediaLoading?: boolean;
 }
 
 export const MediaSection = forwardRef<VideoRef, MediaSectionProps>(
@@ -29,6 +30,7 @@ export const MediaSection = forwardRef<VideoRef, MediaSectionProps>(
       paused,
       muted,
       isVideoLoaded,
+      isMediaLoading,
     }: MediaSectionProps,
     ref,
   ) => {
@@ -161,6 +163,23 @@ export const MediaSection = forwardRef<VideoRef, MediaSectionProps>(
           )
         ) : (
           <Text style={styles.errorText}>Không có media để hiển thị</Text>
+        )}
+
+        {isMediaLoading && (
+          <View
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: 'rgba(0,0,0,0.2)', // có thể thêm nền mờ nếu muốn
+              zIndex: 10,
+            }}>
+            <ActivityIndicator size="large" color="#fff" />
+          </View>
         )}
       </View>
     );

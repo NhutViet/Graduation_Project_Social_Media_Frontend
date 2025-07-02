@@ -230,8 +230,12 @@ export const handleHighlightPress = async (
 ) => {
   try {
     const detailRes = await dispatch(
-      fetchStoryDetails({storyIds: story.storyId}),
+      fetchStoryDetails({storyIds: story.storyIds}), // <- đúng key
     ).unwrap();
+
+    console.log('📦 story.storyId gửi lên:', story.storyId);
+    console.log('📥 detailRes nhận về:', detailRes);
+    console.log('📦 story.storyIds gửi lên:', story.storyIds);
 
     const seenedStories = await Promise.all(
       detailRes.map(async (item: any) => {
@@ -262,6 +266,7 @@ export const handleHighlightPress = async (
     );
 
     const validStories = seenedStories.filter(s => s);
+    console.log('📦 validStories:', validStories);
 
     if (!validStories.length) {
       GlobalAlertManager.show('Lỗi', 'Không có story hợp lệ để hiển thị');
@@ -271,11 +276,25 @@ export const handleHighlightPress = async (
     const creator = {
       username: viewerUser?.handleName,
       profilePic: viewerUser?.profilePic,
+      _id: viewerUser?._id, // Thêm _id để đồng bộ với SeenStoryOwner
     };
 
+    // Tạo storyGroups cho SeenStoryOwner
+    const storyGroups = [
+      {
+        creator,
+        stories: validStories,
+      },
+    ];
+
+    console.log('📦 storyGroups to navigate:', storyGroups);
+
     navigation.navigate(isOwner ? 'SeenStoryOwner' : 'SeenStory', {
-      stories: validStories,
+      storyGroups,
+      storyGroupIndex: 0,
       creator,
+      stories: validStories, // Giữ lại để tương thích với SeenStory
+      timestamp: Date.now(),
     });
   } catch (error) {
     console.error('handleHighlightPress error:', error);

@@ -143,15 +143,13 @@ const HighlightEditModal = ({
                 />
               )}
               <TouchableOpacity onPress={pickImage}>
-                <Text style={[styles.editCover, {color: color.text}]}>
-                  Chỉnh sửa ảnh bìa
-                </Text>
+                <Text style={styles.editCover}>Chỉnh sửa ảnh bìa</Text>
               </TouchableOpacity>
             </View>
             <TextInput
               style={[styles.input, {color: color.text}]}
               placeholder="Nhập tên highlight"
-              placeholderTextColor={color.text}
+              placeholderTextColor={'gray'}
               value={highlightName}
               onChangeText={setHighlightName}
             />
@@ -244,5 +242,6 @@ const styles = StyleSheet.create({
   },
   editCover: {
     marginBottom: 20,
+    color: '#3897F0',
   },
 });

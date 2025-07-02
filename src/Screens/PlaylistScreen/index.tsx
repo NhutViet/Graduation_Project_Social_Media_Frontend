@@ -7,7 +7,6 @@ import {
   FlatList,
   SafeAreaView,
   StatusBar,
-  Alert,
 } from 'react-native';
 import VideoPlayer from 'react-native-video';
 import {useNavigation, useRoute} from '@react-navigation/native';

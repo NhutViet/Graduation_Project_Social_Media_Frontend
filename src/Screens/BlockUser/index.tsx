@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   View,
   ActivityIndicator,
-  Alert,
 } from 'react-native';
 import {useNavigation, NavigationProp} from '@react-navigation/native';
 import {FlashList} from '@shopify/flash-list';

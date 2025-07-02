@@ -1,7 +1,5 @@
-import {StyleSheet, Text, View} from 'react-native';
-import React from 'react';
+import {StyleSheet} from 'react-native';
 import {Colors} from '../../assets/color/Colors';
-import {useTheme} from '../util/ThemeContext';
 
 export const BlockedAccountsStyles = (theme: 'light' | 'dark') => {
   const color = Colors[theme];
@@ -15,14 +13,13 @@ export const BlockedAccountsStyles = (theme: 'light' | 'dark') => {
       justifyContent: 'space-between',
       alignItems: 'center',
       paddingHorizontal: 24,
-      paddingVertical: 10,
-      marginTop: 10,
+      paddingVertical: 16,
       borderBottomColor: color.gray,
       borderBottomWidth: 1,
     },
     icon: {
-      width: 24,
-      height: 14,
+      width: 20,
+      height: 20,
       resizeMode: 'contain',
       tintColor: color.text,
     },
@@ -32,16 +29,17 @@ export const BlockedAccountsStyles = (theme: 'light' | 'dark') => {
       color: color.text,
     },
     modal: {
-      backgroundColor: theme == 'light' ? 'rgba(0,0,0,0.5)' : 'rgba(255, 255, 255, 0.5)',
+      backgroundColor:
+        theme == 'light' ? 'rgba(0,0,0,0.5)' : 'rgba(255, 255, 255, 0.5)',
       flex: 1,
       justifyContent: 'center',
-      alignItems: 'center'
+      alignItems: 'center',
     },
     modalContainer: {
       backgroundColor: color.background,
       borderRadius: 20,
       overflow: 'hidden',
-      width: '80%'
+      width: '80%',
     },
     notiTitle: {
       fontSize: 16,
@@ -57,7 +55,7 @@ export const BlockedAccountsStyles = (theme: 'light' | 'dark') => {
       marginTop: 15,
       marginBottom: 30,
       paddingHorizontal: 20,
-      fontWeight: '400'
+      fontWeight: '400',
     },
     btnModal: {
       backgroundColor: color.background,
@@ -68,7 +66,7 @@ export const BlockedAccountsStyles = (theme: 'light' | 'dark') => {
       borderBottomWidth: 1,
       borderBottomColor: color.lightDark,
       borderTopColor: color.lightDark,
-      borderTopWidth: 1
+      borderTopWidth: 1,
     },
     btnCance: {
       backgroundColor: color.background,
@@ -79,10 +77,10 @@ export const BlockedAccountsStyles = (theme: 'light' | 'dark') => {
     },
     loaderOverlay: {
       ...StyleSheet.absoluteFillObject,
-      backgroundColor: color.background,  
+      backgroundColor: color.background,
       justifyContent: 'center',
       alignItems: 'center',
-      zIndex: 10,                             
+      zIndex: 10,
     },
     emptyContainer: {
       flex: 1,
