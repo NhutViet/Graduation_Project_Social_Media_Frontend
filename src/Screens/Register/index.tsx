@@ -113,16 +113,28 @@ export const Register = ({navigation}: any) => {
           source={require('../../../assets/icon/logo.png')}
         />
         <View style={SwitchStyles.body}>
-          <TextInput
-            value={email}
-            onChangeText={text => {
-              setEmail(text);
-              setErrorEmail('');
-            }}
-            placeholder="Email"
-            placeholderTextColor={Colors.light.lightDark}
-            style={[SwitchStyles.input, {marginBottom: 5}]}
-          />
+          <View
+            style={[
+              SwitchStyles.input,
+              {
+                marginTop: 20,
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: 5,
+              },
+            ]}>
+            <TextInput
+              value={email}
+              onChangeText={text => {
+                setEmail(text);
+                setErrorEmail('');
+              }}
+              placeholder="Email"
+              placeholderTextColor={Colors.light.lightDark}
+              style={{width: '90%', color: Colors.black}}
+            />
+          </View>
           {!(errorEmail === '') && (
             <Text style={styles.errorText}>{errorEmail}</Text>
           )}

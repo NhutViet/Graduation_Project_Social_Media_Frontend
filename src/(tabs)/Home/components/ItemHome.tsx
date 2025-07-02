@@ -211,6 +211,7 @@ const ItemHome = (props: ItemHomeProps) => {
       <Portal>
         <ModalShare 
           ref={modal.modalShareRef}
+          isDark={false}
         />
       </Portal>
 
