@@ -18,6 +18,8 @@ import Video from 'react-native-video';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../../../services/store';
 import {fetchGetPostedSotry} from '../../../../../services/StoryRedux/StorySlice';
+import {History, CircleFadingArrowUp} from 'lucide-react-native';
+import {handleHighlightPress} from '../../../../(tabs)/Home/util/index';
 
 const formatMonthText = (dateString?: string): string => {
   if (!dateString) return '--\n--';
@@ -26,18 +28,18 @@ const formatMonthText = (dateString?: string): string => {
   if (isNaN(date.getTime())) return '--\n--';
 
   const months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
+    'TH1',
+    'TH2',
+    'TH3',
+    'TH4',
+    'TH5',
+    'TH6',
+    'TH7',
+    'TH8',
+    'TH9',
+    'TH10',
+    'TH11',
+    'TH12',
   ];
   return `${date.getDate()}\n${months[date.getMonth()]}`;
 };
@@ -51,25 +53,43 @@ const StoriesTab = () => {
   const navigation: any = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];
+  const user = useSelector((state: RootState) => state.user.user);
+  const storyDetails = useSelector(
+    (state: RootState) => state.stories.storyDetails,
+  );
 
   useEffect(() => {
     dispatch(fetchGetPostedSotry());
+    console.log('📦 myStories fetched:', myStories);
   }, []);
 
   const renderItem = ({item}: {item: any}) => {
     const handleOpenStory = (item: any) => {
-      const isVideo = item.mediaUrl?.endsWith('.m3u8');
-      const isImage = /\.(jpg|jpeg|png|gif)$/i.test(item.mediaUrl || '');
+      console.log('🟢 Nhấn vào story ID:', item._id);
 
-      navigation.navigate('SeenStoryOwner', {
-        stories: [
-          {
-            ...item,
-            uriVideo: isVideo ? item.mediaUrl : null,
-            image: isImage ? item.mediaUrl : null,
-          },
-        ],
-      });
+      if (!user) {
+        console.warn('⚠️ Không có thông tin user!');
+        return;
+      }
+
+      const mockUserItem = {
+        _id: user._id,
+        handleName: user.handleName,
+        profilePic: user.profilePic,
+        username: user.username,
+        stories: [item._id],
+      };
+
+      handleHighlightPress(
+        {
+          ...mockUserItem,
+          storyIds: [item._id],
+        },
+        dispatch,
+        navigation,
+        user,
+        true,
+      );
     };
 
     return (
@@ -88,15 +108,14 @@ const StoriesTab = () => {
             )
           ) : null}
         </Pressable>
-        <View style={styles.dateBadge}>
-          <Text style={styles.dateText}>{formatMonthText(item.createdAt)}</Text>
+        <View style={[styles.dateBadge, {backgroundColor: color.background}]}>
+          <Text style={[styles.dateText, {color: color.text}]}>
+            {formatMonthText(item.createdAt)}
+          </Text>
         </View>
         {item.saved && (
           <TouchableOpacity style={styles.heartIcon}>
-            <Image
-              source={require('../../../../../assets/icon/highlight.png')}
-              style={styles.icon}
-            />
+            <CircleFadingArrowUp color={color.text} />
           </TouchableOpacity>
         )}
       </View>
@@ -121,7 +140,7 @@ const StoriesTab = () => {
               new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
           )}
           renderItem={renderItem}
-          keyExtractor={item => item._id} // Đảm bảo keyExtractor rõ ràng
+          keyExtractor={item => item._id}
           numColumns={3}
           contentContainerStyle={{paddingBottom: 16}}
           showsVerticalScrollIndicator={false}
@@ -145,15 +164,7 @@ const StoriesTab = () => {
               justifyContent: 'center',
               alignItems: 'center',
             }}>
-            <Image
-              style={{
-                width: 70,
-                height: 70,
-                resizeMode: 'contain',
-                tintColor: color.text,
-              }}
-              source={require('../../../../../assets/icon/archiveStory.png')}
-            />
+            <History size={70} color={color.text} />
           </View>
           <Text
             style={{
@@ -199,8 +210,8 @@ const styles = StyleSheet.create({
     left: 8,
     backgroundColor: '#fff',
     borderRadius: 4,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
   },
   dateText: {
     fontSize: 12,

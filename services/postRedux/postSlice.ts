@@ -27,16 +27,23 @@ export const fetchPostsWithMedia = createAsyncThunk<
   },
 );
 
-export const fetchReelsWithMedia = createAsyncThunk<PostWithMedia[]>(
+export const fetchReelsWithMedia = createAsyncThunk<
+  { items: PostWithMedia[]; pagination: Pagination; isLoadMore: boolean },
+  { page: number; limit?: number },
+  { rejectValue: any }
+>(
   'posts/fetchReelsWithMedia',
-  async (_, {rejectWithValue}) => {
+  async ({ page, limit = 5 }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get(API.GET_REELS_POST, {
-        headers: {
-          token: 'refresh',
-        },
+        params: { page, limit },
+        headers: { token: 'refresh' },
       });
-      return response.data.items;
+      return {
+        items: response.data.items,
+        pagination: response.data.pagination,
+        isLoadMore: page > 1,
+      };
     } catch (err: any) {
       return rejectWithValue(err.response?.data || err.message);
     }

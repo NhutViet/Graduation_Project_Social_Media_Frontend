@@ -46,11 +46,28 @@ export const SeenStory = ({route, navigation}: any) => {
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.user.user);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+  const [isMusicLoaded, setIsMusicLoaded] = useState(false);
+  const [isMediaLoading, setIsMediaLoading] = useState(true);
 
   const selectedItem = useMemo(
     () => routeStories[currentIndex] || {},
     [routeStories, currentIndex],
   );
+
+  useEffect(() => {
+    const hasVideo = !!selectedItem?.uriVideo;
+    const hasMusic = !!selectedItem?.music?.link;
+
+    if ((hasVideo && !isVideoLoaded) || (hasMusic && !isMusicLoaded)) {
+      return;
+    }
+
+    setIsMediaLoading(false);
+    if (!isPaused) {
+      startProgressAnimation();
+    }
+  }, [isVideoLoaded, isMusicLoaded]);
 
   const imageDuration = 15000;
 
@@ -60,7 +77,7 @@ export const SeenStory = ({route, navigation}: any) => {
     }
 
     if (!selectedItem?.uriVideo && selectedItem?.music?.link && musicDuration) {
-      return imageDuration; // ✅ Luôn cố định 15s dù nhạc dài
+      return imageDuration;
     }
 
     return imageDuration;
@@ -133,7 +150,7 @@ export const SeenStory = ({route, navigation}: any) => {
       if (prevGroupIndex >= 0) {
         const prevGroup = storyGroups[prevGroupIndex];
 
-        const isOwner = prevGroup.creator?.username === user?.handleName; // Sửa thành username
+        const isOwner = prevGroup.creator?.username === user?.handleName;
         const routeName = isOwner ? 'SeenStoryOwner' : 'SeenStory';
 
         const routeKey = `${routeName}-${Date.now()}`;
@@ -222,7 +239,7 @@ export const SeenStory = ({route, navigation}: any) => {
   const renderTags = () => {
     const tags = selectedItem?.tags || [];
 
-    return tags.map((tag, index) => {
+    return tags.map(({tag, index}: any) => {
       const {user, position} = tag;
       if (!user) return null;
 
@@ -263,7 +280,9 @@ export const SeenStory = ({route, navigation}: any) => {
     stopCurrentAnimation();
     setVideoDuration(null);
     setMusicDuration(null);
-
+    setIsVideoLoaded(false);
+    setIsMusicLoaded(false);
+    setIsMediaLoading(true);
     progressAnims.forEach((anim, i) => {
       if (i < currentIndex) anim.setValue(1);
       else anim.setValue(0);
@@ -278,26 +297,6 @@ export const SeenStory = ({route, navigation}: any) => {
     }
   }, [currentIndex]);
 
-  useEffect(() => {
-    const hasVideo =
-      !!selectedItem?.uriVideo && typeof videoDuration === 'number';
-    const hasOnlyMusic =
-      !selectedItem?.uriVideo &&
-      selectedItem?.music?.link &&
-      typeof musicDuration === 'number';
-    const isImage = !selectedItem?.uriVideo && !selectedItem?.music?.link;
-
-    // ⛔️ Đừng chạy nếu chưa có duration đầy đủ
-    if (
-      (hasVideo && videoDuration == null) ||
-      (hasOnlyMusic && musicDuration == null)
-    )
-      return;
-
-    if (!isPaused) {
-      startProgressAnimation();
-    }
-  }, [videoDuration, musicDuration, selectedItem?._id, isPaused]);
   useEffect(() => {
     if (!isPaused) {
       startProgressAnimation();
@@ -333,15 +332,18 @@ export const SeenStory = ({route, navigation}: any) => {
           ref={videoRef}
           onLoad={d => {
             setVideoDuration(d.duration);
+            setIsVideoLoaded(true);
           }}
           onEnd={goToNextStory}
           onMediaLayout={setMediaSize}
           onMusicLoad={seconds => {
             setMusicDuration(seconds);
+            setIsMusicLoaded(true);
           }}
           onMusicEnd={goToNextStory}
           paused={isPaused}
           muted={isMuted}
+          isMediaLoading={isMediaLoading}
         />
         {renderCaption()}
         {renderTags()}

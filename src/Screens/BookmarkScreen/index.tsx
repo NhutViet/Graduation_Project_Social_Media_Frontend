@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect} from 'react';
+import React, {useCallback} from 'react';
 import {
   View,
   Text,
@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   ScrollView,
   FlatList,
-  ListRenderItem,
   SafeAreaView,
   ActivityIndicator,
 } from 'react-native';
@@ -18,7 +17,6 @@ import {AppDispatch, RootState} from '../../../services/store';
 import {getAllPlaylists} from '../../../services/bookmarkRedux/bookmarkSlice';
 import {
   Playlist,
-  Playlist as PlaylistType,
 } from '../../../services/bookmarkRedux/bookmarkTypes';
 
 export const BookmarkScreen = () => {
