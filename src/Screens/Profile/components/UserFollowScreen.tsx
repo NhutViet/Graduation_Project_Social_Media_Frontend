@@ -12,6 +12,7 @@ import {useNavigation, useRoute, RouteProp} from '@react-navigation/native';
 import {RootState} from '../../../../services/store';
 
 interface UserFollowScreenParams {
+  profileName?: string;
   userID?: string;
   screen: string;
 }
@@ -48,7 +49,7 @@ export const UserFollowScreen = () => {
     <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
       <View style={{height: 60}}>
         <Header
-          title={user?.username}
+          title={route.params.profileName || ''}
           iconBack={require('../../../../assets/icon/left.png')}
           func={() => navigation.goBack()}
           navigation={navigation}
