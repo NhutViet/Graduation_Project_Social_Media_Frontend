@@ -450,7 +450,9 @@ export const Setting = () => {
                   backgroundColor: mColor.background,
                   borderBottomColor: mColor.border,
                 },
-              ]}>
+              ]}
+              onPress={() => navigation.navigate('HelpCenter')}
+              >
               <View
                 style={[
                   styles.settingIconContainer,

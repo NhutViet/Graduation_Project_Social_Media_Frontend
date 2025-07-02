@@ -57,3 +57,4 @@ export * from './Profile/components/UserFollowScreen.tsx';
 export * from './ViewReels';
 export * from './TagSo';
 export * from './Setting/Archive/components/ScreenHighlightCreate.tsx';
+export * from './Setting/HelpCenter'
