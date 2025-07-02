@@ -90,8 +90,11 @@ export const PostsView: React.FC<{data: any[]}> = ({data}) => {
 
 export const ReelsView: React.FC<{data: any[]}> = ({data}) => {
   const navigation = useNavigation<any>();
-  const handlePress = () => {
-    navigation.navigate('ViewReels', {});
+  const handlePress = (item: any) => {
+    navigation.navigate('AllReels', {
+      reels: data,
+      initialId: item._id,
+    });
   };
   return <GridView data={data} onPressItem={handlePress} />;
 };

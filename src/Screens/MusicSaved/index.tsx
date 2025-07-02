@@ -194,7 +194,18 @@ export const MusicSavedScreen = () => {
         <Text style={[styles.headerTitle, {color: colors.text}]}>{title}</Text>
       </View>
 
-      <FlashList<MusicItem>
+      { mappedMusicData.length === 0 ? (
+        <View style={{flex: 1, justifyContent: 'center', backgroundColor: colors.background}}>
+          <Text style={{
+            fontSize: 16,
+            fontWeight: '400',
+            color: colors.textSecondary,
+            textAlign: 'center',
+            marginTop: 60,
+          }}>Bạn hiện không lưu âm thanh nào.</Text>
+        </View>
+      ) : (
+        <FlashList<MusicItem>
         data={mappedMusicData}
         renderItem={renderItem}
         estimatedItemSize={50}
@@ -203,6 +214,7 @@ export const MusicSavedScreen = () => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContainer}
       />
+      )}
     </SafeAreaView>
   );
 };

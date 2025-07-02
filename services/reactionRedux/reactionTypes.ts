@@ -6,7 +6,6 @@ export interface ResLikePost {
 export interface LikePostParams {
   postId: string;
   refreshToken: string;
-  senderId: string;
   receiverId: string;
   handleName: string;
 }

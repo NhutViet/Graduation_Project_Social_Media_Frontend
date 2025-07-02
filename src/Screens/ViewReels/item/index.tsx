@@ -161,7 +161,7 @@ const ReelItem: React.FC<ReelItemProps> = ({
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.iconContainer}
-              onPress={() => openComment && openComment(item._id)}>
+              onPress={() => openComment && openComment(item._id, item.owner.handleName)}>
               <MessageCircle color="#fff" size={28} />
               <Text style={styles.actionText}>
                 {formatNumber(item.commentCount)}

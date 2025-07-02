@@ -55,6 +55,7 @@ const ProfileComp = ({route}: any) => {
   const userID: string = route.params?.userID;
   const modalOptionRef = useRef<Modalize>(null);
   const myUserId = useSelector((state: RootState) => state.user.user?._id);
+  const user = useSelector((state: RootState) => state.user.user);
 
   const [isInitializing, setIsInitializing] = useState(true);
 
@@ -122,6 +123,8 @@ const ProfileComp = ({route}: any) => {
         relationAction({
           targetId: userID,
           action: actionType,
+          senderId: user?._id,
+          handleName: user?.handleName,
         }),
       ).unwrap();
     } catch (error) {

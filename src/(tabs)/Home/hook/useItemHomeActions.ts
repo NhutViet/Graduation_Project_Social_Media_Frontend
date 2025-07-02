@@ -6,16 +6,8 @@ import {
   unlikePost,
 } from '../../../../services/reactionRedux/reactionSlice';
 import {hidePost} from '../../../../services/postRedux/postSlice';
-import {
-  fetchFollowers,
-  fetchFollowing,
-} from '../../../../services/relationRedux/relationSlice';
 import {handleFollowToggle, handleBookmark} from '../util';
 import {ItemHomeProps} from '../types';
-import {
-  addLikedPost,
-  removeLikedPost,
-} from '../../../../services/reactionRedux/reactionReducer';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 
 export const useItemHomeActions = (
@@ -57,7 +49,6 @@ export const useItemHomeActions = (
       (shouldLike ? likePost : unlikePost)({
         postId: _id,
         refreshToken,
-        senderId: userID,
         receiverId: user._id,
         handleName: handleName,
       }),
@@ -103,10 +94,12 @@ export const useItemHomeActions = (
       });
   }, [_id]);
 
-  const handleFollowAction = useCallback(() => {
+  const handleFollowAction = useCallback((mine: any) => {
     handleFollowToggle({
       userId: user._id,
       follow: isFollow,
+      senderId: mine?._id,
+      handleName: mine?.handleName,
       dispatch,
     });
   }, [user._id, isFollow, dispatch]);

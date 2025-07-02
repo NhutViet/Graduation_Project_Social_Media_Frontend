@@ -26,6 +26,7 @@ const FollowersTab = () => {
   const {theme} = useTheme();
   const color = Colors[theme];
   const userID = useSelector((state: RootState) => state.user?.user?._id);
+  const user = useSelector((state: RootState) => state.user.user);
   const dispatch = useDispatch<AppDispatch>();
   const {
     followers: reduxFollowers,
@@ -141,6 +142,8 @@ const FollowersTab = () => {
           relationAction({
             targetId: item._id,
             action: 'follow',
+            senderId: user?._id,
+            handleName: user?.handleName,
           }),
         ).unwrap();
 

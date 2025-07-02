@@ -27,3 +27,10 @@ export interface AddCommentPayload {
   content: string;
   mediaUrl?: string | null;
 }
+
+export interface ReqComment {
+  payload: AddCommentPayload;
+  receiverId?: string;
+  handleName?: string;
+  postId: string;
+}

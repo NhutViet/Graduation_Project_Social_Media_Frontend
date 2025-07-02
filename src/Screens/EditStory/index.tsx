@@ -19,7 +19,7 @@ import Video from 'react-native-video';
 import Draggable from 'react-native-draggable';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import Sound from 'react-native-sound';
-import {BASE_URL} from '../../../services/api';
+import {API, BASE_URL} from '../../../services/api';
 import {useUploadProgress} from '../../../services/UploadProgressManager';
 import {useSelector} from 'react-redux';
 import {RootState} from '../../../services/store';
@@ -55,7 +55,7 @@ export const EditStory = ({route, navigation}: any) => {
     setInitialized(true);
   }, []);
 
-  const {refreshToken} = useSelector((state: RootState) => state.user);
+  const {refreshToken, user} = useSelector((state: RootState) => state.user);
 
   const {showUploadModal, hideUploadModal, setProgress} = useUploadProgress();
 
@@ -309,6 +309,24 @@ export const EditStory = ({route, navigation}: any) => {
 
       if (res.data) {
         GlobalAlertManager.show('Thông báo', 'Đăng story thành công.');
+        if (res.status >= 200 && res.status <= 300) {
+          await axiosInstance.post(
+            API.NOTIFICATION_API_FOLLOW,
+            {
+              title: `Có tin mới.`,
+              body: `Người dùng ${user?.handleName} vừa đăng một tin mới.`,
+              data: {
+                type: 'story',
+                postId: res.data?._id,
+              },
+            },
+            {
+              headers: {
+                token: 'refresh',
+              },
+            },
+          );
+        }
       }
 
       hideUploadModal();

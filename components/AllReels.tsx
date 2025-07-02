@@ -1,11 +1,11 @@
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {fetchCommentsByPost} from '@services/commentRedux/commentSlice';
 import {AppDispatch} from '@services/store';
-import {FlashList} from '@shopify/flash-list';
 import {Colors} from '../assets/color/Colors';
 import {useEffect, useRef, useState} from 'react';
 import {
   Dimensions,
+  FlatList,
   Image,
   SafeAreaView,
   StyleSheet,
@@ -22,15 +22,13 @@ import BottomSheetReels, {
 } from '../src/(tabs)/Reels/bottomSheet/reelBottomSheet';
 import ReelsComponent from '../src/(tabs)/Reels/components/reelsComponent';
 import {useTheme} from '../src/util/ThemeContext';
-import {IHandles} from 'react-native-modalize/lib/options';
-import ModalReaction from '../src/(tabs)/Home/components/ModalReaction';
 
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
 
 const AllReels = () => {
   const navigation = useNavigation();
-  const route = useRoute<any>(); // Hoặc bạn có thể dùng kiểu tường minh với RouteProp nếu muốn
+  const route = useRoute<any>();
   const {reels, initialId} = route.params;
 
   const dispatch = useDispatch<AppDispatch>();
@@ -39,30 +37,22 @@ const AllReels = () => {
 
   const sheetRef = useRef<BottomSheetReelsRef>(null);
   const sheetRefComment = useRef<BottomSheetCommentRef>(null);
-  const flashListRef = useRef<FlashList<any>>(null);
+  const flatListRef = useRef<FlatList<any>>(null);
 
-  const [currentVisible, setCurrentVisible] = useState<string | null>(
-    initialId,
-  );
+  const [currentVisible, setCurrentVisible] = useState<string | null>(initialId);
   const [selectedItem, setSelectedItem] = useState<any | null>(null);
   const [isCurrentBookmarked, setIsCurrentBookmarked] = useState(false);
-  const [selectedPostId, setSelectedPostId] = useState<string>('');
-
-  //lấy danh sách lượt like
-  const modalReactionRef = useRef<IHandles>(null);
-  const [reactionPostId, setReactionPostId] = useState<string>('');
-  const [reactionIsLiked, setReactionIsLiked] = useState<boolean>(false);
-
-  const openReactionModal = (postId: string, isLiked: boolean) => {
-    setReactionPostId(postId);
-    setReactionIsLiked(isLiked);
-    modalReactionRef.current?.open();
-  };
+  const [selectedPostId, setSelectedPostId] = useState<{postId: string; receiverId: string}>({
+    postId: '',
+    receiverId: '',
+  });
 
   useEffect(() => {
     const index = reels.findIndex((item: any) => item._id === initialId);
-    if (index !== -1 && flashListRef.current) {
-      flashListRef.current.scrollToIndex({index, animated: false});
+    if (index !== -1 && flatListRef.current) {
+      setTimeout(() => {
+        flatListRef.current?.scrollToIndex({index, animated: false});
+      }, 0); // đảm bảo FlatList đã render
     }
   }, [initialId, reels]);
 
@@ -98,9 +88,10 @@ const AllReels = () => {
         </TouchableOpacity>
       </View>
 
-      <FlashList
-        ref={flashListRef}
+      <FlatList
+        ref={flatListRef}
         data={reels}
+        keyExtractor={(item) => item._id}
         renderItem={({item}) => {
           const shouldPlay = item._id === currentVisible;
           return (
@@ -116,11 +107,11 @@ const AllReels = () => {
                 sheetRef?.current?.open();
               }}
               openComment={() => {
-                setSelectedPostId(item._id);
+                setSelectedPostId({postId: item._id, receiverId: item.user._id});
                 dispatch(fetchCommentsByPost(item._id));
                 sheetRefComment.current?.open();
               }}
-              openReactionModal={() => openReactionModal(item._id, item.isLiked)}
+              openReactionModal={() => {}}
             />
           );
         }}
@@ -128,7 +119,11 @@ const AllReels = () => {
         showsVerticalScrollIndicator={false}
         onViewableItemsChanged={onViewRef.current}
         viewabilityConfig={{itemVisiblePercentThreshold: 70}}
-        estimatedItemSize={height}
+        getItemLayout={(_, index) => ({
+          length: height,
+          offset: height * index,
+          index,
+        })}
       />
 
       <BottomSheetReels
@@ -136,8 +131,11 @@ const AllReels = () => {
         isBookmarked={isCurrentBookmarked}
         selectedItem={selectedItem}
       />
-      <BottomSheetComment ref={sheetRefComment} postId={selectedPostId} />
-      <ModalReaction ref={modalReactionRef} postId={reactionPostId} isLiked={reactionIsLiked}/>
+      <BottomSheetComment
+        ref={sheetRefComment}
+        postId={selectedPostId.postId}
+        receiverId={selectedPostId.receiverId}
+      />
     </SafeAreaView>
   );
 };

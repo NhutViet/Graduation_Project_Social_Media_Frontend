@@ -46,7 +46,8 @@ export const AddPost = () => {
 
   //phân loại ảnh và video
   const [filter, setFilter] = useState(() => {
-    if(type === 'video') return 'Videos';
+    console.log('typoe', type);
+    if(type === 'video') return 'Thước phim';
     if (type === 'image') return 'Photos';
     return 'Tất cả';
   });
@@ -85,7 +86,7 @@ export const AddPost = () => {
         assetType:
           filter === 'Tất cả'
             ? 'All'
-            : filter === 'Videos'
+            : filter === 'Thước phim'
             ? 'Videos'
             : 'Photos',
       });

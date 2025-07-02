@@ -27,6 +27,7 @@ const FollowingTab = () => {
   const {theme} = useTheme();
   const color = Colors[theme];
   const userID = useSelector((state: RootState) => state.user?.user?._id);
+  const user = useSelector((state: RootState) => state.user.user);
   const dispatch = useDispatch<AppDispatch>();
   const {
     following: reduxFollowing,
@@ -95,6 +96,8 @@ const FollowingTab = () => {
         relationAction({
           targetId: item._id,
           action: 'follow',
+          senderId: user?._id,
+          handleName: user?.handleName,
         }),
       ).unwrap();
 
