@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import {FlashList} from '@shopify/flash-list';
 import React, {useState, useEffect} from 'react';
-import {Colors} from '../../../../assets/color/Colors';
+import {Colors} from '@assets/color/Colors';
 import {useTheme} from '../../../util/ThemeContext';
 import {useNavigation} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
@@ -246,27 +246,6 @@ const UserFollowingTab = ({userID}: Props) => {
           renderItem={renderSortItem}
           showsVerticalScrollIndicator={false}
           estimatedItemSize={10}
-          ListHeaderComponent={
-            <TouchableOpacity
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginTop: 10,
-              }}>
-              <Text style={{color: color.text, fontSize: 18}}>
-                Sắp xếp theo{' '}
-                <Text
-                  style={{color: color.text, fontSize: 18, fontWeight: 'bold'}}>
-                  Mặc định
-                </Text>
-              </Text>
-              <Image
-                source={require('../../../../assets/icon/icon_sort.png')}
-                style={[styles.sortIcon, {tintColor: color.text}]}
-              />
-            </TouchableOpacity>
-          }
         />
       )}
       <FlashList

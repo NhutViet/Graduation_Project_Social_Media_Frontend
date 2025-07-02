@@ -1,11 +1,11 @@
-import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import {Colors} from '../../../../assets/color/Colors';
-import {useNavigation} from '@react-navigation/native';
+import React, { memo, useCallback, useEffect, useState } from 'react';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Colors } from '../../../../assets/color/Colors';
+import { useNavigation } from '@react-navigation/native';
 import Video from 'react-native-video';
-import {Dimensions} from 'react-native';
-import {useDispatch, useSelector} from 'react-redux';
-import {AppDispatch, RootState} from '../../../../services/store';
-import {useCallback, useEffect, useState} from 'react';
+import { Dimensions } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../../../services/store';
 import {
   addLikedPost,
   removeLikedPost,
@@ -14,14 +14,25 @@ import {
   likePost,
   unlikePost,
 } from '../../../../services/reactionRedux/reactionSlice';
-import {useTheme} from '../../../util/ThemeContext';
-import {relationAction} from '@services/relationRedux/relationSlice';
+import { useTheme } from '../../../util/ThemeContext';
+import { relationAction } from '@services/relationRedux/relationSlice';
 import TagMarker from './TagMarker';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height - 60;
 
-const ReelsComponent = (props: any) => {
+const MemoizedTagMarker = memo(TagMarker);
+const MemoizedImage = memo(Image);
+const MemoizedText = memo(Text);
+
+/**
+ * Both useCallBack && useMemo uses in this file is just micro improvements
+ * useCallBack: to avoid re-rendering the component when the function is called
+ * useMemo: to avoid re-rendering the component when the value is changed
+ * not much improvement than last time
+ */
+
+const ReelsComponent = memo((props: any) => {
   const {
     _id,
     caption,
@@ -36,143 +47,167 @@ const ReelsComponent = (props: any) => {
     isLike,
     commentCount,
     openComment,
-    openReactionModal,
+    // openReactionModal,
     isFollow,
     openShareModal,
   } = props;
-  const navigation = useNavigation<any>();
 
-  const formatNumber = (num: number): string => {
+  const navigation = useNavigation<any>();
+  const dispatch = useDispatch<AppDispatch>();
+  const { theme } = useTheme();
+  const color = Colors[theme];
+
+  // Selectors
+  const { likePosts } = useSelector((state: RootState) => state.reactions);
+  const currentUser = useSelector((state: RootState) => state.user.user);
+  const { refreshToken } = useSelector((state: RootState) => state.user);
+
+  // State
+  const isLikedFromRedux = useSelector((state: RootState) =>
+    state.reactions.likePosts.includes(_id),
+  );
+  const [isLiked, setIsLiked] = useState(isLikedFromRedux);
+  const [follow, setFollow] = useState(isFollow);
+  const [numLike, setNumLike] = useState(likeCount);
+
+  const formatNumber = useCallback((num: number): string => {
     if (num >= 1_000_000) {
       return (num / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'm';
     }
     if (num >= 1_000) {
       return (num / 1_000).toFixed(1).replace(/\.0$/, '') + 'k';
     }
-    return num?.toString();
-  };
+    return num?.toString() || '0';
+  }, []);
 
-  const {theme} = useTheme();
-  const color = Colors[theme];
-
-  //like
-  const dispatch = useDispatch<AppDispatch>();
-  const {likePosts} = useSelector((state: RootState) => state.reactions);
-  const currentUser = useSelector((state: RootState) => state.user.user);
-  const {refreshToken} = useSelector((state: RootState) => state.user);
-  const isLikedFromRedux = useSelector((state: RootState) =>
-    state.reactions.likePosts.includes(_id),
-  );
-  const [isLiked, setIsLiked] = useState(isLikedFromRedux);
-  const [follow, setFollow] = useState(isFollow);
-
-  // Đồng bộ lại khi redux thay đổi (tránh lệch trạng thái nếu redux cập nhật sau)
   useEffect(() => {
     setIsLiked(isLikedFromRedux);
   }, [isLikedFromRedux]);
-
-  const [numLike, setNumLike] = useState(likeCount);
 
   useEffect(() => {
     if (isLike) {
       dispatch(addLikedPost(_id));
     } else {
-      dispatch(removeLikedPost({postId: _id}));
+      dispatch(removeLikedPost({ postId: _id }));
     }
-  }, [_id, isLike]);
+  }, [_id, isLike, dispatch]);
 
   useEffect(() => {
     setNumLike(likeCount);
   }, [likeCount]);
 
-  const handleLike = async () => {
-    if (isLiked) {
-      setIsLiked(!isLiked);
-      setNumLike((prev: number) => prev - 1);
-      dispatch(
-        unlikePost({
-          postId: _id,
-          refreshToken,
-          senderId: currentUser?._id ?? '',
-          receiverId: user?._id,
-          handleName: currentUser?.handleName ?? '',
-        }),
-      )
-        .unwrap()
-        .then(res => {
-          dispatch(removeLikedPost({postId: _id}));
-        })
-        .catch(res => {
-          setNumLike(likeCount);
-          setIsLiked(likePosts.includes(_id));
-        });
-    } else {
-      setIsLiked(!isLiked);
-      setNumLike((prev: number) => prev + 1);
-      dispatch(
-        likePost({
-          postId: _id,
-          refreshToken,
-          senderId: currentUser?._id ?? '',
-          receiverId: user?._id,
-          handleName: currentUser?.handleName ?? '',
-        }),
-      )
-        .unwrap()
-        .then(res => {
-          dispatch(addLikedPost(_id));
-        })
-        .catch(res => {
-          setNumLike(likeCount);
-          setIsLiked(likePosts.includes(_id));
-        });
+  const handleLike = useCallback(async () => {
+    const action = isLiked ? unlikePost : likePost;
+    const newLikeCount = isLiked ? numLike - 1 : numLike + 1;
+
+    setIsLiked(!isLiked);
+    setNumLike(newLikeCount);
+
+    try {
+      await dispatch(action({
+        postId: _id,
+        refreshToken,
+        senderId: currentUser?._id ?? '',
+        receiverId: user?._id,
+        handleName: currentUser?.handleName ?? '',
+      })).unwrap();
+
+      dispatch(isLiked ? removeLikedPost({ postId: _id }) : addLikedPost(_id));
+    } catch (error) {
+      setNumLike(likeCount);
+      setIsLiked(likePosts.includes(_id));
     }
-  };
+  }, [isLiked, _id, currentUser, user, dispatch, likeCount, likePosts, refreshToken, numLike]);
 
   const toggleFollow = useCallback(async () => {
-    setFollow(!follow);
-    const actionType = follow ? 'unfollow' : 'follow';
+    const newFollowState = !follow;
+    setFollow(newFollowState);
+
     try {
       await dispatch(
         relationAction({
           targetId: user._id,
-          action: actionType,
-        }),
+          action: newFollowState ? 'follow' : 'unfollow',
+        })
       ).unwrap();
     } catch (error) {
       setFollow(follow);
     }
-  }, [follow]);
+  }, [follow, user._id, dispatch]);
+
+  const handleProfilePress = useCallback(() => {
+    navigation.navigate('ProfileComp', { userID: user._id });
+  }, [navigation, user._id]);
+
+  const handleTagPress = useCallback((userId: string) => {
+    navigation.navigate('ProfileComp', { userID: userId });
+  }, [navigation]);
+
+  // No need to view people Who likes this video anymore.
+  // const handleReactionModal = useCallback(() => {
+  //   openReactionModal(_id, isLiked);
+  // }, [_id, isLiked, openReactionModal]);
+
+  // Render functions for better readability
+  const renderProfileImage = useCallback(() => (
+    user.profilePic ? (
+      <MemoizedImage style={styles.img} source={{ uri: user.profilePic }} />
+    ) : (
+      <MemoizedImage
+        style={styles.img}
+        source={require('../../../../assets/icon/account.png')}
+      />
+    )
+  ), [user.profilePic]);
+
+  const renderFollowButton = useCallback(() => (
+    user._id !== currentUser?._id && (
+      <TouchableOpacity onPress={toggleFollow} style={styles.btnFollow}>
+        <MemoizedText style={{ fontSize: 14, color: Colors.white }}>
+          {follow ? 'Đang theo dõi' : 'Theo dõi'}
+        </MemoizedText>
+      </TouchableOpacity>
+    )
+  ), [user._id, currentUser?._id, follow, toggleFollow]);
+
+  const renderActionButton = useCallback((
+    iconSource: any,
+    count: number,
+    onPress: () => void,
+    tintColor?: string,
+  ) => (
+    <View style={[styles.sectionContainer, styles.topSection]}>
+      <TouchableOpacity style={styles.iconContainer} onPress={onPress}>
+        <MemoizedImage
+          style={[styles.icon, tintColor ? { tintColor } : {}]}
+          source={iconSource}
+        />
+      </TouchableOpacity>
+      <TouchableOpacity onPress={onPress}>
+        <MemoizedText style={styles.textNormal}>{formatNumber(count || 0)}</MemoizedText>
+      </TouchableOpacity>
+    </View>
+  ), [formatNumber]);
 
   return (
     <View style={styles.container}>
       <View style={styles.video}>
         <Video
-          source={{uri: media[0]?.videoUrl}}
+          source={{ uri: media[0]?.videoUrl }}
           resizeMode="contain"
-          style={{width: '100%', height: '100%'}}
+          style={{ width: '100%', height: '100%' }}
           repeat
           paused={!currentVisible || !isFocused}
           muted={muted}
-          maxBitRate={0}
+          maxBitRate={200000}
           progressUpdateInterval={500}
         />
-        <View
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 1,
-          }}>
-          {media[0]?.tags?.map((tag: any, index: number) => (
-            <TagMarker
-              key={index}
+        <View style={styles.tagOverlay}>
+          {media[0]?.tags?.map((tag: any) => (
+            <MemoizedTagMarker
+              key={tag._id}
               tag={tag}
-              onPress={(userId: string) => {
-                navigation.navigate('ProfileComp', {userID: userId});
-              }}
+              onPress={handleTagPress}
             />
           ))}
         </View>
@@ -180,92 +215,67 @@ const ReelsComponent = (props: any) => {
       <View style={styles.bottomContainer}>
         <View style={styles.block1}>
           <View style={styles.rowContainer}>
-            <TouchableOpacity style={styles.imgContainer}>
-              <TouchableOpacity
-                style={styles.imgContainer}
-                onPress={() =>
-                  navigation.navigate('ProfileComp', {userID: user._id})
-                }>
-                {user.profilePic && (
-                  <Image style={styles.img} source={{uri: user.profilePic}} />
-                )}
-              </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.imgContainer}
+              onPress={handleProfilePress}
+            >
+              {renderProfileImage()}
             </TouchableOpacity>
-            <Text style={styles.name}>{user.handleName}</Text>
-            {user._id !== currentUser?._id && (
-              <TouchableOpacity onPress={toggleFollow} style={styles.btnFollow}>
-                <Text style={{fontSize: 14, color: Colors.white}}>
-                  {follow ? 'Đang theo dõi' : 'Theo dõi'}
-                </Text>
-              </TouchableOpacity>
-            )}
+            <MemoizedText style={styles.name}>{user.handleName}</MemoizedText>
+            {renderFollowButton()}
           </View>
-          <Text style={styles.textNormal} numberOfLines={1}>
+          <MemoizedText style={styles.textNormal} numberOfLines={1}>
             {caption}
-          </Text>
+          </MemoizedText>
         </View>
+
         <View style={styles.block2}>
-          <View style={styles.containerVertical}>
-            <TouchableOpacity style={styles.iconContainer} onPress={handleLike}>
-              <Image
-                style={[
-                  styles.icon,
-                  {tintColor: isLiked ? color.error : '#fff'},
-                ]}
-                source={
-                  isLiked
-                    ? require('../../../../assets/icon/heart_fill.png')
-                    : require('../../../../assets/icon/heart.png')
-                }
-              />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => openReactionModal(_id, isLiked)}>
-              <Text style={styles.textNormal}>{formatNumber(numLike)}</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.containerVertical}>
-            <TouchableOpacity
-              style={styles.iconContainer}
-              onPress={openComment}>
-              <Image
+          {renderActionButton(
+            isLiked
+              ? require('../../../../assets/icon/heart_fill.png')
+              : require('../../../../assets/icon/heart.png'),
+            numLike,
+            handleLike,
+            isLiked ? color.error : '#fff'
+          )}
+
+          {renderActionButton(
+            require('../../../../assets/icon/comment.png'),
+            commentCount,
+            openComment
+          )}
+
+          {renderActionButton(
+            require('../../../../assets/icon/share.png'),
+            share,
+            openShareModal
+          )}
+
+          <View style={styles.sectionContainer}>
+            <TouchableOpacity style={styles.iconContainer} onPress={showBottomSheet}>
+              <MemoizedImage
                 style={styles.icon}
-                source={require('../../../../assets/icon/comment.png')}
+                source={require('../../../../assets/icon/menu-dots-vertical.png')}
               />
             </TouchableOpacity>
-            <Text style={styles.textNormal}>{formatNumber(commentCount)}</Text>
           </View>
-          <View style={styles.containerVertical}>
+
+          <View style={styles.sectionContainer}>
             <TouchableOpacity
-              style={styles.iconContainer}
-              onPress={openShareModal}>
-              <Image
+              style={styles.iconMusicContainer}
+              onPress={() => navigation.navigate('SaveMusic')}
+            >
+              <MemoizedImage
                 style={styles.icon}
-                source={require('../../../../assets/icon/share.png')}
+                source={require('../../../../assets/icon/musical-note.png')}
               />
             </TouchableOpacity>
-            <Text style={styles.textNormal}>{formatNumber(share)}</Text>
           </View>
-          <TouchableOpacity
-            style={[styles.containerVertical, styles.iconContainer]}
-            onPress={showBottomSheet}>
-            <Image
-              style={styles.icon}
-              source={require('../../../../assets/icon/menu-dots-vertical.png')}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.iconMusicContainer}
-            onPress={() => navigation.navigate('SaveMusic')}>
-            <Image
-              style={styles.icon}
-              source={require('../../../../assets/icon/musical-note.png')}
-            />
-          </TouchableOpacity>
         </View>
       </View>
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   btnFollow: {
@@ -280,7 +290,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.white,
   },
   textNormal: {
-    fontSize: 14,
+    fontSize: 16,
     color: Colors.white,
     marginTop: 5,
   },
@@ -308,7 +318,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: width,
     bottom: 0,
-    paddingBottom: 10,
+    paddingBottom: 20,
     paddingHorizontal: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -331,16 +341,18 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   name: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: 'bold',
     color: Colors.white,
   },
   block2: {
-    alignItems: 'center',
+    flexDirection: 'column',
   },
-  containerVertical: {
+  sectionContainer: {
+    marginTop: 20,
+  },
+  topSection: {
     alignItems: 'center',
-    marginBottom: 20,
   },
   iconMusicContainer: {
     width: 25,
@@ -351,8 +363,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   video: {
-    width: '100%',
-    height: '100%',
+    flex: 1,
+  },
+  tagOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1,
   },
 });
 

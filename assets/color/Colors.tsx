@@ -21,11 +21,11 @@ const theme = {
   },
   typography: {
     fontSizes: {
-      s: 12,
-      m: 14,
-      l: 16,
-      xl: 18,
-      xxl: 20,
+      s: 14,
+      m: 16,
+      l: 18,
+      xl: 20,
+      xxl: 22,
       xxxl: 24,
     },
     fontWeights: {
