@@ -15,7 +15,7 @@ const MessageBoxStyles = (theme: ThemeType) => {
       flexDirection: 'row',
       width: '100%',
       paddingVertical: Colors.spacing.m,
-      paddingHorizontal: Colors.spacing.xs,
+      paddingHorizontal: 10,
       alignItems: 'center',
       justifyContent: 'space-between',
     },
@@ -38,6 +38,7 @@ const MessageBoxStyles = (theme: ThemeType) => {
       fontSize: Colors.typography.fontSizes.l,
       fontWeight: Colors.typography.fontWeights.semiBold as FontWeight,
       color: color.text,
+      marginLeft: 6,
     },
     searchContainer: {
       width: '100%',

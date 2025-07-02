@@ -2,6 +2,7 @@ import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {FlashList} from '@shopify/flash-list';
 import {
   Image,
+  RefreshControl,
   SafeAreaView,
   ScrollView,
   Text,
@@ -43,6 +44,13 @@ export const MessageBox = (props: any) => {
   );
   const [searchQuery, setSearchQuery] = useState<string>('');
   const searchInputRef = useRef<TextInput>(null);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await dispatch(fetchMyRooms());
+    setRefreshing(false);
+  };
 
   useEffect(() => {
     dispatch(fetchFollowingStories({page: 1}));
@@ -107,12 +115,6 @@ export const MessageBox = (props: any) => {
           <TouchableOpacity style={styles.iconBlock}>
             <Image
               style={styles.icon}
-              source={require('../../../assets/icon/star_mess.png')}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.iconBlock}>
-            <Image
-              style={styles.icon}
               source={require('../../../assets/icon/new_mess.png')}
             />
           </TouchableOpacity>
@@ -129,7 +131,7 @@ export const MessageBox = (props: any) => {
           </View>
           <TextInput
             ref={searchInputRef}
-            placeholder="Tìm kiếm tin nhắn"
+            placeholder="Tìm kiếm đoạn hội thoại"
             placeholderTextColor={color.text}
             style={[
               styles.searchInput,
@@ -144,7 +146,7 @@ export const MessageBox = (props: any) => {
               onPress={() => setSearchQuery('')}>
               <Image
                 style={styles.clearIcon}
-                source={require('../../../assets/icon/close_small.png')}
+                source={require('../../../assets/icon/closer.png')}
               />
             </TouchableOpacity>
           )}
@@ -189,6 +191,7 @@ export const MessageBox = (props: any) => {
                         navigation,
                         storyDetails,
                         user,
+                        followingUsers,
                       )
                     }
                   />
@@ -211,7 +214,6 @@ export const MessageBox = (props: any) => {
         </TouchableOpacity>
       </View>
 
-      {/* Messages List */}
       <View style={styles.messagesListContainer}>
         <FlashList
           data={filteredRooms}
@@ -240,6 +242,9 @@ export const MessageBox = (props: any) => {
           }}
           estimatedItemSize={100}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
         />
       </View>
     </SafeAreaView>

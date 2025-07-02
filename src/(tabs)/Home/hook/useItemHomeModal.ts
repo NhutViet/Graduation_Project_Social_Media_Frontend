@@ -5,12 +5,21 @@ import {
   postFirstList,
   postSecondList,
   reportChoices,
+  icons,
 } from '../../../config/postOptions';
+import { useSelector } from 'react-redux';
+import { RootState } from '@services/store';
 
-export const useItemHomeModal = (actions: any, state: any) => {
+export const useItemHomeModal = (
+  actions: any,
+  state: any,
+  isFollow: boolean,
+) => {
   const intentRef = useRef<Modalize>(null);
   const sheetRef = useRef<Modalize>(null);
   const modalReactionRef = useRef<Modalize>(null);
+  const modalShareRef = useRef<Modalize>(null);
+  const user = useSelector((state: RootState) => state.user.user);
 
   const {handleHidePost, handleFollowAction, handleBookmarkAction} = actions;
   const {setIsModalVisible} = state;
@@ -33,6 +42,10 @@ export const useItemHomeModal = (actions: any, state: any) => {
     modalReactionRef.current?.open();
   }, []);
 
+  const handleOpenShareModal = useCallback(() => {
+    modalShareRef.current?.open();
+  }, []);
+
   /** Handle selecting an option from the first sheet */
   const handleOptionSelect = useCallback(
     (id: string) => {
@@ -41,7 +54,7 @@ export const useItemHomeModal = (actions: any, state: any) => {
           handleHidePost();
           break;
         case 'unfollow':
-          handleFollowAction();
+          handleFollowAction(user);
           break;
         case 'report':
           openIntentions();
@@ -70,22 +83,22 @@ export const useItemHomeModal = (actions: any, state: any) => {
     [handleOptionSelect],
   );
 
-  const firstListOptions = useMemo(
-    () => {
-      return postFirstList.map(opt => {
-        if (opt.id === 'unfollow') {
-          return {
-            ...opt,
-            label: state.follow ? 'Bỏ theo dõi' : 'Theo dõi',
-            onPress: () => handleOptionSelect(opt.id),
-          };
-        }
+  const firstListOptions = useMemo(() => {
+    return postFirstList.map(opt => {
+      if (opt.id === 'unfollow') {
         return {
           ...opt,
+          label: isFollow ? 'Bỏ theo dõi' : 'Theo dõi',
+          icon: isFollow ? icons.unfollow : icons.follow,
           onPress: () => handleOptionSelect(opt.id),
         };
-      });
-    }, [handleOptionSelect, state.follow]);
+      }
+      return {
+        ...opt,
+        onPress: () => handleOptionSelect(opt.id),
+      };
+    });
+  }, [handleOptionSelect, state.follow]);
 
   const secondListOptions = useMemo(
     () =>
@@ -109,10 +122,12 @@ export const useItemHomeModal = (actions: any, state: any) => {
     intentRef,
     sheetRef,
     modalReactionRef,
+    modalShareRef,
     openOptions,
     openIntentions,
     closeOptions,
     handleOpenReactionModal,
+    handleOpenShareModal,
     handleOptionSelect,
     handleIntentionSelect,
     topOptions,

@@ -28,9 +28,9 @@ import {
   addComment,
   fetchCommentsByPost,
 } from '../../../../services/commentRedux/commentSlice';
-import Toast from 'react-native-toast-message';
 import {Send} from 'lucide-react-native';
 import {Portal} from 'react-native-portalize';
+import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 
 export type BottomSheetCommentRef = {
   open: () => void;
@@ -39,12 +39,13 @@ export type BottomSheetCommentRef = {
 
 interface Props {
   postId: string;
+  receiverId?: string;
 }
 
 const height = Dimensions.get('window').height * 0.85;
 
 const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
-  ({postId}, ref) => {
+  ({postId, receiverId}, ref) => {
     const modalizeRef = useRef<Modalize>(null);
     const dispatch = useDispatch<AppDispatch>();
     const user = useSelector((state: RootState) => state.user.user);
@@ -83,16 +84,12 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
       };
 
       try {
-        await dispatch(addComment(payload)).unwrap();
+        await dispatch(addComment({payload, handleName: user?.handleName, postId: postId, receiverId: receiverId})).unwrap();
         setComment('');
         setReplyTo(null);
         dispatch(fetchCommentsByPost(postId));
       } catch (error) {
-        Toast.show({
-          type: 'error',
-          text1: 'Failed',
-          text2: 'Failed to add comment!',
-        });
+        GlobalAlertManager.show('Thất bại', 'Không thể bình luận');
       }
     };
 
@@ -127,23 +124,36 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
               </View>
             ) : (
               <>
-                <View style={{flex: 1, paddingHorizontal: 20}}>
-                  <FlashList
-                    data={comments}
-                    renderItem={({item}) => (
-                      <CommentComponent
-                        {...item}
-                        onReply={(id, handleName) => {
-                          setReplyTo({id, handleName});
-                          setTimeout(() => {
-                            inputRef.current?.focus();
-                          }, 200);
-                        }}
-                      />
-                    )}
-                    estimatedItemSize={10}
-                  />
-                </View>
+                {comments.length > 0 ? (
+                  <View style={{flex: 1, paddingHorizontal: 20}}>
+                    <FlashList
+                      data={comments}
+                      renderItem={({item}) => (
+                        <CommentComponent
+                          {...item}
+                          onReply={(id, handleName) => {
+                            setReplyTo({id, handleName});
+                            setTimeout(() => {
+                              inputRef.current?.focus();
+                            }, 200);
+                          }}
+                        />
+                      )}
+                      estimatedItemSize={10}
+                    />
+                  </View>
+                ) : (
+                  <View
+                    style={{
+                      flex: 1,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}>
+                    <Text style={{color: color.text}}>
+                      Bạn hãy là người đầu tiên bình luận
+                    </Text>
+                  </View>
+                )}
 
                 {replyTo && (
                   <View
@@ -186,7 +196,7 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
                       ]}
                       value={comment}
                       onChangeText={setComment}
-                      onSubmitEditing={handleSendComment}
+                      onSubmitEditing={() => handleSendComment()}
                     />
                     {comment.length > 0 ? (
                       <TouchableOpacity onPress={handleSendComment}>

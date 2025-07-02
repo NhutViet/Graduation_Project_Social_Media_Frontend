@@ -1,78 +1,80 @@
-import {StyleSheet, Text, View} from 'react-native';
-import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
-import React from 'react';
+import React, {useState} from 'react';
+import {View, useWindowDimensions} from 'react-native';
+import {TabView, SceneMap, TabBar} from 'react-native-tab-view';
 import Header from '../../../../components/Header';
-import {useNavigation, useRoute, RouteProp} from '@react-navigation/native';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import UserFollowersTab from './UserFollowersTab'
-import UserFollowingTab from './UserFollowingTab'
+import UserFollowersTab from './UserFollowersTab';
+import UserFollowingTab from './UserFollowingTab';
 import {Colors} from '../../../../assets/color/Colors';
 import {useTheme} from '../../../util/ThemeContext';
 import {useSelector} from 'react-redux';
-import { RootState } from '../../../../services/store';
-
-const TopTab = createMaterialTopTabNavigator();
+import {SafeAreaView} from 'react-native-safe-area-context';
+import {useNavigation, useRoute, RouteProp} from '@react-navigation/native';
+import {RootState} from '../../../../services/store';
 
 interface UserFollowScreenParams {
+  profileName?: string;
   userID?: string;
   screen: string;
 }
 
-type UserFollowScreenRouteProp = RouteProp<{ params: UserFollowScreenParams }, 'params'>;
+type UserFollowScreenRouteProp = RouteProp<
+  {params: UserFollowScreenParams},
+  'params'
+>;
 
 export const UserFollowScreen = () => {
-  const navigation: any = useNavigation();
+  const layout = useWindowDimensions();
+  const navigation = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];
   const user = useSelector((state: RootState) => state.user.user);
   const route = useRoute<UserFollowScreenRouteProp>();
-  const initialRouteName = (route.params as {screen?: string})?.screen || 'UserFollowersTab';
-  console.log('Navigate to initial tab:', initialRouteName);
+  const routes = [
+    {key: 'followers', title: 'Người theo dõi'},
+    {key: 'following', title: 'Đang theo dõi'},
+  ];
+
+  const initialIndex = route.params?.screen === 'UserFollowingTab' ? 1 : 0;
+
+  const [index, setIndex] = useState(initialIndex);
+
+  const renderScene = SceneMap({
+    followers: () => (
+      <UserFollowersTab route={{params: {userID: route.params?.userID}}} />
+    ),
+    following: () => <UserFollowingTab userID={route.params?.userID ?? ''} />,
+  });
+
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
       <View style={{height: 60}}>
         <Header
-          title= {user?.username}
+          title={route.params.profileName || ''}
           iconBack={require('../../../../assets/icon/left.png')}
           func={() => navigation.goBack()}
           navigation={navigation}
         />
       </View>
-      <View style={{flex: 1}}>
-        <TopTab.Navigator
-          initialRouteName={initialRouteName} 
-          backBehavior='none' 
-          screenOptions={{
-            tabBarLabelStyle: {
-              fontSize: 16,
-              fontWeight: 'bold',
-              textAlign: 'center',
-              textTransform: 'lowercase',
-            },
-            tabBarStyle: {
+      <TabView
+        navigationState={{index, routes}}
+        renderScene={renderScene}
+        onIndexChange={setIndex}
+        initialLayout={{width: layout.width}}
+        renderTabBar={tabBarProps => (
+          <TabBar
+            {...tabBarProps}
+            indicatorStyle={{backgroundColor: color.primary}}
+            activeColor={color.primary}
+            inactiveColor={color.text}
+            style={{
               backgroundColor: color.background,
-            },
-            tabBarIndicatorStyle: {
-              backgroundColor: color.text,
-              height: 3,
-            },
-            tabBarActiveTintColor: "tomato",
-            tabBarInactiveTintColor: 'gray',
-          }}>
-          <TopTab.Screen
-            name="UserFollowersTab"
-            component={UserFollowersTab}
-            options={{title: 'Người theo dõi'}}
-            initialParams={{userID: route.params?.userID}}
+              shadowColor: 'transparent',
+              borderBottomWidth: 0.5,
+              borderBottomColor: color.gray,
+            }}
           />
-          <TopTab.Screen
-            name="UserFollowingTab"
-            component={UserFollowingTab}
-            options={{title: 'Đang theo dõi'}}
-            initialParams={{userID: route.params?.userID}}
-          />
-        </TopTab.Navigator>
-      </View>
+        )}
+      />
     </SafeAreaView>
   );
 };

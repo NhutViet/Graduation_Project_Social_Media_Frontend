@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import {FlashList} from '@shopify/flash-list';
 import React, {useState, useEffect} from 'react';
-import {Colors} from '../../../../assets/color/Colors';
+import {Colors} from '@assets/color/Colors';
 import {useTheme} from '../../../util/ThemeContext';
 import {useNavigation} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
@@ -22,11 +22,15 @@ import {
 import {createRoom} from '../../../../services/roomRedux/roomSlice';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 
-const UserFollowingTab = ({route}: any) => {
-  const userID: string = route.params?.userID;
+type Props = {
+  userID: string;
+};
+
+const UserFollowingTab = ({userID}: Props) => {
   const navigation: any = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];
+  const user = useSelector((state: RootState) => state.user?.user);
   const myUserId = useSelector((state: RootState) => state.user?.user?._id);
   const dispatch = useDispatch<AppDispatch>();
   const {
@@ -111,6 +115,8 @@ const UserFollowingTab = ({route}: any) => {
           relationAction({
             targetId: item._id,
             action: 'follow',
+            senderId: user?._id,
+            handleName: user?.handleName,
           }),
         ).unwrap();
 
@@ -130,6 +136,8 @@ const UserFollowingTab = ({route}: any) => {
         relationAction({
           targetId: item._id,
           action: 'follow',
+          senderId: user?._id,
+          handleName: user?.handleName,
         }),
       ).unwrap();
 
@@ -171,12 +179,6 @@ const UserFollowingTab = ({route}: any) => {
           {item.isMeFollowing ? 'Nhắn tin' : 'Theo dõi'}
         </Text>
       </TouchableOpacity>
-      <TouchableOpacity>
-        <Image
-          source={require('../../../../assets/icon/menu-dots-vertical.png')}
-          style={[styles.moreIcon, {tintColor: color.text}]}
-        />
-      </TouchableOpacity>
     </View>
   );
 
@@ -197,12 +199,6 @@ const UserFollowingTab = ({route}: any) => {
         onPress={() => handleFollowPress(item)}
         style={styles.followButton}>
         <Text style={styles.followText}>Theo dõi</Text>
-      </TouchableOpacity>
-      <TouchableOpacity>
-        <Image
-          source={require('../../../../assets/icon/menu-dots-vertical.png')}
-          style={[styles.moreIcon, {tintColor: color.text}]}
-        />
       </TouchableOpacity>
     </View>
   );
@@ -255,27 +251,6 @@ const UserFollowingTab = ({route}: any) => {
           renderItem={renderSortItem}
           showsVerticalScrollIndicator={false}
           estimatedItemSize={10}
-          ListHeaderComponent={
-            <TouchableOpacity
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginTop: 10,
-              }}>
-              <Text style={{color: color.text, fontSize: 18}}>
-                Sắp xếp theo{' '}
-                <Text
-                  style={{color: color.text, fontSize: 18, fontWeight: 'bold'}}>
-                  Mặc định
-                </Text>
-              </Text>
-              <Image
-                source={require('../../../../assets/icon/icon_sort.png')}
-                style={[styles.sortIcon, {tintColor: color.text}]}
-              />
-            </TouchableOpacity>
-          }
         />
       )}
       <FlashList
@@ -368,7 +343,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 6,
     borderRadius: 10,
-    marginRight: 10,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -377,7 +351,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 6,
     borderRadius: 10,
-    marginRight: 10,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',

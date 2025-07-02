@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Image } from 'react-native';
-import { ItemHomeStyles } from '../component_styles/ItemHomeStyles';
-import { formatNumber } from '../util';
+import {View, Text, TouchableOpacity, Image} from 'react-native';
+import {ItemHomeStyles} from '../component_styles/ItemHomeStyles';
+import {formatNumber} from '../util';
 
 interface ItemHomeActionsProps {
   iconColor: string;
@@ -12,6 +12,7 @@ interface ItemHomeActionsProps {
   numLike: number;
   commentCount: number;
   share: number;
+  likeDisabled?: boolean;  // disable like button while request pending
   onLikePress: () => void;
   onCommentPress: () => void;
   onSharePress: () => void;
@@ -28,6 +29,7 @@ export const ItemHomeActions: React.FC<ItemHomeActionsProps> = ({
   numLike,
   commentCount,
   share,
+  likeDisabled = false, 
   onLikePress,
   onCommentPress,
   onSharePress,
@@ -35,9 +37,15 @@ export const ItemHomeActions: React.FC<ItemHomeActionsProps> = ({
   onReactionModalPress,
 }) => {
   return (
-    <View style={[ItemHomeStyles.rowContainer, { justifyContent: 'space-between' }]}>
+    <View
+      style={[ItemHomeStyles.rowContainer, { justifyContent: 'space-between' }]}
+    >
       <View style={ItemHomeStyles.rowContainer}>
-        <TouchableOpacity style={ItemHomeStyles.iconBlock} onPress={onLikePress}>
+        <TouchableOpacity
+          style={[ItemHomeStyles.iconBlock, { opacity: likeDisabled ? 0.5 : 1 }]}
+          onPress={onLikePress}
+          disabled={likeDisabled} // ignore taps when loading
+        >
           <Image
             style={[{ tintColor: likedColor }, ItemHomeStyles.icon]}
             source={
@@ -47,31 +55,44 @@ export const ItemHomeActions: React.FC<ItemHomeActionsProps> = ({
             }
           />
         </TouchableOpacity>
-        <Text
-          style={{ color: iconColor, marginHorizontal: 8 }}
-          onPress={onReactionModalPress}>
-          {formatNumber(numLike)}
-        </Text>
-        <TouchableOpacity style={ItemHomeStyles.iconBlock} onPress={onCommentPress}>
+
+        <TouchableOpacity onPress={onReactionModalPress}>
+          <Text style={{ color: iconColor, marginLeft: 8, marginRight: 16 }}>
+            {formatNumber(numLike)}
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={ItemHomeStyles.iconBlock}
+          onPress={onCommentPress}
+        >
           <Image
             style={[{ tintColor: iconColor }, ItemHomeStyles.icon]}
             source={require('../../../../assets/icon/comment.png')}
           />
         </TouchableOpacity>
-        <Text style={{ color: iconColor, marginHorizontal: 8 }}>
+        <Text style={{ color: iconColor, marginLeft: 8, marginRight: 16 }}>
           {formatNumber(commentCount)}
         </Text>
-        <TouchableOpacity style={ItemHomeStyles.iconBlock} onPress={onSharePress}>
+
+        <TouchableOpacity
+          style={ItemHomeStyles.iconBlock}
+          onPress={onSharePress}
+        >
           <Image
             style={[{ tintColor: iconColor }, ItemHomeStyles.icon]}
             source={require('../../../../assets/icon/share.png')}
           />
         </TouchableOpacity>
-        <Text style={{ color: iconColor, marginHorizontal: 8 }}>
+        <Text style={{ color: iconColor, marginLeft: 8, marginRight: 16 }}>
           {formatNumber(share)}
         </Text>
       </View>
-      <TouchableOpacity style={ItemHomeStyles.iconBlock} onPress={onBookmarkPress}>
+
+      <TouchableOpacity
+        style={ItemHomeStyles.iconBlock}
+        onPress={onBookmarkPress}
+      >
         <Image
           style={[{ tintColor: bookmarkColor }, ItemHomeStyles.icon]}
           source={

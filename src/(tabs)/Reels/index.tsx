@@ -1,3 +1,4 @@
+/* eslint-disable react/react-in-jsx-scope */
 import {
   ActivityIndicator,
   Image,
@@ -15,11 +16,11 @@ import {
   useImperativeHandle,
   useRef,
   useState,
+  useEffect,
 } from 'react';
 import {FlashList} from '@shopify/flash-list';
 import {Dimensions} from 'react-native';
 import {Colors} from '../../../assets/color/Colors';
-import {useTheme} from '../../util/ThemeContext';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../services/store';
 import {fetchReelsWithMedia} from '../../../services/postRedux/postSlice';
@@ -30,76 +31,125 @@ import {fetchCommentsByPost} from '../../../services/commentRedux/commentSlice';
 import BottomSheetComment, {
   BottomSheetCommentRef,
 } from '../Home/components/CommentSection';
-import { useFocusEffect } from '@react-navigation/native';
-import { Modalize } from 'react-native-modalize';
-import ModalReaction from '../Home/components/ModalReaction';
-import { IHandles } from 'react-native-modalize/lib/options';
+import {useFocusEffect} from '@react-navigation/native';
+import {Modalize} from 'react-native-modalize';
+import ModalShare from '../Home/components/ModalShare';
+import {Portal} from 'react-native-portalize';
+import { trimOldReels } from '@services/postRedux/postReducer';
 
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
 
+const MAX_ITEMS_IN_MEMORY = 50; // Keep max 50 items in memory
+const ITEMS_TO_REMOVE = 20; // Remove 20 items when limit is reached
+
 const Reels = forwardRef((props, ref) => {
   const isFocused = useIsFocused();
-  const {theme, toggleTheme} = useTheme();
-  const color = Colors[theme];
 
   const sheetRef: any = useRef<BottomSheetReelsRef>(null);
   const sheetRefComment: any = useRef<BottomSheetCommentRef>(null);
+  const modalShareRef = useRef<Modalize>(null);
+  const flashListRef = useRef<FlashList<any>>(null);
 
   const [currentVisible, setCurrentVisible] = useState<string | null>(null);
   const [isCurrentBookmarked, setIsCurrentBookmarked] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any | null>(null);
-
-  //lấy danh sách lượt like
-  const modalReactionRef = useRef<Modalize>(null);
-  const [reactionPostId, setReactionPostId] = useState<string>('');
-  const [reactionIsLiked, setReactionIsLiked] = useState<boolean>(false);
-
-  const openReactionModal = (postId: string, isLiked: boolean) => {
-    setReactionPostId(postId);
-    setReactionIsLiked(isLiked);
-    modalReactionRef.current?.open();
-  };
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [currentVisibleIndex, setCurrentVisibleIndex] = useState(0);
+  const [canLoadMore, setCanLoadMore] = useState(true);
 
   const onViewRef = useRef(({viewableItems}: {viewableItems: any[]}) => {
     if (viewableItems.length > 0) {
       const visibleItem = viewableItems[0];
       const id = visibleItem?.item?._id;
-      if (id) {
+      const index = visibleItem?.index;
+      
+      if (id && index !== undefined) {
         setCurrentVisible(id);
+        setCurrentVisibleIndex(index);
+        
+        const totalItems = reels.length;
+        const isNearEnd = index >= totalItems - 2; // Load new page when 2 items from end
+        
+        if (isNearEnd && !loading && !isLoadingMore && hasNextPage && canLoadMore) {
+          console.log('Triggering load more at index:', index, 'of', totalItems);
+          setIsLoadingMore(true);
+          setCanLoadMore(false); // Prevent immediate re-trigger
+          dispatch(fetchReelsWithMedia({ page: page + 1 }));
+        }
       }
     }
   });
 
+  const handleOpenShareModal = useCallback(() => {
+    modalShareRef.current?.open();
+  }, []);
+
   useImperativeHandle(ref, () => ({
     reload: () => {
-      dispatch(fetchReelsWithMedia());
+      setIsInitialLoad(true);
+      dispatch(fetchReelsWithMedia({ page: 1 }));
     },
   }));
 
   // fetch api
   const dispatch = useDispatch<AppDispatch>();
-  const {reels, loading} = useSelector((state: RootState) => state.post);
+  const { reels, loading, page, hasNextPage } = useSelector(
+    (state: RootState) => state.post
+  );
 
   useFocusEffect(
     useCallback(() => {
-      dispatch(fetchReelsWithMedia());
-    }, [dispatch]),
+      setIsInitialLoad(true);
+      setCanLoadMore(true);
+      dispatch(fetchReelsWithMedia({ page: 1 }));
+    }, [dispatch])
   );
-  ///////////////////////////////
 
-  const [selectedPostId, setSelectedPostId] = useState<string>('');
+  useEffect(() => {
+    if (!loading && page >= 1 && isInitialLoad) {
+      setIsInitialLoad(false);
+    }
+    
+    // Reset loading more flag when loading completes and re-enable loading after delay
+    if (!loading && isLoadingMore) {
+      setIsLoadingMore(false);
+      // Add a small delay before allowing next load to prevent immediate re-trigger
+      setTimeout(() => {
+        setCanLoadMore(true);
+      }, 1000); 
+    }
+  }, [loading, page, isInitialLoad, isLoadingMore]);
 
-  if (loading) {
+  const handleLoadMore = useCallback(() => {
+    if (!loading && hasNextPage && !isLoadingMore && canLoadMore) {
+      console.log('Backup load more triggered');
+      setIsLoadingMore(true);
+      setCanLoadMore(false);
+      dispatch(fetchReelsWithMedia({ page: page + 1 }));
+    }
+  }, [loading, hasNextPage, isLoadingMore, canLoadMore, dispatch, page]);
+
+  // Remove old items when too many are loaded
+  useEffect(() => {
+    if (reels.length > MAX_ITEMS_IN_MEMORY) {
+      dispatch(trimOldReels(ITEMS_TO_REMOVE));
+    }
+  }, [reels.length]);
+
+  const [selectedPostId, setSelectedPostId] = useState<{postId: string, receiverId: string}>({postId: '', receiverId: ''});
+
+  if (loading && isInitialLoad) {
     return (
       <SafeAreaView
         style={{
           flex: 1,
           justifyContent: 'center',
           alignItems: 'center',
-          backgroundColor: color.background,
+          backgroundColor: Colors.black,
         }}>
-        <ActivityIndicator size="large" color={color.text} />
+        <ActivityIndicator size="large" color={Colors.white} />
       </SafeAreaView>
     );
   }
@@ -116,17 +166,26 @@ const Reels = forwardRef((props, ref) => {
             />
           </View>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.iconContainer}>
-          <Image
-            style={styles.icon}
-            source={require('../../../assets/icon/camera.png')}
-          />
-        </TouchableOpacity>
       </View>
       <FlashList
+        ref={flashListRef}
         data={reels}
         extraData={[currentVisible, isFocused]}
-        renderItem={({item}: any) => {
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.5}
+        // Memory optimization props
+        removeClippedSubviews={true}
+        getItemType={() => 'reel'}
+        ListFooterComponent={
+          loading && !isInitialLoad
+            ? () => (
+                <View style={{ padding: 12 }}>
+                  <ActivityIndicator color={Colors.white} />
+                </View>
+              )
+            : null
+        }
+        renderItem={({item, index}: any) => {
           const shouldPlay = item?._id === currentVisible;
           return (
             <ReelsComponent
@@ -141,25 +200,42 @@ const Reels = forwardRef((props, ref) => {
                 sheetRef?.current.open();
               }}
               openComment={() => {
-                setSelectedPostId(item._id);
+                setSelectedPostId({ postId: item._id, receiverId: item.user._id });
                 dispatch(fetchCommentsByPost(item._id));
                 sheetRefComment.current?.open();
               }}
-              openReactionModal={() => openReactionModal(item._id, item.isLiked)}
+              openReactionModal={() => {}}
+              openShareModal={handleOpenShareModal}
             />
           );
         }}
-        pagingEnabled
+        pagingEnabled={true}
+        // avoiding overscroll too fast
+        overScrollMode="never"
+        decelerationRate="fast"
+        disableHorizontalListHeightMeasurement={true}
+        estimatedFirstItemOffset={3}
         showsVerticalScrollIndicator={false}
-        onViewableItemsChanged={onViewRef.current}
-        viewabilityConfig={{
-          itemVisiblePercentThreshold: 70,
-        }}
         estimatedItemSize={height}
+        estimatedListSize={{height, width}}
+        keyExtractor={(item: any) => item._id}
+        onViewableItemsChanged={onViewRef.current}
+        // viewabilityConfig is for select which item is visible && play it
+        viewabilityConfig={{
+          itemVisiblePercentThreshold: 90,
+          minimumViewTime: 300,
+        }}
       />
-      <BottomSheetReels ref={sheetRef} isBookmarked={isCurrentBookmarked} selectedItem={selectedItem}/>
-      <BottomSheetComment ref={sheetRefComment} postId={selectedPostId} />
-      <ModalReaction ref={modalReactionRef} postId={reactionPostId} isLiked={reactionIsLiked}/>
+      <BottomSheetReels
+        ref={sheetRef}
+        isBookmarked={isCurrentBookmarked}
+        selectedItem={selectedItem}
+      />
+      <BottomSheetComment ref={sheetRef} postId={selectedPostId.postId} receiverId={selectedPostId.receiverId}/>
+
+      <Portal>
+        <ModalShare ref={modalShareRef} isDark={true} />
+      </Portal>
     </SafeAreaView>
   );
 });
@@ -167,6 +243,7 @@ const Reels = forwardRef((props, ref) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.black,
   },
   header: {
     position: 'absolute',
@@ -177,7 +254,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: Colors.dark.transparent,
+    backgroundColor: Colors.transparent,
   },
   rowContainer: {
     flexDirection: 'row',
@@ -186,7 +263,7 @@ const styles = StyleSheet.create({
   textHeader: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: Colors.dark.text,
+    color: Colors.white,
     marginRight: 8,
   },
   iconDownContainer: {
@@ -201,7 +278,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     resizeMode: 'contain',
-    tintColor: Colors.dark.text,
+    tintColor: Colors.white,
   },
 });
 

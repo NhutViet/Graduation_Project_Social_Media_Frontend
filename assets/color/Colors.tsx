@@ -1,4 +1,4 @@
-import {Dimensions} from 'react-native';
+import {Dimensions, TextStyle} from 'react-native';
 
 const {width, height} = Dimensions.get('window');
 
@@ -21,18 +21,18 @@ const theme = {
   },
   typography: {
     fontSizes: {
-      s: 12,
-      m: 14,
-      l: 16,
-      xl: 18,
-      xxl: 20,
+      s: 14,
+      m: 16,
+      l: 18,
+      xl: 20,
+      xxl: 22,
       xxxl: 24,
     },
     fontWeights: {
-      regular: '400',
-      medium: '500',
-      semiBold: '600',
-      bold: '700',
+      regular: '400' as TextStyle['fontWeight'],
+      medium: '500' as TextStyle['fontWeight'],
+      semiBold: '600' as TextStyle['fontWeight'],
+      bold: '700' as TextStyle['fontWeight'],
     },
   },
   dimensions: {
@@ -76,7 +76,7 @@ const LightTheme = {
 
 const DarkTheme = {
   ...CommonColors,
-  background: '#000000',
+  background: '#212121',
   text: '#FFFFFF',
   modal: '#1A1A1A',
   gray: '#1A1A1A',

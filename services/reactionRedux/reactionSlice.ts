@@ -27,7 +27,7 @@ export const likePost = createAsyncThunk(
         },
       );
 
-      if (res.status === 200) {
+      if (res.status >= 200 && res.status <= 300) {
         await axiosInstance.post(
           API.NOTIFICATION_API,
           {
@@ -73,7 +73,7 @@ export const unlikePost = createAsyncThunk(
         },
       });
 
-      if (res.status === 200) {
+      if (res.status >= 200 && res.status <= 300) {
         await axiosInstance.post(
           API.NOTIFICATION_API,
           {

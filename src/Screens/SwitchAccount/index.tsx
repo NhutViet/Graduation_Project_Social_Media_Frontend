@@ -57,25 +57,44 @@ export const SwitchAccount = ({navigation}: any) => {
   };
 
   const handleLogin = async () => {
-    if (email === '' || password === '') {
-      if (email === '') setErrorEmail('Vui lòng nhập đầy đủ thông tin.');
-      if (password === '') setErrorPassword('Vui lòng nhập đầy đủ thông tin.');
+    setErrorEmail('');
+    setErrorPassword('');
+
+    let valid = true;
+    if (!email) {
+      setErrorEmail('Vui lòng nhập đầy đủ thông tin.');
+      valid = false;
     } else if (!email.includes('.') || !email.includes('@')) {
       setErrorEmail('Email không đúng định dạng');
-      setErrorPassword('');
-    } else {
-      setErrorEmail('');
-      setErrorPassword('');
-
-      const permissionGranted = await requestNotificationPermission();
-      if (!permissionGranted) {
-        Alert.alert('Bạn cần cấp quyền thông báo để sử dụng ứng dụng.');
-        return;
-      }
-
-      const fcmToken = await messaging().getToken();
-      dispatch(fetchLogin({email, password, fcmToken}));
+      valid = false;
     }
+
+    if (!password) {
+      setErrorPassword('Vui lòng nhập đầy đủ thông tin.');
+      valid = false;
+    }
+
+    if (!valid) {
+      return;
+    }
+
+    const permissionGranted = await requestNotificationPermission();
+    if (!permissionGranted) {
+      GlobalAlertManager.show(
+        'Thông báo',
+        'Bạn cần cấp quyền thông báo để sử dụng ứng dụng.',
+      );
+      return;
+    }
+
+    let fcmToken = '';
+
+    try {
+      fcmToken = await messaging().getToken();
+    } catch (err) {
+      console.warn('Lấy FCM token thất bại:', err);
+    }
+    dispatch(fetchLogin({email, password, fcmToken}));
   };
 
   useEffect(() => {
@@ -120,7 +139,12 @@ export const SwitchAccount = ({navigation}: any) => {
 
       if (fetchCheckEmail.fulfilled.match(checkEmailAction)) {
         const {exists} = checkEmailAction.payload;
-
+        let fcmToken = '';
+        try {
+          fcmToken = await messaging().getToken();
+        } catch (err) {
+          console.warn('Lấy FCM token thất bại:', err);
+        }
         if (exists) {
           dispatch(resetStatus());
           const fcmToken = await messaging().getToken();
@@ -187,13 +211,13 @@ export const SwitchAccount = ({navigation}: any) => {
           style={styles.logo}
           source={require('../../../assets/icon/logo.png')}
         />
-        <View style={SwitchStyles.body}>
+        <View style={[SwitchStyles.body]}>
           <TextInput
             value={email}
             onChangeText={setEmail}
             placeholder="Email"
             placeholderTextColor={Colors.light.lightDark}
-            style={SwitchStyles.input}
+            style={[SwitchStyles.input, {marginBottom: 5}]}
           />
           {!(errorEmail === '') && (
             <Text style={styles.errorText}>{errorEmail}</Text>
@@ -206,6 +230,7 @@ export const SwitchAccount = ({navigation}: any) => {
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 alignItems: 'center',
+                marginBottom: 5,
               },
             ]}>
             <TextInput
@@ -221,9 +246,9 @@ export const SwitchAccount = ({navigation}: any) => {
                 isPassWord ? setIsPassWord(false) : setIsPassWord(true)
               }>
               {isPassWord ? (
-                <EyeOff size={24} color={'#000'} />
+                <EyeOff strokeWidth={1.5} size={20} color={'#000'} />
               ) : (
-                <Eye size={24} color={'#000'} />
+                <Eye strokeWidth={1.5} size={20} color={'#000'} />
               )}
             </TouchableOpacity>
           </View>

@@ -14,7 +14,7 @@ export const getAddPostStyles = (theme: 'light' | 'dark') => {
       height: height * 0.4,
       backgroundColor: color.gray,
       alignItems: 'center',
-      justifyContent: 'center'
+      justifyContent: 'center',
     },
     rowSpace: {
       flexDirection: 'row',
@@ -24,26 +24,27 @@ export const getAddPostStyles = (theme: 'light' | 'dark') => {
       paddingVertical: 15,
     },
     row: {
-        flexDirection: 'row',
-        alignItems: 'center',
-      },
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
     icon: {
       tintColor: color.text,
       width: 19,
       height: 17,
-      resizeMode: 'contain'
+      resizeMode: 'contain',
     },
     iconR: {
       tintColor: color.text,
       width: 20,
-      resizeMode: 'contain'
+      height: 20,
+      resizeMode: 'contain',
     },
     iconRR: {
       tintColor: color.text,
       width: 6,
       height: 10,
       marginLeft: 10,
-      resizeMode: 'contain'
+      resizeMode: 'contain',
     },
     textR: {
       color: color.text,
@@ -62,7 +63,7 @@ export const getAddPostStyles = (theme: 'light' | 'dark') => {
       marginRight: 10,
       borderColor: color.gray,
       borderWidth: 1,
-      backgroundColor: color.lightGray
+      backgroundColor: color.lightGray,
     },
     showImage: {
       width: '100%',
@@ -76,7 +77,7 @@ export const getAddPostStyles = (theme: 'light' | 'dark') => {
     },
     btnCir: {
       padding: 8,
-      borderRadius: 20
+      borderRadius: 20,
     },
     textIn: {
       borderColor: color.transparent,
@@ -103,21 +104,24 @@ export const getAddPostStyles = (theme: 'light' | 'dark') => {
       marginHorizontal: 20,
       borderRadius: 10,
       justifyContent: 'center',
-      alignItems: 'center'
+      alignItems: 'center',
     },
     textBtn: {
       color: color.background,
       fontSize: 16,
       fontWeight: '700',
     },
-    divi:{
-      backgroundColor: color.gray, width: '100%', height: 3
+    divi: {
+      backgroundColor: color.gray,
+      width: '100%',
+      height: 3,
     },
     modal: {
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: theme === 'light' ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.5)',
+      backgroundColor:
+        theme === 'light' ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.5)',
     },
     modalContainer: {
       width: '70%',
@@ -133,56 +137,62 @@ export const getAddPostStyles = (theme: 'light' | 'dark') => {
       padding: 10,
     },
     iconCheck: {
-      width: 20, height: 20,
+      width: 20,
+      height: 20,
       resizeMode: 'contain',
       tintColor: color.primary,
     },
     emtyContainer: {
       width: '100%',
       flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center'
+      marginTop: 60,
+      alignItems: 'center',
     },
     iconEmty: {
-      width: '30%',
-      height: '30%',
+      width: '25%',
+      height: '25%',
       marginBottom: 15,
       resizeMode: 'contain',
-      tintColor: color.text,
+      tintColor: color.textSecondary,
     },
     notFound: {
-        fontSize: 30,
-        fontWeight: '500',
-        textAlign: 'center',
-        color: color.text,
+      fontSize: 20,
+      fontWeight: '500',
+      textAlign: 'center',
+      color: color.textSecondary,
     },
     reels: {
-      width: '90%', height: height*0.8,
+      width: '90%',
+      height: height * 0.8,
       resizeMode: 'cover',
       borderRadius: 10,
       overflow: 'hidden',
     },
     iconPlay: {
       tintColor: color.background,
-      width: 30, height: 30,
+      width: 30,
+      height: 30,
     },
     iconPlayContainer: {
       justifyContent: 'center',
       alignItems: 'center',
       padding: 10,
       borderRadius: 100,
-      backgroundColor: theme === 'dark' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)',
+      backgroundColor:
+        theme === 'dark' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)',
     },
     iconReels: {
-      width: 18, height: 18, 
+      width: 18,
+      height: 18,
       resizeMode: 'contain',
       tintColor: color.background,
     },
-    reelsContainer:{
+    reelsContainer: {
       position: 'absolute',
       top: 10,
       left: 10,
-      backgroundColor: theme === 'dark' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)',
+      backgroundColor:
+        theme === 'dark' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)',
       padding: 5,
       borderRadius: 50,
       borderColor: color.background,

@@ -69,7 +69,7 @@ const ItemNewMessage: React.FC<ItemNewMessageProps> = ({
       <View style={styles.blockIcon}>
         <Image
           style={[styles.img, {tintColor: color.text}]}
-          source={require('../../../../assets/icon/rightArrow.png')}
+          source={require('../../../../assets/icon/right.png')}
         />
       </View>
     </TouchableOpacity>
@@ -79,7 +79,7 @@ const ItemNewMessage: React.FC<ItemNewMessageProps> = ({
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
     marginBottom: 22,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
   iconF: {
     width: '85%',
     height: '85%',
-    resizeMode: 'contain',
+    resizeMode: 'cover',
     borderRadius: 25,
     zIndex: 1,
     bottom: 0,

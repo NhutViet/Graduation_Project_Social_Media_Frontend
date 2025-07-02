@@ -15,7 +15,7 @@ const Choices = (props: any) => {
         justifyContent: 'center',
         alignItems: 'center'
     }}>
-      <Image source={type == 'like' ? require('../../../../assets/icon/heart_fill.png') : require('../../../../assets/icon/close_small.png')} style={{
+      <Image source={type == 'like' ? require('../../../../assets/icon/heart_fill.png') : require('../../../../assets/icon/closer.png')} style={{
         width: 40, height: 40,
         resizeMode: 'contain',
         tintColor: type == 'like' ? '#E94057' : color.text,

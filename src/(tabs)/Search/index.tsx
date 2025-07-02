@@ -9,27 +9,34 @@ import {
   TouchableOpacity,
   View,
   ActivityIndicator,
-  StyleSheet,
 } from 'react-native';
-import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
-import { FlashList } from '@shopify/flash-list';
-import { useTheme } from '../../util/ThemeContext';
-import { SearchStyles } from '../../StyleSheet/SearchStyles';
+import React, {useEffect, useRef, useState, useMemo, useCallback} from 'react';
+import {FlashList} from '@shopify/flash-list';
+import {useTheme} from '../../util/ThemeContext';
+import {SearchStyles} from '../../StyleSheet/SearchStyles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import HistoryItem from './Components/HistoryItem';
-import User from '../Home/components/Story';
-import { Colors } from '../../../assets/color/Colors';
+import {Colors} from '../../../assets/color/Colors';
 import SearchResult from './Components/SearchResult';
-import { useIsFocused } from '@react-navigation/native';
-import { RootState } from '../../../services/store';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchPostsWithMedia } from '../../../services/postRedux/postSlice';
-import { AppDispatch } from '../../../services/store';
-import { Media } from '../../../services/postRedux/postTypes';
-import ExploreSection from './Components/ExploreTile';
-import { useDebounce } from 'use-debounce';
-import { fetchSearchPost, fetchSearchUser, clearSearchResults } from '../../../services/searchRedux/searchSlice';
-import { selectSearchLoading } from '../../../services/searchRedux/searchType';
+import {useIsFocused} from '@react-navigation/native';
+import {RootState} from '../../../services/store';
+import {useDispatch, useSelector} from 'react-redux';
+// import {fetchPostsWithMedia} from '../../../services/postRedux/postSlice';
+import {AppDispatch} from '../../../services/store';
+// import {PostWithMedia} from '@services/postRedux/postTypes';
+import ExploreSection, { ExploreMedia } from './Components/ExploreTile';
+import {useDebounce} from 'use-debounce';
+import {
+  fetchSearchPost,
+  fetchSearchUser,
+  clearSearchResults,
+} from '../../../services/searchRedux/searchSlice';
+import {
+  selectSearchLoading,
+  UserR,
+} from '../../../services/searchRedux/searchType';
+import User from './Components/User';
+import { clearPosts, clearReels } from '@services/searchRedux/searchReducer';
 
 const SEARCH_HISTORY_KEY = 'search_history';
 
@@ -38,8 +45,8 @@ export const Search: React.FC = () => {
 
   // Redux state
   const postsData = useSelector((state: RootState) => state.post.posts);
-  const { refreshToken } = useSelector((state: RootState) => state.user);
-  const { users, isError } = useSelector((state: RootState) => state.search);
+  const {refreshToken} = useSelector((state: RootState) => state.user);
+  const {users, isError} = useSelector((state: RootState) => state.search);
   const isLoading = useSelector(selectSearchLoading);
 
   const theme = useTheme();
@@ -53,9 +60,6 @@ export const Search: React.FC = () => {
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [isInitializing, setIsInitializing] = useState(true);
 
-  // Initialization guard
-  const hasInitialized = useRef(false);
-
   // Refs
   const inputRef = useRef<TextInput>(null);
   const isFocusedPage = useIsFocused();
@@ -66,8 +70,12 @@ export const Search: React.FC = () => {
   const resultOpacity = useRef(new Animated.Value(0)).current;
 
   // View tracking
-  const [visibleIndexView1, setVisibleIndexView1] = useState<number | null>(null);
-  const [visibleIndexView2, setVisibleIndexView2] = useState<number | null>(null);
+  const [_visibleIndexView1, setVisibleIndexView1] = useState<number | null>(
+    null,
+  );
+  const [visibleIndexView2, setVisibleIndexView2] = useState<number | null>(
+    null,
+  );
 
   // Debounced input
   const [debouncedSearchText] = useDebounce(searchText, 500);
@@ -79,10 +87,10 @@ export const Search: React.FC = () => {
       abortControllerRef.current.abort();
       abortControllerRef.current = null;
     }
-    
+
     // Clear search state
     dispatch(clearSearchResults());
-    
+
     // Reset local state
     setSearchText('');
     setIsShowResult(false);
@@ -92,25 +100,27 @@ export const Search: React.FC = () => {
   // Enhanced search effect with cleanup
   useEffect(() => {
     const keyword = debouncedSearchText.trim();
-    
+
     if (keyword && keyword !== lastSearch.current) {
       // Cancel previous request
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
-      
+
       // Create new abort controller
       abortControllerRef.current = new AbortController();
-      
+
       lastSearch.current = keyword;
-      
-      dispatch(fetchSearchUser({ refreshToken, keyword, mode: 'username' }));
-      dispatch(fetchSearchPost({ refreshToken, keyword }));
+
+      dispatch(fetchSearchUser({refreshToken, keyword, mode: 'username'}));
+      dispatch(fetchSearchPost({refreshToken, keyword}));
     }
-    
+
     if (!keyword) {
       lastSearch.current = '';
       dispatch(clearSearchResults());
+      dispatch(clearPosts());
+      dispatch(clearReels());
     }
   }, [debouncedSearchText, dispatch, refreshToken]);
 
@@ -126,51 +136,43 @@ export const Search: React.FC = () => {
     return cleanup;
   }, [cleanup]);
 
+  /**
+   * It's called once in HomeScreen
+   * No need to called it again
+   * */
+  // Initialization guard
+  // const hasInitialized = useRef(false);
   // Fetch posts once
-  useEffect(() => {
-    if (!hasInitialized.current) {
-      hasInitialized.current = true;
-      dispatch(fetchPostsWithMedia());
-    }
-  }, [dispatch]);
-  
-  // Track initialization
-  useEffect(() => {
-    if (postsData.length > 0 && isInitializing) {
-      setIsInitializing(false);
-    }
-  }, [postsData, isInitializing]);
-
-  // Prepare media groups
-  const postMedia = useMemo(() => postsData.flatMap(p => p.media || []), [postsData]);
-  const mediaGroups = useMemo(() => {
-    const groups: Media[][] = [];
-    for (let i = 0; i < postMedia.length; i += 5) {
-      groups.push(postMedia.slice(i, i + 5));
-    }
-    return groups;
-  }, [postMedia]);
+  // useEffect(() => {
+  //   if (!hasInitialized.current) {
+  //     hasInitialized.current = true;
+  //     dispatch(fetchPostsWithMedia({page: 1}));
+  //   }
+  // }, [dispatch]);
 
   // Screen dims for grid
   const screenDimensions = useMemo(() => {
     const screenWidth = Dimensions.get('window').width;
     const SMALL = (screenWidth - 6) / 3;
     const BIG = SMALL * 2 + 2;
-    return { SMALL, BIG };
+    return {SMALL, BIG};
   }, []);
 
   // Viewability handlers
-  const onViewableItemsChangedView1 = useCallback(({ viewableItems }: any) => {
+  const onViewableItemsChangedView1 = useCallback(({viewableItems}: any) => {
     const idx = viewableItems[0]?.index ?? null;
     setVisibleIndexView1(prev => (prev !== idx ? idx : prev));
   }, []);
 
-  const onViewableItemsChangedView2 = useCallback(({ viewableItems }: any) => {
+  const onViewableItemsChangedView2 = useCallback(({viewableItems}: any) => {
     const idx = viewableItems[0]?.index ?? null;
     setVisibleIndexView2(prev => (prev !== idx ? idx : prev));
   }, []);
 
-  const viewabilityConfig = useMemo(() => ({ viewAreaCoveragePercentThreshold: 50 }), []);
+  const viewabilityConfig = useMemo(
+    () => ({viewAreaCoveragePercentThreshold: 50}),
+    [],
+  );
 
   // Search API
   const lastSearch = useRef('');
@@ -178,34 +180,48 @@ export const Search: React.FC = () => {
     const keyword = debouncedSearchText.trim();
     if (keyword && keyword !== lastSearch.current) {
       lastSearch.current = keyword;
-      dispatch(fetchSearchUser({ refreshToken, keyword, mode: 'username' }));
-      dispatch(fetchSearchPost({ refreshToken, keyword }));
+      dispatch(fetchSearchUser({refreshToken, keyword, mode: 'username'}));
+      dispatch(fetchSearchPost({refreshToken, keyword}));
     }
-    if (!keyword) lastSearch.current = '';
+    if (!keyword) {lastSearch.current = '';}
   }, [debouncedSearchText, dispatch, refreshToken]);
 
   // Combine history + users
   const combinedResults = useMemo(() => {
     const keyword = debouncedSearchText.trim().toLowerCase();
     if (keyword && !isLoading && !isError) {
-      const hist = searchHistory.filter(item => item.toLowerCase().includes(keyword));
-      const userItems = (users as any)?.items || [];
+      const hist = searchHistory.filter(item =>
+        item.toLowerCase().includes(keyword),
+      ).slice(0, 2);
+      const userItems = (users as UserR)?.items || [];
       return [
-        ...hist.map((h, i) => ({ type: 'history', value: h, id: `history-${i}` })),
-        ...userItems.map((u: any, i: any) => ({ type: 'user', value: u, id: `user-${u._id || i}` })),
+        ...hist.map((h, i) => ({
+          type: 'history',
+          value: h,
+          id: `history-${i}`,
+        })),
+        ...userItems.map((u: any, i: any) => ({
+          type: 'user',
+          value: u,
+          id: `user-${u._id || i}`,
+        })),
       ];
     }
-    return searchHistory.map((h, i) => ({ type: 'history', value: h, id: `history-${i}` }));
+    return searchHistory.map((h, i) => ({
+      type: 'history',
+      value: h,
+      id: `history-${i}`,
+    }));
   }, [debouncedSearchText, searchHistory, users, isLoading, isError]);
 
   // History persistence
   const loadHistory = useCallback(async () => {
     const raw = await AsyncStorage.getItem(SEARCH_HISTORY_KEY);
-    if (raw) setSearchHistory(JSON.parse(raw));
+    if (raw) {setSearchHistory(JSON.parse(raw));}
   }, []);
 
   const saveHistory = useCallback(async (q: string) => {
-    if (!q) return;
+    if (!q) {return;}
     setSearchHistory(prev => {
       const updated = [q, ...prev.filter(x => x !== q)].slice(0, 10);
       AsyncStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(updated));
@@ -228,14 +244,26 @@ export const Search: React.FC = () => {
   // Animations
   useEffect(() => {
     const animation = Animated.parallel([
-      Animated.timing(searchOpacity, { toValue: isFocused && !isShowResult ? 1 : 0, duration: 300, useNativeDriver: true }),
-      Animated.timing(mediaOpacity, { toValue: isFocused || isShowResult ? 0 : 1, duration: 300, useNativeDriver: true }),
-      Animated.timing(resultOpacity, { toValue: isShowResult ? 1 : 0, duration: 300, useNativeDriver: true }),
+      Animated.timing(searchOpacity, {
+        toValue: isFocused && !isShowResult ? 1 : 0,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(mediaOpacity, {
+        toValue: isFocused || isShowResult ? 0 : 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(resultOpacity, {
+        toValue: isShowResult ? 1 : 0,
+        duration: 300,
+        useNativeDriver: true,
+      }),
     ]);
     animation.start();
     return () => animation.stop();
   }, [isFocused, isShowResult]);
-  
+
   // Reset on blur
   useEffect(() => {
     if (!isFocusedPage) {
@@ -247,7 +275,7 @@ export const Search: React.FC = () => {
 
   // Handlers
   const handleSearchSubmit = useCallback(() => {
-    if (!searchText.trim()) return;
+    if (!searchText.trim()) {return;}
     saveHistory(searchText);
     setIsFocused(false);
     setIsShowResult(true);
@@ -265,40 +293,85 @@ export const Search: React.FC = () => {
     setSearchText('');
   }, []);
 
-  const renderSearchItem = useCallback(({ item }: any) => {
-    if (item.type === 'history') {
+  const renderSearchItem = useCallback(
+    ({item}: any) => {
+      if (item.type === 'history') {
+        return (
+          <HistoryItem
+            name={item.value}
+            onPress={() => {
+              setSearchText(item.value);
+              saveHistory(item.value);
+              setIsFocused(false);
+              setIsShowResult(true);
+              inputRef.current?.blur();
+            }}
+            onDelete={() => deleteHistory(item.value)}
+          />
+        );
+      }
       return (
-        <HistoryItem
-          name={item.value}
-          onPress={() => {
-            setSearchText(item.value);
-            saveHistory(item.value);
-            setIsFocused(false);
-            setIsShowResult(true);
-            inputRef.current?.blur();
-          }}
-          onDelete={() => deleteHistory(item.value)}
+        <User
+          id={item.value._id}
+          name={item.value.username}
+          image={item.value.profilePic}
+          handle={item.value.handleName}
         />
       );
-    }
-    return <User name={item.value.username} image={item.value.profilePic} status={item.value.status} isStory={false} />;
-  }, [deleteHistory, saveHistory]);
+    },
+    [deleteHistory, saveHistory],
+  );
 
-  const renderExploreItem = useCallback(({ item, index }: any) => (
-    <ExploreSection
-      media={item}
-      index={index}
-      currentVisibleIndex={visibleIndexView1}
-      isPause={isFocused || isShowResult}
-      isFocused={isFocused}
-      isFocusedPage={isFocusedPage}
-    />
-  ), [isFocused, isShowResult, isFocusedPage, visibleIndexView1]);
+  // A few things below is for the explore section
+  // Track initialization
+  useEffect(() => {
+    if (postsData.length > 0 && isInitializing) {
+      setIsInitializing(false);
+    }
+  }, [postsData, isInitializing]);
+
+  // Prepare media groups
+  // const postMedia = useMemo(
+  //   () => postsData.flatMap(p => p.media),
+  //   [postsData],
+  // );
+  const mediaGroups = useMemo(() => {
+    const groups: ExploreMedia[][] = [];
+    for (let i = 0; i < postsData.length; i += 5) {
+      const group = postsData.slice(i, i + 5)
+        .filter(post => post.media && post.media.length > 0)
+        .map(post => ({
+          _id: post._id,
+          media: post.media,
+        }));
+
+      if (group.length === 5) {
+        groups.push(group);
+      }
+    }
+    return groups;
+  }, [postsData]);
+  // console.log('>>>>>>>>>mediaGroups: ', mediaGroups);
+  const renderExploreItem = useCallback(
+    ({item, index}: any) => {
+      return (
+        <ExploreSection
+          media={item}
+          index={index}
+        />
+      );
+    },
+    [],
+  );
 
   if (isInitializing) {
     return (
       <SafeAreaView style={[styles.container]}>
-        <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <View
+          style={[
+            styles.container,
+            {justifyContent: 'center', alignItems: 'center'},
+          ]}>
           <Text>Loading...</Text>
         </View>
       </SafeAreaView>
@@ -307,15 +380,20 @@ export const Search: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-       {isShowResult && isLoading && (
-         <View style={styles.overlay} pointerEvents="auto">
-           <ActivityIndicator size="large" color={color.primary} />
-         </View>
-       )}
+      {isShowResult && isLoading && (
+        <View style={styles.overlay} pointerEvents="auto">
+          <ActivityIndicator size="large" color={color.primary} />
+        </View>
+      )}
+
+      {/* Thanh tìm kiếm */}
       <View style={styles.searchContainer}>
         {isShowResult && (
           <TouchableOpacity onPress={handleBack}>
-            <Image source={require('../../../assets/icon/left.png')} style={[styles.icon, { marginRight: 10 }]} />
+            <Image
+              source={require('../../../assets/icon/left.png')}
+              style={[styles.icon, {marginRight: 10}]}
+            />
           </TouchableOpacity>
         )}
         <View style={styles.row}>
@@ -324,13 +402,19 @@ export const Search: React.FC = () => {
             placeholder="Tìm kiếm..."
             placeholderTextColor={color.text}
             style={styles.search}
-            onFocus={() => { setIsFocused(true); setIsShowResult(false); }}
+            onFocus={() => {
+              setIsFocused(true);
+              setIsShowResult(false);
+            }}
             value={searchText}
             onChangeText={setSearchText}
             onSubmitEditing={handleSearchSubmit}
             returnKeyType="search"
           />
-          <Image source={require('../../../assets/icon/search.png')} style={styles.iconSearch} />
+          <Image
+            source={require('../../../assets/icon/search.png')}
+            style={styles.iconSearch}
+          />
         </View>
         {isFocused && (
           <TouchableOpacity onPress={handleCancel}>
@@ -340,56 +424,68 @@ export const Search: React.FC = () => {
       </View>
 
       <View style={styles.container}>
-        {/* Search History/Results */}
-        <Animated.View
-          pointerEvents={isFocused && !isShowResult ? 'auto' : 'none'}
-          style={[styles.container, { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, opacity: searchOpacity }]}
-        >
-          {searchText === '' && searchHistory.length > 0 && (
-            <View style={styles.rowSpace}>
-              <Text style={styles.textGD}>Gần đây</Text>
-              <Text style={styles.textAll}>Xem tất cả</Text>
-            </View>
-          )}
-          {searchText !== '' && (
-            <HistoryItem name={searchText} onPress={handleSearchSubmit} onDelete={() => {}} />
-          )}
-          <FlashList
-            data={combinedResults}
-            renderItem={renderSearchItem}
-            estimatedItemSize={60}
-            showsVerticalScrollIndicator={false}
-            keyExtractor={item => item.id}
-            removeClippedSubviews
-          />
-        </Animated.View>
+        {/* 📍 Hiển thị lịch sử và gợi ý khi đang nhập tìm kiếm */}
+        {isFocused && !isShowResult && (
+          <View
+            style={[
+              styles.container,
+              {position: 'absolute', top: 0, bottom: 0, left: 0, right: 0},
+            ]}>
+            {searchText === '' && searchHistory.length > 0 && (
+              <View style={styles.rowSpace}>
+                <Text style={styles.textGD}>Gần đây</Text>
+                <Text style={styles.textAll}>Xem tất cả</Text>
+              </View>
+            )}
+            {searchText !== '' && (
+              <HistoryItem
+                name={searchText}
+                onPress={handleSearchSubmit}
+                onDelete={() => {}}
+              />
+            )}
+            <FlashList
+              data={combinedResults}
+              renderItem={renderSearchItem}
+              estimatedItemSize={60}
+              showsVerticalScrollIndicator={false}
+              keyExtractor={item => item.id}
+              removeClippedSubviews
+            />
+          </View>
+        )}
 
-        {/* Search Results */}
-        <Animated.View
-          pointerEvents={isShowResult ? 'auto' : 'none'}
-          style={[styles.container, { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, opacity: resultOpacity }]}
-        >
-          <SearchResult
-            searchText={debouncedSearchText}
-            currentVisibleIndex={visibleIndexView2}
-            onViewableItemsChanged={onViewableItemsChangedView2}
-            isPause={isShowResult}
-          />
-        </Animated.View>
+        {/* 📍 Kết quả tìm kiếm */}
+        {isShowResult && (
+          <View
+            style={[
+              styles.container,
+              {position: 'absolute', top: 0, bottom: 0, left: 0, right: 0},
+            ]}>
+            <SearchResult
+              searchText={debouncedSearchText}
+              currentVisibleIndex={visibleIndexView2}
+              onViewableItemsChanged={onViewableItemsChangedView2}
+              isPause={isShowResult}
+            />
+          </View>
+        )}
 
-        {/* Media Grid */}
-        <Animated.View style={[styles.container, { opacity: mediaOpacity }]} pointerEvents={isFocused || isShowResult ? 'none' : 'auto'}>
-          <FlashList
-            data={mediaGroups}
-            keyExtractor={(_, i) => `media-group-${i}`}
-            renderItem={renderExploreItem}
-            estimatedItemSize={screenDimensions.BIG + 4}
-            onViewableItemsChanged={onViewableItemsChangedView1}
-            viewabilityConfig={viewabilityConfig}
-            removeClippedSubviews
-            getItemType={() => 'media-group'}
-          />
-        </Animated.View>
+        {/* 📍 Mạng lưới media explore */}
+        {!isFocused && !isShowResult && (
+          <View style={styles.container}>
+            <FlashList
+              data={mediaGroups}
+              keyExtractor={(_, i) => `media-group-${i}`}
+              renderItem={renderExploreItem}
+              estimatedItemSize={screenDimensions.BIG + 4}
+              onViewableItemsChanged={onViewableItemsChangedView1}
+              viewabilityConfig={viewabilityConfig}
+              removeClippedSubviews
+              getItemType={() => 'media-group'}
+            />
+          </View>
+        )}
       </View>
     </SafeAreaView>
   );

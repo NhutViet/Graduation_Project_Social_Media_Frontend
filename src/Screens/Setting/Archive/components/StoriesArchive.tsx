@@ -19,45 +19,6 @@ import StoriesTab from './StoriesTab';
 import HighlightsTab from './HighlightsTab';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../../../services/store';
-import {fetchGetPostedSotry} from '../../../../../services/StoryRedux/StorySlice';
-import {Alert} from 'react-native';
-import HighlightCreateModal from './HighlightCreateModal';
-import {GlobalAlertManager} from '../../../../../components/Global/AlertModal';
-
-const formatMonthText = (dateString?: string): string => {
-  if (!dateString) return '--\n--';
-
-  const date = new Date(dateString);
-  if (isNaN(date.getTime())) return '--\n--';
-
-  const months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ];
-  return `${date.getDate()}\n${months[date.getMonth()]}`;
-};
-
-// Giả lập action creator (thay bằng action thực tế khi có API)
-const fetchCreateHighlight =
-  (data: {storyIds: string[]}) => async (dispatch: AppDispatch) => {
-    try {
-      console.log('Creating highlight with storyIds:', data.storyIds);
-      return {success: true, data: {highlightId: 'fake-highlight-id'}};
-    } catch (error) {
-      console.error('Error creating highlight:', error);
-      throw error;
-    }
-  };
 
 const TopTab = createMaterialTopTabNavigator();
 
@@ -72,8 +33,6 @@ const StoryArchive = () => {
   const dispatch = useDispatch<AppDispatch>();
   const {myStories, loading} = useSelector((state: RootState) => state.stories);
   const ModalArchiveRef = useRef<Modalize>(null);
-  const ModalOptionRef = useRef<Modalize>(null);
-  const [isHighlightModalOpen, setIsHighlightModalOpen] = useState(false);
 
   const openArchiveModal = useCallback((): void => {
     requestAnimationFrame(() => {
@@ -81,45 +40,9 @@ const StoryArchive = () => {
     });
   }, []);
 
-  const openOptionModal = useCallback((): void => {
-    requestAnimationFrame(() => {
-      ModalOptionRef.current?.open();
-    });
-  }, []);
-
-  const openHighlightCreateModal = useCallback((): void => {
-    dispatch(fetchGetPostedSotry()); // Đảm bảo tải dữ liệu story trước
-    setIsHighlightModalOpen(true); // Mở modal chỉ khi nhấn
-  }, [dispatch]);
-
-  const closeHighlightModal = useCallback((): void => {
-    setIsHighlightModalOpen(false);
-  }, []);
-
   const goBack = useCallback((): void => {
     navigation.goBack();
   }, [navigation]);
-
-  const createHighlight = async (selectedStoryIds: string[]) => {
-    if (selectedStoryIds.length === 0) {
-      GlobalAlertManager.show('Lỗi', 'Vui lòng chọn ít nhất một story.');
-      return;
-    }
-    try {
-      const response = await dispatch(
-        fetchCreateHighlight({storyIds: selectedStoryIds}),
-      );
-      if (response.success) {
-        GlobalAlertManager.show('Thành công', 'Tin nổi bật đã được tạo.');
-        closeHighlightModal();
-      }
-    } catch (error) {
-      GlobalAlertManager.show(
-        'Lỗi',
-        'Không thể tạo tin nổi bật. Vui lòng thử lại.',
-      );
-    }
-  };
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
@@ -129,57 +52,64 @@ const StoryArchive = () => {
           pressableTilFunc={openArchiveModal}
           iconBack={require('../../../../../assets/icon/left.png')}
           func={goBack}
-          iconLeft={require('../../../../../assets/icon/menu-dots-vertical.png')}
-          funcLeft={openOptionModal}
+          iconLeft={require('../../../../../assets/icon/add.png')}
+          funcLeft={() => navigation.navigate('HighlightCreateScreen')}
           navigation={navigation}
         />
       </View>
       <View style={{width: '100%', height: '100%'}}>
         <TopTab.Navigator
-          screenOptions={{
-            tabBarLabelStyle: {
-              fontSize: 16,
-              fontWeight: 'bold',
-              textAlign: 'center',
-              textTransform: 'lowercase',
-            },
-            tabBarStyle: {
-              backgroundColor: color.background,
-            },
-            tabBarIndicatorStyle: {
-              backgroundColor: color.text,
-              height: 3,
-            },
-            tabBarActiveTintColor: color.text,
-            tabBarInactiveTintColor: color.textSecondary,
-          }}>
-          <TopTab.Screen
-            name="StoriesTab"
-            component={StoriesTab}
-            options={{
-              tabBarIcon: () => (
-                <Image
-                  source={require('../../../../../assets/icon/story.png')}
-                  style={{tintColor: color.text, width: 20, height: 20}}
-                />
-              ),
-              tabBarShowLabel: false,
-            }}
-          />
-          <TopTab.Screen
-            name="HighlightsTab"
-            component={HighlightsTab}
-            options={{
-              tabBarIcon: () => (
-                <Image
-                  source={require('../../../../../assets/icon/highlight.png')}
-                  style={{tintColor: color.text, width: 20, height: 20}}
-                />
-              ),
-              tabBarShowLabel: false,
-            }}
-          />
+          tabBar={({state, descriptors, navigation, position}) => (
+            <View
+              style={{flexDirection: 'row', backgroundColor: color.background}}>
+              {state.routes.map((route, index) => {
+                const {options} = descriptors[route.key];
+                const isFocused = state.index === index;
+                const icon =
+                  route.name === 'StoriesTab'
+                    ? require('../../../../../assets/icon/story.png')
+                    : require('../../../../../assets/icon/highlight.png');
+
+                const onPress = () => {
+                  const event = navigation.emit({
+                    type: 'tabPress',
+                    target: route.key,
+                    canPreventDefault: true,
+                  } as const);
+
+                  if (!isFocused && !event.defaultPrevented) {
+                    navigation.navigate(route.name);
+                  }
+                };
+
+                return (
+                  <TouchableOpacity
+                    key={route.key}
+                    onPress={onPress}
+                    style={{
+                      flex: 1,
+                      alignItems: 'center',
+                      paddingVertical: 10,
+                      borderBottomWidth: isFocused ? 3 : 0,
+                      borderBottomColor: isFocused ? color.text : 'transparent',
+                    }}>
+                    <Image
+                      source={icon}
+                      style={{
+                        width: 22,
+                        height: 22,
+                        tintColor: isFocused ? color.text : color.textSecondary,
+                      }}
+                    />
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          )}>
+          <TopTab.Screen name="StoriesTab" component={StoriesTab} />
+          <TopTab.Screen name="HighlightsTab" component={HighlightsTab} />
         </TopTab.Navigator>
+
         <Portal>
           <Modalize
             ref={ModalArchiveRef}
@@ -212,55 +142,6 @@ const StoryArchive = () => {
             </View>
           </Modalize>
         </Portal>
-        <Portal>
-          <Modalize
-            ref={ModalOptionRef}
-            adjustToContentHeight={false}
-            modalHeight={Dimensions.get('window').height * 0.3}
-            modalStyle={[styles.modal, {backgroundColor: color.modal}]}
-            handleStyle={styles.modalHandle}
-            handlePosition="inside"
-            panGestureEnabled={true}
-            onOverlayPress={() => ModalOptionRef.current?.close()}
-            scrollViewProps={{
-              showsVerticalScrollIndicator: false,
-            }}>
-            <View style={{marginTop: 35}}>
-              <View style={{paddingVertical: 20, justifyContent: 'center'}}>
-                <Text
-                  style={{
-                    fontSize: 15,
-                    fontWeight: '500',
-                    color: color.text,
-                  }}>
-                  Lựa chọn khác
-                </Text>
-              </View>
-              <View
-                style={{flex: 1, borderWidth: 1, borderColor: color.gray}}
-              />
-              <TouchableOpacity
-                style={styles.modalPressable}
-                onPress={openHighlightCreateModal}>
-                <Text style={[styles.modalText, {color: color.text}]}>
-                  Tạo tin nổi bật
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.modalPressable}>
-                <Text style={[styles.modalText, {color: color.text}]}>
-                  Cài đặt
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </Modalize>
-        </Portal>
-        <HighlightCreateModal
-          isOpen={isHighlightModalOpen}
-          onClose={closeHighlightModal}
-          myStories={myStories}
-          loading={loading}
-          onCreateHighlight={createHighlight}
-        />
       </View>
     </SafeAreaView>
   );

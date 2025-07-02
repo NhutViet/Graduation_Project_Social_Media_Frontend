@@ -99,8 +99,8 @@ const UserInfoStyles = (theme: ThemeType) => {
     },
 
     infoIcon: {
-      width: 18,
-      height: 18,
+      width: 20,
+      height: 20,
       marginRight: 10,
     },
 

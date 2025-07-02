@@ -37,7 +37,6 @@ type Params = {
   updated?: TaggedMedia[];
 };
 
-
 export const PostSetting = () => {
   const {theme} = useTheme();
   const color = Colors[theme];
@@ -45,6 +44,7 @@ export const PostSetting = () => {
   const navigation: any = useNavigation();
   const dispatch = useDispatch<AppDispatch>();
   const sheetRef = useRef<BottomSheetRef>(null);
+  const user = useSelector((state: RootState) => state.user.user);
   const [selectedMusic, setSelectedMusic] = useState<{
     musicId: string;
     timeStart: number;
@@ -179,7 +179,7 @@ export const PostSetting = () => {
       };
       console.log('body: ', JSON.stringify(body, null, 2));
 
-      const resultAction = await dispatch(uploadPostWithMedia(body));
+      const resultAction = await dispatch(uploadPostWithMedia({payload: body, handleName: user?.handleName}));
 
       if (uploadPostWithMedia.fulfilled.match(resultAction)) {
         Toast.show({
@@ -305,11 +305,6 @@ export const PostSetting = () => {
           iconRight={require('../../../assets/icon/right.png')}
           iconLeft={require('../../../assets/icon/add_song.png')}
           func={() => sheetRef.current?.open()}
-        />
-        <Section
-          title={'Đối tượng'}
-          iconRight={require('../../../assets/icon/right.png')}
-          iconLeft={require('../../../assets/icon/eye.png')}
         />
         <View style={styles.divi}></View>
         <Section

@@ -13,29 +13,33 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import Video from 'react-native-video';
 import Draggable from 'react-native-draggable';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import Sound from 'react-native-sound';
-import {BASE_URL} from '../../../services/api';
+import {API, BASE_URL} from '../../../services/api';
 import {useUploadProgress} from '../../../services/UploadProgressManager';
 import {useSelector} from 'react-redux';
 import {RootState} from '../../../services/store';
 import {uploadImageToR2, uploadToCloudflare} from '../../core/upload';
 import axiosInstance from '../../../services/axiosInstance';
 import {Dimensions} from 'react-native';
+import {X, ChevronRight} from 'lucide-react-native';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 
 export const EditStory = ({route, navigation}: any) => {
+  const {followingUsers} = useSelector((state: RootState) => state.stories);
   const {selectedItem, selectedMusic, songUrl} = route.params;
   const [videoDuration, setVideoDuration] = useState<number | null>(null);
   const [videoCurrentTime, setVideoCurrentTime] = useState(0);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [hasShownModal, setHasShownModal] = useState(false);
+  const [filteredSuggestions, setFilteredSuggestions] = useState([]);
   const [caption, setCaption] = useState('');
   const progressAnim = useRef(new Animated.Value(0)).current;
   const animationRef = useRef<Animated.CompositeAnimation | null>(null);
@@ -44,17 +48,18 @@ export const EditStory = ({route, navigation}: any) => {
   // Lấy tọa độ, đặt giá trị mặc định ở giữa nếu không kéo thả
   const positionRef = useRef({x: 50, y: 50}); // Mặc định ở giữa (50% x, 50% y)
   const [initialized, setInitialized] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   // Sau khi render lần đầu, ngừng truyền x/y để tránh nhảy
   useEffect(() => {
     setInitialized(true);
   }, []);
 
-  const {refreshToken} = useSelector((state: RootState) => state.user);
+  const {refreshToken, user} = useSelector((state: RootState) => state.user);
 
   const {showUploadModal, hideUploadModal, setProgress} = useUploadProgress();
 
-  const imageDuration = 10000; // 10 seconds for images
+  const imageDuration = 15000; // 15 seconds for images
 
   const getItemDuration = () => {
     if (selectedItem?.type.includes('video') && videoDuration) {
@@ -174,6 +179,30 @@ export const EditStory = ({route, navigation}: any) => {
     setHasShownModal(true);
   };
 
+  const onChangeCaption = (text: string) => {
+    setCaption(text);
+
+    const match = text.match(/@([a-zA-Z0-9._]*)$/);
+    if (match) {
+      const keyword = match[1].toLowerCase();
+      const filtered = followingUsers.filter(user =>
+        user.handleName.toLowerCase().includes(keyword),
+      );
+      setFilteredSuggestions(filtered);
+    } else {
+      setFilteredSuggestions([]);
+    }
+  };
+
+  const handleSuggestionPress = (user: any) => {
+    const updated = caption.replace(
+      /@([a-zA-Z0-9._]*)$/,
+      `@${user.handleName} `,
+    );
+    setCaption(updated);
+    setFilteredSuggestions([]);
+  };
+
   const handleCloserPress = () => {
     console.log('Closer pressed, navigating back');
     navigation.goBack();
@@ -204,9 +233,11 @@ export const EditStory = ({route, navigation}: any) => {
 
   const handleUploadStory = async () => {
     try {
+      setIsUploading(true);
       setProgress(0);
       if (!selectedItem) {
         console.error('Không có media để upload.');
+        setIsUploading(false);
         return;
       }
 
@@ -227,6 +258,7 @@ export const EditStory = ({route, navigation}: any) => {
           });
         }
       } catch (error) {
+        setIsUploading(false);
         GlobalAlertManager.show(
           'Upload thất bại',
           `Không thể upload ${
@@ -277,11 +309,31 @@ export const EditStory = ({route, navigation}: any) => {
 
       if (res.data) {
         GlobalAlertManager.show('Thông báo', 'Đăng story thành công.');
+        if (res.status >= 200 && res.status <= 300) {
+          await axiosInstance.post(
+            API.NOTIFICATION_API_FOLLOW,
+            {
+              title: `Có tin mới.`,
+              body: `Người dùng ${user?.handleName} vừa đăng một tin mới.`,
+              data: {
+                type: 'story',
+                postId: res.data?._id,
+              },
+            },
+            {
+              headers: {
+                token: 'refresh',
+              },
+            },
+          );
+        }
       }
 
       hideUploadModal();
+      setIsUploading(false);
       navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
     } catch (error: any) {
+      setIsUploading(false);
       GlobalAlertManager.show(
         'Lỗi!!!',
         error?.response?.data?.message || 'Đăng story thất bại.',
@@ -300,10 +352,7 @@ export const EditStory = ({route, navigation}: any) => {
             <TouchableOpacity
               style={styles.btnCloser}
               onPress={handleCloserPress}>
-              <Image
-                style={styles.iconCloser}
-                source={require('../../../assets/icon/closer.png')}
-              />
+              <X size={24} color={'#fff'} />
             </TouchableOpacity>
             <View style={styles.viewHeaderRight}>
               <TouchableOpacity
@@ -314,13 +363,11 @@ export const EditStory = ({route, navigation}: any) => {
               <TouchableOpacity
                 style={styles.btnCloser}
                 onPress={handleUploadStory}>
-                <Image
-                  style={styles.iconCloser}
-                  source={require('../../../assets/icon/rightArrow.png')}
-                />
+                <ChevronRight size={24} color={'#fff'} />
               </TouchableOpacity>
             </View>
           </View>
+
           <View style={styles.mediaItems}>{renderProgressBar()}</View>
           <View style={styles.mediaWrapper}>
             <TouchableWithoutFeedback onPress={handleScreenTap}>
@@ -389,18 +436,54 @@ export const EditStory = ({route, navigation}: any) => {
                 <TextInput
                   style={styles.textInput}
                   value={caption}
-                  onChangeText={setCaption}
+                  onChangeText={onChangeCaption}
                   placeholderTextColor="#aaa"
                   multiline
                   autoFocus
                   returnKeyType="done"
                 />
+
+                {filteredSuggestions.length > 0 && (
+                  <View
+                    style={{
+                      position: 'absolute',
+                      top: '56%',
+                      left: 20,
+                      right: 20,
+                      backgroundColor: '#222',
+                      borderRadius: 8,
+                    }}>
+                    {filteredSuggestions.map((user, index) => (
+                      <TouchableOpacity
+                        key={index}
+                        onPress={() => handleSuggestionPress(user)}
+                        style={{padding: 10}}>
+                        <Text style={{color: '#fff'}}>@{user.handleName}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
+
                 <TouchableOpacity
                   style={styles.doneButton}
                   onPress={handleDonePress}>
                   <Text style={styles.doneButtonText}>Xong</Text>
                 </TouchableOpacity>
               </View>
+            </View>
+          </Modal>
+          <Modal visible={isUploading} transparent animationType="fade">
+            <View
+              style={{
+                flex: 1,
+                backgroundColor: 'rgba(0,0,0,0.6)',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <ActivityIndicator size="large" color="#fff" />
+              <Text style={{color: '#fff', marginTop: 10}}>
+                Đang đăng story...
+              </Text>
             </View>
           </Modal>
         </SafeAreaView>
@@ -421,7 +504,8 @@ const styles = StyleSheet.create({
     marginLeft: 15,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    height: 50, // Fixed height for header
+    height: 50,
+    marginTop: 5,
   },
   btnCloser: {
     width: 40,
@@ -485,6 +569,8 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   textInput: {
+    position: 'absolute',
+    top: '50%',
     width: 300,
     color: '#fff',
     fontSize: 18,
@@ -505,15 +591,18 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
   },
   modalContent: {
-    padding: 20,
+    flex: 1,
     borderRadius: 10,
     alignItems: 'center',
     width: '80%',
   },
   doneButton: {
+    position: 'absolute',
+    top: 15,
+    right: 0,
     backgroundColor: '#555',
     paddingVertical: 10,
     paddingHorizontal: 20,

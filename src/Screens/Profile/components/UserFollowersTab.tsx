@@ -27,6 +27,7 @@ const UserFollowersTab = ({route}: any) => {
   const {theme} = useTheme();
   const color = Colors[theme];
   const userID: string = route.params?.userID;
+  const user = useSelector((state: RootState) => state.user.user);
   const myUserId = useSelector((state: RootState) => state.user.user?._id);
   const dispatch = useDispatch<AppDispatch>();
   const {
@@ -112,14 +113,6 @@ const UserFollowersTab = ({route}: any) => {
           {item.isMeFollowing ? 'Nhắn tin' : 'Theo dõi'}
         </Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.cancelButton}>
-        <View style={{width: 10, height: 10, overflow: 'hidden'}}>
-          <Image
-            source={require('../../../../assets/icon/x.png')}
-            style={[styles.cancelImage, {tintColor: color.text}]}
-          />
-        </View>
-      </TouchableOpacity>
     </View>
   );
 
@@ -156,6 +149,8 @@ const UserFollowersTab = ({route}: any) => {
           relationAction({
             targetId: item._id,
             action: 'follow',
+            senderId: user?._id,
+            handleName: user?.handleName,
           }),
         ).unwrap();
 
@@ -215,19 +210,18 @@ const UserFollowersTab = ({route}: any) => {
           styles.searchBarArea,
           {backgroundColor: color.background, borderBottomColor: color.border},
         ]}>
-        <View
-          style={[
-            styles.searchBarContainer,
-            {backgroundColor: color.background, borderColor: color.text},
-          ]}>
+        <View style={[styles.searchBarContainer]}>
+          <TextInput
+            style={[
+              styles.searchBar,
+              {color: color.text, backgroundColor: color.lessBlack},
+            ]}
+            placeholder="Tìm kiếm"
+            placeholderTextColor={color.text}
+          />
           <Image
             source={require('../../../../assets/icon/search.png')}
             style={[styles.searchIcon, {tintColor: color.text}]}
-          />
-          <TextInput
-            style={[styles.searchBar, {borderColor: color.border}]}
-            placeholder="Tìm kiếm"
-            placeholderTextColor={color.text}
           />
         </View>
       </View>
@@ -307,22 +301,23 @@ const styles = StyleSheet.create({
     height: 10,
   },
   searchIcon: {
-    width: 20,
-    height: 20,
-    marginRight: 5,
+    height: 15,
+    width: 15,
+    position: 'absolute',
+    left: 10,
+    resizeMode: 'contain',
   },
   searchBar: {
     flex: 1,
-    fontSize: 14,
+    paddingRight: 10,
+    paddingLeft: 40,
+    paddingVertical: 5,
+    borderRadius: 10,
   },
   searchBarContainer: {
-    flexDirection: 'row',
+    marginVertical: 3,
     alignItems: 'center',
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    height: 40,
-    marginHorizontal: 15,
-    borderWidth: 1,
+    flexDirection: 'row',
   },
   searchBarArea: {
     position: 'absolute',
@@ -332,7 +327,8 @@ const styles = StyleSheet.create({
     zIndex: 10,
     paddingHorizontal: 15,
     paddingVertical: 10,
-    borderBottomWidth: 1,
+    borderBottomWidth: 0.5,
+    marginBottom: 8,
   },
   listContent: {
     paddingTop: 70,

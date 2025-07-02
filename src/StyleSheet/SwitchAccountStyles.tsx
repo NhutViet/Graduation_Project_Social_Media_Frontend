@@ -17,7 +17,7 @@ const SwitchAccountStyles = (theme: ThemeType) => {
       borderWidth: 1,
       borderColor: color.transparent,
       backgroundColor: Colors.light.background,
-      color: Colors.light.text,
+      color: Colors.black,
       borderRadius: 8,
       paddingHorizontal: 10,
       marginTop: 15,

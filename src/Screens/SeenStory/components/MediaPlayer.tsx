@@ -1,5 +1,5 @@
 import React, {forwardRef, useEffect, useRef} from 'react';
-import {Image, Text, View} from 'react-native';
+import {ActivityIndicator, Image, Text, View} from 'react-native';
 import Video from 'react-native-video';
 import Sound from 'react-native-sound';
 import {styles} from './styles';
@@ -16,46 +16,55 @@ interface MediaPlayerProps {
   onMusicLoad?: (seconds: number) => void;
   onMusicEnd?: () => void;
   onMediaLayout?: (size: {width: number; height: number}) => void;
+  paused?: boolean;
+  muted?: boolean;
+  isMediaLoading?: boolean;
 }
 
 export const MediaPlayer = forwardRef<any, MediaPlayerProps>(
-  ({item, onLoad, onEnd, onMusicLoad, onMusicEnd, onMediaLayout}, ref) => {
+  (
+    {
+      item,
+      onLoad,
+      onEnd,
+      onMusicLoad,
+      onMusicEnd,
+      onMediaLayout,
+      paused,
+      muted,
+      isMediaLoading,
+    },
+    ref,
+  ) => {
     /* ---------- AUDIO ----------- */
     const soundRef = useRef<Sound | null>(null);
 
     useEffect(() => {
+      if (item?.uriVideo || !item?.music?.link) return;
+
       let isMounted = true;
 
-      // ✅ Nếu có video, KHÔNG load và phát nhạc
-      if (item?.uriVideo) {
-        console.log('🚫 Skipping music. Video is present:', item.uriVideo);
-        return;
-      }
-
-      const {music} = item || {};
-      if (!music?.link) return;
-      console.log('🎵 Playing music:', music.link);
       soundRef.current?.stop(() => soundRef.current?.release());
       soundRef.current = null;
 
-      const sound = new Sound(music.link, undefined, error => {
+      const sound = new Sound(item.music.link, undefined, error => {
         if (error) {
-          console.warn('❌ Can’t load sound:', error);
+          console.warn('❌ Load sound failed:', error);
           return;
         }
 
         const total = sound.getDuration();
         onMusicLoad?.(total);
-        if (music.time_start) sound.setCurrentTime(music.time_start);
-
-        sound.play(success => {
-          if (isMounted) {
-            if (success) onMusicEnd?.();
-            else console.warn('⚠️  Sound playback failed');
-          }
-        });
-
+        if (item.music?.time_start) sound.setCurrentTime(item.music.time_start);
         soundRef.current = sound;
+
+        // Auto play nếu không pause
+        if (!paused) {
+          sound.setVolume(muted ? 0 : 1);
+          sound.play(success => {
+            if (success) onMusicEnd?.();
+          });
+        }
       });
 
       return () => {
@@ -63,13 +72,26 @@ export const MediaPlayer = forwardRef<any, MediaPlayerProps>(
         soundRef.current?.stop(() => soundRef.current?.release());
         soundRef.current = null;
       };
-    }, [
-      item?.uriVideo,
-      item?.image,
-      item?.mediaUrl,
-      item?.music?.link,
-      item?.music?.time_start,
-    ]);
+    }, [item?.music?.link]);
+    // pause
+    useEffect(() => {
+      if (soundRef.current) {
+        if (paused) {
+          soundRef.current.pause();
+        } else {
+          soundRef.current.play(success => {
+            if (success) onMusicEnd?.();
+          });
+        }
+      }
+    }, [paused]);
+
+    // mute
+    useEffect(() => {
+      if (soundRef.current) {
+        soundRef.current.setVolume(muted ? 0 : 1);
+      }
+    }, [muted]);
 
     if (!item) {
       return <Text style={styles.errorText}>Không có media để hiển thị</Text>;
@@ -95,6 +117,8 @@ export const MediaPlayer = forwardRef<any, MediaPlayerProps>(
             playWhenInactive={false}
             onLoad={onLoad}
             onEnd={onEnd}
+            paused={paused}
+            muted={muted}
           />
         ) : displayImage ? (
           <Image
@@ -107,6 +131,22 @@ export const MediaPlayer = forwardRef<any, MediaPlayerProps>(
           />
         ) : (
           <Text style={styles.errorText}>Không có media để hiển thị</Text>
+        )}
+        {isMediaLoading && (
+          <View
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: 'rgba(0,0,0,0.2)',
+              zIndex: 2,
+            }}>
+            <ActivityIndicator size="large" color="#fff" />
+          </View>
         )}
       </View>
     );

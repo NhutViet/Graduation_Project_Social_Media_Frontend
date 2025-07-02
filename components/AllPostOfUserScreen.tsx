@@ -1,12 +1,4 @@
 import {useIsFocused, useNavigation, useRoute} from '@react-navigation/native';
-import {FlashList} from '@shopify/flash-list';
-import {useCallback, useEffect, useRef, useState} from 'react';
-import BottomSheetComment, {
-  BottomSheetCommentRef,
-} from '../src/(tabs)/Home/components/CommentSection';
-import {useDispatch, useSelector} from 'react-redux';
-import {AppDispatch, RootState} from '../services/store';
-import {fetchCommentsByPost} from '../services/commentRedux/commentSlice';
 import {
   FlatList,
   Image,
@@ -16,6 +8,12 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import {useCallback, useRef, useState} from 'react';
+import BottomSheetComment, {
+  BottomSheetCommentRef,
+} from '../src/(tabs)/Home/components/CommentSection';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '../services/store';
 import ItemHome from '../src/(tabs)/Home/components/ItemHome';
 import {useTheme} from '../src/util/ThemeContext';
 import {Colors} from '../assets/color/Colors';
@@ -28,7 +26,6 @@ const AllPostOfUserScreen = () => {
   const listRef = useRef<FlatList<any>>(null);
   const sheetRef = useRef<BottomSheetCommentRef>(null);
   const isFocused = useIsFocused();
-  const dispatch = useDispatch<AppDispatch>();
 
   const {targetPostId} = route.params as {targetPostId: string};
   const {items: PostsItem}: any = useSelector(
@@ -36,25 +33,17 @@ const AllPostOfUserScreen = () => {
   );
 
   const [currentVisible, setCurrentVisible] = useState<string | null>(null);
-  const [selectedPostId, setSelectedPostId] = useState<string>('');
+  const [selectedPostId, setSelectedPostId] = useState<{postId: string, receiverId: string}>({postId: '', receiverId: ''});
 
   const targetIndex = Array.isArray(PostsItem)
-  ? PostsItem.findIndex((post: any) => post._id === targetPostId)
-  : -1;
+    ? PostsItem.findIndex((post: any) => post._id === targetPostId)
+    : -1;
 
   const onViewRef = useCallback(({viewableItems}: {viewableItems: any[]}) => {
     const id = viewableItems[0]?.item?._id;
     if (id) setCurrentVisible(id);
   }, []);
 
-  const handleOpenComment = useCallback(
-    (postId: string) => {
-      setSelectedPostId(postId);
-      dispatch(fetchCommentsByPost(postId));
-      sheetRef.current?.open();
-    },
-    [dispatch],
-  );
 
   return (
     <SafeAreaView style={{flex: 1}}>
@@ -70,6 +59,7 @@ const AllPostOfUserScreen = () => {
         </Text>
         <View style={styles.iconBack} />
       </View>
+
       <View style={{flex: 1, backgroundColor: colors.background}}>
         <FlatList
           ref={listRef}
@@ -82,28 +72,41 @@ const AllPostOfUserScreen = () => {
             const shouldPlay = item._id === currentVisible;
             return (
               <ItemHome
-                {...item}
-                isFocused={isFocused}
+                _id={item._id}
+                type={item.type}
+                caption={item.caption}
+                createdAt={item.createdAt}
+                media={item.media}
+                user={item.user}
+                isLike={item.isLike}
+                isBookmarked={item.isBookmarked}
+                commentCount={item.commentCount}
+                likeCount={item.likeCount}
+                share={item.share}
+                music={item.music}
                 currentVisible={shouldPlay}
-                openComment={handleOpenComment}
+                isFocused={isFocused}
+                sheetRef={sheetRef}
+                isFollow={item.isFollow}
+                setSelectedPostId={setSelectedPostId}
               />
             );
           }}
           showsVerticalScrollIndicator={false}
           scrollEventThrottle={16}
-          initialScrollIndex={targetIndex >=0 ? targetIndex : 0}
+          initialScrollIndex={targetIndex >= 0 ? targetIndex : 0}
           removeClippedSubviews={true}
           nestedScrollEnabled={false}
           maintainVisibleContentPosition={{
             minIndexForVisible: 0,
           }}
           getItemLayout={(_, index) => ({
-            length: 200,
-            offset: 200 * index,
+            length: 500,
+            offset: 500 * index,
             index,
           })}
         />
-        <BottomSheetComment ref={sheetRef} postId={selectedPostId} />
+        <BottomSheetComment ref={sheetRef} postId={selectedPostId.postId} receiverId={selectedPostId.receiverId}/>
       </View>
     </SafeAreaView>
   );

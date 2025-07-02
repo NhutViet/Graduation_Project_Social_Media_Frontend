@@ -23,11 +23,7 @@ import {RootStackParamList} from '../../Navigation/AppNavigation';
 import ModalTheme from '../Message/components/ModalTheme';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../services/store';
-import {
-  updateRoomName,
-  updateRoomTheme,
-} from '../../../services/roomRedux/roomSlice';
-import {ModalRenameRoom} from '../../../components/ModalRenameRoom';
+import {updateRoomTheme} from '../../../services/roomRedux/roomSlice';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
 const screenWidth = Dimensions.get('window').width - 8;
@@ -44,12 +40,6 @@ export const UserInfo = () => {
   const dispatch = useDispatch<AppDispatch>();
   const animatedLeftValue = React.useRef(new Animated.Value(0)).current;
   const [visibleThemeModal, setVisibleThemeModal] = useState(false);
-  const [visibleRenameModal, setVisibleRenameModal] = useState(false);
-  const rooms = useSelector((state: RootState) => state.rooms.rooms);
-  const room = useMemo(
-    () => rooms.find(r => r._id === roomId),
-    [rooms, roomId],
-  );
 
   React.useEffect(() => {
     Animated.timing(animatedLeftValue, {
@@ -201,10 +191,6 @@ export const UserInfo = () => {
             icon: require('../../../assets/icon/users.png'),
             label: 'Tạo nhóm trò chuyện',
           },
-          {
-            icon: require('../../../assets/icon/edit.png'),
-            label: 'Đổi tên đoạn hội thoại',
-          },
         ].map((item, i) => (
           <TouchableOpacity
             style={styles.row}
@@ -215,8 +201,6 @@ export const UserInfo = () => {
               } else if (i == 1) {
               } else if (i == 2) {
                 navigation.navigate('CreateGroupScreen');
-              } else if (i == 3) {
-                setVisibleRenameModal(true);
               }
             }}>
             <View style={styles.infoRowContainer}>
@@ -230,7 +214,7 @@ export const UserInfo = () => {
               <Text style={styles.nameUser}>{item.label}</Text>
             </View>
             <Image
-              source={require('../../../assets/icon/rightArrow.png')}
+              source={require('../../../assets/icon/right.png')}
               style={styles.rightArrow}
             />
           </TouchableOpacity>
@@ -379,23 +363,6 @@ export const UserInfo = () => {
           />
         </Modalize>
       </Portal>
-      <ModalRenameRoom
-        visible={visibleRenameModal}
-        onClose={() => setVisibleRenameModal(false)}
-        currentName={room?.name || ''}
-        theme={theme}
-        onSubmit={(newName: string) => {
-          dispatch(updateRoomName({roomId: roomId, name: newName}))
-            .unwrap()
-            .then(() => {
-              GlobalAlertManager.show('Thành công', 'Đã đổi tên nhóm');
-              setVisibleRenameModal(false);
-            })
-            .catch(() => {
-              GlobalAlertManager.show('Lỗi', 'Không thể đổi tên nhóm');
-            });
-        }}
-      />
     </SafeAreaView>
   );
 };

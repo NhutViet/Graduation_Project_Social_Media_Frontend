@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   View,
   StyleSheet,
-  Alert,
   Modal,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
@@ -42,21 +41,43 @@ export const Register = ({navigation}: any) => {
   );
 
   const handleRegister = async () => {
-    if (email === '' || password === '' || rePassword === '') {
-      if (email === '') setErrorEmail('Vui lòng nhập đầy đủ thông tin.');
-      if (password === '') setErrorPassword('Vui lòng nhập đầy đủ thông tin.');
-      if (rePassword === '')
-        setErrorRePassword('Vui lòng nhập đầy đủ thông tin.');
-    } else if (!email.includes('.') || !email.includes('@')) {
-      setErrorEmail('Email không đúng định dạng');
-      setErrorPassword('');
-    } else if (password !== rePassword) {
-      setErrorRePassword('Không trùng mật khẩu');
-    } else {
-      setErrorEmail('');
-      setErrorPassword('');
-      await dispatch(fetchRegister({email, password}));
+    setErrorEmail('');
+    setErrorPassword('');
+    setErrorRePassword('');
+
+    let valid = true;
+
+    if (!email) {
+      setErrorEmail('Vui lòng nhập đầy đủ thông tin.');
+      valid = false;
+    } else if (!email.includes('@') || !email.includes('.')) {
+      setErrorEmail('Email không đúng định dạng.');
+      valid = false;
     }
+
+    if (!password) {
+      setErrorPassword('Vui lòng nhập đầy đủ thông tin.');
+      valid = false;
+    } else if (!/^\d{6}$/.test(password)) {
+      setErrorPassword(
+        'Mật khẩu phải gồm đúng 6 chữ số và không có ký tự đặc biệt.',
+      );
+      valid = false;
+    }
+
+    if (!rePassword) {
+      setErrorRePassword('Vui lòng nhập đầy đủ thông tin.');
+      valid = false;
+    } else if (password !== rePassword) {
+      setErrorRePassword('Mật khẩu nhập lại không trùng khớp.');
+      valid = false;
+    }
+
+    if (!valid) {
+      return;
+    }
+
+    await dispatch(fetchRegister({email, password}));
   };
 
   useEffect(() => {
@@ -84,7 +105,7 @@ export const Register = ({navigation}: any) => {
         style={styles.linear}
       />
       <TouchableOpacity onPress={() => navigation.goBack()}>
-        <ChevronLeft size={35} color={'#000'} />
+        <Image style={styles.icon} source={require('@assets/icon/left.png')} />
       </TouchableOpacity>
       <View style={styles.container}>
         <Image
@@ -92,16 +113,28 @@ export const Register = ({navigation}: any) => {
           source={require('../../../assets/icon/logo.png')}
         />
         <View style={SwitchStyles.body}>
-          <TextInput
-            value={email}
-            onChangeText={text => {
-              setEmail(text);
-              setErrorEmail('');
-            }}
-            placeholder="Email"
-            placeholderTextColor={Colors.light.lightDark}
-            style={SwitchStyles.input}
-          />
+          <View
+            style={[
+              SwitchStyles.input,
+              {
+                marginTop: 20,
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: 5,
+              },
+            ]}>
+            <TextInput
+              value={email}
+              onChangeText={text => {
+                setEmail(text);
+                setErrorEmail('');
+              }}
+              placeholder="Email"
+              placeholderTextColor={Colors.light.lightDark}
+              style={{width: '90%', color: Colors.black}}
+            />
+          </View>
           {!(errorEmail === '') && (
             <Text style={styles.errorText}>{errorEmail}</Text>
           )}
@@ -113,6 +146,7 @@ export const Register = ({navigation}: any) => {
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 alignItems: 'center',
+                marginBottom: 5,
               },
             ]}>
             <TextInput
@@ -121,7 +155,7 @@ export const Register = ({navigation}: any) => {
                 setPassword(text);
                 setErrorPassword('');
               }}
-              style={{width: '90%'}}
+              style={{width: '90%', color: Colors.black}}
               placeholder="Mật khẩu"
               secureTextEntry={isPassWord}
               placeholderTextColor={Colors.light.lightDark}
@@ -131,9 +165,9 @@ export const Register = ({navigation}: any) => {
                 isPassWord ? setIsPassWord(false) : setIsPassWord(true)
               }>
               {isPassWord ? (
-                <EyeOff size={24} color={'#000'} />
+                <EyeOff strokeWidth={1.5} size={20} color={'#000'} />
               ) : (
-                <Eye size={24} color={'#000'} />
+                <Eye strokeWidth={1.5} size={20} color={'#000'} />
               )}
             </TouchableOpacity>
           </View>
@@ -149,6 +183,7 @@ export const Register = ({navigation}: any) => {
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 alignItems: 'center',
+                marginBottom: 5,
               },
             ]}>
             <TextInput
@@ -157,7 +192,7 @@ export const Register = ({navigation}: any) => {
                 setRePassword(text);
                 setErrorRePassword('');
               }}
-              style={{width: '90%'}}
+              style={{width: '90%', color: Colors.black}}
               placeholder="Nhập lại mật khẩu"
               secureTextEntry={isRePassWord}
               placeholderTextColor={Colors.light.lightDark}
@@ -167,9 +202,9 @@ export const Register = ({navigation}: any) => {
                 isRePassWord ? setIsRePassWord(false) : setIsRePassWord(true)
               }>
               {isRePassWord ? (
-                <EyeOff size={24} color={'#000'} />
+                <EyeOff strokeWidth={1.5} size={20} color={'#000'} />
               ) : (
-                <Eye size={24} color={'#000'} />
+                <Eye strokeWidth={1.5} size={20} color={'#000'} />
               )}
             </TouchableOpacity>
           </View>

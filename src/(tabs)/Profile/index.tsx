@@ -10,8 +10,7 @@ import {
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {FlashList} from '@shopify/flash-list';
-import {highlights, HighlightItem} from '../../MockData/story.mock';
+import {HighlightItem} from '../../MockData/story.mock';
 import {
   PlusSquare,
   Menu,
@@ -36,6 +35,9 @@ import {
 } from '../../../services/relationRedux/relationSlice';
 import {getPostsAndReelsOfUser} from '../../../services/postUserRedux/postUserSlice';
 import {fetchReels} from '@services/reelRedux/reelSlice';
+import ACNavigateModal, {
+  ACNavigateRef,
+} from '../../../src/Screens/AccountCenter/components/ACNavigateModal';
 
 const Profile = () => {
   const navigation: any = useNavigation();
@@ -43,7 +45,6 @@ const Profile = () => {
   const color = Colors[theme];
   const {styles} = Styles;
   const user = useSelector((state: RootState) => state.user.user);
-
   const dispatch = useDispatch<AppDispatch>();
   const userId = useSelector((state: RootState) => state.user?.user?._id);
   const {followers, following} = useSelector(
@@ -57,13 +58,12 @@ const Profile = () => {
     (state: RootState) => state.postUser.reels,
   );
   const {isSuccess} = useSelector((state: RootState) => state.postUser);
-
   const [visibleModalCreate, setVisibleModalCreate] = useState(false);
-
   const [isSwitchAccountVisible, setSwitchAccountVisible] = useState(false);
   const handleUsernamePress = () => {
     setSwitchAccountVisible(true);
   };
+  const acModalRef = useRef<ACNavigateRef>(null);
 
   const [isViewMoreVisible, setViewMoreVisible] = useState(false);
 
@@ -164,13 +164,45 @@ const Profile = () => {
     }
   };
 
+  // These two State Functionals below is for handle the length of bio
+  const [needsTruncation, setNeedsTruncation] = useState(false);
+  const [viewMoreBio, setViewMoreBio] = useState<Boolean>(false);
+  const handleLengthBio = (bioText?: string) => {
+    const MAX_LINES = 4;
+    if (!bioText) {
+      return <Text style={[styles.bioText, {color: color.text}]} />;
+    }
+
+    return (
+      <View>
+        <Text
+          numberOfLines={viewMoreBio ? undefined : MAX_LINES}
+          ellipsizeMode="tail"
+          onTextLayout={({nativeEvent}) => {
+            setNeedsTruncation(nativeEvent.lines.length > MAX_LINES);
+          }}
+          style={[styles.bioText, {color: color.text}]}>
+          {bioText}
+        </Text>
+
+        {needsTruncation && (
+          <TouchableOpacity onPress={() => setViewMoreBio(!viewMoreBio)}>
+            <Text style={{color: color.blue}}>
+              {viewMoreBio ? 'Thu gọn' : 'Xem thêm'}
+            </Text>
+          </TouchableOpacity>
+        )}
+      </View>
+    );
+  };
+
   const [activeTab, setActiveTab] = useState('grid');
 
   const renderHeader = () => (
-    <View>
+    <View style={{flex: 1}}>
       <View style={styles.header}>
         <View style={styles.usernameContainer}>
-          <Lock size={16} color={color.text} />
+          <Lock size={20} color={color.text} />
           <TouchableOpacity onPress={handleUsernamePress}>
             <Text style={[styles.username, {color: color.text}]}>
               {user?.handleName}
@@ -192,7 +224,7 @@ const Profile = () => {
         </View>
       </View>
 
-      <View>
+      <View style={{flex: 1}}>
         <View style={styles.profileInfo}>
           <View style={styles.avatarContainer}>
             <Image
@@ -228,7 +260,7 @@ const Profile = () => {
               onPress={() => navigation.navigate('FollowersScreen')}>
               <View style={styles.statItem}>
                 <Text style={[styles.statNumber, {color: color.text}]}>
-                  {(followers?.length) ? followers?.length : 0}
+                  {followers?.length ? followers?.length : 0}
                 </Text>
                 <Text style={[styles.statLabel, {color: color.text}]}>
                   người theo dõi
@@ -236,13 +268,14 @@ const Profile = () => {
               </View>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => navigation.navigate('FollowersScreen', {
-                screen: "FollowingTab"
-              })}
-              >
+              onPress={() =>
+                navigation.navigate('FollowersScreen', {
+                  screen: 'FollowingTab',
+                })
+              }>
               <View style={styles.statItem}>
                 <Text style={[styles.statNumber, {color: color.text}]}>
-                  {(following?.length) ? following?.length : 0}
+                  {following?.length ? following?.length : 0}
                 </Text>
                 <Text style={[styles.statLabel, {color: color.text}]}>
                   đang theo dõi
@@ -254,21 +287,21 @@ const Profile = () => {
 
         <View style={styles.bioContainer}>
           <Text style={[styles.displayName, {color: color.text}]}>
-            {user?.handleName}
+            {user?.username}
           </Text>
           <View style={styles.modeContainer}>
             <Moon size={14} color={color.textSecondary} />
             <Text style={[styles.modeText, {color: color.textSecondary}]}>
               {' '}
-              {/* in quiet mode */} Ở chế độ lặng
+              {/* in quiet mode */} Ở chế độ im lặng
             </Text>
           </View>
-          <Text style={[styles.bioText, {color: color.text}]}>{user?.bio}</Text>
+          {handleLengthBio(user?.bio)}
         </View>
 
         <View style={styles.actionButtons}>
           <TouchableOpacity
-            style={[styles.editButton, {backgroundColor: color.gray}]}
+            style={[styles.headerButton, {backgroundColor: color.gray}]}
             onPress={() => navigation.navigate('EditProfile')}>
             <Text
               numberOfLines={1}
@@ -278,7 +311,7 @@ const Profile = () => {
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.shareButton, {backgroundColor: color.gray}]}
+            style={[styles.headerButton, {backgroundColor: color.gray}]}
             onPress={() => navigation.navigate('QRCode')}>
             <Text
               numberOfLines={1}
@@ -293,21 +326,47 @@ const Profile = () => {
             <Share2 size={18} color={color.text} />
           </TouchableOpacity>
         </View>
-
-        <View style={styles.highlightsContainer}>
-          <FlashList
-            horizontal
-            data={highlights}
-            renderItem={({item}) => renderStories({item})}
-            estimatedItemSize={50}
-            keyExtractor={item => item.id.toString()}
-            showsHorizontalScrollIndicator={false}
-          />
-        </View>
+        {/* Highlight stories */}
+        {/* <View style={styles.highlightsContainer}>
+          {loading ? (
+            <Text style={{color: color.text}}>Đang tải highlights...</Text>
+          ) : Array.isArray(highlightStories) && highlightStories.length > 0 ? (
+            <FlashList
+              horizontal
+              data={highlightStories}
+              renderItem={({item}) => renderStories({item})}
+              estimatedItemSize={90}
+              keyExtractor={item => item._id.toString()}
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{paddingVertical: 5}}
+            />
+          ) : (
+            <Text style={{color: color.text}}>
+              Không có highlight stories nào
+            </Text>
+          )}
+        </View> */}
         <ModalCreate
           visible={visibleModalCreate}
           onClose={() => setVisibleModalCreate(false)}
-          onSelect={id => console.log('Selected:', id)}
+          onSelect={(id: string) => {
+            switch (id) {
+              case 'reels':
+                navigation.navigate('AddPost', {type: 'video'});
+                break;
+              case 'post':
+                navigation.navigate('AddPost');
+                break;
+              case 'story':
+                navigation.navigate('UpStory');
+                break;
+              case 'highlight':
+                navigation.navigate('Archive');
+                break;
+              default:
+                break;
+            }
+          }}
         />
       </View>
     </View>
@@ -358,9 +417,7 @@ const Profile = () => {
     switch (activeTab) {
       case 'grid':
         return isSuccess && PostsItem ? (
-          <PostsView
-            data={PostsItem}
-          />
+          <PostsView data={PostsItem} />
         ) : (
           <LoadingPlaceholder />
         );
@@ -403,12 +460,18 @@ const Profile = () => {
       <SwitchAccount
         visible={isSwitchAccountVisible}
         onClose={() => setSwitchAccountVisible(false)}
+        navigation={navigation}
+        onAddAccountPress={() => {
+          setSwitchAccountVisible(false);
+          setTimeout(() => acModalRef.current?.open(), 200);
+        }}
       />
       <ViewMore
         visible={isViewMoreVisible}
         onClose={() => setViewMoreVisible(false)}
         postId="123456"
       />
+      <ACNavigateModal ref={acModalRef} />
     </SafeAreaView>
   );
 };

@@ -4,10 +4,11 @@ export interface Story {
   type?: 'stories' | 'highlights';
   mediaUrl: string;
   isArchived?: boolean;
-  viewedByUsers: string[];
+  viewedByUsers: UserMini[];
   likedByUsers: string[];
   collectionName?: string;
   storyId?: string[];
+  thumbnail: string;
   createdAt: string;
   updatedAt?: string;
 
@@ -22,7 +23,22 @@ export interface Story {
     x: number;
     y: number;
   };
+
+  tags?: {
+    user: UserMini;
+    position: {
+      x: number;
+      y: number;
+    };
+  }[];
   isSeen?: boolean;
+}
+
+export interface UserMini {
+  _id: string;
+  username: string;
+  profilePic: string;
+  handleName?: string;
 }
 
 export interface userFollow {
@@ -38,4 +54,8 @@ export interface CreateHighlightPayload {
   collectionName: string;
   thumbnail: string;
   storyId: string[];
+}
+
+export interface FetchHighlightPayload {
+  userId: string;
 }

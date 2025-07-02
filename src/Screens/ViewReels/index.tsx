@@ -21,7 +21,7 @@ export const ViewReels: React.FC = () => {
   const isFocused = useIsFocused();
 
   const [currentVisibleId, setCurrentVisibleId] = useState<string | null>(null);
-  const [selectedPostId, setSelectedPostId] = useState<string>('');
+  const [selectedPostId, setSelectedPostId] = useState<{postId: string, receiverId?: string}>({postId: '', receiverId: ''});
   const sheetRefComment = useRef<BottomSheetCommentRef>(null);
   const sheetRef = useRef<BottomSheetReelsRef>(null);
   const navigation = useNavigation();
@@ -34,13 +34,13 @@ export const ViewReels: React.FC = () => {
     }
   });
 
-  const openComment = (postId: string) => {
-    setSelectedPostId(postId);
+  const openComment = (postId: string, receiverId: string) => {
+    setSelectedPostId({postId, receiverId});
     sheetRefComment.current?.open();
   };
 
   const openOptions = (postId: string) => {
-    setSelectedPostId(postId);
+    setSelectedPostId({postId});
     sheetRef.current?.open();
   };
   const handleHashtagPress = (tag: string) => {
@@ -83,7 +83,7 @@ export const ViewReels: React.FC = () => {
       />
 
       <BottomSheetReels ref={sheetRef} selectedItem={undefined} />
-      <BottomSheetComment ref={sheetRefComment} postId={selectedPostId} />
+      <BottomSheetComment ref={sheetRef} postId={selectedPostId.postId} receiverId={selectedPostId.receiverId}/>
     </>
   );
 };

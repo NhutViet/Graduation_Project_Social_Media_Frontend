@@ -8,55 +8,36 @@ import {
   TouchableOpacity,
   Dimensions,
   GestureResponderEvent,
+  ActivityIndicator,
 } from 'react-native';
 import {Modalize} from 'react-native-modalize';
 import {Portal} from 'react-native-portalize';
-import {useSelector} from 'react-redux';
-import {RootState} from '../../../services/store';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '../../../services/store';
 import ModelPeopleSeen from './component/ModelPeopleSeen';
-import ModelSeeMore from './component/ModelSeeMore';
-import HighlightAddModal from './component/HighlightAddModal';
-import HighlightViewModal from './component/HighlightViewModal';
 import {MediaSection} from './component/MediaSection';
 import {styles} from './component/style';
 import debounce from 'lodash/debounce';
+import {
+  deleteStory,
+  fetchGetPostedSotry,
+} from '@services/StoryRedux/StorySlice';
+import SeenStoryOwnerHeader from './component/Header';
+import SeenStoryOwnerBottom from './component/BottomBar';
 import ModalSeeMore from './component/ModelSeeMore';
-// import {
-//   deleteStory,
-//   fetchGetPostedSotry,
-// } from '@services/StoryRedux/StorySlice';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
-
-// Data mẫu cho modal highlight
-const highlights = [
-  {
-    id: '1',
-    name: 'Trip',
-    isAdded: true,
-    imageURL:
-      'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-  },
-  {
-    id: '2',
-    name: 'Food',
-    isAdded: true,
-    imageURL:
-      'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-  },
-  {
-    id: '3',
-    name: 'Friends',
-    isAdded: false,
-    imageURL:
-      'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg',
-  },
-];
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 
 export const SeenStoryOwner = ({route, navigation}: any) => {
-  const {stories, creator} = route.params;
+  const dispatch = useDispatch<AppDispatch>();
+  const {storyGroups = [], storyGroupIndex = 0} = route.params;
+
+  const currentGroup = storyGroups[storyGroupIndex];
+  const stories = currentGroup?.stories || [];
+  const creator = currentGroup?.creator || {};
+
   const user = useSelector((state: RootState) => state.user.user);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isVideoPaused, setIsVideoPaused] = useState(false);
@@ -66,7 +47,12 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
   const [visible, setVisible] = useState(false);
   const [visibleSeeMore, setVisibleSeeMore] = useState(false);
   const [mediaSize, setMediaSize] = useState({width: 0, height: 0});
-
+  const progressValues = useRef<number[]>(stories.map(() => 0)).current;
+  const [isMuted, setIsMuted] = useState(false);
+  // state để loading video và music
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+  const [isMusicLoaded, setIsMusicLoaded] = useState(false);
+  const [isMediaLoading, setIsMediaLoading] = useState(true);
   const progressAnims = useRef<Animated.Value[]>(
     (stories || []).map(() => new Animated.Value(0)),
   ).current;
@@ -74,8 +60,10 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
   const videoRef = useRef<any>(null);
   const viewModalRef = useRef<Modalize>(null);
   const addModalRef = useRef<Modalize>(null);
-
+  const isNavigatingRef = useRef(false);
+  const currentIndexRef = useRef(0);
   const imageDuration = 15000;
+  const isCurrentUserStory = creator?.username === user?.handleName;
 
   const handleOpenAddModal = () => {
     viewModalRef.current?.close();
@@ -90,72 +78,92 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
   const handleAddHighlight = (name: string) => {
     addModalRef.current?.close();
   };
+  // handleDelte Story
+  const handleDeleteStory = async () => {
+    try {
+      const currentStory = stories[currentIndex];
+      if (!currentStory?._id) return;
+      await dispatch(deleteStory({storyId: currentStory._id})).unwrap();
 
-  // const handleDeleteStory = async () => {
-  //   try {
-  //     const currentStory = stories[currentIndex];
-  //     if (!currentStory?._id) return;
+      GlobalAlertManager.show('Thành công', 'Tin của bạn đã được xoá');
+      await dispatch(fetchGetPostedSotry()).unwrap();
 
-  //     const result = await dispatch(deleteStory({storyId: currentStory._id}));
-
-  //     if (deleteStory.fulfilled.match(result)) {
-  //       GlobalAlertManager.show('Thành công', 'Tin của bạn đã được xoá');
-  //       dispatch(fetchGetPostedSotry());
-  //       navigation.goBack();
-  //     } else {
-  //       GlobalAlertManager.show('Thất bại', 'Không thể xoá story');
-  //     }
-  //   } catch (error) {
-  //     console.log('Line 100', error);
-  //   }
-  // };
+      setTimeout(() => {
+        navigation.goBack();
+      }, 1000); // Delay để alert hiển thị
+    } catch (error) {
+      console.error('❌ Xoá story thất bại:', error);
+      GlobalAlertManager.show('Thất bại', 'Không thể xoá story');
+    }
+  };
 
   const getItemDuration = () => {
     const currentStory = stories[currentIndex];
+
+    // Nếu là video .m3u8 thì lấy duration video
     if (currentStory?.mediaUrl?.endsWith('.m3u8') && videoDuration) {
       return videoDuration * 1000;
     }
-    if (currentStory?.music?.link && musicDuration) {
-      return Math.max(musicDuration * 1000, imageDuration);
-    }
+
+    // Nếu là ảnh (không phải video), thì chỉ lấy imageDuration
     return imageDuration;
   };
 
-  const startProgressAnimation = () => {
-    if (animationRef.current) {
-      animationRef.current.stop();
-    }
-
-    if (progressAnims[currentIndex]) {
-      progressAnims[currentIndex].setValue(0);
-      const duration = getItemDuration();
-
-      animationRef.current = Animated.timing(progressAnims[currentIndex], {
-        toValue: 1,
-        duration,
-        useNativeDriver: false,
-      });
-
-      animationRef.current.start(({finished}) => {
-        if (finished) {
-          goToNextStory();
-        }
-      });
-    }
-  };
-
+  useEffect(() => {
+    currentIndexRef.current = currentIndex;
+  }, [currentIndex]);
+  // hàm next story
   const goToNextStory = () => {
-    const maxIndex = (stories?.length || 0) - 1;
-    if (currentIndex < maxIndex) {
+    if (isNavigatingRef.current) return;
+    isNavigatingRef.current = true;
+
+    const maxIndex = stories.length - 1;
+
+    if (currentIndexRef.current < maxIndex) {
       setVideoDuration(null);
       setMusicDuration(null);
       setIsVideoPaused(false);
+      setMusicDuration(null);
       setCurrentIndex(prev => prev + 1);
+
+      setTimeout(() => {
+        isNavigatingRef.current = false;
+      }, 300);
     } else {
+      let nextGroupIndex = storyGroupIndex + 1;
+
+      while (nextGroupIndex < storyGroups.length) {
+        const nextGroup = storyGroups[nextGroupIndex];
+        if (nextGroup?.stories?.length > 0) {
+          const isOwner =
+            nextGroup.creator?._id === user?._id ||
+            nextGroup.creator?.handleName === user?.handleName ||
+            nextGroup.creator?.username === user?.handleName;
+
+          navigation.replace(isOwner ? 'SeenStoryOwner' : 'SeenStory', {
+            storyGroups,
+            storyGroupIndex: nextGroupIndex,
+            creator: nextGroup.creator,
+            stories: nextGroup.stories,
+            initialIndex: 0,
+            timestamp: Date.now(),
+          });
+
+          return;
+        }
+        nextGroupIndex++;
+      }
+
       navigation.goBack();
     }
   };
 
+  useEffect(() => {
+    return () => {
+      isNavigatingRef.current = false;
+    };
+  }, []);
+  // hàm lùi story
   const goToPreviousStory = () => {
     setCurrentIndex(prev => {
       if (prev > 0) {
@@ -168,15 +176,47 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
       return prev;
     });
   };
-
-  const toggleVideoPause = () => {
-    if (!selectedItem?.mediaUrl?.endsWith('.m3u8')) {
-      return;
+  // hàm thanh ProgressBar chạy
+  const startProgressAnimation = (forceRestart = false) => {
+    if (animationRef.current) {
+      animationRef.current.stop();
     }
 
+    const anim = progressAnims[currentIndex];
+    if (!anim) return;
+
+    // Nếu reset thì đặt lại
+    if (forceRestart || progressValues[currentIndex] >= 1) {
+      anim.setValue(0);
+      progressValues[currentIndex] = 0;
+    }
+
+    const remainingDuration =
+      (1 - progressValues[currentIndex]) * getItemDuration();
+
+    animationRef.current = Animated.timing(anim, {
+      toValue: 1,
+      duration: remainingDuration,
+      useNativeDriver: false,
+    });
+
+    // Theo dõi giá trị tiến độ để cập nhật lại `progressValues`
+    const listenerId = anim.addListener(({value}) => {
+      progressValues[currentIndex] = value;
+    });
+
+    animationRef.current.start(({finished}) => {
+      anim.removeListener(listenerId);
+      if (finished) {
+        progressValues[currentIndex] = 1;
+        goToNextStory();
+      }
+    });
+  };
+  // pause story
+  const toggleVideoPause = () => {
     setIsVideoPaused(prev => {
       const newState = !prev;
-
       if (newState) {
         animationRef.current?.stop();
       } else {
@@ -185,7 +225,10 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
       return newState;
     });
   };
-
+  // mute story
+  const toggleMute = () => {
+    setIsMuted(prev => !prev);
+  };
   const debouncedHandleTouch = useRef(
     debounce((locationX: number | null) => {
       if (locationX == null) {
@@ -214,19 +257,30 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
 
   const onVideoLoad = (data: any) => {
     setVideoDuration(data.duration);
-
-    if (!isVideoPaused) {
-      startProgressAnimation();
-    }
+    setIsVideoLoaded(true);
   };
 
   const onMusicLoad = (data: any) => {
     setMusicDuration(data.duration);
-
-    if (!isVideoPaused) {
-      startProgressAnimation(); // ✅ Thêm dòng này để kích hoạt thanh tiến trình
-    }
+    setIsMusicLoaded(true);
   };
+
+  useEffect(() => {
+    if (selectedItem?.mediaUrl?.endsWith('.m3u8')) {
+      if (isVideoLoaded && (!selectedItem.music?.link || isMusicLoaded)) {
+        setIsMediaLoading(false);
+        startProgressAnimation();
+      }
+    } else if (selectedItem?.music?.link) {
+      if (isMusicLoaded) {
+        setIsMediaLoading(false);
+        startProgressAnimation();
+      }
+    } else {
+      setIsMediaLoading(false);
+      startProgressAnimation();
+    }
+  }, [isVideoLoaded, isMusicLoaded, selectedItem]);
 
   const onVideoEnd = () => {
     goToNextStory();
@@ -237,6 +291,9 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
   };
 
   useEffect(() => {
+    setIsVideoLoaded(false);
+    setIsMusicLoaded(false);
+    setIsMediaLoading(true);
     setVideoDuration(null);
     setMusicDuration(null);
     setIsVideoPaused(false);
@@ -248,7 +305,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
     progressAnims.forEach((anim: Animated.Value, index: number) => {
       if (index < currentIndex) anim.setValue(1);
       else if (index > currentIndex) anim.setValue(0);
-      else anim.setValue(0); // Reset thanh tiến trình cho story hiện tại
+      else anim.setValue(0);
     });
 
     const currentStory = stories[currentIndex];
@@ -265,7 +322,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
     return () => {
       animationRef.current?.stop();
     };
-  }, [currentIndex, isVideoPaused]);
+  }, [currentIndex]);
 
   useEffect(() => {
     return () => {
@@ -277,26 +334,6 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
     navigation.goBack();
   };
 
-  const renderProgressBars = () => {
-    return (
-      <View style={styles.progressContainer}>
-        {stories.map((_: any, index: number) => {
-          const width = progressAnims[index].interpolate({
-            inputRange: [0, 1],
-            outputRange: ['0%', '100%'],
-          });
-          return (
-            <View key={index} style={styles.progressBarWrapper}>
-              <Animated.View
-                style={[styles.progressBar, {width, backgroundColor: '#fff'}]}
-              />
-            </View>
-          );
-        })}
-      </View>
-    );
-  };
-
   const getCaptionPosition = (xPercent: number, yPercent: number) => {
     const width = mediaSize.width || screenWidth;
     const height = mediaSize.height || screenHeight;
@@ -305,7 +342,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
       top: (yPercent / 100) * height,
     };
   };
-
+  // caption
   const renderCaption = () => {
     const content = selectedItem?.content;
     if (!content?.text) return null;
@@ -323,6 +360,38 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
         {content.text}
       </Text>
     );
+  };
+  // tag
+  const renderTags = () => {
+    const tags = selectedItem?.tags || [];
+    return tags.map(({tag, index}: any) => {
+      const {user, position} = tag;
+      if (!user) return null;
+
+      const {x, y} = position;
+      const {username, handleName} = user;
+
+      const tagPosition = getCaptionPosition(x * 100, y * 100);
+
+      return (
+        <View
+          key={index}
+          style={{
+            position: 'absolute',
+            left: tagPosition.left,
+            top: tagPosition.top,
+            backgroundColor: 'rgba(0, 0, 0, 0.6)',
+            paddingHorizontal: 10,
+            paddingVertical: 5,
+            borderRadius: 12,
+            zIndex: 10,
+          }}>
+          <Text style={{color: '#fff', fontSize: 14, fontWeight: '500'}}>
+            @{handleName}
+          </Text>
+        </View>
+      );
+    });
   };
 
   const renderMusicInfo = () => {
@@ -351,21 +420,16 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
         style={styles.mediaWrapper}
         onStartShouldSetResponder={() => true}
         onResponderRelease={handleTouch}>
-        <View style={styles.header}>
-          <View style={styles.mediaItems}>{renderProgressBars()}</View>
-          <TouchableOpacity style={styles.viewUser}>
-            <Image style={styles.avatar} source={{uri: user?.profilePic}} />
-            <Text style={styles.nameUser}>{user?.username}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.btnCloser}
-            onPress={handleCloserPress}>
-            <Image
-              style={styles.iconCloser}
-              source={require('../../../assets/icon/closer.png')}
-            />
-          </TouchableOpacity>
-        </View>
+        <SeenStoryOwnerHeader
+          onClose={handleCloserPress}
+          progressAnims={progressAnims}
+          pause={isVideoPaused}
+          onTogglePause={toggleVideoPause}
+          mute={isMuted}
+          onToggleMute={toggleMute}
+          createdAt={selectedItem?.createdAt}
+          creator={creator}
+        />
         {stories[currentIndex] ? (
           <MediaSection
             selectedItem={stories[currentIndex]}
@@ -376,53 +440,37 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
             onMusicLoad={onMusicLoad}
             onMusicEnd={onMusicEnd}
             paused={isVideoPaused}
+            muted={isMuted}
+            isVideoLoaded={isVideoLoaded}
+            isMediaLoading={isMediaLoading}
           />
         ) : null}
         {renderCaption()}
+        {renderTags()}
         {renderMusicInfo()}
       </View>
-      <View style={styles.viewBottom}>
-        <TouchableOpacity
-          style={styles.viewIconItem}
-          onPress={() => setVisible(true)}>
-          <Image
-            style={styles.icon}
-            source={require('../../../assets/icon/users.png')}
-          />
-          <Text style={styles.txtIcon}>Hoạt động</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.viewIconItem}
-          onPress={() => setVisibleSeeMore(true)}>
-          <Image
-            style={styles.icon}
-            source={require('../../../assets/icon/ellipsis.png')}
-          />
-          <Text style={styles.txtIcon}>Xem thêm</Text>
-        </TouchableOpacity>
-        <ModelPeopleSeen visible={visible} onClose={() => setVisible(false)} />
-        <ModelSeeMore
+
+      {isCurrentUserStory && (
+        <SeenStoryOwnerBottom
+          onShowPeopleSeen={() => setVisible(true)}
+          onShowMore={() => setVisibleSeeMore(true)}
+          visible={visible}
+          users={selectedItem?.viewedByUsers || []}
+          onClose={() => setVisible(false)}
+          onDelete={handleDeleteStory}
+        />
+      )}
+
+      <Portal>
+        <ModelPeopleSeen
+          visible={visible}
+          onClose={() => setVisible(false)}
+          users={selectedItem?.viewedByUsers || []}
+        />
+        <ModalSeeMore
           visible={visibleSeeMore}
           onClose={() => setVisibleSeeMore(false)}
-        />
-      </View>
-
-      <Portal>
-        <HighlightViewModal
-          ref={viewModalRef}
-          data={highlights}
-          onAddNew={handleOpenAddModal}
-        />
-      </Portal>
-
-      <Portal>
-        <HighlightAddModal
-          ref={addModalRef}
-          onAdd={handleAddHighlight}
-          onBack={handleOnBackAddModal}
-          imageSource={
-            'https://i.pinimg.com/736x/5a/92/e7/5a92e7f5a37dbcf79c6740dea218ea52.jpg'
-          }
+          onDelete={handleDeleteStory}
         />
       </Portal>
     </SafeAreaView>

@@ -28,6 +28,12 @@ export const styles = StyleSheet.create({
     fontWeight: '500',
     marginLeft: 8,
   },
+  textTime: {
+    color: '#999',
+    fontSize: 14,
+    fontWeight: '500',
+    marginLeft: 8,
+  },
   btnCloser: {
     position: 'absolute',
     right: 10,
@@ -38,6 +44,22 @@ export const styles = StyleSheet.create({
     backgroundColor: 'rgba(140, 137, 137, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  pause: {
+    position: 'absolute',
+    right: 50,
+    top: 23,
+    borderRadius: 50,
+    width: 30,
+    height: 30,
+  },
+  mute: {
+    position: 'absolute',
+    right: 90,
+    top: 23,
+    borderRadius: 50,
+    width: 30,
+    height: 30,
   },
   iconCloser: {
     width: 15,
