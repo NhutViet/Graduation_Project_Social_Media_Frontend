@@ -31,6 +31,7 @@ import {
   checkStorySeenInStorage,
   clearExpiredSeenStories,
 } from '../../../services/storage/storage';
+import {ModalLoading} from './components/loading';
 
 const HEADER_HEIGHT = 100;
 const AnimatedFlatList = Animated.createAnimatedComponent(Animated.FlatList);
@@ -46,18 +47,24 @@ export const Home = forwardRef(({onReload}: any, ref) => {
   );
   const sheetRef = useRef<BottomSheetCommentRef>(null);
   const [currentVisible, setCurrentVisible] = useState<string | null>(null);
-  const [selectedPostId, setSelectedPostId] = useState<{postId: string, receiverId: string}>({postId: '', receiverId: ''});
+  const [selectedPostId, setSelectedPostId] = useState<{
+    postId: string;
+    receiverId: string;
+  }>({postId: '', receiverId: ''});
   const [seenMap, setSeenMap] = useState<Record<string, boolean>>({});
-  
+
   // Add loading state for pagination
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasCalledLoadMore, setHasCalledLoadMore] = useState(false);
-  
-  const {posts, loading, page, hasNextPage} = useSelector((state: RootState) => state?.post);
+
+  const {posts, loading, page, hasNextPage} = useSelector(
+    (state: RootState) => state?.post,
+  );
   const followingUsers = useSelector(
     (state: RootState) => state.stories.followingUsers,
   );
   const user = useSelector((state: RootState) => state.user.user);
+  const [isStoryLoading, setIsStoryLoading] = useState(false);
 
   const reloadAllData = useCallback(() => {
     dispatch(fetchPostsWithMedia({page: 1}));
@@ -66,7 +73,7 @@ export const Home = forwardRef(({onReload}: any, ref) => {
     setHasCalledLoadMore(false);
   }, [dispatch]);
 
-  useImperativeHandle(ref, () => ({ reload: reloadAllData }));
+  useImperativeHandle(ref, () => ({reload: reloadAllData}));
 
   useEffect(reloadAllData, [reloadAllData]);
 
@@ -79,9 +86,9 @@ export const Home = forwardRef(({onReload}: any, ref) => {
 
     setIsLoadingMore(true);
     setHasCalledLoadMore(true);
-    
+
     try {
-      await dispatch(fetchPostsWithMedia({ page: page + 1 })).unwrap();
+      await dispatch(fetchPostsWithMedia({page: page + 1})).unwrap();
     } catch (error) {
       console.error('Error loading more posts:', error);
     } finally {
@@ -122,12 +129,12 @@ export const Home = forwardRef(({onReload}: any, ref) => {
     if (id && id !== currentVisible) {
       setCurrentVisible(id);
     }
-    
+
     // Prefetch when user views posts in the last 30% of loaded content
     if (viewableItems.length > 0 && posts.length > 0) {
       const currentIndex = posts.findIndex(post => post._id === id);
-      const triggerPoint = Math.floor(posts.length * 0.7); 
-      
+      const triggerPoint = Math.floor(posts.length * 0.7);
+
       if (currentIndex >= triggerPoint) {
         prefetchNextPage();
       }
@@ -198,13 +205,14 @@ export const Home = forwardRef(({onReload}: any, ref) => {
   // Render footer with loading indicator
   const renderFooter = useCallback(() => {
     if (!isLoadingMore) return null;
-    
+
     return (
-      <View style={{
-        paddingVertical: 20,
-        alignItems: 'center',
-        backgroundColor: color.background,
-      }}>
+      <View
+        style={{
+          paddingVertical: 20,
+          alignItems: 'center',
+          backgroundColor: color.background,
+        }}>
         <ActivityIndicator size="small" color={color.text} />
       </View>
     );
@@ -244,10 +252,10 @@ export const Home = forwardRef(({onReload}: any, ref) => {
         keyExtractor={item => item._id}
         renderItem={renderItem}
         removeClippedSubviews={true}
-        initialNumToRender={20} 
-        maxToRenderPerBatch={3} 
-        windowSize={5} 
-        updateCellsBatchingPeriod={50} 
+        initialNumToRender={20}
+        maxToRenderPerBatch={3}
+        windowSize={5}
+        updateCellsBatchingPeriod={50}
         onViewableItemsChanged={onViewRef}
         viewabilityConfig={{itemVisiblePercentThreshold: 70}}
         scrollEventThrottle={16}
@@ -257,7 +265,7 @@ export const Home = forwardRef(({onReload}: any, ref) => {
         onEndReached={loadMore}
         onEndReachedThreshold={0.5}
         ListFooterComponent={renderFooter}
-        getItemLayout={undefined} 
+        getItemLayout={undefined}
         ListHeaderComponent={
           <View style={{position: 'relative', height: 160}}>
             <View style={{paddingTop: 48}}>
@@ -319,6 +327,7 @@ export const Home = forwardRef(({onReload}: any, ref) => {
                             storyDetails,
                             user,
                             followingUsers,
+                            setIsStoryLoading,
                           );
                         } else {
                           const isCurrentUser =
@@ -343,7 +352,12 @@ export const Home = forwardRef(({onReload}: any, ref) => {
           </View>
         }
       />
-      <BottomSheetComment ref={sheetRef} postId={selectedPostId.postId} receiverId={selectedPostId.receiverId}/>
+      <BottomSheetComment
+        ref={sheetRef}
+        postId={selectedPostId.postId}
+        receiverId={selectedPostId.receiverId}
+      />
+      <ModalLoading visible={isStoryLoading} />
     </SafeAreaView>
   );
 });

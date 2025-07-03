@@ -14,7 +14,7 @@ import {
   markStoryAsSeen,
 } from '../../../../services/storage/storage';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
-import { useSelector } from 'react-redux';
+import {useSelector} from 'react-redux';
 
 export const handleBookmark = async ({
   isBookmarked,
@@ -119,6 +119,7 @@ export const handleUserPress = async (
   storyDetails: any[],
   user: any,
   followingUsers: any[],
+  setIsStoryLoading?: (val: boolean) => void, // ✅ optional
 ) => {
   const isCurrentUser =
     item._id === user?._id || item.handleName === user?.handleName;
@@ -129,6 +130,12 @@ export const handleUserPress = async (
   }
 
   try {
+    setIsStoryLoading?.(true); // ✅ bật loading
+
+    // ❗ Giả lập delay tối thiểu 2s (bạn có thể bỏ nếu muốn mở ngay khi fetch xong)
+    const delay = (ms: number) =>
+      new Promise(resolve => setTimeout(resolve, ms));
+
     const allUsersWithStories = [user, ...followingUsers].filter(
       u => u.stories?.length > 0,
     );
@@ -204,6 +211,8 @@ export const handleUserPress = async (
       }),
     );
 
+    await delay(2000); // ✅ Giữ loading ít nhất 2s (có thể tuỳ chỉnh)
+
     const validStoryGroups = storyGroups.filter(
       group => group.stories.length > 0,
     );
@@ -225,6 +234,8 @@ export const handleUserPress = async (
     });
   } catch (error) {
     GlobalAlertManager.show('Lỗi', 'Lỗi khi tải story');
+  } finally {
+    setIsStoryLoading?.(false); // ✅ tắt loading
   }
 };
 

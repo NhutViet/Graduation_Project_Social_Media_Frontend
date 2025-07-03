@@ -18,7 +18,9 @@ import {Header} from './components/Header';
 import {ProgressBar} from './components/ProgressBar';
 import {MediaPlayer} from './components/MediaPlayer';
 import {Footer} from './components/Footer';
-import {ModalShare} from './components/modalShare';
+
+import {Keyboard} from 'react-native';
+import ModalShare, {ModalShareHandle} from './components/ModalShare';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -45,10 +47,10 @@ export const SeenStory = ({route, navigation}: any) => {
   ).current;
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.user.user);
-  const [showShareModal, setShowShareModal] = useState(false);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   const [isMusicLoaded, setIsMusicLoaded] = useState(false);
   const [isMediaLoading, setIsMediaLoading] = useState(true);
+  const shareModalRef = useRef<ModalShareHandle>(null);
 
   const selectedItem = useMemo(
     () => routeStories[currentIndex] || {},
@@ -268,6 +270,21 @@ export const SeenStory = ({route, navigation}: any) => {
       );
     });
   };
+  // logic khi nhấn vàp textInput thì dứng story
+  useEffect(() => {
+    const keyboardDidShow = Keyboard.addListener('keyboardDidShow', () => {
+      setIsPaused(true);
+    });
+
+    const keyboardDidHide = Keyboard.addListener('keyboardDidHide', () => {
+      setIsPaused(false);
+    });
+
+    return () => {
+      keyboardDidShow.remove();
+      keyboardDidHide.remove();
+    };
+  }, []);
 
   useEffect(() => {
     const liked = selectedItem?.likedByUsers?.includes(user?._id);
@@ -288,7 +305,7 @@ export const SeenStory = ({route, navigation}: any) => {
       else anim.setValue(0);
     });
 
-    // ✅ Nếu không có video/music, start luôn
+    //  Nếu không có video/music, start luôn
     const hasVideo = !!selectedItem.uriVideo;
     const hasMusic = !!selectedItem.music?.link;
 
@@ -305,7 +322,10 @@ export const SeenStory = ({route, navigation}: any) => {
     }
   }, [isPaused]);
 
-  const handleOpenShare = () => setShowShareModal(true);
+  const handleOpenShare = () => {
+    stopCurrentAnimation();
+    shareModalRef.current?.open(); // phải dùng ref để mở Modal
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -355,8 +375,15 @@ export const SeenStory = ({route, navigation}: any) => {
         onPressSend={handleOpenShare}
       />
       <ModalShare
-        visible={showShareModal}
-        onClose={() => setShowShareModal(false)}
+        ref={shareModalRef}
+        onOpen={() => {
+          setIsPaused(true); // dừng story
+          stopCurrentAnimation(); // đảm bảo animation ngừng
+        }}
+        onClose={() => {
+          setIsPaused(false); // tiếp tục
+          startProgressAnimation(); // gọi lại animation!
+        }}
       />
     </SafeAreaView>
   );
