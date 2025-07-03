@@ -1,4 +1,4 @@
-import React, {useState, useCallback, useEffect, useRef} from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import {
   StyleSheet,
   Text,
@@ -16,41 +16,41 @@ import {
   UserSquare2,
   Video,
 } from 'lucide-react-native';
-import {useNavigation} from '@react-navigation/native';
-import {useTheme} from '../../util/ThemeContext';
-import {Colors} from '../../../assets/color/Colors';
-import {UserMock} from '../../MockData/user.mock';
-import {highlights} from '../../MockData/story.mock';
+import { useNavigation } from '@react-navigation/native';
+import { useTheme } from '../../util/ThemeContext';
+import { Colors } from '../../../assets/color/Colors';
+import { UserMock } from '../../MockData/user.mock';
+import { highlights } from '../../MockData/story.mock';
 import StoryComponent from './components/story.component';
 import ActionButtons from './components/actionButton.component';
 import UserInfo from './components/userInfo.component';
-import {Modalize} from 'react-native-modalize';
-import {Portal} from 'react-native-portalize';
+import { Modalize } from 'react-native-modalize';
+import { Portal } from 'react-native-portalize';
 import OptionModal from './components/optionModal';
-import {useDispatch, useSelector} from 'react-redux';
-import {AppDispatch, RootState} from '../../../services/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../../services/store';
 import {
   fetchFollowers,
   fetchFollowing,
   relationAction,
 } from '../../../services/relationRedux/relationSlice';
-import {getPublicProfile} from '../../../services/userRedux/userSlice';
-import {clearPublicProfile} from '../../../services/userRedux/userReducer';
-import {createRoom} from '../../../services/roomRedux/roomSlice';
+import { getPublicProfile } from '../../../services/userRedux/userSlice';
+import { clearPublicProfile } from '../../../services/userRedux/userReducer';
+import { createRoom } from '../../../services/roomRedux/roomSlice';
 import {
   PostsView,
   ReelsView,
 } from '../../(tabs)/Profile/components/PostView.component';
-import {getPostsAndReelsOfUser} from '../../../services/postUserRedux/postUserSlice';
-import {clearPostsAndReels} from '../../../services/postUserRedux/postUserReducer';
+import { getPostsAndReelsOfUser } from '../../../services/postUserRedux/postUserSlice';
+import { clearPostsAndReels } from '../../../services/postUserRedux/postUserReducer';
 // import PostItem from '../LikedScreen/Components/PostItem';
 // import {fetchHighlightStory} from '@services/StoryRedux/StorySlice';
 // import {clearHighlightStories} from '@services/StoryRedux/StoryReducer';
-import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+import { GlobalAlertManager } from '../../../components/Global/AlertModal';
 
-const ProfileComp = ({route}: any) => {
+const ProfileComp = ({ route }: any) => {
   const navigation: any = useNavigation();
-  const {theme} = useTheme();
+  const { theme } = useTheme();
   const styles = createStyles(theme);
   const userID: string = route.params?.userID;
   const modalOptionRef = useRef<Modalize>(null);
@@ -79,7 +79,7 @@ const ProfileComp = ({route}: any) => {
         }),
       ).unwrap();
 
-      const {room} = res;
+      const { room } = res;
 
       const otherUsers = room.user_ids.filter(user => user._id !== myUserId);
       const img1 = otherUsers[0]?.profilePic;
@@ -109,7 +109,8 @@ const ProfileComp = ({route}: any) => {
 
   const [isFollowing, setIsFollowing] = useState(false);
   const [isBlock, setIsBlock] = useState(false);
-  const toggleFollow = useCallback( async () => {
+  const toggleFollow = useCallback(async () => {
+    setLocalFollowersCount(prev => prev + (isFollowing ? -1 : 1));
     setIsFollowing(!isFollowing);
     GlobalAlertManager.show(
       'Thông báo',
@@ -127,9 +128,8 @@ const ProfileComp = ({route}: any) => {
           handleName: user?.handleName,
         }),
       ).unwrap();
-      setLocalFollowersCount(prev => prev + (isFollowing ? -1 : 1));
     } catch (error) {
-      GlobalAlertManager.show(`Thất bại`, 'Vui lòng thử lại sau.');
+      GlobalAlertManager.show('Thất bại', 'Vui lòng thử lại sau.');
       setIsFollowing(isFollowing);
     }
   }, [isFollowing]);
@@ -142,14 +142,14 @@ const ProfileComp = ({route}: any) => {
       await dispatch(
         relationAction({
           targetId: userID,
-          action: "unblock"
+          action: 'unblock',
         })
       ).unwrap();
     } catch (error) {
       GlobalAlertManager.show('Thất bại', 'Vui lòng thử lại sau.');
       setIsBlock(true);
     }
-  }, [])
+  }, []);
 
   const dispatch = useDispatch<AppDispatch>();
 
@@ -163,28 +163,28 @@ const ProfileComp = ({route}: any) => {
     errorMessagePublicProfile,
   } = useSelector((state: RootState) => state.user);
 
-  const {items: PostsItem}: any | null = useSelector(
+  const { items: PostsItem }: any | null = useSelector(
     (state: RootState) => state.postUser.posts,
   );
-  const {items: ReelsItem}: any | null = useSelector(
+  const { items: ReelsItem }: any | null = useSelector(
     (state: RootState) => state.postUser.reels,
   );
 
-  const {isSuccess} = useSelector((state: RootState) => state.postUser);
-  const {refreshToken} = useSelector((state: RootState) => state.user);
+  const { isSuccess } = useSelector((state: RootState) => state.postUser);
+  const { refreshToken } = useSelector((state: RootState) => state.user);
 
   const initializeProfile = useCallback(async () => {
-    if (!userID) return;
-    
+    if (!userID) { return; }
+
     setIsInitializing(true);
-    
+
     try {
       // Clear old data if different user
       if (prevUserRef.current && prevUserRef.current !== userID) {
         dispatch(clearPublicProfile());
         dispatch(clearPostsAndReels());
       }
-      
+
       // Fetch parallel
       const [profile, followersData, followingData, postData] = await Promise.all([
         dispatch(getPublicProfile({ userId: userID })).unwrap(),
@@ -193,13 +193,13 @@ const ProfileComp = ({route}: any) => {
         dispatch(getPostsAndReelsOfUser({ refreshToken, userId: userID })),
       ]);
 
-      
+
       // Wait for profile first to set user states
       setIsFollowing(profile.userFollowing ?? false);
       setIsBlock(profile.userBlocked ?? false);
       setLocalFollowersCount(followersData.length);
       setLocalFollowingCount(followingData.length);
-      
+
       // Then wait for followers/following data
       prevUserRef.current = userID;
     } catch (error) {
@@ -209,18 +209,18 @@ const ProfileComp = ({route}: any) => {
     }
   }, [userID, dispatch]);
 
-   useEffect(() => {
+  useEffect(() => {
     initializeProfile();
   }, [initializeProfile]);
-  
-    // Reset state when component completed unmount
-   useEffect(() => {
+
+  // Reset state when component completed unmount
+  useEffect(() => {
     return () => {
       dispatch(clearPublicProfile());
       setIsInitializing(true);
       dispatch(clearPostsAndReels());
     };
-   }, []);
+  }, []);
   const renderPrivateContent = () => {
     return (
       <View style={styles.privateContainer}>
@@ -260,7 +260,7 @@ const ProfileComp = ({route}: any) => {
   };
 
   const LoadingPlaceholder = () => (
-    <View style={[styles.content, styles.centerItem, {height: 50}]}>
+    <View style={[styles.content, styles.centerItem, { height: 50 }]}>
       <Text style={styles.textno}>Đang tải...</Text>
     </View>
   );
@@ -271,7 +271,7 @@ const ProfileComp = ({route}: any) => {
       <SafeAreaView style={styles.container}>
         <View style={styles.Header}>
           <TouchableOpacity
-            style={{alignItems: 'center', paddingRight: 12}}
+            style={{ alignItems: 'center', paddingRight: 12 }}
             onPress={() => navigation.goBack()}>
             <ChevronLeft size={28} color={Colors[theme].text} />
           </TouchableOpacity>
@@ -286,39 +286,40 @@ const ProfileComp = ({route}: any) => {
           <ActivityIndicator size="large" color={Colors[theme].text} />
         </View>
       </SafeAreaView>
-      );
-    }
+    );
+  }
 
 
   // Show error message if failed to load profile
   if (isErrorPublicProfile || !publicProfile) {
-      return (
-        <SafeAreaView style={styles.container}>
-          <View style={styles.Header}>
-            <TouchableOpacity
-              style={{alignItems: 'center', paddingRight: 12}}
-              onPress={() => navigation.goBack()}>
-              <ChevronLeft size={28} color={Colors[theme].text} />
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.Header}>
+          <TouchableOpacity
+            style={{ alignItems: 'center', paddingRight: 12 }}
+            onPress={() => navigation.goBack()}>
+            <ChevronLeft size={28} color={Colors[theme].text} />
+          </TouchableOpacity>
+          <Text style={styles.headTitle}>Lỗi</Text>
+          <View style={styles.SectionRight}>
+            <TouchableOpacity>
+              <Ellipsis size={24} color={Colors[theme].text} />
             </TouchableOpacity>
-            <Text style={styles.headTitle}>Lỗi</Text>
-            <View style={styles.SectionRight}>
-              <TouchableOpacity>
-                <Ellipsis size={24} color={Colors[theme].text} />
-              </TouchableOpacity>
-            </View>
           </View>
-          <View style={styles.errorContainer}>
-            <Text style={styles.errorText}>
-              {isErrorPublicProfile
-                ? errorMessagePublicProfile
-                : 'Không tìm thấy dữ liệu người dùng.'}
-            </Text>
-            <TouchableOpacity
-              style={styles.retryButton}
-              onPress={() =>{
-                dispatch(clearPublicProfile());
-                dispatch(getPublicProfile({userId: userID}))}}>
-              <Text style={styles.retryButtonText}>Thử lại</Text>
+        </View>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>
+            {isErrorPublicProfile
+              ? errorMessagePublicProfile
+              : 'Không tìm thấy dữ liệu người dùng.'}
+          </Text>
+          <TouchableOpacity
+            style={styles.retryButton}
+            onPress={() => {
+              dispatch(clearPublicProfile());
+              dispatch(getPublicProfile({ userId: userID }));
+            }}>
+            <Text style={styles.retryButtonText}>Thử lại</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -330,110 +331,110 @@ const ProfileComp = ({route}: any) => {
       <ScrollView style={styles.container}>
         <View style={styles.Header}>
           <TouchableOpacity
-            style={{alignItems: 'center', paddingRight: 12}}
+            style={{ alignItems: 'center', paddingRight: 12 }}
             onPress={() => navigation.goBack()}>
             <ChevronLeft size={28} color={Colors[theme].text} />
           </TouchableOpacity>
-        <Text style={styles.headTitle}>{publicProfile.handleName}</Text>
-        <View style={styles.SectionRight}>
-          <TouchableOpacity onPress={openOptionModal}>
-            <Ellipsis size={24} color={Colors[theme].text} />
-          </TouchableOpacity>
-        </View>
-      </View>
-      {/* Header Info */}
-      <View>
-        <UserInfo
-          name={publicProfile.username}
-          followers={localFollowersCount}
-          following={localFollowingCount}
-          posts={PostsItem.length + ReelsItem.length}
-          avatar={publicProfile.profilePic}
-          bio={publicProfile.bio}
-          theme={theme}
-          onFollowersPress={() => navigateToUserFollow("UserFollowersTab")}
-          onFollowingPress={() => navigateToUserFollow("UserFollowingTab")}
-        />
-      </View>
-      {/* Action Buttons */}
-      <ActionButtons
-        onFollowPress={toggleFollow}
-        onMessagePress={handleMessagePress}
-        onUnblockPress={toggleUnblock}
-        theme={theme}
-        isFollowing={isFollowing}
-        isBlocked={isBlock}
-      />
-      {/* Story Highlights */}
-      {!isBlock && (
-        <StoryComponent isPrivate={isPrivate} highlights={highlights} />
-      )}
-      {/* Posts Grid/Video Tabs */}
-      {!isBlock && (
-        <>
-          <View style={{flexDirection: 'row'}}>
-            <TouchableOpacity
-              disabled={!isPrivate}
-              onPress={() => {
-                setActiveTab('grid');
-              }}
-              style={[
-                styles.tab,
-                activeTab === 'grid' && styles.activeTab,
-                !isPrivate && {opacity: 0.5},
-              ]}>
-              <Grid
-                size={26}
-                color={
-                  activeTab === 'grid'
-                    ? Colors[theme].text
-                    : Colors.textSecondary
-                }
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
-              disabled={!isPrivate}
-              onPress={() => {
-                setActiveTab('reels');
-              }}
-              style={[
-                styles.tab,
-                activeTab === 'reels' && styles.activeTab,
-                !isPrivate && {opacity: 0.5},
-              ]}>
-              <Video
-                size={26}
-                color={
-                  activeTab === 'reels'
-                    ? Colors[theme].text
-                    : Colors.textSecondary
-                }
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
-              disabled={!isPrivate}
-              onPress={() => {
-                setActiveTab('tagged');
-              }}
-              style={[
-                styles.tab,
-                activeTab === 'tagged' && styles.activeTab,
-                !isPrivate && {opacity: 0.5},
-              ]}>
-              <UserSquare2
-                size={26}
-                color={
-                  activeTab === 'tagged'
-                    ? Colors[theme].text
-                    : Colors.textSecondary
-                }
-              />
+          <Text style={styles.headTitle}>{publicProfile.handleName}</Text>
+          <View style={styles.SectionRight}>
+            <TouchableOpacity onPress={openOptionModal}>
+              <Ellipsis size={24} color={Colors[theme].text} />
             </TouchableOpacity>
           </View>
-          {/* Posts Grid */}
-          {renderTabContent()}
-        </>
-      )}
+        </View>
+        {/* Header Info */}
+        <View>
+          <UserInfo
+            name={publicProfile.username}
+            followers={localFollowersCount}
+            following={localFollowingCount}
+            posts={PostsItem.length + ReelsItem.length}
+            avatar={publicProfile.profilePic}
+            bio={publicProfile.bio}
+            theme={theme}
+            onFollowersPress={() => navigateToUserFollow('UserFollowersTab')}
+            onFollowingPress={() => navigateToUserFollow('UserFollowingTab')}
+          />
+        </View>
+        {/* Action Buttons */}
+        <ActionButtons
+          onFollowPress={toggleFollow}
+          onMessagePress={handleMessagePress}
+          onUnblockPress={toggleUnblock}
+          theme={theme}
+          isFollowing={isFollowing}
+          isBlocked={isBlock}
+        />
+        {/* Story Highlights */}
+        {!isBlock && (
+          <StoryComponent isPrivate={isPrivate} highlights={highlights} />
+        )}
+        {/* Posts Grid/Video Tabs */}
+        {!isBlock && (
+          <>
+            <View style={{ flexDirection: 'row' }}>
+              <TouchableOpacity
+                disabled={!isPrivate}
+                onPress={() => {
+                  setActiveTab('grid');
+                }}
+                style={[
+                  styles.tab,
+                  activeTab === 'grid' && styles.activeTab,
+                  !isPrivate && { opacity: 0.5 },
+                ]}>
+                <Grid
+                  size={26}
+                  color={
+                    activeTab === 'grid'
+                      ? Colors[theme].text
+                      : Colors.textSecondary
+                  }
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                disabled={!isPrivate}
+                onPress={() => {
+                  setActiveTab('reels');
+                }}
+                style={[
+                  styles.tab,
+                  activeTab === 'reels' && styles.activeTab,
+                  !isPrivate && { opacity: 0.5 },
+                ]}>
+                <Video
+                  size={26}
+                  color={
+                    activeTab === 'reels'
+                      ? Colors[theme].text
+                      : Colors.textSecondary
+                  }
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                disabled={!isPrivate}
+                onPress={() => {
+                  setActiveTab('tagged');
+                }}
+                style={[
+                  styles.tab,
+                  activeTab === 'tagged' && styles.activeTab,
+                  !isPrivate && { opacity: 0.5 },
+                ]}>
+                <UserSquare2
+                  size={26}
+                  color={
+                    activeTab === 'tagged'
+                      ? Colors[theme].text
+                      : Colors.textSecondary
+                  }
+                />
+              </TouchableOpacity>
+            </View>
+            {/* Posts Grid */}
+            {renderTabContent()}
+          </>
+        )}
         <Portal>
           <OptionModal
             ref={modalOptionRef}
