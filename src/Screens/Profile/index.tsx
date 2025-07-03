@@ -127,6 +127,7 @@ const ProfileComp = ({route}: any) => {
           handleName: user?.handleName,
         }),
       ).unwrap();
+      setLocalFollowersCount(prev => prev + (isFollowing ? -1 : 1));
     } catch (error) {
       GlobalAlertManager.show(`Thất bại`, 'Vui lòng thử lại sau.');
       setIsFollowing(isFollowing);
