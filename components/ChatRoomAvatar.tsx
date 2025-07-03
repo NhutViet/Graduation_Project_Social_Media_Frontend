@@ -14,7 +14,7 @@ const ChatRoomAvatar: React.FC<ChatRoomAvatarProps> = ({
 }) => {
   return (
     <View style={[styles.container, { width: size + (avatars.length - 1) * (size - overlap), height: size }]}>
-      {avatars.slice(0, 3).map((uri, idx) => {
+      {avatars.slice(0, 2).map((uri, idx) => {
         // tính zIndex sao cho ảnh sau luôn nằm trên ảnh trước
         const zIndex = idx;
         const left = idx * (size - overlap);

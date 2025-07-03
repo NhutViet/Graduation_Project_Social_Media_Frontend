@@ -68,6 +68,7 @@ const ReelsComponent = memo((props: any) => {
   );
   const [isLiked, setIsLiked] = useState(isLikedFromRedux);
   const [follow, setFollow] = useState(isFollow);
+  const mine = useSelector((state: RootState) => state.user.user);
   const [numLike, setNumLike] = useState(likeCount);
 
   const formatNumber = useCallback((num: number): string => {
@@ -107,7 +108,6 @@ const ReelsComponent = memo((props: any) => {
       await dispatch(action({
         postId: _id,
         refreshToken,
-        senderId: currentUser?._id ?? '',
         receiverId: user?._id,
         handleName: currentUser?.handleName ?? '',
       })).unwrap();
@@ -127,6 +127,8 @@ const ReelsComponent = memo((props: any) => {
       await dispatch(
         relationAction({
           targetId: user._id,
+          senderId: mine?._id,
+          handleName: mine?.handleName,
           action: newFollowState ? 'follow' : 'unfollow',
         })
       ).unwrap();

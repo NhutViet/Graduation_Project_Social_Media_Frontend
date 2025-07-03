@@ -7,6 +7,8 @@ import {
   reportChoices,
   icons,
 } from '../../../config/postOptions';
+import { useSelector } from 'react-redux';
+import { RootState } from '@services/store';
 
 export const useItemHomeModal = (
   actions: any,
@@ -17,6 +19,7 @@ export const useItemHomeModal = (
   const sheetRef = useRef<Modalize>(null);
   const modalReactionRef = useRef<Modalize>(null);
   const modalShareRef = useRef<Modalize>(null);
+  const user = useSelector((state: RootState) => state.user.user);
 
   const {handleHidePost, handleFollowAction, handleBookmarkAction} = actions;
   const {setIsModalVisible} = state;
@@ -51,7 +54,7 @@ export const useItemHomeModal = (
           handleHidePost();
           break;
         case 'unfollow':
-          handleFollowAction();
+          handleFollowAction(user);
           break;
         case 'report':
           openIntentions();

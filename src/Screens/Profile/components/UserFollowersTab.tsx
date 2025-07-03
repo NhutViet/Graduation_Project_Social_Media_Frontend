@@ -27,6 +27,7 @@ const UserFollowersTab = ({route}: any) => {
   const {theme} = useTheme();
   const color = Colors[theme];
   const userID: string = route.params?.userID;
+  const user = useSelector((state: RootState) => state.user.user);
   const myUserId = useSelector((state: RootState) => state.user.user?._id);
   const dispatch = useDispatch<AppDispatch>();
   const {
@@ -148,6 +149,8 @@ const UserFollowersTab = ({route}: any) => {
           relationAction({
             targetId: item._id,
             action: 'follow',
+            senderId: user?._id,
+            handleName: user?.handleName,
           }),
         ).unwrap();
 

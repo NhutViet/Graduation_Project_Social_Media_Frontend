@@ -32,7 +32,7 @@ const ModalReaction = forwardRef<Modalize, ModalReactionProps>(
     const {refreshToken} = useSelector((state: RootState) => state.user);
     const [users, setUsers] = useState<any[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const userId = useSelector((state: RootState) => state.user.user?._id);
+    const user = useSelector((state: RootState) => state.user.user);
     const modalContentHeight = Dimensions.get('window').height * 0.7;
 
     useEffect(() => {
@@ -82,6 +82,8 @@ const ModalReaction = forwardRef<Modalize, ModalReactionProps>(
               handleFollowToggle({
                 userId: item?.userId,
                 follow: item.userFollowing,
+                senderId: user?._id,
+                handleName: user?.handleName,
                 dispatch,
               });
               setUsers(prevUsers =>

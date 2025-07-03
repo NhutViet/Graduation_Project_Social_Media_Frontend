@@ -52,7 +52,6 @@ import {
   PrivacyAndSafety,
   Splash,
   UserFollowScreen,
-  ViewReels,
   SeenStoryOwner,
   TagSo,
   HighlightCreateScreen,
@@ -72,6 +71,7 @@ import AllPostOfCollection from '../../components/AllPostOfCollection';
 import ZegoCallScreen from '../Screens/ZegoCloud/ZegoCallScreen';
 import {navigationRef} from '../NavigationService';
 import AllReels from '../../components/AllReels';
+import AccountCenter from '../../src/Screens/AccountCenter';
 
 export type RootStackParamList = {
   MessageScreen: {
@@ -115,7 +115,6 @@ const AppNavigator = () => {
         <Stack.Screen name="AllReels" component={AllReels} />
         <Stack.Screen name="TagSo" component={TagSo} />
         <Stack.Screen name="Profile" component={Profile} />
-        <Stack.Screen name="ViewReels" component={ViewReels} />
         <Stack.Screen name="ZegoCallScreen" component={ZegoCallScreen} />
         <Stack.Screen name="ChangeBirthday" component={ChangeBirthday} />
         <Stack.Screen name="ChangePassword" component={ChangePassword} />
@@ -192,6 +191,7 @@ const AppNavigator = () => {
         <Stack.Screen name="ContactScreen" component={ContactScreen} />
         <Stack.Screen name="ReportProblemScreen" component={ReportProblemScreen} />
         <Stack.Screen name="SupportRequestsScreen" component={SupportRequestsScreen} />
+        <Stack.Screen name="AccountCenter" component={AccountCenter} />
       </Stack.Navigator>
     </NavigationContainer>
   );

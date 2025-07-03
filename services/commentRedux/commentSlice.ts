@@ -1,7 +1,7 @@
 import {createAsyncThunk} from '@reduxjs/toolkit';
 import axiosInstance from '../axiosInstance';
 import {API} from '../api';
-import {AddCommentPayload, CommentPost} from './commentTypes';
+import {AddCommentPayload, CommentPost, ReqComment} from './commentTypes';
 
 export const fetchCommentsByPost = createAsyncThunk<
   CommentPost[],
@@ -23,15 +23,36 @@ export const fetchCommentsByPost = createAsyncThunk<
   }
 });
 
-export const addComment = createAsyncThunk<any, AddCommentPayload>(
+export const addComment = createAsyncThunk<any, ReqComment>(
   'comments/add',
-  async (payload, {rejectWithValue}) => {
+  async ({payload, handleName, receiverId, postId}, {rejectWithValue}) => {
     try {
       const response = await axiosInstance.post(API.ADD_COMMENT, payload, {
         headers: {
           token: 'refresh',
         },
       });
+
+      if (response.status >= 200 && response.status <= 300) {
+        await axiosInstance.post(
+          API.NOTIFICATION_API,
+          {
+            receiverIds: [receiverId],
+            title: `${handleName} đã bình luận bài viết của bạn`,
+            body: 'Nhấn vào để xem chi tiết...',
+            data: {
+              type: 'comment',
+              postId,
+            },
+          },
+          {
+            headers: {
+              token: 'refresh',
+            },
+          },
+        );
+      }
+
       return response.data;
     } catch (err: any) {
       return rejectWithValue(err.response?.data || err.message);

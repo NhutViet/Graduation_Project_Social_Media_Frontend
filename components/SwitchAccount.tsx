@@ -5,27 +5,33 @@ import {
   StyleSheet,
   Text,
   View,
-  Image,
   TouchableOpacity,
 } from 'react-native';
 import {useTheme} from '../src/util/ThemeContext';
 import {Colors} from '../assets/color/Colors';
-import {Check, Plus} from 'lucide-react-native';
+import {Plus} from 'lucide-react-native';
 import {useSelector} from 'react-redux';
 import {RootState} from '../services/store';
+import AccountCenterComponent from '../src/Screens/AccountCenter/components/AccountCenterComponent';
 
 interface SwitchAccountProps {
   visible: boolean;
   onClose: () => void;
+  navigation: any;
+  onAddAccountPress: () => void;
 }
 
 export const SwitchAccount: React.FC<SwitchAccountProps> = ({
   visible,
   onClose,
+  navigation,
+  onAddAccountPress,
 }) => {
   const {theme} = useTheme();
   const color = Colors[theme];
-  const user = useSelector((state: RootState) => state.user.user);
+  const loggedInUsers = useSelector(
+    (state: RootState) => state.user.loggedInUsers,
+  );
 
   return (
     <Modal
@@ -44,45 +50,32 @@ export const SwitchAccount: React.FC<SwitchAccountProps> = ({
               style={{
                 borderWidth: 1,
                 borderRadius: 20,
-                padding: 10,
                 marginBottom: 14,
                 borderColor: '#aaa',
               }}>
-              <View style={styles.accountItem}>
-                <Image
-                  source={{
-                    uri: user?.profilePic,
-                  }}
-                  style={styles.avatar}
+              {loggedInUsers.map(user => (
+                <AccountCenterComponent
+                  key={user._id}
+                  imageAccount={user.profilePic}
+                  nameAccount={user.username}
                 />
-                <View style={styles.accountInfo}>
-                  <Text style={[styles.username, {color: color.text}]}>
-                    {user?.handleName}
-                  </Text>
-                </View>
-                <View
-                  style={{
-                    width: 25,
-                    height: 25,
-                    borderRadius: 15,
-                    backgroundColor: '#0095F6',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}>
-                  <Check size={20} color="#fff" />
-                </View>
-              </View>
+              ))}
 
               {/* Divider */}
               <View
                 style={{
                   height: 1,
                   backgroundColor: '#aaa',
+                  marginHorizontal: 10,
                 }}
               />
 
               {/* Add Account Button */}
-              <TouchableOpacity style={styles.addAccountButton}>
+              <TouchableOpacity
+                style={styles.addAccountButton}
+                onPress={() => {
+                  onAddAccountPress();
+                }}>
                 <View
                   style={{
                     width: 44,
@@ -101,7 +94,10 @@ export const SwitchAccount: React.FC<SwitchAccountProps> = ({
             </View>
             {/* Account Center Button */}
             <TouchableOpacity
-              style={[styles.accountCenterButton, {marginBottom: 16}]}>
+              style={[styles.accountCenterButton, {marginBottom: 16}]}
+              onPress={() => {
+                navigation.navigate('AccountCenter');
+              }}>
               <Text style={[styles.accountCenterText, {color: color.text}]}>
                 Đi đến trung tâm tài khoản
               </Text>
@@ -151,6 +147,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 12,
+    paddingHorizontal: 10,
   },
   addIcon: {
     width: 44,

@@ -46,7 +46,7 @@ export const Home = forwardRef(({onReload}: any, ref) => {
   );
   const sheetRef = useRef<BottomSheetCommentRef>(null);
   const [currentVisible, setCurrentVisible] = useState<string | null>(null);
-  const [selectedPostId, setSelectedPostId] = useState<string>('');
+  const [selectedPostId, setSelectedPostId] = useState<{postId: string, receiverId: string}>({postId: '', receiverId: ''});
   const [seenMap, setSeenMap] = useState<Record<string, boolean>>({});
   
   // Add loading state for pagination
@@ -343,7 +343,7 @@ export const Home = forwardRef(({onReload}: any, ref) => {
           </View>
         }
       />
-      <BottomSheetComment ref={sheetRef} postId={selectedPostId} />
+      <BottomSheetComment ref={sheetRef} postId={selectedPostId.postId} receiverId={selectedPostId.receiverId}/>
     </SafeAreaView>
   );
 });

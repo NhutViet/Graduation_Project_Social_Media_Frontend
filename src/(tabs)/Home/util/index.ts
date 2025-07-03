@@ -1,5 +1,5 @@
 import {relationAction} from '../../../../services/relationRedux/relationSlice';
-import {AppDispatch} from '../../../../services/store';
+import {AppDispatch, RootState} from '../../../../services/store';
 import {
   removeBookmark,
   saveBookmark,
@@ -14,6 +14,7 @@ import {
   markStoryAsSeen,
 } from '../../../../services/storage/storage';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
+import { useSelector } from 'react-redux';
 
 export const handleBookmark = async ({
   isBookmarked,
@@ -82,10 +83,14 @@ export const formatNumber = (num: number): string => {
 export const handleFollowToggle = async ({
   userId,
   follow,
+  senderId,
+  handleName,
   dispatch,
 }: {
   userId: string;
   follow: boolean;
+  senderId?: string;
+  handleName?: string;
   dispatch: AppDispatch;
 }) => {
   const actionType = follow ? 'unfollow' : 'follow';
@@ -94,6 +99,8 @@ export const handleFollowToggle = async ({
       relationAction({
         targetId: userId,
         action: actionType,
+        senderId,
+        handleName,
       }),
     ).unwrap();
   } catch (error) {

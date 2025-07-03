@@ -23,7 +23,7 @@ export interface ReelItemProps {
   // currentVisible: boolean;
   isCurrentVisible: boolean;
   handleHashtagPress: (tag: string) => void;
-  openComment: (postId: string) => void;
+  openComment: (postId: string, receiver: string) => void;
   showBottomSheet: (postId: string) => void;
   navigation: any;
 }

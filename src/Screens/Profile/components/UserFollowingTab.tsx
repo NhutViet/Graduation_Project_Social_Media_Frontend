@@ -30,6 +30,7 @@ const UserFollowingTab = ({userID}: Props) => {
   const navigation: any = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];
+  const user = useSelector((state: RootState) => state.user?.user);
   const myUserId = useSelector((state: RootState) => state.user?.user?._id);
   const dispatch = useDispatch<AppDispatch>();
   const {
@@ -114,6 +115,8 @@ const UserFollowingTab = ({userID}: Props) => {
           relationAction({
             targetId: item._id,
             action: 'follow',
+            senderId: user?._id,
+            handleName: user?.handleName,
           }),
         ).unwrap();
 
@@ -133,6 +136,8 @@ const UserFollowingTab = ({userID}: Props) => {
         relationAction({
           targetId: item._id,
           action: 'follow',
+          senderId: user?._id,
+          handleName: user?.handleName,
         }),
       ).unwrap();
 
