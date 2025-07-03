@@ -56,7 +56,11 @@ import {
   SeenStoryOwner,
   TagSo,
   HighlightCreateScreen,
-  HelpCenter
+  HelpCenter,
+  FAQScreen,
+  ContactScreen,
+  ReportProblemScreen,
+  SupportRequestsScreen,
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 import ProfileComp from '../Screens/Profile';
@@ -184,6 +188,10 @@ const AppNavigator = () => {
           component={HighlightCreateScreen}
         />
         <Stack.Screen name="HelpCenter" component={HelpCenter} />
+        <Stack.Screen name="FAQScreen" component={FAQScreen} />
+        <Stack.Screen name="ContactScreen" component={ContactScreen} />
+        <Stack.Screen name="ReportProblemScreen" component={ReportProblemScreen} />
+        <Stack.Screen name="SupportRequestsScreen" component={SupportRequestsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -22,7 +22,7 @@ interface HelpOption {
 export const HelpCenter = () => {
     const {theme} = useTheme();
     const color = Colors[theme];
-    const navigation = useNavigation();
+    const navigation: any = useNavigation();
     const goBack = useCallback((): void => {
         navigation.goBack();
       }, [navigation]);
@@ -32,22 +32,22 @@ export const HelpCenter = () => {
     {
       id: 'faq',
       title: 'FAQ',
-      onPress: () => null,
+      onPress: () => navigation.navigate('FAQScreen'),
     },
     {
       id: 'contact',
       title: 'Liên hệ',
-      onPress: () => null,
+      onPress: () => navigation.navigate('ContactScreen'),
     },
     {
       id: 'report',
       title: 'Báo lỗi',
-      onPress: () => null,
+      onPress: () => navigation.navigate('ReportProblemScreen'),
     },
     {
       id: 'support',
       title: 'Hỗ trợ',
-      onPress: () => null,
+      onPress: () => navigation.navigate('SupportRequestsScreen'),
     },
   ];
 
