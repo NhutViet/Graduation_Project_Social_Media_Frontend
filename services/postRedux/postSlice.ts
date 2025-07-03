@@ -69,7 +69,7 @@ export const uploadPostWithMedia = createAsyncThunk<
           body: `Người dùng ${handleName} vừa đăng một bài viết mới.`,
           data: {
             type: 'post',
-            postId: response.data?._id,
+            postId: response.data?.post?._id,
           },
         },
         {

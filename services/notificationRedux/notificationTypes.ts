@@ -12,7 +12,7 @@ export interface ItemNoti {
     data: any;
     createdAt: string;
     updatedAt: string;
-    isRead: false;
+    isRead: boolean;
 }
 
 export interface ResNoti {
