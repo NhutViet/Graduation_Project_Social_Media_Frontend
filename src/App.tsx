@@ -25,6 +25,8 @@ import {
   GlobalAlertRef,
 } from '../components/Global/AlertModal';
 import {createNotificationChannel} from '@services/notification/notification';
+import { LogBox } from 'react-native';
+LogBox.ignoreLogs(['Warning: componentWillReceiveProps has been renamed']);
 
 global.Buffer = Buffer;
 if (__DEV__) {

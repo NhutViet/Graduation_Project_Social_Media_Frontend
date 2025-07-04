@@ -1,4 +1,4 @@
-import {Colors} from '../../../../assets/color/Colors';
+import {Colors} from '@assets/color/Colors';
 import React from 'react';
 import {View, TouchableOpacity, Image, TextInput} from 'react-native';
 
@@ -23,12 +23,12 @@ const MessageInput: React.FC<MessageInputProps> = ({
     <View
       style={[
         styles.inputContainer,
-        {backgroundColor: 'rgba(255, 255, 255, 0.6)', zIndex: 20},
+        {backgroundColor: color.bgInputText, zIndex: 10},
       ]}>
       <TouchableOpacity style={styles.blockCamera}>
         <Image
-          style={{tintColor: color.text, width: 20, height: 20}}
-          source={require('../../../../assets/icon/camera.png')}
+          style={{tintColor: color.black, width: 20, height: 20}}
+          source={require('@assets/icon/camera.png')}
         />
       </TouchableOpacity>
 
@@ -46,8 +46,8 @@ const MessageInput: React.FC<MessageInputProps> = ({
       {message.trim().length > 0 ? (
         <TouchableOpacity style={styles.blockCamera} onPress={sendMessage}>
           <Image
-            style={{tintColor: color.text, width: 20, height: 20}}
-            source={require('../../../../assets/icon/share.png')}
+            style={{tintColor: color.black, width: 20, height: 20}}
+            source={require('@assets/icon/share.png')}
           />
         </TouchableOpacity>
       ) : (
@@ -55,7 +55,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
           <TouchableOpacity style={styles.blockIcon1}>
             <Image
               style={styles.icon}
-              source={require('../../../../assets/icon/Microphone.png')}
+              source={require('@assets/icon/Microphone.png')}
             />
           </TouchableOpacity>
           <TouchableOpacity
@@ -63,13 +63,13 @@ const MessageInput: React.FC<MessageInputProps> = ({
             onPress={pickImageAndSend}>
             <Image
               style={styles.icon}
-              source={require('../../../../assets/icon/Picture.png')}
+              source={require('@assets/icon/Picture.png')}
             />
           </TouchableOpacity>
           <TouchableOpacity style={styles.blockIcon1}>
             <Image
               style={styles.icon}
-              source={require('../../../../assets/icon/another.png')}
+              source={require('@assets/icon/another.png')}
             />
           </TouchableOpacity>
         </View>

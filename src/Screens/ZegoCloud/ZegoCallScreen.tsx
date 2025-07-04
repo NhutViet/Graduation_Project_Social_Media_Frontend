@@ -7,7 +7,7 @@ import {useSocket} from '../../../services/SocketContext';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
 export default function ZegoCallScreen({route}: any) {
-  const {userID, userName, callID, image, isCaller} = route.params;
+  const {userID, userName, callID, image, isCaller, callType} = route.params;
   const navigation = useNavigation();
   const {socket} = useSocket();
   const [callEnded, setCallEnded] = useState(false);
@@ -59,11 +59,11 @@ export default function ZegoCallScreen({route}: any) {
         userName={userName}
         callID={callID}
         config={{
-          turnOnCameraWhenJoining: true,
+          turnOnCameraWhenJoining: callType === 'video',
           turnOnMicrophoneWhenJoining: true,
           useSpeakerWhenJoining: true,
           layout: 'GROUP',
-          showCameraToggleButton: true,
+          showCameraToggleButton: callType === 'video',
           showMicrophoneToggleButton: true,
           showAudioOutputButton: true,
           showEndCallButton: true,
@@ -90,17 +90,13 @@ export default function ZegoCallScreen({route}: any) {
                 style={{width: '100%', height: '100%'}}
                 resizeMode="cover"
                 source={
-                  image
-                    ? {uri: image}
-                    : {
-                        uri: 'https://i.pinimg.com/736x/09/80/62/098062ede8791dc791c3110250d2a413.jpg',
-                      }
+                  {uri: 'https://i.pinimg.com/736x/09/80/62/098062ede8791dc791c3110250d2a413.jpg'}
                 }
               />
             </View>
           ),
           scenario: {
-            mode: 'VIDEO_CALL',
+            mode: callType === 'voice' ? 'VOICE_CALL' : 'VIDEO_CALL',
           },
         }}
       />

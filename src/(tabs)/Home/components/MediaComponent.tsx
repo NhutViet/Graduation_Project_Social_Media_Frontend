@@ -91,7 +91,7 @@ export const RenderMediaItem = React.memo(
             key={`${tag.userId}_${index}`}
             tag={tag}
             screenWidth={screenWidth}
-            imageHeight={item.videoUrl ? 600 : 460}
+            imageHeight={item.videoUrl ? 600 : 520}
             onPress={userId => {
               navigation.navigate('ProfileComp', {userID: userId});
             }}

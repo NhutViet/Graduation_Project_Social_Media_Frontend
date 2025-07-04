@@ -186,3 +186,34 @@ export const deleteStory = createAsyncThunk<
     );
   }
 });
+
+export const createStory = createAsyncThunk<
+  Story,
+  {
+    mediaUrl: string;
+    music?: {
+      _id: string;
+      time_start: number;
+      time_end: number;
+    };
+    content?: {
+      text: string;
+      x: number;
+      y: number;
+    };
+  },
+  {rejectValue: string}
+>('stories/createStory', async (payload, {rejectWithValue}) => {
+  try {
+    const response = await axiosInstance.post('/stories/create', payload, {
+      headers: {
+        token: 'refresh',
+      },
+    });
+    return response.data.data;
+  } catch (error: any) {
+    return rejectWithValue(
+      error.response?.data?.message || 'Không thể tạo story',
+    );
+  }
+});

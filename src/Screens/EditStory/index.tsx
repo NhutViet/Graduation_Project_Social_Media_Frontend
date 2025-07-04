@@ -21,18 +21,22 @@ import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import Sound from 'react-native-sound';
 import {API, BASE_URL} from '../../../services/api';
 import {useUploadProgress} from '../../../services/UploadProgressManager';
-import {useSelector} from 'react-redux';
-import {RootState} from '../../../services/store';
+import {useSelector, useDispatch} from 'react-redux';
+import {RootState, AppDispatch} from '../../../services/store';
+import {createStory} from '../../../services/StoryRedux/StorySlice';
+import {forceRefreshStories} from '../../../services/StoryRedux/StoryReducer';
 import {uploadImageToR2, uploadToCloudflare} from '../../core/upload';
 import axiosInstance from '../../../services/axiosInstance';
 import {Dimensions} from 'react-native';
 import {X, ChevronRight} from 'lucide-react-native';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+import { data } from '../ChangePassword/Data';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 
 export const EditStory = ({route, navigation}: any) => {
+  const dispatch = useDispatch<AppDispatch>();
   const {followingUsers} = useSelector((state: RootState) => state.stories);
   const {selectedItem, selectedMusic, songUrl} = route.params;
   const [videoDuration, setVideoDuration] = useState<number | null>(null);
@@ -296,20 +300,18 @@ export const EditStory = ({route, navigation}: any) => {
         };
       }
 
-      const res = await axiosInstance.post(
-        `${BASE_URL}/stories/create`,
-        payload,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${refreshToken}`,
-          },
-        },
-      );
+      // ✅ Sử dụng Redux action thay vì direct API call
+      const storyResult = await dispatch(createStory(payload)).unwrap();
 
-      if (res.data) {
+      if (storyResult) {
         GlobalAlertManager.show('Thông báo', 'Đăng story thành công.');
-        if (res.status >= 200 && res.status <= 300) {
+        
+        // ✅ Force refresh stories immediately
+        console.log('📱 Story created successfully, forcing refresh...');
+        dispatch(forceRefreshStories());
+        
+        // ✅ Gửi notification
+        try {
           await axiosInstance.post(
             API.NOTIFICATION_API_FOLLOW,
             {
@@ -317,7 +319,7 @@ export const EditStory = ({route, navigation}: any) => {
               body: `Người dùng ${user?.handleName} vừa đăng một tin mới.`,
               data: {
                 type: 'story',
-                postId: res.data?._id,
+                postId: res.data?.data?._id,
               },
             },
             {
@@ -326,12 +328,28 @@ export const EditStory = ({route, navigation}: any) => {
               },
             },
           );
+        } catch (notificationError) {
+          console.log('Failed to send notification:', notificationError);
         }
       }
 
       hideUploadModal();
       setIsUploading(false);
-      navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
+      
+      // ✅ Navigate về Home và trigger immediate refresh
+      navigation.reset({
+        index: 0, 
+        routes: [{
+          name: 'BottomTabs',
+          params: {
+            screen: 'Home',
+            params: {
+              shouldRefresh: true,
+              timestamp: Date.now() // Force refresh với timestamp mới
+            }
+          }
+        }]
+      });
     } catch (error: any) {
       setIsUploading(false);
       GlobalAlertManager.show(

@@ -245,7 +245,7 @@ export const PlaylistsScreen = () => {
 
   const ReelsContent = () => {
     const data = playlistItems.filter(i => i.type === 'reel');
-    if (!data.length)
+    if (!data.length && data.length === 0)
       return <EmptyPlaceholder message="Bạn chưa lưu thước phim nào." />;
     return (
       <FlatList

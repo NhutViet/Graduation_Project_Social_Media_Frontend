@@ -1,4 +1,3 @@
-/* eslint-disable react-native/no-inline-styles */
 import {
   Dimensions,
   Image,
@@ -77,8 +76,14 @@ export const Search: React.FC = () => {
   // Debounced input
   const [debouncedSearchText] = useDebounce(searchText, 500);
   const abortControllerRef = useRef<AbortController | null>(null);
+  useEffect(() => {
+  return () => {
+    console.log("🏷️ [Search] component is unmounting now");
+  };
+}, []);
 
   const cleanup = useCallback(() => {
+    console.log("🔄 [Search] cleanup() called — clearing search state");
     // Cancel ongoing requests
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -122,11 +127,11 @@ export const Search: React.FC = () => {
   }, [debouncedSearchText, dispatch, refreshToken]);
 
   // Cleanup on unmount and page blur
-  useEffect(() => {
-    if (!isFocusedPage) {
-      cleanup();
-    }
-  }, [isFocusedPage, cleanup]);
+  // useEffect(() => {
+  //   if (!isFocusedPage) {
+  //     cleanup();
+  //   }
+  // }, [isFocusedPage, cleanup]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -254,13 +259,13 @@ export const Search: React.FC = () => {
   }, [loadHistory]);
 
   // Reset on blur
-  useEffect(() => {
-    if (!isFocusedPage) {
-      setIsFocused(false);
-      setIsShowResult(false);
-      setSearchText('');
-    }
-  }, [isFocusedPage]);
+  // useEffect(() => {
+  //   if (!isFocusedPage) {
+  //     setIsFocused(false);
+  //     setIsShowResult(false);
+  //     setSearchText('');
+  //   }
+  // }, [isFocusedPage]);
 
   // Handlers
   const handleSearchSubmit = useCallback(() => {

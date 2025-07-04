@@ -1,8 +1,8 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {View, TouchableOpacity, Image, Text} from 'react-native';
-import {Colors} from '../../../../assets/color/Colors';
+import {Colors} from '@assets/color/Colors';
 import IncomingCallModal from '../../../../components/IncomingCallModal';
-import {useSocket} from '../../../../services/SocketContext';
+import {useSocket} from '@services/SocketContext';
 
 interface MessageHeaderProps {
   user1?: any;
@@ -46,7 +46,27 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
       userID: userC?._id,
       userName: userC?.username,
       callID: room?._id,
+      callType: 'video',
       image: userC?.profilePic,
+      isCaller: true,
+    });
+  };
+
+  const handleVoiceCall = () => {
+    if (socket) {
+      socket.emit('incomingCall', {
+        callerName: userC?.username,
+        type: 'voice',
+        roomId: room?._id,
+      });
+    }
+
+    navigation.navigate('ZegoCallScreen', {
+      userID: userC?._id,
+      userName: userC?.username,
+      callID: room?._id,
+      image: userC?.profilePic,
+      callType: 'voice',
       isCaller: true,
     });
   };
@@ -106,12 +126,12 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
   return (
     <>
       <View
-        style={[styles.header, {backgroundColor: 'rgba(255, 255, 255, 0.6)'}]}>
+        style={[styles.header, {backgroundColor:  'rgba(120, 120, 120, 0)'}]}>
         <View style={styles.rowContainer2}>
           <TouchableOpacity style={styles.blockIcon} onPress={handleGoBack}>
             <Image
-              style={styles.icon}
-              source={require('../../../../assets/icon/left.png')}
+              style={[styles.icon, {tintColor: color.text}]}
+              source={require('@assets/icon/left.png')}
             />
           </TouchableOpacity>
 
@@ -142,7 +162,7 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
             }}>
             {user2?.profilePic && (
               <>
-                <Image style={styles.iconW} source={{uri: user1?.profilePic}} />
+                <Image style={[styles.iconW, {width: 30, height: 30}]} source={{uri: user1?.profilePic}} />
                 <Image
                   style={[
                     styles.iconF,
@@ -160,22 +180,28 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
             )}
           </TouchableOpacity>
 
-          <Text style={{color: Colors.black, fontSize: 16}} numberOfLines={1}>
+          <Text style={{color: color.text, fontSize: 16}} numberOfLines={1}>
             {room?.name?.trim() || user1?.handleName || 'No name'}
           </Text>
         </View>
 
         <View style={styles.rowContainer1}>
-          <TouchableOpacity style={styles.blockIcon} onPress={handleCall}>
+          <TouchableOpacity style={styles.blockIcon} onPress={handleVoiceCall}>
             <Image
               style={styles.icon}
-              source={require('../../../../assets/icon/videoCamera.png')}
+              source={require('../../../../assets/icon/telephone.png')}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.blockIcon} onPress={handleCall}>
+            <Image
+              style={[styles.icon, {tintColor: color.text}]}
+              source={require('@assets/icon/videoCamera.png')}
             />
           </TouchableOpacity>
           <TouchableOpacity style={styles.blockIcon}>
             <Image
-              style={styles.icon}
-              source={require('../../../../assets/icon/info.png')}
+              style={[styles.icon, {tintColor: color.text}]}
+              source={require('@assets/icon/info.png')}
             />
           </TouchableOpacity>
         </View>
