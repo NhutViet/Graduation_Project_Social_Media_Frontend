@@ -1,4 +1,3 @@
-/* eslint-disable react-native/no-inline-styles */
 import {
   Animated,
   Dimensions,
@@ -21,9 +20,7 @@ import SearchResult from './Components/SearchResult';
 import {useIsFocused} from '@react-navigation/native';
 import {RootState} from '../../../services/store';
 import {useDispatch, useSelector} from 'react-redux';
-// import {fetchPostsWithMedia} from '../../../services/postRedux/postSlice';
 import {AppDispatch} from '../../../services/store';
-// import {PostWithMedia} from '@services/postRedux/postTypes';
 import ExploreSection, { ExploreMedia } from './Components/ExploreTile';
 import {useDebounce} from 'use-debounce';
 import {
@@ -80,8 +77,14 @@ export const Search: React.FC = () => {
   // Debounced input
   const [debouncedSearchText] = useDebounce(searchText, 500);
   const abortControllerRef = useRef<AbortController | null>(null);
+  useEffect(() => {
+  return () => {
+    console.log("🏷️ [Search] component is unmounting now");
+  };
+}, []);
 
   const cleanup = useCallback(() => {
+    console.log("🔄 [Search] cleanup() called — clearing search state");
     // Cancel ongoing requests
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -125,30 +128,16 @@ export const Search: React.FC = () => {
   }, [debouncedSearchText, dispatch, refreshToken]);
 
   // Cleanup on unmount and page blur
-  useEffect(() => {
-    if (!isFocusedPage) {
-      cleanup();
-    }
-  }, [isFocusedPage, cleanup]);
+  // useEffect(() => {
+  //   if (!isFocusedPage) {
+  //     cleanup();
+  //   }
+  // }, [isFocusedPage, cleanup]);
 
   // Cleanup on unmount
   useEffect(() => {
     return cleanup;
   }, [cleanup]);
-
-  /**
-   * It's called once in HomeScreen
-   * No need to called it again
-   * */
-  // Initialization guard
-  // const hasInitialized = useRef(false);
-  // Fetch posts once
-  // useEffect(() => {
-  //   if (!hasInitialized.current) {
-  //     hasInitialized.current = true;
-  //     dispatch(fetchPostsWithMedia({page: 1}));
-  //   }
-  // }, [dispatch]);
 
   // Screen dims for grid
   const screenDimensions = useMemo(() => {
@@ -265,13 +254,13 @@ export const Search: React.FC = () => {
   }, [isFocused, isShowResult]);
 
   // Reset on blur
-  useEffect(() => {
-    if (!isFocusedPage) {
-      setIsFocused(false);
-      setIsShowResult(false);
-      setSearchText('');
-    }
-  }, [isFocusedPage]);
+  // useEffect(() => {
+  //   if (!isFocusedPage) {
+  //     setIsFocused(false);
+  //     setIsShowResult(false);
+  //     setSearchText('');
+  //   }
+  // }, [isFocusedPage]);
 
   // Handlers
   const handleSearchSubmit = useCallback(() => {
@@ -330,11 +319,6 @@ export const Search: React.FC = () => {
     }
   }, [postsData, isInitializing]);
 
-  // Prepare media groups
-  // const postMedia = useMemo(
-  //   () => postsData.flatMap(p => p.media),
-  //   [postsData],
-  // );
   const mediaGroups = useMemo(() => {
     const groups: ExploreMedia[][] = [];
     for (let i = 0; i < postsData.length; i += 5) {
