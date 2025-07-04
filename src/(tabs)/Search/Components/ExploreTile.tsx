@@ -1,7 +1,7 @@
 import { Dimensions, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import React from 'react';
-import Video from 'react-native-video';
 import { Media } from '@services/postRedux/postTypes';
+import { useNavigation } from '@react-navigation/native';
 
 export interface ExploreMedia {
   _id: string;
@@ -9,6 +9,7 @@ export interface ExploreMedia {
 }
 
 interface ExploreSectionProps {
+  data: any;
   media: ExploreMedia[];
   index: number;
 }
@@ -18,88 +19,83 @@ const GAP = 2;
 const SMALL = (screenWidth - GAP * 3) / 3;
 const BIG = SMALL * 2 + GAP;
 
+// 🔁 Chuyển video sang thumbnail ảnh
+const convertToImage = (uri: string): string => {
+  if (
+    uri.includes('videodelivery.net') &&
+    uri.includes('/manifest/') &&
+    !uri.endsWith('.jpg')
+  ) {
+    const parts = uri.split('/');
+    const videoId = parts[3];
+    return `https://videodelivery.net/${videoId}/thumbnails/thumbnail.jpg?time=2s`;
+  }
+  return uri;
+};
+
 const ExploreSection: React.FC<ExploreSectionProps> = ({
   media,
   index,
+  data,
 }) => {
-  if (!media || !Array.isArray(media) || media.length === 0) {
-    return null;
-  }
+  const navigation = useNavigation<any>();
+  if (!media || !Array.isArray(media) || media.length === 0) return null;
 
-  const allMedia: Media[] = media.map(exploreMedia => {
-    return exploreMedia?.media?.[0];
-  }).filter(Boolean);
-
-  if (allMedia.length === 0) {
-    return null;
-  }
+  const allMedia: Media[] = media.map(exploreMedia => exploreMedia?.media?.[0]).filter(Boolean);
+  if (allMedia.length === 0) return null;
 
   const isReversed = index % 2 === 0;
   const bigMedia = allMedia.find(m => m?.videoUrl) || allMedia[0];
   const smallMedias = allMedia.filter(m => m?._id !== bigMedia?._id).slice(0, 4);
 
   const handleMediaPress = (exploreMediaId: string, isBigMedia: boolean = false) => {
-    console.log(`${isBigMedia ? 'Big' : 'Small'} explore media: ${exploreMediaId}`);
+    navigation.navigate('AllPostOfCollection', {posts: data, targetPostId: exploreMediaId, playlistName: 'Bài viết'})
   };
 
   const renderMediaItem = (item: Media, isBigMedia: boolean = false) => {
-    if (!item) {return null;}
+    if (!item) return null;
 
     const isVideo = !!item.videoUrl;
     const parentExploreMedia = media.find(em =>
-      em?.media?.some(m => m?._id === item._id)
+      em?.media?.some(m => m?._id === item._id),
     );
     const showOverlay = !isVideo && (parentExploreMedia?.media?.length || 0) > 1;
 
+    const displayImage = isVideo ? convertToImage(item.videoUrl) : item.imageUrl;
+
     return (
       <View style={isBigMedia ? styles.bigMediaContainer : styles.smallMediaContainer}>
+        {displayImage && (
+          <Image
+            source={{ uri: displayImage }}
+            style={styles.media}
+            resizeMode="cover"
+          />
+        )}
+
         {isVideo ? (
-          <>
-            <View style={styles.videoContainer}>
-              <Video
-                source={{ uri: item.videoUrl }}
-                style={styles.media}
-                resizeMode="cover"
-                repeat={false}
-                muted={true}
-                paused={true}
-                playInBackground={false}
-                playWhenInactive={false}
-                ignoreSilentSwitch={'ignore'}
-              />
-            </View>
-            <View style={styles.overlayContainer}>
-              <Image
-                source={require('@assets/icon/reels.png')}
-                resizeMode="contain"
-                style={styles.overlayIcon}
-              />
-            </View>
-          </>
-        ) : item.imageUrl ? (
-          <>
+          <View style={styles.overlayContainer}>
             <Image
-              source={{ uri: item.imageUrl }}
-              style={styles.media}
-              resizeMode="cover"
+              source={require('@assets/icon/reels.png')}
+              resizeMode="contain"
+              style={styles.overlayIcon}
             />
-            {showOverlay && (
-              <View style={styles.overlayContainer}>
-                <Image
-                  source={require('@assets/icon/layers.png')}
-                  resizeMode="contain"
-                  style={styles.overlayIcon}
-                />
-              </View>
-            )}
-          </>
-        ) : null}
+          </View>
+        ) : showOverlay && (
+          <View style={styles.overlayContainer}>
+            <Image
+              source={require('@assets/icon/layers.png')}
+              resizeMode="contain"
+              style={styles.overlayIcon}
+            />
+          </View>
+        ) }
       </View>
     );
   };
 
   const bigMediaParent = media.find(em =>
-    em?.media?.some(m => m?._id === bigMedia?._id)
+    em?.media?.some(m => m?._id === bigMedia?._id),
   );
 
   return (
@@ -116,7 +112,7 @@ const ExploreSection: React.FC<ExploreSectionProps> = ({
       <View style={styles.smallMediaGrid}>
         {smallMedias.map((item, idx) => {
           const smallMediaParent = media.find(em =>
-            em?.media?.some(m => m?._id === item?._id)
+            em?.media?.some(m => m?._id === item?._id),
           );
 
           return (
@@ -178,10 +174,6 @@ const styles = StyleSheet.create({
   smallMediaWrapper: {
     width: SMALL,
     height: SMALL,
-  },
-  videoContainer: {
-    width: '100%',
-    height: '100%',
   },
   media: {
     width: '100%',

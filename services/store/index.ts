@@ -16,6 +16,7 @@ import messagesReducer from '../messageRedux/messageReducer';
 import SearchReducer from '../searchRedux/searchReducer';
 import ReelReducer from '../reelRedux/reelReducer';
 import reelBookmarkReducer from '../reelBookmarkRedux/reelBookmarkReducer';
+import searchPostReducer from '../SearchPost/searchPostReducer';
 import notificationReducer from '../notificationRedux/notificationReducer';
 
 const persistUserConfig = {
@@ -42,6 +43,7 @@ export const store = configureStore({
     search: SearchReducer,
     reels: ReelReducer,
     reelBookmark: reelBookmarkReducer,
+    searchPost: searchPostReducer,
     notification: notificationReducer,
   },
   middleware: getDefaultMiddleware =>
