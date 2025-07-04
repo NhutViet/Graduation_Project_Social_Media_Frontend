@@ -8,6 +8,8 @@ import {
   fetchStoryDetails,
   createHighlightStory,
   fetchHighlightStory, // New thunk
+  deleteStory,
+  createStory,
 } from './StorySlice';
 
 interface StoryState {
@@ -34,6 +36,11 @@ const storySlice = createSlice({
   reducers: {
     clearHighlightStories: state => {
       state.highlightStories = [];
+    },
+    forceRefreshStories: state => {
+      // Trigger re-render by updating a timestamp
+      state.loading = false;
+      state.error = null;
     },
   },
   extraReducers: builder => {
@@ -229,8 +236,80 @@ const storySlice = createSlice({
       .addCase(fetchHighlightStory.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Không thể lấy highlight stories';
+      })
+
+      // ====== DELETE STORY ======
+      .addCase(deleteStory.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(
+        deleteStory.fulfilled,
+        (state, action: PayloadAction<{storyId: string}>) => {
+          const {storyId} = action.payload;
+          
+          // Xóa khỏi myStories
+          state.myStories = state.myStories.filter(story => story._id !== storyId);
+          
+          // Xóa khỏi storyDetails
+          state.storyDetails = state.storyDetails.filter(story => story._id !== storyId);
+          
+          // Xóa khỏi followingUsers
+          for (const user of state.followingUsers) {
+            // Xóa story ID khỏi stories array
+            if (user.stories) {
+              user.stories = user.stories.filter(id => id !== storyId);
+            }
+            
+            // Xóa khỏi storyDetails array
+            if (user.storyDetails) {
+              user.storyDetails = user.storyDetails.filter(story => story._id !== storyId);
+            }
+          }
+          
+          state.loading = false;
+        },
+      )
+      .addCase(deleteStory.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Không thể xóa story';
+      })
+            // ====== CREATE STORY ======
+      .addCase(createStory.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(
+        createStory.fulfilled,
+        (state, action: PayloadAction<Story>) => {
+          const newStory = action.payload;
+          
+          // Thêm vào myStories
+          state.myStories.unshift(newStory);
+          
+          // Thêm vào storyDetails
+          state.storyDetails.push(newStory);
+          
+          // Cập nhật followingUsers để thêm story ID mới
+          for (const user of state.followingUsers) {
+            if (user._id === newStory.ownerId) {
+              if (!user.stories) user.stories = [];
+              user.stories.unshift(newStory._id);
+              
+              if (!user.storyDetails) user.storyDetails = [];
+              user.storyDetails.unshift(newStory);
+              break;
+            }
+          }
+          
+          state.loading = false;
+        },
+      )
+      .addCase(createStory.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Không thể tạo story';
       });
   },
 });
-export const {clearHighlightStories} = storySlice.actions;
+export const {clearHighlightStories, forceRefreshStories} = storySlice.actions;
 export default storySlice.reducer;
