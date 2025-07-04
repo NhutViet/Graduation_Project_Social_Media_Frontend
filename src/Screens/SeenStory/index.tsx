@@ -193,7 +193,7 @@ export const SeenStory = ({route, navigation}: any) => {
           timestamp: Date.now(),
         });
       } else {
-        console.log('📱 No more story groups, going back');
+
         navigation.goBack();
       }
     }
@@ -323,20 +323,18 @@ export const SeenStory = ({route, navigation}: any) => {
     const content = selectedItem?.content;
     const tags = selectedItem?.tags;
     
-    console.log('📝 [SeenStory] Content:', JSON.stringify(content, null, 2));
-    console.log('🏷️ [SeenStory] Tags for caption:', JSON.stringify(tags, null, 2));
     
-    // Combine content text và mentions từ tags
+  
     const fullText = content?.text || '';
     
-    // ✅ Adapt to backend structure: handleName is at tag level, not nested under user
+  
     const validTags = tags?.filter((tag: any) => tag.user && tag.handleName) || [];
-    console.log('✅ [SeenStory] Valid tags for caption:', validTags);
+
     
     const mentionsText = validTags.map((tag: any) => `@${tag.handleName}`).join(' ') || '';
     const combinedText = fullText && mentionsText ? `${fullText} ${mentionsText}` : fullText || mentionsText;
     
-    console.log('🔗 [SeenStory] Combined text:', combinedText);
+  
     
     if (!combinedText) {
       console.log('❌ [SeenStory] No combined text to display');
@@ -387,12 +385,10 @@ export const SeenStory = ({route, navigation}: any) => {
 
   const renderTags = () => {
     const tags = selectedItem?.tags || [];
-    console.log('🏷️ [SeenStory] Tags data:', JSON.stringify(tags, null, 2));
+   
 
     return tags.map((tagData: any, index: number) => {
-      console.log('📍 [SeenStory] Processing tag:', JSON.stringify(tagData, null, 2));
-      
-      // ✅ Adapt to backend structure: {user: "id", position: {x,y}, handleName: "...", username: "..."}
+
       const { user: userId, position, handleName, username } = tagData;
       
       if (!userId || !position || !handleName) {
@@ -409,15 +405,15 @@ export const SeenStory = ({route, navigation}: any) => {
         username: username,
       };
       
-      console.log('✅ [SeenStory] Final user data for tag:', finalUserData);
+ 
 
       const tagPosition = getCaptionPosition(x * 100, y * 100);
 
       const handleTagPress = () => {
-        console.log('🔥 [SeenStory] Tag pressed! UserID:', finalUserData._id);
+      
         if (finalUserData._id) {
-          console.log('🚀 [SeenStory] Navigating to ProfileComp with userID:', finalUserData._id);
-          // ✅ Story sẽ tự động pause thông qua blur listener
+      
+       
           navigation.navigate('ProfileComp', {
             userID: finalUserData._id,
           });

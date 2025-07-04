@@ -98,7 +98,7 @@ export const EditStory = ({route, navigation}: any) => {
   };
 
   const onVideoLoad = (data: any) => {
-    console.log(`Video loaded, duration: ${data.duration}`);
+  
     setVideoDuration(data.duration);
   };
 
@@ -173,12 +173,12 @@ export const EditStory = ({route, navigation}: any) => {
   }, [selectedItem]);
 
   const handleScreenTap = () => {
-    console.log('Screen tapped, opening modal');
+   
     setIsModalVisible(true);
   };
 
   const handleDonePress = () => {
-    console.log('Done pressed, closing modal with caption:', caption);
+   
     setIsModalVisible(false);
     setHasShownModal(true);
   };
@@ -208,7 +208,7 @@ export const EditStory = ({route, navigation}: any) => {
   };
 
   const handleCloserPress = () => {
-    console.log('Closer pressed, navigating back');
+   
     navigation.goBack();
   };
 
@@ -237,8 +237,7 @@ export const EditStory = ({route, navigation}: any) => {
 
   // Function để parse @mentions từ text
   const parseMentionsFromText = (text: string) => {
-    console.log('🔍 Parsing mentions from text:', text);
-    console.log('👥 Following users available:', followingUsers.map(u => u.handleName));
+   
     
     const mentionRegex = /@([a-zA-Z0-9._]+)/g;
     const mentions: Array<{handleName: string, user: any}> = [];
@@ -246,14 +245,14 @@ export const EditStory = ({route, navigation}: any) => {
 
     while ((match = mentionRegex.exec(text)) !== null) {
       const handleName = match[1];
-      console.log('🎯 Found mention:', handleName);
+      
       
       const user = followingUsers.find(u => 
         u.handleName.toLowerCase() === handleName.toLowerCase()
       );
       
       if (user) {
-        console.log('✅ User found:', user.handleName, 'ID:', user._id);
+       
         mentions.push({handleName, user});
       } else {
         console.log('❌ User not found for handle:', handleName);
@@ -263,8 +262,6 @@ export const EditStory = ({route, navigation}: any) => {
     // Remove @mentions từ text để chỉ giữ content thuần
     const cleanText = text.replace(mentionRegex, '').trim();
     
-    console.log('🧹 Clean text:', cleanText);
-    console.log('🏷️ Extracted mentions:', mentions);
     
     return {cleanText, mentions};
   };
@@ -274,7 +271,7 @@ export const EditStory = ({route, navigation}: any) => {
       setIsUploading(true);
       setProgress(0);
       if (!selectedItem) {
-        console.error('Không có media để upload.');
+   
         setIsUploading(false);
         return;
       }
@@ -340,7 +337,7 @@ export const EditStory = ({route, navigation}: any) => {
 
       // Thêm tags nếu có mentions
       if (mentions.length > 0) {
-        console.log('🏷️ Creating tags payload:', mentions);
+        
         payload.tags = mentions.map(mention => ({
           user: mention.user._id, // Chỉ gửi ID string thay vì object
           position: {
@@ -351,18 +348,17 @@ export const EditStory = ({route, navigation}: any) => {
         console.log('📤 Final tags payload:', payload.tags);
       }
 
-      console.log('📦 Final payload being sent:', JSON.stringify(payload, null, 2));
+     
       
       // ✅ Sử dụng Redux action thay vì direct API call
       const storyResult = await dispatch(createStory(payload)).unwrap();
       
-      console.log('🎉 Story result from backend:', JSON.stringify(storyResult, null, 2));
+      
 
       if (storyResult) {
         GlobalAlertManager.show('Thông báo', 'Đăng story thành công.');
         
-        // ✅ Force refresh stories immediately
-        console.log('📱 Story created successfully, forcing refresh...');
+     
         dispatch(forceRefreshStories());
         
         // ✅ Gửi notification
@@ -499,7 +495,7 @@ export const EditStory = ({route, navigation}: any) => {
             transparent={true}
             animationType="fade"
             onRequestClose={() => {
-              console.log('Modal close requested, closing modal');
+              
               setIsModalVisible(false);
             }}>
             <View style={styles.modalContainer}>
