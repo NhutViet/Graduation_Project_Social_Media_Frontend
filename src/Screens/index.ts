@@ -56,3 +56,8 @@ export * from './NewMessage';
 export * from './Profile/components/UserFollowScreen.tsx';
 export * from './TagSo';
 export * from './Setting/Archive/components/ScreenHighlightCreate.tsx';
+export * from './Setting/HelpCenter';
+export * from './Setting/HelpCenter/FAQ.tsx';
+export * from './Setting/HelpCenter/Contact.tsx';
+export * from './Setting/HelpCenter/ReportProblem.tsx';
+export * from './Setting/HelpCenter/SupportRequest.tsx';
