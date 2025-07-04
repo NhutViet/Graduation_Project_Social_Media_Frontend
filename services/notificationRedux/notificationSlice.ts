@@ -1,5 +1,5 @@
 import {createAsyncThunk} from '@reduxjs/toolkit';
-import {ResNoti} from './notificationTypes';
+import {ItemNoti, ResNoti} from './notificationTypes';
 import axiosInstance from '@services/axiosInstance';
 import {API} from '@services/api';
 
@@ -22,3 +22,11 @@ export const getNotification = createAsyncThunk<
     });
   }
 });
+
+export const getUnreadNotificationCount = (notifications: ItemNoti[], userId: string): number => {
+  return notifications.reduce((count, noti) => {
+    const receiver = noti.receiver.find(r => r.userId === userId);
+    return receiver && !receiver.isRead ? count + 1 : count;
+  }, 0);
+};
+

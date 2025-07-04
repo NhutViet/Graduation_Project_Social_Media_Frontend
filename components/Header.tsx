@@ -11,6 +11,8 @@ import {Colors} from '../assets/color/Colors';
 import {useTheme} from '../src/util/ThemeContext';
 import {Menu, Divider, Provider} from 'react-native-paper';
 import {GlobalAlertManager} from './Global/AlertModal';
+import {useSelector} from 'react-redux';
+import {RootState} from '@services/store';
 
 const Header = (props: any) => {
   const {
@@ -36,6 +38,18 @@ const Header = (props: any) => {
 
   const openMenu = () => setVisible(true);
   const closeMenu = () => setVisible(false);
+
+  const unreadCount = useSelector((state: RootState) => {
+    const notifications = state.notification.notifications;
+    const userId = state.user.user?._id;
+
+    if (!userId) return 0;
+
+    return notifications.reduce((count, noti) => {
+      const receiver = noti.receiver.find(r => r.userId === userId);
+      return receiver && !receiver.isRead ? count + 1 : count;
+    }, 0);
+  });
 
   return (
     <Provider>
@@ -125,6 +139,9 @@ const Header = (props: any) => {
                 source={iconNotify}
                 style={[styles.icon, {tintColor: color.text}]}
               />
+              {unreadCount > 0 && (
+                <View style={[styles.badge, {backgroundColor: color.primary}]}/>
+              )}
             </TouchableOpacity>
           )}
           {iconMessage && (
@@ -201,6 +218,18 @@ const styles = StyleSheet.create({
     height: '100%',
     resizeMode: 'contain',
   },
+  badge: {
+  position: 'absolute',
+  top: -4,
+  right: -4,
+  minWidth: 10,
+  height: 10,
+  borderRadius: 8,
+  justifyContent: 'center',
+  alignItems: 'center',
+  paddingHorizontal: 4,
+  zIndex: 1,
+},
 });
 
 export default Header;

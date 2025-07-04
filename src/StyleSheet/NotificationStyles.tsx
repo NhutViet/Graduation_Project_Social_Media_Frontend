@@ -223,9 +223,18 @@ export const useNotificationStyles = () => {
         },
         notificationItem: {
           flexDirection: 'row',
-          alignItems: 'center',
+          alignItems: 'flex-start',
           paddingHorizontal: 16,
-          paddingVertical: 10,
+          paddingVertical: 14,
+          backgroundColor: palette.card,
+          borderRadius: 12,
+          marginHorizontal: 16,
+          marginBottom: 12,
+          shadowColor: '#000',
+          shadowOffset: {width: 0, height: 1},
+          shadowOpacity: 0.05,
+          shadowRadius: 4,
+          elevation: 1,
         },
 
         avatar: {

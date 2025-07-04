@@ -21,7 +21,7 @@ import {MediaPlayer} from './components/MediaPlayer';
 import {Footer} from './components/Footer';
 
 import {Keyboard} from 'react-native';
-import ModalShare, {ModalShareHandle} from './components/ModalShare';
+import ModalShare, {ModalShareHandle} from './components/modalShare';
 import StoryLoadingSkeleton from '../../(tabs)/Home/components/StoryLoadingSkeleton';
 import {debugStoryGroups} from '../../(tabs)/Home/util';
 import { renderTextWithMentions } from '../../util/storyTextRenderer';

@@ -72,6 +72,7 @@ import ZegoCallScreen from '../Screens/ZegoCloud/ZegoCallScreen';
 import {navigationRef} from '../NavigationService';
 import AllReels from '../../components/AllReels';
 import AccountCenter from '../../src/Screens/AccountCenter';
+import PostDetailScreen from '../../components/PostDetailScreen';
 
 export type RootStackParamList = {
   MessageScreen: {
@@ -113,6 +114,7 @@ const AppNavigator = () => {
           component={AllPostOfUserScreen}
         />
         <Stack.Screen name="AllReels" component={AllReels} />
+        <Stack.Screen name="PostDetailScreen" component={PostDetailScreen} />
         <Stack.Screen name="TagSo" component={TagSo} />
         <Stack.Screen name="Profile" component={Profile} />
         <Stack.Screen name="ZegoCallScreen" component={ZegoCallScreen} />

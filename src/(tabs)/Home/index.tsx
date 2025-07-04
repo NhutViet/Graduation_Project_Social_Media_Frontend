@@ -6,7 +6,13 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import {SafeAreaView, View, ActivityIndicator, ScrollView, Text} from 'react-native';
+import {
+  SafeAreaView,
+  View,
+  ActivityIndicator,
+  ScrollView,
+  Text,
+} from 'react-native';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {useIsFocused, useNavigation} from '@react-navigation/native';
@@ -34,6 +40,7 @@ import {
 } from '../../../services/storage/storage';
 import {ModalLoading} from './components/loading';
 import {useStoryPrefetch} from './hook/useStoryPrefetch';
+import {getNotification} from '@services/notificationRedux/notificationSlice';
 
 const HEADER_HEIGHT = 100;
 const AnimatedFlatList = Animated.createAnimatedComponent(Animated.FlatList);
@@ -65,19 +72,18 @@ export const Home = forwardRef(({onReload, route}: any, ref) => {
   const followingUsers = useSelector(
     (state: RootState) => state.stories.followingUsers,
   );
-  const myStories = useSelector(
-    (state: RootState) => state.stories.myStories,
-  );
+  const myStories = useSelector((state: RootState) => state.stories.myStories);
   const user = useSelector((state: RootState) => state.user.user);
   const [isStoryLoading, setIsStoryLoading] = useState(false);
-  
+
   // ✅ Add lazy loading state for stories
   const [visibleStoryCount, setVisibleStoryCount] = useState(5);
   const STORIES_LOAD_BATCH = 5; // Load 5 stories at a time
   const [isLoadingMoreStories, setIsLoadingMoreStories] = useState(false);
-  
+
   // ✅ Use prefetch hook
-  const {prefetchStoryData, getCachedStoryData, clearExpiredCache} = useStoryPrefetch();
+  const {prefetchStoryData, getCachedStoryData, clearExpiredCache} =
+    useStoryPrefetch();
 
   const reloadAllData = useCallback(() => {
     dispatch(fetchPostsWithMedia({page: 1}));
@@ -101,17 +107,22 @@ export const Home = forwardRef(({onReload, route}: any, ref) => {
   // ✅ Listen for navigation params to trigger immediate refresh
   useEffect(() => {
     if (route?.params?.shouldRefresh || route?.params?.timestamp) {
-     
       dispatch(forceRefreshStories());
       dispatch(fetchFollowingStories({page: 1}));
       clearExpiredCache();
-      
+
       // Clear the params to prevent infinite refresh
       if (navigation.setParams) {
         navigation.setParams({shouldRefresh: false, timestamp: undefined});
       }
     }
-  }, [route?.params?.shouldRefresh, route?.params?.timestamp, dispatch, navigation, clearExpiredCache]);
+  }, [
+    route?.params?.shouldRefresh,
+    route?.params?.timestamp,
+    dispatch,
+    navigation,
+    clearExpiredCache,
+  ]);
 
   // ✅ Force refresh stories when user comes back to Home after creating/deleting story
   useEffect(() => {
@@ -120,7 +131,7 @@ export const Home = forwardRef(({onReload, route}: any, ref) => {
       const timeoutId = setTimeout(() => {
         dispatch(fetchFollowingStories({page: 1}));
       }, 100);
-      
+
       return () => clearTimeout(timeoutId);
     }
   }, [isFocused, dispatch]);
@@ -134,21 +145,17 @@ export const Home = forwardRef(({onReload, route}: any, ref) => {
     return [
       // 1. "Tin của tôi" (current user) - luôn đầu tiên
       ...followingUsers.filter(
-        item =>
-          item._id === user?._id ||
-          item.handleName === user?.handleName,
+        item => item._id === user?._id || item.handleName === user?.handleName,
       ),
       // 2. Những người khác - sắp xếp: có story lên trước
       ...followingUsers
         .filter(
           item =>
-            item._id !== user?._id &&
-            item.handleName !== user?.handleName,
+            item._id !== user?._id && item.handleName !== user?.handleName,
         )
         .sort(
           (a, b) =>
-            (b.stories?.length > 0 ? 1 : 0) -
-            (a.stories?.length > 0 ? 1 : 0),
+            (b.stories?.length > 0 ? 1 : 0) - (a.stories?.length > 0 ? 1 : 0),
         ),
     ];
   }, [followingUsers, user?._id, user?.handleName]);
@@ -159,40 +166,49 @@ export const Home = forwardRef(({onReload, route}: any, ref) => {
   }, [processedStories, visibleStoryCount]);
 
   // ✅ Handler for loading more stories when scrolling
-  const handleStoryScroll = useCallback((event: any) => {
-    const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent;
-    const currentIndex = Math.floor(contentOffset.x / 70); // Assuming each story item is ~70px wide
-    
-    // ✅ Load more when user reaches 3rd item from the end of visible stories
-    const triggerPoint = Math.max(0, visibleStoryCount - 3);
-    
-    if (currentIndex >= triggerPoint && 
-        visibleStoryCount < processedStories.length && 
-        !isLoadingMoreStories) {
-      
-      setIsLoadingMoreStories(true);
-      
-      const newCount = Math.min(
-        visibleStoryCount + STORIES_LOAD_BATCH,
-        processedStories.length
-      );
-      console.log(`📱 Loading more stories: ${visibleStoryCount} → ${newCount}`);
-      
-      // ✅ Add slight delay for smooth UX
-      setTimeout(() => {
-        setVisibleStoryCount(newCount);
-        setIsLoadingMoreStories(false);
-      }, 300);
-    }
-  }, [visibleStoryCount, processedStories.length, isLoadingMoreStories]);
+  const handleStoryScroll = useCallback(
+    (event: any) => {
+      const {contentOffset, contentSize, layoutMeasurement} = event.nativeEvent;
+      const currentIndex = Math.floor(contentOffset.x / 70); // Assuming each story item is ~70px wide
+
+      // ✅ Load more when user reaches 3rd item from the end of visible stories
+      const triggerPoint = Math.max(0, visibleStoryCount - 3);
+
+      if (
+        currentIndex >= triggerPoint &&
+        visibleStoryCount < processedStories.length &&
+        !isLoadingMoreStories
+      ) {
+        setIsLoadingMoreStories(true);
+
+        const newCount = Math.min(
+          visibleStoryCount + STORIES_LOAD_BATCH,
+          processedStories.length,
+        );
+        console.log(
+          `📱 Loading more stories: ${visibleStoryCount} → ${newCount}`,
+        );
+
+        // ✅ Add slight delay for smooth UX
+        setTimeout(() => {
+          setVisibleStoryCount(newCount);
+          setIsLoadingMoreStories(false);
+        }, 300);
+      }
+    },
+    [visibleStoryCount, processedStories.length, isLoadingMoreStories],
+  );
 
   // ✅ Prefetch stories when visible stories change
   const prefetchStoriesForVisibleUsers = useCallback(async () => {
     const usersToPreload = visibleStories.filter(u => u.stories?.length > 0);
-    
+
     // Prefetch for visible users
-    const priorityUsers = usersToPreload.slice(0, Math.min(5, usersToPreload.length));
-    
+    const priorityUsers = usersToPreload.slice(
+      0,
+      Math.min(5, usersToPreload.length),
+    );
+
     for (const user of priorityUsers) {
       if (user.stories?.length > 0) {
         try {
@@ -210,14 +226,18 @@ export const Home = forwardRef(({onReload, route}: any, ref) => {
       // Small delay to not block main thread
       setTimeout(prefetchStoriesForVisibleUsers, 500);
     }
-  }, [visibleStories.length, storyDetails.length, prefetchStoriesForVisibleUsers]);
+  }, [
+    visibleStories.length,
+    storyDetails.length,
+    prefetchStoriesForVisibleUsers,
+  ]);
 
   // ✅ Reset visible story count when followingUsers data changes significantly
   useEffect(() => {
     // Reset to initial count when data refreshes
     if (followingUsers.length > 0) {
       const currentProcessedLength = processedStories.length;
-      
+
       // If current visible count is more than available stories, reset it
       if (visibleStoryCount > currentProcessedLength) {
         setVisibleStoryCount(Math.min(5, currentProcessedLength));
@@ -226,7 +246,6 @@ export const Home = forwardRef(({onReload, route}: any, ref) => {
   }, [followingUsers.length, processedStories.length, visibleStoryCount]);
 
   const loadMore = useCallback(async () => {
-   
     if (isLoadingMore || !hasNextPage || hasCalledLoadMore) {
       return;
     }
@@ -244,6 +263,10 @@ export const Home = forwardRef(({onReload, route}: any, ref) => {
       setTimeout(() => setHasCalledLoadMore(false), 1000);
     }
   }, [dispatch, isLoadingMore, hasNextPage, page, hasCalledLoadMore]);
+
+  useEffect(() => {
+    dispatch(getNotification({}));
+  }, []);
 
   const prefetchNextPage = useCallback(() => {
     if (!isLoadingMore && hasNextPage && !hasCalledLoadMore) {
@@ -419,8 +442,7 @@ export const Home = forwardRef(({onReload, route}: any, ref) => {
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={{paddingHorizontal: 10}}
                 onScroll={handleStoryScroll}
-                scrollEventThrottle={16}
-              >
+                scrollEventThrottle={16}>
                 {visibleStories.map(item => {
                   const isCurrentUser =
                     item._id === user?._id ||
@@ -477,52 +499,54 @@ export const Home = forwardRef(({onReload, route}: any, ref) => {
                     />
                   );
                 })}
-                
+
                 {/* ✅ Loading indicator for more stories */}
-                {isLoadingMoreStories && visibleStoryCount < processedStories.length && (
-                  <View
-                    style={{
-                      width: 70,
-                      height: 70,
-                      marginHorizontal: 8,
-                      borderRadius: 35,
-                      backgroundColor: color.background,
-                      borderWidth: 2,
-                      borderColor: color.border,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}>
-                    <ActivityIndicator size="small" color={color.text} />
-                  </View>
-                )}
-                
+                {isLoadingMoreStories &&
+                  visibleStoryCount < processedStories.length && (
+                    <View
+                      style={{
+                        width: 70,
+                        height: 70,
+                        marginHorizontal: 8,
+                        borderRadius: 35,
+                        backgroundColor: color.background,
+                        borderWidth: 2,
+                        borderColor: color.border,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}>
+                      <ActivityIndicator size="small" color={color.text} />
+                    </View>
+                  )}
+
                 {/* ✅ Load more indicator when there are more stories */}
-                {!isLoadingMoreStories && 
-                 visibleStoryCount < processedStories.length && 
-                 visibleStories.length > 0 && (
-                  <View
-                    style={{
-                      width: 70,
-                      height: 70,
-                      marginHorizontal: 8,
-                      borderRadius: 35,
-                      backgroundColor: color.backgroundSecondary,
-                      borderWidth: 2,
-                      borderColor: color.border,
-                      borderStyle: 'dashed',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}>
-                    <Text style={{
-                      color: color.textSecondary,
-                      fontSize: 10,
-                      textAlign: 'center',
-                      fontWeight: '500'
-                    }}>
-                      +{processedStories.length - visibleStoryCount}
-                    </Text>
-                  </View>
-                )}
+                {!isLoadingMoreStories &&
+                  visibleStoryCount < processedStories.length &&
+                  visibleStories.length > 0 && (
+                    <View
+                      style={{
+                        width: 70,
+                        height: 70,
+                        marginHorizontal: 8,
+                        borderRadius: 35,
+                        backgroundColor: color.backgroundSecondary,
+                        borderWidth: 2,
+                        borderColor: color.border,
+                        borderStyle: 'dashed',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}>
+                      <Text
+                        style={{
+                          color: color.textSecondary,
+                          fontSize: 10,
+                          textAlign: 'center',
+                          fontWeight: '500',
+                        }}>
+                        +{processedStories.length - visibleStoryCount}
+                      </Text>
+                    </View>
+                  )}
               </ScrollView>
             </View>
           </View>
@@ -539,4 +563,3 @@ export const Home = forwardRef(({onReload, route}: any, ref) => {
 });
 
 export default Home;
- 
