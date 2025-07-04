@@ -7,24 +7,24 @@ import {
   TextInput,
   ActivityIndicator,
 } from 'react-native';
-import React, {useState, useEffect} from 'react';
-import {FlashList} from '@shopify/flash-list';
-import {Colors} from '../../../../assets/color/Colors';
-import {useTheme} from '../../../util/ThemeContext';
-import {useNavigation} from '@react-navigation/native';
-import {useDispatch, useSelector} from 'react-redux';
-import {AppDispatch, RootState} from '../../../../services/store';
+import React, { useState, useEffect } from 'react';
+import { FlashList } from '@shopify/flash-list';
+import { Colors } from '../../../../assets/color/Colors';
+import { useTheme } from '../../../util/ThemeContext';
+import { useNavigation } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../../../services/store';
 import {
   fetchFollowers,
   fetchFollowing,
   relationAction,
 } from '../../../../services/relationRedux/relationSlice';
-import {createRoom} from '../../../../services/roomRedux/roomSlice';
-import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
+import { createRoom } from '../../../../services/roomRedux/roomSlice';
+import { GlobalAlertManager } from '../../../../components/Global/AlertModal';
 
-const UserFollowersTab = ({route}: any) => {
+const UserFollowersTab = ({ route }: any) => {
   const navigation: any = useNavigation();
-  const {theme} = useTheme();
+  const { theme } = useTheme();
   const color = Colors[theme];
   const userID: string = route.params?.userID;
   const user = useSelector((state: RootState) => state.user.user);
@@ -53,23 +53,22 @@ const UserFollowersTab = ({route}: any) => {
         return;
       }
       try {
-        const followersData = await dispatch(
-          fetchFollowers({userId: userID}),
+        await dispatch(
+          fetchFollowers({ userId: userID }),
         ).unwrap();
-        const followingList = await dispatch(
-          fetchFollowing({userId: myUserId}),
+        await dispatch(
+          fetchFollowing({ userId: myUserId }),
         ).unwrap();
 
-        const filtered = followersData.filter(f => f._id !== myUserId);
-
+        // Uncomment below to remove myUserId from followers list
+        // const filtered = followersData.filter(f => f._id !== myUserId);
         // update the isFollowing state for each follower that have _id match a user in current user following list
-        const updatedFollowers = filtered.map(follower => ({
-          ...follower,
-          isMeFollowing: followingList.some(f => f._id === follower._id),
-        }));
-
-        // update new followers state
-        setFollowers(updatedFollowers);
+        // const updatedFollowers = filtered.map(follower => ({
+        //   ...follower,
+        //   // isMeFollowing: followingList.some(f => f._id === follower._id),
+        // }));
+        // // update new followers state
+        // setFollowers(updatedFollowers);
       } catch (err) {
         console.error('Error fetching followers:', err);
       } finally {
@@ -82,37 +81,39 @@ const UserFollowersTab = ({route}: any) => {
     }
   }, [dispatch, userID, myUserId]);
 
-  const renderItem = ({item}: {item: (typeof followers)[0]}) => (
+  const renderItem = ({ item }: { item: (typeof followers)[0] }) => (
     <View style={styles.userContainer}>
       <TouchableOpacity style={styles.touchableInfo}>
-        <Image source={{uri: item.profilePic}} style={styles.avatar} />
+        <Image source={{ uri: item.profilePic }} style={styles.avatar} />
         <View style={styles.userInfo}>
-          <Text style={[styles.handle, {color: color.text}]}>
+          <Text style={[styles.handle, { color: color.text }]}>
             {item.handleName}
           </Text>
-          <Text style={[styles.username, {color: color.textSecondary}]}>
+          <Text style={[styles.username, { color: color.textSecondary }]}>
             {item.username}
           </Text>
         </View>
       </TouchableOpacity>
-      <TouchableOpacity
-        style={[
-          styles.actionButton,
-          item.isMeFollowing
-            ? [styles.messageButton, {borderColor: color.text}]
-            : styles.followBack,
-        ]}
-        onPress={() => handleActionButton(item)}>
-        <Text
+      {myUserId !== item._id && (
+        <TouchableOpacity
           style={[
-            styles.buttonText,
+            styles.actionButton,
             item.isMeFollowing
-              ? [styles.messageText, {color: color.text}]
-              : styles.followText,
-          ]}>
-          {item.isMeFollowing ? 'Nhắn tin' : 'Theo dõi'}
-        </Text>
-      </TouchableOpacity>
+              ? [styles.messageButton, { borderColor: color.text }]
+              : styles.followBack,
+          ]}
+          onPress={() => handleActionButton(item)}>
+          <Text
+            style={[
+              styles.buttonText,
+              item.isMeFollowing
+                ? [styles.messageText, { color: color.text }]
+                : styles.followText,
+            ]}>
+            {item.isMeFollowing ? 'Nhắn tin' : 'Theo dõi'}
+          </Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 
@@ -127,7 +128,7 @@ const UserFollowersTab = ({route}: any) => {
           }),
         ).unwrap();
 
-        const {room} = res;
+        const { room } = res;
 
         const otherUsers = room.user_ids.filter(user => user._id !== myUserId);
         const img1 = otherUsers[0]?.profilePic;
@@ -157,7 +158,7 @@ const UserFollowersTab = ({route}: any) => {
         setFollowers(prevFollowers =>
           prevFollowers.map(follower =>
             follower._id === item._id
-              ? {...follower, isMeFollowing: true}
+              ? { ...follower, isMeFollowing: true }
               : follower,
           ),
         );
@@ -179,7 +180,7 @@ const UserFollowersTab = ({route}: any) => {
   if (isError) {
     return (
       <View style={styles.center}>
-        <Text style={[styles.errorText, {color: color.text}]}>{error}</Text>
+        <Text style={[styles.errorText, { color: color.text }]}>{error}</Text>
       </View>
     );
   }
@@ -187,16 +188,16 @@ const UserFollowersTab = ({route}: any) => {
   if (!followers || followers.length === 0) {
     return (
       <View
-        style={[styles.emptyContainer, {backgroundColor: color.background}]}>
+        style={[styles.emptyContainer, { backgroundColor: color.background }]}>
         <Image
           source={require('../../../../assets/icon/block-user.png')}
           style={styles.emptyImage}
           resizeMode="contain"
         />
-        <Text style={[styles.emptyTitle, {color: color.text}]}>
+        <Text style={[styles.emptyTitle, { color: color.text }]}>
           Người dùng hiện tại chưa có người theo dõi
         </Text>
-        <Text style={[styles.emptySubtitle, {color: color.textSecondary}]}>
+        <Text style={[styles.emptySubtitle, { color: color.textSecondary }]}>
           Khi có người theo dõi, họ sẽ xuất hiện ở đây
         </Text>
       </View>
@@ -204,24 +205,24 @@ const UserFollowersTab = ({route}: any) => {
   }
 
   return (
-    <View style={{flex: 1, backgroundColor: color.background}}>
+    <View style={{ flex: 1, backgroundColor: color.background }}>
       <View
         style={[
           styles.searchBarArea,
-          {backgroundColor: color.background, borderBottomColor: color.border},
+          { backgroundColor: color.background, borderBottomColor: color.border },
         ]}>
         <View style={[styles.searchBarContainer]}>
           <TextInput
             style={[
               styles.searchBar,
-              {color: color.text, backgroundColor: color.lessBlack},
+              { color: color.text, backgroundColor: color.lessBlack },
             ]}
             placeholder="Tìm kiếm"
             placeholderTextColor={color.text}
           />
           <Image
             source={require('../../../../assets/icon/search.png')}
-            style={[styles.searchIcon, {tintColor: color.text}]}
+            style={[styles.searchIcon, { tintColor: color.text }]}
           />
         </View>
       </View>
@@ -333,8 +334,8 @@ const styles = StyleSheet.create({
   listContent: {
     paddingTop: 70,
   },
-  center: {flex: 1, justifyContent: 'center', alignItems: 'center'},
-  errorText: {fontSize: 16},
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  errorText: { fontSize: 16 },
   emptyContainer: {
     flex: 1,
     alignItems: 'center',
