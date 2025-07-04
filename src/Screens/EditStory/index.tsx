@@ -30,6 +30,7 @@ import axiosInstance from '../../../services/axiosInstance';
 import {Dimensions} from 'react-native';
 import {X, ChevronRight} from 'lucide-react-native';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+import { data } from '../ChangePassword/Data';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -318,7 +319,7 @@ export const EditStory = ({route, navigation}: any) => {
               body: `Người dùng ${user?.handleName} vừa đăng một tin mới.`,
               data: {
                 type: 'story',
-                postId: storyResult._id,
+                postId: res.data?.data?._id,
               },
             },
             {
