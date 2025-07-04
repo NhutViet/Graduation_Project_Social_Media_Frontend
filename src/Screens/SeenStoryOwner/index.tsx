@@ -56,10 +56,6 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
   const user = useSelector((state: RootState) => state.user.user);
   const [currentIndex, setCurrentIndex] = useState(0);
   
-  // ✅ Debug currentIndex changes
-  useEffect(() => {
-    console.log(`📍 currentIndex changed to: ${currentIndex}/${stories.length - 1}`);
-  }, [currentIndex, stories.length]);
   const [isVideoPaused, setIsVideoPaused] = useState(false);
   const selectedItem = stories[currentIndex];
   const [videoDuration, setVideoDuration] = useState<number | null>(null);
@@ -101,9 +97,9 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
 
   // ✅ Update progress anims when stories change
   useEffect(() => {
-    console.log(`🔍 Stories length changed: ${stories.length}, progressAnims.length: ${progressAnims.length}`);
+
     if (stories.length !== progressAnims.length) {
-      console.log(`📍 Updating progressAnims arrays for ${stories.length} stories`);
+    
       progressAnims.splice(0, progressAnims.length);
       progressAnims.push(...stories.map(() => new Animated.Value(0)));
       progressValues.splice(0, progressValues.length);
@@ -191,7 +187,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
   }, [currentIndex]);
   // hàm next story
   const goToNextStory = () => {
-    console.log(`🔍 DEBUG goToNextStory - currentIndex: ${currentIndex}, stories.length: ${stories.length}`);
+
     
     if (isNavigatingRef.current) return;
     isNavigatingRef.current = true;
@@ -199,13 +195,13 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
     const maxIndex = stories.length - 1;
 
     if (currentIndexRef.current < maxIndex) {
-      console.log(`📱 Next story within same user: ${currentIndexRef.current + 1}/${maxIndex + 1}`);
+   
       setVideoDuration(null);
       setMusicDuration(null);
       setIsVideoPaused(false);
       setMusicDuration(null);
       setCurrentIndex(prev => {
-        console.log(`📍 goToNextStory: updating currentIndex from ${prev} to ${prev + 1}`);
+       
         return prev + 1;
       });
 
@@ -218,7 +214,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
       while (nextGroupIndex < storyGroups.length) {
         const nextGroup = storyGroups[nextGroupIndex];
         if (nextGroup?.stories?.length > 0) {
-          console.log(`📱 Moving to next user group: ${nextGroup.creator.username} (index ${nextGroupIndex})`);
+
           debugStoryGroups(storyGroups, nextGroupIndex, 'Navigation: Next Group');
           
           const isOwner =
@@ -240,7 +236,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
         nextGroupIndex++;
       }
 
-      console.log('📱 No more story groups, going back');
+    
       navigation.goBack();
     }
   };
@@ -255,11 +251,11 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
     if (isNavigatingRef.current) return;
     isNavigatingRef.current = true;
 
-    console.log(`🔍 DEBUG goToPreviousStory - currentIndex: ${currentIndex}, stories.length: ${stories.length}`);
+   
     
     // ✅ Nếu không phải story đầu tiên (index > 0), quay về story trước đó trong cùng group
     if (currentIndexRef.current > 0) {
-      console.log(`📱 Previous story within same user: ${currentIndexRef.current - 1}/${stories.length - 1}`);
+     
       
       // Reset states trước khi chuyển
       setVideoDuration(null);
@@ -267,7 +263,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
       setIsVideoPaused(false);
       
       setCurrentIndex(prev => {
-        console.log(`📍 goToPreviousStory: updating currentIndex from ${prev} to ${prev - 1}`);
+       
         return prev - 1;
       });
 
@@ -277,17 +273,16 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
       return;
     }
     
-    // ✅ Nếu đang ở story đầu tiên (index 0), tìm previous group
-    console.log(`📱 At first story of current group (index 0), looking for previous group...`);
+  
     
     let prevGroupIndex = storyGroupIndex - 1;
     
-    // ✅ Tìm previous group có stories
+    // Tìm previous group có stories
     while (prevGroupIndex >= 0) {
       const prevGroup = storyGroups[prevGroupIndex];
       
       if (prevGroup?.stories?.length > 0) {
-        console.log(`📱 Moving to previous user group: ${prevGroup.creator.username} (index ${prevGroupIndex})`);
+    
         debugStoryGroups(storyGroups, prevGroupIndex, 'Navigation: Previous Group');
         
         const isOwner =
@@ -310,8 +305,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
       prevGroupIndex--;
     }
     
-    // ✅ Không còn previous group nào có stories
-    console.log('📱 No previous story groups with stories, going back');
+ 
     navigation.goBack();
   };
   // hàm thanh ProgressBar chạy
@@ -369,10 +363,10 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
   };
   const debouncedHandleTouch = useRef(
     debounce((locationX: number | null) => {
-      console.log(`🔍 Touch handler - locationX: ${locationX}, screenWidth: ${screenWidth}`);
+    
       
       if (locationX == null) {
-        console.log('🔍 Touch - null location, toggling pause');
+        
         toggleVideoPause();
         return;
       }
@@ -381,13 +375,13 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
       const rightThird = (screenWidth * 2) / 3;
       
       if (locationX < leftThird) {
-        console.log(`🔍 Touch - left third (${locationX} < ${leftThird}), calling goToPreviousStory`);
+       
         goToPreviousStory();
       } else if (locationX > rightThird) {
-        console.log(`🔍 Touch - right third (${locationX} > ${rightThird}), calling goToNextStory`);
+        
         goToNextStory();
       } else {
-        console.log(`🔍 Touch - middle (${leftThird} <= ${locationX} <= ${rightThird}), toggling pause`);
+       
         toggleVideoPause();
       }
     }, 300),
@@ -438,8 +432,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
   };
 
   useEffect(() => {
-    console.log(`🔍 useEffect triggered - currentIndex: ${currentIndex}, stories.length: ${stories.length}`);
-    console.log(`🔍 stories[currentIndex] exists: ${!!stories[currentIndex]}`);
+   
     
     setIsVideoLoaded(false);
     setIsMusicLoaded(false);
@@ -450,19 +443,19 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
 
     // ✅ Kiểm tra kỹ hơn trước khi goBack
     if (!stories || stories.length === 0) {
-      console.log('❌ No stories array available, going back');
+     
       navigation.goBack();
       return;
     }
     
     if (currentIndex < 0 || currentIndex >= stories.length) {
-      console.log(`❌ currentIndex ${currentIndex} out of bounds (0-${stories.length - 1}), going back`);
+      
       navigation.goBack();
       return;
     }
     
     if (!stories[currentIndex]) {
-      console.log(`❌ Story at index ${currentIndex} is null/undefined, going back`);
+    
       navigation.goBack();
       return;
     }
@@ -573,7 +566,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
   };
 
   if (!stories || stories.length === 0) {
-    console.warn('🚫 No stories available');
+   
     navigation.goBack();
     return null;
   }

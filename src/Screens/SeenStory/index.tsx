@@ -151,7 +151,7 @@ export const SeenStory = ({route, navigation}: any) => {
     stopCurrentAnimation();
 
     if (currentIndex < stories.length - 1) {
-      console.log(`📱 Next story within same user: ${currentIndex + 1}/${stories.length}`);
+     
       setCurrentIndex(currentIndex + 1);
     } else {
       const nextGroupIndex = storyGroupIndex + 1;
@@ -159,7 +159,7 @@ export const SeenStory = ({route, navigation}: any) => {
       if (nextGroupIndex < currentStoryGroups.length) {
         const nextGroup = currentStoryGroups[nextGroupIndex];
         
-        console.log(`📱 Moving to next user group: ${nextGroup.creator.username} (index ${nextGroupIndex})`);
+      
         debugStoryGroups(currentStoryGroups, nextGroupIndex, 'Navigation: Next Group');
         
         // ✅ Check if next group belongs to current user
@@ -219,12 +219,10 @@ export const SeenStory = ({route, navigation}: any) => {
     stopCurrentAnimation();
 
     if (currentIndex > 0) {
-      // ✅ Lùi trong cùng user group
-      console.log(`📱 Previous story within same user: ${currentIndex - 1}/${stories.length}`);
+  
       setCurrentIndex(currentIndex - 1);
     } else {
-      // ✅ Đang ở story đầu tiên của group, tìm previous group
-      console.log(`📱 At first story of current group, looking for previous group...`);
+    
       
       let prevGroupIndex = storyGroupIndex - 1;
 
@@ -233,7 +231,7 @@ export const SeenStory = ({route, navigation}: any) => {
         const prevGroup = currentStoryGroups[prevGroupIndex];
 
         if (prevGroup?.stories?.length > 0) {
-          console.log(`📱 Moving to previous user group: ${prevGroup.creator.username} (index ${prevGroupIndex})`);
+      
           debugStoryGroups(currentStoryGroups, prevGroupIndex, 'Navigation: Previous Group');
 
           // ✅ Check ownership properly  
@@ -250,15 +248,12 @@ export const SeenStory = ({route, navigation}: any) => {
             timestamp: Date.now(),
           });
           
-          return; // ✅ Tìm thấy và navigate thành công
+          return; 
         }
-        
-        // ✅ Group này không có stories, thử group trước đó
+   
         prevGroupIndex--;
       }
-      
-      // ✅ Chỉ goBack khi thực sự không còn previous group nào có stories
-      console.log('📱 No previous story groups with stories, going back');
+  
       navigation.goBack();
     }
   };
