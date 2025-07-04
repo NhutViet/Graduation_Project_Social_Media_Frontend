@@ -101,6 +101,7 @@ export const NotificationsScreen = () => {
   );
 
   const handlePress = (noti: ItemNoti) => {
+    console.log('Pressed Noti:', noti);
     const type = noti.data?.type;
     switch (type) {
       case 'comment':
@@ -109,13 +110,22 @@ export const NotificationsScreen = () => {
         }
         break;
       case 'like':
+        if (noti.data?.postId) {
+          navigation.navigate('PostDetailScreen', {postId: noti.data.postId});
+        }
         break;
       case 'unlike':
+        if (noti.data?.postId) {
+          navigation.navigate('PostDetailScreen', {postId: noti.data.postId});
+        }
         break;
       case 'follow':
         navigation.navigate('ProfileComp', {userID: noti.data?.userId});
         break;
       case 'post':
+        if (noti.data?.postId) {
+          navigation.navigate('PostDetailScreen', {postId: noti.data.postId});
+        }
         break;
       case 'story':
         break;
