@@ -24,6 +24,7 @@ import {Keyboard} from 'react-native';
 import ModalShare, {ModalShareHandle} from './components/ModalShare';
 import StoryLoadingSkeleton from '../../(tabs)/Home/components/StoryLoadingSkeleton';
 import {debugStoryGroups} from '../../(tabs)/Home/util';
+import { renderTextWithMentions } from '../../util/storyTextRenderer';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -81,7 +82,7 @@ export const SeenStory = ({route, navigation}: any) => {
   const [isMediaLoading, setIsMediaLoading] = useState(true);
   const shareModalRef = useRef<ModalShareHandle>(null);
 
-  // ✅ Listen for parameter updates
+  // ✅ Listen for parameter updates and navigation focus
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       const params = route.params;
@@ -91,10 +92,26 @@ export const SeenStory = ({route, navigation}: any) => {
         setCurrentCreator(params.creator || {});
         setIsDataLoading(params.isLoading || false);
       }
+      
+      // ✅ Resume story khi quay lại từ profile
+      if (isPaused) {
+        setIsPaused(false);
+      }
     });
 
-    return unsubscribe;
-  }, [navigation, route.params]);
+    // ✅ Listen for blur event (khi navigate away)
+    const blurUnsubscribe = navigation.addListener('blur', () => {
+      // Pause story khi navigate away
+      if (!isPaused) {
+        setIsPaused(true);
+      }
+    });
+
+    return () => {
+      unsubscribe();
+      blurUnsubscribe();
+    };
+  }, [navigation, route.params, isPaused]);
 
   // ✅ Update progress anims when stories change
   useEffect(() => {
@@ -176,7 +193,7 @@ export const SeenStory = ({route, navigation}: any) => {
           timestamp: Date.now(),
         });
       } else {
-        console.log('📱 No more story groups, going back');
+
         navigation.goBack();
       }
     }
@@ -304,56 +321,128 @@ export const SeenStory = ({route, navigation}: any) => {
 
   const renderCaption = () => {
     const content = selectedItem?.content;
-    if (!content?.text) return null;
+    const tags = selectedItem?.tags;
+    
+    
+  
+    const fullText = content?.text || '';
+    
+  
+    const validTags = tags?.filter((tag: any) => tag.user && tag.handleName) || [];
 
-    const {x = 50, y = 50} = content;
+    
+    const mentionsText = validTags.map((tag: any) => `@${tag.handleName}`).join(' ') || '';
+    const combinedText = fullText && mentionsText ? `${fullText} ${mentionsText}` : fullText || mentionsText;
+    
+  
+    
+    if (!combinedText) {
+      console.log('❌ [SeenStory] No combined text to display');
+      return null;
+    }
+
+    const {x = 50, y = 50} = content || {};
     const left = (x / 100) * (mediaSize.width || screenWidth);
     const top = (y / 100) * (mediaSize.height || screenHeight);
 
+    // Tạo mention data để có thể click từ valid tags only (adapt to backend structure)
+    const mentionData = validTags.map((tag: any) => ({
+      handleName: tag.handleName,
+      _id: tag.user // user field is the ID string
+    }));
+
+    const handleMentionPress = (userId: string) => {
+      // ✅ Story sẽ tự động pause thông qua blur listener
+      navigation.navigate('ProfileComp', { userID: userId });
+    };
+
     return (
-      <Text
+      <TouchableOpacity
         style={{
           position: 'absolute',
-          color: '#fff',
-          fontSize: 18,
-          fontWeight: '600',
           left,
           top,
-        }}>
-        {content.text}
-      </Text>
+        }}
+        activeOpacity={1}
+      >
+        {renderTextWithMentions(
+          combinedText,
+          mentionData,
+          handleMentionPress,
+          {
+            color: '#fff',
+            fontSize: 18,
+            fontWeight: '600',
+          },
+          {
+            color: '#4A90E2',
+            fontWeight: '700',
+          }
+        )}
+      </TouchableOpacity>
     );
   };
 
   const renderTags = () => {
     const tags = selectedItem?.tags || [];
+   
 
-    return tags.map(({tag, index}: any) => {
-      const {user, position} = tag;
-      if (!user) return null;
+    return tags.map((tagData: any, index: number) => {
+
+      const { user: userId, position, handleName, username } = tagData;
+      
+      if (!userId || !position || !handleName) {
+        console.log('❌ [SeenStory] Missing required tag data:', {userId, position, handleName});
+        return null;
+      }
 
       const {x, y} = position;
-      const {username, handleName} = user;
+      
+      // ✅ Use data directly from tag object (backend puts user info at tag level)
+      const finalUserData = {
+        _id: userId, // user field is the ID
+        handleName: handleName,
+        username: username,
+      };
+      
+ 
 
       const tagPosition = getCaptionPosition(x * 100, y * 100);
 
+      const handleTagPress = () => {
+      
+        if (finalUserData._id) {
+      
+       
+          navigation.navigate('ProfileComp', {
+            userID: finalUserData._id,
+          });
+        } else {
+          console.log('❌ [SeenStory] No userID found');
+        }
+      };
+
       return (
-        <View
+        <TouchableOpacity
           key={index}
+          onPress={handleTagPress}
+          activeOpacity={0.7}
           style={{
             position: 'absolute',
             left: tagPosition.left,
             top: tagPosition.top,
-            backgroundColor: 'rgba(0, 0, 0, 0.6)',
-            paddingHorizontal: 10,
-            paddingVertical: 5,
-            borderRadius: 12,
-            zIndex: 10,
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            paddingHorizontal: 12,
+            paddingVertical: 8,
+            borderRadius: 15,
+            zIndex: 999,
+            borderWidth: 1,
+            borderColor: 'rgba(255, 255, 255, 0.3)',
           }}>
-          <Text style={{color: '#fff', fontSize: 14, fontWeight: '500'}}>
-            @{handleName}
+          <Text style={{color: '#fff', fontSize: 14, fontWeight: '600'}}>
+            @{finalUserData.handleName}
           </Text>
-        </View>
+        </TouchableOpacity>
       );
     });
   };
@@ -453,7 +542,7 @@ export const SeenStory = ({route, navigation}: any) => {
           isMediaLoading={isMediaLoading}
         />
         {renderCaption()}
-        {renderTags()}
+        {/* {renderTags()} */}
       </TouchableOpacity>
       <Footer
         onLike={handleLike}

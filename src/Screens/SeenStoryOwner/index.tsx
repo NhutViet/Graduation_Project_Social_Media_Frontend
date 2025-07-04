@@ -28,6 +28,7 @@ import ModalSeeMore from './component/ModelSeeMore';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 import StoryLoadingSkeleton from '../../(tabs)/Home/components/StoryLoadingSkeleton';
 import {debugStoryGroups} from '../../(tabs)/Home/util';
+import { renderTextWithMentions } from '../../util/storyTextRenderer';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -43,6 +44,9 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
     storyGroupIndex: initialStoryGroupIndex = 0,
     isLoading = false,
   } = route.params;
+  
+  // ✅ Get following users for user lookup
+  const {followingUsers} = useSelector((state: RootState) => state.stories);
 
   // ✅ State để handle loading và update params
   const [storyGroups, setStoryGroups] = useState(initialStoryGroups);
@@ -81,7 +85,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
   const imageDuration = 15000;
   const isCurrentUserStory = creator?.username === user?.handleName;
 
-  // ✅ Listen for parameter updates
+  // ✅ Listen for parameter updates and navigation focus
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       const params = route.params;
@@ -90,10 +94,26 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
         setStoryGroupIndex(params.storyGroupIndex || 0);
         setIsDataLoading(params.isLoading || false);
       }
+      
+      // ✅ Resume story khi quay lại từ profile
+      if (isVideoPaused) {
+        setIsVideoPaused(false);
+      }
     });
 
-    return unsubscribe;
-  }, [navigation, route.params]);
+    // ✅ Listen for blur event (khi navigate away)
+    const blurUnsubscribe = navigation.addListener('blur', () => {
+      // Pause story khi navigate away
+      if (!isVideoPaused) {
+        setIsVideoPaused(true);
+      }
+    });
+
+    return () => {
+      unsubscribe();
+      blurUnsubscribe();
+    };
+  }, [navigation, route.params, isVideoPaused]);
 
   // ✅ Update progress anims when stories change
   useEffect(() => {
@@ -163,7 +183,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
       }
       
     } catch (error) {
-      console.error('❌ Xoá story thất bại:', error);
+     
       GlobalAlertManager.show('Thất bại', 'Không thể xoá story');
       // ✅ Đóng modal nếu có lỗi
       setVisibleSeeMore(false);
@@ -502,51 +522,126 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
   // caption
   const renderCaption = () => {
     const content = selectedItem?.content;
-    if (!content?.text) return null;
+    const tags = selectedItem?.tags;
+    
+    
+    // Combine content text và mentions từ tags
+    const fullText = content?.text || '';
+    
+    // ✅ Adapt to backend structure: handleName is at tag level, not nested under user
+    const validTags = tags?.filter((tag: any) => tag.user && tag.handleName) || [];
 
-    const position = getCaptionPosition(content.x || 50, content.y || 50);
+    
+    const mentionsText = validTags.map((tag: any) => `@${tag.handleName}`).join(' ') || '';
+    const combinedText = fullText && mentionsText ? `${fullText} ${mentionsText}` : fullText || mentionsText;
+    
+ 
+    
+    if (!combinedText) {
+      console.log('❌ No combined text to display');
+      return null;
+    }
+
+    const position = getCaptionPosition(content?.x || 50, content?.y || 50);
+    
+    // Tạo mention data để có thể click từ valid tags only (adapt to backend structure)
+    const mentionData = validTags.map((tag: any) => ({
+      handleName: tag.handleName,
+      _id: tag.user // user field is the ID string
+    }));
+
+    const handleMentionPress = (userId: string) => {
+      // ✅ Story sẽ tự động pause thông qua blur listener
+      navigation.navigate('ProfileComp', { userID: userId });
+    };
+
     return (
-      <Text
+      <TouchableOpacity
         style={{
           position: 'absolute',
-          color: '#fff',
-          fontSize: 18,
-          fontWeight: '600',
           ...position,
-        }}>
-        {content.text}
-      </Text>
+        }}
+        activeOpacity={1}
+      >
+        {renderTextWithMentions(
+          combinedText,
+          mentionData,
+          handleMentionPress,
+          {
+            color: '#fff',
+            fontSize: 18,
+            fontWeight: '600',
+          },
+          {
+            color: '#4A90E2',
+            fontWeight: '700',
+          }
+        )}
+      </TouchableOpacity>
     );
   };
   // tag
   const renderTags = () => {
     const tags = selectedItem?.tags || [];
-    return tags.map(({tag, index}: any) => {
-      const {user, position} = tag;
-      if (!user) return null;
+    
+    
+    return tags.map((tagData: any, index: number) => {
+     
+      
+      
+      const { user: userId, position, handleName, username } = tagData;
+      
+      if (!userId || !position || !handleName) {
+        console.log('❌ Missing required tag data:', {userId, position, handleName});
+        return null;
+      }
 
       const {x, y} = position;
-      const {username, handleName} = user;
+      
+      // ✅ Use data directly from tag object (backend puts user info at tag level)
+      const finalUserData = {
+        _id: userId, // user field is the ID
+        handleName: handleName,
+        username: username,
+      };
+      
+     
 
       const tagPosition = getCaptionPosition(x * 100, y * 100);
 
+      const handleTagPress = () => {
+       
+        if (finalUserData._id) {
+         
+          navigation.navigate('ProfileComp', {
+            userID: finalUserData._id,
+          });
+        } else {
+          console.log('❌ No userID found');
+        }
+      };
+
       return (
-        <View
+        <TouchableOpacity
           key={index}
+          onPress={handleTagPress}
+          activeOpacity={0.7}
           style={{
             position: 'absolute',
             left: tagPosition.left,
             top: tagPosition.top,
-            backgroundColor: 'rgba(0, 0, 0, 0.6)',
-            paddingHorizontal: 10,
-            paddingVertical: 5,
-            borderRadius: 12,
-            zIndex: 10,
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            paddingHorizontal: 12,
+            paddingVertical: 8,
+            borderRadius: 15,
+            zIndex: 999,
+            borderWidth: 1,
+            borderColor: 'rgba(255, 255, 255, 0.3)',
           }}>
-          <Text style={{color: '#fff', fontSize: 14, fontWeight: '500'}}>
-            @{handleName}
+          <Text style={{color: '#fff', fontSize: 14, fontWeight: '600'}}>
+            @{finalUserData.handleName}
           </Text>
-        </View>
+        </TouchableOpacity>
       );
     });
   };
@@ -603,7 +698,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
           />
         ) : null}
         {renderCaption()}
-        {renderTags()}
+        {/* {renderTags()} */}
         {renderMusicInfo()}
       </View>
 
