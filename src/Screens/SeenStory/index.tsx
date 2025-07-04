@@ -6,6 +6,7 @@ import {
   Animated,
   TouchableOpacity,
   Dimensions,
+  ActivityIndicator,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../services/store';
@@ -18,10 +19,33 @@ import {Header} from './components/Header';
 import {ProgressBar} from './components/ProgressBar';
 import {MediaPlayer} from './components/MediaPlayer';
 import {Footer} from './components/Footer';
-import {ModalShare} from './components/modalShare';
+
+import {Keyboard} from 'react-native';
+import ModalShare, {ModalShareHandle} from './components/ModalShare';
+import StoryLoadingSkeleton from '../../(tabs)/Home/components/StoryLoadingSkeleton';
+import {debugStoryGroups} from '../../(tabs)/Home/util';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
+
+// ✅ Simple Loading Component as fallback
+const SimpleLoading = () => (
+  <View style={{
+    flex: 1,
+    backgroundColor: '#000',
+    justifyContent: 'center',
+    alignItems: 'center',
+  }}>
+    <ActivityIndicator size="large" color="#fff" />
+    <Text style={{
+      color: '#fff',
+      marginTop: 10,
+      fontSize: 16,
+    }}>
+      Đang tải story...
+    </Text>
+  </View>
+);
 
 export const SeenStory = ({route, navigation}: any) => {
   const {
@@ -29,7 +53,14 @@ export const SeenStory = ({route, navigation}: any) => {
     stories: routeStories = [],
     storyGroups = [],
     storyGroupIndex = 0,
+    isLoading = false,
   } = route.params || {};
+
+  // ✅ State để handle loading và update params
+  const [stories, setStories] = useState(routeStories);
+  const [currentStoryGroups, setCurrentStoryGroups] = useState(storyGroups);
+  const [currentCreator, setCurrentCreator] = useState(creator);
+  const [isDataLoading, setIsDataLoading] = useState(isLoading);
 
   const [currentIndex, setCurrentIndex] = useState(
     route.params?.initialIndex || 0,
@@ -41,19 +72,47 @@ export const SeenStory = ({route, navigation}: any) => {
   const [isMuted, setIsMuted] = useState(false);
   const [mediaSize, setMediaSize] = useState({width: 0, height: 0});
   const progressAnims = useRef<Animated.Value[]>(
-    routeStories.map(() => new Animated.Value(0)),
+    stories.map(() => new Animated.Value(0)),
   ).current;
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.user.user);
-  const [showShareModal, setShowShareModal] = useState(false);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   const [isMusicLoaded, setIsMusicLoaded] = useState(false);
   const [isMediaLoading, setIsMediaLoading] = useState(true);
+  const shareModalRef = useRef<ModalShareHandle>(null);
+
+  // ✅ Listen for parameter updates
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      const params = route.params;
+      if (params) {
+        setStories(params.stories || []);
+        setCurrentStoryGroups(params.storyGroups || []);
+        setCurrentCreator(params.creator || {});
+        setIsDataLoading(params.isLoading || false);
+      }
+    });
+
+    return unsubscribe;
+  }, [navigation, route.params]);
+
+  // ✅ Update progress anims when stories change
+  useEffect(() => {
+    if (stories.length !== progressAnims.length) {
+      progressAnims.splice(0, progressAnims.length);
+      progressAnims.push(...stories.map(() => new Animated.Value(0)));
+    }
+  }, [stories.length]);
 
   const selectedItem = useMemo(
-    () => routeStories[currentIndex] || {},
-    [routeStories, currentIndex],
+    () => stories[currentIndex] || {},
+    [stories, currentIndex],
   );
+
+  // ✅ Show loading skeleton if data is still loading or story is loading
+  if (isDataLoading || selectedItem.isLoading) {
+    return <StoryLoadingSkeleton />;
+  }
 
   useEffect(() => {
     const hasVideo = !!selectedItem?.uriVideo;
@@ -86,33 +145,49 @@ export const SeenStory = ({route, navigation}: any) => {
   const animationRef = useRef<Animated.CompositeAnimation | null>(null);
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const videoRef = useRef<any>(null);
+  
   // hàm next story
   const goToNextStory = () => {
     stopCurrentAnimation();
 
-    if (currentIndex < routeStories.length - 1) {
+    if (currentIndex < stories.length - 1) {
+     
       setCurrentIndex(currentIndex + 1);
     } else {
       const nextGroupIndex = storyGroupIndex + 1;
 
-      if (nextGroupIndex < storyGroups.length) {
-        const nextGroup = storyGroups[nextGroupIndex];
-        navigation.replace('SeenStory', {
-          storyGroups,
+      if (nextGroupIndex < currentStoryGroups.length) {
+        const nextGroup = currentStoryGroups[nextGroupIndex];
+        
+      
+        debugStoryGroups(currentStoryGroups, nextGroupIndex, 'Navigation: Next Group');
+        
+        // ✅ Check if next group belongs to current user
+        const isOwner = nextGroup.creator?.username === user?.handleName ||
+                       nextGroup.creator?._id === user?._id;
+        const routeName = isOwner ? 'SeenStoryOwner' : 'SeenStory';
+
+        navigation.replace(routeName, {
+          storyGroups: currentStoryGroups,
           storyGroupIndex: nextGroupIndex,
           creator: nextGroup.creator,
           stories: nextGroup.stories,
+          initialIndex: 0,
+          timestamp: Date.now(),
         });
       } else {
+        console.log('📱 No more story groups, going back');
         navigation.goBack();
       }
     }
   };
+  
   // hàm thanh ProgressBar hoạt dộng
   const startProgressAnimation = () => {
     animationRef.current?.stop();
 
     const anim = progressAnims[currentIndex];
+    if (!anim) return;
 
     // ⚠️ Chỉ reset nếu anim đang ở 0
     anim.stopAnimation(value => {
@@ -138,34 +213,48 @@ export const SeenStory = ({route, navigation}: any) => {
     animationRef.current?.stop();
     animationRef.current = null;
   };
+  
   // hàm lùi story
   const goToPreviousStory = () => {
     stopCurrentAnimation();
 
     if (currentIndex > 0) {
+  
       setCurrentIndex(currentIndex - 1);
     } else {
-      const prevGroupIndex = storyGroupIndex - 1;
+    
+      
+      let prevGroupIndex = storyGroupIndex - 1;
 
-      if (prevGroupIndex >= 0) {
-        const prevGroup = storyGroups[prevGroupIndex];
+      // ✅ Tìm previous group có stories
+      while (prevGroupIndex >= 0) {
+        const prevGroup = currentStoryGroups[prevGroupIndex];
 
-        const isOwner = prevGroup.creator?.username === user?.handleName;
-        const routeName = isOwner ? 'SeenStoryOwner' : 'SeenStory';
+        if (prevGroup?.stories?.length > 0) {
+      
+          debugStoryGroups(currentStoryGroups, prevGroupIndex, 'Navigation: Previous Group');
 
-        const routeKey = `${routeName}-${Date.now()}`;
-        navigation.replace(routeName, {
-          key: routeKey,
-          storyGroups,
-          storyGroupIndex: prevGroupIndex,
-          creator: prevGroup.creator,
-          stories: prevGroup.stories,
-          initialIndex: (prevGroup.stories.length || 1) - 1,
-          timestamp: Date.now(),
-        });
-      } else {
-        navigation.goBack();
+          // ✅ Check ownership properly  
+          const isOwner = prevGroup.creator?.username === user?.handleName ||
+                         prevGroup.creator?._id === user?._id;
+          const routeName = isOwner ? 'SeenStoryOwner' : 'SeenStory';
+
+          navigation.replace(routeName, {
+            storyGroups: currentStoryGroups,
+            storyGroupIndex: prevGroupIndex,
+            creator: prevGroup.creator,
+            stories: prevGroup.stories,
+            initialIndex: (prevGroup.stories.length || 1) - 1,
+            timestamp: Date.now(),
+          });
+          
+          return; 
+        }
+   
+        prevGroupIndex--;
       }
+  
+      navigation.goBack();
     }
   };
 
@@ -268,6 +357,21 @@ export const SeenStory = ({route, navigation}: any) => {
       );
     });
   };
+  // logic khi nhấn vàp textInput thì dứng story
+  useEffect(() => {
+    const keyboardDidShow = Keyboard.addListener('keyboardDidShow', () => {
+      setIsPaused(true);
+    });
+
+    const keyboardDidHide = Keyboard.addListener('keyboardDidHide', () => {
+      setIsPaused(false);
+    });
+
+    return () => {
+      keyboardDidShow.remove();
+      keyboardDidHide.remove();
+    };
+  }, []);
 
   useEffect(() => {
     const liked = selectedItem?.likedByUsers?.includes(user?._id);
@@ -288,7 +392,7 @@ export const SeenStory = ({route, navigation}: any) => {
       else anim.setValue(0);
     });
 
-    // ✅ Nếu không có video/music, start luôn
+    //  Nếu không có video/music, start luôn
     const hasVideo = !!selectedItem.uriVideo;
     const hasMusic = !!selectedItem.music?.link;
 
@@ -305,7 +409,10 @@ export const SeenStory = ({route, navigation}: any) => {
     }
   }, [isPaused]);
 
-  const handleOpenShare = () => setShowShareModal(true);
+  const handleOpenShare = () => {
+    stopCurrentAnimation();
+    shareModalRef.current?.open(); // phải dùng ref để mở Modal
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -315,8 +422,8 @@ export const SeenStory = ({route, navigation}: any) => {
         onPress={handleTouch}>
         <Header
           onClose={() => navigation.goBack()}
-          username={creator?.username}
-          profilePic={creator?.profilePic}
+          username={currentCreator?.username}
+          profilePic={currentCreator?.profilePic}
           pause={isPaused}
           onTogglePause={togglePause}
           mute={isMuted}
@@ -325,7 +432,7 @@ export const SeenStory = ({route, navigation}: any) => {
         />
         <ProgressBar
           progressAnims={progressAnims}
-          storyCount={routeStories.length}
+          storyCount={stories.length}
         />
         <MediaPlayer
           item={selectedItem}
@@ -355,8 +462,15 @@ export const SeenStory = ({route, navigation}: any) => {
         onPressSend={handleOpenShare}
       />
       <ModalShare
-        visible={showShareModal}
-        onClose={() => setShowShareModal(false)}
+        ref={shareModalRef}
+        onOpen={() => {
+          setIsPaused(true); // dừng story
+          stopCurrentAnimation(); // đảm bảo animation ngừng
+        }}
+        onClose={() => {
+          setIsPaused(false); // tiếp tục
+          startProgressAnimation(); // gọi lại animation!
+        }}
       />
     </SafeAreaView>
   );

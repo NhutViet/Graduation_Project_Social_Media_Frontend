@@ -10,7 +10,6 @@ import {
   SafeAreaView,
   Dimensions,
   ActivityIndicator,
-  Alert,
 } from 'react-native';
 import {FlashList} from '@shopify/flash-list';
 import {CameraRoll} from '@react-native-camera-roll/camera-roll';
@@ -20,7 +19,7 @@ import {useNavigation} from '@react-navigation/native';
 import BottomSheet, {BottomSheetRef} from './BottomSheet/BottomSheetMusic';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
-const ITEM_SIZE = Dimensions.get('window').width * 0.25 - 1;
+const ITEM_SIZE = Dimensions.get('window').width / 4;
 
 interface MediaItem {
   uri: string;
@@ -46,12 +45,14 @@ const PostStory = () => {
   const [mediaList, setMediaList] = useState<MediaItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [lastCursor, setLastCursor] = useState<string | null>(null);
+  const [hasNextPage, setHasNextPage] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const isFetchingRef = useRef(false);
 
-  //chọn nhạc
   const [selectedMusic, setSelectedMusic] = useState<MusicInfo | null>(null);
   const [songUrl, setSongUrl] = useState<string | null>(null);
 
-  //lấy ảnh của máy
   const requestPermissions = useCallback(async (): Promise<boolean> => {
     if (Platform.OS !== 'android') return true;
     try {
@@ -67,38 +68,69 @@ const PostStory = () => {
     }
   }, []);
 
-  const loadMedia = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const hasPermission = await requestPermissions();
-      if (!hasPermission) {
-        setError('Không có quyền truy cập thư viện media.');
-        return;
+  const loadMedia = useCallback(
+    async (loadMore = false) => {
+      if (isFetchingRef.current || (loadMore && !hasNextPage)) return;
+
+      isFetchingRef.current = true;
+      if (loadMore) {
+        setIsLoadingMore(true);
+      } else {
+        setIsLoading(true);
       }
 
-      const result = await CameraRoll.getPhotos({
-        first: 50,
-        assetType: 'All',
-        include: ['playableDuration', 'filename'],
-      });
+      try {
+        const hasPermission = await requestPermissions();
+        if (!hasPermission) {
+          setError('Không có quyền truy cập thư viện media.');
+          return;
+        }
 
-      const media: MediaItem[] = result.edges.map(edge => ({
-        uri: edge.node.image.uri,
-        type: edge.node.type,
-        duration: edge.node.image?.playableDuration || 0,
-        id: edge.node.image.filename || edge.node.image.uri,
-      }));
+        const result = await CameraRoll.getPhotos({
+          first: 50,
+          assetType: 'All',
+          include: ['playableDuration', 'filename'],
+          after: loadMore ? lastCursor || undefined : undefined,
+        });
 
-      setMediaList(media);
-    } catch {
-      setError('Lỗi khi tải media.');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [requestPermissions]);
+        const newMedia = result.edges.map(edge => ({
+          uri: edge.node.image.uri,
+          type: edge.node.type,
+          duration: edge.node.image?.playableDuration || 0,
+          id: edge.node.image.filename || edge.node.image.uri,
+        }));
 
-  //kiểm tra dữ liệu trước khi điều hướng
+        console.log(
+          'Loaded media:',
+          newMedia.length,
+          'Total:',
+          mediaList.length + newMedia.length,
+        );
+
+        setMediaList(prev => {
+          const newList = loadMore ? [...prev, ...newMedia] : newMedia;
+          console.log(
+            'Updated mediaList, length:',
+            newList.length,
+            'loadMore:',
+            loadMore,
+          );
+          return newList;
+        });
+        setLastCursor(result.page_info.end_cursor || null);
+        setHasNextPage(result.page_info.has_next_page);
+      } catch (err) {
+        console.error('Lỗi khi tải media:', err);
+        setError('Lỗi khi tải media.');
+      } finally {
+        setIsLoading(false);
+        setIsLoadingMore(false);
+        isFetchingRef.current = false;
+      }
+    },
+    [requestPermissions, lastCursor, hasNextPage],
+  );
+
   const validateNavigationData = useCallback(
     (item: MediaItem): boolean => {
       if (!item?.uri) {
@@ -125,10 +157,9 @@ const PostStory = () => {
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   }, []);
 
-  //khi nhấm vào item media
   const handleItemPress = useCallback(
     (item: MediaItem, selectedMusic?: MusicInfo, songUrl?: string) => {
-      if (!validateNavigationData) {
+      if (!validateNavigationData(item)) {
         return;
       }
       navigation.navigate('EditStory', {
@@ -170,9 +201,23 @@ const PostStory = () => {
     [formatDuration, handleItemPress, selectedMusic, songUrl],
   );
 
-  const keyExtractor = (item: any) => item.id;
+  const keyExtractor = (item: MediaItem, index: number) =>
+    `${item.id}_${index}`;
 
-  //tải media khi component được mount
+  const onEndReached = useCallback(() => {
+    console.log(
+      'onEndReached called, isLoading:',
+      isLoading,
+      'isLoadingMore:',
+      isLoadingMore,
+      'hasNextPage:',
+      hasNextPage,
+    );
+    if (!isLoading && !isLoadingMore && hasNextPage && !isFetchingRef.current) {
+      loadMedia(true);
+    }
+  }, [isLoading, isLoadingMore, hasNextPage, loadMedia]);
+
   useEffect(() => {
     loadMedia();
   }, [loadMedia]);
@@ -223,6 +268,21 @@ const PostStory = () => {
           ListEmptyComponent={
             <Text style={styles.emptyText}>Không tìm thấy media</Text>
           }
+          ListFooterComponent={
+            isLoadingMore ? (
+              <ActivityIndicator
+                size="small"
+                color={color.text}
+                style={{margin: 20}}
+              />
+            ) : null
+          }
+          onEndReachedThreshold={0.3}
+          onEndReached={onEndReached}
+          maintainVisibleContentPosition={{
+            minIndexForVisible: 0,
+            autoscrollToTopThreshold: 100,
+          }}
         />
       )}
 
@@ -239,14 +299,7 @@ const PostStory = () => {
   );
 };
 
-//component TopButton
-interface TopButtonProps {
-  icon: any;
-  label: string;
-  color: string;
-  onPress?: () => void;
-}
-
+// Component TopButton không thay đổi
 const TopButton = ({icon, label, onPress, color}: TopButtonProps) => (
   <TouchableOpacity style={styles.btnTop} onPress={onPress}>
     <View style={styles.iconBlock}>
@@ -261,10 +314,23 @@ const TopButton = ({icon, label, onPress, color}: TopButtonProps) => (
 );
 
 const styles = StyleSheet.create({
-  container: {flex: 1},
-  header: {flexDirection: 'row', margin: 15},
-  headerIcon: {width: 20, height: 20},
-  icon: {width: '100%', height: '100%', resizeMode: 'contain'},
+  // Styles không thay đổi, nhưng đảm bảo ITEM_SIZE khớp với thumbnailWrapper
+  container: {
+    flex: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    margin: 15,
+  },
+  headerIcon: {
+    width: 20,
+    height: 20,
+  },
+  icon: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
+  },
   topSection: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -279,15 +345,29 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  iconBlock: {height: 35, width: 60, padding: 2},
-  imgTop: {width: '100%', height: '100%'},
-  txtTop: {marginTop: 6, fontSize: 15, fontWeight: '400'},
+  iconBlock: {
+    height: 35,
+    width: 60,
+    padding: 2,
+  },
+  imgTop: {
+    width: '100%',
+    height: '100%',
+  },
+  txtTop: {
+    marginTop: 6,
+    fontSize: 15,
+    fontWeight: '400',
+  },
   mid: {
     flexDirection: 'row',
     alignItems: 'center',
     margin: 15,
   },
-  titleMid: {fontSize: 16, fontWeight: '500'},
+  titleMid: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
   grid: {paddingLeft: 1},
   thumbnailWrapper: {
     position: 'relative',
@@ -298,7 +378,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  thumbnail: {width: '100%', height: '100%'},
+  thumbnail: {
+    width: '100%',
+    height: '100%',
+  },
   durationContainer: {
     position: 'absolute',
     bottom: 4,
