@@ -1,7 +1,7 @@
-import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import {Colors} from '../../../../assets/color/Colors';
-import {useTheme} from '../../../util/ThemeContext';
-import {useNavigation} from '@react-navigation/native';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Colors } from '../../../../assets/color/Colors';
+import { useTheme } from '../../../util/ThemeContext';
+import { useNavigation } from '@react-navigation/native';
 
 interface ItemNewMessageProps {
   roomId: string;
@@ -20,7 +20,7 @@ const ItemNewMessage: React.FC<ItemNewMessageProps> = ({
   img1,
   img2,
 }) => {
-  const {theme} = useTheme();
+  const { theme } = useTheme();
   const color = Colors[theme];
   const navigation: any = useNavigation();
 
@@ -36,11 +36,11 @@ const ItemNewMessage: React.FC<ItemNewMessageProps> = ({
         <View
           style={[
             styles.imgContainer,
-            {overflow: img1 && !img2 ? 'hidden' : undefined},
+            { overflow: img1 && !img2 ? 'hidden' : undefined },
           ]}>
           {img2 && (
             <>
-              <Image style={styles.iconW} source={{uri: img1}} />
+              <Image style={styles.iconW} source={{ uri: img1 }} />
               <Image
                 style={[
                   styles.iconF,
@@ -49,17 +49,17 @@ const ItemNewMessage: React.FC<ItemNewMessageProps> = ({
                     backgroundColor: color.backgroundSecondary,
                   },
                 ]}
-                source={{uri: img2}}
+                source={{ uri: img2 }}
               />
             </>
           )}
-          {!img2 && img1 && <Image style={styles.img} source={{uri: img1}} />}
+          {!img2 && img1 && <Image style={styles.img} source={{ uri: img1 }} />}
         </View>
         <View>
-          <Text style={[styles.nameChat, {color: color.text}]}>{nameChat}</Text>
+          <Text style={[styles.nameChat, { color: color.text }]}>{nameChat}</Text>
           {latestMessage?.content && (
             <Text
-              style={[styles.textNormal, {color: color.text}]}
+              style={[styles.textNormal, { color: color.text }]}
               numberOfLines={1}>
               {latestMessage?.content}
             </Text>
@@ -68,7 +68,7 @@ const ItemNewMessage: React.FC<ItemNewMessageProps> = ({
       </View>
       <View style={styles.blockIcon}>
         <Image
-          style={[styles.img, {tintColor: color.text}]}
+          style={[styles.img, { tintColor: color.text }]}
           source={require('../../../../assets/icon/right.png')}
         />
       </View>

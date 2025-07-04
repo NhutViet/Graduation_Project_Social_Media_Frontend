@@ -1,5 +1,5 @@
-import {Dimensions, StyleSheet} from 'react-native';
-import {Colors} from '../../assets/color/Colors';
+import { Dimensions, StyleSheet } from 'react-native';
+import { Colors } from '../../assets/color/Colors';
 
 type ThemeType = 'light' | 'dark';
 const screenWidth = Dimensions.get('window').width - 20;
@@ -43,10 +43,11 @@ const MessageStyles = (theme: ThemeType) => {
       justifyContent: 'space-between',
     },
     rowContainer: {
-      width: '30%',
+      width: '25%',
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
+      marginRight: 5,
     },
     rowContainer1: {
       width: '25%',
@@ -117,14 +118,14 @@ const MessageStyles = (theme: ThemeType) => {
     },
     input: {
       flex: 1,
-      color: color.text,
+      color: color.black,
       height: 46,
       textAlignVertical: 'center',
     },
     containerMessage: {
       width: '100%',
       flexDirection: 'row',
-      paddingHorizontal: 10,
+      paddingHorizontal: 5,
       paddingVertical: 2,
     },
     blockAvatar: {
@@ -138,11 +139,11 @@ const MessageStyles = (theme: ThemeType) => {
       height: '100%',
     },
     row: {
-      width: '80%',
+      width: '100%',
     },
     message: {
       position: 'relative',
-      borderRadius: 10,
+      borderRadius: 20,
     },
     name: {
       fontSize: 16,
@@ -156,12 +157,11 @@ const MessageStyles = (theme: ThemeType) => {
       justifyContent: 'space-between',
       borderRadius: 30,
       paddingHorizontal: 10,
-      paddingVertical: 2,
+      paddingVertical: 4,
       margin: 10,
       position: 'relative',
     },
     blockCamera: {
-      backgroundColor: color.blue,
       padding: 8,
       alignItems: 'center',
       justifyContent: 'center',
@@ -189,7 +189,7 @@ const MessageStyles = (theme: ThemeType) => {
       elevation: 10,
       zIndex: 2,
       shadowColor: '#000',
-      shadowOffset: {width: 0, height: 2},
+      shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.2,
       shadowRadius: 4,
       paddingVertical: 4,
@@ -229,18 +229,38 @@ const MessageStyles = (theme: ThemeType) => {
       fontWeight: '600',
       color: color.text,
     },
-    callButton: {
-      width: '100%',
-      marginTop: 8,
-      paddingVertical: 6,
-      borderRadius: 6,
-      backgroundColor: color.background,
-      elevation: 2,
-      shadowColor: color.text,
-      shadowOffset: {width: 0, height: 1},
-      shadowOpacity: 0.1,
-      shadowRadius: 2,
+    wrapperCallButton: {
+      width: 170,
+      height: 90,
+      borderRadius: 20,
+      overflow: 'hidden',
+    },
+    topContainer: {
+      flex: 1,
+      padding: 10,
+      justifyContent: 'center',
+      backgroundColor: color.blue,
+    },
+    centerContent: {
+      flex: 1,
+      justifyContent: 'center',
+    },
+    textContent: {
+      fontSize: 14,
+      color: color.white,
+      textAlign: 'center',
+    },
+    bottomContainer: {
+      width: 170,
+      height: 40,
+      backgroundColor: color.bgInputText,
+      justifyContent: 'center',
       alignItems: 'center',
+    },
+    callText: {
+      fontSize: 14,
+      textAlign: 'center',
+      fontWeight: '500',
     },
   });
 };
