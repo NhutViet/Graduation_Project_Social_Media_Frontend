@@ -72,6 +72,7 @@ const LightTheme = {
   card: '#F8F8F8',
   secondary: '#8E8E8E',
   backgroundSecondary: '#F5F5F5',
+  bgInputText: '#f3f4f6',
 };
 
 const DarkTheme = {
@@ -86,6 +87,7 @@ const DarkTheme = {
   card: '#121212',
   secondary: '#A8A8A8',
   backgroundSecondary: '#363636',
+  bgInputText: 'rgba(255, 255, 255, 0.6)',
 };
 
 export const Colors = {
