@@ -53,7 +53,7 @@ const CommonColors = {
   white: '#FFFFFF',
   black: '#000000',
   transparent: 'transparent',
-  blue: '#0095F6',
+  blue: '#2563eb',
   orange: '#FFC107',
   input: '#DDDDDD',
   gray21: '#363636',
