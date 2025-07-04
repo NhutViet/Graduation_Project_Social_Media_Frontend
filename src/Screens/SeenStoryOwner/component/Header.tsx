@@ -96,7 +96,7 @@ const SeenStoryOwnerHeader: React.FC<Props> = ({
       <TouchableOpacity style={styles.viewUser}>
         <Image style={styles.avatar} source={{uri: creator?.profilePic}} />
         <Text style={styles.nameUser}>{creator?.username}</Text>
-        {/* {timeAgo ? <Text style={styles.textTime}>{timeAgo}</Text> : null} */}
+        {timeAgo ? <Text style={styles.textTime}>{timeAgo}</Text> : null}
       </TouchableOpacity>
       <TouchableOpacity style={styles.mute} onPress={onToggleMute}>
         {mute ? (

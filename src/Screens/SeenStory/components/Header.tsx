@@ -65,7 +65,7 @@ export const Header = ({
           />
         </TouchableOpacity>
         <Text style={styles.nameUser}>{username}</Text>
-        {/* {timeAgo ? <Text style={styles.textTime}>{timeAgo}</Text> : null} */}
+        {timeAgo ? <Text style={styles.textTime}>{timeAgo}</Text> : null}
       </View>
 
       <TouchableOpacity style={styles.mute} onPress={onToggleMute}>

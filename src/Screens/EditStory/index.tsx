@@ -43,7 +43,7 @@ export const EditStory = ({route, navigation}: any) => {
   const [videoCurrentTime, setVideoCurrentTime] = useState(0);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [hasShownModal, setHasShownModal] = useState(false);
-  const [filteredSuggestions, setFilteredSuggestions] = useState([]);
+  const [filteredSuggestions, setFilteredSuggestions] = useState<any[]>([]);
   const [caption, setCaption] = useState('');
   const progressAnim = useRef(new Animated.Value(0)).current;
   const animationRef = useRef<Animated.CompositeAnimation | null>(null);
@@ -235,6 +235,40 @@ export const EditStory = ({route, navigation}: any) => {
     );
   };
 
+  // Function để parse @mentions từ text
+  const parseMentionsFromText = (text: string) => {
+    console.log('🔍 Parsing mentions from text:', text);
+    console.log('👥 Following users available:', followingUsers.map(u => u.handleName));
+    
+    const mentionRegex = /@([a-zA-Z0-9._]+)/g;
+    const mentions: Array<{handleName: string, user: any}> = [];
+    let match;
+
+    while ((match = mentionRegex.exec(text)) !== null) {
+      const handleName = match[1];
+      console.log('🎯 Found mention:', handleName);
+      
+      const user = followingUsers.find(u => 
+        u.handleName.toLowerCase() === handleName.toLowerCase()
+      );
+      
+      if (user) {
+        console.log('✅ User found:', user.handleName, 'ID:', user._id);
+        mentions.push({handleName, user});
+      } else {
+        console.log('❌ User not found for handle:', handleName);
+      }
+    }
+
+    // Remove @mentions từ text để chỉ giữ content thuần
+    const cleanText = text.replace(mentionRegex, '').trim();
+    
+    console.log('🧹 Clean text:', cleanText);
+    console.log('🏷️ Extracted mentions:', mentions);
+    
+    return {cleanText, mentions};
+  };
+
   const handleUploadStory = async () => {
     try {
       setIsUploading(true);
@@ -276,7 +310,10 @@ export const EditStory = ({route, navigation}: any) => {
         typeof mediaUrl === 'string' && mediaUrl.trim() !== '';
       const isValidMusic =
         selectedMusic?.musicId && typeof selectedMusic.musicId === 'string';
-      const isValidContent = caption !== undefined && caption !== null;
+      const isValidContent = caption !== undefined && caption !== null && caption.trim() !== '';
+
+      // Parse mentions từ caption
+      const {cleanText, mentions} = parseMentionsFromText(caption);
 
       const payload: any = {};
       if (!isValidMedia) {
@@ -292,16 +329,34 @@ export const EditStory = ({route, navigation}: any) => {
         };
       }
 
-      if (isValidContent) {
+      // Chỉ gửi content nếu có text sau khi remove mentions
+      if (isValidContent && cleanText.length > 0) {
         payload.content = {
-          text: caption,
-          x: Number(positionRef.current.x) || 50, // Mặc định 50% nếu không kéo thả
-          y: Number(positionRef.current.y) || 50, // Mặc định 50% nếu không kéo thả
+          text: cleanText,
+          x: Number(positionRef.current.x) || 50,
+          y: Number(positionRef.current.y) || 50,
         };
       }
 
+      // Thêm tags nếu có mentions
+      if (mentions.length > 0) {
+        console.log('🏷️ Creating tags payload:', mentions);
+        payload.tags = mentions.map(mention => ({
+          user: mention.user._id, // Chỉ gửi ID string thay vì object
+          position: {
+            x: 0.5, // Default position, có thể customize sau
+            y: 0.3,
+          }
+        }));
+        console.log('📤 Final tags payload:', payload.tags);
+      }
+
+      console.log('📦 Final payload being sent:', JSON.stringify(payload, null, 2));
+      
       // ✅ Sử dụng Redux action thay vì direct API call
       const storyResult = await dispatch(createStory(payload)).unwrap();
+      
+      console.log('🎉 Story result from backend:', JSON.stringify(storyResult, null, 2));
 
       if (storyResult) {
         GlobalAlertManager.show('Thông báo', 'Đăng story thành công.');
@@ -319,7 +374,7 @@ export const EditStory = ({route, navigation}: any) => {
               body: `Người dùng ${user?.handleName} vừa đăng một tin mới.`,
               data: {
                 type: 'story',
-                postId: res.data?.data?._id,
+                postId: storyResult?._id,
               },
             },
             {
@@ -421,10 +476,8 @@ export const EditStory = ({route, navigation}: any) => {
                     x={!initialized ? positionRef.current.x : undefined}
                     y={!initialized ? positionRef.current.y : undefined}
                     onDragRelease={(event, gestureState) => {
-                      const mediaWidth =
-                        event.nativeEvent.layout?.width || screenWidth;
-                      const mediaHeight =
-                        event.nativeEvent.layout?.height || screenHeight;
+                      const mediaWidth = screenWidth;
+                      const mediaHeight = screenHeight;
 
                       const absoluteX = positionRef.current.x + gestureState.dx;
                       const absoluteY = positionRef.current.y + gestureState.dy;

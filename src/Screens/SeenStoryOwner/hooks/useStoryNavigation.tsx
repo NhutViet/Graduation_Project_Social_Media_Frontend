@@ -1,6 +1,6 @@
 import {useRef} from 'react';
 import {Animated} from 'react-native';
-import {View, Text, Dimensions} from 'react-native';
+import {View, Text, Dimensions, TouchableOpacity} from 'react-native';
 import {MediaSection} from '../component/MediaSection';
 export const useStoryNavigation = ({
   currentIndex,
@@ -21,7 +21,7 @@ export const useStoryNavigation = ({
     const maxIndex = stories.length - 1;
 
     if (currentIndexRef.current < maxIndex) {
-      setCurrentIndex(prev => prev + 1);
+      setCurrentIndex((prev: number) => prev + 1);
 
       setTimeout(() => {
         isNavigatingRef.current = false;
@@ -55,7 +55,7 @@ export const useStoryNavigation = ({
   };
 
   const goToPreviousStory = () => {
-    setCurrentIndex(prev => (prev > 0 ? prev - 1 : prev));
+    setCurrentIndex((prev: number) => (prev > 0 ? prev - 1 : prev));
   };
 
   return {
@@ -132,6 +132,7 @@ export const MediaContainer = ({
   paused,
   muted,
   isVideoLoaded,
+  navigation,
 }: any) => {
   const getCaptionPosition = ({xPercent, yPercent}: any) => {
     const width = mediaSize.width || screenWidth;
@@ -145,7 +146,7 @@ export const MediaContainer = ({
   const renderCaption = () => {
     const content = selectedItem?.content;
     if (!content?.text) return null;
-    const position = getCaptionPosition(content.x || 50, content.y || 50);
+    const position = getCaptionPosition({xPercent: content.x || 50, yPercent: content.y || 50});
     return (
       <Text
         style={{
@@ -162,16 +163,26 @@ export const MediaContainer = ({
 
   const renderTags = () => {
     const tags = selectedItem?.tags || [];
-    return tags.map(({tag, index}) => {
-      const {user, position} = tag;
+    return tags.map((tagData: any, index: number) => {
+      const {user, position} = tagData;
       if (!user) return null;
 
       const {x, y} = position;
-      const tagPosition = getCaptionPosition(x * 100, y * 100);
+      const {username, handleName, _id} = user;
+      const tagPosition = getCaptionPosition({xPercent: x * 100, yPercent: y * 100});
+
+      const handleTagPress = () => {
+        if (_id) {
+          navigation.navigate('ProfileComp', {
+            userID: _id,
+          });
+        }
+      };
 
       return (
-        <View
+        <TouchableOpacity
           key={index}
+          onPress={handleTagPress}
           style={{
             position: 'absolute',
             left: tagPosition.left,
@@ -183,9 +194,9 @@ export const MediaContainer = ({
             zIndex: 10,
           }}>
           <Text style={{color: '#fff', fontSize: 14, fontWeight: '500'}}>
-            @{user.handleName}
+            @{handleName}
           </Text>
-        </View>
+        </TouchableOpacity>
       );
     });
   };

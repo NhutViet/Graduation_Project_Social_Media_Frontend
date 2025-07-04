@@ -201,6 +201,13 @@ export const createStory = createAsyncThunk<
       x: number;
       y: number;
     };
+    tags?: {
+      user: string; // Chỉ là Mongo ID string
+      position: {
+        x: number;
+        y: number;
+      };
+    }[];
   },
   {rejectValue: string}
 >('stories/createStory', async (payload, {rejectWithValue}) => {
