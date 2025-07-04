@@ -33,43 +33,40 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
   });
   const rejectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const handleCall = () => {
-    if (socket) {
-      socket.emit('incomingCall', {
-        callerName: userC?.username,
-        type: 'video',
-        roomId: room?._id,
-      });
+  const buildAvatars = () => {
+    const avatars: Record<string, string> = {};
+    if (userC?._id && userC?.profilePic) {
+      avatars[userC._id] = userC.profilePic;
     }
+    if (user1?._id && user1?.profilePic) {
+      avatars[user1._id] = user1.profilePic;
+    }
+    if (user2?._id && user2?.profilePic) {
+      avatars[user2._id] = user2.profilePic;
+    }
+    return avatars;
+  };
+
+  const startCall = (type: 'video' | 'voice') => {
+    const avatars = buildAvatars();
+    socket?.emit('incomingCall', {
+      callerName: userC?.username,
+      type,
+      roomId: room?._id,
+    });
 
     navigation.navigate('ZegoCallScreen', {
       userID: userC?._id,
       userName: userC?.username,
       callID: room?._id,
-      image: userC?.profilePic,
-      callType: 'video',
+      avatars,
+      callType: type,
       isCaller: true,
     });
   };
 
-  const handleVoiceCall = () => {
-    if (socket) {
-      socket.emit('incomingCall', {
-        callerName: userC?.username,
-        type: 'voice',
-        roomId: room?._id,
-      });
-    }
-
-    navigation.navigate('ZegoCallScreen', {
-      userID: userC?._id,
-      userName: userC?.username,
-      callID: room?._id,
-      image: userC?.profilePic,
-      callType: 'voice',
-      isCaller: true,
-    });
-  };
+  const handleCall = () => startCall('video');
+  const handleVoiceCall = () => startCall('voice');
 
   useEffect(() => {
     if (!socket) return;
@@ -91,12 +88,16 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
   const handleAcceptCall = () => {
     if (rejectTimeoutRef.current) clearTimeout(rejectTimeoutRef.current);
     setIncomingCall(prev => ({...prev, visible: false}));
+    const avatars = buildAvatars();
 
     navigation.navigate('ZegoCallScreen', {
       userID: userC?._id,
       userName: userC?.username,
       callID: room?._id,
       image: userC?.profilePic,
+      avatars,
+      callType: incomingCall.type,
+      isCaller: false,
     });
   };
 

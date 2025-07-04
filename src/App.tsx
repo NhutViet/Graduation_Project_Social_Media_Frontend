@@ -19,6 +19,11 @@ import {KeyboardAvoidingView} from 'react-native';
 import {useNotificationHandler} from '@services/notification/useNotification';
 import NotificationModal from '@services/notification/NotificationModal';
 import {navigationRef} from './NavigationService';
+import { LogBox } from 'react-native';
+LogBox.ignoreLogs([
+  'Warning: componentWillReceiveProps has been renamed'
+]);
+
 import {
   GlobalAlert,
   GlobalAlertManager,
