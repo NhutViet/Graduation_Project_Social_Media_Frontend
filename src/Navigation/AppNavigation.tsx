@@ -72,6 +72,8 @@ import ZegoCallScreen from '../Screens/ZegoCloud/ZegoCallScreen';
 import {navigationRef} from '../NavigationService';
 import AllReels from '../../components/AllReels';
 import AccountCenter from '../../src/Screens/AccountCenter';
+import InfoAccountCenter from '../../src/Screens/AccountCenter/InfoAccountCenter';
+import {User} from '@services/userRedux/userTypes';
 import PostDetailScreen from '../../components/PostDetailScreen';
 
 export type RootStackParamList = {
@@ -95,6 +97,7 @@ export type RootStackParamList = {
     image: string;
   };
   ProfileComp: {userID: string};
+  InfoAccountCenter: {user: User};
 };
 
 const Stack = createStackNavigator();
@@ -191,9 +194,16 @@ const AppNavigator = () => {
         <Stack.Screen name="HelpCenter" component={HelpCenter} />
         <Stack.Screen name="FAQScreen" component={FAQScreen} />
         <Stack.Screen name="ContactScreen" component={ContactScreen} />
-        <Stack.Screen name="ReportProblemScreen" component={ReportProblemScreen} />
-        <Stack.Screen name="SupportRequestsScreen" component={SupportRequestsScreen} />
+        <Stack.Screen
+          name="ReportProblemScreen"
+          component={ReportProblemScreen}
+        />
+        <Stack.Screen
+          name="SupportRequestsScreen"
+          component={SupportRequestsScreen}
+        />
         <Stack.Screen name="AccountCenter" component={AccountCenter} />
+        <Stack.Screen name="InfoAccountCenter" component={InfoAccountCenter} />
       </Stack.Navigator>
     </NavigationContainer>
   );

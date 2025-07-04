@@ -54,11 +54,7 @@ export const SwitchAccount: React.FC<SwitchAccountProps> = ({
                 borderColor: '#aaa',
               }}>
               {loggedInUsers.map(user => (
-                <AccountCenterComponent
-                  key={user._id}
-                  imageAccount={user.profilePic}
-                  nameAccount={user.username}
-                />
+                <AccountCenterComponent key={user._id} user={user} />
               ))}
 
               {/* Divider */}

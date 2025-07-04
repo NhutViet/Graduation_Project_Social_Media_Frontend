@@ -9,11 +9,11 @@ import AccountCenterComponent from './components/AccountCenterComponent';
 const AccountCenter = () => {
   const {theme} = useTheme();
   const color = Colors[theme];
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
   const loggedInUsers = useSelector(
     (state: RootState) => state.user.loggedInUsers,
   );
-  
+
   return (
     <View style={[styles.container, {backgroundColor: color.background}]}>
       <TouchableOpacity
@@ -33,14 +33,14 @@ const AccountCenter = () => {
       </Text>
       <View style={[styles.body, {borderColor: color.text}]}>
         {loggedInUsers.map(user => (
-          <AccountCenterComponent
-            key={user._id}
-            imageAccount={user.profilePic}
-            nameAccount={user.username}
-          />
+          <AccountCenterComponent key={user._id} user={user} />
         ))}
       </View>
-      <TouchableOpacity style={styles.btnAdd}>
+      <TouchableOpacity
+        style={styles.btnAdd}
+        onPress={() => {
+          navigation.navigate('SwitchAccount');
+        }}>
         <Text style={styles.btn}>Thêm tài khoản</Text>
       </TouchableOpacity>
     </View>
@@ -84,6 +84,7 @@ const styles = StyleSheet.create({
     padding: 12,
     alignItems: 'center',
     justifyContent: 'center',
+    borderColor: '#007AFF',
   },
   btn: {
     color: '#007AFF',

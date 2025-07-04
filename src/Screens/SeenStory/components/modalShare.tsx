@@ -4,7 +4,6 @@ import {
   View,
   Text,
   StyleSheet,
-  Pressable,
   TextInput,
   Image,
   TouchableOpacity,
@@ -45,7 +44,7 @@ interface ModalShareProps {
   onClose?: () => void;
 }
 
-const ModalShare = forwardRef<ModalShareHandle, ModalShareProps>(
+const ModalShareStory = forwardRef<ModalShareHandle, ModalShareProps>(
   ({isDark, onOpen, onClose}, ref) => {
     const {theme} = useTheme();
     let color;
@@ -425,4 +424,4 @@ const ModalShare = forwardRef<ModalShareHandle, ModalShareProps>(
   },
 );
 
-export default ModalShare;
+export default ModalShareStory;

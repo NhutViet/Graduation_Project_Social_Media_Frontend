@@ -10,6 +10,7 @@ import {
 import {Modalize} from 'react-native-modalize';
 import {Portal} from 'react-native-portalize';
 import {useTheme} from '../../../../src/util/ThemeContext';
+import {useNavigation} from '@react-navigation/native';
 
 export type ACNavigateRef = {
   open: () => void;
@@ -22,6 +23,7 @@ const ACNavigateModal = forwardRef<ACNavigateRef>((_, ref) => {
   const modalizeRef = useRef<Modalize>(null);
   const {theme} = useTheme();
   const color = Colors[theme];
+  const navigation = useNavigation<any>();
 
   useImperativeHandle(ref, () => ({
     open: () => modalizeRef.current?.open(),
@@ -41,16 +43,21 @@ const ACNavigateModal = forwardRef<ACNavigateRef>((_, ref) => {
             Thêm tài khoản
           </Text>
           <TouchableOpacity
-            style={[
-              styles.btn,
-              {backgroundColor: '#007AFF', borderColor: '#007AFF'},
-            ]}>
-            <Text style={[{color: color.text}, styles.text]}>
+            style={styles.btn}
+            onPress={() => {
+              navigation.navigate('SwitchAccount');
+              modalizeRef.current?.close();
+            }}>
+            <Text style={[{color: '#007AFF'}, styles.text]}>
               Đăng nhập vào tài khoản hiện có
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.btn, {borderColor: color.text, marginTop: 20}]}>
+            style={[styles.btn, {borderColor: color.text, marginTop: 20}]}
+            onPress={() => {
+              navigation.navigate('Register');
+              modalizeRef.current?.close();
+            }}>
             <Text style={[{color: color.text}, styles.text]}>
               Tạo tài khoản mới
             </Text>
@@ -90,6 +97,7 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 20,
     borderWidth: 1,
+    borderColor: '#007AFF',
   },
   text: {
     fontSize: 15,

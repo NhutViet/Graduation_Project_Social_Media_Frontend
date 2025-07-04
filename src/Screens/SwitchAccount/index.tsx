@@ -1,7 +1,5 @@
 import {
-  Alert,
   Image,
-  Modal,
   PermissionsAndroid,
   Platform,
   Text,
@@ -37,14 +35,10 @@ export const SwitchAccount = ({navigation}: any) => {
   const color = Colors[theme];
   const styles = LoginStyles();
   const SwitchStyles = SwitchAccountStyles(theme);
-  const [successModal, setSuccessModal] = useState(false);
-  const [errorModal, setErrorModal] = useState(false);
   const [isPassWord, setIsPassWord] = useState(true);
   //redux
   const dispatch = useDispatch<AppDispatch>();
-  const {isLoading, isError, errorMessage, isSuccess} = useSelector(
-    (state: RootState) => state.user,
-  );
+  const {isLoading} = useSelector((state: RootState) => state.user);
 
   const requestNotificationPermission = async () => {
     if (Platform.OS === 'android' && Platform.Version >= 33) {
@@ -94,27 +88,22 @@ export const SwitchAccount = ({navigation}: any) => {
     } catch (err) {
       console.warn('Lấy FCM token thất bại:', err);
     }
-    dispatch(fetchLogin({email, password, fcmToken}));
-  };
+    const resultAction = await dispatch(
+      fetchLogin({email, password, fcmToken}),
+    );
 
-  useEffect(() => {
-    if (isSuccess && !isLoading) {
-      setSuccessModal(true);
-      setTimeout(() => {
-        setSuccessModal(false);
-        if (isSuccess) {
-          navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
-        }
-        dispatch(resetStatus());
-      }, 2000);
-    } else if (!isSuccess && isError && !isLoading) {
-      setErrorModal(true);
-      setTimeout(() => {
-        setErrorModal(false);
-        dispatch(resetStatus());
-      }, 2000);
+    if (fetchLogin.fulfilled.match(resultAction)) {
+      GlobalAlertManager.show('Thành công', 'Đăng nhập thành công', () => {
+        navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
+      });
+    } else {
+      GlobalAlertManager.show(
+        'Thất bại',
+        resultAction.payload?.message ||
+          'Đăng nhập thất bại. Vui lòng thử lại.',
+      );
     }
-  }, [isError, isSuccess]);
+  };
 
   useEffect(() => {
     GoogleSignin.configure({
@@ -152,7 +141,15 @@ export const SwitchAccount = ({navigation}: any) => {
             fetchLogin({email, password: tempPassword, fcmToken}),
           );
 
-          if (!fetchLogin.fulfilled.match(loginAction)) {
+          if (fetchLogin.fulfilled.match(loginAction)) {
+            GlobalAlertManager.show(
+              'Thành công',
+              'Đăng nhập thành công',
+              () => {
+                navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
+              },
+            );
+          } else {
             GlobalAlertManager.show(
               'Thông báo',
               'Tài khoản này đã được đăng ký bằng hình thức khác.\nVui lòng dùng phương thức ban đầu.',
@@ -289,34 +286,6 @@ export const SwitchAccount = ({navigation}: any) => {
           </TouchableOpacity>
         </View>
       </View>
-      <Modal visible={successModal} transparent animationType="fade">
-        <View style={styles.modal}>
-          <View style={styles.modalContainer}>
-            <Image
-              source={require('../../../assets/icon/success.png')}
-              style={[styles.iconNoti, {tintColor: color.primary}]}
-            />
-            <Text style={[styles.textNoti, {color: color.primary}]}>
-              Đăng nhập thành công
-            </Text>
-            <Text style={styles.textContent}>Chào mừng bạn đã trở lại</Text>
-          </View>
-        </View>
-      </Modal>
-      <Modal visible={errorModal} transparent animationType="fade">
-        <View style={styles.modal}>
-          <View style={styles.modalContainer}>
-            <Image
-              source={require('../../../assets/icon/danger.png')}
-              style={[styles.iconNoti, {tintColor: color.error}]}
-            />
-            <Text style={[styles.textNoti, {color: color.error}]}>
-              Đã có lỗi xảy ra
-            </Text>
-            {isError && <Text style={styles.textContent}>{errorMessage}</Text>}
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 };

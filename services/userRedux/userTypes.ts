@@ -2,6 +2,7 @@ export interface User {
   deletedAt: boolean;
   _id: string;
   username: string;
+  password: string;
   email: string;
   phoneNumber: string;
   handleName: string;
@@ -44,4 +45,3 @@ export interface PublicUserRes {
   userFollowing: boolean;
   userBlocked: boolean;
 }
-

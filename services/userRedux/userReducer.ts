@@ -72,6 +72,11 @@ const UserReducer = createSlice({
       state.isErrorPublicProfile = false;
       state.errorMessagePublicProfile = '';
     },
+    removeLoggedInUser: (state, action) => {
+      state.loggedInUsers = state.loggedInUsers.filter(
+        user => user._id !== action.payload,
+      );
+    },
   },
   extraReducers: builder => {
     builder
@@ -181,5 +186,6 @@ export const {
   resetUser,
   resetPublicProfileStatus,
   clearPublicProfile,
+  removeLoggedInUser,
 } = UserReducer.actions;
 export default UserReducer.reducer;
