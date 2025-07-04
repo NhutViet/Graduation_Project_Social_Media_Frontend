@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {StyleSheet, View, Image} from 'react-native';
-import {ZegoUIKitPrebuiltCall} from '@zegocloud/zego-uikit-prebuilt-call-rn';
+import {ZegoUIKitPrebuiltCall, GROUP_VOICE_CALL_CONFIG, GROUP_VIDEO_CALL_CONFIG} from '@zegocloud/zego-uikit-prebuilt-call-rn';
 import {CallAppID, CallAppSign} from '../../../services/api';
 import {useNavigation} from '@react-navigation/native';
 import {useSocket} from '../../../services/SocketContext';
@@ -13,6 +13,7 @@ export default function ZegoCallScreen({route}: any) {
   const [callEnded, setCallEnded] = useState(false);
   const [callDuration, setCallDuration] = useState(0);
   const isVideoCall = callType === 'video';
+  const baseConfig = !isVideoCall ? GROUP_VOICE_CALL_CONFIG : GROUP_VIDEO_CALL_CONFIG;
 
   const handleCallCancelled = () => {
     if (callEnded) return;
@@ -60,14 +61,24 @@ export default function ZegoCallScreen({route}: any) {
         userName={userName}
         callID={callID}
         config={{
-          turnOnCameraWhenJoining: callType === 'video',
+          ...baseConfig,
+          turnOnCameraWhenJoining: isVideoCall,
           turnOnMicrophoneWhenJoining: true,
           useSpeakerWhenJoining: true,
-          layout: 'GROUP',
-          showCameraToggleButton: callType === 'video',
           showMicrophoneToggleButton: true,
           showAudioOutputButton: true,
           showEndCallButton: true,
+          bottomMenuBarConfig: {
+            // camera-related
+            showSwitchCameraButton: isVideoCall,
+            showCameraToggleButton: isVideoCall,
+
+            // audio and end button
+            showMicrophoneToggleButton: true,
+            showAudioOutputButton: true,
+            showEndCallButton: true,
+          },
+
           onCallEnd: () => {
             handleCallCancelled();
           },
