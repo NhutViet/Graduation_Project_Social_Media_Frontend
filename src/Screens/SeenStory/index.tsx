@@ -21,7 +21,7 @@ import {MediaPlayer} from './components/MediaPlayer';
 import {Footer} from './components/Footer';
 
 import {Keyboard} from 'react-native';
-import ModalShare, {ModalShareHandle} from './components/modalShare';
+import ModalShareStory, {ModalShareHandle} from './components/modalShare';
 import StoryLoadingSkeleton from '../../(tabs)/Home/components/StoryLoadingSkeleton';
 import {debugStoryGroups} from '../../(tabs)/Home/util';
 import { renderTextWithMentions } from '../../util/storyTextRenderer';
@@ -31,18 +31,20 @@ const screenHeight = Dimensions.get('window').height;
 
 // ✅ Simple Loading Component as fallback
 const SimpleLoading = () => (
-  <View style={{
-    flex: 1,
-    backgroundColor: '#000',
-    justifyContent: 'center',
-    alignItems: 'center',
-  }}>
-    <ActivityIndicator size="large" color="#fff" />
-    <Text style={{
-      color: '#fff',
-      marginTop: 10,
-      fontSize: 16,
+  <View
+    style={{
+      flex: 1,
+      backgroundColor: '#000',
+      justifyContent: 'center',
+      alignItems: 'center',
     }}>
+    <ActivityIndicator size="large" color="#fff" />
+    <Text
+      style={{
+        color: '#fff',
+        marginTop: 10,
+        fontSize: 16,
+      }}>
       Đang tải story...
     </Text>
   </View>
@@ -162,26 +164,29 @@ export const SeenStory = ({route, navigation}: any) => {
   const animationRef = useRef<Animated.CompositeAnimation | null>(null);
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const videoRef = useRef<any>(null);
-  
+
   // hàm next story
   const goToNextStory = () => {
     stopCurrentAnimation();
 
     if (currentIndex < stories.length - 1) {
-     
       setCurrentIndex(currentIndex + 1);
     } else {
       const nextGroupIndex = storyGroupIndex + 1;
 
       if (nextGroupIndex < currentStoryGroups.length) {
         const nextGroup = currentStoryGroups[nextGroupIndex];
-        
-      
-        debugStoryGroups(currentStoryGroups, nextGroupIndex, 'Navigation: Next Group');
-        
+
+        debugStoryGroups(
+          currentStoryGroups,
+          nextGroupIndex,
+          'Navigation: Next Group',
+        );
+
         // ✅ Check if next group belongs to current user
-        const isOwner = nextGroup.creator?.username === user?.handleName ||
-                       nextGroup.creator?._id === user?._id;
+        const isOwner =
+          nextGroup.creator?.username === user?.handleName ||
+          nextGroup.creator?._id === user?._id;
         const routeName = isOwner ? 'SeenStoryOwner' : 'SeenStory';
 
         navigation.replace(routeName, {
@@ -198,7 +203,7 @@ export const SeenStory = ({route, navigation}: any) => {
       }
     }
   };
-  
+
   // hàm thanh ProgressBar hoạt dộng
   const startProgressAnimation = () => {
     animationRef.current?.stop();
@@ -230,17 +235,14 @@ export const SeenStory = ({route, navigation}: any) => {
     animationRef.current?.stop();
     animationRef.current = null;
   };
-  
+
   // hàm lùi story
   const goToPreviousStory = () => {
     stopCurrentAnimation();
 
     if (currentIndex > 0) {
-  
       setCurrentIndex(currentIndex - 1);
     } else {
-    
-      
       let prevGroupIndex = storyGroupIndex - 1;
 
       // ✅ Tìm previous group có stories
@@ -248,12 +250,16 @@ export const SeenStory = ({route, navigation}: any) => {
         const prevGroup = currentStoryGroups[prevGroupIndex];
 
         if (prevGroup?.stories?.length > 0) {
-      
-          debugStoryGroups(currentStoryGroups, prevGroupIndex, 'Navigation: Previous Group');
+          debugStoryGroups(
+            currentStoryGroups,
+            prevGroupIndex,
+            'Navigation: Previous Group',
+          );
 
-          // ✅ Check ownership properly  
-          const isOwner = prevGroup.creator?.username === user?.handleName ||
-                         prevGroup.creator?._id === user?._id;
+          // ✅ Check ownership properly
+          const isOwner =
+            prevGroup.creator?.username === user?.handleName ||
+            prevGroup.creator?._id === user?._id;
           const routeName = isOwner ? 'SeenStoryOwner' : 'SeenStory';
 
           navigation.replace(routeName, {
@@ -264,13 +270,13 @@ export const SeenStory = ({route, navigation}: any) => {
             initialIndex: (prevGroup.stories.length || 1) - 1,
             timestamp: Date.now(),
           });
-          
-          return; 
+
+          return;
         }
-   
+
         prevGroupIndex--;
       }
-  
+
       navigation.goBack();
     }
   };
@@ -550,7 +556,7 @@ export const SeenStory = ({route, navigation}: any) => {
         scaleAnim={scaleAnim}
         onPressSend={handleOpenShare}
       />
-      <ModalShare
+      <ModalShareStory
         ref={shareModalRef}
         onOpen={() => {
           setIsPaused(true); // dừng story

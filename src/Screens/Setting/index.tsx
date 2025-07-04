@@ -1,6 +1,5 @@
 import {
   Image,
-  Modal,
   SafeAreaView,
   ScrollView,
   Switch,
@@ -8,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {useNavigation} from '@react-navigation/native';
@@ -26,50 +25,37 @@ import {
 } from 'lucide-react-native';
 import PersonalDetails from './PersonalDetail';
 import ContactInfo from './ContactInfo';
-import {useDispatch, useSelector} from 'react-redux';
+import {useDispatch} from 'react-redux';
 import {fetchLogout} from '../../../services/userRedux/userSlice';
-import {AppDispatch, RootState} from '../../../services/store';
-import {resetStatus} from '../../../services/userRedux/userReducer';
+import {AppDispatch} from '../../../services/store';
 import {resetBookmarkState} from '../../../services/bookmarkRedux/bookmarkReducer';
 import {resetReaction} from '../../../services/reactionRedux/reactionReducer';
+import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
 export const Setting = () => {
   const navigation: any = useNavigation();
   const {theme, toggleTheme} = useTheme();
   const styles = createStyles(theme);
   const mColor = Colors[theme] || Colors;
-
   const [showContact, setShowContact] = useState(false);
   const handleShowContact = () => setShowContact(!showContact);
   const [showPersonalDetail, setShowPersonalDetail] = useState(false);
   const handleShowPersonalDetail = () =>
     setShowPersonalDetail(!showPersonalDetail);
-
-  //redux
   const dispatch = useDispatch<AppDispatch>();
-  const {isLoading, isError, isSuccess, errorMessage} = useSelector(
-    (state: RootState) => state.user,
-  );
-  const [showModal, setShowModal] = useState(false);
 
   const handleLogout = () => {
-    dispatch(fetchLogout());
+    GlobalAlertManager.show(
+      'Đã xoá tài khoản',
+      'Tài khoản đã được xoá khỏi thiết bị',
+      () => {
+        dispatch(fetchLogout());
+        dispatch(resetBookmarkState());
+        dispatch(resetReaction());
+        navigation.reset({index: 0, routes: [{name: 'SwitchAccount'}]});
+      },
+    );
   };
-
-  useEffect(() => {
-    if (isSuccess && !isLoading) {
-      setShowModal(true);
-      setTimeout(() => {
-        setShowModal(false);
-        dispatch(resetStatus());
-        if (isSuccess) {
-          navigation.reset({index: 0, routes: [{name: 'SwitchAccount'}]});
-          dispatch(resetBookmarkState());
-          dispatch(resetReaction());
-        }
-      }, 2000);
-    }
-  }, [isSuccess, isLoading]);
 
   return (
     <SafeAreaView
@@ -451,8 +437,7 @@ export const Setting = () => {
                   borderBottomColor: mColor.border,
                 },
               ]}
-              onPress={() => navigation.navigate('HelpCenter')}
-              >
+              onPress={() => navigation.navigate('HelpCenter')}>
               <View
                 style={[
                   styles.settingIconContainer,
@@ -474,8 +459,6 @@ export const Setting = () => {
               </View>
               <ChevronRight size={20} stroke={mColor.textSecondary} />
             </TouchableOpacity>
-
-            {/* Tương tự cho settingItem khác trong Support Section */}
           </View>
 
           {/* Logout Button */}
@@ -489,32 +472,6 @@ export const Setting = () => {
           </TouchableOpacity>
         </View>
       </ScrollView>
-      <Modal visible={showModal} transparent animationType="fade">
-        <View style={styles.modal}>
-          <View style={styles.modalContainer}>
-            {isSuccess ? (
-              <Image
-                source={require('../../../assets/icon/success.png')}
-                style={[styles.iconNoti, {tintColor: mColor.primary}]}
-              />
-            ) : (
-              <Image
-                source={require('../../../assets/icon/danger.png')}
-                style={[styles.iconNoti, {tintColor: mColor.error}]}
-              />
-            )}
-            <Text
-              style={[
-                styles.textNoti,
-                {color: isSuccess ? mColor.primary : mColor.error},
-              ]}>
-              {isSuccess ? 'Đăng xuất thành công' : 'Đã có lỗi xảy ra'}
-            </Text>
-            {isSuccess && <Text style={styles.textContent}>Hẹn gặp lại</Text>}
-            {isError && <Text style={styles.textContent}>{errorMessage}</Text>}
-          </View>
-        </View>
-      </Modal>
     </SafeAreaView>
   );
 };
