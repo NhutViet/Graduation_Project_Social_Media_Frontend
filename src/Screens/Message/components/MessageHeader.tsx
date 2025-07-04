@@ -47,6 +47,26 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
       userName: userC?.username,
       callID: room?._id,
       image: userC?.profilePic,
+      callType: 'video',
+      isCaller: true,
+    });
+  };
+
+  const handleVoiceCall = () => {
+    if (socket) {
+      socket.emit('incomingCall', {
+        callerName: userC?.username,
+        type: 'voice',
+        roomId: room?._id,
+      });
+    }
+
+    navigation.navigate('ZegoCallScreen', {
+      userID: userC?._id,
+      userName: userC?.username,
+      callID: room?._id,
+      image: userC?.profilePic,
+      callType: 'voice',
       isCaller: true,
     });
   };
@@ -166,6 +186,12 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
         </View>
 
         <View style={styles.rowContainer1}>
+          <TouchableOpacity style={styles.blockIcon} onPress={handleVoiceCall}>
+            <Image
+              style={styles.icon}
+              source={require('../../../../assets/icon/telephone.png')}
+            />
+          </TouchableOpacity>
           <TouchableOpacity style={styles.blockIcon} onPress={handleCall}>
             <Image
               style={styles.icon}
