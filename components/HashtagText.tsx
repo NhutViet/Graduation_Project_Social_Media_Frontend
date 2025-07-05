@@ -1,9 +1,8 @@
 import React, { useMemo, useCallback } from 'react';
-import { Text, TouchableOpacity, TextStyle, StyleProp } from 'react-native';
+import { Text, TextStyle, StyleProp } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { HASHTAG_REGEX, extractHashtags, hasHashtags } from '../src/util/hashtagUtils';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchSearchPost, fetchSearchUser } from '../services/searchRedux/searchSlice';
+import { fetchSearchPost } from '../services/searchRedux/searchSlice';
 import {AppDispatch, RootState} from '../services/store';
 import { Colors } from '../assets/color/Colors';
 
@@ -33,12 +32,22 @@ const HashtagText: React.FC<HashtagTextProps> = ({
   // Split text into tokens: hashtags or plain
   const tokens = useMemo(() => {
     const result: Array<{ text: string; isTag: boolean }> = [];
+    
+    // Use matchAll with a fresh regex instance each time
+    const hashtagRegex = /(^|\s)(#\w+)\b/g;
+    const matches = Array.from(text.matchAll(hashtagRegex));
+    
     let lastIndex = 0;
     
-    text.replace(HASHTAG_REGEX, (match, prefix, tag, offset) => {
-      // Add text before the match (including any text before the whitespace/start)
-      if (offset > lastIndex) {
-        result.push({ text: text.slice(lastIndex, offset), isTag: false });
+    for (const match of matches) {
+      const matchIndex = match.index!;
+      const fullMatch = match[0];
+      const prefix = match[1];
+      const hashtag = match[2];
+      
+      // Add text before the match
+      if (matchIndex > lastIndex) {
+        result.push({ text: text.slice(lastIndex, matchIndex), isTag: false });
       }
       
       // Add the prefix (whitespace, but not if it's start of string)
@@ -47,12 +56,11 @@ const HashtagText: React.FC<HashtagTextProps> = ({
       }
       
       // Add the hashtag itself
-      result.push({ text: tag, isTag: true });
+      result.push({ text: hashtag, isTag: true });
       
       // Update lastIndex to after the full match
-      lastIndex = offset + match.length;
-      return match;
-    });
+      lastIndex = matchIndex + fullMatch.length;
+    }
     
     // Add trailing text
     if (lastIndex < text.length) {
@@ -95,7 +103,7 @@ const HashtagText: React.FC<HashtagTextProps> = ({
   }, [dispatch, navigation, clickable, refreshToken, setSkipReload]);
 
   // If no hashtags exist, render plain text block
-  if (!HASHTAG_REGEX.test(text)) {
+  if (!/(^|\s)(#\w+)\b/.test(text)) {
     return <Text style={baseStyle}>{text}</Text>;
   }
 

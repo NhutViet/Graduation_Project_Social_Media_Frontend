@@ -21,6 +21,7 @@ import {
   switchBookmark,
 } from '../../../services/bookmarkRedux/bookmarkSlice';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+import { checkProfanityAndAlert } from '../../util/profanityFilter';
 
 export const AddCollectionScreen = () => {
   const {theme} = useTheme();
@@ -72,6 +73,10 @@ export const AddCollectionScreen = () => {
   const handleSave = async () => {
     if (!name.trim()) {
       GlobalAlertManager.show('Lỗi', 'Vui lòng nhập tên bộ sưu tập');
+      return;
+    }
+
+    if (checkProfanityAndAlert(name)) {
       return;
     }
 

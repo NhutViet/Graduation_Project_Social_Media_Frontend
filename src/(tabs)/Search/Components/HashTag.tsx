@@ -16,7 +16,6 @@ import {useNavigation} from '@react-navigation/native';
 import { 
   extractHashtags, 
   hasHashtags, 
-  countHashtags 
 } from '../../../util/hashtagUtils';
 
 interface TagCount {

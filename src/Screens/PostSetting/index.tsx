@@ -32,6 +32,7 @@ import {useUploadProgress} from '../../../services/UploadProgressManager';
 import {PhotoIdentifier} from '@react-native-camera-roll/camera-roll';
 import {TaggedMedia} from '../TagSo';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+import { checkProfanityAndAlert } from '../../util/profanityFilter';
 
 type Params = {
   updated?: TaggedMedia[];
@@ -85,6 +86,8 @@ export const PostSetting = () => {
       );
       return;
     }
+
+    if (checkProfanityAndAlert(caption)) {return;}
 
     for (const media of mediaWithTags) {
       if (!media.node.image.uri) {
@@ -270,7 +273,7 @@ export const PostSetting = () => {
         </View>
         <TextInput
           placeholder="Thêm chú thích"
-          placeholderTextColor={color.gray21}
+          placeholderTextColor={color.textSecondary}
           style={styles.textIn}
           multiline={true}
           textAlignVertical="top"
