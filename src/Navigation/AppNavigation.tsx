@@ -77,6 +77,7 @@ import PostDetailScreen from '../../components/PostDetailScreen';
 export type RootStackParamList = {
   MessageScreen: {
     room: string;
+    isWaiting: boolean;
   };
   InforGroupChat: {
     roomId: string;

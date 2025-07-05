@@ -37,34 +37,37 @@ if (__DEV__) {
 enableScreens();
 
 const App = () => {
-  // useEffect(() => {
-  //   createNotificationChannel();
-  // }, []);
+  useEffect(() => {
+    createNotificationChannel();
+  }, []);
 
-  // const {modalData, clearModal} = useNotificationHandler(data => {
-  //   if (!navigationRef.isReady()) return;
+  const {modalData, clearModal} = useNotificationHandler(data => {
+    if (!navigationRef.isReady()) return;
 
-  //   switch (data?.type) {
-  //     case 'post':
-  //       navigationRef.navigate('PostDetail', {postId: data.id});
-  //       break;
-  //     case 'call':
-  //       navigationRef.navigate('ZegoCallScreen', {
-  //         callID: data.callId,
-  //         userID: data.userId,
-  //         userName: data.userName,
-  //         image: data.image,
-  //         isCaller: false,
-  //       });
-  //       break;
-  //     case 'message':
-  //       navigationRef.navigate('MessageScreen', {roomId: data.roomId});
-  //       break;
+    switch (data?.type) {
+      case 'post':
+        navigationRef.navigate('PostDetail', {postId: data.id});
+        break;
+      case 'call':
+        navigationRef.navigate('ZegoCallScreen', {
+          callID: data.callId,
+          userID: data.userId,
+          userName: data.userName,
+          image: data.image,
+          isCaller: false,
+        });
+        break;
+      case 'message':
+        navigationRef.navigate('MessageScreen', {
+          room: data?.roomId,
+          isWaiting: data?.isWaiting,
+        });
+        break;
 
-  //     default:
-  //       break;
-  //   }
-  // });
+      default:
+        break;
+    }
+  });
   const handleAlertRef = (ref: GlobalAlertRef | null) => {
     if (ref) {
       GlobalAlertManager.setAlertRef(ref);
@@ -85,7 +88,7 @@ const App = () => {
                         <AppNavigator />
                         <Toast />
 
-                        {/* {modalData && (
+                        {modalData && (
                           <NotificationModal
                             visible={true}
                             title={modalData.title}
@@ -118,7 +121,7 @@ const App = () => {
                               }
                             }}
                           />
-                        )} */}
+                        )}
                         <GlobalAlert ref={handleAlertRef} />
                       </TabLoadingProvider>
                     </UploadProvider>

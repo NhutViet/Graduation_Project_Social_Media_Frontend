@@ -1,7 +1,7 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Colors } from '../../../../assets/color/Colors';
-import { useTheme } from '../../../util/ThemeContext';
-import { useNavigation } from '@react-navigation/native';
+import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {Colors} from '../../../../assets/color/Colors';
+import {useTheme} from '../../../util/ThemeContext';
+import {useNavigation} from '@react-navigation/native';
 
 interface ItemNewMessageProps {
   roomId: string;
@@ -11,6 +11,7 @@ interface ItemNewMessageProps {
   };
   img1?: string;
   img2?: string;
+  type?: string;
 }
 
 const ItemNewMessage: React.FC<ItemNewMessageProps> = ({
@@ -19,8 +20,9 @@ const ItemNewMessage: React.FC<ItemNewMessageProps> = ({
   latestMessage,
   img1,
   img2,
+  type,
 }) => {
-  const { theme } = useTheme();
+  const {theme} = useTheme();
   const color = Colors[theme];
   const navigation: any = useNavigation();
 
@@ -28,19 +30,21 @@ const ItemNewMessage: React.FC<ItemNewMessageProps> = ({
     <TouchableOpacity
       style={styles.container}
       onPress={() => {
+        console.log(roomId);
         navigation.navigate('MessageScreen', {
           room: roomId,
+          isWaiting: type === 'waiting',
         });
       }}>
       <View style={styles.rowContainer}>
         <View
           style={[
             styles.imgContainer,
-            { overflow: img1 && !img2 ? 'hidden' : undefined },
+            {overflow: img1 && !img2 ? 'hidden' : undefined},
           ]}>
           {img2 && (
             <>
-              <Image style={styles.iconW} source={{ uri: img1 }} />
+              <Image style={styles.iconW} source={{uri: img1}} />
               <Image
                 style={[
                   styles.iconF,
@@ -49,17 +53,17 @@ const ItemNewMessage: React.FC<ItemNewMessageProps> = ({
                     backgroundColor: color.backgroundSecondary,
                   },
                 ]}
-                source={{ uri: img2 }}
+                source={{uri: img2}}
               />
             </>
           )}
-          {!img2 && img1 && <Image style={styles.img} source={{ uri: img1 }} />}
+          {!img2 && img1 && <Image style={styles.img} source={{uri: img1}} />}
         </View>
         <View>
-          <Text style={[styles.nameChat, { color: color.text }]}>{nameChat}</Text>
+          <Text style={[styles.nameChat, {color: color.text}]}>{nameChat}</Text>
           {latestMessage?.content && (
             <Text
-              style={[styles.textNormal, { color: color.text }]}
+              style={[styles.textNormal, {color: color.text}]}
               numberOfLines={1}>
               {latestMessage?.content}
             </Text>
@@ -68,7 +72,7 @@ const ItemNewMessage: React.FC<ItemNewMessageProps> = ({
       </View>
       <View style={styles.blockIcon}>
         <Image
-          style={[styles.img, { tintColor: color.text }]}
+          style={[styles.img, {tintColor: color.text}]}
           source={require('../../../../assets/icon/right.png')}
         />
       </View>

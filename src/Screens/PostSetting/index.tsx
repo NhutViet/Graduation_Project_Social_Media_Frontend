@@ -1,5 +1,4 @@
 import {
-  Alert,
   Image,
   SafeAreaView,
   ScrollView,
@@ -8,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useCallback, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {useTheme} from '../../util/ThemeContext';
 import {getAddPostStyles} from '../../StyleSheet/AddPostStyles';
 import {FlashList} from '@shopify/flash-list';
@@ -22,7 +21,6 @@ import {
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../services/store';
 import {uploadPostWithMedia} from '../../../services/postRedux/postSlice';
-import Toast from 'react-native-toast-message';
 import VideoModal from './Components/VideoModal';
 import BottomSheet, {
   BottomSheetRef,
@@ -32,7 +30,9 @@ import {useUploadProgress} from '../../../services/UploadProgressManager';
 import {PhotoIdentifier} from '@react-native-camera-roll/camera-roll';
 import {TaggedMedia} from '../TagSo';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
-import { checkProfanityAndAlert } from '../../util/profanityFilter';
+import {checkProfanityAndAlert} from '../../util/profanityFilter';
+import {fetchFollowers} from '@services/relationRedux/relationSlice';
+import MentionSuggestion from './Components/MentionSuggestion';
 
 type Params = {
   updated?: TaggedMedia[];
@@ -53,12 +53,43 @@ export const PostSetting = () => {
     song: string;
     songImage: string;
   } | null>(null);
+  const {followers} = useSelector((state: RootState) => state.relation);
+  const [mentionQuery, setMentionQuery] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [captionLayoutY, setCaptionLayoutY] = useState(0);
+  const popupHeight = 200;
 
   //lâys dữ liệu
   const route = useRoute();
   const {selectedMedia, updated} = route.params as {
     selectedMedia: PhotoIdentifier[];
     updated?: TaggedMedia[];
+  };
+
+  useEffect(() => {
+    if (user?._id) {
+      dispatch(fetchFollowers({userId: user._id}));
+    }
+  }, []);
+
+  const handleChangeText = (text: string) => {
+    setCaption(text);
+
+    const lastAt = text.lastIndexOf('@');
+
+    if (lastAt !== -1) {
+      const textAfterAt = text.slice(lastAt + 1);
+      const isValidQuery = /^[a-zA-Z0-9_]*$/.test(textAfterAt);
+
+      if (isValidQuery) {
+        setMentionQuery(textAfterAt);
+        setShowSuggestions(true);
+        return;
+      }
+    }
+
+    setShowSuggestions(false);
+    setMentionQuery('');
   };
 
   useFocusEffect(
@@ -80,18 +111,20 @@ export const PostSetting = () => {
 
   const handleUploadAll = async () => {
     if (!mediaWithTags || mediaWithTags.length === 0) {
-      Alert.alert(
+      GlobalAlertManager.show(
         'Chưa chọn phương tiện',
         'Hãy chọn ít nhất một ảnh hoặc video',
       );
       return;
     }
 
-    if (checkProfanityAndAlert(caption)) {return;}
+    if (checkProfanityAndAlert(caption)) {
+      return;
+    }
 
     for (const media of mediaWithTags) {
       if (!media.node.image.uri) {
-        Alert.alert('Lỗi', 'URI của media không hợp lệ');
+        GlobalAlertManager.show('Lỗi', 'URI của media không hợp lệ');
         return;
       }
     }
@@ -187,22 +220,17 @@ export const PostSetting = () => {
       );
 
       if (uploadPostWithMedia.fulfilled.match(resultAction)) {
-        Toast.show({
-          type: 'success',
-          text1: '🎉 Thành công',
-          text2: 'Bài viết của bạn đã được tải lên!',
-        });
+        GlobalAlertManager.show(
+          '🎉 Thành công',
+          'Bài viết của bạn đã được tải lên!',
+        );
         setMediaWithTags([]);
         navigation.reset({
           index: 0,
           routes: [{name: 'BottomTabs'}],
         });
       } else {
-        Toast.show({
-          type: 'error',
-          text1: 'Thất bại',
-          text2: 'Tải lên thất bại',
-        });
+        GlobalAlertManager.show('Thất bại', 'Tải lên thất bại');
       }
     } catch (error) {
       GlobalAlertManager.show('Lỗi', 'Đã có lỗi xảy ra khi upload');
@@ -271,6 +299,21 @@ export const PostSetting = () => {
             </TouchableOpacity>
           )}
         </View>
+
+        <MentionSuggestion
+          visible={showSuggestions}
+          query={mentionQuery}
+          followers={followers}
+          onSelect={handle => {
+            const lastAt = caption.lastIndexOf('@');
+            const newText = caption.slice(0, lastAt + 1) + handle + ' ';
+            setCaption(newText);
+            setShowSuggestions(false);
+          }}
+          backgroundColor={color.background}
+          positionY={Math.max(captionLayoutY - popupHeight - 10, 20)}
+        />
+        
         <TextInput
           placeholder="Thêm chú thích"
           placeholderTextColor={color.textSecondary}
@@ -278,7 +321,10 @@ export const PostSetting = () => {
           multiline={true}
           textAlignVertical="top"
           value={caption}
-          onChangeText={setCaption}
+          onChangeText={handleChangeText}
+          onLayout={e => {
+            setCaptionLayoutY(e.nativeEvent.layout.y);
+          }}
         />
         <TouchableOpacity style={styles.btnTD}>
           <Image
