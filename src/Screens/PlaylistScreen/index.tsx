@@ -96,6 +96,8 @@ export const PlaylistsScreen = () => {
           posts: playlistItems,
           targetPostId: item._id,
           playlistName: title,
+          clickableHashtag: true,
+          clearSearchRedux: true,
         } as never,
       );
     } else {

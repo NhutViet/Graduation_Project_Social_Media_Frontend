@@ -76,6 +76,7 @@ export const Search: React.FC = () => {
   // Debounced input
   const [debouncedSearchText] = useDebounce(searchText, 500);
   const abortControllerRef = useRef<AbortController | null>(null);
+
   useEffect(() => {
   return () => {
     console.log("🏷️ [Search] component is unmounting now");

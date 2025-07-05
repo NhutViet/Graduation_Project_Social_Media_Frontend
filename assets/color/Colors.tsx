@@ -58,6 +58,7 @@ const CommonColors = {
   input: '#DDDDDD',
   gray21: '#363636',
   whiteSmoke: '#F5F5F5',
+  hashtag: '#1DA1F2',
 };
 
 const LightTheme = {

@@ -106,6 +106,8 @@ const SearchForYou: React.FC<SearchForYouProps> = ({
         posts: randomList,
         targetPostId: item._id,
         playlistName: searchText || 'Kết quả tìm kiếm',
+        clickableHashtag: true,
+        clearSearchRedux: false,
       });
     },
     [navigation, randomList, searchText],

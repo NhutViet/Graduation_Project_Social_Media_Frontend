@@ -13,17 +13,16 @@ import {FlashList} from '@shopify/flash-list';
 import {useSelector} from 'react-redux';
 import {RootState} from '../../../../services/store';
 import {useNavigation} from '@react-navigation/native';
+import { 
+  extractHashtags, 
+  hasHashtags, 
+  countHashtags 
+} from '../../../util/hashtagUtils';
 
 interface TagCount {
   tag: string;
   count: number;
 }
-
-/**
- * Regex to capture hashtags: '#' followed by one or more word characters,
- * ensuring it's preceded by start or whitespace and followed by a word boundary.
- */
-const HASHTAG_REGEX = /(^|\s)(#\w+)\b/g;
 
 const HashTag: React.FC = React.memo(() => {
   const {theme} = useTheme();
@@ -42,15 +41,23 @@ const HashTag: React.FC = React.memo(() => {
   // Combine posts and reels
   const allItems = useMemo(() => [...posts, ...reels], [posts, reels]);
 
-  // Extract and count hashtags
+  // Extract and count hashtags using utility functions
   const tagsData: TagCount[] = useMemo(() => {
     const counts: Record<string, number> = {};
+    
     allItems.forEach(item => {
       const caption: string = item.caption || '';
-      let match: RegExpExecArray | null;
-      while ((match = HASHTAG_REGEX.exec(caption))) {
-        const tag = match[2].toLowerCase();
-        counts[tag] = (counts[tag] || 0) + 1;
+      
+      // Use utility function to check if caption has hashtags
+      if (hasHashtags(caption)) {
+        // Extract hashtags using utility function
+        const hashtags = extractHashtags(caption);
+        
+        hashtags.forEach(hashtag => {
+          // Remove the # symbol and convert to lowercase for consistency
+          const cleanTag = hashtag.replace('#', '').toLowerCase();
+          counts[cleanTag] = (counts[cleanTag] || 0) + 1;
+        });
       }
     });
 
@@ -59,19 +66,25 @@ const HashTag: React.FC = React.memo(() => {
       .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
   }, [allItems]);
 
-  // Navigate to AllPostOfCollection with filtered posts on tag click
   const handlePressTag = useCallback(
     (tag: string) => {
-      const filterRegex = new RegExp(`(^|\\s)${tag}\\b`, 'i');
+      // Filter items that contain the specific hashtag
       const filtered = allItems.filter(item => {
         const caption: string = item.caption || '';
-        return filterRegex.test(caption);
+        if (!hasHashtags(caption)) return false;        
+        const hashtags = extractHashtags(caption);
+        return hashtags.some(hashtag => 
+          hashtag.replace('#', '').toLowerCase() === tag.toLowerCase()
+        );
       });
+      
       if (filtered.length > 0) {
         navigation.navigate('AllPostOfCollection', {
           posts: filtered,
           targetPostId: filtered[0]._id,
-          playlistName: tag,
+          playlistName: `#${tag}`,
+          clickableHashtag: false,
+          clearSearchRedux: false,
         });
       }
     },
@@ -81,14 +94,14 @@ const HashTag: React.FC = React.memo(() => {
   const renderItem = useCallback(
     ({item}: {item: TagCount}) => (
       <TouchableOpacity style={styles.row} onPress={() => handlePressTag(item.tag)}>
-        <View style={[styles.hashContainer, {borderColor: color.textSecondary}] }>
+        <View style={[styles.hashContainer, {borderColor: color.textSecondary}]}>
           <Image source={require('../../../../assets/icon/hash.png')} style={styles.iconHash} />
         </View>
         <View style={{flex: 1}}>
           <Text style={[styles.tagText, {color: color.text}]}
                 numberOfLines={1}
                 ellipsizeMode='tail'>
-            {item.tag}
+            #{item.tag}
           </Text>
           <Text style={[styles.countText, {color: color.textSecondary}]}>  
             {item.count} post{item.count > 1 ? 's' : ''}
@@ -101,7 +114,7 @@ const HashTag: React.FC = React.memo(() => {
 
   if (isLoading) {
     return (
-      <View style={[styles.center, {backgroundColor: color.background}] }>
+      <View style={[styles.center, {backgroundColor: color.background}]}>
         <ActivityIndicator size="large" color={color.primary} />
         <Text style={[styles.loadingText, {color: color.textSecondary}]}>Đang tải…</Text>
       </View>
@@ -110,14 +123,14 @@ const HashTag: React.FC = React.memo(() => {
 
   if (tagsData.length === 0) {
     return (
-      <View style={[styles.center, {backgroundColor: color.background}] }>
+      <View style={[styles.center, {backgroundColor: color.background}]}>
         <Text style={[styles.loadingText, {color: color.textSecondary}]}>Không có hashtag nào.</Text>
       </View>
     );
   }
 
   return (
-    <View style={[styles.container, {backgroundColor: color.background}] }>
+    <View style={[styles.container, {backgroundColor: color.background}]}>
       <FlashList
         data={tagsData}
         renderItem={renderItem}
