@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { View, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Image, TouchableOpacity } from 'react-native';
 import CameraVision, { CameraVisionHandle } from '../../../components/CameraVision';
 import ActionBar from '../../../components/CameraActionBar';
 import ModeSelector from '../../../components/CameraModeSelector';

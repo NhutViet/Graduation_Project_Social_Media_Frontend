@@ -19,8 +19,6 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../util/ThemeContext';
 import { Colors } from '../../../assets/color/Colors';
-import { UserMock } from '../../MockData/user.mock';
-import { highlights } from '../../MockData/story.mock';
 import StoryComponent from './components/story.component';
 import ActionButtons from './components/actionButton.component';
 import UserInfo from './components/userInfo.component';
@@ -43,9 +41,6 @@ import {
 } from '../../(tabs)/Profile/components/PostView.component';
 import { getPostsAndReelsOfUser } from '../../../services/postUserRedux/postUserSlice';
 import { clearPostsAndReels } from '../../../services/postUserRedux/postUserReducer';
-// import PostItem from '../LikedScreen/Components/PostItem';
-// import {fetchHighlightStory} from '@services/StoryRedux/StorySlice';
-// import {clearHighlightStories} from '@services/StoryRedux/StoryReducer';
 import { GlobalAlertManager } from '../../../components/Global/AlertModal';
 
 const ProfileComp = ({ route }: any) => {
@@ -104,8 +99,6 @@ const ProfileComp = ({ route }: any) => {
   const closeOptionModal = () => {
     modalOptionRef.current?.close();
   };
-
-  const [isPrivate, setIsPrivate] = useState(UserMock.isPrivate);
 
   const [isFollowing, setIsFollowing] = useState(false);
   const [isBlock, setIsBlock] = useState(false);
@@ -238,9 +231,6 @@ const ProfileComp = ({ route }: any) => {
   const [activeTab, setActiveTab] = useState('grid');
 
   const renderTabContent = () => {
-    if (!isPrivate) {
-      return renderPrivateContent();
-    }
     switch (activeTab) {
       case 'grid':
         return isSuccess && PostsItem ? (
@@ -366,11 +356,11 @@ const ProfileComp = ({ route }: any) => {
           isBlocked={isBlock}
         />
         {/* Story Highlights */}
-        {!isBlock && (
+        {/* {!isBlock && (
           <StoryComponent isPrivate={isPrivate} highlights={highlights} />
-        )}
+        )} */}
         {/* Posts Grid/Video Tabs */}
-        {!isBlock && (
+        {/* {!isBlock && (
           <>
             <View style={{ flexDirection: 'row' }}>
               <TouchableOpacity
@@ -431,10 +421,9 @@ const ProfileComp = ({ route }: any) => {
                 />
               </TouchableOpacity>
             </View>
-            {/* Posts Grid */}
             {renderTabContent()}
           </>
-        )}
+        )} */}
         <Portal>
           <OptionModal
             ref={modalOptionRef}

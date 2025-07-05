@@ -5,7 +5,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   FlatList,
-  Alert,
   SafeAreaView,
 } from 'react-native';
 import Header from '../../../components/Header';

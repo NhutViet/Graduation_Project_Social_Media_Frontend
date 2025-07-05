@@ -1,4 +1,3 @@
-/* eslint-disable react/react-in-jsx-scope */
 import {
   ActivityIndicator,
   Image,
@@ -35,7 +34,7 @@ import {useFocusEffect} from '@react-navigation/native';
 import {Modalize} from 'react-native-modalize';
 import ModalShare from '../Home/components/ModalShare';
 import {Portal} from 'react-native-portalize';
-import { trimOldReels } from '@services/postRedux/postReducer';
+import {trimOldReels} from '@services/postRedux/postReducer';
 
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
@@ -56,7 +55,6 @@ const Reels = forwardRef((props, ref) => {
   const [selectedItem, setSelectedItem] = useState<any | null>(null);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [currentVisibleIndex, setCurrentVisibleIndex] = useState(0);
   const [canLoadMore, setCanLoadMore] = useState(true);
 
   const onViewRef = useRef(({viewableItems}: {viewableItems: any[]}) => {
@@ -64,19 +62,29 @@ const Reels = forwardRef((props, ref) => {
       const visibleItem = viewableItems[0];
       const id = visibleItem?.item?._id;
       const index = visibleItem?.index;
-      
+
       if (id && index !== undefined) {
         setCurrentVisible(id);
-        setCurrentVisibleIndex(index);
-        
+
         const totalItems = reels.length;
         const isNearEnd = index >= totalItems - 2; // Load new page when 2 items from end
-        
-        if (isNearEnd && !loading && !isLoadingMore && hasNextPage && canLoadMore) {
-          console.log('Triggering load more at index:', index, 'of', totalItems);
+
+        if (
+          isNearEnd &&
+          !loading &&
+          !isLoadingMore &&
+          hasNextPage &&
+          canLoadMore
+        ) {
+          console.log(
+            'Triggering load more at index:',
+            index,
+            'of',
+            totalItems,
+          );
           setIsLoadingMore(true);
           setCanLoadMore(false); // Prevent immediate re-trigger
-          dispatch(fetchReelsWithMedia({ page: page + 1 }));
+          dispatch(fetchReelsWithMedia({page: page + 1}));
         }
       }
     }
@@ -89,36 +97,36 @@ const Reels = forwardRef((props, ref) => {
   useImperativeHandle(ref, () => ({
     reload: () => {
       setIsInitialLoad(true);
-      dispatch(fetchReelsWithMedia({ page: 1 }));
+      dispatch(fetchReelsWithMedia({page: 1}));
     },
   }));
 
   // fetch api
   const dispatch = useDispatch<AppDispatch>();
-  const { reels, loading, page, hasNextPage } = useSelector(
-    (state: RootState) => state.post
+  const {reels, loading, page, hasNextPage} = useSelector(
+    (state: RootState) => state.post,
   );
 
   useFocusEffect(
     useCallback(() => {
       setIsInitialLoad(true);
       setCanLoadMore(true);
-      dispatch(fetchReelsWithMedia({ page: 1 }));
-    }, [dispatch])
+      dispatch(fetchReelsWithMedia({page: 1}));
+    }, [dispatch]),
   );
 
   useEffect(() => {
     if (!loading && page >= 1 && isInitialLoad) {
       setIsInitialLoad(false);
     }
-    
+
     // Reset loading more flag when loading completes and re-enable loading after delay
     if (!loading && isLoadingMore) {
       setIsLoadingMore(false);
       // Add a small delay before allowing next load to prevent immediate re-trigger
       setTimeout(() => {
         setCanLoadMore(true);
-      }, 1000); 
+      }, 1000);
     }
   }, [loading, page, isInitialLoad, isLoadingMore]);
 
@@ -127,7 +135,7 @@ const Reels = forwardRef((props, ref) => {
       console.log('Backup load more triggered');
       setIsLoadingMore(true);
       setCanLoadMore(false);
-      dispatch(fetchReelsWithMedia({ page: page + 1 }));
+      dispatch(fetchReelsWithMedia({page: page + 1}));
     }
   }, [loading, hasNextPage, isLoadingMore, canLoadMore, dispatch, page]);
 
@@ -138,7 +146,10 @@ const Reels = forwardRef((props, ref) => {
     }
   }, [reels.length]);
 
-  const [selectedPostId, setSelectedPostId] = useState<{postId: string, receiverId: string}>({postId: '', receiverId: ''});
+  const [selectedPostId, setSelectedPostId] = useState<{
+    postId: string;
+    receiverId: string;
+  }>({postId: '', receiverId: ''});
 
   if (loading && isInitialLoad) {
     return (
@@ -173,13 +184,12 @@ const Reels = forwardRef((props, ref) => {
         extraData={[currentVisible, isFocused]}
         onEndReached={handleLoadMore}
         onEndReachedThreshold={0.5}
-        // Memory optimization props
         removeClippedSubviews={true}
         getItemType={() => 'reel'}
         ListFooterComponent={
           loading && !isInitialLoad
             ? () => (
-                <View style={{ padding: 12 }}>
+                <View style={{padding: 12}}>
                   <ActivityIndicator color={Colors.white} />
                 </View>
               )
@@ -200,7 +210,10 @@ const Reels = forwardRef((props, ref) => {
                 sheetRef?.current.open();
               }}
               openComment={() => {
-                setSelectedPostId({ postId: item._id, receiverId: item.user._id });
+                setSelectedPostId({
+                  postId: item._id,
+                  receiverId: item.user._id,
+                });
                 dispatch(fetchCommentsByPost(item._id));
                 sheetRefComment.current?.open();
               }}
@@ -210,7 +223,6 @@ const Reels = forwardRef((props, ref) => {
           );
         }}
         pagingEnabled={true}
-        // avoiding overscroll too fast
         overScrollMode="never"
         decelerationRate="fast"
         disableHorizontalListHeightMeasurement={true}
@@ -220,7 +232,6 @@ const Reels = forwardRef((props, ref) => {
         estimatedListSize={{height, width}}
         keyExtractor={(item: any) => item._id}
         onViewableItemsChanged={onViewRef.current}
-        // viewabilityConfig is for select which item is visible && play it
         viewabilityConfig={{
           itemVisiblePercentThreshold: 90,
           minimumViewTime: 300,
@@ -231,7 +242,11 @@ const Reels = forwardRef((props, ref) => {
         isBookmarked={isCurrentBookmarked}
         selectedItem={selectedItem}
       />
-      <BottomSheetComment ref={sheetRef} postId={selectedPostId.postId} receiverId={selectedPostId.receiverId}/>
+      <BottomSheetComment
+        ref={sheetRef}
+        postId={selectedPostId.postId}
+        receiverId={selectedPostId.receiverId}
+      />
 
       <Portal>
         <ModalShare ref={modalShareRef} isDark={true} />

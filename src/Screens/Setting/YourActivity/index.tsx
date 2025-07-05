@@ -6,7 +6,6 @@ import {
   ScrollView,
   StyleSheet,
   SafeAreaView,
-  Alert,
 } from 'react-native';
 import React from 'react';
 import {

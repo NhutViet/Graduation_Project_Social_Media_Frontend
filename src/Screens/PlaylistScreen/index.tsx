@@ -99,13 +99,10 @@ export const PlaylistsScreen = () => {
         } as never,
       );
     } else {
-      navigation.navigate(
-        'AllReels',
-        {
-          reels: playlistItems,
-          initialId: item._id,
-        }
-      )
+      navigation.navigate('AllReels', {
+        reels: playlistItems,
+        initialId: item._id,
+      });
     }
   };
 

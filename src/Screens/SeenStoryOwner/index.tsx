@@ -2,13 +2,11 @@ import React, {useState, useEffect, useRef, useCallback} from 'react';
 import {
   SafeAreaView,
   View,
-  Image,
   Text,
   Animated,
   TouchableOpacity,
   Dimensions,
   GestureResponderEvent,
-  ActivityIndicator,
 } from 'react-native';
 import {Modalize} from 'react-native-modalize';
 import {Portal} from 'react-native-portalize';
@@ -18,17 +16,14 @@ import ModelPeopleSeen from './component/ModelPeopleSeen';
 import {MediaSection} from './component/MediaSection';
 import {styles} from './component/style';
 import debounce from 'lodash/debounce';
-import {
-  deleteStory,
-  fetchGetPostedSotry,
-} from '@services/StoryRedux/StorySlice';
+import {deleteStory} from '@services/StoryRedux/StorySlice';
 import SeenStoryOwnerHeader from './component/Header';
 import SeenStoryOwnerBottom from './component/BottomBar';
 import ModalSeeMore from './component/ModelSeeMore';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 import StoryLoadingSkeleton from '../../(tabs)/Home/components/StoryLoadingSkeleton';
 import {debugStoryGroups} from '../../(tabs)/Home/util';
-import { renderTextWithMentions } from '../../util/storyTextRenderer';
+import {renderTextWithMentions} from '../../util/storyTextRenderer';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -37,20 +32,22 @@ const screenHeight = Dimensions.get('window').height;
 
 export const SeenStoryOwner = ({route, navigation}: any) => {
   const dispatch = useDispatch<AppDispatch>();
-  
+
   // ✅ Get initial params
   const {
-    storyGroups: initialStoryGroups = [], 
+    storyGroups: initialStoryGroups = [],
     storyGroupIndex: initialStoryGroupIndex = 0,
     isLoading = false,
   } = route.params;
-  
+
   // ✅ Get following users for user lookup
   const {followingUsers} = useSelector((state: RootState) => state.stories);
 
   // ✅ State để handle loading và update params
   const [storyGroups, setStoryGroups] = useState(initialStoryGroups);
-  const [storyGroupIndex, setStoryGroupIndex] = useState(initialStoryGroupIndex);
+  const [storyGroupIndex, setStoryGroupIndex] = useState(
+    initialStoryGroupIndex,
+  );
   const [isDataLoading, setIsDataLoading] = useState(isLoading);
 
   const currentGroup = storyGroups[storyGroupIndex];
@@ -59,7 +56,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
 
   const user = useSelector((state: RootState) => state.user.user);
   const [currentIndex, setCurrentIndex] = useState(0);
-  
+
   const [isVideoPaused, setIsVideoPaused] = useState(false);
   const selectedItem = stories[currentIndex];
   const [videoDuration, setVideoDuration] = useState<number | null>(null);
@@ -94,7 +91,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
         setStoryGroupIndex(params.storyGroupIndex || 0);
         setIsDataLoading(params.isLoading || false);
       }
-      
+
       // ✅ Resume story khi quay lại từ profile
       if (isVideoPaused) {
         setIsVideoPaused(false);
@@ -117,9 +114,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
 
   // ✅ Update progress anims when stories change
   useEffect(() => {
-
     if (stories.length !== progressAnims.length) {
-    
       progressAnims.splice(0, progressAnims.length);
       progressAnims.push(...stories.map(() => new Animated.Value(0)));
       progressValues.splice(0, progressValues.length);
@@ -145,24 +140,26 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
   const handleAddHighlight = (name: string) => {
     addModalRef.current?.close();
   };
-  
+
   // handleDelte Story
   const handleDeleteStory = async () => {
     try {
       const currentStory = stories[currentIndex];
       if (!currentStory?._id) return;
-      
+
       // ✅ Tắt modal ngay lập tức
       setVisibleSeeMore(false);
-      
+
       // Xóa story từ server (Redux store sẽ tự động cập nhật)
       await dispatch(deleteStory({storyId: currentStory._id})).unwrap();
 
       GlobalAlertManager.show('Thành công', 'Tin của bạn đã được xoá');
-      
+
       // ✅ Cập nhật state local ngay lập tức để UI responsive
-      const updatedStories = stories.filter((_: any, index: number) => index !== currentIndex);
-      
+      const updatedStories = stories.filter(
+        (_: any, index: number) => index !== currentIndex,
+      );
+
       if (updatedStories.length === 0) {
         // Không còn story nào, quay lại
         setTimeout(() => {
@@ -173,17 +170,18 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
         const updatedStoryGroups = [...storyGroups];
         updatedStoryGroups[storyGroupIndex] = {
           ...currentGroup,
-          stories: updatedStories
+          stories: updatedStories,
         };
         setStoryGroups(updatedStoryGroups);
-        
+
         // Điều chỉnh currentIndex nếu cần
-        const newIndex = currentIndex >= updatedStories.length ? updatedStories.length - 1 : currentIndex;
+        const newIndex =
+          currentIndex >= updatedStories.length
+            ? updatedStories.length - 1
+            : currentIndex;
         setCurrentIndex(newIndex);
       }
-      
     } catch (error) {
-     
       GlobalAlertManager.show('Thất bại', 'Không thể xoá story');
       // ✅ Đóng modal nếu có lỗi
       setVisibleSeeMore(false);
@@ -207,21 +205,16 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
   }, [currentIndex]);
   // hàm next story
   const goToNextStory = () => {
-
-    
     if (isNavigatingRef.current) return;
     isNavigatingRef.current = true;
 
     const maxIndex = stories.length - 1;
 
     if (currentIndexRef.current < maxIndex) {
-   
       setVideoDuration(null);
-      setMusicDuration(null);
       setIsVideoPaused(false);
       setMusicDuration(null);
       setCurrentIndex(prev => {
-       
         return prev + 1;
       });
 
@@ -234,9 +227,12 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
       while (nextGroupIndex < storyGroups.length) {
         const nextGroup = storyGroups[nextGroupIndex];
         if (nextGroup?.stories?.length > 0) {
+          debugStoryGroups(
+            storyGroups,
+            nextGroupIndex,
+            'Navigation: Next Group',
+          );
 
-          debugStoryGroups(storyGroups, nextGroupIndex, 'Navigation: Next Group');
-          
           const isOwner =
             nextGroup.creator?._id === user?._id ||
             nextGroup.creator?.handleName === user?.handleName ||
@@ -256,7 +252,6 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
         nextGroupIndex++;
       }
 
-    
       navigation.goBack();
     }
   };
@@ -271,19 +266,14 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
     if (isNavigatingRef.current) return;
     isNavigatingRef.current = true;
 
-   
-    
     // ✅ Nếu không phải story đầu tiên (index > 0), quay về story trước đó trong cùng group
     if (currentIndexRef.current > 0) {
-     
-      
       // Reset states trước khi chuyển
       setVideoDuration(null);
       setMusicDuration(null);
       setIsVideoPaused(false);
-      
+
       setCurrentIndex(prev => {
-       
         return prev - 1;
       });
 
@@ -292,19 +282,20 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
       }, 300);
       return;
     }
-    
-  
-    
+
     let prevGroupIndex = storyGroupIndex - 1;
-    
+
     // Tìm previous group có stories
     while (prevGroupIndex >= 0) {
       const prevGroup = storyGroups[prevGroupIndex];
-      
+
       if (prevGroup?.stories?.length > 0) {
-    
-        debugStoryGroups(storyGroups, prevGroupIndex, 'Navigation: Previous Group');
-        
+        debugStoryGroups(
+          storyGroups,
+          prevGroupIndex,
+          'Navigation: Previous Group',
+        );
+
         const isOwner =
           prevGroup.creator?._id === user?._id ||
           prevGroup.creator?.handleName === user?.handleName ||
@@ -318,14 +309,13 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
           initialIndex: (prevGroup.stories.length || 1) - 1, // Start from last story
           timestamp: Date.now(),
         });
-        
+
         return;
       }
-      
+
       prevGroupIndex--;
     }
-    
- 
+
     navigation.goBack();
   };
   // hàm thanh ProgressBar chạy
@@ -383,25 +373,19 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
   };
   const debouncedHandleTouch = useRef(
     debounce((locationX: number | null) => {
-    
-      
       if (locationX == null) {
-        
         toggleVideoPause();
         return;
       }
 
       const leftThird = screenWidth / 3;
       const rightThird = (screenWidth * 2) / 3;
-      
+
       if (locationX < leftThird) {
-       
         goToPreviousStory();
       } else if (locationX > rightThird) {
-        
         goToNextStory();
       } else {
-       
         toggleVideoPause();
       }
     }, 300),
@@ -452,8 +436,6 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
   };
 
   useEffect(() => {
-   
-    
     setIsVideoLoaded(false);
     setIsMusicLoaded(false);
     setIsMediaLoading(true);
@@ -463,19 +445,16 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
 
     // ✅ Kiểm tra kỹ hơn trước khi goBack
     if (!stories || stories.length === 0) {
-     
       navigation.goBack();
       return;
     }
-    
+
     if (currentIndex < 0 || currentIndex >= stories.length) {
-      
       navigation.goBack();
       return;
     }
-    
+
     if (!stories[currentIndex]) {
-    
       navigation.goBack();
       return;
     }
@@ -510,7 +489,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
   const handleCloserPress = () => {
     navigation.goBack();
   };
- 
+
   const getCaptionPosition = (xPercent: number, yPercent: number) => {
     const width = mediaSize.width || screenWidth;
     const height = mediaSize.height || screenHeight;
@@ -523,36 +502,37 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
   const renderCaption = () => {
     const content = selectedItem?.content;
     const tags = selectedItem?.tags;
-    
-    
+
     // Combine content text và mentions từ tags
     const fullText = content?.text || '';
-    
-    // ✅ Adapt to backend structure: handleName is at tag level, not nested under user
-    const validTags = tags?.filter((tag: any) => tag.user && tag.handleName) || [];
 
-    
-    const mentionsText = validTags.map((tag: any) => `@${tag.handleName}`).join(' ') || '';
-    const combinedText = fullText && mentionsText ? `${fullText} ${mentionsText}` : fullText || mentionsText;
-    
- 
-    
+    // ✅ Adapt to backend structure: handleName is at tag level, not nested under user
+    const validTags =
+      tags?.filter((tag: any) => tag.user && tag.handleName) || [];
+
+    const mentionsText =
+      validTags.map((tag: any) => `@${tag.handleName}`).join(' ') || '';
+    const combinedText =
+      fullText && mentionsText
+        ? `${fullText} ${mentionsText}`
+        : fullText || mentionsText;
+
     if (!combinedText) {
       console.log('❌ No combined text to display');
       return null;
     }
 
     const position = getCaptionPosition(content?.x || 50, content?.y || 50);
-    
+
     // Tạo mention data để có thể click từ valid tags only (adapt to backend structure)
     const mentionData = validTags.map((tag: any) => ({
       handleName: tag.handleName,
-      _id: tag.user // user field is the ID string
+      _id: tag.user, // user field is the ID string
     }));
 
     const handleMentionPress = (userId: string) => {
       // ✅ Story sẽ tự động pause thông qua blur listener
-      navigation.navigate('ProfileComp', { userID: userId });
+      navigation.navigate('ProfileComp', {userID: userId});
     };
 
     return (
@@ -561,8 +541,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
           position: 'absolute',
           ...position,
         }}
-        activeOpacity={1}
-      >
+        activeOpacity={1}>
         {renderTextWithMentions(
           combinedText,
           mentionData,
@@ -575,7 +554,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
           {
             color: '#4A90E2',
             fontWeight: '700',
-          }
+          },
         )}
       </TouchableOpacity>
     );
@@ -583,36 +562,32 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
   // tag
   const renderTags = () => {
     const tags = selectedItem?.tags || [];
-    
-    
+
     return tags.map((tagData: any, index: number) => {
-     
-      
-      
-      const { user: userId, position, handleName, username } = tagData;
-      
+      const {user: userId, position, handleName, username} = tagData;
+
       if (!userId || !position || !handleName) {
-        console.log('❌ Missing required tag data:', {userId, position, handleName});
+        console.log('❌ Missing required tag data:', {
+          userId,
+          position,
+          handleName,
+        });
         return null;
       }
 
       const {x, y} = position;
-      
+
       // ✅ Use data directly from tag object (backend puts user info at tag level)
       const finalUserData = {
         _id: userId, // user field is the ID
         handleName: handleName,
         username: username,
       };
-      
-     
 
       const tagPosition = getCaptionPosition(x * 100, y * 100);
 
       const handleTagPress = () => {
-       
         if (finalUserData._id) {
-         
           navigation.navigate('ProfileComp', {
             userID: finalUserData._id,
           });
@@ -661,7 +636,6 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
   };
 
   if (!stories || stories.length === 0) {
-   
     navigation.goBack();
     return null;
   }

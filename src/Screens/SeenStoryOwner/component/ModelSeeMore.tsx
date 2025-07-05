@@ -4,11 +4,9 @@ import {
   StyleSheet,
   Text,
   View,
-  Image,
   TouchableOpacity,
 } from 'react-native';
-import React, {useState} from 'react';
-import {FlashList} from '@shopify/flash-list';
+import React from 'react';
 import {X} from 'lucide-react-native';
 
 const ModalSeeMore = ({

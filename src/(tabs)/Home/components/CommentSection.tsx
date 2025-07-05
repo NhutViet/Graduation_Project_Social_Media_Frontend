@@ -3,7 +3,6 @@ import React, {
   useImperativeHandle,
   useRef,
   useState,
-  useEffect,
 } from 'react';
 import {
   View,
@@ -11,8 +10,6 @@ import {
   Image,
   TextInput,
   TouchableOpacity,
-  Keyboard,
-  KeyboardEvent,
   StyleSheet,
   Dimensions,
   ActivityIndicator,

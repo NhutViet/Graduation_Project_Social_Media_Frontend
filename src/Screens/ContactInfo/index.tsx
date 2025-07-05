@@ -35,7 +35,7 @@ export const ContactInfo = () => {
           <TouchableOpacity
             style={styles.viewNumber}
             onPress={() => setVisibleModalPhoneNumber(true)}>
-            <Text style={styles.txtNumber}>TThêm số điện thoại di động</Text>
+            <Text style={styles.txtNumber}>Thêm số điện thoại di động</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.viewEmail}

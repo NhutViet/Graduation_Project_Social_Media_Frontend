@@ -1,5 +1,5 @@
 import {relationAction} from '../../../../services/relationRedux/relationSlice';
-import {AppDispatch, RootState} from '../../../../services/store';
+import {AppDispatch} from '../../../../services/store';
 import {
   removeBookmark,
   saveBookmark,
@@ -14,7 +14,6 @@ import {
   markStoryAsSeen,
 } from '../../../../services/storage/storage';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
-import {useSelector} from 'react-redux';
 
 export const handleBookmark = async ({
   isBookmarked,

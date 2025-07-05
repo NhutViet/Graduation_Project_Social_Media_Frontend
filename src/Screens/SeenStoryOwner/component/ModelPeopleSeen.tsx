@@ -7,7 +7,7 @@ import {
   Image,
   TouchableOpacity,
 } from 'react-native';
-import React, {useState} from 'react';
+import React from 'react';
 import {FlashList} from '@shopify/flash-list';
 import {UsersRound, X} from 'lucide-react-native';
 

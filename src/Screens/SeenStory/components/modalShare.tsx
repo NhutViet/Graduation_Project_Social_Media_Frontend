@@ -1,6 +1,5 @@
 import React, {forwardRef, useImperativeHandle, useRef, useState} from 'react';
 import {
-  Modal,
   View,
   Text,
   StyleSheet,
@@ -18,10 +17,6 @@ import {useTheme} from '../../../util/ThemeContext';
 import {Modalize} from 'react-native-modalize';
 import {useDispatch, useSelector} from 'react-redux';
 import {fetchMyRooms} from '@services/roomRedux/roomSlice';
-import {
-  fetchFollowers,
-  fetchFollowing,
-} from '@services/relationRedux/relationSlice';
 import ChatRoomAvatar from '../../../../components/ChatRoomAvatar';
 import {RootState, AppDispatch} from '../../../../services/store';
 

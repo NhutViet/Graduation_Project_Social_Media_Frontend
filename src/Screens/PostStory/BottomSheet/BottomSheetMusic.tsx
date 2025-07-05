@@ -35,7 +35,6 @@ import {
   removeFromBookmark,
 } from '../../../../services/musicRedux/musicReducer';
 
-const maxHeight = Dimensions.get('window').height;
 const height = Dimensions.get('window').height * 0.8;
 const width = Dimensions.get('window').width - 100;
 

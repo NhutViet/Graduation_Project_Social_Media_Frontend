@@ -1,9 +1,8 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
-import { Colors } from '../../assets/color/Colors';
+import {StyleSheet} from 'react-native';
+import {Colors} from '../../assets/color/Colors';
 
 export const PeopleGroupChatStyles = (theme: 'light' | 'dark') => {
-  const color= Colors[theme];
+  const color = Colors[theme];
   return StyleSheet.create({
     container: {
       flex: 1,
@@ -19,7 +18,8 @@ export const PeopleGroupChatStyles = (theme: 'light' | 'dark') => {
       borderBottomWidth: 1,
     },
     icon: {
-      width: 20, height: 20,
+      width: 20,
+      height: 20,
       resizeMode: 'contain',
       tintColor: color.text,
     },
@@ -42,5 +42,5 @@ export const PeopleGroupChatStyles = (theme: 'light' | 'dark') => {
       marginHorizontal: 24,
       marginVertical: 10,
     },
-  })
+  });
 };
