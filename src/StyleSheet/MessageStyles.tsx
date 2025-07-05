@@ -143,7 +143,7 @@ const MessageStyles = (theme: ThemeType) => {
     },
     message: {
       position: 'relative',
-      borderRadius: 20,
+      borderRadius: 10,
     },
     name: {
       fontSize: 16,
@@ -261,6 +261,19 @@ const MessageStyles = (theme: ThemeType) => {
       fontSize: 14,
       textAlign: 'center',
       fontWeight: '500',
+    },
+    callButton: {
+      width: '100%',
+      marginTop: 8,
+      paddingVertical: 6,
+      borderRadius: 6,
+      backgroundColor: color.background,
+      elevation: 2,
+      shadowColor: color.text,
+      shadowOffset: {width: 0, height: 1},
+      shadowOpacity: 0.1,
+      shadowRadius: 2,
+      alignItems: 'center',
     },
   });
 };

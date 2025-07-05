@@ -36,6 +36,7 @@ import {getPostsAndReelsOfUser} from '../../../services/postUserRedux/postUserSl
 import ACNavigateModal, {
   ACNavigateRef,
 } from '../../../src/Screens/AccountCenter/components/ACNavigateModal';
+import { fetchTaggedPosts } from '@services/taggedPostRedux/taggedPostSlice';
 
 const Profile = () => {
   const navigation: any = useNavigation();
@@ -70,6 +71,7 @@ const Profile = () => {
       Promise.all([
         dispatch(fetchFollowers({userId: userId})),
         dispatch(fetchFollowing({userId: userId})),
+        dispatch(fetchTaggedPosts(userId)),
       ]).catch(error => {
         console.error('Error fetching relations:', error);
       });
@@ -305,6 +307,7 @@ const Profile = () => {
     </View>
   );
 
+  const taggedPosts = useSelector((state: RootState) => state.taggedPosts.data);
   const renderContent = () => {
     switch (activeTab) {
       case 'grid':
@@ -320,8 +323,8 @@ const Profile = () => {
           <LoadingPlaceholder />
         );
       case 'tags':
-        return isSuccess && PostsItem ? (
-          <TagsView data={PostsItem} />
+        return isSuccess && taggedPosts ? (
+          <TagsView data={taggedPosts as any} />
         ) : (
           <LoadingPlaceholder />
         );
