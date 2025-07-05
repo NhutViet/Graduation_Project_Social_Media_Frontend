@@ -19,7 +19,7 @@ const initialState: PostState = {
   loading: false,
   error: null,
   page: 1,
-  hasNextPage: true,  
+  hasNextPage: true,
   totalItemsLoaded: 0,
   firstPageItems: [],
 };
@@ -56,18 +56,18 @@ const postReducer = createSlice({
       state.reels.push(...updatedReels);
 
       const updatedFirstPageItems = state.firstPageItems.map(item =>
-          item.userID === userId
-            ? {
-                ...item,
-                isFollow,
-              }
-            : item,
-        );
+        item.userID === userId
+          ? {
+              ...item,
+              isFollow,
+            }
+          : item,
+      );
 
-        state.firstPageItems.length = 0;
-        state.firstPageItems.push(...updatedFirstPageItems);
+      state.firstPageItems.length = 0;
+      state.firstPageItems.push(...updatedFirstPageItems);
     },
-        trimOldReels: (state, action) => {
+    trimOldReels: (state, action) => {
       const itemsToRemove = action.payload;
       if (state.reels.length > itemsToRemove) {
         // Remove items from the beginning (oldest items)
@@ -75,13 +75,31 @@ const postReducer = createSlice({
       }
     },
 
-    resetReels: (state) => {
+    resetReels: state => {
       state.reels = [];
       state.page = 1;
       state.hasNextPage = true;
       state.totalItemsLoaded = 0;
       state.firstPageItems = [];
       state.error = null;
+    },
+    incrementCommentCountByPostId: (state, action) => {
+      const postId = action.payload;
+
+      const updateCommentCount = (list: PostWithMedia[]) => {
+        return list.map(post =>
+          post._id === postId
+            ? {
+                ...post,
+                commentCount: (post.commentCount || 0) + 1,
+              }
+            : post,
+        );
+      };
+
+      state.posts = updateCommentCount(state.posts);
+      state.reels = updateCommentCount(state.reels);
+      state.firstPageItems = updateCommentCount(state.firstPageItems);
     },
   },
   extraReducers: builder => {
@@ -92,11 +110,11 @@ const postReducer = createSlice({
       })
       .addCase(fetchPostsWithMedia.fulfilled, (state, action) => {
         state.loading = false;
-        const { items, pagination } = action.payload;
+        const {items, pagination} = action.payload;
         if (action.meta.arg.page > 1) {
-          state.posts.push(...items);          
+          state.posts.push(...items);
         } else {
-          state.posts = items;                 
+          state.posts = items;
         }
         state.page = pagination.currentPage;
         state.hasNextPage = pagination.hasNextPage;
@@ -114,8 +132,8 @@ const postReducer = createSlice({
       })
       .addCase(fetchReelsWithMedia.fulfilled, (state, action) => {
         state.loading = false;
-        const { items, pagination, isLoadMore } = action.payload;
-        
+        const {items, pagination, isLoadMore} = action.payload;
+
         if (isLoadMore) {
           // Append new items for pagination
           state.reels.push(...items);
@@ -124,7 +142,7 @@ const postReducer = createSlice({
           state.reels = items;
           state.firstPageItems = [...items];
         }
-        
+
         state.page = pagination.currentPage;
         state.hasNextPage = pagination.hasNextPage;
         state.totalItemsLoaded = state.reels.length;
@@ -132,7 +150,7 @@ const postReducer = createSlice({
         // Remove old items
         const MAX_ITEMS = 50;
         const ITEMS_TO_REMOVE = 20;
-        
+
         if (state.reels.length > MAX_ITEMS && pagination.currentPage > 3) {
           state.reels.splice(0, ITEMS_TO_REMOVE);
         }
@@ -151,8 +169,9 @@ const postReducer = createSlice({
 });
 
 export const {
-  updateIsFollowByUserId, 
-  trimOldReels, 
-  resetReels, 
+  updateIsFollowByUserId,
+  trimOldReels,
+  resetReels,
+  incrementCommentCountByPostId,
 } = postReducer.actions;
 export default postReducer.reducer;

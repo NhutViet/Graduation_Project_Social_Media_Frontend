@@ -1,9 +1,4 @@
-import React, {
-  forwardRef,
-  useImperativeHandle,
-  useRef,
-  useState,
-} from 'react';
+import React, {forwardRef, useImperativeHandle, useRef, useState} from 'react';
 import {
   View,
   Text,
@@ -29,6 +24,7 @@ import {Send} from 'lucide-react-native';
 import {Portal} from 'react-native-portalize';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 import { checkProfanityAndAlert } from '../../../util/profanityFilter';
+import {incrementCommentCountByPostId} from '@services/postRedux/postReducer';
 
 export type BottomSheetCommentRef = {
   open: () => void;
@@ -52,7 +48,7 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
     );
     const {theme} = useTheme();
     const color = Colors[theme];
-
+    const [isSending, setIsSending] = useState(false);
     const [comment, setComment] = useState('');
     const [replyTo, setReplyTo] = useState<{
       id: string;
@@ -72,7 +68,7 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
     }));
 
     const handleSendComment = async () => {
-      if (!comment.trim()) return;
+      if (!comment.trim() || isSending) return;
       if (checkProfanityAndAlert(comment)) {return;}
 
       const payload = {
@@ -82,13 +78,26 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
         mediaUrl: null,
       };
 
+      setIsSending(true);
+      setComment('');
+      setReplyTo(null);
+
       try {
-        await dispatch(addComment({payload, handleName: user?.handleName, postId: postId, receiverId: receiverId})).unwrap();
-        setComment('');
-        setReplyTo(null);
+        const res = await dispatch(
+          addComment({
+            payload,
+            handleName: user?.handleName,
+            postId: postId,
+            receiverId: receiverId,
+          }),
+        ).unwrap();
+
+        dispatch(incrementCommentCountByPostId(postId));
         dispatch(fetchCommentsByPost(postId));
       } catch (error) {
         GlobalAlertManager.show('Thất bại', 'Không thể bình luận');
+      } finally {
+        setIsSending(false);
       }
     };
 
@@ -129,6 +138,11 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
                       data={comments}
                       renderItem={({item}) => (
                         <CommentComponent
+                          _id={''}
+                          content={''}
+                          isDeleted={false}
+                          isLiked={false}
+                          createdAt={''}
                           {...item}
                           onReply={(id, handleName) => {
                             setReplyTo({id, handleName});
@@ -138,7 +152,7 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
                           }}
                         />
                       )}
-                      estimatedItemSize={10}
+                      estimatedItemSize={50}
                     />
                   </View>
                 ) : (
@@ -198,8 +212,13 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
                       onSubmitEditing={() => handleSendComment()}
                     />
                     {comment.length > 0 ? (
-                      <TouchableOpacity onPress={handleSendComment}>
-                        <Send size={24} color={color.text} />
+                      <TouchableOpacity
+                        onPress={handleSendComment}
+                        disabled={isSending}>
+                        <Send
+                          size={24}
+                          color={isSending ? 'gray' : color.text}
+                        />
                       </TouchableOpacity>
                     ) : (
                       <TouchableOpacity style={styles.blockIcon}>

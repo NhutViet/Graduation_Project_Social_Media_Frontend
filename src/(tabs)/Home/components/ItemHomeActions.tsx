@@ -12,7 +12,7 @@ interface ItemHomeActionsProps {
   numLike: number;
   commentCount: number;
   share: number;
-  likeDisabled?: boolean;  // disable like button while request pending
+  likeDisabled?: boolean;
   onLikePress: () => void;
   onCommentPress: () => void;
   onSharePress: () => void;

@@ -39,7 +39,6 @@ const ItemHome = (props: ItemHomeProps) => {
     createdAt,
     media,
     user,
-    musicInfo,
     sheetRef,
     isFocused,
     currentVisible,
