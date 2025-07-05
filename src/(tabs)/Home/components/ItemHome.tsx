@@ -25,6 +25,8 @@ import {useItemHomeAudio} from '../hook/useItemHomeAudio';
 import {ItemHomeHeader} from './ItemHomeHeader';
 import {ItemHomeActions} from './ItemHomeActions';
 import {fetchCommentsByPost} from '@services/commentRedux/commentSlice';
+import HashtagText from '../../../../components/HashtagText';
+import { Colors } from '@assets/color/Colors';
 
 Sound.setCategory('Playback');
 const screenWidth = Dimensions.get('window').width;
@@ -47,6 +49,7 @@ const ItemHome = (props: ItemHomeProps) => {
     share,
     music,
     setSelectedPostId,
+    clickableHashtags = true,
     isFollow,
   } = props;
   const navigation: any = useNavigation();
@@ -198,9 +201,13 @@ const ItemHome = (props: ItemHomeProps) => {
         />
 
         {caption.trim() !== '' && (
-          <Text style={[ItemHomeStyles.title, {color: utils.iconColor}]}>
-            {caption}
-          </Text>
+          <HashtagText
+            text={caption}
+            clickable={clickableHashtags}
+            baseStyle={[ItemHomeStyles.title, { color: utils.iconColor }]}
+            hashtagColor={Colors.hashtag}
+            hashtagStyle={{ fontWeight: '600' }}
+          />
         )}
         <Text style={{color: utils.iconColor, fontSize: 12, marginTop: 5}}>
           {formatTimeAgo(createdAt)}

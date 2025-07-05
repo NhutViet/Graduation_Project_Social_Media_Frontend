@@ -23,6 +23,7 @@ import {
 import {Send} from 'lucide-react-native';
 import {Portal} from 'react-native-portalize';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
+import { checkProfanityAndAlert } from '../../../util/profanityFilter';
 import {incrementCommentCountByPostId} from '@services/postRedux/postReducer';
 
 export type BottomSheetCommentRef = {
@@ -68,6 +69,7 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
 
     const handleSendComment = async () => {
       if (!comment.trim() || isSending) return;
+      if (checkProfanityAndAlert(comment)) {return;}
 
       const payload = {
         postID: postId,

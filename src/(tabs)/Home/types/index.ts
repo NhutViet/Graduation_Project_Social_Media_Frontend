@@ -20,6 +20,7 @@ export interface ItemHomeProps {
   isFollow: boolean;
   isBookmarked?: boolean;
   setSelectedPostId?: any;
+  clickableHashtags?: boolean;
 }
 
 interface User {
