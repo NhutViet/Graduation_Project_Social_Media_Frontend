@@ -73,7 +73,6 @@ import AccountCenter from '../../src/Screens/AccountCenter';
 import InfoAccountCenter from '../../src/Screens/AccountCenter/InfoAccountCenter';
 import {User} from '@services/userRedux/userTypes';
 import PostDetailScreen from '../../components/PostDetailScreen';
-import AllTaggedPostOfUserScreen from '../../components/AllTaggedPostOfUserScreen';
 
 export type RootStackParamList = {
   MessageScreen: {
@@ -114,10 +113,6 @@ const AppNavigator = () => {
         <Stack.Screen
           name="AllPostOfUserScreen"
           component={AllPostOfUserScreen}
-        />
-        <Stack.Screen
-          name="AllTaggedPostOfUserScreen"
-          component={AllTaggedPostOfUserScreen}
         />
         <Stack.Screen name="AllReels" component={AllReels} />
         <Stack.Screen name="PostDetailScreen" component={PostDetailScreen} />
