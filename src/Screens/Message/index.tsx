@@ -217,6 +217,7 @@ export const MessageScreen = () => {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{
               paddingTop: 10,
+              paddingHorizontal: 10,
               flexGrow: 1,
             }}
             onContentSizeChange={() => {
