@@ -1,15 +1,14 @@
-import {Dimensions, StyleSheet} from 'react-native';
+import {StyleSheet} from 'react-native';
 import {Colors} from '../../assets/color/Colors';
 
 export const getSwipeStyles = (theme: 'light' | 'dark') => {
   const color = Colors[theme];
-  const {height, width} = Dimensions.get('window');
 
   return StyleSheet.create({
     container: {
-        flex: 1,
-        backgroundColor: color.background,
-        alignItems: 'center',
+      flex: 1,
+      backgroundColor: color.background,
+      alignItems: 'center',
     },
     btnContainer: {
       flexDirection: 'row',
@@ -41,5 +40,5 @@ export const getSwipeStyles = (theme: 'light' | 'dark') => {
       width: 11,
       resizeMode: 'contain',
     },
-});
+  });
 };

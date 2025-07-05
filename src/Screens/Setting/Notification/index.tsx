@@ -9,11 +9,9 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useTheme } from '../../../util/ThemeContext';
 import { useNotificationSettingsStyles } from '../../../StyleSheet/NotificationSetingsStyles';
 
 export const Notifications = () => {
-  const { theme } = useTheme();
   const navigation: any = useNavigation();
   const styles = useNotificationSettingsStyles();
   const [pauseAll, setPauseAll] = useState(false);

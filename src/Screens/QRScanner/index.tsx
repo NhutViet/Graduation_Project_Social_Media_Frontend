@@ -1,10 +1,24 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Alert, StyleSheet, View, Platform, PermissionsAndroid, Dimensions, TouchableOpacity, Image } from 'react-native';
-import { Camera, useCameraDevices, useCodeScanner, getCameraDevice, Code } from 'react-native-vision-camera';
+import React, {useState, useEffect, useRef} from 'react';
+import {
+  StyleSheet,
+  View,
+  Platform,
+  PermissionsAndroid,
+  Dimensions,
+  TouchableOpacity,
+  Image,
+} from 'react-native';
+import {
+  Camera,
+  useCameraDevices,
+  useCodeScanner,
+  getCameraDevice,
+  Code,
+} from 'react-native-vision-camera';
 import LinearGradient from 'react-native-linear-gradient';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 
-const { width, height } = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 const SCAN_AREA_SIZE = width * 0.7;
 const COOLDOWN_TIME = 10000;
 
@@ -27,7 +41,7 @@ export const QRScanner = () => {
   const [canScan, setCanScan] = useState<boolean>(true);
   const cooldownTimer = useRef<NodeJS.Timeout | null>(null);
   const devices = useCameraDevices();
-  const device = getCameraDevice(devices, "back");
+  const device = getCameraDevice(devices, 'back');
   const navigation: any = useNavigation();
 
   const scanArea: ScanAreaType = {
@@ -35,14 +49,6 @@ export const QRScanner = () => {
     y: (height - SCAN_AREA_SIZE) / 2,
     width: SCAN_AREA_SIZE,
     height: SCAN_AREA_SIZE,
-  };
-
-  const resetCooldown = () => {
-    if (cooldownTimer.current) {
-      clearTimeout(cooldownTimer.current);
-      cooldownTimer.current = null;
-    }
-    setCanScan(true);
   };
 
   const startCooldown = () => {
@@ -62,12 +68,12 @@ export const QRScanner = () => {
 
   const isCodeInScanArea = (bounds: CodeBounds | undefined): boolean => {
     if (!bounds) return false;
-    
+
     const codeCenter = {
       x: bounds.x + bounds.width / 2,
-      y: bounds.y + bounds.height / 2
+      y: bounds.y + bounds.height / 2,
     };
-    
+
     return (
       codeCenter.x >= scanArea.x &&
       codeCenter.x <= scanArea.x + scanArea.width &&
@@ -79,7 +85,7 @@ export const QRScanner = () => {
   async function requestCameraPermission() {
     if (Platform.OS === 'android') {
       const granted = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.CAMERA,
+        PermissionsAndroid.PERMISSIONS.CAMERA,
         {
           title: 'Camera Access Required',
           message: 'This app needs to access your camera to take photos.',
@@ -92,43 +98,42 @@ export const QRScanner = () => {
     }
     return true;
   }
-  
-      useEffect(() => {
-        (async () => {
-          try {
-            const androidPermission = await requestCameraPermission();
-            
-            let iosCameraPermission = true;
-            
-            if (Platform.OS === 'ios') {
-              await Camera.requestCameraPermission();
-            }
-            
-            setHasPermission(androidPermission && iosCameraPermission);
-          } catch (error) {
-            console.error('Error requesting camera permission:', error);
-            setHasPermission(false);
-          }
-        })();
-      }, []);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const androidPermission = await requestCameraPermission();
+
+        let iosCameraPermission = true;
+
+        if (Platform.OS === 'ios') {
+          await Camera.requestCameraPermission();
+        }
+
+        setHasPermission(androidPermission && iosCameraPermission);
+      } catch (error) {
+        console.error('Error requesting camera permission:', error);
+        setHasPermission(false);
+      }
+    })();
+  }, []);
 
   const codeScanner = useCodeScanner({
     onCodeScanned: (codes: Code[]) => {
-      if (!canScan  || codes.length === 0) return;
-      
+      if (!canScan || codes.length === 0) return;
+
       const qrCode = codes[0];
       const codeValue = qrCode.value;
       const codeBounds = qrCode.frame;
-      
-      if (codeValue && isCodeInScanArea(codeBounds)) {
 
+      if (codeValue && isCodeInScanArea(codeBounds)) {
         startCooldown();
-        
+
         // thực hiện chức năng sau khi quét QR code ở đây, sau khi xong thêm dòng resetCooldown(); như mẫu alert dưới
 
         // Alert.alert('QR Code Detected', codeValue, [
-        //   { 
-        //     text: 'OK', 
+        //   {
+        //     text: 'OK',
         //     onPress: () => {
         //       resetCooldown();
         //     }
@@ -152,37 +157,40 @@ export const QRScanner = () => {
         codeScanner={codeScanner}
       />
       <LinearGradient
-        colors={[
-          'rgba(14,129,255,0.6)',   
-          'rgba(203,218,255, 0.6)', 
-        ]}
+        colors={['rgba(14,129,255,0.6)', 'rgba(203,218,255, 0.6)']}
         style={StyleSheet.absoluteFill}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+        start={{x: 0, y: 0}}
+        end={{x: 1, y: 1}}
       />
-      <TouchableOpacity style={styles.backButton} onPress={() => {
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => {
           navigation.goBack();
-      }}>
-        <Image source={require('../../../assets/icon/left.png')} style={styles.buttonImage}/>
+        }}>
+        <Image
+          source={require('../../../assets/icon/left.png')}
+          style={styles.buttonImage}
+        />
       </TouchableOpacity>
-      <TouchableOpacity style={styles.libraryButton}>
-        
-      </TouchableOpacity>
+      <TouchableOpacity style={styles.libraryButton}></TouchableOpacity>
       <View style={styles.overlay}>
-        <View style={[styles.scanArea, { width: SCAN_AREA_SIZE, height: SCAN_AREA_SIZE }]}>
+        <View
+          style={[
+            styles.scanArea,
+            {width: SCAN_AREA_SIZE, height: SCAN_AREA_SIZE},
+          ]}>
           <View style={[styles.corner, styles.topLeft]} />
           <View style={[styles.corner, styles.topRight]} />
           <View style={[styles.corner, styles.bottomLeft]} />
           <View style={[styles.corner, styles.bottomRight]} />
         </View>
       </View>
-      
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
-   container: {
+  container: {
     flex: 1,
     backgroundColor: '#000',
   },
@@ -201,37 +209,37 @@ const styles = StyleSheet.create({
     borderColor: '#fff',
   },
   topLeft: {
-    top: -2, 
-    left: -2, 
+    top: -2,
+    left: -2,
     borderTopWidth: 4,
     borderLeftWidth: 4,
-    borderTopLeftRadius: 10
+    borderTopLeftRadius: 10,
   },
   topRight: {
     top: -2,
     right: -2,
     borderTopWidth: 4,
     borderRightWidth: 4,
-    borderTopRightRadius: 10
+    borderTopRightRadius: 10,
   },
   bottomLeft: {
     bottom: -2,
     left: -2,
     borderBottomWidth: 4,
     borderLeftWidth: 4,
-    borderBottomLeftRadius: 10
+    borderBottomLeftRadius: 10,
   },
   bottomRight: {
     bottom: -2,
     right: -2,
     borderBottomWidth: 4,
     borderRightWidth: 4,
-    borderBottomRightRadius: 10
+    borderBottomRightRadius: 10,
   },
   backButton: {
     position: 'absolute',
-    top: 50, 
-    left: 20, 
+    top: 50,
+    left: 20,
     width: 30,
     height: 30,
     justifyContent: 'center',
@@ -240,8 +248,8 @@ const styles = StyleSheet.create({
   },
   libraryButton: {
     position: 'absolute',
-    top: 50, 
-    right: 20, 
+    top: 50,
+    right: 20,
     width: 40,
     height: 40,
     justifyContent: 'center',
@@ -255,4 +263,4 @@ const styles = StyleSheet.create({
     height: '85%',
     resizeMode: 'contain',
   },
-})
+});

@@ -3,8 +3,6 @@ import {View, Text, Image} from 'react-native';
 import {useBookmarkStyles} from '../../../StyleSheet/BookmarkedStyles';
 import { Colors } from '../../../../assets/color/Colors';
 
-// Ảnh mặc định nếu không có thumbnail hợp lệ
-
 interface Props {
   title: string;
   thumbnails: string[];

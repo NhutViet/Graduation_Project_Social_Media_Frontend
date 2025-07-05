@@ -300,7 +300,7 @@ const PostStory = () => {
 };
 
 // Component TopButton không thay đổi
-const TopButton = ({icon, label, onPress, color}: TopButtonProps) => (
+const TopButton = ({icon, label, onPress, color}: any) => (
   <TouchableOpacity style={styles.btnTop} onPress={onPress}>
     <View style={styles.iconBlock}>
       <Image

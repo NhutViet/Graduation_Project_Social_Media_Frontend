@@ -1,9 +1,7 @@
-// SeenStoryOwnerHeader.tsx
 import React, {useEffect, useState} from 'react';
 import {View, Text, Image, TouchableOpacity, Animated} from 'react-native';
 import {styles} from './style';
 import {Pause, Play, VolumeX, Volume2} from 'lucide-react-native';
-
 import {useSelector} from 'react-redux';
 import {RootState} from '@services/store';
 
@@ -31,7 +29,6 @@ const SeenStoryOwnerHeader: React.FC<Props> = ({
   createdAt,
   creator,
 }) => {
-  const user = useSelector((state: RootState) => state.user.user);
   const [timeAgo, setTimeAgo] = useState('');
   useEffect(() => {
     if (!createdAt) return;

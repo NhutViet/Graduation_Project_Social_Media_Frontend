@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useRef, useState} from 'react';
 import {useTheme} from '../../util/ThemeContext';
 import {getAddPostStyles} from '../../StyleSheet/AddPostStyles';
 import {FlashList} from '@shopify/flash-list';
@@ -179,7 +179,9 @@ export const PostSetting = () => {
       };
       console.log('body: ', JSON.stringify(body, null, 2));
 
-      const resultAction = await dispatch(uploadPostWithMedia({payload: body, handleName: user?.handleName}));
+      const resultAction = await dispatch(
+        uploadPostWithMedia({payload: body, handleName: user?.handleName}),
+      );
 
       if (uploadPostWithMedia.fulfilled.match(resultAction)) {
         Toast.show({

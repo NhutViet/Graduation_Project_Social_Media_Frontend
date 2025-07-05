@@ -21,7 +21,6 @@ import {
   MessageBox,
   Streaming,
   CameraScreen,
-  Swipe,
   CreateGroupScreen,
   BlockedAccounts,
   BookmarkScreen,
@@ -46,7 +45,6 @@ import {
   YourActivity,
   LinkToGroup,
   SearchMessages,
-  EditNickname,
   ContactInfo,
   DissapearingMessage,
   PrivacyAndSafety,
@@ -137,7 +135,6 @@ const AppNavigator = () => {
         <Stack.Screen name="SaveMusic" component={SaveMusic} />
         <Stack.Screen name="PeopleGroupChat" component={PeopleGroupChat} />
         <Stack.Screen name="BlockUser" component={BlockUser} />
-        <Stack.Screen name="Swipe" component={Swipe} />
         <Stack.Screen name="PostSetting" component={PostSetting} />
         <Stack.Screen name="AddPost" component={AddPost} />
         <Stack.Screen name="Login" component={Login} />
@@ -178,7 +175,6 @@ const AppNavigator = () => {
         <Stack.Screen name="YourActivity" component={YourActivity} />
         <Stack.Screen name="LinkToGroup" component={LinkToGroup} />
         <Stack.Screen name="SearchMessages" component={SearchMessages} />
-        <Stack.Screen name="EditNickname" component={EditNickname} />
         <Stack.Screen name="Splash" component={Splash} />
         <Stack.Screen name="ContactInfo" component={ContactInfo} />
         <Stack.Screen

@@ -2,7 +2,6 @@ import {
   Image,
   SafeAreaView,
   ScrollView,
-  StyleSheet,
   Switch,
   Text,
   TouchableOpacity,
@@ -11,7 +10,6 @@ import {
 import React, {useEffect, useState} from 'react';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
-import User from '../../(tabs)/Home/components/Story';
 import ItemList from './Components/ItemList';
 import {Peoples as list} from './Data';
 import {FlashList} from '@shopify/flash-list';

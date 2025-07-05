@@ -33,7 +33,6 @@ const UserFollowersTab = ({ route }: any) => {
   const {
     followers: reduxFollowers,
     following: reduxFollowing,
-    loading,
     error,
   } = useSelector((state: RootState) => state.relation);
 

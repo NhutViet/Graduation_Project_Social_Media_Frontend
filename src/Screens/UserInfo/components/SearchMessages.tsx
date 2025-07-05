@@ -5,7 +5,6 @@ import { FlashList } from '@shopify/flash-list';
 import MessageBoxStyles from '../../../StyleSheet/MessageBoxStyles';
 import { useTheme } from '../../../util/ThemeContext';
 import { Colors } from '../../../../assets/color/Colors';
-import { getUserById, Message as MsgType } from '../../../MockData/message.mock';
 
 // Highlight component (as in MessageBox)
 const HighlightedText = ({ text, highlight, normalColor, grayColor }: { text: string; highlight: string; normalColor: string; grayColor: string; }) => {
@@ -37,29 +36,29 @@ export const SearchMessages = () => {
   const styles = MessageBoxStyles(theme);
 
   // Retrieve the user once
-  const user = getUserById(String(userId));
+  // const user = getUserById(String(userId));
 
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<MsgType[]>([]);
+  // const [results, setResults] = useState<MsgType[]>([]);
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<TextInput>(null);
 
-  useEffect(() => {
-    if (!query.trim()) {
-      setResults([]);
-      return;
-    }
-    setLoading(true);
-    const timeout = setTimeout(() => {
-      const all = user?.messages ?? [];
-      const filtered = all.filter(m =>
-        m.text.toLowerCase().includes(query.toLowerCase())
-      );
-      setResults(filtered);
-      setLoading(false);
-    }, 300);
-    return () => clearTimeout(timeout);
-  }, [query, user]);
+  // useEffect(() => {
+  //   if (!query.trim()) {
+  //     setResults([]);
+  //     return;
+  //   }
+  //   setLoading(true);
+  //   const timeout = setTimeout(() => {
+  //     const all = user?.messages ?? [];
+  //     const filtered = all.filter(m =>
+  //       m.text.toLowerCase().includes(query.toLowerCase())
+  //     );
+  //     setResults(filtered);
+  //     setLoading(false);
+  //   }, 300);
+  //   return () => clearTimeout(timeout);
+  // }, [query, user]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -87,16 +86,16 @@ export const SearchMessages = () => {
       </View>
 
       {/* result count header */}
-      {!loading && results.length > 0 && (
+      {/* {!loading && results.length > 0 && (
         <View style={styles.resultsHeader}>
           <Text style={styles.resultsHeaderText}>
             {results.length} kết quả{results.length !== 1 ? 's' : ''} tìm thấy
           </Text>
         </View>
-      )}
+      )} */}
 
       {/* results list */}
-      <View style={styles.searchResultContent}>
+      {/* <View style={styles.searchResultContent}>
         {loading ? (
           <View style={styles.loadingContainer}>
             <Text style={styles.loadingText}>Đang tìm kiếm...</Text>
@@ -128,7 +127,7 @@ export const SearchMessages = () => {
             showsVerticalScrollIndicator={false}
           />
         )}
-      </View>
+      </View> */}
     </SafeAreaView>
   );
 };

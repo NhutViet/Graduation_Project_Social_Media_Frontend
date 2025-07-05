@@ -1,7 +1,6 @@
 import {deleteMessageById} from '@services/messageRedux/messageSlice';
 import {Colors} from '../../../../assets/color/Colors';
 import {
-  Alert,
   Image,
   Modal,
   StyleSheet,

@@ -1,4 +1,4 @@
-import React, {useState, useRef, useMemo} from 'react';
+import React, {useState, useRef} from 'react';
 import {
   Animated,
   Dimensions,
@@ -21,8 +21,8 @@ import {Modalize} from 'react-native-modalize';
 import {Portal} from 'react-native-portalize';
 import {RootStackParamList} from '../../Navigation/AppNavigation';
 import ModalTheme from '../Message/components/ModalTheme';
-import {useDispatch, useSelector} from 'react-redux';
-import {AppDispatch, RootState} from '../../../services/store';
+import {useDispatch} from 'react-redux';
+import {AppDispatch} from '../../../services/store';
 import {updateRoomTheme} from '../../../services/roomRedux/roomSlice';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 

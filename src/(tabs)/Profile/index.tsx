@@ -10,7 +10,6 @@ import {
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {HighlightItem} from '../../MockData/story.mock';
 import {
   PlusSquare,
   Menu,
@@ -34,7 +33,6 @@ import {
   fetchFollowing,
 } from '../../../services/relationRedux/relationSlice';
 import {getPostsAndReelsOfUser} from '../../../services/postUserRedux/postUserSlice';
-import {fetchReels} from '@services/reelRedux/reelSlice';
 import ACNavigateModal, {
   ACNavigateRef,
 } from '../../../src/Screens/AccountCenter/components/ACNavigateModal';
@@ -67,64 +65,8 @@ const Profile = () => {
 
   const [isViewMoreVisible, setViewMoreVisible] = useState(false);
 
-  const renderStories = ({item}: {item: HighlightItem}) => (
-    <TouchableOpacity
-      key={item.id}
-      style={styles.highlightItem}
-      onPress={() => handleUserPress(item)}>
-      <View style={styles.highlightImageContainer}>
-        <Image
-          source={
-            item?.thumbnail
-              ? {uri: item.thumbnail}
-              : {
-                  uri: 'https://i.pinimg.com/736x/6d/71/c3/6d71c3a702199277c03ea4be15200bb4.jpg',
-                }
-          }
-          style={styles.highlightImage}
-        />
-      </View>
-      <Text style={[styles.highlightText, {color: color.text}]}>
-        {item.title}
-      </Text>
-    </TouchableOpacity>
-  );
-
-  // data mẫu
-  const [dataUser, setDataUser] = useState([
-    {
-      id: 1,
-      name: 'user1',
-      image:
-        'https://i.pinimg.com/736x/b7/25/61/b72561fd1ec7018c0418c84a3c2d5a57.jpg',
-      status: 1,
-    },
-    {
-      id: 2,
-      name: 'user2',
-      image:
-        'https://i.pinimg.com/736x/c1/70/e8/c170e84663405785c80ba367cd5e3b85.jpg',
-      status: 1,
-    },
-    {
-      id: 3,
-      name: 'user3',
-      image:
-        'https://i.pinimg.com/736x/8b/ae/77/8bae77c63f046f5a307a864a9d230da2.jpg',
-      status: 0,
-    },
-    {
-      id: 4,
-      name: 'user4',
-      image:
-        'https://i.pinimg.com/736x/56/81/64/5681646985e7ddc1b2cd4b826763b541.jpg',
-      status: 0,
-    },
-  ]);
-
   useEffect(() => {
     if (userId) {
-      // gọi 2 api followers, following
       Promise.all([
         dispatch(fetchFollowers({userId: userId})),
         dispatch(fetchFollowing({userId: userId})),
@@ -133,36 +75,6 @@ const Profile = () => {
       });
     }
   }, [dispatch, userId]);
-
-  useEffect(() => {
-    const exists = dataUser.some(user => user.name === 'Tin của tôi');
-    if (!exists) {
-      const newUser = {
-        id: Date.now(),
-        name: 'Tin của tôi',
-        image:
-          'https://i.pinimg.com/736x/07/03/c7/0703c771ceecfd6142ce0ca726c056e7.jpg',
-        status: 1,
-      };
-      setDataUser([newUser, ...dataUser]);
-    }
-    if (userId) {
-      dispatch(fetchReels(userId as string));
-    }
-  }, [dataUser, dispatch, userId]);
-
-  const handleUserPress = (user: any) => {
-    // Cập nhật status của user được nhấn thành 0
-    setDataUser(prevData =>
-      prevData.map(item => (item.id === user.id ? {...item, status: 0} : item)),
-    );
-    // Điều hướng đến SeenStoryOwner
-    if (user.id === '1') {
-      navigation.navigate('EditHighlightStory');
-    } else {
-      navigation.navigate('SeenStoryOwner', {selectedItem: user});
-    }
-  };
 
   // These two State Functionals below is for handle the length of bio
   const [needsTruncation, setNeedsTruncation] = useState(false);
@@ -326,26 +238,6 @@ const Profile = () => {
             <Share2 size={18} color={color.text} />
           </TouchableOpacity>
         </View>
-        {/* Highlight stories */}
-        {/* <View style={styles.highlightsContainer}>
-          {loading ? (
-            <Text style={{color: color.text}}>Đang tải highlights...</Text>
-          ) : Array.isArray(highlightStories) && highlightStories.length > 0 ? (
-            <FlashList
-              horizontal
-              data={highlightStories}
-              renderItem={({item}) => renderStories({item})}
-              estimatedItemSize={90}
-              keyExtractor={item => item._id.toString()}
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{paddingVertical: 5}}
-            />
-          ) : (
-            <Text style={{color: color.text}}>
-              Không có highlight stories nào
-            </Text>
-          )}
-        </View> */}
         <ModalCreate
           visible={visibleModalCreate}
           onClose={() => setVisibleModalCreate(false)}

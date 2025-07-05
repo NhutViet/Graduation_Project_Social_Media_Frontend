@@ -8,7 +8,6 @@ import {
   FlatList,
   Image,
   SafeAreaView,
-  Alert,
 } from 'react-native';
 import {ChevronLeft, Check, CircleX} from 'lucide-react-native';
 import {useNavigation} from '@react-navigation/native';

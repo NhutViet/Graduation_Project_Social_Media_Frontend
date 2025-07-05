@@ -1,5 +1,4 @@
-import {StyleSheet, Text, View} from 'react-native';
-import React from 'react';
+import {StyleSheet} from 'react-native';
 import {Colors} from '../../assets/color/Colors';
 
 export const BlockUsersStyles = (theme: 'light' | 'dark') => {

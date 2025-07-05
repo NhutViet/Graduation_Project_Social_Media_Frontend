@@ -1,13 +1,9 @@
 import React, {useRef, useState} from 'react';
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import {useTheme} from '../../util/ThemeContext';
-import {Colors} from '../../../assets/color/Colors';
 import LinearGradient from 'react-native-linear-gradient';
 export const ScreenQRCode = ({navigation}: any) => {
   const qrCodeRef = useRef<any>(null);
-  const {theme} = useTheme();
-  const color = Colors[theme];
   const [linkQR, setLinkQR] = useState(
     'https://www.youtube.com/watch?v=GKxkw0FQBm0',
   );
@@ -54,7 +50,7 @@ export const ScreenQRCode = ({navigation}: any) => {
               linearGradient={['#4F8EF7', '#B84592']}
               enableLinearGradient={true}
               backgroundColor="transparent"
-              getRef={qrCodeRef}
+              // getRef={qrCodeRef}
             />
           </View>
           <View style={styles.footer}>

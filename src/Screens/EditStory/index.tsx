@@ -12,14 +12,13 @@ import {
   Modal,
   KeyboardAvoidingView,
   Platform,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import Video from 'react-native-video';
 import Draggable from 'react-native-draggable';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import Sound from 'react-native-sound';
-import {API, BASE_URL} from '../../../services/api';
+import {API} from '../../../services/api';
 import {useUploadProgress} from '../../../services/UploadProgressManager';
 import {useSelector, useDispatch} from 'react-redux';
 import {RootState, AppDispatch} from '../../../services/store';
@@ -30,7 +29,6 @@ import axiosInstance from '../../../services/axiosInstance';
 import {Dimensions} from 'react-native';
 import {X, ChevronRight} from 'lucide-react-native';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
-import { data } from '../ChangePassword/Data';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;

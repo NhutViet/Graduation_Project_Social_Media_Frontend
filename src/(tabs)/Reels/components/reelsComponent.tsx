@@ -1,11 +1,11 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Colors } from '../../../../assets/color/Colors';
-import { useNavigation } from '@react-navigation/native';
+import React, {memo, useCallback, useEffect, useState} from 'react';
+import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {Colors} from '../../../../assets/color/Colors';
+import {useNavigation} from '@react-navigation/native';
 import Video from 'react-native-video';
-import { Dimensions } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '../../../../services/store';
+import {Dimensions} from 'react-native';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '../../../../services/store';
 import {
   addLikedPost,
   removeLikedPost,
@@ -14,9 +14,10 @@ import {
   likePost,
   unlikePost,
 } from '../../../../services/reactionRedux/reactionSlice';
-import { useTheme } from '../../../util/ThemeContext';
-import { relationAction } from '@services/relationRedux/relationSlice';
+import {useTheme} from '../../../util/ThemeContext';
+import {relationAction} from '@services/relationRedux/relationSlice';
 import TagMarker from './TagMarker';
+import {formatNumber} from '../../../../src/(tabs)/Home/util';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height - 60;
@@ -54,13 +55,13 @@ const ReelsComponent = memo((props: any) => {
 
   const navigation = useNavigation<any>();
   const dispatch = useDispatch<AppDispatch>();
-  const { theme } = useTheme();
+  const {theme} = useTheme();
   const color = Colors[theme];
 
   // Selectors
-  const { likePosts } = useSelector((state: RootState) => state.reactions);
+  const {likePosts} = useSelector((state: RootState) => state.reactions);
   const currentUser = useSelector((state: RootState) => state.user.user);
-  const { refreshToken } = useSelector((state: RootState) => state.user);
+  const {refreshToken} = useSelector((state: RootState) => state.user);
 
   // State
   const isLikedFromRedux = useSelector((state: RootState) =>
@@ -71,16 +72,6 @@ const ReelsComponent = memo((props: any) => {
   const mine = useSelector((state: RootState) => state.user.user);
   const [numLike, setNumLike] = useState(likeCount);
 
-  const formatNumber = useCallback((num: number): string => {
-    if (num >= 1_000_000) {
-      return (num / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'm';
-    }
-    if (num >= 1_000) {
-      return (num / 1_000).toFixed(1).replace(/\.0$/, '') + 'k';
-    }
-    return num?.toString() || '0';
-  }, []);
-
   useEffect(() => {
     setIsLiked(isLikedFromRedux);
   }, [isLikedFromRedux]);
@@ -89,7 +80,7 @@ const ReelsComponent = memo((props: any) => {
     if (isLike) {
       dispatch(addLikedPost(_id));
     } else {
-      dispatch(removeLikedPost({ postId: _id }));
+      dispatch(removeLikedPost({postId: _id}));
     }
   }, [_id, isLike, dispatch]);
 
@@ -105,19 +96,31 @@ const ReelsComponent = memo((props: any) => {
     setNumLike(newLikeCount);
 
     try {
-      await dispatch(action({
-        postId: _id,
-        refreshToken,
-        receiverId: user?._id,
-        handleName: currentUser?.handleName ?? '',
-      })).unwrap();
+      await dispatch(
+        action({
+          postId: _id,
+          refreshToken,
+          receiverId: user?._id,
+          handleName: currentUser?.handleName ?? '',
+        }),
+      ).unwrap();
 
-      dispatch(isLiked ? removeLikedPost({ postId: _id }) : addLikedPost(_id));
+      dispatch(isLiked ? removeLikedPost({postId: _id}) : addLikedPost(_id));
     } catch (error) {
       setNumLike(likeCount);
       setIsLiked(likePosts.includes(_id));
     }
-  }, [isLiked, _id, currentUser, user, dispatch, likeCount, likePosts, refreshToken, numLike]);
+  }, [
+    isLiked,
+    _id,
+    currentUser,
+    user,
+    dispatch,
+    likeCount,
+    likePosts,
+    refreshToken,
+    numLike,
+  ]);
 
   const toggleFollow = useCallback(async () => {
     const newFollowState = !follow;
@@ -130,7 +133,7 @@ const ReelsComponent = memo((props: any) => {
           senderId: mine?._id,
           handleName: mine?.handleName,
           action: newFollowState ? 'follow' : 'unfollow',
-        })
+        }),
       ).unwrap();
     } catch (error) {
       setFollow(follow);
@@ -138,12 +141,15 @@ const ReelsComponent = memo((props: any) => {
   }, [follow, user._id, dispatch]);
 
   const handleProfilePress = useCallback(() => {
-    navigation.navigate('ProfileComp', { userID: user._id });
+    navigation.navigate('ProfileComp', {userID: user._id});
   }, [navigation, user._id]);
 
-  const handleTagPress = useCallback((userId: string) => {
-    navigation.navigate('ProfileComp', { userID: userId });
-  }, [navigation]);
+  const handleTagPress = useCallback(
+    (userId: string) => {
+      navigation.navigate('ProfileComp', {userID: userId});
+    },
+    [navigation],
+  );
 
   // No need to view people Who likes this video anymore.
   // const handleReactionModal = useCallback(() => {
@@ -151,57 +157,66 @@ const ReelsComponent = memo((props: any) => {
   // }, [_id, isLiked, openReactionModal]);
 
   // Render functions for better readability
-  const renderProfileImage = useCallback(() => (
-    user.profilePic ? (
-      <MemoizedImage style={styles.img} source={{ uri: user.profilePic }} />
-    ) : (
-      <MemoizedImage
-        style={styles.img}
-        source={require('../../../../assets/icon/account.png')}
-      />
-    )
-  ), [user.profilePic]);
-
-  const renderFollowButton = useCallback(() => (
-    user._id !== currentUser?._id && (
-      <TouchableOpacity onPress={toggleFollow} style={styles.btnFollow}>
-        <MemoizedText style={{ fontSize: 14, color: Colors.white }}>
-          {follow ? 'Đang theo dõi' : 'Theo dõi'}
-        </MemoizedText>
-      </TouchableOpacity>
-    )
-  ), [user._id, currentUser?._id, follow, toggleFollow]);
-
-  const renderActionButton = useCallback((
-    iconSource: any,
-    count: number,
-    onPress: () => void,
-    tintColor?: string,
-  ) => (
-    <View style={[styles.sectionContainer, styles.topSection]}>
-      <TouchableOpacity style={styles.iconContainer} onPress={onPress}>
+  const renderProfileImage = useCallback(
+    () =>
+      user.profilePic ? (
+        <MemoizedImage style={styles.img} source={{uri: user.profilePic}} />
+      ) : (
         <MemoizedImage
-          style={[styles.icon, tintColor ? { tintColor } : {}]}
-          source={iconSource}
+          style={styles.img}
+          source={require('../../../../assets/icon/account.png')}
         />
-      </TouchableOpacity>
-      <TouchableOpacity onPress={onPress}>
-        <MemoizedText style={styles.textNormal}>{formatNumber(count || 0)}</MemoizedText>
-      </TouchableOpacity>
-    </View>
-  ), [formatNumber]);
+      ),
+    [user.profilePic],
+  );
+
+  const renderFollowButton = useCallback(
+    () =>
+      user._id !== currentUser?._id && (
+        <TouchableOpacity onPress={toggleFollow} style={styles.btnFollow}>
+          <MemoizedText style={{fontSize: 14, color: Colors.white}}>
+            {follow ? 'Đang theo dõi' : 'Theo dõi'}
+          </MemoizedText>
+        </TouchableOpacity>
+      ),
+    [user._id, currentUser?._id, follow, toggleFollow],
+  );
+
+  const renderActionButton = useCallback(
+    (
+      iconSource: any,
+      count: number,
+      onPress: () => void,
+      tintColor?: string,
+    ) => (
+      <View style={[styles.sectionContainer, styles.topSection]}>
+        <TouchableOpacity style={styles.iconContainer} onPress={onPress}>
+          <MemoizedImage
+            style={[styles.icon, tintColor ? {tintColor} : {}]}
+            source={iconSource}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={onPress}>
+          <MemoizedText style={styles.textNormal}>
+            {formatNumber(count || 0)}
+          </MemoizedText>
+        </TouchableOpacity>
+      </View>
+    ),
+    [formatNumber],
+  );
 
   return (
     <View style={styles.container}>
       <View style={styles.video}>
         <Video
-          source={{ uri: media[0]?.videoUrl }}
+          source={{uri: media[0]?.videoUrl}}
           resizeMode="contain"
-          style={{ width: '100%', height: '100%' }}
+          style={{width: '100%', height: '100%'}}
           repeat
           paused={!currentVisible || !isFocused}
           muted={muted}
-          maxBitRate={200000}
+          maxBitRate={0}
           progressUpdateInterval={500}
         />
         <View style={styles.tagOverlay}>
@@ -219,8 +234,7 @@ const ReelsComponent = memo((props: any) => {
           <View style={styles.rowContainer}>
             <TouchableOpacity
               style={styles.imgContainer}
-              onPress={handleProfilePress}
-            >
+              onPress={handleProfilePress}>
               {renderProfileImage()}
             </TouchableOpacity>
             <MemoizedText style={styles.name}>{user.handleName}</MemoizedText>
@@ -238,23 +252,25 @@ const ReelsComponent = memo((props: any) => {
               : require('../../../../assets/icon/heart.png'),
             numLike,
             handleLike,
-            isLiked ? color.error : '#fff'
+            isLiked ? color.error : '#fff',
           )}
 
           {renderActionButton(
             require('../../../../assets/icon/comment.png'),
             commentCount,
-            openComment
+            openComment,
           )}
 
           {renderActionButton(
             require('../../../../assets/icon/share.png'),
             share,
-            openShareModal
+            openShareModal,
           )}
 
           <View style={styles.sectionContainer}>
-            <TouchableOpacity style={styles.iconContainer} onPress={showBottomSheet}>
+            <TouchableOpacity
+              style={styles.iconContainer}
+              onPress={showBottomSheet}>
               <MemoizedImage
                 style={styles.icon}
                 source={require('../../../../assets/icon/menu-dots-vertical.png')}
@@ -265,8 +281,7 @@ const ReelsComponent = memo((props: any) => {
           <View style={styles.sectionContainer}>
             <TouchableOpacity
               style={styles.iconMusicContainer}
-              onPress={() => navigation.navigate('SaveMusic')}
-            >
+              onPress={() => navigation.navigate('SaveMusic')}>
               <MemoizedImage
                 style={styles.icon}
                 source={require('../../../../assets/icon/musical-note.png')}

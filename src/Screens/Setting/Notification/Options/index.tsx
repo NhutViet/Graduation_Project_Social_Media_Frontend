@@ -8,9 +8,7 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { useTheme } from '../../../../util/ThemeContext';
 import { useNotificationSettingsStyles } from '../../../../StyleSheet/NotificationSetingsStyles';
-import { notificationOptions } from '../NotificationConfig';
 
 interface RouteParams {
   optionKey: string;
@@ -18,22 +16,21 @@ interface RouteParams {
 }
 
 export const NotificationOption = () => {
-  const { theme } = useTheme();
   const navigation: any = useNavigation();
   const route = useRoute();
   const { optionKey, title } = route.params as RouteParams;
   const styles = useNotificationSettingsStyles();
   
-  const config = notificationOptions[optionKey];
+  // const config = notificationOptions[optionKey];
   const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
 
-  if (!config) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <Text>Chỉnh sửa không tìm thấy cho {optionKey}</Text>
-      </SafeAreaView>
-    );
-  }
+  // if (!config) {
+  //   return (
+  //     <SafeAreaView style={styles.container}>
+  //       <Text>Chỉnh sửa không tìm thấy cho {optionKey}</Text>
+  //     </SafeAreaView>
+  //   );
+  // }
 
   const renderRadioButton = (choice: string, isSelected: boolean) => {
     return (
@@ -79,18 +76,18 @@ export const NotificationOption = () => {
         </View>
 
         {/* Options Section */}
-        <View style={styles.section}>
+        {/* <View style={styles.section}>
           <Text style={styles.sectionTitle}>{config.sectionTitle}</Text>
           
           {config.choices.map(choice => 
             renderRadioButton(choice, selectedChoice === choice)
           )}
-        </View>
+        </View> */}
 
         {/* Sub Text */}
-        <View style={styles.subTextContainer}>
+        {/* <View style={styles.subTextContainer}>
           <Text style={styles.subText}>{config.subText}</Text>
-        </View>
+        </View> */}
       </ScrollView>
     </SafeAreaView>
   );

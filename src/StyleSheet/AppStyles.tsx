@@ -1,6 +1,5 @@
 import {StyleSheet} from 'react-native';
 import {Colors} from '../../assets/color/Colors';
-import {useTheme} from '../util/ThemeContext';
 
 const AppStyles = StyleSheet.create({
   container: {
