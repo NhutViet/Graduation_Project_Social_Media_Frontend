@@ -237,6 +237,7 @@ export const MessageBox = (props: any) => {
                 latestMessage={item?.latestMessage}
                 img1={user1?.profilePic || ''}
                 img2={user2?.profilePic || ''}
+                type={item.type}
               />
             );
           }}

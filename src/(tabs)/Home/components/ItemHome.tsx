@@ -204,7 +204,7 @@ const ItemHome = (props: ItemHomeProps) => {
           <HashtagText
             text={caption}
             clickable={clickableHashtags}
-            baseStyle={[ItemHomeStyles.title, { color: utils.iconColor }]}
+            baseStyle={[ItemHomeStyles.title, { color: utils.iconColor, justifyContent: "center" }]}
             hashtagColor={Colors.hashtag}
             hashtagStyle={{ fontWeight: '600' }}
           />
