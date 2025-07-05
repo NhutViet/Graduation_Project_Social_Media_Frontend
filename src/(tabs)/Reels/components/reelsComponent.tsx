@@ -102,6 +102,7 @@ const ReelsComponent = memo((props: any) => {
           refreshToken,
           receiverId: user?._id,
           handleName: currentUser?.handleName ?? '',
+          userId: currentUser?._id
         }),
       ).unwrap();
 

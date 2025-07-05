@@ -81,7 +81,7 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
       };
 
       try {
-        await dispatch(addComment({payload, handleName: user?.handleName, postId: postId, receiverId: receiverId})).unwrap();
+        await dispatch(addComment({payload, handleName: user?.handleName, postId: postId, receiverId: receiverId, userId: user?._id})).unwrap();
         setComment('');
         setReplyTo(null);
         dispatch(fetchCommentsByPost(postId));

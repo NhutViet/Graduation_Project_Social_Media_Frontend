@@ -25,7 +25,7 @@ export const fetchCommentsByPost = createAsyncThunk<
 
 export const addComment = createAsyncThunk<any, ReqComment>(
   'comments/add',
-  async ({payload, handleName, receiverId, postId}, {rejectWithValue}) => {
+  async ({payload, handleName, receiverId, postId, userId}, {rejectWithValue}) => {
     try {
       const response = await axiosInstance.post(API.ADD_COMMENT, payload, {
         headers: {
@@ -33,7 +33,7 @@ export const addComment = createAsyncThunk<any, ReqComment>(
         },
       });
 
-      if (response.status >= 200 && response.status <= 300) {
+      if (response.status >= 200 && response.status <= 300 && userId !== receiverId) {
         await axiosInstance.post(
           API.NOTIFICATION_API,
           {
@@ -43,6 +43,7 @@ export const addComment = createAsyncThunk<any, ReqComment>(
             data: {
               type: 'comment',
               postId,
+              commentId: response.data?.comment?._id,
             },
           },
           {
