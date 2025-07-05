@@ -46,8 +46,8 @@ export const Setting = () => {
 
   const handleLogout = () => {
     GlobalAlertManager.show(
-      'Đã xoá tài khoản',
-      'Tài khoản đã được xoá khỏi thiết bị',
+      'Đã đăng xuất',
+      'Đăng xuất thành công',
       () => {
         dispatch(fetchLogout());
         dispatch(resetBookmarkState());

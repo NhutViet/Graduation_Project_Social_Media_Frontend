@@ -126,7 +126,10 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
   return (
     <>
       <View
-        style={[styles.header, {backgroundColor:  'rgba(120, 120, 120, 0)'}]}>
+        style={[styles.header, {
+          backgroundColor:  'rgba(120, 120, 120, 0)',
+          borderBottomWidth: 0.5,
+        }]}>
         <View style={styles.rowContainer2}>
           <TouchableOpacity style={styles.blockIcon} onPress={handleGoBack}>
             <Image

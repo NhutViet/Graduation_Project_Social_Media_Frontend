@@ -1,7 +1,7 @@
 import {createAsyncThunk} from '@reduxjs/toolkit';
 import axiosInstance from '../axiosInstance';
 import {API} from '../api';
-import {AddCommentPayload, CommentPost, ReqComment} from './commentTypes';
+import {Comment, CommentPost, ReqComment, UserComment} from './commentTypes';
 
 export const fetchCommentsByPost = createAsyncThunk<
   CommentPost[],
@@ -23,15 +23,40 @@ export const fetchCommentsByPost = createAsyncThunk<
   }
 });
 
-export const addComment = createAsyncThunk<any, ReqComment>(
+export const addComment = createAsyncThunk<
+  { comment: Comment; user: UserComment },
+  ReqComment,
+  { rejectValue: string }
+>(
   'comments/add',
-  async ({payload, handleName, receiverId, postId, userId}, {rejectWithValue}) => {
+  async ({payload, handleName, receiverId, postId, userId}, { rejectWithValue, getState }) => {
     try {
-      const response = await axiosInstance.post(API.ADD_COMMENT, payload, {
-        headers: {
-          token: 'refresh',
-        },
+      const res = await axiosInstance.post(API.ADD_COMMENT, payload, {
+        headers: { token: 'refresh' },
       });
+
+      const commentData = res.data;
+
+      const newComment: Comment = {
+        id: commentData._id,
+        postID: commentData.postID,
+        parentID: commentData.parentID,
+        content: commentData.content,
+        mediaUrl: commentData.mediaUrl,
+        isDeleted: commentData.isDeleted,
+        likedBy: commentData.likedBy,
+        createdAt: commentData.createdAt,
+        reply: [[], { _id: '', handleName: '', profilePic: '' }],
+      };
+
+      const state: any = getState();
+      const currentUser = state.user.user;
+
+      const user: UserComment = {
+        _id: currentUser?._id || '',
+        handleName: handleName || '',
+        profilePic: currentUser?.profilePic,
+      };
 
       if (response.status >= 200 && response.status <= 300 && userId !== receiverId) {
         await axiosInstance.post(
@@ -47,16 +72,56 @@ export const addComment = createAsyncThunk<any, ReqComment>(
             },
           },
           {
-            headers: {
-              token: 'refresh',
-            },
+            headers: { token: 'refresh' },
           },
         );
       }
 
-      return response.data;
+      return { comment: newComment, user };
+
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || 'Bình luận thất bại');
+    }
+  }
+);
+
+export const likeComment = createAsyncThunk<any, string, {rejectValue: string}>(
+  'comments/like',
+  async (commentId, {rejectWithValue}) => {
+    try {
+      const res = await axiosInstance.post(
+        `${API.COMMENT}/${commentId}/like`,
+        null,
+        {
+          headers: {
+            token: 'refresh',
+          },
+        },
+      );
+      return res.data;
     } catch (err: any) {
       return rejectWithValue(err.response?.data || err.message);
     }
   },
 );
+
+export const unlikeComment = createAsyncThunk<
+  any,
+  string,
+  {rejectValue: string}
+>('comments/unlike', async (commentId, {rejectWithValue}) => {
+  try {
+    const res = await axiosInstance.post(
+      `${API.COMMENT}/${commentId}/unlike`,
+      null,
+      {
+        headers: {
+          token: 'refresh',
+        },
+      },
+    );
+    return res.data;
+  } catch (err: any) {
+    return rejectWithValue(err.response?.data || err.message);
+  }
+});

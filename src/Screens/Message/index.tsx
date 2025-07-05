@@ -39,8 +39,10 @@ export const MessageScreen = () => {
   const userC = useSelector((state: RootState) => state.user.user);
   const flatListRef = useRef<FlatList>(null);
   const route = useRoute<RouteProp<RootStackParamList, 'MessageScreen'>>();
-  const roomId = route?.params?.room;
-  const rooms = useSelector((state: RootState) => state.rooms.rooms);
+  const {room: roomId, isWaiting = false} = route?.params || {};
+  const rooms = useSelector((state: RootState) =>
+    isWaiting ? state.rooms.waitingRooms : state.rooms.rooms,
+  );
   const room = useMemo(
     () => rooms.find(r => r._id === roomId),
     [rooms, roomId],
@@ -217,6 +219,7 @@ export const MessageScreen = () => {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{
               paddingTop: 10,
+              paddingHorizontal: 10,
               flexGrow: 1,
             }}
             onContentSizeChange={() => {

@@ -46,7 +46,8 @@ const GridView: React.FC<GridViewProps> = ({data, onPressItem}) => {
 
             return (
               <View style={Styles.styles.gridItem}>
-                <TouchableOpacity onPress={() => onPressItem?.(item)}>
+                <TouchableOpacity
+                  onPress={() => onPressItem?.(item)}>
                   <Image
                     source={{uri: uri}}
                     style={[
@@ -102,7 +103,7 @@ export const ReelsView: React.FC<{data: any[]}> = ({data}) => {
 export const TagsView: React.FC<{data: any[]}> = ({data}) => {
   const navigation = useNavigation<any>();
   const handlePress = (item: any) => {
-    navigation.navigate('AllPostOfUserScreen', {
+    navigation.navigate('AllTaggedPostOfUserScreen', {
       targetPostId: item._id,
     });
   };

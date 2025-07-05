@@ -8,70 +8,73 @@ import {
 } from 'react-native';
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
-import {useState} from 'react';
+import {useState, useRef, memo} from 'react';
 import {FlashList} from '@shopify/flash-list';
+import {formatTimeAgo} from '../util';
+import {useDispatch} from 'react-redux';
+import {AppDispatch} from '@services/store';
+import {likeComment, unlikeComment} from '@services/commentRedux/commentSlice';
 
 const width = Dimensions.get('window').width - 96;
+const fallbackImg =
+  'https://i.pinimg.com/736x/30/01/1e/30011ec01f59434d761d323e0d4b5a07.jpg';
 
 interface CommentComponentProps {
   onReply: (id: string, handleName: string) => void;
-  [key: string]: any;
+  _id: string;
+  user?: {
+    handleName?: string;
+    profilePic?: string;
+  };
+  content: string;
+  mediaUrl?: string;
+  isDeleted: boolean;
+  likedBy?: string[];
+  isLiked: boolean;
+  createdAt: string;
+  reply?: CommentComponentProps[];
 }
 
-const CommentComponent = ({onReply, ...props}: CommentComponentProps) => {
-  const {
-    _id,
-    user,
-    postID,
-    content,
-    mediaUrl,
-    isDeleted,
-    likedBy,
-    createdAt,
-    reply,
-  } = props;
-  const {theme} = useTheme();
-  const color = Colors[theme];
-
-  const formatTimeAgo = (dateString: string): string => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-
-    const seconds = Math.floor(diffMs / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-    const months = Math.floor(days / 30);
-    const years = Math.floor(days / 365);
-
-    if (years > 0) return `${years} năm trước`;
-    if (months > 0) return `${months} tháng trước`;
-    if (days > 0) return `${days} ngày trước`;
-    if (hours > 0) return `${hours} giờ trước`;
-    if (minutes > 0) return `${minutes} phút trước`;
-    return `Vừa xong`;
-  };
-
-  const renderItem = ({item}: {item: any}) => {
+const ReplyComment = memo(
+  ({
+    item,
+    onReply,
+  }: {
+    item: CommentComponentProps;
+    onReply: (id: string, handleName: string) => void;
+  }) => {
+    const {theme} = useTheme();
+    const color = Colors[theme];
     const {
       _id,
       user,
-      postID,
       content,
-      mediaUrl,
-      isDeleted,
-      likedBy,
       createdAt,
+      likedBy = [],
+      isLiked: defaultLiked,
     } = item;
+
+    const dispatch = useDispatch<AppDispatch>();
+    const [isLiked, setIsLiked] = useState(defaultLiked);
+    const [totalLikes, setTotalLikes] = useState(likedBy.length);
+    const likeTimeout = useRef<NodeJS.Timeout | null>(null);
+
+    const handleLike = () => {
+      setIsLiked(prev => !prev);
+      setTotalLikes(prev => (isLiked ? prev - 1 : prev + 1));
+      if (likeTimeout.current) clearTimeout(likeTimeout.current);
+      likeTimeout.current = setTimeout(() => {
+        if (!isLiked) dispatch(likeComment(_id));
+        else dispatch(unlikeComment(_id));
+      }, 600);
+    };
+
     return (
       <View style={[styles.rowContainer, {marginTop: 10}]}>
         <TouchableOpacity style={styles.blockImgReply}>
           <Image
             style={styles.imgUser}
-            source={{
-              uri: user?.profilePic,
-            }}
+            source={{uri: user?.profilePic || fallbackImg}}
           />
         </TouchableOpacity>
         <View
@@ -82,51 +85,80 @@ const CommentComponent = ({onReply, ...props}: CommentComponentProps) => {
           <View style={{width: '80%'}}>
             <View style={[styles.rowContainer, {alignItems: 'center'}]}>
               <Text style={[styles.name, {color: color.text, marginRight: 20}]}>
-                {user?.handleName}
+                {user?.handleName || 'Người dùng'}
               </Text>
               <Text style={[styles.text, {color: color.text}]}>
                 {formatTimeAgo(createdAt)}
               </Text>
             </View>
-            <View>
-              <Text
-                style={[styles.content, {color: color.text}]}
-                numberOfLines={3}>
-                {content}
+            <Text
+              style={[styles.content, {color: color.text}]}
+              numberOfLines={3}>
+              {content}
+            </Text>
+            <TouchableOpacity>
+              <Text style={[styles.text, {color: color.text}]}>
+                xem bản dịch
               </Text>
-            </View>
-            <View style={[styles.rowContainer, {alignItems: 'center'}]}>
-              <TouchableOpacity>
-                <Text style={[styles.text, {color: color.text}]}>
-                  xem bản dịch
-                </Text>
-              </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
           </View>
           <View style={{alignItems: 'center', marginTop: 20}}>
-            <TouchableOpacity style={styles.blockIcon}>
+            <TouchableOpacity style={styles.blockIcon} onPress={handleLike}>
               <Image
-                style={[styles.icon, {tintColor: color.text}]}
-                source={require('../../../../assets/icon/heart.png')}
+                style={styles.icon}
+                source={
+                  isLiked
+                    ? require('../../../../assets/icon/heart_fill.png')
+                    : require('../../../../assets/icon/heart.png')
+                }
+                tintColor={!isLiked ? color.text : undefined}
               />
             </TouchableOpacity>
-            <Text style={[styles.text, {color: color.text}]}>4</Text>
+            <Text style={[styles.text, {color: color.text}]}>{totalLikes}</Text>
           </View>
         </View>
       </View>
     );
-  };
+  },
+);
 
-  const [moreComment, setMoreComment] = useState<boolean>(false);
+const CommentComponent = memo((props: CommentComponentProps) => {
+  const {
+    _id,
+    user,
+    content,
+    createdAt,
+    likedBy = [],
+    isLiked: defaultLiked,
+    reply = [],
+    onReply,
+  } = props;
+
+  const {theme} = useTheme();
+  const color = Colors[theme];
+  const dispatch = useDispatch<AppDispatch>();
+
+  const [isLiked, setIsLiked] = useState(defaultLiked);
+  const [totalLikes, setTotalLikes] = useState(likedBy.length);
+  const [moreComment, setMoreComment] = useState(false);
+  const likeTimeout = useRef<NodeJS.Timeout | null>(null);
+
+  const handleToggleLike = () => {
+    setIsLiked(prev => !prev);
+    setTotalLikes(prev => (isLiked ? prev - 1 : prev + 1));
+    if (likeTimeout.current) clearTimeout(likeTimeout.current);
+    likeTimeout.current = setTimeout(() => {
+      if (!isLiked) dispatch(likeComment(_id));
+      else dispatch(unlikeComment(_id));
+    }, 600);
+  };
 
   return (
     <View style={[styles.rowContainer, {marginBottom: 20}]}>
       <TouchableOpacity style={styles.blockImg}>
         <Image
           style={styles.imgUser}
-          source={{
-            uri: user?.profilePic,
-          }}
+          source={{uri: user?.profilePic || fallbackImg}}
         />
       </TouchableOpacity>
       <View
@@ -137,22 +169,18 @@ const CommentComponent = ({onReply, ...props}: CommentComponentProps) => {
         <View style={{width: width}}>
           <View style={[styles.rowContainer, {alignItems: 'center'}]}>
             <Text style={[styles.name, {color: color.text, marginRight: 20}]}>
-              {user?.handleName}
+              {user?.handleName || 'Người dùng'}
             </Text>
             <Text style={[styles.text, {color: color.text}]}>
               {formatTimeAgo(createdAt)}
             </Text>
           </View>
-          <View style={{width: '80%'}}>
-            <Text
-              style={[styles.content, {color: color.text}]}
-              numberOfLines={3}>
-              {content}
-            </Text>
-          </View>
+          <Text style={[styles.content, {color: color.text}]} numberOfLines={3}>
+            {content}
+          </Text>
           <View style={[styles.rowContainer, {alignItems: 'center'}]}>
             <TouchableOpacity
-              onPress={() => onReply(props._id, props.user?.handleName)}>
+              onPress={() => onReply(_id, user?.handleName || '')}>
               <Text style={[styles.text, {color: color.text, marginRight: 20}]}>
                 Trả lời
               </Text>
@@ -163,51 +191,50 @@ const CommentComponent = ({onReply, ...props}: CommentComponentProps) => {
               </Text>
             </TouchableOpacity>
           </View>
+
           {reply.length > 0 && (
             <View>
               {moreComment && (
-                <View
-                  style={{
-                    width: '100%',
-                  }}>
-                  <FlashList
-                    data={reply}
-                    renderItem={renderItem}
-                    estimatedItemSize={50}
-                  />
-                </View>
+                <FlashList
+                  data={reply}
+                  renderItem={({item}) => (
+                    <ReplyComment item={item} onReply={onReply} />
+                  )}
+                  keyExtractor={item => item._id}
+                  estimatedItemSize={50}
+                />
               )}
               <TouchableOpacity
                 style={{marginLeft: 66, marginTop: 10}}
-                onPress={() => {
-                  setMoreComment(!moreComment);
-                }}>
-                {!moreComment ? (
-                  <Text style={[styles.text, {color: color.text}]}>
-                    Xem {reply.length} câu trả lời khác
-                  </Text>
-                ) : (
-                  <Text style={[styles.text, {color: color.text}]}>
-                    Ẩn câu trả lời
-                  </Text>
-                )}
+                onPress={() => setMoreComment(!moreComment)}>
+                <Text style={[styles.text, {color: color.text}]}>
+                  {!moreComment
+                    ? `Xem ${reply.length} câu trả lời khác`
+                    : 'Ẩn câu trả lời'}
+                </Text>
               </TouchableOpacity>
             </View>
           )}
         </View>
+
         <View style={styles.heartContainer}>
-          <TouchableOpacity style={styles.blockIcon}>
+          <TouchableOpacity style={styles.blockIcon} onPress={handleToggleLike}>
             <Image
-              style={[styles.icon, {tintColor: color.text}]}
-              source={require('../../../../assets/icon/heart.png')}
+              style={styles.icon}
+              source={
+                isLiked
+                  ? require('../../../../assets/icon/heart_fill.png')
+                  : require('../../../../assets/icon/heart.png')
+              }
+              tintColor={!isLiked ? color.text : 'red'}
             />
           </TouchableOpacity>
-          <Text style={[styles.text, {color: color.text}]}>4</Text>
+          <Text style={[styles.text, {color: color.text}]}>{totalLikes}</Text>
         </View>
       </View>
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   rowContainer: {

@@ -18,6 +18,7 @@ import {useTheme} from '../../../util/ThemeContext';
 import {relationAction} from '@services/relationRedux/relationSlice';
 import TagMarker from './TagMarker';
 import {formatNumber} from '../../../../src/(tabs)/Home/util';
+import HashtagText from '../../../../components/HashtagText';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height - 60;
@@ -25,13 +26,6 @@ const height = Dimensions.get('window').height - 60;
 const MemoizedTagMarker = memo(TagMarker);
 const MemoizedImage = memo(Image);
 const MemoizedText = memo(Text);
-
-/**
- * Both useCallBack && useMemo uses in this file is just micro improvements
- * useCallBack: to avoid re-rendering the component when the function is called
- * useMemo: to avoid re-rendering the component when the value is changed
- * not much improvement than last time
- */
 
 const ReelsComponent = memo((props: any) => {
   const {
@@ -48,9 +42,9 @@ const ReelsComponent = memo((props: any) => {
     isLike,
     commentCount,
     openComment,
-    // openReactionModal,
     isFollow,
     openShareModal,
+    setSkipReload,
   } = props;
 
   const navigation = useNavigation<any>();
@@ -152,11 +146,6 @@ const ReelsComponent = memo((props: any) => {
     [navigation],
   );
 
-  // No need to view people Who likes this video anymore.
-  // const handleReactionModal = useCallback(() => {
-  //   openReactionModal(_id, isLiked);
-  // }, [_id, isLiked, openReactionModal]);
-
   // Render functions for better readability
   const renderProfileImage = useCallback(
     () =>
@@ -241,9 +230,14 @@ const ReelsComponent = memo((props: any) => {
             <MemoizedText style={styles.name}>{user.handleName}</MemoizedText>
             {renderFollowButton()}
           </View>
-          <MemoizedText style={styles.textNormal} numberOfLines={1}>
-            {caption}
-          </MemoizedText>
+          <HashtagText
+            text={caption}
+            clickable={true}
+            baseStyle={styles.textNormal}
+            hashtagColor={Colors.hashtag}
+            hashtagStyle={{ fontWeight: '600' }}
+            setSkipReload={setSkipReload} 
+          />
         </View>
 
         <View style={styles.block2}>

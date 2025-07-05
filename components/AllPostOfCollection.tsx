@@ -8,18 +8,24 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {useCallback, useRef, useState} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 import BottomSheetComment, {
   BottomSheetCommentRef,
 } from '../src/(tabs)/Home/components/CommentSection';
 import ItemHome from '../src/(tabs)/Home/components/ItemHome';
+import { useDispatch } from 'react-redux';
+import { clearSearchResults } from '../services/searchRedux/searchSlice';
+import { clearPosts, clearReels } from '../services/searchRedux/searchReducer';
 import {useTheme} from '../src/util/ThemeContext';
 import {Colors} from '../assets/color/Colors';
+import { AppDispatch } from '../services/store';
 
 interface RouteParams {
   posts: any[]; // danh sách post được truyền vào
   targetPostId: string; // bài viết cần scroll đến
   playlistName: string;
+  clickableHashtag?: boolean;
+  clearSearchRedux?: boolean;
 }
 
 const AllPostOfCollection = () => {
@@ -29,7 +35,8 @@ const AllPostOfCollection = () => {
   const colors = Colors[theme];
   const isFocused = useIsFocused();
 
-  const {posts, targetPostId, playlistName} = route.params as RouteParams;
+  const {posts, targetPostId, playlistName, clickableHashtag = true, clearSearchRedux = true} = route.params as RouteParams;
+  const dispatch = useDispatch<AppDispatch>();
 
   const listRef = useRef<FlatList<any>>(null);
   const sheetRef = useRef<BottomSheetCommentRef>(null);
@@ -43,6 +50,16 @@ const AllPostOfCollection = () => {
     const id = viewableItems[0]?.item?._id;
     if (id) setCurrentVisible(id);
   }, []);
+
+  useEffect(() => {
+    return () => {
+      if (clearSearchRedux) {
+        dispatch(clearSearchResults());
+        dispatch(clearPosts());
+        dispatch(clearReels());
+      }
+    };
+  }, [clearSearchRedux, dispatch]);
 
   return (
     <SafeAreaView style={{flex: 1}}>
@@ -86,6 +103,7 @@ const AllPostOfCollection = () => {
                 sheetRef={sheetRef}
                 isFollow={item.isFollow}
                 setSelectedPostId={setSelectedPostId}
+                clickableHashtags={clickableHashtag}
               />
             );
           }}

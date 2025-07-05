@@ -34,6 +34,7 @@ const InfoAccountCenter = () => {
     } catch (err) {
       console.warn('Lấy FCM token thất bại:', err);
     }
+
     const resultAction = await dispatch(
       fetchLogin({email: user.email, password: user.password, fcmToken}),
     );
@@ -73,7 +74,7 @@ const InfoAccountCenter = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {backgroundColor: color.background}]}>
       <TouchableOpacity
         style={styles.iconBack}
         onPress={() => {

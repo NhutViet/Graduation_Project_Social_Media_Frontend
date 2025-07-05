@@ -39,8 +39,12 @@ if (__DEV__) {
 
 enableScreens();
 
-/** ✅ Đặt hook trong component nằm bên trong Provider */
-const AppContent = () => {
+
+const App = () => {
+  useEffect(() => {
+    createNotificationChannel();
+  }, []);
+
   const {modalData, clearModal} = useNotificationHandler(data => {
     if (!navigationRef.isReady()) return;
 
@@ -58,13 +62,17 @@ const AppContent = () => {
         });
         break;
       case 'message':
-        navigationRef.navigate('MessageScreen', {roomId: data.roomId});
+
+        navigationRef.navigate('MessageScreen', {
+          room: data?.roomId,
+          isWaiting: data?.isWaiting,
+        });
         break;
+
       default:
         break;
     }
   });
-
   const handleAlertRef = (ref: GlobalAlertRef | null) => {
     if (ref) {
       GlobalAlertManager.setAlertRef(ref);

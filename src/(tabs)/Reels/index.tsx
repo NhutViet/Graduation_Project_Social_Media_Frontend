@@ -39,8 +39,8 @@ import {trimOldReels} from '@services/postRedux/postReducer';
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
 
-const MAX_ITEMS_IN_MEMORY = 50; // Keep max 50 items in memory
-const ITEMS_TO_REMOVE = 20; // Remove 20 items when limit is reached
+const MAX_ITEMS_IN_MEMORY = 50;
+const ITEMS_TO_REMOVE = 20;
 
 const Reels = forwardRef((props, ref) => {
   const isFocused = useIsFocused();
@@ -56,6 +56,8 @@ const Reels = forwardRef((props, ref) => {
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [canLoadMore, setCanLoadMore] = useState(true);
+  // Add flag to track if we're coming back from hashtag navigation
+  const [skipReload, setSkipReload] = useState(false);
 
   const onViewRef = useRef(({viewableItems}: {viewableItems: any[]}) => {
     if (viewableItems.length > 0) {
@@ -67,7 +69,7 @@ const Reels = forwardRef((props, ref) => {
         setCurrentVisible(id);
 
         const totalItems = reels.length;
-        const isNearEnd = index >= totalItems - 2; // Load new page when 2 items from end
+        const isNearEnd = index >= totalItems - 2;
 
         if (
           isNearEnd &&
@@ -83,7 +85,7 @@ const Reels = forwardRef((props, ref) => {
             totalItems,
           );
           setIsLoadingMore(true);
-          setCanLoadMore(false); // Prevent immediate re-trigger
+          setCanLoadMore(false);
           dispatch(fetchReelsWithMedia({page: page + 1}));
         }
       }
@@ -97,6 +99,7 @@ const Reels = forwardRef((props, ref) => {
   useImperativeHandle(ref, () => ({
     reload: () => {
       setIsInitialLoad(true);
+      setSkipReload(false);
       dispatch(fetchReelsWithMedia({page: 1}));
     },
   }));
@@ -107,12 +110,21 @@ const Reels = forwardRef((props, ref) => {
     (state: RootState) => state.post,
   );
 
+  // Modified useFocusEffect to respect skipReload flag
   useFocusEffect(
     useCallback(() => {
-      setIsInitialLoad(true);
-      setCanLoadMore(true);
-      dispatch(fetchReelsWithMedia({page: 1}));
-    }, [dispatch]),
+      if (skipReload) {
+        setSkipReload(false); // Reset flag after skipping
+        return;
+      }
+      
+      // Only reload if we have no reels or if it's truly a fresh load
+      if (reels.length === 0 || isInitialLoad) {
+        setIsInitialLoad(true);
+        setCanLoadMore(true);
+        dispatch(fetchReelsWithMedia({page: 1}));
+      }
+    }, [dispatch, skipReload, reels.length, isInitialLoad]),
   );
 
   useEffect(() => {
@@ -120,10 +132,8 @@ const Reels = forwardRef((props, ref) => {
       setIsInitialLoad(false);
     }
 
-    // Reset loading more flag when loading completes and re-enable loading after delay
     if (!loading && isLoadingMore) {
       setIsLoadingMore(false);
-      // Add a small delay before allowing next load to prevent immediate re-trigger
       setTimeout(() => {
         setCanLoadMore(true);
       }, 1000);
@@ -139,7 +149,6 @@ const Reels = forwardRef((props, ref) => {
     }
   }, [loading, hasNextPage, isLoadingMore, canLoadMore, dispatch, page]);
 
-  // Remove old items when too many are loaded
   useEffect(() => {
     if (reels.length > MAX_ITEMS_IN_MEMORY) {
       dispatch(trimOldReels(ITEMS_TO_REMOVE));
@@ -204,6 +213,7 @@ const Reels = forwardRef((props, ref) => {
               currentVisible={shouldPlay}
               isFollow={item?.isFollow}
               muted={false}
+              setSkipReload={setSkipReload} // Pass the setter to ReelsComponent
               showBottomSheet={() => {
                 setSelectedItem(item);
                 setIsCurrentBookmarked(item.isBookmarked);
@@ -243,7 +253,7 @@ const Reels = forwardRef((props, ref) => {
         selectedItem={selectedItem}
       />
       <BottomSheetComment
-        ref={sheetRef}
+        ref={sheetRefComment}
         postId={selectedPostId.postId}
         receiverId={selectedPostId.receiverId}
       />

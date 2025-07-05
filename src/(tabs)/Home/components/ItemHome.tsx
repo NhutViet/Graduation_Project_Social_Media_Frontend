@@ -25,6 +25,8 @@ import {useItemHomeAudio} from '../hook/useItemHomeAudio';
 import {ItemHomeHeader} from './ItemHomeHeader';
 import {ItemHomeActions} from './ItemHomeActions';
 import {fetchCommentsByPost} from '@services/commentRedux/commentSlice';
+import HashtagText from '../../../../components/HashtagText';
+import {Colors} from '@assets/color/Colors';
 
 Sound.setCategory('Playback');
 const screenWidth = Dimensions.get('window').width;
@@ -37,7 +39,6 @@ const ItemHome = (props: ItemHomeProps) => {
     createdAt,
     media,
     user,
-    musicInfo,
     sheetRef,
     isFocused,
     currentVisible,
@@ -48,6 +49,7 @@ const ItemHome = (props: ItemHomeProps) => {
     share,
     music,
     setSelectedPostId,
+    clickableHashtags = true,
     isFollow,
   } = props;
   const navigation: any = useNavigation();
@@ -58,7 +60,7 @@ const ItemHome = (props: ItemHomeProps) => {
   const state = useItemHomeState(props);
   const actions = useItemHomeActions(props, state, isFollow);
   const modal = useItemHomeModal(actions, state, isFollow);
-  const utils = useItemHomeUtils(props, state);  
+  const utils = useItemHomeUtils(props, state);
 
   useEffect(() => {
     state.setIsBookmark(isBookmarked);
@@ -71,7 +73,7 @@ const ItemHome = (props: ItemHomeProps) => {
 
   const currentUserID = useSelector((state: RootState) => state.user.user?._id);
 
-  // Sync local state with Redux state 
+  // Sync local state with Redux state
   useEffect(() => {
     state.setIsLiked(isLikedFromRedux);
   }, [isLikedFromRedux]);
@@ -86,7 +88,7 @@ const ItemHome = (props: ItemHomeProps) => {
   // Initialize local state from props only once
   useEffect(() => {
     state.setIsLiked(isLike);
-  }, [_id]); 
+  }, [_id]);
 
   const handleLikePress = useCallback(async () => {
     if (likeLoading) return;
@@ -97,7 +99,7 @@ const ItemHome = (props: ItemHomeProps) => {
     } finally {
       setLikeLoading(false);
     }
-  }, [actions, likeLoading]);  
+  }, [actions, likeLoading]);
 
   const handleUserPress = () => {
     if (user._id === currentUserID) console.log('This is your current proflie');
@@ -189,8 +191,8 @@ const ItemHome = (props: ItemHomeProps) => {
           isBookmarked={state.isBookmark}
           numLike={state.numLike}
           commentCount={commentCount}
-          onLikePress={handleLikePress}  
-          likeDisabled={likeLoading}  
+          onLikePress={handleLikePress}
+          likeDisabled={likeLoading}
           share={share}
           onCommentPress={() => handleOpenComment(_id, user._id)}
           onSharePress={modal.handleOpenShareModal}
@@ -199,9 +201,13 @@ const ItemHome = (props: ItemHomeProps) => {
         />
 
         {caption.trim() !== '' && (
-          <Text style={[ItemHomeStyles.title, {color: utils.iconColor}]}>
-            {caption}
-          </Text>
+          <HashtagText
+            text={caption}
+            clickable={clickableHashtags}
+            baseStyle={[ItemHomeStyles.title, {color: utils.iconColor}]}
+            hashtagColor={Colors.hashtag}
+            hashtagStyle={{fontWeight: '600'}}
+          />
         )}
         <Text style={{color: utils.iconColor, fontSize: 12, marginTop: 5}}>
           {formatTimeAgo(createdAt)}
@@ -209,10 +215,7 @@ const ItemHome = (props: ItemHomeProps) => {
       </View>
 
       <Portal>
-        <ModalShare 
-          ref={modal.modalShareRef}
-          isDark={false}
-        />
+        <ModalShare ref={modal.modalShareRef} isDark={false} />
       </Portal>
 
       <Portal>

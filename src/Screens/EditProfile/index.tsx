@@ -23,6 +23,7 @@ import {useUploadProgress} from '../../../services/UploadProgressManager';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 import {useTheme} from '../../../src/util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
+import { checkProfanityAndAlert } from '../../util/profanityFilter';
 
 async function requestCameraPermission() {
   if (Platform.OS !== 'android') return true;
@@ -184,7 +185,10 @@ export const EditProfile = () => {
       GlobalAlertManager.show('Lỗi', requiredValidation.error || 'Vui lòng điền đầy đủ thông tin bắt buộc');
       return;
     }
-
+    const profanityCheck = [username ?? '', bio ?? '', handleName ?? ''];
+    if (profanityCheck.some(field => checkProfanityAndAlert(field))) {
+      return;
+    }
     // Validate date of birth
     const dateValidation = validateDateOfBirth(dateOfBirth);
     if (!dateValidation.isValid) {

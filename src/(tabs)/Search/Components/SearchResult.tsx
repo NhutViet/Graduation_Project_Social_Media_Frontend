@@ -1,4 +1,4 @@
-import {Dimensions, StyleSheet, Text, View} from 'react-native';
+import {Dimensions, View} from 'react-native';
 import React, {useState} from 'react';
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
@@ -6,7 +6,7 @@ import {TabBar, TabView} from 'react-native-tab-view';
 import SearchForYou from './SearchForYou';
 import HashTag from './HashTag';
 import SearchUser from './SearchUser';
-import { useIsFocused } from '@react-navigation/native';
+import {useIsFocused} from '@react-navigation/native';
 
 interface SearchResultProps {
   searchText: string;
@@ -26,7 +26,6 @@ const SearchResult: React.FC<SearchResultProps> = ({
   const color = Colors[theme];
   const isFocusedPage = useIsFocused();
 
-  //tab
   const [index, setIndex] = useState(0);
   const [routes] = useState([
     {key: 'first', title: 'Bài viết'},
@@ -35,63 +34,57 @@ const SearchResult: React.FC<SearchResultProps> = ({
   ]);
 
   const renderScene = ({route}: any) => {
-    if (index !== routes.findIndex(r => r.key === route.key)) {
-      return null;
-    }
+    if (index !== routes.findIndex(r => r.key === route.key)) return null;
+    
     const isFirstTab = index === 0 && route.key === 'first';
-    switch (route.key) {
-      case 'first':
-        return (
-          <SearchForYou
-            searchText={searchText}
-            isFocusedPage={isFocusedPage}
-            currentVisibleIndex={currentVisibleIndex}
-            onViewableItemsChanged={onViewableItemsChanged}
-            isPause={isPause && isFirstTab}
-          />
-        );
-      case 'second':
-        return <SearchUser />;
-      case 'three':
-        return <HashTag />;
-      default:
-        return null;
-    }
+    const components = {
+      first: (
+        <SearchForYou
+          searchText={searchText}
+          isFocusedPage={isFocusedPage}
+          currentVisibleIndex={currentVisibleIndex}
+          onViewableItemsChanged={onViewableItemsChanged}
+          isPause={isPause && isFirstTab}
+        />
+      ),
+      second: <SearchUser />,
+      three: <HashTag />,
+    };
+    
+    return components[route.key as keyof typeof components] || null;
   };
 
-  const renderLazyPlaceholder = () => {
-    return (
-      <View style={{ flex: 1, backgroundColor: color.background }} />
-    );
-  };
+  const renderLazyPlaceholder = () => (
+    <View style={{flex: 1, backgroundColor: color.background}} />
+  );
+
+  const renderTabBar = (props: any) => (
+    <TabBar
+      {...props}
+      indicatorStyle={{backgroundColor: color.primary}}
+      activeColor={color.primary}
+      inactiveColor={color.text}
+      style={{
+        backgroundColor: color.background,
+        shadowColor: 'transparent',
+        borderBottomWidth: 0.5,
+        borderBottomColor: color.gray,
+      }}
+    />
+  );
 
   return (
     <TabView
       navigationState={{index, routes}}
       lazy
       renderLazyPlaceholder={renderLazyPlaceholder}
-      lazyPreloadDistance={0}  
+      lazyPreloadDistance={0}
       renderScene={renderScene}
       onIndexChange={setIndex}
       initialLayout={{width: layout.width}}
-      renderTabBar={tabBarProps => (
-        <TabBar
-          {...tabBarProps}
-          indicatorStyle={{backgroundColor: color.primary}}
-          activeColor={color.primary}
-          inactiveColor={color.text}
-          style={({
-            backgroundColor: color.background,
-            shadowColor: 'transparent',
-            borderBottomWidth: 0.5,
-            borderBottomColor: color.gray,
-          })}
-        />
-      )}
+      renderTabBar={renderTabBar}
     />
   );
 };
 
 export default SearchResult;
-
-const styles = StyleSheet.create({});

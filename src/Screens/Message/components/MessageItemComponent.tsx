@@ -57,24 +57,17 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
 
     if (item.media?.type === 'call') {
       return (
-        <View style={styles.wrapperCallButton}>
-          <View style={styles.topContainer}>
-            {item.media.duration ? (
-              <>
-                <Text style={styles.textContent}>{item.content}</Text>
-                <Text style={styles.textContent}>{item.media.duration}</Text>
-              </>
-            ) : (
-              <View style={styles.centerContent}>
-                <Text style={styles.textContent}>{item.content}</Text>
-              </View>
-            )}
-          </View>
-          <TouchableOpacity style={styles.bottomContainer} onPress={() => onLongPress(item)} activeOpacity={0.7}>
-            <Text style={[styles.callText, { color: color.black }]}>📞 Gọi lại</Text>
+        <View style={{ width: 140 }}>
+          <Text style={{ color: color.text, fontSize: 14 }}>{item.content}</Text>
+          {item.media.duration && (
+            <Text style={{ color: color.text, fontSize: 14 }}>
+              {item.media.duration}
+            </Text>
+          )}
+          <TouchableOpacity style={styles.callButton}>
+            <Text style={{ color: color.text, fontSize: 13 }}>📞 Gọi lại</Text>
           </TouchableOpacity>
         </View>
-
       );
     }
 
@@ -87,25 +80,34 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
     return (
       <>
         {filteredText !== '' && (
-          <Text style={{ color: color.whiteSmoke, fontSize: 14 }}>
+          <Text
+            style={{
+              color: color.text,
+              textAlign: linkPreviews[index] && 'right',
+              fontSize: 14,
+            }}>
             {filteredText}
           </Text>
         )}
         {linkPreviews[index] && (
           <TouchableOpacity
             onPress={() => Linking.openURL(linkPreviews[index].url)}
-            onLongPress={() => onLongPress(item)}
+            onLongPress={() => onLongPress?.(item)}
             style={{
               borderRadius: 8,
               backgroundColor: color.backgroundSecondary,
               marginTop: 5,
               maxWidth: 200,
-            }}
-          >
+            }}>
             {linkPreviews[index].images?.length > 0 && (
               <Image
                 source={{ uri: linkPreviews[index].images[0] }}
-                style={{ width: '100%', height: 140, borderRadius: 6, marginBottom: 6 }}
+                style={{
+                  width: '100%',
+                  height: 140,
+                  borderRadius: 6,
+                  marginBottom: 6,
+                }}
                 resizeMode="cover"
               />
             )}
@@ -117,24 +119,21 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
                 marginBottom: 4,
               }}
               numberOfLines={2}
-              ellipsizeMode="tail"
-            >
+              ellipsizeMode="tail">
               {linkPreviews[index].title}
             </Text>
             {linkPreviews[index].description && (
               <Text
                 numberOfLines={1}
                 ellipsizeMode="tail"
-                style={{ color: 'gray', fontSize: 12 }}
-              >
+                style={{ color: 'gray', fontSize: 12 }}>
                 {linkPreviews[index].description}
               </Text>
             )}
             <Text
-              style={{ color: color.blue, fontSize: 12, marginTop: 4 }}
+              style={{ color: '#007AFF', fontSize: 12, marginTop: 4 }}
               numberOfLines={2}
-              ellipsizeMode="tail"
-            >
+              ellipsizeMode="tail">
               {linkPreviews[index].url}
             </Text>
           </TouchableOpacity>
@@ -143,27 +142,28 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
     );
   };
 
-  // Bubble message
   const renderMessageBubble = () => (
-    <TouchableOpacity activeOpacity={0.7} onLongPress={() => onLongPress(item)}>
+    <TouchableOpacity
+      activeOpacity={0.7}
+      onLongPress={() => onLongPress?.(item)}>
       <View
         style={[
           styles.message,
           {
-            marginLeft: isMe || showAvatar ? 0 : 40,
+            marginLeft: isMe || showAvatar ? 0 : 50,
             marginRight: isMe ? 0 : 40,
-            backgroundColor: color.blue,
-            paddingVertical:
-              item.media?.type === 'image' || item.media?.type === 'call'
-                ? 0
-                : 10,
-            paddingHorizontal:
-              item.media?.type === 'image' || item.media?.type === 'call'
-                ? 0
-                : 12,
+            backgroundColor: item.media
+              ? item.media.type === 'call'
+                ? color.backgroundSecondary
+                : 'transparent'
+              : !isMe
+                ? color.backgroundSecondary
+                : !linkPreviews[index] && !item.media
+                  ? '#00BFFF'
+                  : color.backgroundSecondary,
+            padding: item.media?.type === 'image' ? 0 : 10,
           },
-        ]}
-      >
+        ]}>
         {renderContent()}
       </View>
     </TouchableOpacity>
@@ -174,8 +174,7 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
       style={[
         styles.containerMessage,
         { justifyContent: isMe ? 'flex-end' : 'flex-start' },
-      ]}
-    >
+      ]}>
       {renderAvatar()}
       <View style={[styles.row, { alignItems: isMe ? 'flex-end' : 'flex-start' }]}>
         {renderMessageBubble()}
