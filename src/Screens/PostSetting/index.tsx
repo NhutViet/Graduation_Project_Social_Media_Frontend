@@ -33,6 +33,10 @@ import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 import {checkProfanityAndAlert} from '../../util/profanityFilter';
 import {fetchFollowers} from '@services/relationRedux/relationSlice';
 import MentionSuggestion from './Components/MentionSuggestion';
+import Animated, {
+  useAnimatedScrollHandler,
+  useSharedValue,
+} from 'react-native-reanimated';
 
 type Params = {
   updated?: TaggedMedia[];
@@ -58,6 +62,12 @@ export const PostSetting = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [captionLayoutY, setCaptionLayoutY] = useState(0);
   const popupHeight = 200;
+
+  const scrollY = useSharedValue(0);
+
+  const scrollHandler = useAnimatedScrollHandler(event => {
+    scrollY.value = event.contentOffset.y;
+  });
 
   //lâys dữ liệu
   const route = useRoute();
@@ -254,7 +264,10 @@ export const PostSetting = () => {
         <Text style={styles.title}>Bài viết mới</Text>
         <View style={styles.iconR}></View>
       </View>
-      <ScrollView style={styles.container}>
+      <Animated.ScrollView
+        style={styles.container}
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}>
         <View
           style={[
             {
@@ -311,9 +324,10 @@ export const PostSetting = () => {
             setShowSuggestions(false);
           }}
           backgroundColor={color.background}
-          positionY={Math.max(captionLayoutY - popupHeight - 10, 20)}
+          positionY={captionLayoutY}
+          scrollY={scrollY}
         />
-        
+
         <TextInput
           placeholder="Thêm chú thích"
           placeholderTextColor={color.textSecondary}
@@ -323,7 +337,9 @@ export const PostSetting = () => {
           value={caption}
           onChangeText={handleChangeText}
           onLayout={e => {
-            setCaptionLayoutY(e.nativeEvent.layout.y);
+            e.target.measureInWindow((_x, y) => {
+              setCaptionLayoutY(y);
+            });
           }}
         />
         <TouchableOpacity style={styles.btnTD}>
@@ -363,7 +379,7 @@ export const PostSetting = () => {
           iconRight={require('../../../assets/icon/right.png')}
           iconLeft={require('../../../assets/icon/threedot.png')}
         />
-      </ScrollView>
+      </Animated.ScrollView>
       <TouchableOpacity style={styles.btnShare} onPress={handleUploadAll}>
         <Text style={styles.textBtn}>Chia sẻ</Text>
       </TouchableOpacity>

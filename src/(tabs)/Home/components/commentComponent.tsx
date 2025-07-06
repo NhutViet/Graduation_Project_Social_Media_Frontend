@@ -14,6 +14,7 @@ import {formatTimeAgo} from '../util';
 import {useDispatch} from 'react-redux';
 import {AppDispatch} from '@services/store';
 import {likeComment, unlikeComment} from '@services/commentRedux/commentSlice';
+import HashtagText from '../../../../components/HashtagText';
 
 const width = Dimensions.get('window').width - 96;
 const fallbackImg =
@@ -33,15 +34,18 @@ interface CommentComponentProps {
   isLiked: boolean;
   createdAt: string;
   reply?: CommentComponentProps[];
+  navigation: any;
 }
 
 const ReplyComment = memo(
   ({
     item,
     onReply,
+    navigation,
   }: {
     item: CommentComponentProps;
     onReply: (id: string, handleName: string) => void;
+    navigation: any;
   }) => {
     const {theme} = useTheme();
     const color = Colors[theme];
@@ -53,7 +57,6 @@ const ReplyComment = memo(
       likedBy = [],
       isLiked: defaultLiked,
     } = item;
-
     const dispatch = useDispatch<AppDispatch>();
     const [isLiked, setIsLiked] = useState(defaultLiked);
     const [totalLikes, setTotalLikes] = useState(likedBy.length);
@@ -91,11 +94,14 @@ const ReplyComment = memo(
                 {formatTimeAgo(createdAt)}
               </Text>
             </View>
-            <Text
-              style={[styles.content, {color: color.text}]}
-              numberOfLines={3}>
-              {content}
-            </Text>
+            <HashtagText
+              text={content}
+              clickable={true}
+              baseStyle={[styles.content, {color: color.text}]}
+              hashtagColor={Colors.hashtag}
+              hashtagStyle={{fontWeight: '600'}}
+              navigation={navigation}
+            />
             <TouchableOpacity>
               <Text style={[styles.text, {color: color.text}]}>
                 xem bản dịch
@@ -132,12 +138,12 @@ const CommentComponent = memo((props: CommentComponentProps) => {
     isLiked: defaultLiked,
     reply = [],
     onReply,
+    navigation,
   } = props;
 
   const {theme} = useTheme();
   const color = Colors[theme];
   const dispatch = useDispatch<AppDispatch>();
-
   const [isLiked, setIsLiked] = useState(defaultLiked);
   const [totalLikes, setTotalLikes] = useState(likedBy.length);
   const [moreComment, setMoreComment] = useState(false);
@@ -175,9 +181,14 @@ const CommentComponent = memo((props: CommentComponentProps) => {
               {formatTimeAgo(createdAt)}
             </Text>
           </View>
-          <Text style={[styles.content, {color: color.text}]} numberOfLines={3}>
-            {content}
-          </Text>
+          <HashtagText
+            text={content}
+            clickable={true}
+            baseStyle={[styles.content, {color: color.text}]}
+            hashtagColor={Colors.hashtag}
+            hashtagStyle={{fontWeight: '600'}}
+            navigation={navigation}
+          />
           <View style={[styles.rowContainer, {alignItems: 'center'}]}>
             <TouchableOpacity
               onPress={() => onReply(_id, user?.handleName || '')}>
@@ -198,7 +209,11 @@ const CommentComponent = memo((props: CommentComponentProps) => {
                 <FlashList
                   data={reply}
                   renderItem={({item}) => (
-                    <ReplyComment item={item} onReply={onReply} />
+                    <ReplyComment
+                      item={item}
+                      onReply={onReply}
+                      navigation={navigation}
+                    />
                   )}
                   keyExtractor={item => item._id}
                   estimatedItemSize={50}

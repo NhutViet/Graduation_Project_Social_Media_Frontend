@@ -195,3 +195,23 @@ export const getPublicProfile = createAsyncThunk<
     });
   }
 });
+
+export const fetchUserIdByHandleName = createAsyncThunk<
+  { userId: string },
+  { handleName: string },
+  { rejectValue: { message: string } }
+>('users/fetchUserIdByHandleName', async ({ handleName }, { rejectWithValue }) => {
+  try {
+    const res = await axiosInstance.get(`${API.GET_USER_ID_BY_HANDLE}/${handleName}`, {
+      headers: {
+        token: 'refresh',
+      },
+    });
+
+    return { userId: res.data.userId };
+  } catch (error: any) {
+    return rejectWithValue({
+      message: error.response?.data?.message || 'Failed to fetch user ID',
+    });
+  }
+});

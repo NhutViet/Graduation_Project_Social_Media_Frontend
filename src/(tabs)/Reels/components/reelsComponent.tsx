@@ -96,7 +96,7 @@ const ReelsComponent = memo((props: any) => {
           refreshToken,
           receiverId: user?._id,
           handleName: currentUser?.handleName ?? '',
-          userId: currentUser?._id
+          userId: currentUser?._id,
         }),
       ).unwrap();
 
@@ -235,8 +235,9 @@ const ReelsComponent = memo((props: any) => {
             clickable={true}
             baseStyle={styles.textNormal}
             hashtagColor={Colors.hashtag}
-            hashtagStyle={{ fontWeight: '600' }}
-            setSkipReload={setSkipReload} 
+            hashtagStyle={{fontWeight: '600'}}
+            setSkipReload={setSkipReload}
+            navigation={navigation}
           />
         </View>
 

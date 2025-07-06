@@ -1,10 +1,12 @@
 import React, {useMemo, useCallback} from 'react';
-import {Text, TextStyle, StyleProp, TouchableOpacity} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import {Text, TextStyle, StyleProp} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {fetchSearchPost} from '../services/searchRedux/searchSlice';
 import {AppDispatch, RootState} from '../services/store';
 import {Colors} from '../assets/color/Colors';
+import {fetchUserIdByHandleName} from '@services/userRedux/userSlice';
+import {GlobalAlertManager} from './Global/AlertModal';
+import {useTheme} from '../src/util/ThemeContext';
 
 export interface HashtagTextProps {
   text: string;
@@ -13,6 +15,7 @@ export interface HashtagTextProps {
   hashtagColor?: string;
   baseStyle?: StyleProp<TextStyle>;
   hashtagStyle?: StyleProp<TextStyle>;
+  navigation?: any;
   setSkipReload?: (skip: boolean) => void;
 }
 
@@ -23,9 +26,11 @@ const HashtagText: React.FC<HashtagTextProps> = ({
   hashtagColor = Colors.hashtag,
   baseStyle,
   hashtagStyle,
+  navigation,
   setSkipReload,
 }) => {
-  const navigation = useNavigation<any>();
+  const {theme} = useTheme();
+  const color = Colors[theme];
   const dispatch = useDispatch<AppDispatch>();
   const {refreshToken} = useSelector((state: RootState) => state.user);
 
@@ -81,9 +86,20 @@ const HashtagText: React.FC<HashtagTextProps> = ({
   );
 
   const onPressMention = useCallback(
-    (mention: string) => {
+    async (mention: string) => {
       const handleName = mention.replace('@', '');
-      //// api
+      try {
+        const result = await dispatch(fetchUserIdByHandleName({handleName}));
+
+        if (fetchUserIdByHandleName.fulfilled.match(result)) {
+          const userId = result.payload.userId;
+          navigation.navigate('ProfileComp', {userID: userId});
+        } else {
+          GlobalAlertManager.show('Lỗi', 'Không tìm thấy người dùng');
+        }
+      } catch (error) {
+        GlobalAlertManager.show('Lỗi', 'Lỗi khi chuyển trang người dùng');
+      }
     },
     [dispatch, navigation],
   );
@@ -103,8 +119,8 @@ const HashtagText: React.FC<HashtagTextProps> = ({
         } else if (tok.type === 'mention') {
           return (
             <Text
-              key={i} 
-              style={{color: hashtagColor, fontWeight: 'bold', fontSize: 14}}
+              key={i}
+              style={{color: color.text, fontWeight: 'bold', fontSize: 14}}
               onPress={() => onPressMention(tok.text)}>
               {tok.text}
             </Text>

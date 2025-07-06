@@ -1,4 +1,3 @@
-import {Portal} from 'react-native-portalize';
 import React from 'react';
 import {
   View,
@@ -8,6 +7,8 @@ import {
   Image,
   StyleSheet,
 } from 'react-native';
+import {Portal} from 'react-native-portalize';
+import Animated, {useAnimatedStyle, SharedValue} from 'react-native-reanimated';
 import {UserProfile} from '@services/relationRedux/relationTypes';
 
 interface MentionSuggestionProps {
@@ -16,8 +17,12 @@ interface MentionSuggestionProps {
   followers: UserProfile[];
   onSelect: (handleName: string) => void;
   backgroundColor: string;
-  positionY?: number;
+  positionY: number;
+  scrollY: SharedValue<number>;
 }
+
+const POPUP_HEIGHT = 200;
+const VERTICAL_OFFSET = 10;
 
 const MentionSuggestion = ({
   visible,
@@ -25,7 +30,8 @@ const MentionSuggestion = ({
   followers,
   onSelect,
   backgroundColor,
-  positionY = 200,
+  positionY,
+  scrollY,
 }: MentionSuggestionProps) => {
   if (!visible) return null;
 
@@ -33,12 +39,20 @@ const MentionSuggestion = ({
     f.handleName.toLowerCase().includes(query.toLowerCase()),
   );
 
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      top: positionY - scrollY.value - POPUP_HEIGHT - VERTICAL_OFFSET,
+    };
+  });
+
   return (
     <Portal>
-      <View style={[styles.container, {top: positionY, backgroundColor}]}>
+      <Animated.View
+        style={[styles.container, animatedStyle, {backgroundColor}]}>
         <FlatList
           data={filtered}
           keyExtractor={item => item._id}
+          keyboardShouldPersistTaps="handled"
           renderItem={({item}) => (
             <TouchableOpacity
               onPress={() => onSelect(item.handleName)}
@@ -51,7 +65,7 @@ const MentionSuggestion = ({
             </TouchableOpacity>
           )}
         />
-      </View>
+      </Animated.View>
     </Portal>
   );
 };
@@ -61,7 +75,7 @@ export default MentionSuggestion;
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    left: '5%',
+    left: '10%',
     width: '80%',
     maxHeight: 200,
     borderRadius: 10,
