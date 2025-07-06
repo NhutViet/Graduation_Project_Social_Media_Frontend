@@ -1,3 +1,4 @@
+import React, {useState, useEffect, useMemo, useCallback} from 'react';
 import {
   StyleSheet,
   Text,
@@ -7,12 +8,11 @@ import {
   TextInput,
   ActivityIndicator,
 } from 'react-native';
-import React, {useState, useEffect, useMemo} from 'react';
 import {FlashList, ListRenderItem} from '@shopify/flash-list';
-import {Colors} from '../../../../assets/color/Colors';
-import {useTheme} from '../../../util/ThemeContext';
 import {useNavigation} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
+import {Colors} from '../../../../assets/color/Colors';
+import {useTheme} from '../../../util/ThemeContext';
 import {AppDispatch, RootState} from '../../../../services/store';
 import {
   fetchFollowers,
@@ -21,27 +21,31 @@ import {
 } from '../../../../services/relationRedux/relationSlice';
 import {createRoom} from '../../../../services/roomRedux/roomSlice';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
-import { UserProfile } from '@services/relationRedux/relationTypes';
+import {UserProfile} from '@services/relationRedux/relationTypes';
 
 const FollowersTab = () => {
   const navigation: any = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];
+  const dispatch = useDispatch<AppDispatch>();
+
   const userID = useSelector((state: RootState) => state.user?.user?._id);
   const user = useSelector((state: RootState) => state.user.user);
-  const dispatch = useDispatch<AppDispatch>();
-  const { followers, following, loading, error } = useSelector((state: RootState) => state.relation);
-
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isError, setIsError] = useState<string | null>(null);
+  const {followers, following, loading, error} = useSelector(
+    (state: RootState) => state.relation,
+  );
 
   useEffect(() => {
-    if (!userID) return;
-      dispatch(fetchFollowers({ userId: userID }));
-      dispatch(fetchFollowing({ userId: userID }));
-  }, [dispatch, userID]);
+    if (userID) {
+      dispatch(fetchFollowers({userId: userID}));
+      dispatch(fetchFollowing({userId: userID}));
+    }
+  }, [userID]);
 
-  const followingIds = useMemo(() => new Set(following.map(u => u._id)), [following]);
+  const followingIds = useMemo(
+    () => new Set(following.map(u => u._id)),
+    [following],
+  );
 
   const displayList = useMemo(() => {
     const mutual = followers.filter(u => followingIds.has(u._id));
@@ -49,19 +53,62 @@ const FollowersTab = () => {
     return [...mutual, ...others];
   }, [followers, followingIds]);
 
-  const renderItem: ListRenderItem<UserProfile> = ({ item }) => {
+  const handleActionButton = useCallback(
+    async (item: UserProfile) => {
+      if (followingIds.has(item._id)) {
+        try {
+          const res = await dispatch(
+            createRoom({
+              name: '',
+              user_ids: [item._id],
+              type: 'waiting',
+            }),
+          ).unwrap();
+
+          const room = res.room;
+          const otherUsers = room.user_ids.filter(u => u._id !== userID);
+          const img1 = otherUsers[0]?.profilePic;
+          const img2 = room.user_ids.find(u => u._id === userID)?.profilePic;
+
+          navigation.navigate('MessageScreen', {
+            room: room._id,
+            img1,
+            img2,
+          });
+        } catch (error) {
+          console.log('Tạo room thất bại:', error);
+        }
+      } else {
+        try {
+          await dispatch(
+            relationAction({
+              targetId: item._id,
+              action: 'follow',
+              senderId: user?._id,
+              handleName: user?.handleName,
+            }),
+          ).unwrap();
+        } catch (error) {
+          GlobalAlertManager.show('Thất bại', 'Vui lòng thử lại sau');
+        }
+      }
+    },
+    [dispatch, followingIds, userID, user],
+  );
+
+  const renderItem: ListRenderItem<UserProfile> = ({item}) => {
     const isMutual = followingIds.has(item._id);
-    return(
+    return (
       <View style={styles.userContainer}>
         <TouchableOpacity style={styles.touchableInfo}>
-          {item.profilePic ? (
-            <Image source={{uri: item.profilePic}} style={styles.avatar} />
-          ) : (
-            <Image
-              source={require('../../../../assets/icon/user.png')}
-              style={styles.avatar}
-            />
-          )}
+          <Image
+            source={
+              item.profilePic
+                ? {uri: item.profilePic}
+                : require('../../../../assets/icon/user.png')
+            }
+            style={styles.avatar}
+          />
           <View style={styles.userInfo}>
             <Text style={[styles.handle, {color: color.text}]}>
               {item.handleName}
@@ -71,11 +118,12 @@ const FollowersTab = () => {
             </Text>
           </View>
         </TouchableOpacity>
+
         <TouchableOpacity
           style={[
             styles.actionButton,
             isMutual
-              ? [styles.messageButton, { borderColor: color.text }]
+              ? [styles.messageButton, {borderColor: color.text}]
               : styles.followBack,
           ]}
           onPress={() => handleActionButton(item)}>
@@ -83,7 +131,7 @@ const FollowersTab = () => {
             style={[
               styles.buttonText,
               isMutual
-                ? [styles.messageText, { color: color.text }]
+                ? [styles.messageText, {color: color.text}]
                 : styles.followText,
             ]}>
             {isMutual ? 'Bạn bè' : 'Theo dõi'}
@@ -91,50 +139,6 @@ const FollowersTab = () => {
         </TouchableOpacity>
       </View>
     );
-  };
-
-  const handleActionButton = async (item: UserProfile) => {
-    if (followingIds.has(item._id)) {
-      try {
-        const res = await dispatch(
-          createRoom({
-            name: '',
-            user_ids: [item._id],
-            type: 'waiting',
-          }),
-        ).unwrap();
-
-        const {room} = res;
-
-        const otherUsers = room.user_ids.filter(user => user._id !== userID);
-        const img1 = otherUsers[0]?.profilePic;
-        const img2 = userID
-          ? room.user_ids.find(user => user._id === userID)?.profilePic
-          : undefined;
-
-        navigation.navigate('MessageScreen', {
-          room: room._id,
-          img1,
-          img2,
-        });
-      } catch (error) {
-        console.log('Tạo room thất bại:', error);
-      }
-    } else {
-      try {
-        await dispatch(
-          relationAction({
-            targetId: item._id,
-            action: 'follow',
-            senderId: user?._id,
-            handleName: user?.handleName,
-          }),
-        ).unwrap();
-      } catch (error) {
-        GlobalAlertManager.show('Thất bại', 'Vui lòng thử lại sau');
-        console.log(error);
-      }
-    }
   };
 
   if (loading) {
@@ -179,10 +183,7 @@ const FollowersTab = () => {
           styles.searchBarArea,
           {backgroundColor: color.background, borderBottomColor: color.border},
         ]}>
-        <View
-          style={[
-            styles.searchBarContainer,
-          ]}>
+        <View style={styles.searchBarContainer}>
           <TextInput
             style={[
               styles.searchBar,
@@ -197,16 +198,18 @@ const FollowersTab = () => {
           />
         </View>
       </View>
-      {}
-      <FlashList
-        data={displayList}
-        keyExtractor={item => item._id}
-        renderItem={renderItem}
-        estimatedItemSize={50}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContent}
-        extraData={followingIds}
-      />
+
+      <View style={{flex: 1}}>
+        <FlashList
+          data={displayList}
+          keyExtractor={item => item._id}
+          renderItem={renderItem}
+          estimatedItemSize={50}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listContent}
+          extraData={followingIds}
+        />
+      </View>
     </View>
   );
 };

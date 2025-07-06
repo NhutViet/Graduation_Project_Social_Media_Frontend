@@ -1,3 +1,4 @@
+import {Colors} from '@assets/color/Colors';
 import React from 'react';
 import {
   Modal,
@@ -5,12 +6,10 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  Animated,
-  Dimensions,
   StatusBar,
+  Platform,
 } from 'react-native';
-
-const { width } = Dimensions.get('window');
+import {useTheme} from '../../../../src/util/ThemeContext';
 
 interface MoreActionModalProps {
   visible: boolean;
@@ -25,66 +24,90 @@ export const MoreActionModal: React.FC<MoreActionModalProps> = ({
   onUnfollow,
   onReport,
 }) => {
+  const {theme} = useTheme();
+  const color = Colors[theme];
+
   if (!visible) return null;
 
   return (
-    <Modal transparent visible={visible} animationType="fade" statusBarTranslucent>
-      <StatusBar backgroundColor="rgba(0,0,0,0.5)" barStyle="light-content" />
+    <Modal
+      transparent
+      visible={visible}
+      animationType="slide"
+      statusBarTranslucent>
+      <StatusBar backgroundColor="rgba(0,0,0,0.4)" barStyle="light-content" />
       <View style={styles.overlay}>
-        <View style={styles.container}>
-          <TouchableOpacity style={styles.option} onPress={() => { onUnfollow(); onClose(); }}>
-            <Text style={styles.optionTextDestructive}>Bỏ theo dõi</Text>
-          </TouchableOpacity>
-
-          <View style={styles.separator} />
-
-          <TouchableOpacity style={styles.option} onPress={() => { onReport(); onClose(); }}>
-            <Text style={styles.optionText}>Báo cáo</Text>
-          </TouchableOpacity>
-
-          <View style={styles.separator} />
-
-          <TouchableOpacity style={styles.option} onPress={onClose}>
-            <Text style={styles.optionText}>Hủy</Text>
-          </TouchableOpacity>
+        <View style={styles.sheet}>
+          <View
+            style={[styles.optionsBox, {backgroundColor: color.background}]}>
+            <Option
+              text="Bỏ theo dõi"
+              onPress={() => {
+                onUnfollow();
+                onClose();
+              }}
+              destructive
+            />
+            <Option
+              text="Báo cáo"
+              onPress={() => {
+                onReport();
+                onClose();
+              }}
+            />
+          </View>
+          <View style={[styles.cancelBox, {backgroundColor: color.background}]}>
+            <Option text="Hủy" onPress={onClose} />
+          </View>
         </View>
       </View>
     </Modal>
   );
 };
 
+const Option = ({
+  text,
+  onPress,
+  destructive = false,
+}: {
+  text: string;
+  onPress: () => void;
+  destructive?: boolean;
+}) => (
+  <TouchableOpacity onPress={onPress} style={styles.option}>
+    <Text style={[styles.optionText, destructive && styles.destructiveText]}>
+      {text}
+    </Text>
+  </TouchableOpacity>
+);
+
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.25)',
     justifyContent: 'flex-end',
   },
-  container: {
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    paddingBottom: 20,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 10,
+  sheet: {
+    padding: 10,
+  },
+  optionsBox: {
+    borderRadius: 14,
+    overflow: 'hidden',
+  },
+  cancelBox: {
+    borderRadius: 14,
+    marginTop: 10,
   },
   option: {
     paddingVertical: 16,
     alignItems: 'center',
   },
   optionText: {
-    fontSize: 18,
-    color: '#007BFF',
+    fontSize: 17,
+    color: '#007AFF',
+    fontWeight: Platform.OS === 'ios' ? '500' : 'bold',
   },
-  optionTextDestructive: {
-    fontSize: 18,
+  destructiveText: {
     color: '#FF3B30',
-    fontWeight: '600',
-  },
-  separator: {
-    height: 1,
-    backgroundColor: '#EFEFEF',
-    marginHorizontal: 20,
   },
 });

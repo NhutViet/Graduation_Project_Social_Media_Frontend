@@ -21,7 +21,6 @@ import {formatNumber} from '../../../../src/(tabs)/Home/util';
 import HashtagText from '../../../../components/HashtagText';
 
 const width = Dimensions.get('window').width;
-const height = Dimensions.get('window').height - 60;
 
 const MemoizedTagMarker = memo(TagMarker);
 const MemoizedImage = memo(Image);
@@ -45,6 +44,7 @@ const ReelsComponent = memo((props: any) => {
     isFollow,
     openShareModal,
     setSkipReload,
+    containerHeight,
   } = props;
 
   const navigation = useNavigation<any>();
@@ -197,7 +197,7 @@ const ReelsComponent = memo((props: any) => {
   );
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {height: containerHeight}]}>
       <View style={styles.video}>
         <Video
           source={{uri: media[0]?.videoUrl}}
@@ -310,7 +310,6 @@ const styles = StyleSheet.create({
   container: {
     position: 'relative',
     width: width,
-    height: height,
     backgroundColor: Colors.black,
   },
   rowContainer: {
@@ -377,6 +376,8 @@ const styles = StyleSheet.create({
   },
   video: {
     flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   tagOverlay: {
     position: 'absolute',

@@ -1,12 +1,5 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {
-  TouchableOpacity,
-  View,
-  Text,
-  SafeAreaView,
-  Image,
-  ScrollView,
-} from 'react-native';
+import {TouchableOpacity, View, Text, SafeAreaView, Image} from 'react-native';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
@@ -36,7 +29,8 @@ import {getPostsAndReelsOfUser} from '../../../services/postUserRedux/postUserSl
 import ACNavigateModal, {
   ACNavigateRef,
 } from '../../../src/Screens/AccountCenter/components/ACNavigateModal';
-import { fetchTaggedPosts } from '@services/taggedPostRedux/taggedPostSlice';
+import {fetchTaggedPosts} from '@services/taggedPostRedux/taggedPostSlice';
+import {FlashList} from '@shopify/flash-list';
 
 const Profile = () => {
   const navigation: any = useNavigation();
@@ -207,7 +201,7 @@ const Profile = () => {
             <Moon size={14} color={color.textSecondary} />
             <Text style={[styles.modeText, {color: color.textSecondary}]}>
               {' '}
-              {/* in quiet mode */} Ở chế độ im lặng
+              Ở chế độ im lặng
             </Text>
           </View>
           {handleLengthBio(user?.bio)}
@@ -345,21 +339,32 @@ const Profile = () => {
     }, [dispatch, refreshToken, userId]),
   );
 
+  const handleAddAccountPress = () => {
+    setSwitchAccountVisible(false);
+    requestAnimationFrame(() => {
+      acModalRef.current?.open();
+    });
+  };
+
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
-      <ScrollView>
-        {renderHeader()}
-        {renderTabBar()}
-        {renderContent()}
-      </ScrollView>
+      <FlashList
+        data={[{}]}
+        showsVerticalScrollIndicator={false}
+        renderItem={() => renderContent()}
+        ListHeaderComponent={
+          <>
+            {renderHeader()}
+            {renderTabBar()}
+          </>
+        }
+        estimatedItemSize={1000}
+      />
       <SwitchAccount
         visible={isSwitchAccountVisible}
         onClose={() => setSwitchAccountVisible(false)}
         navigation={navigation}
-        onAddAccountPress={() => {
-          setSwitchAccountVisible(false);
-          setTimeout(() => acModalRef.current?.open(), 200);
-        }}
+        onAddAccountPress={handleAddAccountPress}
       />
       <ViewMore
         visible={isViewMoreVisible}

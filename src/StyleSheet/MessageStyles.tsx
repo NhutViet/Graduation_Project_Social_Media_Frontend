@@ -1,5 +1,5 @@
-import { Dimensions, StyleSheet } from 'react-native';
-import { Colors } from '../../assets/color/Colors';
+import {Dimensions, StyleSheet} from 'react-native';
+import {Colors} from '../../assets/color/Colors';
 
 type ThemeType = 'light' | 'dark';
 const screenWidth = Dimensions.get('window').width - 20;
@@ -189,7 +189,7 @@ const MessageStyles = (theme: ThemeType) => {
       elevation: 10,
       zIndex: 2,
       shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
+      shadowOffset: {width: 0, height: 2},
       shadowOpacity: 0.2,
       shadowRadius: 4,
       paddingVertical: 4,
