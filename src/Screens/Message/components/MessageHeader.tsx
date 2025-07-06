@@ -126,10 +126,7 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
   return (
     <>
       <View
-        style={[styles.header, {
-          backgroundColor:  'rgba(120, 120, 120, 0)',
-          borderBottomWidth: 0.5,
-        }]}>
+        style={[styles.header, {backgroundColor: 'rgba(243, 244, 246, 0.6)'}]}>
         <View style={styles.rowContainer2}>
           <TouchableOpacity style={styles.blockIcon} onPress={handleGoBack}>
             <Image
@@ -165,7 +162,10 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
             }}>
             {user2?.profilePic && (
               <>
-                <Image style={[styles.iconW, {width: 30, height: 30}]} source={{uri: user1?.profilePic}} />
+                <Image
+                  style={[styles.iconW, {width: 30, height: 30}]}
+                  source={{uri: user1?.profilePic}}
+                />
                 <Image
                   style={[
                     styles.iconF,

@@ -97,10 +97,12 @@ export const MessageScreen = () => {
   }, [chat]);
 
   const sendMessage = () => {
-    if (message.trim() && socket) {
+    const trimmedMessage = message.trim();
+
+    if (trimmedMessage && socket) {
       socket.emit('sendMessage', {
         roomId: roomId,
-        content: message,
+        content: trimmedMessage,
         senderId: userC?._id,
       });
       setMessage('');

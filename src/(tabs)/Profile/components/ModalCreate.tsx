@@ -5,7 +5,7 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Pressable,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import {
   Video,
@@ -24,6 +24,15 @@ interface ModalCreateProps {
   onSelect: (optionId: string) => void;
 }
 
+const options = [
+  {id: 'reels', label: 'Thước phim', icon: Video},
+  {id: 'post', label: 'Bài viết', icon: FileText},
+  {id: 'story', label: 'Tin', icon: ImageIcon},
+  {id: 'highlight', label: 'Tin nổi bật', icon: CircleFadingArrowUp},
+  {id: 'live', label: 'Video trực tiếp', icon: Camera},
+  {id: 'ai', label: 'AI', icon: Sparkles},
+];
+
 const ModalCreate: React.FC<ModalCreateProps> = ({
   visible,
   onClose,
@@ -31,88 +40,36 @@ const ModalCreate: React.FC<ModalCreateProps> = ({
 }) => {
   const {theme} = useTheme();
   const color = Colors[theme];
+
   return (
     <Modal visible={visible} animationType="slide" transparent>
-      <Pressable style={styles.overlay} onPress={onClose}>
-        <Pressable
-          style={[styles.container, {backgroundColor: color.background}]}
-          onPress={() => {}}>
-          <Text style={[styles.title, {color: color.text}]}>Tạo</Text>
-          <TouchableOpacity
-            style={styles.option}
-            onPress={() => {
-              onSelect('reels');
-              onClose();
-            }}>
-            <View style={styles.icon}>
-              <Video size={24} color={color.text} />
-            </View>
-            <Text style={[styles.label, {color: color.text}]}>Thước phim</Text>
-          </TouchableOpacity>
+      <TouchableWithoutFeedback onPress={onClose}>
+        <View style={styles.overlay}>
+          <TouchableWithoutFeedback>
+            <View
+              style={[styles.container, {backgroundColor: color.background}]}>
+              <Text style={[styles.title, {color: color.text}]}>Tạo</Text>
 
-          <TouchableOpacity
-            style={styles.option}
-            onPress={() => {
-              onSelect('post');
-              onClose();
-            }}>
-            <View style={styles.icon}>
-              <FileText size={24} color={color.text} />
+              {options.map(({id, label, icon: Icon}) => (
+                <TouchableOpacity
+                  key={id}
+                  style={styles.option}
+                  onPress={() => {
+                    onSelect(id);
+                    onClose();
+                  }}>
+                  <View style={styles.icon}>
+                    <Icon size={24} color={color.text} />
+                  </View>
+                  <Text style={[styles.label, {color: color.text}]}>
+                    {label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
             </View>
-            <Text style={[styles.label, {color: color.text}]}>Bài viết</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.option}
-            onPress={() => {
-              onSelect('story');
-              onClose();
-            }}>
-            <View style={styles.icon}>
-              <ImageIcon size={24} color={color.text} />
-            </View>
-            <Text style={[styles.label, {color: color.text}]}>Tin</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.option}
-            onPress={() => {
-              onSelect('highlight');
-              onClose();
-            }}>
-            <View style={styles.icon}>
-              <CircleFadingArrowUp size={24} color={color.text} />
-            </View>
-            <Text style={[styles.label, {color: color.text}]}>Tin nổi bật</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.option}
-            onPress={() => {
-              onSelect('live');
-              onClose();
-            }}>
-            <View style={styles.icon}>
-              <Camera size={24} color={color.text} />
-            </View>
-            <Text style={[styles.label, {color: color.text}]}>
-              Video trực tiếp
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.option}
-            onPress={() => {
-              onSelect('ai');
-              onClose();
-            }}>
-            <View style={styles.icon}>
-              <Sparkles size={24} color={color.text} />
-            </View>
-            <Text style={[styles.label, {color: color.text}]}>AI</Text>
-          </TouchableOpacity>
-        </Pressable>
-      </Pressable>
+          </TouchableWithoutFeedback>
+        </View>
+      </TouchableWithoutFeedback>
     </Modal>
   );
 };

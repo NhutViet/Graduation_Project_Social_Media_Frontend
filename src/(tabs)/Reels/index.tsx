@@ -38,7 +38,7 @@ import {trimOldReels} from '@services/postRedux/postReducer';
 
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
-
+const TAB_BAR_HEIGHT = 60;
 const MAX_ITEMS_IN_MEMORY = 50;
 const ITEMS_TO_REMOVE = 20;
 
@@ -117,7 +117,7 @@ const Reels = forwardRef((props, ref) => {
         setSkipReload(false); // Reset flag after skipping
         return;
       }
-      
+
       // Only reload if we have no reels or if it's truly a fresh load
       if (reels.length === 0 || isInitialLoad) {
         setIsInitialLoad(true);
@@ -209,6 +209,7 @@ const Reels = forwardRef((props, ref) => {
           return (
             <ReelsComponent
               {...item}
+              containerHeight={height - TAB_BAR_HEIGHT}
               isFocused={isFocused}
               currentVisible={shouldPlay}
               isFollow={item?.isFollow}

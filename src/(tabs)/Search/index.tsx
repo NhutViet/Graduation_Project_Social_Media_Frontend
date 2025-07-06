@@ -16,7 +16,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import HistoryItem from './Components/HistoryItem';
 import {Colors} from '../../../assets/color/Colors';
 import SearchResult from './Components/SearchResult';
-import {useIsFocused} from '@react-navigation/native';
 import {RootState} from '../../../services/store';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch} from '../../../services/store';

@@ -1,6 +1,6 @@
 import React from 'react';
-import { Image, Linking, Text, TouchableOpacity, View } from 'react-native';
-import { Message } from '../../../../services/messageRedux/messageType';
+import {Image, Linking, Text, TouchableOpacity, View} from 'react-native';
+import {Message} from '../../../../services/messageRedux/messageType';
 
 interface MessageItemProps {
   item: Message;
@@ -8,7 +8,7 @@ interface MessageItemProps {
   userHandleName: string;
   chat: Message[];
   setSelectedImageUri: (uri: string | null) => void;
-  linkPreviews: { [key: number]: any };
+  linkPreviews: {[key: number]: any};
   styles: any;
   color: any;
   onLongPress: (content: Message) => void;
@@ -27,7 +27,8 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
 }) => {
   const isMe = item.sender.handleName === userHandleName;
   const prevMsg = chat[index - 1];
-  const showAvatar = !prevMsg || prevMsg.sender.handleName !== item.sender.handleName;
+  const showAvatar =
+    !prevMsg || prevMsg.sender.handleName !== item.sender.handleName;
 
   /**
    * RenderAvatar if its a OtherUserMessage
@@ -35,21 +36,29 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
    */
   const renderAvatar = () =>
     !isMe && showAvatar ? (
-      <TouchableOpacity style={[styles.blockAvatar, { marginRight: 10 }]}>
-        <Image source={{ uri: item.sender.profilePic }} style={styles.avatar} />
+      <TouchableOpacity style={[styles.blockAvatar, {marginRight: 10}]}>
+        <Image source={{uri: item.sender.profilePic}} style={styles.avatar} />
       </TouchableOpacity>
     ) : null;
 
-  // Render message content
   const renderContent = () => {
     if (item.media?.type === 'image') {
       return (
         <TouchableOpacity
           onPress={() => setSelectedImageUri(item.media?.url ?? null)}
-          onLongPress={() => onLongPress(item)}
-        >
-          <View style={{ width: 150, height: 200, borderRadius: 10, overflow: 'hidden' }}>
-            <Image source={{ uri: item.media.url }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
+          onLongPress={() => onLongPress(item)}>
+          <View
+            style={{
+              width: 150,
+              height: 200,
+              borderRadius: 10,
+              overflow: 'hidden',
+            }}>
+            <Image
+              source={{uri: item.media.url}}
+              style={{width: '100%', height: '100%'}}
+              resizeMode="cover"
+            />
           </View>
         </TouchableOpacity>
       );
@@ -57,21 +66,51 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
 
     if (item.media?.type === 'call') {
       return (
-        <View style={{ width: 140 }}>
-          <Text style={{ color: color.text, fontSize: 14 }}>{item.content}</Text>
+        <View
+          style={{
+            backgroundColor: '#E6F7FF',
+            borderRadius: 10,
+            paddingHorizontal: 14,
+            paddingVertical: 8,
+            alignItems: 'center',
+            minWidth: 100,
+          }}>
+          <Text style={{color: '#007AFF', fontWeight: '600', fontSize: 14}}>
+            {item.content}
+          </Text>
           {item.media.duration && (
-            <Text style={{ color: color.text, fontSize: 14 }}>
-              {item.media.duration}
+            <Text
+              style={{
+                color: '#007AFF',
+                fontSize: 12,
+                marginTop: 4,
+              }}>
+              ⏱ {item.media.duration}
             </Text>
           )}
-          <TouchableOpacity style={styles.callButton}>
-            <Text style={{ color: color.text, fontSize: 13 }}>📞 Gọi lại</Text>
+          <TouchableOpacity
+            style={{
+              marginTop: 8,
+              backgroundColor: '#00BFFF',
+              paddingVertical: 6,
+              paddingHorizontal: 12,
+              borderRadius: 20,
+              width: '90%',
+            }}>
+            <Text
+              style={{
+                color: '#fff',
+                fontSize: 13,
+                fontWeight: 'bold',
+                textAlign: 'center',
+              }}>
+              Gọi lại
+            </Text>
           </TouchableOpacity>
         </View>
       );
     }
 
-    // Seperate link out of message content
     const filteredText = item.content
       .split(/(\s+)/)
       .filter(part => !/^https?:\/\/\S+$/i.test(part))
@@ -101,7 +140,7 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
             }}>
             {linkPreviews[index].images?.length > 0 && (
               <Image
-                source={{ uri: linkPreviews[index].images[0] }}
+                source={{uri: linkPreviews[index].images[0]}}
                 style={{
                   width: '100%',
                   height: 140,
@@ -126,12 +165,12 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
               <Text
                 numberOfLines={1}
                 ellipsizeMode="tail"
-                style={{ color: 'gray', fontSize: 12 }}>
+                style={{color: 'gray', fontSize: 12}}>
                 {linkPreviews[index].description}
               </Text>
             )}
             <Text
-              style={{ color: '#007AFF', fontSize: 12, marginTop: 4 }}
+              style={{color: '#007AFF', fontSize: 12, marginTop: 4}}
               numberOfLines={2}
               ellipsizeMode="tail">
               {linkPreviews[index].url}
@@ -150,6 +189,7 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
         style={[
           styles.message,
           {
+            maxWidth: '80%',
             marginLeft: isMe || showAvatar ? 0 : 50,
             marginRight: isMe ? 0 : 40,
             backgroundColor: item.media
@@ -157,11 +197,14 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
                 ? color.backgroundSecondary
                 : 'transparent'
               : !isMe
-                ? color.backgroundSecondary
-                : !linkPreviews[index] && !item.media
-                  ? '#00BFFF'
-                  : color.backgroundSecondary,
-            padding: item.media?.type === 'image' ? 0 : 10,
+              ? color.backgroundSecondary
+              : !linkPreviews[index] && !item.media
+              ? '#00BFFF'
+              : color.backgroundSecondary,
+            padding:
+              item.media?.type === 'image' || item.media?.type === 'call'
+                ? 0
+                : 10,
           },
         ]}>
         {renderContent()}
@@ -173,10 +216,11 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
     <View
       style={[
         styles.containerMessage,
-        { justifyContent: isMe ? 'flex-end' : 'flex-start' },
+        {justifyContent: isMe ? 'flex-end' : 'flex-start'},
       ]}>
       {renderAvatar()}
-      <View style={[styles.row, { alignItems: isMe ? 'flex-end' : 'flex-start' }]}>
+      <View
+        style={[styles.row, {alignItems: isMe ? 'flex-end' : 'flex-start'}]}>
         {renderMessageBubble()}
       </View>
     </View>

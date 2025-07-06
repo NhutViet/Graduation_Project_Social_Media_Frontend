@@ -1,3 +1,4 @@
+import React, {useState, useEffect, useMemo} from 'react';
 import {
   StyleSheet,
   Text,
@@ -6,13 +7,10 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
-  Alert,
-
 } from 'react-native';
 import {FlashList} from '@shopify/flash-list';
-import React, {useState, useEffect, useMemo} from 'react';
-import {Colors} from '../../../../assets/color/Colors';
 import {useTheme} from '../../../util/ThemeContext';
+import {Colors} from '../../../../assets/color/Colors';
 import {useNavigation} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../../services/store';
@@ -23,8 +21,8 @@ import {
 } from '../../../../services/relationRedux/relationSlice';
 import {createRoom} from '../../../../services/roomRedux/roomSlice';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
-import { MoreActionModal } from './MoreActionModal';
-import { UserProfile } from '@services/relationRedux/relationTypes';
+import {MoreActionModal} from './MoreActionModal';
+import {UserProfile} from '@services/relationRedux/relationTypes';
 
 const FollowingTab = () => {
   const navigation: any = useNavigation();
@@ -45,43 +43,29 @@ const FollowingTab = () => {
 
   useEffect(() => {
     if (!userID) return;
-    dispatch(fetchFollowing({ userId: userID }));
-    dispatch(fetchRecommendations({ limit: 10 }));
+    dispatch(fetchFollowing({userId: userID}));
+    dispatch(fetchRecommendations({limit: 10}));
   }, [dispatch, userID]);
 
   const followingIds = useMemo(
     () => new Set(reduxFollowing.map(u => u._id)),
-    [reduxFollowing]
+    [reduxFollowing],
   );
-
   const recommendations = useMemo(
     () => reduxRecommendations.filter(u => !followingIds.has(u._id)),
-    [reduxRecommendations, followingIds]
+    [reduxRecommendations, followingIds],
   );
 
   const handleMessagingPress = async (item: UserProfile) => {
     try {
       const res = await dispatch(
-        createRoom({
-          name: '',
-          user_ids: [item._id],
-          type: 'waiting',
-        }),
+        createRoom({name: '', user_ids: [item._id], type: 'waiting'}),
       ).unwrap();
-
       const {room} = res;
-
       const otherUsers = room.user_ids.filter(user => user._id !== userID);
       const img1 = otherUsers[0]?.profilePic;
-      const img2 = userID
-        ? room.user_ids.find(user => user._id === userID)?.profilePic
-        : undefined;
-
-      navigation.navigate('MessageScreen', {
-        room: room._id,
-        img1,
-        img2,
-      });
+      const img2 = room.user_ids.find(user => user._id === userID)?.profilePic;
+      navigation.navigate('MessageScreen', {room: room._id, img1, img2});
     } catch (error) {
       console.log('Tạo room thất bại:', error);
     }
@@ -99,7 +83,6 @@ const FollowingTab = () => {
       ).unwrap();
     } catch (error) {
       GlobalAlertManager.show('Thất bại', 'Vui lòng thử lại sau');
-      console.log(error);
     }
   };
 
@@ -117,10 +100,13 @@ const FollowingTab = () => {
           action: 'unfollow',
           senderId: user?._id!,
           handleName: user?.handleName!,
-        })
+        }),
       ).unwrap();
-    } catch (err) {
-      GlobalAlertManager.show('Lỗi', 'Không thể bỏ theo dõi. Vui lòng thử lại.');
+    } catch {
+      GlobalAlertManager.show(
+        'Lỗi',
+        'Không thể bỏ theo dõi. Vui lòng thử lại.',
+      );
     }
   };
 
@@ -128,25 +114,7 @@ const FollowingTab = () => {
     GlobalAlertManager.show('Thông báo', 'Đã báo cáo');
   };
 
-  const renderCategoryItem = ({item}: {item: any}) => (
-    <TouchableOpacity>
-      <View style={styles.categoryItem}>
-        <Image source={{uri: item.multiImage}} style={styles.categoryImage} />
-        <View
-          style={[styles.categoryInfo, {backgroundColor: color.background}]}>
-          <Text style={[styles.categoryTitle, {color: color.text}]}>
-            {item.title}
-          </Text>
-          <Text
-            style={[styles.categoryDescription, {color: color.textSecondary}]}>
-            {item.description}
-          </Text>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
-
-  const renderSortItem = ({item}: {item: UserProfile}) => (
+  const renderUserItem = (item: UserProfile, isFollowing: boolean) => (
     <View style={[styles.suggestedItem, {backgroundColor: color.background}]}>
       <TouchableOpacity style={styles.touchableInfo}>
         <Image source={{uri: item.profilePic}} style={styles.profilePic} />
@@ -159,84 +127,58 @@ const FollowingTab = () => {
           </Text>
         </View>
       </TouchableOpacity>
-      <TouchableOpacity
-        onPress={() => handleMessagingPress(item)}
-        style={[styles.messageButton, {borderColor: color.text}]}>
-        <Text style={[styles.messageText, {color: color.text}]}>Nhắn tin</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => handleMorePress(item)}>
-        <Image
-          source={require('../../../../assets/icon/menu-dots-vertical.png')}
-          style={[styles.moreIcon, {tintColor: color.text}]}
-        />
-      </TouchableOpacity>
+      {isFollowing ? (
+        <>
+          <TouchableOpacity
+            onPress={() => handleMessagingPress(item)}
+            style={[styles.messageButton, {borderColor: color.text}]}>
+            <Text style={[styles.messageText, {color: color.text}]}>
+              Nhắn tin
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => handleMorePress(item)}>
+            <Image
+              source={require('../../../../assets/icon/menu-dots-vertical.png')}
+              style={[styles.moreIcon, {tintColor: color.text}]}
+            />
+          </TouchableOpacity>
+        </>
+      ) : (
+        <TouchableOpacity
+          onPress={() => handleFollowPress(item)}
+          style={styles.followButton}>
+          <Text style={styles.followText}>Theo dõi</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 
-  const renderRecommendItem = ({item}: {item: UserProfile}) => (
-    <View style={[styles.suggestedItem, {backgroundColor: color.background}]}>
-      <TouchableOpacity style={styles.touchableInfo}>
-        <Image source={{uri: item.profilePic}} style={styles.profilePic} />
-        <View style={styles.suggestedInfo}>
-          <Text style={[styles.handle, {color: color.text}]}>
-            {item.handleName}
-          </Text>
-          <Text style={[styles.username, {color: color.textSecondary}]}>
-            {item.username}
-          </Text>
-        </View>
-      </TouchableOpacity>
-      <TouchableOpacity
-        onPress={() => handleFollowPress(item)}
-        style={styles.followButton}>
-        <Text style={styles.followText}>Theo dõi</Text>
-      </TouchableOpacity>
-    </View>
-  );
-
-  if (loading) {
-    return <ActivityIndicator style={{marginTop: 20}} size="large" color={color.primary}/>;
-  }
-  if (error) {
+  if (loading)
     return (
-      <View style={{padding: 20}}>
-        <Text style={{color: color.text, textAlign: 'center'}}>{error}</Text>
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        <ActivityIndicator size="large" color={color.primary} />
       </View>
     );
-  }
+  if (error)
+    return (
+      <Text style={{textAlign: 'center', color: color.text, marginTop: 20}}>
+        {error}
+      </Text>
+    );
 
   return (
     <ScrollView style={[styles.container, {backgroundColor: color.background}]}>
       {reduxFollowing.length === 0 ? (
-        <View
-          style={{
-            backgroundColor: color.background,
-            flex: 1,
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: 20,
-          }}>
+        <View style={styles.emptyContainer}>
           <Image
             source={require('../../../../assets/icon/invite.png')}
-            style={{width: 200, height: 200, marginBottom: 24}}
+            style={styles.emptyImage}
             resizeMode="contain"
           />
-          <Text
-            style={{
-              color: color.text,
-              fontSize: 20,
-              fontWeight: 'bold',
-              marginBottom: 8,
-            }}>
+          <Text style={[styles.emptyTitle, {color: color.text}]}>
             Bạn chưa theo dõi ai
           </Text>
-          <Text
-            style={{
-              color: color.textSecondary,
-              fontSize: 14,
-              textAlign: 'center',
-              marginBottom: 24,
-            }}>
+          <Text style={[styles.emptyText, {color: color.textSecondary}]}>
             Khám phá người dùng để kết nối và bắt đầu theo dõi
           </Text>
         </View>
@@ -244,23 +186,25 @@ const FollowingTab = () => {
         <FlashList
           data={reduxFollowing}
           keyExtractor={item => item._id}
-          renderItem={renderSortItem}
+          renderItem={({item}) => renderUserItem(item, true)}
+          estimatedItemSize={60}
           showsVerticalScrollIndicator={false}
-          estimatedItemSize={10}
         />
       )}
+
       <FlashList
         data={recommendations}
         keyExtractor={item => item._id}
-        renderItem={renderRecommendItem}
-        showsVerticalScrollIndicator={false}
-        estimatedItemSize={10}
+        renderItem={({item}) => renderUserItem(item, false)}
         ListHeaderComponent={
           <Text style={[styles.sectionHeader, {color: color.text}]}>
             Gợi ý cho bạn
           </Text>
         }
+        estimatedItemSize={60}
+        showsVerticalScrollIndicator={false}
       />
+
       <MoreActionModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
@@ -277,96 +221,85 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 15,
-    backgroundColor: '#fff',
   },
   sectionHeader: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginTop: 10,
-  },
-  categoryItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 10,
-  },
-  categoryImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: 10,
-  },
-  categoryInfo: {
-    flex: 1,
-  },
-  categoryTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  categoryDescription: {
-    color: '#666',
-  },
-  sortSection: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  sortIcon: {
-    width: 16,
-    height: 16,
+    marginTop: 16,
+    marginBottom: 10,
   },
   suggestedItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 10,
+    paddingVertical: 10,
   },
   touchableInfo: {
     flex: 1,
     flexDirection: 'row',
+    alignItems: 'center',
   },
   profilePic: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: 10,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    marginRight: 12,
   },
   suggestedInfo: {
     flex: 1,
   },
   handle: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
   username: {
+    fontSize: 13,
     color: '#666',
   },
   followButton: {
-    width: 89,
     backgroundColor: '#007BFF',
-    paddingHorizontal: 15,
+    borderRadius: 8,
+    paddingHorizontal: 16,
     paddingVertical: 6,
-    borderRadius: 10,
-    marginRight: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  messageButton: {
-    width: 89,
-    paddingHorizontal: 15,
-    paddingVertical: 6,
-    borderRadius: 10,
-    marginRight: 10,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    marginLeft: 10,
   },
   followText: {
     color: '#fff',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  messageButton: {
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    marginRight: 10,
   },
   messageText: {
-    color: '#000',
+    fontSize: 14,
   },
   moreIcon: {
-    width: 16,
-    height: 16,
+    width: 18,
+    height: 18,
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 40,
+  },
+  emptyImage: {
+    width: 200,
+    height: 200,
+    marginBottom: 20,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  emptyText: {
+    fontSize: 14,
+    textAlign: 'center',
+    lineHeight: 20,
+    paddingHorizontal: 20,
   },
 });

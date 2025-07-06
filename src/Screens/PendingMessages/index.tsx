@@ -52,12 +52,6 @@ export const PendingMessages: React.FC = () => {
           />
         </TouchableOpacity>
         <Text style={styles.headerUsername}>{user?.handleName}</Text>
-        <TouchableOpacity>
-          <Image
-            source={require('../../../assets/icon/down.png')}
-            style={styles.headerSmallIcon}
-          />
-        </TouchableOpacity>
         <View style={styles.headerRightIcons}>
           <TouchableOpacity>
             <Image
