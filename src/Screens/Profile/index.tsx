@@ -38,10 +38,12 @@ import {createRoom} from '../../../services/roomRedux/roomSlice';
 import {
   PostsView,
   ReelsView,
+  TagsView,
 } from '../../(tabs)/Profile/components/PostView.component';
 import {getPostsAndReelsOfUser} from '../../../services/postUserRedux/postUserSlice';
 import {clearPostsAndReels} from '../../../services/postUserRedux/postUserReducer';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+import { fetchTaggedPosts } from '@services/taggedPostRedux/taggedPostSlice';
 
 const ProfileComp = ({route}: any) => {
   const navigation: any = useNavigation();
@@ -164,6 +166,7 @@ const ProfileComp = ({route}: any) => {
 
   const {isSuccess} = useSelector((state: RootState) => state.postUser);
   const {refreshToken} = useSelector((state: RootState) => state.user);
+  const profileTaggedPosts = useSelector((state: RootState) => state.taggedPosts.data);
 
   const initializeProfile = useCallback(async () => {
     if (!userID) {
@@ -186,6 +189,7 @@ const ProfileComp = ({route}: any) => {
           dispatch(fetchFollowers({userId: userID})).unwrap(),
           dispatch(fetchFollowing({userId: userID})).unwrap(),
           dispatch(getPostsAndReelsOfUser({refreshToken, userId: userID})),
+          dispatch(fetchTaggedPosts(userID)),
         ]);
 
       // Wait for profile first to set user states
@@ -242,6 +246,12 @@ const ProfileComp = ({route}: any) => {
       case 'reels':
         return isSuccess && ReelsItem ? (
           <ReelsView data={ReelsItem} />
+        ) : (
+          <LoadingPlaceholder />
+        );
+      case 'tagged':
+        return isSuccess && profileTaggedPosts ? (
+          <TagsView data={profileTaggedPosts} />
         ) : (
           <LoadingPlaceholder />
         );
