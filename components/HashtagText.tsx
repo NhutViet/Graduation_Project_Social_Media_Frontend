@@ -103,7 +103,8 @@ const HashtagText: React.FC<HashtagTextProps> = ({
         } else if (tok.type === 'mention') {
           return (
             <Text
-              style={{color: 'black', fontWeight: 'bold', fontSize: 14}}
+              key={i} 
+              style={{color: hashtagColor, fontWeight: 'bold', fontSize: 14}}
               onPress={() => onPressMention(tok.text)}>
               {tok.text}
             </Text>
