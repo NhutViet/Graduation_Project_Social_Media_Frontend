@@ -207,6 +207,7 @@ const ItemHome = (props: ItemHomeProps) => {
             baseStyle={[ItemHomeStyles.title, {color: utils.iconColor}]}
             hashtagColor={Colors.hashtag}
             hashtagStyle={{fontWeight: '600'}}
+            navigation={navigation}
           />
         )}
         <Text style={{color: utils.iconColor, fontSize: 12, marginTop: 5}}>

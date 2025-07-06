@@ -35,6 +35,7 @@ const InfoAccountCenter = () => {
       console.warn('Lấy FCM token thất bại:', err);
     }
 
+    await dispatch(fetchLogout());
     const resultAction = await dispatch(
       fetchLogin({email: user.email, password: user.password, fcmToken}),
     );

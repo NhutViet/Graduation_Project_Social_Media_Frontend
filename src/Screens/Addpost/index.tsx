@@ -48,7 +48,7 @@ export const AddPost = () => {
   const [filter, setFilter] = useState(() => {
     console.log('typoe', type);
     if(type === 'video') return 'Thước phim';
-    if (type === 'image') return 'Photos';
+    if (type === 'image') return 'Hình ảnh';
     return 'Tất cả';
   });
   const [showModalFilter, setShowModalFilter] = useState(false);

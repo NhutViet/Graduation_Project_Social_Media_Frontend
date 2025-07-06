@@ -58,18 +58,15 @@ export const likePost = createAsyncThunk(
 
 export const unlikePost = createAsyncThunk(
   'reactions/unlikePost',
-  async (
-    {postId, refreshToken, receiverId, handleName, userId}: LikePostParams,
-    thunkAPI,
-  ) => {
+  async ({postId, refreshToken}: LikePostParams, thunkAPI) => {
     try {
       if (!refreshToken) {
         return thunkAPI.rejectWithValue('Mời bạn đăng nhập để tiếp tục');
       }
 
-      const res = await axiosInstance.delete(`post-like/${postId}`, {
+      await axiosInstance.delete(`post-like/${postId}`, {
         headers: {
-          Authorization: `Bearer ${refreshToken}`,
+          token: 'refresh',
         },
       });
 

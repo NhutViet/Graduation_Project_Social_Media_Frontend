@@ -1,5 +1,5 @@
 export const BASE_URL = 'http://cirla.io.vn';
-// export const BASE_URL = 'http://172.16.0.103:4001';
+// export const BASE_URL = 'http://172.31.98.52:4001';
 // export const BASE_URL = 'http://192.168.1.3:4001';
 export const CallAppID = 41521435;
 export const CallAppSign =
@@ -48,6 +48,7 @@ export const API = {
   REGISTER: 'users/register',
   /// User
   GET_PUBLIC_PROFILE: '/users/public',
+  GET_USER_ID_BY_HANDLE: '/users/username-by-handle',
   ////bookmark
   POST_SAVE_BOOKMARK: 'bookmark-playlists/add-default',
   DELETE_BOOKMARK: 'bookmark-items/remove',

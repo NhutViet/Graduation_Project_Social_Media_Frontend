@@ -1,4 +1,10 @@
-import React, {forwardRef, useImperativeHandle, useRef, useState} from 'react';
+import React, {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react';
 import {
   View,
   Text,
@@ -8,6 +14,7 @@ import {
   StyleSheet,
   Dimensions,
   ActivityIndicator,
+  Keyboard,
 } from 'react-native';
 import {Modalize} from 'react-native-modalize';
 import {useTheme} from '../../../../src/util/ThemeContext';
@@ -23,8 +30,12 @@ import {
 import {Send} from 'lucide-react-native';
 import {Portal} from 'react-native-portalize';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
-import { checkProfanityAndAlert } from '../../../util/profanityFilter';
+import {checkProfanityAndAlert} from '../../../util/profanityFilter';
 import {incrementCommentCountByPostId} from '@services/postRedux/postReducer';
+import {useSharedValue} from 'react-native-reanimated';
+import {fetchFollowers} from '@services/relationRedux/relationSlice';
+import MentionSuggestion from '../../../../src/Screens/PostSetting/Components/MentionSuggestion';
+import {useNavigation} from '@react-navigation/native';
 
 export type BottomSheetCommentRef = {
   open: () => void;
@@ -55,21 +66,33 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
       handleName: string;
     } | null>(null);
     const inputRef = useRef<TextInput>(null);
+    const scrollY = useSharedValue(0);
+    const [mentionQuery, setMentionQuery] = useState('');
+    const [showSuggestions, setShowSuggestions] = useState(false);
+    const inputLayoutY = useSharedValue(0);
+    const {followers} = useSelector((state: RootState) => state.relation);
+    const navigation = useNavigation<any>();
 
     useImperativeHandle(ref, () => ({
       open: () => {
         modalizeRef.current?.open();
+        if (user?._id) {
+          dispatch(fetchFollowers({userId: user._id}));
+        }
       },
       close: () => {
         modalizeRef.current?.close();
         setReplyTo(null);
         setComment('');
+        setShowSuggestions(false);
       },
     }));
 
     const handleSendComment = async () => {
       if (!comment.trim() || isSending) return;
-      if (checkProfanityAndAlert(comment)) {return;}
+      if (checkProfanityAndAlert(comment)) {
+        return;
+      }
 
       const payload = {
         postID: postId,
@@ -89,8 +112,9 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
             handleName: user?.handleName,
             postId: postId,
             receiverId: receiverId,
-            userId: user?._id}),
-        ).unwrap();
+            userId: user?._id,
+          }),
+        );
 
         dispatch(incrementCommentCountByPostId(postId));
         dispatch(fetchCommentsByPost(postId));
@@ -100,6 +124,48 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
         setIsSending(false);
       }
     };
+
+    useEffect(() => {
+      const showSub = Keyboard.addListener('keyboardDidShow', () => {
+        setTimeout(() => {
+          inputRef.current?.measureInWindow((_x, y) => {
+            inputLayoutY.value = y;
+          });
+        }, 100);
+      });
+
+      return () => showSub.remove();
+    }, []);
+
+    useEffect(() => {
+      const showSub = Keyboard.addListener('keyboardDidShow', () => {
+        setTimeout(() => {
+          inputRef.current?.measureInWindow((_x, y) => {
+            inputLayoutY.value = y;
+          });
+        }, 100);
+      });
+
+      const hideSub = Keyboard.addListener('keyboardDidHide', () => {
+        setShowSuggestions(false);
+      });
+
+      return () => {
+        showSub.remove();
+        hideSub.remove();
+      };
+    }, []);
+
+    useEffect(() => {
+      const unsubscribe = navigation.addListener('blur', () => {
+        modalizeRef.current?.close();
+        setReplyTo(null);
+        setComment('');
+        setShowSuggestions(false);
+      });
+
+      return unsubscribe;
+    }, [navigation]);
 
     return (
       <Portal>
@@ -150,6 +216,7 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
                               inputRef.current?.focus();
                             }, 200);
                           }}
+                          navigation={navigation}
                         />
                       )}
                       estimatedItemSize={50}
@@ -208,9 +275,45 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
                         },
                       ]}
                       value={comment}
-                      onChangeText={setComment}
+                      onLayout={() => {
+                        inputRef.current?.measureInWindow((_x, y) => {
+                          inputLayoutY.value = y;
+                        });
+                      }}
+                      onChangeText={text => {
+                        setComment(text);
+                        const lastAt = text.lastIndexOf('@');
+                        if (lastAt !== -1) {
+                          const textAfterAt = text.slice(lastAt + 1);
+                          const isValid = /^[a-zA-Z0-9_]*$/.test(textAfterAt);
+                          if (isValid) {
+                            setMentionQuery(textAfterAt);
+                            setShowSuggestions(true);
+                            return;
+                          }
+                        }
+                        setShowSuggestions(false);
+                        setMentionQuery('');
+                      }}
                       onSubmitEditing={() => handleSendComment()}
                     />
+
+                    <MentionSuggestion
+                      visible={showSuggestions}
+                      query={mentionQuery}
+                      followers={followers}
+                      onSelect={handle => {
+                        const lastAt = comment.lastIndexOf('@');
+                        const newText =
+                          comment.slice(0, lastAt + 1) + handle + ' ';
+                        setComment(newText);
+                        setShowSuggestions(false);
+                      }}
+                      backgroundColor={color.background}
+                      scrollY={scrollY}
+                      positionY={inputLayoutY.value}
+                    />
+
                     {comment.length > 0 ? (
                       <TouchableOpacity
                         onPress={handleSendComment}

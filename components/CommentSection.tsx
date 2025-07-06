@@ -101,6 +101,11 @@ const CommentSection = ({postId, receiverId}: Props) => {
             data={comments}
             renderItem={({item}) => (
               <CommentComponent
+                _id={''}
+                content={''}
+                isDeleted={false}
+                isLiked={false}
+                createdAt={''}
                 {...item}
                 onReply={(id, handleName) => {
                   setReplyTo({id, handleName});
