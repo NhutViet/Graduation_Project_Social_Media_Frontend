@@ -57,7 +57,6 @@ export const Styles = {
     postsContainer: {
       flex: 1,
     },
-
     usernameContainer: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -152,7 +151,6 @@ export const Styles = {
     actionButtons: {
       flexDirection: 'row',
       paddingHorizontal: 16,
-      marginTop: 15,
       gap: 8,
     },
     headerButton: {
@@ -172,7 +170,7 @@ export const Styles = {
       fontSize: 14,
       fontWeight: '600',
       padding: 4,
-      justifyContent: 'center'
+      justifyContent: 'center',
     },
 
     // Highlights section
