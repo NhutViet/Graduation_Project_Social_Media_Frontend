@@ -29,3 +29,14 @@ export const updatedRoomStatus = async ({ roomId }: { roomId: string }) => {
     return null;
   }
 };
+
+export const isBothFollowing = async (currentUser: string, targetUser: string) => {
+  const [isCurrentFollowTarget, isTargetFollowCurrent] = await Promise.all([
+    getRelationShip({fromUserId: currentUser, toUserId: targetUser}),
+    getRelationShip({fromUserId: targetUser, toUserId: currentUser}),
+  ]);
+  if (isCurrentFollowTarget === isTargetFollowCurrent) {
+    return true;
+  }
+  return false;
+};

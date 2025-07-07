@@ -47,7 +47,9 @@ export const MessageScreen = () => {
   const rooms = useSelector((state: RootState) =>
     isWaiting ? state.rooms.waitingRooms : state.rooms.rooms,
   );
-  const listRoom = useSelector((state: RootState) => state.rooms.rooms);
+  const acceptedRoom = useSelector((state: RootState) => state.rooms.rooms);
+  const waitingRoom = useSelector((state: RootState) => state.rooms.waitingRooms);
+  console.log(waitingRoom);
   const room = useMemo(
     () => rooms.find(r => r._id === roomId),
     [rooms, roomId],
@@ -62,8 +64,8 @@ export const MessageScreen = () => {
         await fetchRelation({
           fromUserId: userC!._id,
           toUserId: roomMember1!._id,
-        }).then((res: boolean) => {
-          setRelationStatus(res);
+        }).then((res: Boolean) => {
+          return setRelationStatus(res.valueOf);
         });
       };
     };
@@ -204,14 +206,20 @@ export const MessageScreen = () => {
     />
   );
 
+  const isMeSender = room!.created_by !== userC!._id;
   const MessageRequestBanner = ({ onAccept }: { onAccept: () => void }) => (
     <View style={styles.requestBanner}>
       <Text style={styles.requestBannerText}>
-        {roomMember1!.handleName} muốn nhắn tin cho bạn. Chấp nhận để tiếp tục cuộc trò chuyện.
+        {isMeSender
+          ? roomMember1!.handleName + ` muốn nhắn tin cho bạn. Chấp nhận để tiếp tục cuộc trò chuyện.`
+          : `Đang chờ ${roomMember1!.handleName} chấp nhận để tiếp tục cuộc trò chuyện.`
+        }
       </Text>
-      <TouchableOpacity style={styles.acceptButton} onPress={onAccept}>
-        <Text style={styles.acceptButtonText}>Chấp nhận</Text>
-      </TouchableOpacity>
+      { isMeSender && (
+        <TouchableOpacity style={styles.acceptButton} onPress={onAccept}>
+          <Text style={styles.callText}>Chấp nhận</Text>
+        </TouchableOpacity>
+      ) }
     </View>
   );
 

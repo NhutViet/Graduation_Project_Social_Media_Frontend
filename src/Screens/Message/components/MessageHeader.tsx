@@ -1,8 +1,8 @@
-import React, {useEffect, useRef, useState} from 'react';
-import {View, TouchableOpacity, Image, Text} from 'react-native';
-import {Colors} from '@assets/color/Colors';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, TouchableOpacity, Image, Text } from 'react-native';
+import { Colors } from '@assets/color/Colors';
 import IncomingCallModal from '../../../../components/IncomingCallModal';
-import {useSocket} from '@services/SocketContext';
+import { useSocket } from '@services/SocketContext';
 
 interface MessageHeaderProps {
   user1?: any;
@@ -25,7 +25,7 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
   color,
   userC,
 }) => {
-  const {socket} = useSocket();
+  const { socket } = useSocket();
   const [incomingCall, setIncomingCall] = useState({
     visible: false,
     callerName: '',
@@ -74,7 +74,7 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
   useEffect(() => {
     if (!socket) return;
 
-    const onIncoming = ({callerName, type}: any) => {
+    const onIncoming = ({ callerName, type }: any) => {
       setIncomingCall({
         visible: true,
         callerName,
@@ -90,7 +90,7 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
 
   const handleAcceptCall = () => {
     if (rejectTimeoutRef.current) clearTimeout(rejectTimeoutRef.current);
-    setIncomingCall(prev => ({...prev, visible: false}));
+    setIncomingCall(prev => ({ ...prev, visible: false }));
 
     navigation.navigate('ZegoCallScreen', {
       userID: userC?._id,
@@ -108,7 +108,7 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
         senderId: userC?._id,
       });
     }
-    setIncomingCall(prev => ({...prev, visible: false}));
+    setIncomingCall(prev => ({ ...prev, visible: false }));
   };
 
   useEffect(() => {
@@ -123,14 +123,15 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
     };
   }, [incomingCall.visible]);
 
+  const isWaitingRoom = room.type === 'waiting';
   return (
     <>
       <View
-        style={[styles.header, {backgroundColor: 'rgba(243, 244, 246, 0.6)'}]}>
+        style={[styles.header, { backgroundColor: 'rgba(243, 244, 246, 0.6)' }]}>
         <View style={styles.rowContainer2}>
           <TouchableOpacity style={styles.blockIcon} onPress={handleGoBack}>
             <Image
-              style={[styles.icon, {tintColor: color.text}]}
+              style={[styles.icon, { tintColor: color.text }]}
               source={require('@assets/icon/left.png')}
             />
           </TouchableOpacity>
@@ -163,8 +164,8 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
             {user2?.profilePic && (
               <>
                 <Image
-                  style={[styles.iconW, {width: 30, height: 30}]}
-                  source={{uri: user1?.profilePic}}
+                  style={[styles.iconW, { width: 30, height: 30 }]}
+                  source={{ uri: user1?.profilePic }}
                 />
                 <Image
                   style={[
@@ -174,36 +175,35 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
                       backgroundColor: color.backgroundSecondary,
                     },
                   ]}
-                  source={{uri: user2?.profilePic}}
+                  source={{ uri: user2?.profilePic }}
                 />
               </>
             )}
             {!user2?.profilePic && user1?.profilePic && (
-              <Image style={styles.img} source={{uri: user1?.profilePic}} />
+              <Image style={styles.img} source={{ uri: user1?.profilePic }} />
             )}
           </TouchableOpacity>
 
-          <Text style={{color: color.text, fontSize: 16}} numberOfLines={1}>
+          <Text style={{ color: color.text, fontSize: 16 }} numberOfLines={1}>
             {room?.name?.trim() || user1?.handleName || 'No name'}
           </Text>
         </View>
 
         <View style={styles.rowContainer1}>
-          <TouchableOpacity style={styles.blockIcon} onPress={handleVoiceCall}>
-            <Image
-              style={styles.icon}
-              source={require('../../../../assets/icon/telephone.png')}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.blockIcon} onPress={handleCall}>
-            <Image
-              style={[styles.icon, {tintColor: color.text}]}
-              source={require('@assets/icon/videoCamera.png')}
-            />
-          </TouchableOpacity>
+          { !isWaitingRoom && (
+            <><TouchableOpacity style={styles.blockIcon} onPress={handleVoiceCall}>
+              <Image
+                style={styles.icon}
+                source={require('../../../../assets/icon/telephone.png')} />
+            </TouchableOpacity><TouchableOpacity style={styles.blockIcon} onPress={handleCall}>
+                <Image
+                  style={[styles.icon, { tintColor: color.text }]}
+                  source={require('@assets/icon/videoCamera.png')} />
+              </TouchableOpacity></>
+          )}
           <TouchableOpacity style={styles.blockIcon}>
             <Image
-              style={[styles.icon, {tintColor: color.text}]}
+              style={[styles.icon, { tintColor: color.text }]}
               source={require('@assets/icon/info.png')}
             />
           </TouchableOpacity>

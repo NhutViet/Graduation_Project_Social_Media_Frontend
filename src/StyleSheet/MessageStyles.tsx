@@ -283,20 +283,28 @@ const MessageStyles = (theme: ThemeType) => {
       borderRadius: 8,
       alignItems: 'center',
     },
-    requestBannerText: {color: '#333',
-      textAlign:
-      'center',
-      marginBottom: 10
+    requestBannerText: {
+      width: '100%',
+      color: '#333',
+      textAlign: 'center',
+      marginBottom: 10,
     },
     acceptButton: {
-      backgroundColor: '#00BFFF',
+      backgroundColor: color.background,
+      elevation: 2,
+      shadowColor: color.text,
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 2,
+      alignItems: 'center',
       paddingVertical: 10,
       paddingHorizontal: 30,
       borderRadius: 20,
     },
     acceptButtonText: {
-      color: 'white',
-      fontWeight: 'bold',
+      fontSize: 14,
+      textAlign: 'center',
+      fontWeight: '700',
     },
 
   });
