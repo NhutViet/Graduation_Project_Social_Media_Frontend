@@ -19,6 +19,7 @@ interface MediaPlayerProps {
   paused?: boolean;
   muted?: boolean;
   isMediaLoading?: boolean;
+  onImageLoad?: () => void;
 }
 
 export const MediaPlayer = forwardRef<any, MediaPlayerProps>(
@@ -33,6 +34,7 @@ export const MediaPlayer = forwardRef<any, MediaPlayerProps>(
       paused,
       muted,
       isMediaLoading,
+      onImageLoad,
     },
     ref,
   ) => {
@@ -128,6 +130,7 @@ export const MediaPlayer = forwardRef<any, MediaPlayerProps>(
             onError={e =>
               console.log('🖼️  Image load error:', e.nativeEvent.error)
             }
+            onLoad={onImageLoad}
           />
         ) : (
           <Text style={styles.errorText}>Không có media để hiển thị</Text>

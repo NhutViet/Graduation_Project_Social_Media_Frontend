@@ -24,7 +24,7 @@ import {Keyboard} from 'react-native';
 import ModalShareStory, {ModalShareHandle} from './components/modalShare';
 import StoryLoadingSkeleton from '../../(tabs)/Home/components/StoryLoadingSkeleton';
 import {debugStoryGroups} from '../../(tabs)/Home/util';
-import { renderTextWithMentions } from '../../util/storyTextRenderer';
+import {renderTextWithMentions} from '../../util/storyTextRenderer';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -84,6 +84,28 @@ export const SeenStory = ({route, navigation}: any) => {
   const [isMediaLoading, setIsMediaLoading] = useState(true);
   const shareModalRef = useRef<ModalShareHandle>(null);
 
+  // ✅ Get story details from Redux store
+  const {storyDetails} = useSelector((state: RootState) => state.stories);
+
+  // ✅ Sync stories with Redux store data
+  const syncedStories = useMemo(() => {
+    return stories.map((story: any) => {
+      // Find updated story data from Redux store
+      const updatedStory = storyDetails.find(s => s._id === story._id);
+      if (updatedStory) {
+        // Merge with existing story data, prioritizing Redux data for like status
+        return {
+          ...story,
+          likedByUsers: updatedStory.likedByUsers || story.likedByUsers || [],
+          viewedByUsers:
+            updatedStory.viewedByUsers || story.viewedByUsers || [],
+          // Keep other properties from original story
+        };
+      }
+      return story;
+    });
+  }, [stories, storyDetails]);
+
   // ✅ Listen for parameter updates and navigation focus
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
@@ -94,7 +116,7 @@ export const SeenStory = ({route, navigation}: any) => {
         setCurrentCreator(params.creator || {});
         setIsDataLoading(params.isLoading || false);
       }
-      
+
       // ✅ Resume story khi quay lại từ profile
       if (isPaused) {
         setIsPaused(false);
@@ -124,8 +146,8 @@ export const SeenStory = ({route, navigation}: any) => {
   }, [stories.length]);
 
   const selectedItem = useMemo(
-    () => stories[currentIndex] || {},
-    [stories, currentIndex],
+    () => syncedStories[currentIndex] || {},
+    [syncedStories, currentIndex],
   );
 
   // ✅ Show loading skeleton if data is still loading or story is loading
@@ -169,7 +191,7 @@ export const SeenStory = ({route, navigation}: any) => {
   const goToNextStory = () => {
     stopCurrentAnimation();
 
-    if (currentIndex < stories.length - 1) {
+    if (currentIndex < syncedStories.length - 1) {
       setCurrentIndex(currentIndex + 1);
     } else {
       const nextGroupIndex = storyGroupIndex + 1;
@@ -189,16 +211,30 @@ export const SeenStory = ({route, navigation}: any) => {
           nextGroup.creator?._id === user?._id;
         const routeName = isOwner ? 'SeenStoryOwner' : 'SeenStory';
 
+        // ✅ Use synced stories data for navigation
+        const syncedNextGroupStories = nextGroup.stories.map((story: any) => {
+          const updatedStory = storyDetails.find(s => s._id === story._id);
+          if (updatedStory) {
+            return {
+              ...story,
+              likedByUsers:
+                updatedStory.likedByUsers || story.likedByUsers || [],
+              viewedByUsers:
+                updatedStory.viewedByUsers || story.viewedByUsers || [],
+            };
+          }
+          return story;
+        });
+
         navigation.replace(routeName, {
           storyGroups: currentStoryGroups,
           storyGroupIndex: nextGroupIndex,
           creator: nextGroup.creator,
-          stories: nextGroup.stories,
+          stories: syncedNextGroupStories,
           initialIndex: 0,
           timestamp: Date.now(),
         });
       } else {
-
         navigation.goBack();
       }
     }
@@ -262,11 +298,26 @@ export const SeenStory = ({route, navigation}: any) => {
             prevGroup.creator?._id === user?._id;
           const routeName = isOwner ? 'SeenStoryOwner' : 'SeenStory';
 
+          // ✅ Use synced stories data for navigation
+          const syncedPrevGroupStories = prevGroup.stories.map((story: any) => {
+            const updatedStory = storyDetails.find(s => s._id === story._id);
+            if (updatedStory) {
+              return {
+                ...story,
+                likedByUsers:
+                  updatedStory.likedByUsers || story.likedByUsers || [],
+                viewedByUsers:
+                  updatedStory.viewedByUsers || story.viewedByUsers || [],
+              };
+            }
+            return story;
+          });
+
           navigation.replace(routeName, {
             storyGroups: currentStoryGroups,
             storyGroupIndex: prevGroupIndex,
             creator: prevGroup.creator,
-            stories: prevGroup.stories,
+            stories: syncedPrevGroupStories,
             initialIndex: (prevGroup.stories.length || 1) - 1,
             timestamp: Date.now(),
           });
@@ -296,9 +347,9 @@ export const SeenStory = ({route, navigation}: any) => {
     try {
       await dispatch(toggleLikeStory({storyId: selectedItem._id})).unwrap();
 
-      dispatch(fetchFollowingStories({page: 1}));
-
+      // ✅ Update local state immediately for better UX
       setIsLiked(prev => !prev);
+
       Animated.sequence([
         Animated.timing(scaleAnim, {
           toValue: 1.5,
@@ -328,22 +379,20 @@ export const SeenStory = ({route, navigation}: any) => {
   const renderCaption = () => {
     const content = selectedItem?.content;
     const tags = selectedItem?.tags;
-    
-    
-  
-    const fullText = content?.text || '';
-    
-  
-    const validTags = tags?.filter((tag: any) => tag.user && tag.handleName) || [];
 
-    
-    const mentionsText = validTags.map((tag: any) => `@${tag.handleName}`).join(' ') || '';
-    const combinedText = fullText && mentionsText ? `${fullText} ${mentionsText}` : fullText || mentionsText;
-    
-  
-    
+    const fullText = content?.text || '';
+
+    const validTags =
+      tags?.filter((tag: any) => tag.user && tag.handleName) || [];
+
+    const mentionsText =
+      validTags.map((tag: any) => `@${tag.handleName}`).join(' ') || '';
+    const combinedText =
+      fullText && mentionsText
+        ? `${fullText} ${mentionsText}`
+        : fullText || mentionsText;
+
     if (!combinedText) {
-      console.log('❌ [SeenStory] No combined text to display');
       return null;
     }
 
@@ -354,12 +403,12 @@ export const SeenStory = ({route, navigation}: any) => {
     // Tạo mention data để có thể click từ valid tags only (adapt to backend structure)
     const mentionData = validTags.map((tag: any) => ({
       handleName: tag.handleName,
-      _id: tag.user // user field is the ID string
+      _id: tag.user, // user field is the ID string
     }));
 
     const handleMentionPress = (userId: string) => {
       // ✅ Story sẽ tự động pause thông qua blur listener
-      navigation.navigate('ProfileComp', { userID: userId });
+      navigation.navigate('ProfileComp', {userID: userId});
     };
 
     return (
@@ -369,8 +418,7 @@ export const SeenStory = ({route, navigation}: any) => {
           left,
           top,
         }}
-        activeOpacity={1}
-      >
+        activeOpacity={1}>
         {renderTextWithMentions(
           combinedText,
           mentionData,
@@ -383,7 +431,7 @@ export const SeenStory = ({route, navigation}: any) => {
           {
             color: '#4A90E2',
             fontWeight: '700',
-          }
+          },
         )}
       </TouchableOpacity>
     );
@@ -391,35 +439,27 @@ export const SeenStory = ({route, navigation}: any) => {
 
   const renderTags = () => {
     const tags = selectedItem?.tags || [];
-   
 
     return tags.map((tagData: any, index: number) => {
+      const {user: userId, position, handleName, username} = tagData;
 
-      const { user: userId, position, handleName, username } = tagData;
-      
       if (!userId || !position || !handleName) {
-        console.log('❌ [SeenStory] Missing required tag data:', {userId, position, handleName});
         return null;
       }
 
       const {x, y} = position;
-      
+
       // ✅ Use data directly from tag object (backend puts user info at tag level)
       const finalUserData = {
         _id: userId, // user field is the ID
         handleName: handleName,
         username: username,
       };
-      
- 
 
       const tagPosition = getCaptionPosition(x * 100, y * 100);
 
       const handleTagPress = () => {
-      
         if (finalUserData._id) {
-      
-       
           navigation.navigate('ProfileComp', {
             userID: finalUserData._id,
           });
@@ -468,10 +508,16 @@ export const SeenStory = ({route, navigation}: any) => {
     };
   }, []);
 
+  // ✅ Update like status from synced story data
   useEffect(() => {
     const liked = selectedItem?.likedByUsers?.includes(user?._id);
     setIsLiked(liked || false);
-  }, [selectedItem, user?._id]);
+  }, [selectedItem?.likedByUsers, user?._id]);
+
+  const onImageLoad = () => {
+    setIsMediaLoading(false);
+    startProgressAnimation();
+  };
 
   useEffect(() => {
     if (!selectedItem) return;
@@ -527,7 +573,7 @@ export const SeenStory = ({route, navigation}: any) => {
         />
         <ProgressBar
           progressAnims={progressAnims}
-          storyCount={stories.length}
+          storyCount={syncedStories.length}
         />
         <MediaPlayer
           item={selectedItem}
@@ -546,6 +592,7 @@ export const SeenStory = ({route, navigation}: any) => {
           paused={isPaused}
           muted={isMuted}
           isMediaLoading={isMediaLoading}
+          onImageLoad={onImageLoad}
         />
         {renderCaption()}
         {/* {renderTags()} */}
