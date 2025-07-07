@@ -181,42 +181,89 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
     );
   };
 
-  const renderMessageBubble = () => (
-    <TouchableOpacity
-      activeOpacity={0.7}
-      onLongPress={() => onLongPress?.(item)}>
-      <View
-        style={[
-          styles.message,
-          {
-            maxWidth: '80%',
-            marginLeft: isMe || showAvatar ? 0 : 50,
-            marginRight: isMe ? 0 : 40,
-            backgroundColor: item.media
-              ? item.media.type === 'call'
+  const renderMessageBubble = () => {
+    const maxShownReactions = 3;
+    const displayedReactions =
+      item.reactions?.slice(0, maxShownReactions) || [];
+    const remainingCount =
+      (item.reactions?.length || 0) - displayedReactions.length;
+
+    return (
+      <TouchableOpacity
+        onLongPress={() => onLongPress?.(item)}
+        style={{position: 'relative'}}>
+        <View
+          style={[
+            styles.message,
+            {
+              maxWidth: '80%',
+              marginLeft: isMe || showAvatar ? 0 : 50,
+              marginRight: isMe ? 0 : 40,
+              backgroundColor: item.media
+                ? item.media.type === 'call'
+                  ? color.backgroundSecondary
+                  : 'transparent'
+                : !isMe
                 ? color.backgroundSecondary
-                : 'transparent'
-              : !isMe
-              ? color.backgroundSecondary
-              : !linkPreviews[index] && !item.media
-              ? '#00BFFF'
-              : color.backgroundSecondary,
-            padding:
-              item.media?.type === 'image' || item.media?.type === 'call'
-                ? 0
-                : 10,
-          },
-        ]}>
-        {renderContent()}
-      </View>
-    </TouchableOpacity>
-  );
+                : !linkPreviews[index] && !item.media
+                ? '#00BFFF'
+                : color.backgroundSecondary,
+              padding:
+                item.media?.type === 'image' || item.media?.type === 'call'
+                  ? 0
+                  : 10,
+            },
+          ]}>
+          {renderContent()}
+        </View>
+
+        {item.reactions && item.reactions.length > 0 && (
+          <View
+            style={{
+              position: 'absolute',
+              bottom: -15,
+              right: isMe ? 7 : undefined,
+              left: !isMe ? 7 : undefined,
+              marginLeft: !isMe ? (isMe || showAvatar ? 0 : 50) : 0,
+              flexDirection: 'row-reverse',
+              alignItems: 'center',
+              paddingHorizontal: 3,
+              paddingVertical: 2,
+              backgroundColor: '#fff',
+              borderRadius: 20,
+            }}>
+            {displayedReactions.map((r, idx) => (
+              <View
+                key={idx}
+                style={{
+                  marginRight: idx === 0 ? 0 : -8,
+                }}>
+                <Text style={{fontSize: 16}}>{r.content}</Text>
+              </View>
+            ))}
+
+            {remainingCount > 0 && (
+              <Text
+                style={{
+                  fontSize: 13,
+                  color: '#555',
+                  marginRight: 6,
+                }}>{`+${remainingCount}`}</Text>
+            )}
+          </View>
+        )}
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <View
       style={[
         styles.containerMessage,
-        {justifyContent: isMe ? 'flex-end' : 'flex-start'},
+        {
+          justifyContent: isMe ? 'flex-end' : 'flex-start',
+          marginBottom: item.reactions && item.reactions.length > 0 ? 20 : 0,
+        },
       ]}>
       {renderAvatar()}
       <View

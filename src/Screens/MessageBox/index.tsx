@@ -1,6 +1,7 @@
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {FlashList} from '@shopify/flash-list';
 import {
+  ActivityIndicator,
   Image,
   RefreshControl,
   SafeAreaView,
@@ -33,7 +34,7 @@ export const MessageBox = (props: any) => {
   const styles = MessageBoxStyles(theme);
   const {onBack} = props;
   const dispatch = useDispatch<AppDispatch>();
-  const {rooms} = useSelector((state: RootState) => state.rooms);
+  const {rooms, loading} = useSelector((state: RootState) => state.rooms);
   const [seenMap, setSeenMap] = useState<Record<string, boolean>>({});
   const followingUsers = useSelector(
     (state: RootState) => state.stories.followingUsers,
@@ -215,38 +216,45 @@ export const MessageBox = (props: any) => {
       </View>
 
       <View style={styles.messagesListContainer}>
-        <FlashList
-          data={filteredRooms}
-          renderItem={({item}) => {
-            const filteredUsers = item.user_ids.filter(
-              u => u._id !== user?._id,
-            );
+        {loading ? (
+          <View
+            style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+            <ActivityIndicator size="large" color={color.primary} />
+          </View>
+        ) : (
+          <FlashList
+            data={filteredRooms}
+            renderItem={({item}) => {
+              const filteredUsers = item.user_ids.filter(
+                u => u._id !== user?._id,
+              );
 
-            const user1 = filteredUsers[0];
-            const user2 = filteredUsers[1];
+              const user1 = filteredUsers[0];
+              const user2 = filteredUsers[1];
 
-            const nameChat =
-              item.name?.trim().length > 0
-                ? item.name
-                : user1?.handleName || 'Không xác định';
+              const nameChat =
+                item.name?.trim().length > 0
+                  ? item.name
+                  : user1?.handleName || 'Không xác định';
 
-            return (
-              <ItemNewMessage
-                roomId={item._id}
-                nameChat={nameChat}
-                latestMessage={item?.latestMessage}
-                img1={user1?.profilePic || ''}
-                img2={user2?.profilePic || ''}
-                type={item.type}
-              />
-            );
-          }}
-          estimatedItemSize={100}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
-        />
+              return (
+                <ItemNewMessage
+                  roomId={item._id}
+                  nameChat={nameChat}
+                  latestMessage={item?.latestMessage}
+                  img1={user1?.profilePic || ''}
+                  img2={user2?.profilePic || ''}
+                  type={item.type}
+                />
+              );
+            }}
+            estimatedItemSize={100}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
+          />
+        )}
       </View>
     </SafeAreaView>
   );

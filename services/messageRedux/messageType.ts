@@ -10,6 +10,12 @@ export interface MediaMessage {
   duration?: number;
 }
 
+export interface Reaction {
+  userId: string;
+  content: string;
+  createdAt: string;
+}
+
 export interface Message {
   _id: string;
   roomId: string;
@@ -17,4 +23,5 @@ export interface Message {
   media?: MediaMessage;
   createdAt: string;
   sender: Sender;
+  reactions?: Reaction[];
 }
