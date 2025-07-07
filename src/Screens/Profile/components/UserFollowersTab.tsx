@@ -7,20 +7,24 @@ import {
   TextInput,
   ActivityIndicator,
 } from 'react-native';
-import React, { useState, useEffect } from 'react';
-import { FlashList } from '@shopify/flash-list';
+import React, { useCallback, useEffect, useMemo } from 'react';
+import { FlashList, ListRenderItem } from '@shopify/flash-list';
 import { Colors } from '../../../../assets/color/Colors';
 import { useTheme } from '../../../util/ThemeContext';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../../../services/store';
 import {
-  fetchFollowers,
+  fetchViewedFollowers,
   fetchFollowing,
   relationAction,
 } from '../../../../services/relationRedux/relationSlice';
 import { createRoom } from '../../../../services/roomRedux/roomSlice';
 import { GlobalAlertManager } from '../../../../components/Global/AlertModal';
+import { UserProfile } from '@services/relationRedux/relationTypes';
+import { selectDisplayViewedFollowers } from '@services/relationRedux/relationSelector';
+
+type DisplayProfile = UserProfile & { isMeFollowing: boolean };
 
 const UserFollowersTab = ({ route }: any) => {
   const navigation: any = useNavigation();
@@ -31,92 +35,65 @@ const UserFollowersTab = ({ route }: any) => {
   const myUserId = useSelector((state: RootState) => state.user.user?._id);
   const dispatch = useDispatch<AppDispatch>();
   const {
-    followers: reduxFollowers,
-    following: reduxFollowing,
+    loading,
     error,
   } = useSelector((state: RootState) => state.relation);
 
-  const [followers, setFollowers] = useState(reduxFollowers);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isError, setIsError] = useState<string | null>(null);
-
   useEffect(() => {
-    if (!userID) return;
-
-    setIsLoading(true);
-    setIsError(null);
-
-    const fetchAndCombineData = async () => {
-      if (userID === undefined || !myUserId) {
-        console.error('User ID hoặc My User ID không hợp lệ');
-        return;
-      }
-      try {
-        await dispatch(
-          fetchFollowers({ userId: userID }),
-        ).unwrap();
-        await dispatch(
-          fetchFollowing({ userId: myUserId }),
-        ).unwrap();
-
-        // Uncomment below to remove myUserId from followers list
-        // const filtered = followersData.filter(f => f._id !== myUserId);
-        // update the isFollowing state for each follower that have _id match a user in current user following list
-        // const updatedFollowers = filtered.map(follower => ({
-        //   ...follower,
-        //   // isMeFollowing: followingList.some(f => f._id === follower._id),
-        // }));
-        // // update new followers state
-        // setFollowers(updatedFollowers);
-      } catch (err) {
-        console.error('Error fetching followers:', err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (userID) {
-      fetchAndCombineData();
-    }
+    if (!userID || !myUserId) return;
+    dispatch(fetchViewedFollowers({ userId: userID }));
+    dispatch(fetchFollowing({ userId: myUserId }));
   }, [dispatch, userID, myUserId]);
 
-  const renderItem = ({ item }: { item: (typeof followers)[0] }) => (
-    <View style={styles.userContainer}>
-      <TouchableOpacity style={styles.touchableInfo}>
-        <Image source={{ uri: item.profilePic }} style={styles.avatar} />
-        <View style={styles.userInfo}>
-          <Text style={[styles.handle, { color: color.text }]}>
-            {item.handleName}
-          </Text>
-          <Text style={[styles.username, { color: color.textSecondary }]}>
-            {item.username}
-          </Text>
-        </View>
-      </TouchableOpacity>
-      {myUserId !== item._id && (
-        <TouchableOpacity
-          style={[
-            styles.actionButton,
-            item.isMeFollowing
-              ? [styles.messageButton, { borderColor: color.text }]
-              : styles.followBack,
-          ]}
-          onPress={() => handleActionButton(item)}>
-          <Text
-            style={[
-              styles.buttonText,
-              item.isMeFollowing
-                ? [styles.messageText, { color: color.text }]
-                : styles.followText,
-            ]}>
-            {item.isMeFollowing ? 'Nhắn tin' : 'Theo dõi'}
-          </Text>
-        </TouchableOpacity>
-      )}
-    </View>
-  );
+  const displayList = useSelector(selectDisplayViewedFollowers);
 
-  const handleActionButton = async (item: (typeof followers)[0]) => {
+  const renderItem: ListRenderItem<DisplayProfile> = ({ item }) => {
+    const isMe = item._id === myUserId;
+    return (
+      <View style={styles.userContainer}>
+        <TouchableOpacity style={styles.touchableInfo}>
+          {item.profilePic ? (
+            <Image source={{ uri: item.profilePic }} style={styles.avatar} />
+          ) : (
+            <Image
+              source={require('../../../../assets/icon/user.png')}
+              style={styles.avatar}
+            />
+          )}
+          <View style={styles.userInfo}>
+            <Text style={[styles.handle, { color: color.text }]}>
+              {item.handleName}
+            </Text>
+            <Text style={[styles.username, { color: color.textSecondary }]}>
+              {item.username}
+            </Text>
+          </View>
+        </TouchableOpacity>
+        {!isMe && (
+          <TouchableOpacity
+            style={[
+              styles.actionButton,
+              item.isMeFollowing
+                ? [styles.messageButton, { borderColor: color.text }]
+                : styles.followBack,
+            ]}
+            onPress={() => handleActionButton(item)}>
+            <Text
+              style={[
+                styles.buttonText,
+                item.isMeFollowing
+                  ? [styles.messageText, { color: color.text }]
+                  : styles.followText,
+              ]}>
+              {item.isMeFollowing ? 'Bạn bè' : 'Theo dõi'}
+            </Text>
+          </TouchableOpacity>
+        )}
+      </View>
+    )
+  };
+
+  const handleActionButton = useCallback(async (item: DisplayProfile) => {
     if (item.isMeFollowing) {
       try {
         const res = await dispatch(
@@ -153,30 +130,22 @@ const UserFollowersTab = ({ route }: any) => {
             handleName: user?.handleName,
           }),
         ).unwrap();
-
-        setFollowers(prevFollowers =>
-          prevFollowers.map(follower =>
-            follower._id === item._id
-              ? { ...follower, isMeFollowing: true }
-              : follower,
-          ),
-        );
       } catch (error) {
         GlobalAlertManager.show('Thất bại', 'Vui lòng thử lại sau.');
         console.log(error);
       }
     }
-  };
+  } , [dispatch, navigation, myUserId, user]);
 
-  if (isLoading) {
+  if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color={color.text} />
+        <ActivityIndicator size="large" color={color.primary} />
       </View>
     );
   }
 
-  if (isError) {
+  if (error) {
     return (
       <View style={styles.center}>
         <Text style={[styles.errorText, { color: color.text }]}>{error}</Text>
@@ -184,7 +153,7 @@ const UserFollowersTab = ({ route }: any) => {
     );
   }
 
-  if (!followers || followers.length === 0) {
+  if (!displayList || displayList.length === 0) {
     return (
       <View
         style={[styles.emptyContainer, { backgroundColor: color.background }]}>
@@ -226,10 +195,10 @@ const UserFollowersTab = ({ route }: any) => {
         </View>
       </View>
       <FlashList
-        data={followers}
+        data={displayList}
         keyExtractor={item => item._id}
         renderItem={renderItem}
-        estimatedItemSize={50}
+        estimatedItemSize={60}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
       />
