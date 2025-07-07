@@ -12,6 +12,7 @@ import {Message} from '@services/messageRedux/messageType';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '@services/store';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
+import {useSocket} from '@services/SocketContext';
 
 interface Props {
   visible: boolean;
@@ -22,11 +23,21 @@ interface Props {
 
 const ActionModalMessage = ({visible, onClose, content, setChat}: Props) => {
   const reactions = ['👍', '❤️', '😂', '😮', '😢', '😡'];
-  const handleReaction = (reaction: string) => {
-    onClose();
-  };
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.user.user);
+  const {socket} = useSocket();
+
+  const handleReaction = (reaction: string) => {
+    if (!socket || !content || !user?._id) return;
+
+    socket.emit('addReaction', {
+      messageId: content._id,
+      userId: user._id,
+      content: reaction,
+    });
+
+    onClose();
+  };
 
   const renderContent = () => {
     if (!content) return null;
@@ -48,14 +59,46 @@ const ActionModalMessage = ({visible, onClose, content, setChat}: Props) => {
     if (content.media?.type === 'call') {
       return (
         <View
-          style={[styles.textContainer, {width: 140, paddingHorizontal: 10}]}>
-          <Text style={styles.text}>{content.content}</Text>
+          style={{
+            backgroundColor: '#E6F7FF',
+            borderRadius: 10,
+            paddingHorizontal: 14,
+            paddingVertical: 8,
+            alignItems: 'center',
+            minWidth: 100,
+          }}>
+          <Text style={{color: '#007AFF', fontWeight: '600', fontSize: 14}}>
+            {content.content}
+          </Text>
           {content.media.duration && (
-            <Text style={styles.text}>⏱ {content.media.duration}</Text>
+            <Text
+              style={{
+                color: '#007AFF',
+                fontSize: 12,
+                marginTop: 4,
+              }}>
+              ⏱ {content.media.duration}
+            </Text>
           )}
-          <View style={styles.callButton}>
-            <Text style={{color: Colors.black, fontSize: 13}}>📞 Gọi lại</Text>
-          </View>
+          <TouchableOpacity
+            style={{
+              marginTop: 8,
+              backgroundColor: '#00BFFF',
+              paddingVertical: 6,
+              paddingHorizontal: 12,
+              borderRadius: 20,
+              width: '90%',
+            }}>
+            <Text
+              style={{
+                color: '#fff',
+                fontSize: 13,
+                fontWeight: 'bold',
+                textAlign: 'center',
+              }}>
+              Gọi lại
+            </Text>
+          </TouchableOpacity>
         </View>
       );
     }
@@ -152,7 +195,6 @@ const ActionModalMessage = ({visible, onClose, content, setChat}: Props) => {
                       GlobalAlertManager.show('Lỗi', reason);
                     }
                   } catch (err) {
-                    console.error('❌ Lỗi xoá tin nhắn:', err);
                     GlobalAlertManager.show(
                       'Lỗi',
                       'Đã xảy ra lỗi khi xoá tin nhắn',
@@ -183,7 +225,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     zIndex: 0,
-    backgroundColor: 'rgba(50,50,50,0.8)',
+    backgroundColor: 'rgba(50,50,50,0.7)',
   },
   container: {
     width: '100%',
