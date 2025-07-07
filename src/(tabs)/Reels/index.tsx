@@ -6,13 +6,14 @@ import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../../../services/store';
 import { fetchCommentsByPost } from '../../../services/commentRedux/commentSlice';
 import { Portal } from 'react-native-portalize';
-
-import { useReels } from '../hooks/useReels';
-import ReelsHeader from '../components/ReelsHeader';
-import ReelsList from '../components/ReelsList';
-import ReelsBottomSheets from '../components/ReelsBottomSheets';
-import { useShareModal } from '../hooks/useShareModal';
 import ModalShare from '../Home/components/ModalShare';
+import { useReels } from './hooks/useReels';
+import { useShareModal } from './hooks/useShareModal';
+import { Modalize } from 'react-native-modalize';
+import { fetchReelsWithMedia } from '@services/postRedux/postSlice';
+import ReelsHeader from './components/ReelsHeader';
+import ReelsList from './components/ReelsLists';
+import ReelsBottomSheets from './components/ReelsBottomSheets';
 
 const height = Dimensions.get('window').height;
 
@@ -20,8 +21,8 @@ const Reels = forwardRef((props, ref) => {
   const isFocused = useIsFocused();
   const dispatch = useDispatch<AppDispatch>();
 
-  const sheetRef = useRef(null);
-  const sheetRefComment = useRef(null);
+  const sheetRef = useRef<Modalize>(null);
+  const sheetRefComment = useRef<Modalize>(null);
   const flashListRef = useRef(null);
 
   const {
@@ -45,13 +46,13 @@ const Reels = forwardRef((props, ref) => {
   const [isCurrentBookmarked, setIsCurrentBookmarked] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState({ postId: '', receiverId: '' });
 
-  const openBottomSheet = (item) => {
+  const openBottomSheet = (item: any) => {
     setSelectedItem(item);
     setIsCurrentBookmarked(item.isBookmarked);
     sheetRef?.current?.open();
   };
 
-  const openCommentSheet = (item) => {
+  const openCommentSheet = (item: any) => {
     setSelectedPostId({ postId: item._id, receiverId: item.user._id });
     dispatch(fetchCommentsByPost(item._id));
     sheetRefComment.current?.open();

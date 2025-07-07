@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet, Dimensions } from 'react-native';
-import { Colors } from '../../../assets/color/Colors';
+import { Colors } from '@assets/color/Colors';
 
 const width = Dimensions.get('window').width;
 
@@ -12,7 +12,7 @@ const ReelsHeader = () => {
         <View style={styles.iconDownContainer}>
           <Image
             style={styles.icon}
-            source={require('../../../assets/icon/down.png')}
+            source={require('../../../../assets/icon/down.png')}
           />
         </View>
       </TouchableOpacity>

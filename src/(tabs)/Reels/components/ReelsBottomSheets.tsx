@@ -1,6 +1,6 @@
 import React from 'react';
-import BottomSheetReels, { BottomSheetReelsRef } from './bottomSheet/reelBottomSheet';
-import BottomSheetComment, { BottomSheetCommentRef } from '../Home/components/CommentSection';
+import BottomSheetReels, { BottomSheetReelsRef } from '../bottomSheet/reelBottomSheet';
+import BottomSheetComment, { BottomSheetCommentRef } from '../../../../src/(tabs)/Home/components/CommentSection';
 
 interface Props {
   sheetRef: React.RefObject<BottomSheetReelsRef>;
