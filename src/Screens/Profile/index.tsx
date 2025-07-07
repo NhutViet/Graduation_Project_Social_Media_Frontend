@@ -43,7 +43,8 @@ import {
 import {getPostsAndReelsOfUser} from '../../../services/postUserRedux/postUserSlice';
 import {clearPostsAndReels} from '../../../services/postUserRedux/postUserReducer';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
-import { fetchTaggedPosts } from '@services/taggedPostRedux/taggedPostSlice';
+import {fetchTaggedPosts} from '@services/taggedPostRedux/taggedPostSlice';
+import HighlightStoriesComponent from '../../(tabs)/Profile/components/HighlightStoriesComponent';
 
 const ProfileComp = ({route}: any) => {
   const navigation: any = useNavigation();
@@ -166,7 +167,9 @@ const ProfileComp = ({route}: any) => {
 
   const {isSuccess} = useSelector((state: RootState) => state.postUser);
   const {refreshToken} = useSelector((state: RootState) => state.user);
-  const profileTaggedPosts = useSelector((state: RootState) => state.taggedPosts.data);
+  const profileTaggedPosts = useSelector(
+    (state: RootState) => state.taggedPosts.data,
+  );
 
   const initializeProfile = useCallback(async () => {
     if (!userID) {
@@ -329,113 +332,121 @@ const ProfileComp = ({route}: any) => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.container}>
-        <View style={styles.Header}>
-          <TouchableOpacity
-            style={{alignItems: 'center', paddingRight: 12}}
-            onPress={() => navigation.goBack()}>
-            <ChevronLeft size={28} color={Colors[theme].text} />
-          </TouchableOpacity>
-          <Text style={styles.headTitle}>{publicProfile.handleName}</Text>
-          <View style={styles.SectionRight}>
-            <TouchableOpacity onPress={openOptionModal}>
-              <Ellipsis size={24} color={Colors[theme].text} />
+        <View style={{flex: 1}}>
+          <View style={styles.Header}>
+            <TouchableOpacity
+              style={{alignItems: 'center', paddingRight: 12}}
+              onPress={() => navigation.goBack()}>
+              <ChevronLeft size={28} color={Colors[theme].text} />
             </TouchableOpacity>
-          </View>
-        </View>
-        {/* Header Info */}
-        <View>
-          <UserInfo
-            name={publicProfile.username}
-            followers={localFollowersCount}
-            following={localFollowingCount}
-            posts={PostsItem.length + ReelsItem.length}
-            avatar={publicProfile.profilePic}
-            bio={publicProfile.bio}
-            theme={theme}
-            onFollowersPress={() => navigateToUserFollow('UserFollowersTab')}
-            onFollowingPress={() => navigateToUserFollow('UserFollowingTab')}
-          />
-        </View>
-        {/* Action Buttons */}
-        <ActionButtons
-          onFollowPress={toggleFollow}
-          onMessagePress={handleMessagePress}
-          onUnblockPress={toggleUnblock}
-          theme={theme}
-          isFollowing={isFollowing}
-          isBlocked={isBlock}
-        />
-        {/* Story Highlights */}
-        {/* {!isBlock && (
-          <StoryComponent isPrivate={isPrivate} highlights={highlights} />
-        )} */}
-        {/* Posts Grid/Video Tabs */}
-        {!isBlock && (
-          <>
-            <View style={{flexDirection: 'row'}}>
-              <TouchableOpacity
-                onPress={() => {
-                  setActiveTab('grid');
-                }}
-                style={[
-                  styles.tab,
-                  activeTab === 'grid' && styles.activeTab,
-                ]}>
-                <Grid
-                  size={26}
-                  color={
-                    activeTab === 'grid'
-                      ? Colors[theme].text
-                      : Colors.textSecondary
-                  }
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  setActiveTab('reels');
-                }}
-                style={[
-                  styles.tab,
-                  activeTab === 'reels' && styles.activeTab,
-                ]}>
-                <Video
-                  size={26}
-                  color={
-                    activeTab === 'reels'
-                      ? Colors[theme].text
-                      : Colors.textSecondary
-                  }
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  setActiveTab('tagged');
-                }}
-                style={[
-                  styles.tab,
-                  activeTab === 'tagged' && styles.activeTab,
-                ]}>
-                <UserSquare2
-                  size={26}
-                  color={
-                    activeTab === 'tagged'
-                      ? Colors[theme].text
-                      : Colors.textSecondary
-                  }
-                />
+            <Text style={styles.headTitle}>{publicProfile.handleName}</Text>
+            <View style={styles.SectionRight}>
+              <TouchableOpacity onPress={openOptionModal}>
+                <Ellipsis size={24} color={Colors[theme].text} />
               </TouchableOpacity>
             </View>
-            {renderTabContent()}
-          </>
-        )}
-        <Portal>
-          <OptionModal
-            ref={modalOptionRef}
-            userID={userID}
-            isBlock={isBlock}
-            onBlockChange={newState => setIsBlock(newState)}
+          </View>
+          {/* Header Info */}
+          <View>
+            <UserInfo
+              name={publicProfile.username}
+              followers={localFollowersCount}
+              following={localFollowingCount}
+              posts={PostsItem.length + ReelsItem.length}
+              avatar={publicProfile.profilePic}
+              bio={publicProfile.bio}
+              theme={theme}
+              onFollowersPress={() => navigateToUserFollow('UserFollowersTab')}
+              onFollowingPress={() => navigateToUserFollow('UserFollowingTab')}
+            />
+          </View>
+          {/* Action Buttons */}
+          <ActionButtons
+            onFollowPress={toggleFollow}
+            onMessagePress={handleMessagePress}
+            onUnblockPress={toggleUnblock}
+            theme={theme}
+            isFollowing={isFollowing}
+            isBlocked={isBlock}
           />
-        </Portal>
+          {/* Story Highlights */}
+          {!isBlock && (
+            <View style={{flexShrink: 0, flex: 1}}>
+              <HighlightStoriesComponent
+                key={userID}
+                userId={userID}
+                isOwnProfile={false}
+              />
+            </View>
+          )}
+          {/* Posts Grid/Video Tabs */}
+          {!isBlock && (
+            <>
+              <View style={{flexDirection: 'row'}}>
+                <TouchableOpacity
+                  onPress={() => {
+                    setActiveTab('grid');
+                  }}
+                  style={[
+                    styles.tab,
+                    activeTab === 'grid' && styles.activeTab,
+                  ]}>
+                  <Grid
+                    size={26}
+                    color={
+                      activeTab === 'grid'
+                        ? Colors[theme].text
+                        : Colors.textSecondary
+                    }
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    setActiveTab('reels');
+                  }}
+                  style={[
+                    styles.tab,
+                    activeTab === 'reels' && styles.activeTab,
+                  ]}>
+                  <Video
+                    size={26}
+                    color={
+                      activeTab === 'reels'
+                        ? Colors[theme].text
+                        : Colors.textSecondary
+                    }
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    setActiveTab('tagged');
+                  }}
+                  style={[
+                    styles.tab,
+                    activeTab === 'tagged' && styles.activeTab,
+                  ]}>
+                  <UserSquare2
+                    size={26}
+                    color={
+                      activeTab === 'tagged'
+                        ? Colors[theme].text
+                        : Colors.textSecondary
+                    }
+                  />
+                </TouchableOpacity>
+              </View>
+              {renderTabContent()}
+            </>
+          )}
+          <Portal>
+            <OptionModal
+              ref={modalOptionRef}
+              userID={userID}
+              isBlock={isBlock}
+              onBlockChange={newState => setIsBlock(newState)}
+            />
+          </Portal>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
