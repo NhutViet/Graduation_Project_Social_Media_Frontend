@@ -1,66 +1,94 @@
+import React from 'react';
 import {
   ActivityIndicator,
   FlatList,
   ImageBackground,
   SafeAreaView,
+  Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
-import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
-import {useTheme} from '../../util/ThemeContext';
-import {Colors} from '../../../assets/color/Colors';
-import {useEffect, useMemo, useRef, useState} from 'react';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { useTheme } from '../../util/ThemeContext';
+import { Colors } from '../../../assets/color/Colors';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import MessageStyles from '../../StyleSheet/MessageStyles';
-import {RootStackParamList} from '../../Navigation/AppNavigation';
+import { RootStackParamList } from '../../Navigation/AppNavigation';
 import LinkPreview from 'react-native-link-preview';
-import {useDispatch, useSelector} from 'react-redux';
-import {AppDispatch, RootState} from '../../../services/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../../services/store';
 import MessageItemComponent from './components/MessageItemComponent';
-import {fetchMessages} from '../../../services/messageRedux/messageSlice';
-import {Message} from '../../../services/messageRedux/messageType';
-import {launchImageLibrary} from 'react-native-image-picker';
-import {uploadImageToR2} from '../../core/upload';
-import {useUploadProgress} from '../../../services/UploadProgressManager';
-import {clearMessages} from '../../../services/messageRedux/messageReducer';
+import { fetchMessages } from '../../../services/messageRedux/messageSlice';
+import { Message } from '../../../services/messageRedux/messageType';
+import { launchImageLibrary } from 'react-native-image-picker';
+import { uploadImageToR2 } from '../../core/upload';
+import { useUploadProgress } from '../../../services/UploadProgressManager';
+import { clearMessages } from '../../../services/messageRedux/messageReducer';
 import ImagePreviewModal from './components/ImagePreviewModal';
-import {useSocket} from '../../../services/SocketContext';
+import { useSocket } from '../../../services/SocketContext';
 import ActionModalMessage from './components/ActionModalMessage';
 import MessageInput from './components/MessageInput';
 import MessageHeader from './components/MessageHeader';
+import { getRelationShip as fetchRelation, updatedRoomStatus } from './utils/room.hooks';
 
 export const MessageScreen = () => {
   const navigation: any = useNavigation();
-  const {theme} = useTheme();
+  const { theme } = useTheme();
   const color = Colors[theme];
   const styles = MessageStyles(theme);
   const dispatch = useDispatch<AppDispatch>();
   const [message, setMessage] = useState('');
-  const {messages, loading} = useSelector((state: RootState) => state.messages);
+  const { messages, loading } = useSelector((state: RootState) => state.messages);
   const [chat, setChat] = useState<Message[]>([]);
   const userC = useSelector((state: RootState) => state.user.user);
   const flatListRef = useRef<FlatList>(null);
   const route = useRoute<RouteProp<RootStackParamList, 'MessageScreen'>>();
-  const {room: roomId, isWaiting = false} = route?.params || {};
+  const { room: roomId, isWaiting = false } = route?.params || {};
   const rooms = useSelector((state: RootState) =>
     isWaiting ? state.rooms.waitingRooms : state.rooms.rooms,
   );
+  const listRoom = useSelector((state: RootState) => state.rooms.rooms);
   const room = useMemo(
     () => rooms.find(r => r._id === roomId),
     [rooms, roomId],
   );
   const filteredUsers = room?.user_ids.filter(user => user._id !== userC?._id);
-  const user1 = filteredUsers ? filteredUsers[0] : undefined;
-  const user2 = filteredUsers ? filteredUsers[1] : undefined;
+  const roomMember1 = filteredUsers ? filteredUsers[0] : undefined;
+  const roomMember2 = filteredUsers ? filteredUsers[1] : undefined;
+
+  useEffect(() => {
+    const checkRelation = async () => {
+      async () => {
+        await fetchRelation({
+          fromUserId: userC!._id,
+          toUserId: roomMember1!._id,
+        }).then((res: boolean) => {
+          setRelationStatus(res);
+        });
+      };
+    };
+    checkRelation();
+  }, [roomMember1, userC]);
+  const [relationStatus, setRelationStatus] = useState<boolean>(false);
+  const isMessageRequest = !relationStatus && chat.length > 0;
+  const isCurrentUserSender = isMessageRequest && roomMember1!._id === userC!._id;
+  const isInputDisabledForSender = isMessageRequest && isCurrentUserSender;
+  const handleAcceptRequest = async () => {
+    await updatedRoomStatus({ roomId: room!._id });
+    setRelationStatus(true);
+  };
+
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
-  const [linkPreviews, setLinkPreviews] = useState<{[key: number]: any}>({});
-  const {showUploadModal, hideUploadModal, setProgress} = useUploadProgress();
-  const {socket, connectToSocket, disconnectSocket} = useSocket();
+  const [linkPreviews, setLinkPreviews] = useState<{ [key: number]: any }>({});
+  const { showUploadModal, hideUploadModal, setProgress } = useUploadProgress();
+  const { socket, connectToSocket, disconnectSocket } = useSocket();
   const [modalVisible, setModalVisible] = useState(false);
   const [content, setContent] = useState<Message>();
 
   useEffect(() => {
     setChat([]);
     if (room?._id) {
-      dispatch(fetchMessages({roomId: room._id}));
+      dispatch(fetchMessages({ roomId: room._id }));
     }
   }, []);
 
@@ -90,7 +118,7 @@ export const MessageScreen = () => {
     chat.forEach((item, index) => {
       if (!linkPreviews[index] && item.content.match(/https?:\/\/\S+/)) {
         LinkPreview.getPreview(item.content).then(data => {
-          setLinkPreviews(prev => ({...prev, [index]: data}));
+          setLinkPreviews(prev => ({ ...prev, [index]: data }));
         });
       }
     });
@@ -154,12 +182,13 @@ export const MessageScreen = () => {
 
   useEffect(() => {
     if (chat.length > 0) {
-      flatListRef.current?.scrollToEnd({animated: true});
+      flatListRef.current?.scrollToEnd({ animated: true });
     }
   }, [chat]);
 
-  const renderItem = ({item, index}: {item: Message; index: number}) => (
+  const renderItem = ({ item, index }: { item: Message; index: number }) => (
     <MessageItemComponent
+      roomId={roomId}
       item={item}
       index={index}
       userHandleName={userC?.handleName ?? ''}
@@ -175,6 +204,17 @@ export const MessageScreen = () => {
     />
   );
 
+  const MessageRequestBanner = ({ onAccept }: { onAccept: () => void }) => (
+    <View style={styles.requestBanner}>
+      <Text style={styles.requestBannerText}>
+        {roomMember1!.handleName} muốn nhắn tin cho bạn. Chấp nhận để tiếp tục cuộc trò chuyện.
+      </Text>
+      <TouchableOpacity style={styles.acceptButton} onPress={onAccept}>
+        <Text style={styles.acceptButtonText}>Chấp nhận</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
   if (loading) {
     return (
       <SafeAreaView style={styles.loading}>
@@ -187,7 +227,7 @@ export const MessageScreen = () => {
     <SafeAreaView style={styles.container}>
       {room?.theme && (
         <ImageBackground
-          source={{uri: room.theme}}
+          source={{ uri: room.theme }}
           style={styles.bg}
           resizeMode="cover"
         />
@@ -201,10 +241,10 @@ export const MessageScreen = () => {
               : color.background,
           },
         ]}>
-        <View style={{flex: 1}}>
+        <View style={{ flex: 1 }}>
           <MessageHeader
-            user1={user1}
-            user2={user2}
+            user1={roomMember1}
+            user2={roomMember2}
             room={room}
             navigation={navigation}
             handleGoBack={handleGoBack}
@@ -225,18 +265,23 @@ export const MessageScreen = () => {
               flexGrow: 1,
             }}
             onContentSizeChange={() => {
-              flatListRef.current?.scrollToEnd({animated: true});
+              flatListRef.current?.scrollToEnd({ animated: true });
             }}
           />
+          {
+            isMessageRequest && !isCurrentUserSender ? (
+              <MessageRequestBanner onAccept={handleAcceptRequest} />
+            ) :
+            <MessageInput
+              message={message}
+              setMessage={setMessage}
+              sendMessage={sendMessage}
+              pickImageAndSend={pickImageAndSend}
+              styles={styles}
+              color={color}
+            />
+          }
 
-          <MessageInput
-            message={message}
-            setMessage={setMessage}
-            sendMessage={sendMessage}
-            pickImageAndSend={pickImageAndSend}
-            styles={styles}
-            color={color}
-          />
         </View>
       </View>
 

@@ -1,14 +1,15 @@
 import React from 'react';
-import {Image, Linking, Text, TouchableOpacity, View} from 'react-native';
-import {Message} from '../../../../services/messageRedux/messageType';
+import { Image, Linking, Text, TouchableOpacity, View } from 'react-native';
+import { Message } from '../../../../services/messageRedux/messageType';
 
 interface MessageItemProps {
+  roomId: string;
   item: Message;
   index: number;
   userHandleName: string;
   chat: Message[];
   setSelectedImageUri: (uri: string | null) => void;
-  linkPreviews: {[key: number]: any};
+  linkPreviews: { [key: number]: any };
   styles: any;
   color: any;
   onLongPress: (content: Message) => void;
@@ -36,8 +37,8 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
    */
   const renderAvatar = () =>
     !isMe && showAvatar ? (
-      <TouchableOpacity style={[styles.blockAvatar, {marginRight: 10}]}>
-        <Image source={{uri: item.sender.profilePic}} style={styles.avatar} />
+      <TouchableOpacity style={[styles.blockAvatar, { marginRight: 10 }]}>
+        <Image source={{ uri: item.sender.profilePic }} style={styles.avatar} />
       </TouchableOpacity>
     ) : null;
 
@@ -55,8 +56,8 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
               overflow: 'hidden',
             }}>
             <Image
-              source={{uri: item.media.url}}
-              style={{width: '100%', height: '100%'}}
+              source={{ uri: item.media.url }}
+              style={{ width: '100%', height: '100%' }}
               resizeMode="cover"
             />
           </View>
@@ -75,7 +76,7 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
             alignItems: 'center',
             minWidth: 100,
           }}>
-          <Text style={{color: '#007AFF', fontWeight: '600', fontSize: 14}}>
+          <Text style={{ color: '#007AFF', fontWeight: '600', fontSize: 14 }}>
             {item.content}
           </Text>
           {item.media.duration && (
@@ -140,7 +141,7 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
             }}>
             {linkPreviews[index].images?.length > 0 && (
               <Image
-                source={{uri: linkPreviews[index].images[0]}}
+                source={{ uri: linkPreviews[index].images[0] }}
                 style={{
                   width: '100%',
                   height: 140,
@@ -165,12 +166,12 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
               <Text
                 numberOfLines={1}
                 ellipsizeMode="tail"
-                style={{color: 'gray', fontSize: 12}}>
+                style={{ color: 'gray', fontSize: 12 }}>
                 {linkPreviews[index].description}
               </Text>
             )}
             <Text
-              style={{color: '#007AFF', fontSize: 12, marginTop: 4}}
+              style={{ color: '#007AFF', fontSize: 12, marginTop: 4 }}
               numberOfLines={2}
               ellipsizeMode="tail">
               {linkPreviews[index].url}
@@ -197,10 +198,10 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
                 ? color.backgroundSecondary
                 : 'transparent'
               : !isMe
-              ? color.backgroundSecondary
-              : !linkPreviews[index] && !item.media
-              ? '#00BFFF'
-              : color.backgroundSecondary,
+                ? color.backgroundSecondary
+                : !linkPreviews[index] && !item.media
+                  ? '#00BFFF'
+                  : color.backgroundSecondary,
             padding:
               item.media?.type === 'image' || item.media?.type === 'call'
                 ? 0
@@ -216,11 +217,11 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
     <View
       style={[
         styles.containerMessage,
-        {justifyContent: isMe ? 'flex-end' : 'flex-start'},
+        { justifyContent: isMe ? 'flex-end' : 'flex-start' },
       ]}>
       {renderAvatar()}
       <View
-        style={[styles.row, {alignItems: isMe ? 'flex-end' : 'flex-start'}]}>
+        style={[styles.row, { alignItems: isMe ? 'flex-end' : 'flex-start' }]}>
         {renderMessageBubble()}
       </View>
     </View>
