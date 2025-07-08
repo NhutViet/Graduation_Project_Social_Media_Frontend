@@ -41,6 +41,7 @@ import {
 import {ModalLoading} from './components/loading';
 import {useStoryPrefetch} from './hook/useStoryPrefetch';
 import {getNotification} from '@services/notificationRedux/notificationSlice';
+import { fetchMyRooms } from '@services/roomRedux/roomSlice';
 
 const HEADER_HEIGHT = 100;
 const AnimatedFlatList = Animated.createAnimatedComponent(Animated.FlatList);
@@ -266,6 +267,7 @@ export const Home = forwardRef(({onReload, route}: any, ref) => {
 
   useEffect(() => {
     dispatch(getNotification({page: 1}));
+    dispatch(fetchMyRooms());
   }, [dispatch]);
 
   const prefetchNextPage = useCallback(() => {

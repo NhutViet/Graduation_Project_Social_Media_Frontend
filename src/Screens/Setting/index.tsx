@@ -31,6 +31,7 @@ import {AppDispatch} from '../../../services/store';
 import {resetBookmarkState} from '../../../services/bookmarkRedux/bookmarkReducer';
 import {resetReaction} from '../../../services/reactionRedux/reactionReducer';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+import { registerRoom } from '@services/roomRedux/roomReducer';
 
 export const Setting = () => {
   const navigation: any = useNavigation();
@@ -51,6 +52,7 @@ export const Setting = () => {
       () => {
         dispatch(fetchLogout());
         dispatch(resetBookmarkState());
+        dispatch(registerRoom());
         dispatch(resetReaction());
         navigation.reset({index: 0, routes: [{name: 'SwitchAccount'}]});
       },

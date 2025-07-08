@@ -26,6 +26,8 @@ import {useSocket} from '../../../services/SocketContext';
 import ActionModalMessage from './components/ActionModalMessage';
 import MessageInput from './components/MessageInput';
 import MessageHeader from './components/MessageHeader';
+import {getRoomById} from '../../../services/roomRedux/roomSlice';
+import {Room} from '../../../services/roomRedux/roomType';
 
 export const MessageScreen = () => {
   const navigation: any = useNavigation();
@@ -33,36 +35,60 @@ export const MessageScreen = () => {
   const color = Colors[theme];
   const styles = MessageStyles(theme);
   const dispatch = useDispatch<AppDispatch>();
+
   const [message, setMessage] = useState('');
-  const {messages, loading} = useSelector((state: RootState) => state.messages);
   const [chat, setChat] = useState<Message[]>([]);
-  const userC = useSelector((state: RootState) => state.user.user);
+  const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
+  const [linkPreviews, setLinkPreviews] = useState<{[key: number]: any}>({});
+  const [modalVisible, setModalVisible] = useState(false);
+  const [content, setContent] = useState<Message>();
+  const [fetchedRoom, setFetchedRoom] = useState<Room | null>(null);
+
   const flatListRef = useRef<FlatList>(null);
   const route = useRoute<RouteProp<RootStackParamList, 'MessageScreen'>>();
   const {room: roomId, isWaiting = false} = route?.params || {};
+
+  const userC = useSelector((state: RootState) => state.user.user);
+  const {messages, loading} = useSelector((state: RootState) => state.messages);
   const rooms = useSelector((state: RootState) =>
     isWaiting ? state.rooms.waitingRooms : state.rooms.rooms,
   );
+
   const room = useMemo(
     () => rooms.find(r => r._id === roomId),
     [rooms, roomId],
   );
-  const filteredUsers = room?.user_ids.filter(user => user._id !== userC?._id);
+
+  const roomToUse = room || fetchedRoom;
+
+  const filteredUsers = roomToUse?.user_ids.filter(user => user._id !== userC?._id);
   const user1 = filteredUsers ? filteredUsers[0] : undefined;
   const user2 = filteredUsers ? filteredUsers[1] : undefined;
-  const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
-  const [linkPreviews, setLinkPreviews] = useState<{[key: number]: any}>({});
+
   const {showUploadModal, hideUploadModal, setProgress} = useUploadProgress();
   const {socket, connectToSocket, disconnectSocket} = useSocket();
-  const [modalVisible, setModalVisible] = useState(false);
-  const [content, setContent] = useState<Message>();
+
+  const fetchRoomDetail = async (roomId: string) => {
+    try {
+      const res = await dispatch(getRoomById(roomId)).unwrap();
+      setFetchedRoom(res);
+    } catch (err) {
+      console.error('❌ Lỗi khi fetch room:', err);
+    }
+  };
+
+  useEffect(() => {
+    if (!room && roomId) {
+      fetchRoomDetail(roomId);
+    }
+  }, [room, roomId]);
 
   useEffect(() => {
     setChat([]);
-    if (room?._id) {
-      dispatch(fetchMessages({roomId: room._id}));
+    if (roomToUse?._id) {
+      dispatch(fetchMessages({roomId: roomToUse._id}));
     }
-  }, []);
+  }, [roomToUse?._id]);
 
   useEffect(() => {
     setChat(messages);
@@ -70,6 +96,7 @@ export const MessageScreen = () => {
 
   useEffect(() => {
     connectToSocket(roomId);
+    return () => disconnectSocket();
   }, [roomId]);
 
   useEffect(() => {
@@ -108,6 +135,12 @@ export const MessageScreen = () => {
         });
       }
     });
+  }, [chat]);
+
+  useEffect(() => {
+    if (chat.length > 0) {
+      flatListRef.current?.scrollToEnd({animated: true});
+    }
   }, [chat]);
 
   const sendMessage = () => {
@@ -166,12 +199,6 @@ export const MessageScreen = () => {
     navigation.goBack();
   };
 
-  useEffect(() => {
-    if (chat.length > 0) {
-      flatListRef.current?.scrollToEnd({animated: true});
-    }
-  }, [chat]);
-
   const renderItem = ({item, index}: {item: Message; index: number}) => (
     <MessageItemComponent
       item={item}
@@ -199,18 +226,19 @@ export const MessageScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {room?.theme && (
+      {roomToUse?.theme && (
         <ImageBackground
-          source={{uri: room.theme}}
+          source={{uri: roomToUse.theme}}
           style={styles.bg}
           resizeMode="cover"
         />
       )}
+
       <View
         style={[
           styles.viewDf,
           {
-            backgroundColor: room?.theme
+            backgroundColor: roomToUse?.theme
               ? 'rgba(0, 0, 0, 0.2)'
               : color.background,
           },
@@ -219,7 +247,7 @@ export const MessageScreen = () => {
           <MessageHeader
             user1={user1}
             user2={user2}
-            room={room}
+            room={roomToUse}
             navigation={navigation}
             handleGoBack={handleGoBack}
             styles={styles}

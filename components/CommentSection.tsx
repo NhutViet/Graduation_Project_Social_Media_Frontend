@@ -22,6 +22,7 @@ import {
 import {Send} from 'lucide-react-native';
 import {GlobalAlertManager} from '../components/Global/AlertModal';
 import CommentComponent from '../src/(tabs)/Home/components/commentComponent';
+import {useNavigation} from '@react-navigation/native';
 
 interface Props {
   postId: string;
@@ -32,6 +33,7 @@ const {height} = Dimensions.get('window');
 
 const CommentSection = ({postId, receiverId}: Props) => {
   const dispatch = useDispatch<AppDispatch>();
+  const navigation = useNavigation();
   const user = useSelector((state: RootState) => state.user.user);
   const {comments, loading} = useSelector((state: RootState) => state.comment);
   const {theme} = useTheme();
@@ -41,6 +43,7 @@ const CommentSection = ({postId, receiverId}: Props) => {
   const [replyTo, setReplyTo] = useState<{
     id: string;
     handleName: string;
+    userId?: string;
   } | null>(null);
   const inputRef = useRef<TextInput>(null);
 
@@ -62,6 +65,7 @@ const CommentSection = ({postId, receiverId}: Props) => {
           postId,
           receiverId,
           userId: user?._id,
+          parentUserId: payload.parentID.length > 0 ? replyTo?.userId : '',
         }),
       ).unwrap();
       setComment('');
@@ -103,16 +107,18 @@ const CommentSection = ({postId, receiverId}: Props) => {
               <CommentComponent
                 _id={''}
                 content={''}
+                postId={postId}
                 isDeleted={false}
                 isLiked={false}
                 createdAt={''}
                 {...item}
-                onReply={(id, handleName) => {
-                  setReplyTo({id, handleName});
+                onReply={(id, handleName, userId) => {
+                  setReplyTo({id, handleName, userId});
                   setTimeout(() => {
                     inputRef.current?.focus();
                   }, 200);
                 }}
+                navigation={navigation}
               />
             )}
             estimatedItemSize={10}
