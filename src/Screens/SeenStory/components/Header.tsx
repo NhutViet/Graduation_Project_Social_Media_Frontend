@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {View, Text, Image, TouchableOpacity} from 'react-native';
 import {styles} from './styles';
 import {Pause, Play, VolumeX, Volume2, X} from 'lucide-react-native';
-
+import Icon from '../../../../components/Icon';
 export const Header = ({
   onClose,
   username,
@@ -83,7 +83,7 @@ export const Header = ({
         )}
       </TouchableOpacity>
       <TouchableOpacity style={styles.btnCloser} onPress={onClose}>
-        <X color={'#fff'} />
+        <Icon name="close" size={20} tintColor="#fff" />
       </TouchableOpacity>
     </View>
   );
