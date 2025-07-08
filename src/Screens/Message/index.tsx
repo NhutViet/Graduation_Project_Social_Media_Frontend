@@ -1,68 +1,125 @@
+import React from 'react';
 import {
   ActivityIndicator,
   FlatList,
   ImageBackground,
   SafeAreaView,
+  Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
-import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
-import {useTheme} from '../../util/ThemeContext';
-import {Colors} from '../../../assets/color/Colors';
-import {useEffect, useMemo, useRef, useState} from 'react';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { useTheme } from '../../util/ThemeContext';
+import { Colors } from '../../../assets/color/Colors';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import MessageStyles from '../../StyleSheet/MessageStyles';
-import {RootStackParamList} from '../../Navigation/AppNavigation';
+import { RootStackParamList } from '../../Navigation/AppNavigation';
 import LinkPreview from 'react-native-link-preview';
-import {useDispatch, useSelector} from 'react-redux';
-import {AppDispatch, RootState} from '../../../services/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../../services/store';
 import MessageItemComponent from './components/MessageItemComponent';
-import {fetchMessages} from '../../../services/messageRedux/messageSlice';
-import {Message} from '../../../services/messageRedux/messageType';
-import {launchImageLibrary} from 'react-native-image-picker';
-import {uploadImageToR2} from '../../core/upload';
-import {useUploadProgress} from '../../../services/UploadProgressManager';
-import {clearMessages} from '../../../services/messageRedux/messageReducer';
+import { fetchMessages } from '../../../services/messageRedux/messageSlice';
+import { Message } from '../../../services/messageRedux/messageType';
+import { launchImageLibrary } from 'react-native-image-picker';
+import { uploadImageToR2 } from '../../core/upload';
+import { useUploadProgress } from '../../../services/UploadProgressManager';
+import { clearMessages } from '../../../services/messageRedux/messageReducer';
 import ImagePreviewModal from './components/ImagePreviewModal';
-import {useSocket} from '../../../services/SocketContext';
+import { useSocket } from '../../../services/SocketContext';
 import ActionModalMessage from './components/ActionModalMessage';
 import MessageInput from './components/MessageInput';
 import MessageHeader from './components/MessageHeader';
+import { getRelationShip as fetchRelation, updatedRoomStatus } from './utils/helpers';
+import { fetchMyRooms, fetchMyWaitingRooms } from '@services/roomRedux/roomSlice';
 
 export const MessageScreen = () => {
   const navigation: any = useNavigation();
-  const {theme} = useTheme();
+  const { theme } = useTheme();
   const color = Colors[theme];
   const styles = MessageStyles(theme);
   const dispatch = useDispatch<AppDispatch>();
   const [message, setMessage] = useState('');
-  const {messages, loading} = useSelector((state: RootState) => state.messages);
+  const { messages, loading } = useSelector((state: RootState) => state.messages);
   const [chat, setChat] = useState<Message[]>([]);
   const userC = useSelector((state: RootState) => state.user.user);
   const flatListRef = useRef<FlatList>(null);
   const route = useRoute<RouteProp<RootStackParamList, 'MessageScreen'>>();
-  const {room: roomId, isWaiting = false} = route?.params || {};
-  const rooms = useSelector((state: RootState) =>
-    isWaiting ? state.rooms.waitingRooms : state.rooms.rooms,
-  );
-  const room = useMemo(
-    () => rooms.find(r => r._id === roomId),
-    [rooms, roomId],
-  );
-  const filteredUsers = room?.user_ids.filter(user => user._id !== userC?._id);
-  const user1 = filteredUsers ? filteredUsers[0] : undefined;
-  const user2 = filteredUsers ? filteredUsers[1] : undefined;
+  const { room: roomId, isWaiting = false } = route?.params || {};
+  const acceptedRooms = useSelector((state: RootState) => state.rooms.rooms);
+  const waitingRooms = useSelector((state: RootState) => state.rooms.waitingRooms);
+
+  // Store the original room data to avoid undefined access
+  const [originalRoom, setOriginalRoom] = useState<any>(null);
+
+  const rooms = useMemo(() => {
+    const foundRoom = acceptedRooms.find(r => r._id === roomId) || waitingRooms.find(r => r._id === roomId);
+    // If room is found, update originalRoom
+    if (foundRoom) {
+      setOriginalRoom(foundRoom);
+      return foundRoom;
+    }
+    // If room not found, return it to avoid undefined access
+    return originalRoom;
+  }, [acceptedRooms, waitingRooms, roomId, originalRoom]);
+
+  const filteredUsers = rooms?.user_ids.filter(user => user._id !== userC?._id);
+  const roomMember1 = filteredUsers ? filteredUsers[0] : undefined;
+  const roomMember2 = filteredUsers ? filteredUsers[1] : undefined;
+
+  useEffect(() => {
+    const checkRelation = async () => {
+      async () => {
+        await fetchRelation({
+          fromUserId: userC!._id,
+          toUserId: roomMember1!._id,
+        }).then((res: Boolean) => {
+          return setRelationStatus(res.valueOf);
+        });
+      };
+    };
+    checkRelation();
+  }, [roomMember1, userC]);
+
+  /**
+   * Three lines below is checking the relationship between currentUser and roomMember[0]
+   * then will check is it the message-request or not
+   * the last one is for check is currentUser the sender.
+   */
+  const [relationStatus, setRelationStatus] = useState<boolean>(false);
+  const isMessageRequest = !relationStatus && chat.length > 0;
+  const isCurrentUserSender = isMessageRequest && roomMember1!._id === userC!._id;
+
+  /**
+   * this one will handle whenever client accept message request
+   * and then updated og-Room and fetching room-data to State
+   */
+  const handleAcceptRequest = async () => {
+    try {
+      await updatedRoomStatus({ roomId: rooms!._id });
+      setRelationStatus(true);
+
+      dispatch(fetchMyRooms());
+      dispatch(fetchMyWaitingRooms());
+    } catch (error) {
+      console.error('Error accepting request:', error);
+    }
+  };
+
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
-  const [linkPreviews, setLinkPreviews] = useState<{[key: number]: any}>({});
-  const {showUploadModal, hideUploadModal, setProgress} = useUploadProgress();
-  const {socket, connectToSocket, disconnectSocket} = useSocket();
+  const [linkPreviews, setLinkPreviews] = useState<{ [key: number]: any }>({});
+  const { showUploadModal, hideUploadModal, setProgress } = useUploadProgress();
+  const { socket, connectToSocket, disconnectSocket } = useSocket();
   const [modalVisible, setModalVisible] = useState(false);
   const [content, setContent] = useState<Message>();
+  // line 108 below is for tracking this component when it's crack
+  console.log('89 >>>>>>>>>>>>>>>> Room', rooms?._id, rooms?.type);
 
   useEffect(() => {
     setChat([]);
-    if (room?._id) {
-      dispatch(fetchMessages({roomId: room._id}));
+    if (rooms?._id) {
+      dispatch(fetchMessages({ roomId: rooms._id }));
     }
-  }, []);
+  }, [rooms?._id]);
 
   useEffect(() => {
     setChat(messages);
@@ -73,7 +130,7 @@ export const MessageScreen = () => {
   }, [roomId]);
 
   useEffect(() => {
-    if (!socket) return;
+    if (!socket) {return;}
 
     const onMessage = (data: Message) => {
       setChat(prev => [...prev, data]);
@@ -104,7 +161,7 @@ export const MessageScreen = () => {
     chat.forEach((item, index) => {
       if (!linkPreviews[index] && item.content.match(/https?:\/\/\S+/)) {
         LinkPreview.getPreview(item.content).then(data => {
-          setLinkPreviews(prev => ({...prev, [index]: data}));
+          setLinkPreviews(prev => ({ ...prev, [index]: data }));
         });
       }
     });
@@ -163,17 +220,19 @@ export const MessageScreen = () => {
     setSelectedImageUri(null);
     setLinkPreviews({});
     dispatch(clearMessages());
+    setOriginalRoom(null);
     navigation.goBack();
   };
 
   useEffect(() => {
     if (chat.length > 0) {
-      flatListRef.current?.scrollToEnd({animated: true});
+      flatListRef.current?.scrollToEnd({ animated: true });
     }
   }, [chat]);
 
-  const renderItem = ({item, index}: {item: Message; index: number}) => (
+  const renderItem = ({ item, index }: { item: Message; index: number }) => (
     <MessageItemComponent
+      roomId={roomId}
       item={item}
       index={index}
       userHandleName={userC?.handleName ?? ''}
@@ -189,6 +248,23 @@ export const MessageScreen = () => {
     />
   );
 
+  const isMeSender = rooms?.created_by === userC?._id;
+  const MessageRequestBanner = ({ onAccept }: { onAccept: () => void }) => (
+    <View style={styles.requestBanner}>
+      <Text style={styles.requestBannerText}>
+        {isMeSender
+          ? `Đang chờ ${roomMember1!.handleName} chấp nhận để tiếp tục cuộc trò chuyện.`
+          : roomMember1!.handleName + ' muốn nhắn tin cho bạn. Chấp nhận để tiếp tục cuộc trò chuyện.'
+        }
+      </Text>
+      {!isMeSender && (
+        <TouchableOpacity style={styles.acceptButton} onPress={onAccept}>
+          <Text style={styles.callText}>Chấp nhận</Text>
+        </TouchableOpacity>
+      ) }
+    </View>
+  );
+
   if (loading) {
     return (
       <SafeAreaView style={styles.loading}>
@@ -199,9 +275,9 @@ export const MessageScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {room?.theme && (
+      {rooms?.theme && (
         <ImageBackground
-          source={{uri: room.theme}}
+          source={{ uri: rooms.theme }}
           style={styles.bg}
           resizeMode="cover"
         />
@@ -210,16 +286,16 @@ export const MessageScreen = () => {
         style={[
           styles.viewDf,
           {
-            backgroundColor: room?.theme
+            backgroundColor: rooms?.theme
               ? 'rgba(0, 0, 0, 0.2)'
               : color.background,
           },
         ]}>
-        <View style={{flex: 1}}>
+        <View style={{ flex: 1 }}>
           <MessageHeader
-            user1={user1}
-            user2={user2}
-            room={room}
+            user1={roomMember1}
+            user2={roomMember2}
+            room={rooms}
             navigation={navigation}
             handleGoBack={handleGoBack}
             styles={styles}
@@ -240,18 +316,23 @@ export const MessageScreen = () => {
               flexGrow: 1,
             }}
             onContentSizeChange={() => {
-              flatListRef.current?.scrollToEnd({animated: true});
+              flatListRef.current?.scrollToEnd({ animated: true });
             }}
           />
+          { isMessageRequest && !isCurrentUserSender && rooms!.type === 'waiting'
+          ? ( <MessageRequestBanner onAccept={handleAcceptRequest} /> )
+          : (
+              <MessageInput
+                message={message}
+                setMessage={setMessage}
+                sendMessage={sendMessage}
+                pickImageAndSend={pickImageAndSend}
+                styles={styles}
+                color={color}
+              />
+            )
+          }
 
-          <MessageInput
-            message={message}
-            setMessage={setMessage}
-            sendMessage={sendMessage}
-            pickImageAndSend={pickImageAndSend}
-            styles={styles}
-            color={color}
-          />
         </View>
       </View>
 
