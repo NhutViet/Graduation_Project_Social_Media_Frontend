@@ -70,7 +70,7 @@ const ReplyComment = memo(
       setTotalLikes(prev => (isLiked ? prev - 1 : prev + 1));
       if (likeTimeout.current) clearTimeout(likeTimeout.current);
       likeTimeout.current = setTimeout(() => {
-        if (!isLiked) dispatch(likeComment({commentId: _id, receiverId: user?._id, handleName: currentUser?.handleName, userId: currentUser?._id}));
+        if (!isLiked) dispatch(likeComment({commentId: _id, receiverId: user?._id, handleName: currentUser?.handleName, userId: currentUser?._id, postId: item.postId}));
         else dispatch(unlikeComment(_id));
       }, 600);
     };
