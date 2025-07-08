@@ -7,7 +7,7 @@ import {
   TextInput,
   ActivityIndicator,
 } from 'react-native';
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useRef, useState, useCallback, useEffect, useMemo } from 'react';
 import { FlashList, ListRenderItem } from '@shopify/flash-list';
 import { Colors } from '../../../../assets/color/Colors';
 import { useTheme } from '../../../util/ThemeContext';
@@ -38,6 +38,8 @@ const UserFollowersTab = ({ route }: any) => {
     loading,
     error,
   } = useSelector((state: RootState) => state.relation);
+  const searchInputRef = useRef<TextInput>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     if (!userID || !myUserId) return;
@@ -45,7 +47,11 @@ const UserFollowersTab = ({ route }: any) => {
     dispatch(fetchFollowing({ userId: myUserId }));
   }, [dispatch, userID, myUserId]);
 
-  const displayList = useSelector(selectDisplayViewedFollowers);
+  const followersList = useSelector(selectDisplayViewedFollowers);
+
+  const displayList = followersList.filter(u =>
+    u.handleName.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const renderItem: ListRenderItem<DisplayProfile> = ({ item }) => {
     const isMe = item._id === myUserId;
@@ -153,7 +159,7 @@ const UserFollowersTab = ({ route }: any) => {
     );
   }
 
-  if (!displayList || displayList.length === 0) {
+  if (!followersList || followersList.length === 0) {
     return (
       <View
         style={[styles.emptyContainer, { backgroundColor: color.background }]}>
@@ -174,26 +180,53 @@ const UserFollowersTab = ({ route }: any) => {
 
   return (
     <View style={{ flex: 1, backgroundColor: color.background }}>
-      <View
-        style={[
-          styles.searchBarArea,
-          { backgroundColor: color.background, borderBottomColor: color.border },
-        ]}>
-        <View style={[styles.searchBarContainer]}>
-          <TextInput
-            style={[
-              styles.searchBar,
-              { color: color.text, backgroundColor: color.lessBlack },
-            ]}
-            placeholder="Tìm kiếm"
-            placeholderTextColor={color.text}
-          />
-          <Image
-            source={require('../../../../assets/icon/search.png')}
-            style={[styles.searchIcon, { tintColor: color.text }]}
-          />
+      {followersList.length > 0 && (
+        <View
+          style={[
+            styles.searchBarArea,
+            { backgroundColor: color.background, borderBottomColor: color.border },
+          ]}>
+          <View style={[styles.searchBarContainer]}>
+            <TextInput
+              style={[
+                styles.searchBar,
+                { color: color.text, backgroundColor: color.lessBlack },
+              ]}
+              placeholder="Tìm kiếm"
+              placeholderTextColor={color.text}
+            />
+            <Image
+              source={require('../../../../assets/icon/search.png')}
+              style={[styles.searchIcon, { tintColor: color.text }]}
+            />
+            {searchQuery.length > 0 && (
+              <TouchableOpacity
+                style={styles.clearButton}
+                onPress={() => setSearchQuery('')}>
+                  <Image
+                    style={[styles.clearIcon, {tintColor: color.text}]}
+                    source={require('../../../../assets/icon/closer.png')}
+                  />
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
-      </View>
+      )}
+      
+      {displayList.length === 0 && searchQuery.length && (
+        <View
+          style={[styles.emptyContainer, {backgroundColor: color.background, flex: 2, paddingTop: 150}]}>
+          <Image
+            source={require('../../../../assets/icon/block-user.png')}
+            style={styles.emptyImage}
+            resizeMode="contain"
+          />
+          <Text style={[styles.emptyTitle, {color: color.text}]}>
+            Không tìm thấy tên người dùng
+          </Text>
+        </View>
+      )}
+      
       <FlashList
         data={displayList}
         keyExtractor={item => item._id}
@@ -325,5 +358,17 @@ const styles = StyleSheet.create({
   emptySubtitle: {
     fontSize: 14,
     textAlign: 'center',
+  },
+  clearButton: {
+    position: 'absolute',
+    right: Colors.spacing.m,
+    width: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  clearIcon: {
+    width: 14,
+    height: 14,
   },
 });
