@@ -45,16 +45,12 @@ export const Setting = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   const handleLogout = () => {
-    GlobalAlertManager.show(
-      'Đã đăng xuất',
-      'Đăng xuất thành công',
-      () => {
-        dispatch(fetchLogout());
-        dispatch(resetBookmarkState());
-        dispatch(resetReaction());
-        navigation.reset({index: 0, routes: [{name: 'SwitchAccount'}]});
-      },
-    );
+    GlobalAlertManager.show('Đã đăng xuất', 'Đăng xuất thành công', () => {
+      dispatch(fetchLogout());
+      dispatch(resetBookmarkState());
+      dispatch(resetReaction());
+      navigation.reset({index: 0, routes: [{name: 'SwitchAccount'}]});
+    });
   };
 
   return (
@@ -83,7 +79,7 @@ export const Setting = () => {
               <Image
                 source={require('../../../assets/icon/logo_row.png')}
                 resizeMode="cover"
-                style={{width: 75, height: 25, tintColor: mColor.text}}
+                style={{width: 75, height: 25}}
               />
             </View>
 
