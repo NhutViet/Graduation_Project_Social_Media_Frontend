@@ -41,7 +41,7 @@ const ItemNewMessage: React.FC<ItemNewMessageProps> = ({
         <View
           style={[
             styles.imgContainer,
-            { overflow: img1 && !img2 ? 'hidden' : undefined },
+            {overflow: img1 && !img2 ? 'hidden' : 'visible'},
           ]}>
           {img2 && (
             <>
@@ -102,6 +102,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
   },
   iconW: {
     width: '75%',

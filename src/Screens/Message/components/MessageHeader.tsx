@@ -203,8 +203,8 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
           )}
           <TouchableOpacity style={styles.blockIcon}>
             <Image
-              style={[styles.icon, { tintColor: color.text }]}
-              source={require('@assets/icon/info.png')}
+              style={[styles.icon, {tintColor: color.text}]}
+              source={require('@assets/icon/danger.png')}
             />
           </TouchableOpacity>
         </View>

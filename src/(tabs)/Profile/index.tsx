@@ -31,6 +31,7 @@ import ACNavigateModal, {
 } from '../../../src/Screens/AccountCenter/components/ACNavigateModal';
 import {fetchTaggedPosts} from '@services/taggedPostRedux/taggedPostSlice';
 import {FlashList} from '@shopify/flash-list';
+import HighlightStoriesComponent from './components/HighlightStoriesComponent';
 
 const Profile = () => {
   const navigation: any = useNavigation();
@@ -228,12 +229,15 @@ const Profile = () => {
               Chia sẻ trang cá nhân
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.optionButton, {backgroundColor: color.gray}]}
-            onPress={() => navigation.navigate('Swipe')}>
-            <Share2 size={18} color={color.text} />
-          </TouchableOpacity>
         </View>
+        {/* Highlight Stories Component */}
+        {userId && (
+          <HighlightStoriesComponent
+            key={userId}
+            userId={userId}
+            isOwnProfile={true}
+          />
+        )}
         <ModalCreate
           visible={visibleModalCreate}
           onClose={() => setVisibleModalCreate(false)}

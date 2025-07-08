@@ -69,7 +69,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
           <TouchableOpacity style={styles.blockIcon1}>
             <Image
               style={styles.icon}
-              source={require('@assets/icon/another.png')}
+              source={require('@assets/icon/Plus.png')}
             />
           </TouchableOpacity>
         </View>

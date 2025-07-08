@@ -410,20 +410,38 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
     setIsMusicLoaded(true);
   };
 
+  const onImageLoad = () => {
+    setIsMediaLoading(false);
+    startProgressAnimation();
+  };
+
   useEffect(() => {
-    if (selectedItem?.mediaUrl?.endsWith('.m3u8')) {
-      if (isVideoLoaded && (!selectedItem.music?.link || isMusicLoaded)) {
+    const currentStory = selectedItem;
+    const isVideo = currentStory?.mediaUrl?.endsWith('.m3u8');
+    const hasMusic = !!currentStory?.music?.link;
+
+    // Trường hợp 1: Chỉ có ảnh (không có video, không có music)
+    if (!isVideo && !hasMusic) {
+      // KHÔNG setIsMediaLoading(false) ở đây nữa, để onImageLoad xử lý
+      return;
+    }
+
+    // Trường hợp 2: Có video (có thể có hoặc không có music)
+    if (isVideo) {
+      if (isVideoLoaded && (!hasMusic || isMusicLoaded)) {
         setIsMediaLoading(false);
         startProgressAnimation();
       }
-    } else if (selectedItem?.music?.link) {
+      return;
+    }
+
+    // Trường hợp 3: Chỉ có music (không có video)
+    if (hasMusic && !isVideo) {
       if (isMusicLoaded) {
         setIsMediaLoading(false);
         startProgressAnimation();
       }
-    } else {
-      setIsMediaLoading(false);
-      startProgressAnimation();
+      return;
     }
   }, [isVideoLoaded, isMusicLoaded, selectedItem]);
 
@@ -518,7 +536,6 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
         : fullText || mentionsText;
 
     if (!combinedText) {
-      console.log('❌ No combined text to display');
       return null;
     }
 
@@ -567,11 +584,6 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
       const {user: userId, position, handleName, username} = tagData;
 
       if (!userId || !position || !handleName) {
-        console.log('❌ Missing required tag data:', {
-          userId,
-          position,
-          handleName,
-        });
         return null;
       }
 
@@ -669,6 +681,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
             muted={isMuted}
             isVideoLoaded={isVideoLoaded}
             isMediaLoading={isMediaLoading}
+            onImageLoad={onImageLoad}
           />
         ) : null}
         {renderCaption()}

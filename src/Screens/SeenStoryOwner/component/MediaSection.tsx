@@ -16,6 +16,7 @@ interface MediaSectionProps {
   muted?: boolean;
   isVideoLoaded?: boolean;
   isMediaLoading?: boolean;
+  onImageLoad?: () => void;
 }
 
 export const MediaSection = forwardRef<VideoRef, MediaSectionProps>(
@@ -31,6 +32,7 @@ export const MediaSection = forwardRef<VideoRef, MediaSectionProps>(
       muted,
       isVideoLoaded,
       isMediaLoading,
+      onImageLoad,
     }: MediaSectionProps,
     ref,
   ) => {
@@ -159,6 +161,7 @@ export const MediaSection = forwardRef<VideoRef, MediaSectionProps>(
                 const {width, height} = event.nativeEvent.layout;
                 onMediaLayout?.({width, height});
               }}
+              onLoad={onImageLoad}
             />
           )
         ) : (

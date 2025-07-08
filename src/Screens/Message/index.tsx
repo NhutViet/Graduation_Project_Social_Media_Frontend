@@ -109,10 +109,24 @@ export const MessageScreen = () => {
       setChat(prev => [...prev, data]);
     };
 
+    const onReactionUpdated = ({
+      messageId,
+      reactions,
+    }: {
+      messageId: string;
+      reactions: Message['reactions'];
+    }) => {
+      setChat(prev =>
+        prev.map(msg => (msg._id === messageId ? {...msg, reactions} : msg)),
+      );
+    };
+
     socket.on('receiveMessage', onMessage);
+    socket.on('reactionUpdated', onReactionUpdated);
 
     return () => {
       socket.off('receiveMessage', onMessage);
+      socket.off('reactionUpdated', onReactionUpdated);
     };
   }, [socket]);
 
@@ -269,6 +283,7 @@ export const MessageScreen = () => {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{
               paddingTop: 10,
+              paddingBottom: 20,
               paddingHorizontal: 10,
               flexGrow: 1,
             }}
