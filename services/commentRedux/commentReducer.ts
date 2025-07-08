@@ -1,4 +1,4 @@
-import {createSlice} from '@reduxjs/toolkit';
+import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {CommentPost} from './commentTypes';
 import {fetchCommentsByPost} from './commentSlice';
 
@@ -14,10 +14,49 @@ const initialState: CommentState = {
   error: null,
 };
 
+const findAndUpdateComment = (
+  comments: CommentPost[],
+  commentId: string,
+  updater: (comment: CommentPost) => void,
+): boolean => {
+  for (const comment of comments) {
+    if (comment._id === commentId) {
+      updater(comment);
+      return true;
+    }
+    if (comment.reply && comment.reply.length > 0) {
+      if (findAndUpdateComment(comment.reply, commentId, updater)) return true;
+    }
+  }
+  return false;
+};
+
 const commentReducer = createSlice({
   name: 'comments',
   initialState,
-  reducers: {},
+  reducers: {
+    updateCommentLike(
+      state,
+      action: PayloadAction<{commentId: string; userId: string}>,
+    ) {
+      const {commentId} = action.payload;
+      findAndUpdateComment(state.comments, commentId, comment => {
+        comment.totalLikes += 1;
+        comment.isLiked = true;
+      });
+    },
+
+    updateCommentUnlike(
+      state,
+      action: PayloadAction<{commentId: string; userId: string}>,
+    ) {
+      const {commentId} = action.payload;
+      findAndUpdateComment(state.comments, commentId, comment => {
+        comment.totalLikes = Math.max(0, comment.totalLikes - 1);
+        comment.isLiked = false;
+      });
+    },
+  },
   extraReducers: builder => {
     builder
       .addCase(fetchCommentsByPost.pending, state => {
@@ -35,4 +74,5 @@ const commentReducer = createSlice({
   },
 });
 
+export const {updateCommentLike, updateCommentUnlike} = commentReducer.actions;
 export default commentReducer.reducer;
