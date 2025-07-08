@@ -85,7 +85,7 @@ export const Setting = () => {
               <Image
                 source={require('../../../assets/icon/logo_row.png')}
                 resizeMode="cover"
-                style={{width: 75, height: 25, tintColor: mColor.text}}
+                style={{width: 75, height: 25}}
               />
             </View>
 

@@ -4,7 +4,7 @@ import {styles} from './style';
 import {Pause, Play, VolumeX, Volume2} from 'lucide-react-native';
 import {useSelector} from 'react-redux';
 import {RootState} from '@services/store';
-
+import Icon from '../../../../components/Icon';
 interface Props {
   onClose: () => void;
   progressAnims: any[];
@@ -110,10 +110,7 @@ const SeenStoryOwnerHeader: React.FC<Props> = ({
         )}
       </TouchableOpacity>
       <TouchableOpacity style={styles.btnCloser} onPress={onClose}>
-        <Image
-          style={styles.iconCloser}
-          source={require('../../../../assets/icon/closer.png')}
-        />
+        <Icon name="close" size={20} tintColor="#fff" />
       </TouchableOpacity>
     </View>
   );

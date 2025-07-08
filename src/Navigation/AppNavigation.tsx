@@ -58,6 +58,7 @@ import {
   ContactScreen,
   ReportProblemScreen,
   SupportRequestsScreen,
+  MessageUndefined,
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 import ProfileComp from '../Screens/Profile';
@@ -175,6 +176,7 @@ const AppNavigator = () => {
           component={NotificationOption}
         />
         <Stack.Screen name="QRScanner" component={QRScanner} />
+        <Stack.Screen name="MessageUndefined" component={MessageUndefined} />
         <Stack.Screen name="Archive" component={Archive} />
         <Stack.Screen name="InforGroupChat" component={InforGroupChat} />
         <Stack.Screen name="AddCollection" component={AddCollectionScreen} />

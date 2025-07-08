@@ -51,10 +51,22 @@ const BottomTabs = ({onTabChange}: {onTabChange?: (index: number) => void}) => {
   const {loadingTabs, setTabLoading} = useTabLoading();
   const homeRef = useRef<{reload: () => void}>(null);
   const reelsRef = useRef<{reload: () => void}>(null);
+  const searchRef = useRef<{resetToInitial: () => void}>(null);
 
   const isReelsTab = tabIndex === 3;
   const barBackground = isReelsTab ? '#000000' : color.background;
   const iconTint = isReelsTab ? '#888888' : color.text;
+
+  const handleTabChange = (newIndex: number) => {
+    const previousIndex = tabIndex;
+    setTabIndex(newIndex);
+    onTabChange?.(newIndex);
+    
+    // Reset search screen when navigating away from search tab (index 1)
+    if (previousIndex === 1 && newIndex !== 1) {
+      searchRef.current?.resetToInitial();
+    }
+  };
 
   return (
     <Tab.Navigator
@@ -73,8 +85,7 @@ const BottomTabs = ({onTabChange}: {onTabChange?: (index: number) => void}) => {
       screenListeners={{
         state: e => {
           const index = e.data.state.index;
-          setTabIndex(index);
-          onTabChange?.(index);
+          handleTabChange(index);
         },
       }}>
       <Tab.Screen
@@ -104,7 +115,7 @@ const BottomTabs = ({onTabChange}: {onTabChange?: (index: number) => void}) => {
       />
       <Tab.Screen
         name="Search"
-        component={Search}
+        children={() => <Search ref={searchRef} />}
         options={{
           tabBarIcon: ({focused}) => (
             <TabIcon

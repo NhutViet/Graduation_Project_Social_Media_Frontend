@@ -8,7 +8,7 @@ import {
   View,
   ActivityIndicator,
 } from 'react-native';
-import React, {useEffect, useRef, useState, useMemo, useCallback} from 'react';
+import React, {useEffect, useRef, useState, useMemo, useCallback, forwardRef, useImperativeHandle} from 'react';
 import {FlashList} from '@shopify/flash-list';
 import {useTheme} from '../../util/ThemeContext';
 import {SearchStyles} from '../../StyleSheet/SearchStyles';
@@ -36,7 +36,11 @@ import {fetchMedia} from '@services/SearchPost/searchPostReducer';
 
 const SEARCH_HISTORY_KEY = 'search_history';
 
-export const Search: React.FC = () => {
+export interface SearchRef {
+  resetToInitial: () => void;
+}
+
+export const Search = forwardRef<SearchRef, {}>((props, ref) => {
   const dispatch = useDispatch<AppDispatch>();
 
   // Redux state selectors
@@ -87,6 +91,27 @@ export const Search: React.FC = () => {
     setIsShowResult(false);
     setIsFocused(false);
   }, [dispatch]);
+
+  // Reset to initial state function
+  const resetToInitial = useCallback(() => {
+    console.log("[Search] resetToInitial() called");
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    dispatch(clearSearchResults());
+    dispatch(clearPosts());
+    dispatch(clearReels());
+    setSearchText('');
+    setIsShowResult(false);
+    setIsFocused(false);
+    inputRef.current?.blur();
+  }, [dispatch]);
+
+  // Expose resetToInitial to parent via ref
+  useImperativeHandle(ref, () => ({
+    resetToInitial,
+  }), [resetToInitial]);
 
   // Search effect
   useEffect(() => {
@@ -372,4 +397,6 @@ export const Search: React.FC = () => {
       </View>
     </SafeAreaView>
   );
-};
+});
+
+Search.displayName = 'Search';
