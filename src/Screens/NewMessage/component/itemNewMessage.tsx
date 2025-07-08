@@ -32,10 +32,14 @@ const ItemNewMessage: React.FC<ItemNewMessageProps> = ({
       style={styles.container}
       onPress={() => {
         console.log(roomId);
-        navigation.navigate('MessageScreen', {
-          room: roomId,
-          isWaiting: type === 'waiting',
-        });
+        if (nameChat === 'Không xác định') {
+          navigation.navigate('MessageUndefined');
+        } else {
+          navigation.navigate('MessageScreen', {
+            room: roomId,
+            isWaiting: type === 'waiting',
+          });
+        }
       }}>
       <View style={styles.rowContainer}>
         <View
