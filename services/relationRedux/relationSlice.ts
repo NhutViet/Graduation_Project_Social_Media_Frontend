@@ -184,3 +184,33 @@ export const fetchRecommendations = createAsyncThunk<
     );
   }
 });
+
+export const fetchViewedFollowers = createAsyncThunk<
+  UserProfile[], { userId: string }, { rejectValue: string }
+>(
+  'relations/viewedFollowers',
+  async ({ userId }, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.post(API.GET_FOLLOWERS, { userId }, { headers: { token: 'refresh' } });
+      if (!res.data?.followers) return rejectWithValue('Dữ liệu trả về không hợp lệ');
+      return res.data.followers as UserProfile[];
+    } catch (err: any) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+export const fetchViewedFollowing = createAsyncThunk<
+  UserProfile[], { userId: string }, { rejectValue: string }
+>(
+  'relations/viewedFollowing',
+  async ({ userId }, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.post(API.GET_FOLLOWING, { userId }, { headers: { token: 'refresh' } });
+      if (!res.data?.following) return rejectWithValue('Dữ liệu trả về không hợp lệ');
+      return res.data.following as UserProfile[];
+    } catch (err: any) {
+      return rejectWithValue(err.message);
+    }
+  }
+);

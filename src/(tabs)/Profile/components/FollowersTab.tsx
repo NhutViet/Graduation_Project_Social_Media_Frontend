@@ -22,6 +22,7 @@ import {
 import {createRoom} from '../../../../services/roomRedux/roomSlice';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 import {UserProfile} from '@services/relationRedux/relationTypes';
+import { selectDisplayFollowers } from '@services/relationRedux/relationSelector';
 
 const FollowersTab = () => {
   const navigation: any = useNavigation();
@@ -47,11 +48,7 @@ const FollowersTab = () => {
     [following],
   );
 
-  const displayList = useMemo(() => {
-    const mutual = followers.filter(u => followingIds.has(u._id));
-    const others = followers.filter(u => !followingIds.has(u._id));
-    return [...mutual, ...others];
-  }, [followers, followingIds]);
+  const displayList = useSelector(selectDisplayFollowers);
 
   const handleActionButton = useCallback(
     async (item: UserProfile) => {
