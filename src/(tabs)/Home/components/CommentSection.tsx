@@ -134,18 +134,6 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
         }, 100);
       });
 
-      return () => showSub.remove();
-    }, []);
-
-    useEffect(() => {
-      const showSub = Keyboard.addListener('keyboardDidShow', () => {
-        setTimeout(() => {
-          inputRef.current?.measureInWindow((_x, y) => {
-            inputLayoutY.value = y;
-          });
-        }, 100);
-      });
-
       const hideSub = Keyboard.addListener('keyboardDidHide', () => {
         setShowSuggestions(false);
       });
@@ -202,23 +190,35 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
                   <View style={{flex: 1, paddingHorizontal: 20}}>
                     <FlashList
                       data={comments}
-                      renderItem={({item}) => (
-                        <CommentComponent
-                          _id={''}
-                          content={''}
-                          isDeleted={false}
-                          isLiked={false}
-                          createdAt={''}
-                          {...item}
-                          onReply={(id, handleName) => {
-                            setReplyTo({id, handleName});
-                            setTimeout(() => {
-                              inputRef.current?.focus();
-                            }, 200);
-                          }}
-                          navigation={navigation}
-                        />
-                      )}
+                      renderItem={({item}) => {
+                        if (!item) return null;
+
+                        return (
+                          <FlashList
+                            data={comments}
+                            renderItem={({item}) => (
+                              <CommentComponent
+                                _id={item._id}
+                                content={item.content}
+                                isDeleted={item.isDeleted}
+                                isLiked={item.isLiked}
+                                createdAt={item.createdAt}
+                                reply={item.reply}
+                                totalLikes={item.totalLikes}
+                                user={item.user}
+                                onReply={(id, handleName) => {
+                                  setReplyTo({id, handleName});
+                                  setTimeout(() => {
+                                    inputRef.current?.focus();
+                                  }, 200);
+                                }}
+                                navigation={navigation}
+                              />
+                            )}
+                            estimatedItemSize={50}
+                          />
+                        );
+                      }}
                       estimatedItemSize={50}
                     />
                   </View>

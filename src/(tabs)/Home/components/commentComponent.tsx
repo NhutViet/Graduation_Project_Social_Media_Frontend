@@ -11,10 +11,14 @@ import {Colors} from '../../../../assets/color/Colors';
 import {useState, useRef, memo} from 'react';
 import {FlashList} from '@shopify/flash-list';
 import {formatTimeAgo} from '../util';
-import {useDispatch} from 'react-redux';
-import {AppDispatch} from '@services/store';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '@services/store';
 import {likeComment, unlikeComment} from '@services/commentRedux/commentSlice';
 import HashtagText from '../../../../components/HashtagText';
+import {
+  updateCommentLike,
+  updateCommentUnlike,
+} from '@services/commentRedux/commentReducer';
 
 const width = Dimensions.get('window').width - 96;
 const fallbackImg =
@@ -34,6 +38,7 @@ interface CommentComponentProps {
   isLiked: boolean;
   createdAt: string;
   reply?: CommentComponentProps[];
+  totalLikes?: number;
   navigation: any;
 }
 
@@ -54,22 +59,30 @@ const ReplyComment = memo(
       user,
       content,
       createdAt,
+      totalLikes,
       likedBy = [],
       isLiked: defaultLiked,
     } = item;
+
     const dispatch = useDispatch<AppDispatch>();
     const [isLiked, setIsLiked] = useState(defaultLiked);
-    const [totalLikes, setTotalLikes] = useState(likedBy.length);
     const likeTimeout = useRef<NodeJS.Timeout | null>(null);
+    const userId = useSelector((state: RootState) => state.user.user?._id);
 
     const handleLike = () => {
-      setIsLiked(prev => !prev);
-      setTotalLikes(prev => (isLiked ? prev - 1 : prev + 1));
+      const newLiked = !isLiked;
+      setIsLiked(newLiked);
+
       if (likeTimeout.current) clearTimeout(likeTimeout.current);
       likeTimeout.current = setTimeout(() => {
-        if (!isLiked) dispatch(likeComment(_id));
-        else dispatch(unlikeComment(_id));
-      }, 600);
+        if (newLiked) {
+          dispatch(likeComment(_id));
+          dispatch(updateCommentLike({commentId: _id, userId: userId || ''}));
+        } else {
+          dispatch(unlikeComment(_id));
+          dispatch(updateCommentUnlike({commentId: _id, userId: userId || ''}));
+        }
+      }, 500);
     };
 
     return (
@@ -117,7 +130,7 @@ const ReplyComment = memo(
                     ? require('../../../../assets/icon/heart_fill.png')
                     : require('../../../../assets/icon/heart.png')
                 }
-                tintColor={!isLiked ? color.text : undefined}
+                tintColor={!isLiked ? color.text : 'red'}
               />
             </TouchableOpacity>
             <Text style={[styles.text, {color: color.text}]}>{totalLikes}</Text>
@@ -134,6 +147,7 @@ const CommentComponent = memo((props: CommentComponentProps) => {
     user,
     content,
     createdAt,
+    totalLikes,
     likedBy = [],
     isLiked: defaultLiked,
     reply = [],
@@ -145,18 +159,24 @@ const CommentComponent = memo((props: CommentComponentProps) => {
   const color = Colors[theme];
   const dispatch = useDispatch<AppDispatch>();
   const [isLiked, setIsLiked] = useState(defaultLiked);
-  const [totalLikes, setTotalLikes] = useState(likedBy.length);
   const [moreComment, setMoreComment] = useState(false);
   const likeTimeout = useRef<NodeJS.Timeout | null>(null);
+  const userId = useSelector((state: RootState) => state.user.user?._id);
 
   const handleToggleLike = () => {
-    setIsLiked(prev => !prev);
-    setTotalLikes(prev => (isLiked ? prev - 1 : prev + 1));
+    const newLiked = !isLiked;
+    setIsLiked(newLiked);
+
     if (likeTimeout.current) clearTimeout(likeTimeout.current);
     likeTimeout.current = setTimeout(() => {
-      if (!isLiked) dispatch(likeComment(_id));
-      else dispatch(unlikeComment(_id));
-    }, 600);
+      if (newLiked) {
+        dispatch(likeComment(_id));
+        dispatch(updateCommentLike({commentId: _id, userId: userId || ''}));
+      } else {
+        dispatch(unlikeComment(_id));
+        dispatch(updateCommentUnlike({commentId: _id, userId: userId || ''}));
+      }
+    }, 500);
   };
 
   return (

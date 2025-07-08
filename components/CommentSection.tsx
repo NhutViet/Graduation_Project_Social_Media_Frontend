@@ -22,6 +22,7 @@ import {
 import {Send} from 'lucide-react-native';
 import {GlobalAlertManager} from '../components/Global/AlertModal';
 import CommentComponent from '../src/(tabs)/Home/components/commentComponent';
+import {useNavigation} from '@react-navigation/native';
 
 interface Props {
   postId: string;
@@ -36,6 +37,7 @@ const CommentSection = ({postId, receiverId}: Props) => {
   const {comments, loading} = useSelector((state: RootState) => state.comment);
   const {theme} = useTheme();
   const color = Colors[theme];
+  const navigation = useNavigation<any>();
 
   const [comment, setComment] = useState('');
   const [replyTo, setReplyTo] = useState<{
@@ -101,21 +103,23 @@ const CommentSection = ({postId, receiverId}: Props) => {
             data={comments}
             renderItem={({item}) => (
               <CommentComponent
-                _id={''}
-                content={''}
-                isDeleted={false}
-                isLiked={false}
-                createdAt={''}
-                {...item}
+                _id={item._id}
+                content={item.content}
+                isDeleted={item.isDeleted}
+                isLiked={item.isLiked}
+                createdAt={item.createdAt}
+                reply={item.reply}
+                user={item.user}
                 onReply={(id, handleName) => {
                   setReplyTo({id, handleName});
                   setTimeout(() => {
                     inputRef.current?.focus();
                   }, 200);
                 }}
+                navigation={navigation}
               />
             )}
-            estimatedItemSize={10}
+            estimatedItemSize={50}
           />
         </View>
       ) : (

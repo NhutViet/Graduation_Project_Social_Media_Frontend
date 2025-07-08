@@ -2,8 +2,13 @@ import {Colors} from '@assets/color/Colors';
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {useTheme} from '../../../../src/util/ThemeContext';
 import {useNavigation} from '@react-navigation/native';
+import {EditUserDto} from '@services/userRedux/userTypes';
 
-const AccountCenterComponent = (props: any) => {
+interface Props {
+  user: EditUserDto;
+}
+
+const AccountCenterComponent = (props: Props) => {
   const {user} = props;
   const {theme} = useTheme();
   const color = Colors[theme];

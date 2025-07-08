@@ -1,7 +1,7 @@
 import {createAsyncThunk} from '@reduxjs/toolkit';
 import axiosInstance from '../axiosInstance';
 import {API} from '../api';
-import {Comment, CommentPost, ReqComment, UserComment} from './commentTypes';
+import {CommentPost, ReqComment, UserComment} from './commentTypes';
 
 export const fetchCommentsByPost = createAsyncThunk<
   CommentPost[],
@@ -24,7 +24,7 @@ export const fetchCommentsByPost = createAsyncThunk<
 });
 
 export const addComment = createAsyncThunk<
-  {comment: Comment; user: UserComment},
+  CommentPost, // ✅ Trả về một CommentPost
   ReqComment,
   {rejectValue: string}
 >(
@@ -40,25 +40,25 @@ export const addComment = createAsyncThunk<
 
       const commentData = res.data;
 
-      const newComment: Comment = {
-        id: commentData._id,
+      const state: any = getState();
+      const currentUser = state.user.user;
+
+      const newComment: CommentPost = {
+        _id: commentData._id,
         postID: commentData.postID,
         parentID: commentData.parentID,
         content: commentData.content,
         mediaUrl: commentData.mediaUrl,
         isDeleted: commentData.isDeleted,
-        likedBy: commentData.likedBy,
         createdAt: commentData.createdAt,
-        reply: [[], {_id: '', handleName: '', profilePic: ''}],
-      };
-
-      const state: any = getState();
-      const currentUser = state.user.user;
-
-      const user: UserComment = {
-        _id: currentUser?._id || '',
-        handleName: handleName || '',
-        profilePic: currentUser?.profilePic,
+        totalLikes: 0,
+        isLiked: false,
+        reply: [],
+        user: {
+          _id: currentUser?._id || '',
+          handleName: handleName || '',
+          profilePic: currentUser?.profilePic,
+        },
       };
 
       if (res.status >= 200 && res.status <= 300 && userId !== receiverId) {
@@ -71,7 +71,7 @@ export const addComment = createAsyncThunk<
             data: {
               type: 'comment',
               postId,
-              commentId: res.data?.comment?._id,
+              commentId: newComment._id,
             },
           },
           {
@@ -80,7 +80,7 @@ export const addComment = createAsyncThunk<
         );
       }
 
-      return {comment: newComment, user};
+      return newComment;
     } catch (err: any) {
       return rejectWithValue(
         err.response?.data?.message || 'Bình luận thất bại',
@@ -117,7 +117,7 @@ export const unlikeComment = createAsyncThunk<
   try {
     const res = await axiosInstance.post(
       `${API.COMMENT}/${commentId}/unlike`,
-      null,
+      {},
       {
         headers: {
           token: 'refresh',
