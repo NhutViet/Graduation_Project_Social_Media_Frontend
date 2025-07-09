@@ -23,7 +23,7 @@ export interface ItemHomeProps {
   clickableHashtags?: boolean;
 }
 
-interface User {
+export interface User {
   _id: string;
   handleName: string;
   profilePic: string;
