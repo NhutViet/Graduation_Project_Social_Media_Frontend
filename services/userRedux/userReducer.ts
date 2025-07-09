@@ -116,7 +116,7 @@ const UserReducer = createSlice({
       })
       .addCase(fetchLogout.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.isSuccess = true;
+        state.isSuccess = false;
         state.user = null;
         state.refreshToken = '';
       })

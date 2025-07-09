@@ -6,7 +6,8 @@ import {
   TouchableOpacity,
   View,
   StyleSheet,
-  Modal,
+  Platform,
+  PermissionsAndroid
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import LoginStyles from '../../StyleSheet/LoginStyles';
@@ -15,16 +16,17 @@ import SwitchAccountStyles from '../../StyleSheet/SwitchAccountStyles';
 import {Colors} from '../../../assets/color/Colors';
 import {useTheme} from '../../util/ThemeContext';
 import {useDispatch, useSelector} from 'react-redux';
-import {fetchRegister} from '../../../services/userRedux/userSlice';
+import {fetchRegister, fetchLogin} from '../../../services/userRedux/userSlice';
 import {AppDispatch, RootState} from '../../../services/store';
 import {resetStatus} from '../../../services/userRedux/userReducer';
 import {Eye, EyeOff, ChevronLeft} from 'lucide-react-native';
+import { GlobalAlertManager } from '../../../components/Global/AlertModal';
+import messaging from '@react-native-firebase/messaging';
 
 export const Register = ({navigation}: any) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rePassword, setRePassword] = useState('');
-  const [showModal, setShowModal] = useState(false);
   const [isPassWord, setIsPassWord] = useState(true);
   const [isRePassWord, setIsRePassWord] = useState(true);
   const [errorEmail, setErrorEmail] = useState('');
@@ -39,6 +41,16 @@ export const Register = ({navigation}: any) => {
   const {isLoading, isSuccess, isError, errorMessage} = useSelector(
     (state: RootState) => state.user,
   );
+
+  const requestNotificationPermission = async () => {
+      if (Platform.OS === 'android' && Platform.Version >= 33) {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+        );
+        return granted === PermissionsAndroid.RESULTS.GRANTED;
+      }
+      return true; // iOS or Android < 13
+    };
 
   const handleRegister = async () => {
     setErrorEmail('');
@@ -77,23 +89,68 @@ export const Register = ({navigation}: any) => {
       return;
     }
 
-    await dispatch(fetchRegister({email, password}));
+    const permissionGranted = await requestNotificationPermission();
+    if (!permissionGranted) {
+      GlobalAlertManager.show(
+        'Thông báo',
+        'Bạn cần cấp quyền thông báo để sử dụng ứng dụng.',
+      );
+      return;
+    }
+
+    let fcmToken = '';
+
+    try {
+      fcmToken = await messaging().getToken();
+    } catch (err) {
+      console.warn('Lấy FCM token thất bại:', err);
+    }
+
+    dispatch(resetStatus());
+
+    const registerAction = await dispatch(
+      fetchRegister({email, password})
+    );
+
+    if (fetchRegister.fulfilled.match(registerAction)) {
+      const loginAction = await dispatch(
+        fetchLogin({email, password, fcmToken})
+      );
+
+      if (fetchLogin.fulfilled.match(loginAction)) {
+        GlobalAlertManager.show(
+          'Thành công',
+          'Đăng ký tài khoản thành công',
+          () => {
+            navigation.reset({ index: 0, routes: [{ name: 'BottomTabs' }] });
+          }
+        );
+      } else {
+        GlobalAlertManager.show(
+          'Lỗi',
+          'Đăng ký thành công nhưng không thể đăng nhập tự động.'
+        );
+      }
+    } else {
+      const msg = registerAction.payload?.message || 'Đăng ký thất bại.';
+      GlobalAlertManager.show('Thất bại', msg);
+      dispatch(resetStatus());
+    }
   };
 
-  useEffect(() => {
-    if (isSuccess || isError) {
-      setShowModal(true);
-      const time = setTimeout(() => {
-        setShowModal(false);
-        dispatch(resetStatus());
-
-        if (isSuccess) {
-          navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
-        }
-      }, 2000);
-      return () => clearTimeout(time);
-    }
-  }, [isError, isSuccess]);
+  // useEffect(() => {
+  //   if(isSuccess){
+  //     GlobalAlertManager.show('Thành công', 'Đăng ký tài khoản thành công', () => {
+  //       navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
+  //     });
+  //   } else {
+  //     GlobalAlertManager.show(
+  //       'Thất bại',
+  //       errorMessage ||
+  //         'Đăng ký thất bại. Vui lòng thử lại.',
+  //     );
+  //   }
+  // }, [isError, isSuccess]);
 
   return (
     <SafeAreaView style={styles.page}>
@@ -212,7 +269,9 @@ export const Register = ({navigation}: any) => {
             <Text style={styles.errorText}>{errorRePassword}</Text>
           )}
           <TouchableOpacity style={styles.buttonLogin} onPress={handleRegister}>
-            <Text style={styles.textBtn}>Đăng ký</Text>
+            <Text style={styles.textBtn}>
+              {isLoading ? 'Đang xử lý...' : 'Đăng ký'}
+            </Text>
           </TouchableOpacity>
 
           <View style={{alignItems: 'center', marginTop: 15}}>
@@ -237,19 +296,6 @@ export const Register = ({navigation}: any) => {
           </TouchableOpacity>
         </View>
       </View>
-      <Modal visible={showModal} transparent animationType="fade">
-        <View style={styles.modal}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.textNoti}>Thông báo</Text>
-            {isSuccess && (
-              <Text style={styles.textContent}>
-                Đăng ký tài khoản thành công!
-              </Text>
-            )}
-            {isError && <Text style={styles.textContent}>{errorMessage}</Text>}
-          </View>
-        </View>
-      </Modal>
     </SafeAreaView>
   );
 };
