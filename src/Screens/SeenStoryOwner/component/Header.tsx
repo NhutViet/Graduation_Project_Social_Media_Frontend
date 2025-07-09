@@ -17,6 +17,7 @@ interface Props {
     username: string;
     profilePic: string;
   };
+  navigation?: any;
 }
 
 const SeenStoryOwnerHeader: React.FC<Props> = ({
@@ -28,6 +29,7 @@ const SeenStoryOwnerHeader: React.FC<Props> = ({
   onToggleMute,
   createdAt,
   creator,
+  navigation,
 }) => {
   const [timeAgo, setTimeAgo] = useState('');
   useEffect(() => {
@@ -67,6 +69,20 @@ const SeenStoryOwnerHeader: React.FC<Props> = ({
     const interval = setInterval(updateTimeAgo, 1000);
     return () => clearInterval(interval);
   }, [createdAt]);
+
+  // ✅ Handle avatar press navigation - chuyển qua Account vì đây là story của chính chủ
+  const handleAvatarPress = () => {
+    if (!navigation) return;
+
+    // ✅ Pause story khi navigate
+    if (!pause) {
+      onTogglePause();
+    }
+
+    // ✅ Chuyển qua Account vì đây là story của chính chủ
+    navigation.navigate('Account');
+  };
+
   const renderProgressBars = () => {
     return (
       <View style={styles.progressContainer}>
@@ -90,11 +106,16 @@ const SeenStoryOwnerHeader: React.FC<Props> = ({
   return (
     <View style={styles.header}>
       <View style={styles.mediaItems}>{renderProgressBars()}</View>
-      <TouchableOpacity style={styles.viewUser}>
-        <Image style={styles.avatar} source={{uri: creator?.profilePic}} />
-        <Text style={styles.nameUser}>{creator?.username}</Text>
+      <View style={styles.viewUser}>
+        <TouchableOpacity
+          style={{flexDirection: 'row', alignItems: 'center'}}
+          onPress={handleAvatarPress}
+          activeOpacity={0.7}>
+          <Image style={styles.avatar} source={{uri: creator?.profilePic}} />
+          <Text style={styles.nameUser}>{creator?.username}</Text>
+        </TouchableOpacity>
         {timeAgo ? <Text style={styles.textTime}>{timeAgo}</Text> : null}
-      </TouchableOpacity>
+      </View>
       <TouchableOpacity style={styles.mute} onPress={onToggleMute}>
         {mute ? (
           <VolumeX size={24} color="#fff" />

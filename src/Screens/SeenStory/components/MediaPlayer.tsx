@@ -20,6 +20,7 @@ interface MediaPlayerProps {
   muted?: boolean;
   isMediaLoading?: boolean;
   onImageLoad?: () => void;
+  forceReset?: boolean; // ✅ Prop để force reset sound
 }
 
 export const MediaPlayer = forwardRef<any, MediaPlayerProps>(
@@ -35,19 +36,26 @@ export const MediaPlayer = forwardRef<any, MediaPlayerProps>(
       muted,
       isMediaLoading,
       onImageLoad,
+      forceReset = false,
     },
     ref,
   ) => {
     /* ---------- AUDIO ----------- */
     const soundRef = useRef<Sound | null>(null);
 
+    // ✅ Reset sound khi item thay đổi (kể cả khi music.link giống nhau)
     useEffect(() => {
       if (item?.uriVideo || !item?.music?.link) return;
 
       let isMounted = true;
 
-      soundRef.current?.stop(() => soundRef.current?.release());
-      soundRef.current = null;
+      // ✅ Luôn stop và release sound cũ trước khi tạo mới
+      if (soundRef.current) {
+        soundRef.current.stop(() => {
+          soundRef.current?.release();
+          soundRef.current = null;
+        });
+      }
 
       const sound = new Sound(item.music.link, undefined, error => {
         if (error) {
@@ -55,26 +63,42 @@ export const MediaPlayer = forwardRef<any, MediaPlayerProps>(
           return;
         }
 
+        // ✅ Kiểm tra component vẫn mounted
+        if (!isMounted) {
+          sound.release();
+          return;
+        }
+
         const total = sound.getDuration();
         onMusicLoad?.(total);
-        if (item.music?.time_start) sound.setCurrentTime(item.music.time_start);
+
+        // ✅ Reset time_start cho mỗi story mới
+        if (item.music?.time_start) {
+          sound.setCurrentTime(item.music.time_start);
+        }
+
         soundRef.current = sound;
 
         // Auto play nếu không pause
         if (!paused) {
           sound.setVolume(muted ? 0 : 1);
           sound.play(success => {
-            if (success) onMusicEnd?.();
+            if (success && isMounted) onMusicEnd?.();
           });
         }
       });
 
       return () => {
         isMounted = false;
-        soundRef.current?.stop(() => soundRef.current?.release());
-        soundRef.current = null;
+        if (soundRef.current) {
+          soundRef.current.stop(() => {
+            soundRef.current?.release();
+            soundRef.current = null;
+          });
+        }
       };
-    }, [item?.music?.link]);
+    }, [item?.music?.link, item?.music?.time_start, forceReset]); // ✅ Thêm forceReset vào dependencies
+
     // pause
     useEffect(() => {
       if (soundRef.current) {

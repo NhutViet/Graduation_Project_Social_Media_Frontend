@@ -17,6 +17,7 @@ interface MediaSectionProps {
   isVideoLoaded?: boolean;
   isMediaLoading?: boolean;
   onImageLoad?: () => void;
+  isNavigatedAway?: boolean;
 }
 
 export const MediaSection = forwardRef<VideoRef, MediaSectionProps>(
@@ -33,10 +34,12 @@ export const MediaSection = forwardRef<VideoRef, MediaSectionProps>(
       isVideoLoaded,
       isMediaLoading,
       onImageLoad,
+      isNavigatedAway,
     }: MediaSectionProps,
     ref,
   ) => {
     const soundRef = useRef<Sound | null>(null);
+    const [isSoundInitialized, setIsSoundInitialized] = useState(false);
 
     // Hàm kiểm tra URL hợp lệ
     const isValidUrl = (url: string) => {
@@ -48,67 +51,80 @@ export const MediaSection = forwardRef<VideoRef, MediaSectionProps>(
       }
     };
 
+    // ✅ Khởi tạo sound chỉ một lần khi selectedItem thay đổi
     useEffect(() => {
       const musicLink = selectedItem?.music?.link;
       const startTime = selectedItem?.music?.time_start || 0;
 
       if (!musicLink) {
+        setIsSoundInitialized(false);
         return;
       }
 
       if (!isValidUrl(musicLink)) {
         GlobalAlertManager.show('Lỗi phát nhạc', 'URL nhạc không hợp lệ.');
+        setIsSoundInitialized(false);
         return;
       }
 
-      // Dừng và giải phóng nhạc cũ
-      if (soundRef.current) {
-        soundRef.current.stop(() => soundRef.current?.release());
-      }
-
-      const sound = new Sound(musicLink, undefined, error => {
-        if (error) {
-          GlobalAlertManager.show('Lỗi phát nhạc', 'Không thể tải nhạc');
-          return;
-        }
-
-        const duration = sound.getDuration();
-
-        onMusicLoad?.({duration});
-
-        sound.setCurrentTime(startTime);
-        sound.play(success => {
-          if (success) {
-            onMusicEnd?.();
-          } else {
-            console.warn('⚠️ Music playback failed');
-          }
-        });
-
-        soundRef.current = sound;
-        if (paused) {
-          sound.pause();
-        }
-      });
-
-      return () => {
-        // Cleanup dứt khoát
+      // ✅ Chỉ tạo sound mới nếu chưa có hoặc selectedItem thay đổi
+      if (!soundRef.current || !isSoundInitialized) {
+        // Dừng và giải phóng nhạc cũ nếu có
         if (soundRef.current) {
           soundRef.current.stop(() => soundRef.current?.release());
           soundRef.current = null;
         }
+
+        const sound = new Sound(musicLink, undefined, error => {
+          if (error) {
+            GlobalAlertManager.show('Lỗi phát nhạc', 'Không thể tải nhạc');
+            setIsSoundInitialized(false);
+            return;
+          }
+
+          const duration = sound.getDuration();
+          onMusicLoad?.({duration});
+
+          sound.setCurrentTime(startTime);
+
+          // ✅ Chỉ play nếu không bị pause và không navigate away
+          if (!paused && !isNavigatedAway) {
+            sound.play(success => {
+              if (success) {
+                onMusicEnd?.();
+              } else {
+                console.warn('⚠️ Music playback failed');
+              }
+            });
+          }
+
+          soundRef.current = sound;
+          setIsSoundInitialized(true);
+        });
+      }
+
+      return () => {
+        // Cleanup chỉ khi component unmount hoặc selectedItem thay đổi
+        if (soundRef.current) {
+          soundRef.current.stop(() => soundRef.current?.release());
+          soundRef.current = null;
+          setIsSoundInitialized(false);
+        }
       };
-    }, [selectedItem]); // ✅ Không chỉ là selectedItem.music.link
+    }, [selectedItem]); // ✅ Chỉ depend on selectedItem
+
+    // ✅ Xử lý pause/resume sound đồng bộ với video
     useEffect(() => {
-      if (soundRef.current) {
-        if (paused) {
+      if (soundRef.current && isSoundInitialized) {
+        if (paused || isNavigatedAway) {
           soundRef.current.pause();
         } else {
           soundRef.current.play();
         }
       }
-    }, [paused]);
+    }, [paused, isNavigatedAway, isSoundInitialized]);
 
+    // ✅ Xử lý mute/unmute
     useEffect(() => {
       if (soundRef.current) {
         soundRef.current.setVolume(muted ? 0 : 1);
@@ -130,7 +146,7 @@ export const MediaSection = forwardRef<VideoRef, MediaSectionProps>(
                 onEnd={onEnd}
                 playInBackground={false}
                 playWhenInactive={false}
-                paused={paused}
+                paused={paused || isNavigatedAway}
                 muted={muted}
                 onLayout={event => {
                   const {width, height} = event.nativeEvent.layout;

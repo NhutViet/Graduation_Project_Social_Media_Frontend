@@ -83,6 +83,7 @@ export const SeenStory = ({route, navigation}: any) => {
   const [isMusicLoaded, setIsMusicLoaded] = useState(false);
   const [isMediaLoading, setIsMediaLoading] = useState(true);
   const shareModalRef = useRef<ModalShareHandle>(null);
+  const yourUserId = useSelector((state: RootState) => state.user.user?._id);
 
   // ✅ Get story details from Redux store
   const {storyDetails} = useSelector((state: RootState) => state.stories);
@@ -380,8 +381,10 @@ export const SeenStory = ({route, navigation}: any) => {
     const content = selectedItem?.content;
     const tags = selectedItem?.tags;
 
+    // Combine content text và mentions từ tags
     const fullText = content?.text || '';
 
+    // ✅ Adapt to backend structure: handleName is at tag level, not nested under user
     const validTags =
       tags?.filter((tag: any) => tag.user && tag.handleName) || [];
 
@@ -396,9 +399,7 @@ export const SeenStory = ({route, navigation}: any) => {
       return null;
     }
 
-    const {x = 50, y = 50} = content || {};
-    const left = (x / 100) * (mediaSize.width || screenWidth);
-    const top = (y / 100) * (mediaSize.height || screenHeight);
+    const position = getCaptionPosition(content?.x || 50, content?.y || 50);
 
     // Tạo mention data để có thể click từ valid tags only (adapt to backend structure)
     const mentionData = validTags.map((tag: any) => ({
@@ -408,15 +409,19 @@ export const SeenStory = ({route, navigation}: any) => {
 
     const handleMentionPress = (userId: string) => {
       // ✅ Story sẽ tự động pause thông qua blur listener
-      navigation.navigate('ProfileComp', {userID: userId});
+      // ✅ Kiểm tra nếu là chính tài khoản hiện tại thì chuyển qua Account
+      if (userId === yourUserId) {
+        navigation.navigate('Account');
+      } else {
+        navigation.navigate('ProfileComp', {userID: userId});
+      }
     };
 
     return (
       <TouchableOpacity
         style={{
           position: 'absolute',
-          left,
-          top,
+          ...position,
         }}
         activeOpacity={1}>
         {renderTextWithMentions(
@@ -457,14 +462,18 @@ export const SeenStory = ({route, navigation}: any) => {
       };
 
       const tagPosition = getCaptionPosition(x * 100, y * 100);
-
       const handleTagPress = () => {
         if (finalUserData._id) {
-          navigation.navigate('ProfileComp', {
-            userID: finalUserData._id,
-          });
+          // ✅ Kiểm tra nếu là chính tài khoản hiện tại thì chuyển qua Account
+          if (finalUserData._id === yourUserId) {
+            navigation.navigate('Account');
+          } else {
+            navigation.navigate('ProfileComp', {
+              userID: finalUserData._id,
+            });
+          }
         } else {
-          console.log('❌ [SeenStory] No userID found');
+          console.log('❌ No userID found');
         }
       };
 
@@ -533,6 +542,11 @@ export const SeenStory = ({route, navigation}: any) => {
       else anim.setValue(0);
     });
 
+    // ✅ Reset video ref để đảm bảo video mới được load
+    if (videoRef.current) {
+      videoRef.current.seek(0);
+    }
+
     //  Nếu không có video/music, start luôn
     const hasVideo = !!selectedItem.uriVideo;
     const hasMusic = !!selectedItem.music?.link;
@@ -570,12 +584,16 @@ export const SeenStory = ({route, navigation}: any) => {
           mute={isMuted}
           onToggleMute={toggleMute}
           createdAt={selectedItem?.createdAt}
+          navigation={navigation}
+          creatorId={currentCreator?._id}
+          yourUserId={yourUserId}
         />
         <ProgressBar
           progressAnims={progressAnims}
           storyCount={syncedStories.length}
         />
         <MediaPlayer
+          key={`${selectedItem?._id}-${currentIndex}`} // ✅ Force re-render khi chuyển story
           item={selectedItem}
           ref={videoRef}
           onLoad={d => {
@@ -593,6 +611,7 @@ export const SeenStory = ({route, navigation}: any) => {
           muted={isMuted}
           isMediaLoading={isMediaLoading}
           onImageLoad={onImageLoad}
+          forceReset={true} // ✅ Force reset sound khi chuyển story
         />
         {renderCaption()}
         {/* {renderTags()} */}

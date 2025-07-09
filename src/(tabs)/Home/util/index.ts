@@ -203,8 +203,53 @@ export const handleUserPress = async (
       isLoading: !hasRealData, // Only show loading if no cached data
     });
 
-    // ✅ If we already have cached data, no need to load again
+    // ✅ If we already have cached data, still need to mark stories as seen and get updated data
     if (hasRealData) {
+      // Mark stories as seen first
+      await Promise.all(
+        basicStoryData.map(async (story: any) => {
+          try {
+            await dispatch(seenStory({storyId: story._id}));
+            const hasSeen = await checkStorySeenInStorage(
+              story._id,
+              story.createdAt,
+            );
+            if (!hasSeen) {
+              await markStoryAsSeen(story._id, story.createdAt);
+            }
+          } catch (error) {
+            console.error('Error marking cached story as seen:', error);
+          }
+        }),
+      );
+
+      // Fetch updated story data to get latest viewedByUsers
+      try {
+        const storyIds = basicStoryData.map((story: any) => story._id);
+        const updatedStoryDetails = await dispatch(
+          fetchStoryDetails({storyIds}),
+        ).unwrap();
+
+        // Update navigation params with fresh story data
+        navigation.setParams({
+          stories: updatedStoryDetails,
+          creator: {
+            username: item.handleName,
+            profilePic: item.profilePic,
+            _id: item._id,
+          },
+          storyGroups: initialStoryGroups.map(group => 
+            group.creator.username === item.handleName 
+              ? { ...group, stories: updatedStoryDetails }
+              : group
+          ),
+          storyGroupIndex: Math.max(0, initialGroupIndex),
+          isLoading: false,
+        });
+      } catch (error) {
+        console.error('Error fetching updated story data:', error);
+      }
+
       setIsStoryLoading?.(false);
       return;
     }
