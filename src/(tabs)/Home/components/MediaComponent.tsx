@@ -46,6 +46,7 @@ export const RenderMediaItem = React.memo(
             repeat
             paused={!currentVisible || !isFocused}
             muted={muted}
+            playInBackground={false}
             maxBitRate={0}
             progressUpdateInterval={500}
             onLoad={({naturalSize}) => {
