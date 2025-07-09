@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet, Dimensions } from 'react-native';
+import React, { memo } from 'react';
+import { View, Text, Image, StyleSheet, Dimensions } from 'react-native';
 import { Colors } from '@assets/color/Colors';
 
 const width = Dimensions.get('window').width;
@@ -7,7 +7,7 @@ const width = Dimensions.get('window').width;
 const ReelsHeader = () => {
   return (
     <View style={styles.header}>
-      <TouchableOpacity style={styles.rowContainer}>
+      <View style={styles.rowContainer}>
         <Text style={styles.textHeader}>Reels</Text>
         <View style={styles.iconDownContainer}>
           <Image
@@ -15,7 +15,7 @@ const ReelsHeader = () => {
             source={require('../../../../assets/icon/down.png')}
           />
         </View>
-      </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -54,4 +54,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ReelsHeader;
+export default memo(ReelsHeader);

@@ -1,24 +1,20 @@
-import React, {memo, useCallback, useEffect, useState} from 'react';
-import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import {Colors} from '../../../../assets/color/Colors';
+import React, {memo, useCallback} from 'react';
+import {
+  Dimensions,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import Video from 'react-native-video';
-import {Dimensions} from 'react-native';
-import {useDispatch, useSelector} from 'react-redux';
-import {AppDispatch, RootState} from '../../../../services/store';
-import {
-  addLikedPost,
-  removeLikedPost,
-} from '../../../../services/reactionRedux/reactionReducer';
-import {
-  likePost,
-  unlikePost,
-} from '../../../../services/reactionRedux/reactionSlice';
-import {useTheme} from '../../../util/ThemeContext';
-import {relationAction} from '@services/relationRedux/relationSlice';
-import TagMarker from './TagMarker';
-import {formatNumber} from '../../../../src/(tabs)/Home/util';
+import {Colors} from '../../../../assets/color/Colors';
 import HashtagText from '../../../../components/HashtagText';
+import {useTheme} from '../../../util/ThemeContext';
+import {formatNumber} from '../../../../src/(tabs)/Home/util';
+import ReelsHeader from './ReelsHeader';
+import TagMarker from './TagMarker';
 
 const width = Dimensions.get('window').width;
 
@@ -36,119 +32,32 @@ const ReelsComponent = memo((props: any) => {
     muted,
     currentVisible,
     isFocused,
-    showBottomSheet,
     likeCount,
-    isLike,
+    isLiked,
     commentCount,
-    openComment,
-    isFollow,
-    openShareModal,
-    setSkipReload,
+    isFollowing,
+    isCurrentUser,
     containerHeight,
+    onLike,
+    onComment,
+    onFollow,
+    onShare,
+    onMenu,
+    onProfilePress,
+    onTagPress,
+    setSkipReload,
   } = props;
 
   const navigation = useNavigation<any>();
-  const dispatch = useDispatch<AppDispatch>();
   const {theme} = useTheme();
   const color = Colors[theme];
 
-  // Selectors
-  const {likePosts} = useSelector((state: RootState) => state.reactions);
-  const currentUser = useSelector((state: RootState) => state.user.user);
-  const {refreshToken} = useSelector((state: RootState) => state.user);
+  const handleLike = useCallback(() => onLike(_id, isLiked), [_id, isLiked, onLike]);
+  const handleFollow = useCallback(() => onFollow(user._id, isFollowing), [user._id, isFollowing, onFollow]);
+  const handleProfilePress = useCallback(() => onProfilePress(user._id), [user._id, onProfilePress]);
+  const handleTagPress = useCallback((userId: string) => onTagPress(userId),[onTagPress],);
 
-  // State
-  const isLikedFromRedux = useSelector((state: RootState) =>
-    state.reactions.likePosts.includes(_id),
-  );
-  const [isLiked, setIsLiked] = useState(isLikedFromRedux);
-  const [follow, setFollow] = useState(isFollow);
-  const mine = useSelector((state: RootState) => state.user.user);
-  const [numLike, setNumLike] = useState(likeCount);
-
-  useEffect(() => {
-    setIsLiked(isLikedFromRedux);
-  }, [isLikedFromRedux]);
-
-  useEffect(() => {
-    if (isLike) {
-      dispatch(addLikedPost(_id));
-    } else {
-      dispatch(removeLikedPost({postId: _id}));
-    }
-  }, [_id, isLike, dispatch]);
-
-  useEffect(() => {
-    setNumLike(likeCount);
-  }, [likeCount]);
-
-  const handleLike = useCallback(async () => {
-    const action = isLiked ? unlikePost : likePost;
-    const newLikeCount = isLiked ? numLike - 1 : numLike + 1;
-
-    setIsLiked(!isLiked);
-    setNumLike(newLikeCount);
-
-    try {
-      await dispatch(
-        action({
-          postId: _id,
-          refreshToken,
-          receiverId: user?._id,
-          handleName: currentUser?.handleName ?? '',
-          userId: currentUser?._id,
-        }),
-      ).unwrap();
-
-      dispatch(isLiked ? removeLikedPost({postId: _id}) : addLikedPost(_id));
-    } catch (error) {
-      setNumLike(likeCount);
-      setIsLiked(likePosts.includes(_id));
-    }
-  }, [
-    isLiked,
-    _id,
-    currentUser,
-    user,
-    dispatch,
-    likeCount,
-    likePosts,
-    refreshToken,
-    numLike,
-  ]);
-
-  const toggleFollow = useCallback(async () => {
-    const newFollowState = !follow;
-    setFollow(newFollowState);
-
-    try {
-      await dispatch(
-        relationAction({
-          targetId: user._id,
-          senderId: mine?._id,
-          handleName: mine?.handleName,
-          action: newFollowState ? 'follow' : 'unfollow',
-        }),
-      ).unwrap();
-    } catch (error) {
-      setFollow(follow);
-    }
-  }, [follow, user._id, dispatch]);
-
-  const handleProfilePress = useCallback(() => {
-    navigation.navigate('ProfileComp', {userID: user._id});
-  }, [navigation, user._id]);
-
-  const handleTagPress = useCallback(
-    (userId: string) => {
-      navigation.navigate('ProfileComp', {userID: userId});
-    },
-    [navigation],
-  );
-
-  // Render functions for better readability
-  const renderProfileImage = useCallback(
-    () =>
+  const renderProfileImage = useCallback(() =>
       user.profilePic ? (
         <MemoizedImage style={styles.img} source={{uri: user.profilePic}} />
       ) : (
@@ -156,24 +65,18 @@ const ReelsComponent = memo((props: any) => {
           style={styles.img}
           source={require('../../../../assets/icon/account.png')}
         />
-      ),
-    [user.profilePic],
-  );
+      ), [user.profilePic]);
 
-  const renderFollowButton = useCallback(
-    () =>
-      user._id !== currentUser?._id && (
-        <TouchableOpacity onPress={toggleFollow} style={styles.btnFollow}>
+  const renderFollowButton = useCallback(() =>
+      !isCurrentUser && (
+        <TouchableOpacity onPress={handleFollow} style={styles.btnFollow}>
           <MemoizedText style={{fontSize: 14, color: Colors.white}}>
-            {follow ? 'Đang theo dõi' : 'Theo dõi'}
+            {isFollowing ? 'Đang theo dõi' : 'Theo dõi'}
           </MemoizedText>
         </TouchableOpacity>
-      ),
-    [user._id, currentUser?._id, follow, toggleFollow],
-  );
+      ), [isCurrentUser, isFollowing, handleFollow]);
 
-  const renderActionButton = useCallback(
-    (
+  const renderActionButton = useCallback((
       iconSource: any,
       count: number,
       onPress: () => void,
@@ -192,9 +95,7 @@ const ReelsComponent = memo((props: any) => {
           </MemoizedText>
         </TouchableOpacity>
       </View>
-    ),
-    [formatNumber],
-  );
+    ), [formatNumber]);
 
   return (
     <View style={[styles.container, {height: containerHeight}]}>
@@ -209,6 +110,9 @@ const ReelsComponent = memo((props: any) => {
           maxBitRate={0}
           progressUpdateInterval={500}
         />
+        <View style={styles.headerOverlay}>
+          <ReelsHeader />
+        </View>
         <View style={styles.tagOverlay}>
           {media[0]?.tags?.map((tag: any) => (
             <MemoizedTagMarker
@@ -246,7 +150,7 @@ const ReelsComponent = memo((props: any) => {
             isLiked
               ? require('../../../../assets/icon/heart_fill.png')
               : require('../../../../assets/icon/heart.png'),
-            numLike,
+            likeCount,
             handleLike,
             isLiked ? color.error : '#fff',
           )}
@@ -254,19 +158,19 @@ const ReelsComponent = memo((props: any) => {
           {renderActionButton(
             require('../../../../assets/icon/comment.png'),
             commentCount,
-            openComment,
+            onComment,
           )}
 
           {renderActionButton(
             require('../../../../assets/icon/share.png'),
             share,
-            openShareModal,
+            onShare,
           )}
 
           <View style={styles.sectionContainer}>
             <TouchableOpacity
               style={styles.iconContainer}
-              onPress={showBottomSheet}>
+              onPress={onMenu}>
               <MemoizedImage
                 style={styles.icon}
                 source={require('../../../../assets/icon/menu-dots-vertical.png')}
@@ -297,7 +201,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 5,
-    backgroundColor: Colors.transparent,
+    backgroundColor: 'transparent',
     borderWidth: 1,
     marginLeft: 10,
     borderColor: Colors.white,
@@ -308,7 +212,6 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   container: {
-    position: 'relative',
     width: width,
     backgroundColor: Colors.black,
   },
@@ -335,7 +238,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
-    backgroundColor: Colors.transparent,
+    backgroundColor: 'transparent',
     zIndex: 1,
   },
   block1: {
@@ -386,6 +289,12 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     zIndex: 1,
+  },
+  headerOverlay: {
+    position: 'absolute',
+    top: 18,
+    left: 18,
+    zIndex: 2,
   },
 });
 
