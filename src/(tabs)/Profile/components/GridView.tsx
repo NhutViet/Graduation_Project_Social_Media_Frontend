@@ -3,10 +3,11 @@ import {TouchableOpacity, View, Image, Text} from 'react-native';
 import {FlashList} from '@shopify/flash-list';
 import {Styles} from '../../../StyleSheet/Profile.Styles';
 import {Colors} from '../../../../assets/color/Colors';
+import { PostWithMedia } from '@services/postRedux/postTypes';
 
 interface GridViewProps {
-  data: any[];
-  onPressItem?: (item: any) => void;
+  data: PostWithMedia[];
+  onPressItem?: (item: PostWithMedia) => void;
 }
 
 const convertToImage = (uri: string): string => {
@@ -45,7 +46,7 @@ export const GridView: React.FC<GridViewProps> = ({data, onPressItem}) => {
         keyExtractor={item => item._id?.toString()}
         showsVerticalScrollIndicator={false}
         renderItem={React.useCallback(
-          ({item}: {item: any}) => {
+          ({item}: {item: PostWithMedia}) => {
             const media = item.media?.[0];
             let uri: string | null = null;
 

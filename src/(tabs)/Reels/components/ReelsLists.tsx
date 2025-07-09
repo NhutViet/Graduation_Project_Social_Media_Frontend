@@ -8,9 +8,25 @@ import {
 import {FlashList} from '@shopify/flash-list';
 import ReelsComponent from './reelsComponent';
 import {Colors} from '@assets/color/Colors';
+import { PostWithMedia } from '@services/postRedux/postTypes';
 
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
+
+interface ReelsListProps {
+  reels: PostWithMedia[];
+  currentVisible: string | null;
+  isFocused: boolean;
+  loading: boolean;
+  isInitialLoad: boolean;
+  flashListRef: React.RefObject<FlashList<PostWithMedia>>;
+  onViewRef: React.MutableRefObject<any>;
+  handleLoadMore: () => void;
+  openBottomSheet: (item: PostWithMedia) => void;
+  openCommentSheet: (item: PostWithMedia) => void;
+  openShareModal: () => void;
+  setSkipReload: (value: boolean) => void;
+}
 
 const ReelsList = ({
   reels,
@@ -25,7 +41,7 @@ const ReelsList = ({
   openCommentSheet,
   openShareModal,
   setSkipReload,
-}: any) => {
+}: ReelsListProps) => {
   const [visibleHeight, setVisibleHeight] = useState(0);
 
   const onLayout = (event: LayoutChangeEvent) => {
@@ -53,7 +69,7 @@ const ReelsList = ({
                 )
               : null
           }
-          renderItem={({item}: any) => {
+          renderItem={({item}) => {
             const shouldPlay = item?._id === currentVisible;
             return (
               <ReelsComponent
@@ -79,7 +95,7 @@ const ReelsList = ({
           showsVerticalScrollIndicator={false}
           estimatedItemSize={visibleHeight}
           estimatedListSize={{height: visibleHeight, width}}
-          keyExtractor={(item: any) => item._id}
+          keyExtractor={(item: PostWithMedia) => item._id}
           onViewableItemsChanged={onViewRef.current}
           viewabilityConfig={{
             itemVisiblePercentThreshold: 90,

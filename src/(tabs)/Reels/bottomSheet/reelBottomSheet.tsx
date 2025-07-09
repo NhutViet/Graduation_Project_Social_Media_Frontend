@@ -38,7 +38,7 @@ export type BottomSheetReelsRef = {
 
 type BottomSheetReelsProps = {
   isBookmarked?: boolean;
-  selectedItem: PostWithMedia | null;
+  selectedItem?: PostWithMedia | null;
 };
 
 const BottomSheetReels = forwardRef<BottomSheetReelsRef, BottomSheetReelsProps>(

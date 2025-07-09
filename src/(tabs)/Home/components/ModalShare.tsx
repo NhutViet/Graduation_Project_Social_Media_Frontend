@@ -19,6 +19,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import {fetchMyRooms} from '@services/roomRedux/roomSlice';
 import ChatRoomAvatar from '../../../../components/ChatRoomAvatar';
 import {RootState, AppDispatch} from '../../../../services/store';
+import { RoomUser } from '@services/roomRedux/roomType';
 
 export interface CombinedItem {
   kind: 'room' | 'friend';
@@ -81,7 +82,7 @@ const ModalShare = forwardRef<ModalShareHandle, ModalShareProps>(
           kind: 'room',
           _id: r._id,
           name: r.name || 'Chat nhóm',
-          avatars: r.user_ids.map((u: any) => u.profilePic),
+          avatars: r.user_ids.map((u: RoomUser) => u.profilePic),
         }));
         // const users = [...followers, ...following];
         // const seen = new Set<string>();

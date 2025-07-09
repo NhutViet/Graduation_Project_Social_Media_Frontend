@@ -14,6 +14,7 @@ import { fetchReelsWithMedia } from '@services/postRedux/postSlice';
 import ReelsHeader from './components/ReelsHeader';
 import ReelsList from './components/ReelsLists';
 import ReelsBottomSheets from './components/ReelsBottomSheets';
+import { PostWithMedia } from '@services/postRedux/postTypes';
 
 const height = Dimensions.get('window').height;
 
@@ -42,17 +43,17 @@ const Reels = forwardRef((props, ref) => {
 
   const { modalShareRef, openShareModal } = useShareModal();
 
-  const [selectedItem, setSelectedItem] = useState(null);
+  const [selectedItem, setSelectedItem] = useState<PostWithMedia>();
   const [isCurrentBookmarked, setIsCurrentBookmarked] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState({ postId: '', receiverId: '' });
 
-  const openBottomSheet = (item: any) => {
+  const openBottomSheet = (item: PostWithMedia) => {
     setSelectedItem(item);
-    setIsCurrentBookmarked(item.isBookmarked);
+    setIsCurrentBookmarked(item.isBookmarked ?? false);
     sheetRef?.current?.open();
   };
 
-  const openCommentSheet = (item: any) => {
+  const openCommentSheet = (item: PostWithMedia) => {
     setSelectedPostId({ postId: item._id, receiverId: item.user._id });
     dispatch(fetchCommentsByPost(item._id));
     sheetRefComment.current?.open();

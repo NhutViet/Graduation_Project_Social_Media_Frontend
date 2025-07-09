@@ -3,7 +3,7 @@ import {MediaMessage} from '@services/messageRedux/messageType';
 export interface RoomUser {
   _id: string;
   handleName?: string;
-  profilePic?: string;
+  profilePic: string;
 }
 
 export interface LatestMessage {

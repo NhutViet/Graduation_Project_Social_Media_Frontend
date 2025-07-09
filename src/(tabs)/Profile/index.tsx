@@ -32,6 +32,8 @@ import ACNavigateModal, {
 import {fetchTaggedPosts} from '@services/taggedPostRedux/taggedPostSlice';
 import {FlashList} from '@shopify/flash-list';
 import HighlightStoriesComponent from './components/HighlightStoriesComponent';
+import {Load} from '@services/postUserRedux/postUserType';
+import { TaggedPost } from '@services/taggedPostRedux/taggedPostTypes';
 
 const Profile = () => {
   const navigation: any = useNavigation();
@@ -45,12 +47,11 @@ const Profile = () => {
     (state: RootState) => state.relation,
   );
   const {refreshToken} = useSelector((state: RootState) => state.user);
-  const {items: PostsItem}: any | null = useSelector(
-    (state: RootState) => state.postUser.posts,
-  );
-  const {items: ReelsItem}: any | null = useSelector(
-    (state: RootState) => state.postUser.reels,
-  );
+  const postState = useSelector((state: RootState) => state.postUser.posts);
+  const PostsItem = postState && 'items' in postState ? postState.items : [];
+
+  const reelsState = useSelector((state: RootState) => state.postUser.reels);
+  const ReelsItem = reelsState && 'items' in reelsState ? reelsState.items : [];
   const {isSuccess} = useSelector((state: RootState) => state.postUser);
   const [visibleModalCreate, setVisibleModalCreate] = useState(false);
   const [isSwitchAccountVisible, setSwitchAccountVisible] = useState(false);
@@ -322,7 +323,7 @@ const Profile = () => {
         );
       case 'tags':
         return isSuccess && taggedPosts ? (
-          <TagsView data={taggedPosts as any} />
+          <TagsView data={taggedPosts as TaggedPost[]} />
         ) : (
           <LoadingPlaceholder />
         );

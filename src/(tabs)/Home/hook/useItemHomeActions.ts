@@ -7,7 +7,7 @@ import {
 } from '../../../../services/reactionRedux/reactionSlice';
 import {hidePost} from '../../../../services/postRedux/postSlice';
 import {handleFollowToggle, handleBookmark} from '../util';
-import {ItemHomeProps} from '../types';
+import {ItemHomeProps, User} from '../types';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 
 export const useItemHomeActions = (
@@ -95,7 +95,7 @@ export const useItemHomeActions = (
       });
   }, [_id]);
 
-  const handleFollowAction = useCallback((mine: any) => {
+  const handleFollowAction = useCallback((mine: User) => {
     handleFollowToggle({
       userId: user._id,
       follow: isFollow,

@@ -1,5 +1,5 @@
 import React, {memo, useCallback, useEffect, useState} from 'react';
-import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {Image, ImageSourcePropType, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Colors} from '../../../../assets/color/Colors';
 import {useNavigation} from '@react-navigation/native';
 import Video from 'react-native-video';
@@ -174,7 +174,7 @@ const ReelsComponent = memo((props: any) => {
 
   const renderActionButton = useCallback(
     (
-      iconSource: any,
+      iconSource: ImageSourcePropType,
       count: number,
       onPress: () => void,
       tintColor?: string,

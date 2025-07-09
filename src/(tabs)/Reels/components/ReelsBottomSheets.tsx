@@ -1,12 +1,13 @@
 import React from 'react';
 import BottomSheetReels, { BottomSheetReelsRef } from '../bottomSheet/reelBottomSheet';
 import BottomSheetComment, { BottomSheetCommentRef } from '../../../../src/(tabs)/Home/components/CommentSection';
+import { PostWithMedia } from '@services/postRedux/postTypes';
 
 interface Props {
   sheetRef: React.RefObject<BottomSheetReelsRef>;
   sheetRefComment: React.RefObject<BottomSheetCommentRef>;
   isBookmarked: boolean;
-  selectedItem: any;
+  selectedItem?: PostWithMedia | null;
   selectedPostId: { postId: string; receiverId: string };
 }
 
