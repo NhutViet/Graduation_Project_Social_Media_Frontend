@@ -17,6 +17,7 @@ import {AppDispatch, RootState} from '../services/store';
 import ItemHome from '../src/(tabs)/Home/components/ItemHome';
 import {useTheme} from '../src/util/ThemeContext';
 import {Colors} from '../assets/color/Colors';
+import {Item, Load} from '@services/postUserRedux/postUserType';
 
 const AllPostOfUserScreen = () => {
   const route = useRoute();
@@ -28,22 +29,25 @@ const AllPostOfUserScreen = () => {
   const isFocused = useIsFocused();
 
   const {targetPostId} = route.params as {targetPostId: string};
-  const {items: PostsItem}: any = useSelector(
+  const postData = useSelector(
     (state: RootState) => state.postUser.posts,
-  );
+  ) as Load;
+  const PostsItem: Item[] = postData.items;
 
   const [currentVisible, setCurrentVisible] = useState<string | null>(null);
-  const [selectedPostId, setSelectedPostId] = useState<{postId: string, receiverId: string}>({postId: '', receiverId: ''});
+  const [selectedPostId, setSelectedPostId] = useState<{
+    postId: string;
+    receiverId: string;
+  }>({postId: '', receiverId: ''});
 
   const targetIndex = Array.isArray(PostsItem)
-    ? PostsItem.findIndex((post: any) => post._id === targetPostId)
+    ? PostsItem.findIndex((post: Item) => post._id === targetPostId)
     : -1;
 
   const onViewRef = useCallback(({viewableItems}: {viewableItems: any[]}) => {
     const id = viewableItems[0]?.item?._id;
     if (id) setCurrentVisible(id);
   }, []);
-
 
   return (
     <SafeAreaView style={{flex: 1}}>
@@ -106,7 +110,11 @@ const AllPostOfUserScreen = () => {
             index,
           })}
         />
-        <BottomSheetComment ref={sheetRef} postId={selectedPostId.postId} receiverId={selectedPostId.receiverId}/>
+        <BottomSheetComment
+          ref={sheetRef}
+          postId={selectedPostId.postId}
+          receiverId={selectedPostId.receiverId}
+        />
       </View>
     </SafeAreaView>
   );

@@ -1,12 +1,12 @@
 import React from 'react';
-import {View, Text, Image, TouchableOpacity} from 'react-native';
+import {View, Text, Image, TouchableOpacity, ImageSourcePropType} from 'react-native';
 import {useBottomSheetStyles} from '../src/StyleSheet/BottomSheetStyles';
 import {useTheme} from '../src/util/ThemeContext';
 import {Colors} from '../assets/color/Colors';
 
 export interface ConfigOption {
   id: string;
-  icon: any;
+  icon: ImageSourcePropType;
   label: string;
   labelColor?: string;
 }

@@ -9,7 +9,7 @@ import {
   saveBookmark,
   switchBookmark,
 } from './bookmarkSlice';
-import {Playlist, PlaylistItem, ResCreatePlaylist} from './bookmarkTypes';
+import {Pagination, Playlist, PlaylistItem, ResCreatePlaylist} from './bookmarkTypes';
 
 interface BookmarkState {
   playlists: Playlist[];
@@ -17,7 +17,7 @@ interface BookmarkState {
     [playlistId: string]: PlaylistItem[];
   };
   paginationByPlaylist: {
-    [playlistId: string]: any;
+    [playlistId: string]: Pagination;
   };
   isloading: boolean;
   isError: boolean;
