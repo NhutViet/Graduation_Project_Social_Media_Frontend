@@ -117,7 +117,6 @@ export interface PlaylistItem {
   coverImg?: string;
 }
 
-
 export interface Pagination {
   currentPage: number;
   totalPage: number;
@@ -164,11 +163,11 @@ export interface ResSwitchBookmark {
 }
 
 export interface ResAddMusic {
-    playlistID: string;
-    itemID: string;
-    itemType: string;
-    isDeleted: boolean;
-    _id: string;
-    createdAt: string;
-    updatedAt: string;
+  playlistID: string;
+  itemID: string;
+  itemType: string;
+  isDeleted: boolean;
+  _id: string;
+  createdAt: string;
+  updatedAt: string;
 }

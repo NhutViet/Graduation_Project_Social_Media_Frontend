@@ -47,7 +47,7 @@ const HEADER_HEIGHT = 100;
 const AnimatedFlatList = Animated.createAnimatedComponent(Animated.FlatList);
 
 export const Home = forwardRef(({onReload, route}: any, ref) => {
-  const navigation: any = useNavigation();
+  const navigation = useNavigation<any>();
   const {theme} = useTheme();
   const color = Colors[theme];
   const isFocused = useIsFocused();

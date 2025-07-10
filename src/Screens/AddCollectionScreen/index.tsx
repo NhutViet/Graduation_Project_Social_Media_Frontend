@@ -21,7 +21,8 @@ import {
   switchBookmark,
 } from '../../../services/bookmarkRedux/bookmarkSlice';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
-import { checkProfanityAndAlert } from '../../util/profanityFilter';
+import {checkProfanityAndAlert} from '../../util/profanityFilter';
+import {Media, MediaR} from '@services/bookmarkRedux/bookmarkTypes';
 
 export const AddCollectionScreen = () => {
   const {theme} = useTheme();
@@ -45,12 +46,15 @@ export const AddCollectionScreen = () => {
         if (!item?.media || item.media.length === 0) return false;
 
         const isVideo = item.itemType === 'reel';
-        const mediaItem: any = item.media[0];
+        const mediaItem = item.media[0];
 
         if (isVideo) {
-          return mediaItem?.videoUrl?.split('/')[3];
+          if ('videoUrl' in mediaItem) {
+            return mediaItem.videoUrl?.split('/')[3];
+          }
+          return false;
         } else {
-          return !!mediaItem?.imageUrl;
+          return 'imageUrl' in mediaItem && !!mediaItem.imageUrl;
         }
       });
   }, [itemsByPlaylist, playlists]);
@@ -105,10 +109,10 @@ export const AddCollectionScreen = () => {
       ).unwrap();
 
       GlobalAlertManager.show('Thông báo', 'Tạo danh sách mới thành công.');
-      // 3. Quay lại màn hình trước
+
       navigation.goBack();
-    } catch (err: any) {
-      GlobalAlertManager.show('Lỗi', err.message || 'Không thể tạo bộ sưu tập');
+    } catch (err) {
+      GlobalAlertManager.show('Lỗi', 'Không thể tạo bộ sưu tập');
     }
   };
 

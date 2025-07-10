@@ -38,6 +38,7 @@ const CommentSection = ({postId, receiverId}: Props) => {
   const {comments, loading} = useSelector((state: RootState) => state.comment);
   const {theme} = useTheme();
   const color = Colors[theme];
+  const navigation = useNavigation<any>();
 
   const [comment, setComment] = useState('');
   const [replyTo, setReplyTo] = useState<{
@@ -105,14 +106,14 @@ const CommentSection = ({postId, receiverId}: Props) => {
             data={comments}
             renderItem={({item}) => (
               <CommentComponent
-                _id={''}
-                content={''}
-                postId={postId}
-                isDeleted={false}
-                isLiked={false}
-                createdAt={''}
-                {...item}
-                onReply={(id, handleName, userId) => {
+                _id={item._id}
+                content={item.content}
+                isDeleted={item.isDeleted}
+                isLiked={item.isLiked}
+                createdAt={item.createdAt}
+                reply={item.reply}
+                user={item.user}
+                onReply={(id, handleName) => {
                   setReplyTo({id, handleName, userId});
                   setTimeout(() => {
                     inputRef.current?.focus();
@@ -121,7 +122,7 @@ const CommentSection = ({postId, receiverId}: Props) => {
                 navigation={navigation}
               />
             )}
-            estimatedItemSize={10}
+            estimatedItemSize={50}
           />
         </View>
       ) : (
