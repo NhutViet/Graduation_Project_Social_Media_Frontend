@@ -25,6 +25,7 @@ import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import {Eye, EyeOff} from 'lucide-react-native';
 import messaging from '@react-native-firebase/messaging';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+import { fetchMyRooms } from '@services/roomRedux/roomSlice';
 
 export const SwitchAccount = ({navigation}: any) => {
   const [email, setEmail] = useState('');
@@ -96,6 +97,7 @@ export const SwitchAccount = ({navigation}: any) => {
       GlobalAlertManager.show('Thành công', 'Đăng nhập thành công', () => {
         navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
       });
+      dispatch(fetchMyRooms());
     } else {
       GlobalAlertManager.show(
         'Thất bại',

@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useMemo, useCallback} from 'react';
+import React, {useState, useEffect, useMemo, useCallback, useRef} from 'react';
 import {
   StyleSheet,
   Text,
@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   TextInput,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform
 } from 'react-native';
 import {FlashList, ListRenderItem} from '@shopify/flash-list';
 import {useNavigation} from '@react-navigation/native';
@@ -29,6 +31,8 @@ const FollowersTab = () => {
   const {theme} = useTheme();
   const color = Colors[theme];
   const dispatch = useDispatch<AppDispatch>();
+  const searchInputRef = useRef<TextInput>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const userID = useSelector((state: RootState) => state.user?.user?._id);
   const user = useSelector((state: RootState) => state.user.user);
@@ -48,7 +52,11 @@ const FollowersTab = () => {
     [following],
   );
 
-  const displayList = useSelector(selectDisplayFollowers);
+  const followersList = useSelector(selectDisplayFollowers);
+
+  const displayList = followersList.filter(u =>
+    u.handleName.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleActionButton = useCallback(
     async (item: UserProfile) => {
@@ -154,7 +162,7 @@ const FollowersTab = () => {
     );
   }
 
-  if (!displayList.length) {
+  if (!followersList.length) {
     return (
       <View
         style={[styles.emptyContainer, {backgroundColor: color.background}]}>
@@ -175,26 +183,55 @@ const FollowersTab = () => {
 
   return (
     <View style={{flex: 1, backgroundColor: color.background}}>
-      <View
-        style={[
-          styles.searchBarArea,
-          {backgroundColor: color.background, borderBottomColor: color.border},
-        ]}>
-        <View style={styles.searchBarContainer}>
-          <TextInput
-            style={[
-              styles.searchBar,
-              {color: color.text, backgroundColor: color.lessBlack},
-            ]}
-            placeholder="Tìm kiếm"
-            placeholderTextColor={color.text}
-          />
-          <Image
-            source={require('../../../../assets/icon/search.png')}
-            style={[styles.searchIcon, {tintColor: color.text}]}
-          />
+      {followersList.length > 0 && (
+        <View
+          style={[
+            styles.searchBarArea,
+            {backgroundColor: color.background, borderBottomColor: color.border},
+          ]}>
+          <View style={styles.searchBarContainer}>
+            <TextInput
+              ref={searchInputRef}
+              style={[
+                styles.searchBar,
+                {color: color.text, backgroundColor: color.lessBlack},
+              ]}
+              placeholder="Tìm kiếm"
+              placeholderTextColor={color.text}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+            <Image
+              source={require('../../../../assets/icon/search.png')}
+              style={[styles.searchIcon, {tintColor: color.text}]}
+            />
+            {searchQuery.length > 0 && (
+              <TouchableOpacity
+                style={styles.clearButton}
+                onPress={() => setSearchQuery('')}>
+                  <Image
+                    style={[styles.clearIcon, {tintColor: color.text}]}
+                    source={require('../../../../assets/icon/closer.png')}
+                  />
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
-      </View>
+      )}
+
+      {displayList.length === 0 && searchQuery.length && (
+        <View
+          style={[styles.emptyContainer, {backgroundColor: color.background, flex: 2, paddingTop: 150}]}>
+          <Image
+            source={require('../../../../assets/icon/block-user.png')}
+            style={styles.emptyImage}
+            resizeMode="contain"
+          />
+          <Text style={[styles.emptyTitle, {color: color.text}]}>
+            Không tìm thấy tên người dùng
+          </Text>
+        </View>
+      )}
 
       <View style={{flex: 1}}>
         <FlashList
@@ -328,5 +365,17 @@ const styles = StyleSheet.create({
   emptySubtitle: {
     fontSize: 14,
     textAlign: 'center',
+  },
+  clearButton: {
+    position: 'absolute',
+    right: Colors.spacing.m,
+    width: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  clearIcon: {
+    width: 14,
+    height: 14,
   },
 });

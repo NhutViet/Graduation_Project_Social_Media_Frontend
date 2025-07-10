@@ -103,3 +103,20 @@ export const createRoom = createAsyncThunk<
     return rejectWithValue(err.response?.data || err.message);
   }
 });
+
+export const getRoomById = createAsyncThunk<
+  Room,
+  string,
+  {rejectValue: {message: string}}
+>('rooms/getRoomById', async (roomId, {rejectWithValue}) => {
+  try {
+    const response = await axiosInstance.get<Room>(`${API.ROOM}/${roomId}`, {
+      headers: {
+        token: 'refresh',
+      },
+    });
+    return response.data;
+  } catch (err: any) {
+    return rejectWithValue({message: err.response?.data?.message || 'Lấy chi tiết phòng chat thất bại.'});
+  }
+});

@@ -17,6 +17,7 @@ import {useTheme} from '../../../util/ThemeContext';
 import {Modalize} from 'react-native-modalize';
 import {useDispatch, useSelector} from 'react-redux';
 import {fetchMyRooms} from '@services/roomRedux/roomSlice';
+// import { fetchFollowers, fetchFollowing } from '@services/relationRedux/relationSlice';
 import ChatRoomAvatar from '../../../../components/ChatRoomAvatar';
 import {RootState, AppDispatch} from '../../../../services/store';
 import { RoomUser } from '@services/roomRedux/roomType';
@@ -53,8 +54,10 @@ const ModalShare = forwardRef<ModalShareHandle, ModalShareProps>(
     const dispatch = useDispatch<AppDispatch>();
     const userID = useSelector((s: RootState) => s.user.user?._id);
     const modalizeRef = useRef<Modalize>(null);
+    const searchInputRef = useRef<TextInput>(null);
     const [loading, setLoading] = useState(false);
     const [items, setItems] = useState<CombinedItem[]>([]);
+    const [searchQuery, setSearchQuery] = useState('');
 
     useImperativeHandle(ref, () => ({
       open: () => {
@@ -72,41 +75,45 @@ const ModalShare = forwardRef<ModalShareHandle, ModalShareProps>(
       if (!userID) return;
       setLoading(true);
       try {
-        // , followers, following
-        const [rooms] = await Promise.all([
+        //, followers, following
+        const [roomsRes] = await Promise.all([
           dispatch(fetchMyRooms()).unwrap(),
-          // dispatch(fetchFollowers({userId: userID})).unwrap(),
-          // dispatch(fetchFollowing({userId: userID})).unwrap(),
+          // dispatch(fetchFollowers({ userId: userID })).unwrap(),
+          // dispatch(fetchFollowing({ userId: userID })).unwrap(),
         ]);
-        const roomItems: CombinedItem[] = rooms.map(r => ({
-          kind: 'room',
-          _id: r._id,
-          name: r.name || 'Chat nhóm',
-          avatars: r.user_ids.map((u: RoomUser) => u.profilePic),
-        }));
-        // const users = [...followers, ...following];
+        const roomItems: CombinedItem[] = roomsRes.map(r => {
+          const otherUsers = r.user_ids.filter(u => u._id !== userID);
+          const name = r.name?.trim().length
+            ? r.name
+            : otherUsers[0]?.handleName || 'Chat nhóm';
+          const avatars = otherUsers
+            .map(u => u.profilePic || '')
+            .filter(pic => pic.length > 0);
+          return { kind: 'room', _id: r._id, name, avatars };
+        });
+
+        // const allFriends = [...followers, ...following];
         // const seen = new Set<string>();
-        // const friendItems: CombinedItem[] = users.reduce((acc: CombinedItem[], u) => {
-        //   if (!seen.has(u._id)) {
+        // const friendItems: CombinedItem[] = allFriends.reduce((acc, u) => {
+        //   if (!seen.has(u._id) && u._id !== userID) {
         //     seen.add(u._id);
-        //     acc.push({
-        //       kind: 'friend',
-        //       _id: u._id,
-        //       name: u.username,
-        //       avatar: u.profilePic,
-        //     });
+        //     acc.push({ kind: 'friend', _id: u._id, name: u.username, avatar: u.profilePic });
         //   }
         //   return acc;
-        // }, []);
+        // }, [] as CombinedItem[]);
 
         //, ...friendItems
         setItems([...roomItems]);
       } catch (e) {
-        console.log(e);
+        console.warn(e);
       } finally {
         setLoading(false);
       }
     };
+
+    const filteredItems = items.filter(item =>
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()),
+    );
 
     type FontWeight = TextStyle['fontWeight'];
     const toggleSelectFriend = (id: string) => {
@@ -179,7 +186,7 @@ const ModalShare = forwardRef<ModalShareHandle, ModalShareProps>(
       },
       checkmark: {
         position: 'absolute',
-        bottom: 10,
+        bottom: 20,
         right: 4,
         backgroundColor: Colors.white,
         borderRadius: 10,
@@ -268,12 +275,25 @@ const ModalShare = forwardRef<ModalShareHandle, ModalShareProps>(
       label: {
         fontSize: 12,
         textAlign: 'center',
-        marginTop: 10,
+        marginTop: 5,
       },
       emptyContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+      },
+      clearButton: {
+        position: 'absolute',
+        right: Colors.spacing.m,
+        width: 24,
+        height: 24,
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+      clearIcon: {
+        width: 14,
+        height: 14,
+        tintColor: color.text,
       },
     });
 
@@ -303,14 +323,26 @@ const ModalShare = forwardRef<ModalShareHandle, ModalShareProps>(
               ]}>
               <Search size={20} color="#aaa" />
               <TextInput
+                ref={searchInputRef}
                 placeholder="Tìm kiếm"
                 style={[
                   styles.searchInput,
                   {backgroundColor: color.backgroundSecondary},
                 ]}
                 placeholderTextColor={color.textSecondary}
+                value={searchQuery}
+                onChangeText={setSearchQuery}
               />
-              <UserPlus size={20} color="#aaa" />
+              {searchQuery.length > 0 ? (
+                <TouchableOpacity
+                  style={styles.clearButton}
+                  onPress={() => setSearchQuery('')}>
+                    <Image
+                      style={styles.clearIcon}
+                      source={require('../../../../assets/icon/closer.png')}
+                    />
+                </TouchableOpacity>
+              ) : <UserPlus size={20} color="#aaa" />}
             </View>
           </View>
 
@@ -328,9 +360,16 @@ const ModalShare = forwardRef<ModalShareHandle, ModalShareProps>(
                 Chưa có mục nào để chia sẻ
               </Text>
             </View>
+          ) : filteredItems.length === 0 && searchQuery.length > 0 ? (
+            <View style={styles.emptyContainer}>
+              <Text
+                style={[styles.emptyStateText, {color: color.textSecondary}]}>
+                Không tìm thấy kết quả
+              </Text>
+            </View>
           ) : (
             <FlashList
-              data={items}
+              data={filteredItems}
               numColumns={3}
               estimatedItemSize={80}
               extraData={selectedFriendIds}
@@ -344,9 +383,9 @@ const ModalShare = forwardRef<ModalShareHandle, ModalShareProps>(
                       onPress={() => toggleSelectFriend(item._id)}>
                       {item.kind === 'room' ? (
                         <ChatRoomAvatar
-                          avatars={item.avatars!}
-                          size={60}
-                          overlap={50}
+                          roomId={item._id}
+                          img1={item.avatars![0]}
+                          img2={item.avatars![1]}
                         />
                       ) : (
                         <Image

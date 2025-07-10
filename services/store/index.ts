@@ -24,7 +24,13 @@ const persistUserConfig = {
   storage: AsyncStorage,
 };
 
+const persistRoomConfig = {
+  key: 'room',
+  storage: AsyncStorage,
+};
+
 const persistedUserReducer = persistReducer(persistUserConfig, userReducer);
+const persistedRoomReducer = persistReducer(persistRoomConfig, RoomReducer);
 
 export const store = configureStore({
   reducer: {
@@ -38,7 +44,7 @@ export const store = configureStore({
     likers: LikerReducer,
     bookmark: bookmarkReducer,
     postUser: PostUserReducer,
-    rooms: RoomReducer,
+    rooms: persistedRoomReducer,
     messages: messagesReducer,
     search: SearchReducer,
     taggedPosts: taggedPostReducer,

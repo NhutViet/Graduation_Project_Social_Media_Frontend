@@ -30,7 +30,7 @@ export const addComment = createAsyncThunk<
 >(
   'comments/add',
   async (
-    {payload, handleName, receiverId, postId, userId},
+    {payload, handleName, receiverId, postId, userId, parentUserId},
     {rejectWithValue, getState},
   ) => {
     try {
@@ -78,7 +78,26 @@ export const addComment = createAsyncThunk<
             headers: {token: 'refresh'},
           },
         );
-      }
+
+        if (res.data?.comment?.parentID && parentUserId &&  parentUserId.length > 0) {
+          await axiosInstance.post(
+            API.NOTIFICATION_API,
+            {
+              receiverIds: [parentUserId],
+              title: `${handleName} đã trả lời bình luận của bạn bình luận của bạn`,
+              body: 'Nhấn vào để xem chi tiết...',
+              data: {
+                type: 'comment',
+                postId,
+                commentId: res.data?.comment?._id,
+              },
+            },
+            {
+              headers: {token: 'refresh'},
+            },
+          );
+        }
+      };
 
       return newComment;
     } catch (err: any) {
@@ -89,9 +108,9 @@ export const addComment = createAsyncThunk<
   },
 );
 
-export const likeComment = createAsyncThunk<any, string, {rejectValue: string}>(
+export const likeComment = createAsyncThunk<any, {commentId: string, receiverId?: string, handleName?: string, userId?: string, postId?: string}, {rejectValue: string}>(
   'comments/like',
-  async (commentId, {rejectWithValue}) => {
+  async ({commentId, handleName, receiverId, userId, postId}, {rejectWithValue}) => {
     try {
       const res = await axiosInstance.post(
         `${API.COMMENT}/${commentId}/like`,
@@ -102,6 +121,26 @@ export const likeComment = createAsyncThunk<any, string, {rejectValue: string}>(
           },
         },
       );
+
+      if (res.status >= 200 && res.status <= 300 && userId !== receiverId) {
+        await axiosInstance.post(
+          API.NOTIFICATION_API,
+          {
+            receiverIds: [receiverId],
+            title: `${handleName} đã yêu thích bình luận bài viết của bạn`,
+            body: 'Nhấn vào để xem chi tiết...',
+            data: {
+              type: 'comment',
+              postId,
+              commentId: commentId,
+            },
+          },
+          {
+            headers: {token: 'refresh'},
+          },
+        );
+      };
+
       return res.data;
     } catch (err: any) {
       return rejectWithValue(err.response?.data || err.message);

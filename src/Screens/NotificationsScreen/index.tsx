@@ -123,6 +123,7 @@ export const NotificationsScreen = () => {
         });
         dispatch(markAllAsRead());
         dispatch(setIsReadNoti(false));
+        dispatch(resetStatus());
       };
     }, [dispatch]),
   );
@@ -162,7 +163,7 @@ export const NotificationsScreen = () => {
       case 'message':
         navigation.navigate('MessageScreen', {
           room: noti.data?.roomId,
-          // isWaiting: noti.data?.isWaiting,
+          isWaiting: noti.data?.isWaiting,
         });
         break;
     }
@@ -189,7 +190,9 @@ export const NotificationsScreen = () => {
           },
         ]}
         onPress={() => handlePress(noti)}>
-        <Image style={styles.avatar} source={{uri: noti.sender.profilePic}} />
+        {noti.sender === null ? (
+          <Image style={styles.avatar} source={require('../../../assets/icon/account.png')}/>
+        ) : (<Image style={styles.avatar} source={{uri: noti.sender.profilePic}} />)}
         <View style={styles.textContainer}>
           <Text
             style={[styles.contentText, !isRead && {fontWeight: 'bold'}]}

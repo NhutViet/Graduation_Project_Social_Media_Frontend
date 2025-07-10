@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Alert,
   Image,
@@ -154,7 +154,7 @@ const Header = (props: HeaderProps) => {
                 source={iconNotify}
                 style={[styles.icon, {tintColor: color.text}]}
               />
-              {unreadCount > 0 || isReadNoti && (
+              {(unreadCount > 0 || isReadNoti) && (
                 <View style={[styles.badge, {backgroundColor: color.primary}]}/>
               )}
             </TouchableOpacity>

@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
-import {useState, useRef, memo} from 'react';
+import {useState, useRef, memo, useEffect} from 'react';
 import {FlashList} from '@shopify/flash-list';
 import {formatTimeAgo} from '../util';
 import {useDispatch, useSelector} from 'react-redux';
@@ -25,9 +25,11 @@ const fallbackImg =
   'https://i.pinimg.com/736x/30/01/1e/30011ec01f59434d761d323e0d4b5a07.jpg';
 
 interface CommentComponentProps {
-  onReply: (id: string, handleName: string) => void;
+  onReply: (id: string, handleName: string, userId?: string) => void;
   _id: string;
+  postId: string;
   user?: {
+    _id?: string;
     handleName?: string;
     profilePic?: string;
   };
@@ -67,6 +69,7 @@ const ReplyComment = memo(
     const dispatch = useDispatch<AppDispatch>();
     const [isLiked, setIsLiked] = useState(defaultLiked);
     const likeTimeout = useRef<NodeJS.Timeout | null>(null);
+    const currentUser = useSelector((state: RootState) => state.user.user);
     const userId = useSelector((state: RootState) => state.user.user?._id);
 
     const handleLike = () => {
@@ -76,7 +79,7 @@ const ReplyComment = memo(
       if (likeTimeout.current) clearTimeout(likeTimeout.current);
       likeTimeout.current = setTimeout(() => {
         if (newLiked) {
-          dispatch(likeComment(_id));
+          dispatch(likeComment({commentId: _id, receiverId: user?._id, handleName: currentUser?.handleName, userId: currentUser?._id, postId: item.postId}));
           dispatch(updateCommentLike({commentId: _id, userId: userId || ''}));
         } else {
           dispatch(unlikeComment(_id));
@@ -161,6 +164,7 @@ const CommentComponent = memo((props: CommentComponentProps) => {
   const [isLiked, setIsLiked] = useState(defaultLiked);
   const [moreComment, setMoreComment] = useState(false);
   const likeTimeout = useRef<NodeJS.Timeout | null>(null);
+  const currentUser = useSelector((state: RootState) => state.user.user);
   const userId = useSelector((state: RootState) => state.user.user?._id);
 
   const handleToggleLike = () => {
@@ -170,7 +174,7 @@ const CommentComponent = memo((props: CommentComponentProps) => {
     if (likeTimeout.current) clearTimeout(likeTimeout.current);
     likeTimeout.current = setTimeout(() => {
       if (newLiked) {
-        dispatch(likeComment(_id));
+        dispatch(likeComment({commentId: _id, receiverId: user?._id, handleName: currentUser?.handleName, userId: currentUser?._id,}));
         dispatch(updateCommentLike({commentId: _id, userId: userId || ''}));
       } else {
         dispatch(unlikeComment(_id));
@@ -211,7 +215,7 @@ const CommentComponent = memo((props: CommentComponentProps) => {
           />
           <View style={[styles.rowContainer, {alignItems: 'center'}]}>
             <TouchableOpacity
-              onPress={() => onReply(_id, user?.handleName || '')}>
+              onPress={() => onReply(_id, user?.handleName || '', user?._id)}>
               <Text style={[styles.text, {color: color.text, marginRight: 20}]}>
                 Trả lời
               </Text>

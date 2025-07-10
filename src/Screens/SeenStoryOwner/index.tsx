@@ -58,6 +58,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const [isVideoPaused, setIsVideoPaused] = useState(false);
+  const [wasPausedByUser, setWasPausedByUser] = useState(false);
   const selectedItem = stories[currentIndex];
   const [videoDuration, setVideoDuration] = useState<number | null>(null);
   const [musicDuration, setMusicDuration] = useState<number | null>(null);
@@ -70,6 +71,8 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   const [isMusicLoaded, setIsMusicLoaded] = useState(false);
   const [isMediaLoading, setIsMediaLoading] = useState(true);
+  // ✅ Thêm state để track khi navigate away
+  const [isNavigatedAway, setIsNavigatedAway] = useState(false);
   const progressAnims = useRef<Animated.Value[]>(
     (stories || []).map(() => new Animated.Value(0)),
   ).current;
@@ -81,6 +84,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
   const currentIndexRef = useRef(0);
   const imageDuration = 15000;
   const isCurrentUserStory = creator?.username === user?.handleName;
+  const yourUserId = useSelector((state: RootState) => state.user.user?._id);
 
   // ✅ Listen for parameter updates and navigation focus
   useEffect(() => {
@@ -92,6 +96,9 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
         setIsDataLoading(params.isLoading || false);
       }
 
+      // ✅ Reset navigated away state khi quay lại
+      setIsNavigatedAway(false);
+
       // ✅ Resume story khi quay lại từ profile
       if (isVideoPaused) {
         setIsVideoPaused(false);
@@ -100,6 +107,9 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
 
     // ✅ Listen for blur event (khi navigate away)
     const blurUnsubscribe = navigation.addListener('blur', () => {
+      // ✅ Set navigated away state
+      setIsNavigatedAway(true);
+
       // Pause story khi navigate away
       if (!isVideoPaused) {
         setIsVideoPaused(true);
@@ -111,6 +121,19 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
       blurUnsubscribe();
     };
   }, [navigation, route.params, isVideoPaused]);
+
+  // ✅ Reset video và music khi navigate away và quay lại
+  useEffect(() => {
+    if (isNavigatedAway) {
+      // Khi navigate away, pause cả video và music
+      setIsVideoPaused(true);
+    } else {
+      // Khi quay lại, resume nếu trước đó không bị pause bởi user
+      if (!wasPausedByUser) {
+        setIsVideoPaused(false);
+      }
+    }
+  }, [isNavigatedAway, wasPausedByUser]);
 
   // ✅ Update progress anims when stories change
   useEffect(() => {
@@ -214,6 +237,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
       setVideoDuration(null);
       setIsVideoPaused(false);
       setMusicDuration(null);
+      setWasPausedByUser(false);
       setCurrentIndex(prev => {
         return prev + 1;
       });
@@ -272,6 +296,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
       setVideoDuration(null);
       setMusicDuration(null);
       setIsVideoPaused(false);
+      setWasPausedByUser(false);
 
       setCurrentIndex(prev => {
         return prev - 1;
@@ -359,6 +384,9 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
   const toggleVideoPause = () => {
     setIsVideoPaused(prev => {
       const newState = !prev;
+      // ✅ Track khi user pause/resume
+      setWasPausedByUser(newState);
+
       if (newState) {
         animationRef.current?.stop();
       } else {
@@ -430,7 +458,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
     if (isVideo) {
       if (isVideoLoaded && (!hasMusic || isMusicLoaded)) {
         setIsMediaLoading(false);
-        startProgressAnimation();
+        if (!isVideoPaused) startProgressAnimation();
       }
       return;
     }
@@ -439,11 +467,11 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
     if (hasMusic && !isVideo) {
       if (isMusicLoaded) {
         setIsMediaLoading(false);
-        startProgressAnimation();
+        if (!isVideoPaused) startProgressAnimation();
       }
       return;
     }
-  }, [isVideoLoaded, isMusicLoaded, selectedItem]);
+  }, [isVideoLoaded, isMusicLoaded, selectedItem, isVideoPaused]);
 
   const onVideoEnd = () => {
     goToNextStory();
@@ -460,6 +488,8 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
     setVideoDuration(null);
     setMusicDuration(null);
     setIsVideoPaused(false);
+    // ✅ Reset user pause state khi chuyển story mới
+    setWasPausedByUser(false);
 
     // ✅ Kiểm tra kỹ hơn trước khi goBack
     if (!stories || stories.length === 0) {
@@ -504,6 +534,21 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
     };
   }, [debouncedHandleTouch]);
 
+  useEffect(() => {
+    if (visible) {
+      setIsVideoPaused(true);
+    } else {
+      setIsVideoPaused(false);
+    }
+  }, [visible]);
+
+  useEffect(() => {
+    if (isVideoPaused) {
+      animationRef.current?.stop();
+    } else {
+      startProgressAnimation();
+    }
+  }, [isVideoPaused]);
   const handleCloserPress = () => {
     navigation.goBack();
   };
@@ -549,7 +594,12 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
 
     const handleMentionPress = (userId: string) => {
       // ✅ Story sẽ tự động pause thông qua blur listener
-      navigation.navigate('ProfileComp', {userID: userId});
+      // ✅ Kiểm tra nếu là chính tài khoản hiện tại thì chuyển qua Account
+      if (userId === yourUserId) {
+        navigation.navigate('Account');
+      } else {
+        navigation.navigate('ProfileComp', {userID: userId});
+      }
     };
 
     return (
@@ -600,9 +650,14 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
 
       const handleTagPress = () => {
         if (finalUserData._id) {
-          navigation.navigate('ProfileComp', {
-            userID: finalUserData._id,
-          });
+          // ✅ Kiểm tra nếu là chính tài khoản hiện tại thì chuyển qua Account
+          if (finalUserData._id === yourUserId) {
+            navigation.navigate('Account');
+          } else {
+            navigation.navigate('ProfileComp', {
+              userID: finalUserData._id,
+            });
+          }
         } else {
           console.log('❌ No userID found');
         }
@@ -667,6 +722,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
           onToggleMute={toggleMute}
           createdAt={selectedItem?.createdAt}
           creator={creator}
+          navigation={navigation}
         />
         {stories[currentIndex] ? (
           <MediaSection
@@ -677,11 +733,12 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
             onMediaLayout={setMediaSize}
             onMusicLoad={onMusicLoad}
             onMusicEnd={onMusicEnd}
-            paused={isVideoPaused}
+            paused={isVideoPaused || isNavigatedAway}
             muted={isMuted}
             isVideoLoaded={isVideoLoaded}
             isMediaLoading={isMediaLoading}
             onImageLoad={onImageLoad}
+            isNavigatedAway={isNavigatedAway}
           />
         ) : null}
         {renderCaption()}
@@ -691,8 +748,22 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
 
       {isCurrentUserStory && (
         <SeenStoryOwnerBottom
-          onShowPeopleSeen={() => setVisible(true)}
-          onShowMore={() => setVisibleSeeMore(true)}
+          onShowPeopleSeen={() => {
+            setVisible(true);
+            // ✅ Pause story khi mở modal People Seen
+            if (!isVideoPaused) {
+              setIsVideoPaused(true);
+              setWasPausedByUser(true);
+            }
+          }}
+          onShowMore={() => {
+            setVisibleSeeMore(true);
+            // ✅ Pause story khi mở modal SeeMore
+            if (!isVideoPaused) {
+              setIsVideoPaused(true);
+              setWasPausedByUser(true);
+            }
+          }}
           visible={visible}
           users={selectedItem?.viewedByUsers || []}
           onClose={() => setVisible(false)}
@@ -703,12 +774,34 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
       <Portal>
         <ModelPeopleSeen
           visible={visible}
-          onClose={() => setVisible(false)}
+          onClose={() => {
+            setVisible(false);
+            // ✅ Resume story khi đóng modal People Seen (nếu không phải do user pause)
+            if (wasPausedByUser && !isNavigatedAway) {
+              setIsVideoPaused(false);
+              setWasPausedByUser(false);
+            }
+          }}
           users={selectedItem?.viewedByUsers || []}
+          onUserPress={user => {
+            setVisible(false);
+            if (user._id === yourUserId) {
+              navigation.navigate('Account');
+            } else {
+              navigation.navigate('ProfileComp', {userID: user._id});
+            }
+          }}
         />
         <ModalSeeMore
           visible={visibleSeeMore}
-          onClose={() => setVisibleSeeMore(false)}
+          onClose={() => {
+            setVisibleSeeMore(false);
+            // ✅ Resume story khi đóng modal SeeMore (nếu không phải do user pause)
+            if (wasPausedByUser && !isNavigatedAway) {
+              setIsVideoPaused(false);
+              setWasPausedByUser(false);
+            }
+          }}
           onDelete={handleDeleteStory}
         />
       </Portal>

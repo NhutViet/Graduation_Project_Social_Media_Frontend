@@ -41,6 +41,7 @@ import {
 import {ModalLoading} from './components/loading';
 import {useStoryPrefetch} from './hook/useStoryPrefetch';
 import {getNotification} from '@services/notificationRedux/notificationSlice';
+import { fetchMyRooms } from '@services/roomRedux/roomSlice';
 
 const HEADER_HEIGHT = 100;
 const AnimatedFlatList = Animated.createAnimatedComponent(Animated.FlatList);
@@ -278,6 +279,7 @@ export const Home = forwardRef(({onReload, route}: HomeProps, ref) => {
 
   useEffect(() => {
     dispatch(getNotification({page: 1}));
+    dispatch(fetchMyRooms());
   }, [dispatch]);
 
   const prefetchNextPage = useCallback(() => {
@@ -286,6 +288,19 @@ export const Home = forwardRef(({onReload, route}: HomeProps, ref) => {
     }
   }, [loadMore, isLoadingMore, hasNextPage, hasCalledLoadMore]);
 
+  // ✅ Force refresh stories when user comes back to Home after viewing stories
+  useEffect(() => {
+    if (isFocused) {
+      // Small delay to ensure story viewing is complete
+      const timeoutId = setTimeout(() => {
+        dispatch(fetchFollowingStories({page: 1}));
+      }, 500);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isFocused, dispatch]);
+
+  // ✅ Force refresh seenMap when storyDetails change (when stories are marked as seen)
   useEffect(() => {
     const syncSeenStories = async () => {
       const map: Record<string, boolean> = {};
@@ -300,6 +315,7 @@ export const Home = forwardRef(({onReload, route}: HomeProps, ref) => {
       }
       setSeenMap(map);
     };
+
     if (followingUsers.length && storyDetails.length) {
       syncSeenStories();
     }
@@ -526,6 +542,7 @@ export const Home = forwardRef(({onReload, route}: HomeProps, ref) => {
                         borderColor: color.border,
                         justifyContent: 'center',
                         alignItems: 'center',
+                        alignSelf: 'center',
                       }}>
                       <ActivityIndicator size="small" color={color.text} />
                     </View>
@@ -547,6 +564,7 @@ export const Home = forwardRef(({onReload, route}: HomeProps, ref) => {
                         borderStyle: 'dashed',
                         justifyContent: 'center',
                         alignItems: 'center',
+                        alignSelf: 'center',
                       }}>
                       <Text
                         style={{

@@ -33,6 +33,7 @@ const {height} = Dimensions.get('window');
 
 const CommentSection = ({postId, receiverId}: Props) => {
   const dispatch = useDispatch<AppDispatch>();
+  const navigation = useNavigation();
   const user = useSelector((state: RootState) => state.user.user);
   const {comments, loading} = useSelector((state: RootState) => state.comment);
   const {theme} = useTheme();
@@ -43,6 +44,7 @@ const CommentSection = ({postId, receiverId}: Props) => {
   const [replyTo, setReplyTo] = useState<{
     id: string;
     handleName: string;
+    userId?: string;
   } | null>(null);
   const inputRef = useRef<TextInput>(null);
 
@@ -64,6 +66,7 @@ const CommentSection = ({postId, receiverId}: Props) => {
           postId,
           receiverId,
           userId: user?._id,
+          parentUserId: payload.parentID.length > 0 ? replyTo?.userId : '',
         }),
       ).unwrap();
       setComment('');
@@ -111,7 +114,7 @@ const CommentSection = ({postId, receiverId}: Props) => {
                 reply={item.reply}
                 user={item.user}
                 onReply={(id, handleName) => {
-                  setReplyTo({id, handleName});
+                  setReplyTo({id, handleName, userId});
                   setTimeout(() => {
                     inputRef.current?.focus();
                   }, 200);
