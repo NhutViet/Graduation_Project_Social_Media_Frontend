@@ -2,6 +2,19 @@ import {useRef} from 'react';
 import {Animated} from 'react-native';
 import {View, Text, Dimensions, TouchableOpacity} from 'react-native';
 import {MediaSection} from '../component/MediaSection';
+import { Story } from '@services/StoryRedux/StoryType';
+import { User } from '@services/userRedux/userTypes';
+
+interface UseStoryNavigationProps {
+  currentIndex: number;
+  setCurrentIndex: (value: number | ((prev: number) => number)) => void;
+  storyGroups: any;
+  storyGroupIndex: number;
+  navigation: any;
+  user: User;
+  stories: Story[];
+}
+
 export const useStoryNavigation = ({
   currentIndex,
   setCurrentIndex,
@@ -10,7 +23,7 @@ export const useStoryNavigation = ({
   navigation,
   user,
   stories,
-}: any) => {
+}: UseStoryNavigationProps) => {
   const currentIndexRef = useRef(currentIndex);
   const isNavigatingRef = useRef(false);
 
@@ -66,12 +79,19 @@ export const useStoryNavigation = ({
   };
 };
 
+interface UseStoryProgressProps {
+  stories: Story[];
+  currentIndex: number;
+  getItemDuration: () => number;
+  goToNextStory: () => void;
+}
+
 export const useStoryProgress = ({
   stories,
   currentIndex,
   getItemDuration,
   goToNextStory,
-}: any) => {
+}: UseStoryProgressProps) => {
   const progressValues = useRef<number[]>(stories.map(() => 0)).current;
   const progressAnims = useRef<Animated.Value[]>(
     stories.map(() => new Animated.Value(0)),

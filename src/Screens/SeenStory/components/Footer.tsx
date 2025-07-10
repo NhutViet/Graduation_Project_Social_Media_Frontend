@@ -2,7 +2,15 @@ import React from 'react';
 import {View, TextInput, TouchableOpacity, Image, Animated} from 'react-native';
 import {styles} from './styles';
 import {Heart, Send} from 'lucide-react-native';
-export const Footer = ({onLike, isLiked, scaleAnim, onPressSend}: any) => (
+
+interface FooterProps {
+  onLike: () => void;
+  isLiked: boolean;
+  scaleAnim: any;
+  onPressSend: () => void;
+}
+
+export const Footer = ({onLike, isLiked, scaleAnim, onPressSend}: FooterProps) => (
   <View style={styles.viewBottom}>
     <TextInput
       style={styles.input}

@@ -14,7 +14,7 @@ export const ChangeBirthday = () => {
   const styles = ChangeBirthdayStyles(theme);
   const navigation = useNavigation();
 
-  const isValidDate = (d: any, m: any, y: any) => {
+  const isValidDate = (d: number, m: number, y: number) => {
     const date = new Date(y, m - 1, d);
     return (
       date.getFullYear() === y &&

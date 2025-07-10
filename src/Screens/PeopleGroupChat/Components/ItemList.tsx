@@ -3,7 +3,16 @@ import React from 'react';
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
 
-const ItemList = (props: any) => {
+type ItemListProps = {
+  uri: string;
+  handle: string;
+  name: string;
+  onHandleMessage?: () => void; // optional callback function
+  isMine?: boolean;
+  isAdmin?: boolean;
+};
+
+const ItemList = (props: ItemListProps) => {
   const {uri, handle, name, onHandleMessage, isMine = false, isAdmin=false} = props;
   const {theme} = useTheme();
   const colors = Colors[theme];

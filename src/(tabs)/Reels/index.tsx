@@ -1,19 +1,20 @@
-import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
-import { ActivityIndicator, SafeAreaView, StyleSheet } from 'react-native';
-import { useIsFocused, useFocusEffect } from '@react-navigation/native';
-import { Colors } from '../../../assets/color/Colors';
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from '../../../services/store';
-import { fetchCommentsByPost } from '../../../services/commentRedux/commentSlice';
-import { Portal } from 'react-native-portalize';
+import React, {forwardRef, useImperativeHandle, useRef, useState} from 'react';
+import {ActivityIndicator, SafeAreaView, StyleSheet, View} from 'react-native';
+import {useIsFocused, useFocusEffect} from '@react-navigation/native';
+import {Colors} from '../../../assets/color/Colors';
+import {useDispatch} from 'react-redux';
+import {AppDispatch} from '../../../services/store';
+import {fetchCommentsByPost} from '../../../services/commentRedux/commentSlice';
+import {Portal} from 'react-native-portalize';
 import ModalShare from '../Home/components/ModalShare';
-import { useReels } from './hooks/useReels';
-import { useShareModal } from './hooks/useShareModal';
-import { Modalize } from 'react-native-modalize';
-import { fetchReelsWithMedia } from '@services/postRedux/postSlice';
+import {useReels} from './hooks/useReels';
+import {useShareModal} from './hooks/useShareModal';
+import {Modalize} from 'react-native-modalize';
+import {fetchReelsWithMedia} from '@services/postRedux/postSlice';
 import ReelsList from './components/ReelsLists';
 import ReelsBottomSheets from './components/ReelsBottomSheets';
-import { PostWithMedia } from '@services/postRedux/postTypes';
+import {PostWithMedia} from '@services/postRedux/postTypes';
+import ReelsHeader from './components/ReelsHeader';
 
 const Reels = forwardRef((props, ref) => {
   const isFocused = useIsFocused();
@@ -38,11 +39,14 @@ const Reels = forwardRef((props, ref) => {
     skipReload,
   } = useReels();
 
-  const { modalShareRef, openShareModal } = useShareModal();
+  const {modalShareRef, openShareModal} = useShareModal();
 
   const [selectedItem, setSelectedItem] = useState<PostWithMedia>();
   const [isCurrentBookmarked, setIsCurrentBookmarked] = useState(false);
-  const [selectedPostId, setSelectedPostId] = useState({ postId: '', receiverId: '' });
+  const [selectedPostId, setSelectedPostId] = useState({
+    postId: '',
+    receiverId: '',
+  });
 
   const openBottomSheet = (item: PostWithMedia) => {
     setSelectedItem(item);
@@ -51,7 +55,7 @@ const Reels = forwardRef((props, ref) => {
   };
 
   const openCommentSheet = (item: PostWithMedia) => {
-    setSelectedPostId({ postId: item._id, receiverId: item.user._id });
+    setSelectedPostId({postId: item._id, receiverId: item.user._id});
     dispatch(fetchCommentsByPost(item._id));
     sheetRefComment.current?.open();
   };
@@ -60,7 +64,7 @@ const Reels = forwardRef((props, ref) => {
     reload: () => {
       setIsInitialLoad(true);
       setSkipReload(false);
-      dispatch(fetchReelsWithMedia({ page: 1 }));
+      dispatch(fetchReelsWithMedia({page: 1}));
     },
   }));
 
@@ -74,9 +78,9 @@ const Reels = forwardRef((props, ref) => {
       if (reels.length === 0 || isInitialLoad) {
         setIsInitialLoad(true);
         setCanLoadMore(true);
-        dispatch(fetchReelsWithMedia({ page: 1 }));
+        dispatch(fetchReelsWithMedia({page: 1}));
       }
-    }, [dispatch, skipReload, reels.length, isInitialLoad])
+    }, [dispatch, skipReload, reels.length, isInitialLoad]),
   );
 
   if (loading && isInitialLoad) {
@@ -89,6 +93,9 @@ const Reels = forwardRef((props, ref) => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.headerOverlay}>
+        <ReelsHeader />
+      </View>
       <ReelsList
         reels={reels}
         currentVisible={currentVisible}
@@ -127,6 +134,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: Colors.black,
+  },
+  headerOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
   },
 });
 

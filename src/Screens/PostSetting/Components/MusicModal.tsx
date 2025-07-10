@@ -13,7 +13,29 @@ import {
 import Sound from 'react-native-sound';
 import {Colors} from '../../../../assets/color/Colors';
 
-const AudioTrimModal = (props: any) => {
+type SongInfo = {
+  _id: string;
+  title: string;
+  artist: string;
+  image: string;
+};
+
+type AudioTrimModalProps = {
+  visible: boolean;
+  onClose: () => void;
+  audioUrl: string;
+  songInfo: SongInfo;
+  onDoneSelect?: (data: {
+    musicId: string;
+    timeStart: number;
+    timeEnd: number;
+    song: string;
+    songImage: string;
+  }) => void;
+  songUrl?: (url: string) => void;
+};
+
+const AudioTrimModal = (props: AudioTrimModalProps) => {
   const {visible, onClose, audioUrl, songInfo, onDoneSelect, songUrl} = props;
   const [sound, setSound] = useState<Sound | null>(null);
   const [duration, setDuration] = useState(0);

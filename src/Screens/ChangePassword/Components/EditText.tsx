@@ -9,7 +9,14 @@ import React, {useState} from 'react';
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
 
-const EditText = (props: any) => {
+interface EditTextProps {
+  placeholder?: string;
+  password?: boolean;
+  value: string;
+  valueChange: (text: string) => void;
+}
+
+const EditText = (props: EditTextProps) => {
   const {theme} = useTheme();
   const color = Colors[theme];
   const {placeholder, password, value, valueChange} = props;

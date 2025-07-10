@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchReelsWithMedia } from '@services/postRedux/postSlice';
 import { AppDispatch, RootState } from '@services/store';
+import { addLikedPost, removeLikedPost } from '@services/reactionRedux/reactionReducer';
 
 export const useReels = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -12,6 +13,16 @@ export const useReels = () => {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [canLoadMore, setCanLoadMore] = useState(true);
   const [skipReload, setSkipReload] = useState(false);
+
+  useEffect(() => {
+  reels.forEach(post => {
+    if (post.isLike) {
+      dispatch(addLikedPost(post._id));
+    } else {
+      dispatch(removeLikedPost(post._id));
+    }
+  });
+}, [reels]);
 
   useEffect(() => {
     if (!loading && page >= 1 && isInitialLoad) setIsInitialLoad(false);

@@ -25,6 +25,9 @@ import ModalShareStory, {ModalShareHandle} from './components/modalShare';
 import StoryLoadingSkeleton from '../../(tabs)/Home/components/StoryLoadingSkeleton';
 import {debugStoryGroups} from '../../(tabs)/Home/util';
 import {renderTextWithMentions} from '../../util/storyTextRenderer';
+import { Story } from '@services/StoryRedux/StoryType';
+import { VideoRef } from 'react-native-video';
+import { GestureResponderEvent } from 'react-native-modal';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -90,7 +93,7 @@ export const SeenStory = ({route, navigation}: any) => {
 
   // ✅ Sync stories with Redux store data
   const syncedStories = useMemo(() => {
-    return stories.map((story: any) => {
+    return stories.map((story: Story) => {
       // Find updated story data from Redux store
       const updatedStory = storyDetails.find(s => s._id === story._id);
       if (updatedStory) {
@@ -186,7 +189,7 @@ export const SeenStory = ({route, navigation}: any) => {
 
   const animationRef = useRef<Animated.CompositeAnimation | null>(null);
   const scaleAnim = useRef(new Animated.Value(1)).current;
-  const videoRef = useRef<any>(null);
+  const videoRef = useRef<VideoRef>(null);
 
   // hàm next story
   const goToNextStory = () => {
@@ -213,7 +216,7 @@ export const SeenStory = ({route, navigation}: any) => {
         const routeName = isOwner ? 'SeenStoryOwner' : 'SeenStory';
 
         // ✅ Use synced stories data for navigation
-        const syncedNextGroupStories = nextGroup.stories.map((story: any) => {
+        const syncedNextGroupStories = nextGroup.stories.map((story: Story) => {
           const updatedStory = storyDetails.find(s => s._id === story._id);
           if (updatedStory) {
             return {
@@ -300,7 +303,7 @@ export const SeenStory = ({route, navigation}: any) => {
           const routeName = isOwner ? 'SeenStoryOwner' : 'SeenStory';
 
           // ✅ Use synced stories data for navigation
-          const syncedPrevGroupStories = prevGroup.stories.map((story: any) => {
+          const syncedPrevGroupStories = prevGroup.stories.map((story: Story) => {
             const updatedStory = storyDetails.find(s => s._id === story._id);
             if (updatedStory) {
               return {
@@ -338,7 +341,7 @@ export const SeenStory = ({route, navigation}: any) => {
   // mute
   const toggleMute = () => setIsMuted(prev => !prev);
 
-  const handleTouch = (event: any) => {
+  const handleTouch = (event: GestureResponderEvent) => {
     const {locationX} = event.nativeEvent;
     if (locationX < screenWidth / 3) goToPreviousStory();
     else if (locationX > (screenWidth * 2) / 3) goToNextStory();

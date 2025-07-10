@@ -39,7 +39,7 @@ export const AddPost = () => {
   );
   
   const route = useRoute();
-  const {type}: any = route.params || {};
+  const type = (route.params as { type?: string })?.type ?? '';
 
   const [selectedItems, setSelectedItems] = useState<PhotoIdentifier[]>([]);
   const [isMultiSelect, setIsMultiSelect] = useState(false);
@@ -226,7 +226,7 @@ export const AddPost = () => {
     });
   };
 
-  const handleFilter = (filter: any) => {
+  const handleFilter = (filter: string) => {
     setFilter(filter);
     setShowModalFilter(false);
   };

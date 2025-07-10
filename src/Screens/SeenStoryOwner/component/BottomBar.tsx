@@ -1,12 +1,13 @@
 import React from 'react';
 import {View, TouchableOpacity, Image, Text} from 'react-native';
 import {styles} from './style';
+import { UserMini } from '@services/StoryRedux/StoryType';
 
 interface Props {
   onShowPeopleSeen: () => void;
   onShowMore: () => void;
   visible: boolean;
-  users: any[];
+  users: UserMini[];
   onDelete: () => void;
   onClose: () => void;
 }

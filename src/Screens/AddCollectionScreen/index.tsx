@@ -22,7 +22,7 @@ import {
 } from '../../../services/bookmarkRedux/bookmarkSlice';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 import {checkProfanityAndAlert} from '../../util/profanityFilter';
-import {Media, MediaR} from '@services/bookmarkRedux/bookmarkTypes';
+import {Media, MediaR, PlaylistItem} from '@services/bookmarkRedux/bookmarkTypes';
 
 export const AddCollectionScreen = () => {
   const {theme} = useTheme();
@@ -117,15 +117,15 @@ export const AddCollectionScreen = () => {
   };
 
   const renderPostItem = useCallback(
-    ({item}: {item: any}) => {
+    ({item}: {item: PlaylistItem}) => {
       const isSelected = selectedPostIds.includes(item._id!);
       const isVideo = item.itemType === 'reel';
       if (!item?.media || item.media.length === 0) return null;
       const thumbnail = isVideo
         ? `https://videodelivery.net/${
-            item.media?.[0]?.videoUrl?.split('/')[3]
+            (item.media?.[0] as Media)?.videoUrl?.split('/')[3]
           }/thumbnails/thumbnail.jpg?time=2s`
-        : (item.media?.[0] as any)?.imageUrl;
+        : (item.media?.[0] as MediaR)?.imageUrl;
 
       if (!thumbnail) return null;
 

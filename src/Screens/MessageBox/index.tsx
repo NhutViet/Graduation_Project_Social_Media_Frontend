@@ -3,6 +3,8 @@ import {FlashList} from '@shopify/flash-list';
 import {
   ActivityIndicator,
   Image,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
   RefreshControl,
   SafeAreaView,
   ScrollView,
@@ -28,7 +30,7 @@ import {
 } from '../../../services/storage/storage';
 import {useStoryPrefetch} from '../../(tabs)/Home/hook/useStoryPrefetch';
 
-export const MessageBox = (props: any) => {
+export const MessageBox = (props: {onBack: () => void}) => {
   const navigation: any = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];
@@ -90,7 +92,7 @@ export const MessageBox = (props: any) => {
 
   // ✅ Handler for loading more stories when scrolling
   const handleStoryScroll = useCallback(
-    (event: any) => {
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
       const {contentOffset, contentSize, layoutMeasurement} = event.nativeEvent;
       const currentIndex = Math.floor(contentOffset.x / 70); // Assuming each story item is ~70px wide
 

@@ -13,7 +13,13 @@ import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
 import Video from 'react-native-video';
 
-const VideoModal = (props: any) => {
+type VideoModalProps = {
+  uri: string;
+  visible: boolean;
+  onClose: () => void;
+};
+
+const VideoModal = (props: VideoModalProps) => {
   const {uri, visible, onClose} = props;
   const {theme} = useTheme();
   const color = Colors[theme];

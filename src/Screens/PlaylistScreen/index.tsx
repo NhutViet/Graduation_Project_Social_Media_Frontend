@@ -8,7 +8,7 @@ import {
   SafeAreaView,
   StatusBar,
 } from 'react-native';
-import VideoPlayer from 'react-native-video';
+import VideoPlayer, { VideoRef } from 'react-native-video';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {Modalize} from 'react-native-modalize';
 import {Portal} from 'react-native-portalize';
@@ -25,6 +25,8 @@ import {
 import {Check} from 'lucide-react-native';
 import {FlashList} from '@shopify/flash-list';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+import { PlaylistItem } from '@services/bookmarkRedux/bookmarkTypes';
+import { Media, MediaR } from '@services/bookmarkRedux/bookmarkTypes';
 
 interface RouteParams {
   title: string;
@@ -71,7 +73,7 @@ export const PlaylistsScreen = () => {
   const modalizeRef = useRef<Modalize>(null);
   const selectRef = useRef<Modalize>(null);
   const switchRef = useRef<Modalize>(null);
-  const videoRef = useRef<any>(null);
+  const videoRef = useRef<VideoRef>(null);
 
   const anotherplaylist = playlists.filter(
     playlist =>
@@ -88,7 +90,7 @@ export const PlaylistsScreen = () => {
     setPlaylistItems(itemsByPlaylist[playlistId] ?? []);
   }, [itemsByPlaylist]);
 
-  const openItem = (item: any) => {
+  const openItem = (item: PlaylistItem) => {
     if (activeTab === 'grid') {
       navigation.navigate(
         'AllPostOfCollection' as never,
@@ -114,7 +116,7 @@ export const PlaylistsScreen = () => {
     );
   };
 
-  const selectAll = (items: any[]) => {
+  const selectAll = (items: PlaylistItem[]) => {
     const allIds = items.map(item => item._id);
     setListSelected(allIds);
   };
@@ -185,13 +187,13 @@ export const PlaylistsScreen = () => {
     </View>
   );
 
-  const renderItemThumb = (item: any) => {
+  const renderItemThumb = (item: PlaylistItem) => {
     const isVideo = item.itemType === 'reel';
     if (!(item.media && item.media.length > 0)) return null;
     const isSelected = listSelected.includes(item?._id!) || false;
     const thumb = isVideo
-      ? convertToImage(item?.media[0]?.videoUrl)
-      : item.media[0]?.imageUrl;
+      ? convertToImage((item?.media[0] as Media)?.videoUrl)
+      : (item.media[0] as MediaR)?.imageUrl;
     return (
       <TouchableOpacity
         style={styles.postItem}

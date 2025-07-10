@@ -20,14 +20,26 @@ export const PeopleGroupChat = () => {
   const {theme} = useTheme();
   const colors = Colors[theme];
   const [isReqired, setIsReqired] = useState(false);
-  const [user, setUser] = useState<any>(list);
-  const [admin, setAdmin] = useState<any | null>(null);
+  const [user, setUser] = useState<
+    {
+      id: number;
+      name: string;
+      handle: string;
+      uri: string;
+    }[]
+  >(list);
+  const [admin, setAdmin] = useState<{
+    id: number;
+    name: string;
+    handle: string;
+    uri: string;
+  } | null>(null);
   const mine = 1;
   const styles = PeopleGroupChatStyles(theme);
   const navigation = useNavigation<any>();
 
   useEffect(() => {
-    const ad = list.find(prev => prev.id == 2);
+    const ad = list.find(prev => prev.id == 2) ?? null;
     const following = list.filter(prev => prev.id !== 2);
     setAdmin(ad);
     setUser(following);
@@ -84,7 +96,16 @@ export const PeopleGroupChat = () => {
             data={user}
             estimatedItemSize={200}
             showsVerticalScrollIndicator={false}
-            renderItem={({item}: any) => {
+            renderItem={({
+              item,
+            }: {
+              item: {
+                id: number;
+                name: string;
+                handle: string;
+                uri: string;
+              };
+            }) => {
               return (
                 <ItemList
                   uri={item.uri}

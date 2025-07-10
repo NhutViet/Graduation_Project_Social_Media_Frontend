@@ -117,9 +117,10 @@ const AllReels = () => {
                 currentVisible={item._id === currentVisible}
                 isFollow={item?.isFollow}
                 muted={false}
-                showBottomSheet={() => openBottomSheet(item)}
+                onMenu={() => openBottomSheet(item)}
                 openComment={() => openComment(item)}
                 openReactionModal={() => {}}
+                onProfilePress={() => {}}
                 openShareModal={openShareModal}
               />
             )}

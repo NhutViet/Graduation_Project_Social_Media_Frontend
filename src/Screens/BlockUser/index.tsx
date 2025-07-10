@@ -23,6 +23,7 @@ import {Modalize} from 'react-native-modalize';
 import ModalIsBlock from './Components/ModalIsBlock';
 import {Colors} from '../../../assets/color/Colors';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+import { UserProfile } from '@services/relationRedux/relationTypes';
 
 export const BlockUser = () => {
   const {theme} = useTheme();
@@ -37,7 +38,7 @@ export const BlockUser = () => {
   );
   const [listUser, setListUser] = useState(following);
   const [searchText, setSearchText] = useState('');
-  const [userBlock, setUserBlock] = useState<any | null>(null);
+  const [userBlock, setUserBlock] = useState<UserProfile | null>(null);
   const modalRef = React.useRef<Modalize>(null);
 
   // fetch on focus

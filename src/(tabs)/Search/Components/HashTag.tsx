@@ -17,6 +17,7 @@ import {
   extractHashtags, 
   hasHashtags, 
 } from '../../../util/hashtagUtils';
+import { Item } from '@services/searchRedux/searchType';
 
 interface TagCount {
   tag: string;
@@ -31,10 +32,10 @@ const HashTag: React.FC = React.memo(() => {
   // Grab loading + result sets from Redux
   const isLoading = useSelector((state: RootState) => state.search.isLoading);
   const posts = useSelector(
-    (state: RootState) => (state.search.posts as {items: any[]})?.items || []
+    (state: RootState) => (state.search.posts as {items: Item[]})?.items || []
   );
   const reels = useSelector(
-    (state: RootState) => (state.search.reels as {items: any[]})?.items || []
+    (state: RootState) => (state.search.reels as {items: Item[]})?.items || []
   );
 
   // Combine posts and reels

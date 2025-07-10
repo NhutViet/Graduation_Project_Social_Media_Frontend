@@ -10,12 +10,20 @@ const StoryComponent = ({
   highlights,
 }: {
   isPrivate: boolean;
-  highlights: Array<{ id: string; image: string; title: string }>;
+  highlights: Array<{id: string; image: string; title: string}>;
 }) => {
   const {theme} = useTheme();
   const color = Colors[theme];
 
-  const renderStoryItem = ({item}: any) => (
+  const renderStoryItem = ({
+    item,
+  }: {
+    item: {
+      id: string;
+      image: string;
+      title: string;
+    };
+  }) => (
     <View key={item.id} style={Styles.styles.highlightItem}>
       <View style={Styles.styles.highlightImageContainer}>
         <Image
