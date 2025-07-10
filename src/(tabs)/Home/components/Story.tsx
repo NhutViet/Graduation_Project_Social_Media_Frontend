@@ -3,6 +3,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import {Colors} from '../../../../assets/color/Colors';
 import {useTheme} from '../../../util/ThemeContext';
 import {Plus} from 'lucide-react-native';
+import React from 'react';
 
 type StoryProps = {
   name: string;
@@ -169,4 +170,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Story;
+export default React.memo(Story);

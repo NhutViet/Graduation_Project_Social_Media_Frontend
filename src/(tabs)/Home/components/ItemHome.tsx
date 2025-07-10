@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {memo, useCallback, useEffect, useState} from 'react';
 import {View, Text, FlatList, Dimensions} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
@@ -88,7 +88,7 @@ const ItemHome = (props: ItemHomeProps) => {
   // Initialize local state from props only once
   useEffect(() => {
     state.setIsLiked(isLike);
-  }, [_id]);
+  }, [isLike, state.setIsLiked]);
 
   const handleLikePress = useCallback(async () => {
     if (likeLoading) return;
@@ -101,27 +101,45 @@ const ItemHome = (props: ItemHomeProps) => {
     }
   }, [actions, likeLoading]);
 
-  const handleUserPress = () => {
-    if (user._id === currentUserID) console.log('This is your current proflie');
-    else
+   const handleUserPress = useCallback(() => {
+    if (user._id !== currentUserID) {
       navigation.navigate('ProfileComp', {
         userID: user._id,
       });
-  };
-
-  const handleOpenComment = (postId: string, receiverId: string) => {
-    dispatch(fetchCommentsByPost(postId));
-    setSelectedPostId({postId, receiverId});
-    sheetRef.current?.open();
-  };
-
-  const handleMediaScroll = (event: any) => {
-    const offsetX = event.nativeEvent.contentOffset.x;
-    const newIndex = Math.round(offsetX / screenWidth);
-    if (newIndex !== state.currentIndex) {
-      state.setCurrentIndex(newIndex);
     }
-  };
+  }, [user._id, currentUserID, navigation]);
+
+  const handleOpenComment = useCallback(
+    (postId: string, receiverId: string) => {
+      dispatch(fetchCommentsByPost(postId));
+      setSelectedPostId({postId, receiverId});
+      sheetRef.current?.open();
+    },
+    [dispatch, setSelectedPostId, sheetRef],
+  );
+
+  const handleMediaScroll = useCallback(
+    (event: any) => {
+      const offsetX = event.nativeEvent.contentOffset.x;
+      const newIndex = Math.round(offsetX / screenWidth);
+      if (newIndex !== state.currentIndex) {
+        state.setCurrentIndex(newIndex);
+      }
+    },
+    [state.currentIndex, state.setCurrentIndex],
+  );
+
+  const renderPostItem = useCallback(
+    ({item}) => (
+      <RenderMediaItem
+        item={item}
+        isFocused={isFocused}
+        currentVisible={currentVisible}
+        muted={state.muted}
+      />
+    ),
+    [isFocused, currentVisible, state.muted],
+  );
 
   return (
     <View style={ItemHomeStyles.wrapper}>
@@ -151,14 +169,7 @@ const ItemHome = (props: ItemHomeProps) => {
             pagingEnabled
             showsHorizontalScrollIndicator={false}
             keyExtractor={item => item._id.toString()}
-            renderItem={({item}) => (
-              <RenderMediaItem
-                item={item}
-                isFocused={isFocused}
-                currentVisible={currentVisible}
-                muted={state.muted}
-              />
-            )}
+            renderItem={renderPostItem}
             onMomentumScrollEnd={handleMediaScroll}
           />
           <RenderPagination media={media} currentIndex={state.currentIndex} />
@@ -230,4 +241,4 @@ const ItemHome = (props: ItemHomeProps) => {
   );
 };
 
-export default ItemHome;
+export default memo(ItemHome);
