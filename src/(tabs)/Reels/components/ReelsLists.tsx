@@ -1,17 +1,22 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Dimensions, View } from 'react-native';
-import { FlashList } from '@shopify/flash-list';
-import { useDispatch, useSelector } from 'react-redux';
-import { useNavigation } from '@react-navigation/native';
-import { AppDispatch, RootState } from '../../../../services/store';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
+import {ActivityIndicator, Dimensions, View} from 'react-native';
+import {FlashList} from '@shopify/flash-list';
+import {useDispatch, useSelector} from 'react-redux';
+import {useNavigation} from '@react-navigation/native';
+import {AppDispatch, RootState} from '../../../../services/store';
 import {
   likePost,
   unlikePost,
 } from '../../../../services/reactionRedux/reactionSlice';
-import { relationAction } from '@services/relationRedux/relationSlice';
+import {relationAction} from '@services/relationRedux/relationSlice';
 import ReelsComponent from './reelsComponent';
-import { Colors } from '@assets/color/Colors';
-import { PostWithMedia } from '@services/postRedux/postTypes';
+import {Colors} from '@assets/color/Colors';
+import {PostWithMedia} from '@services/postRedux/postTypes';
+import {UserProfile} from '@services/relationRedux/relationTypes';
+import {
+  addLikedPost,
+  removeLikedPost,
+} from '@services/reactionRedux/reactionReducer';
 
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
@@ -27,7 +32,7 @@ interface ReelsListProps {
   handleLoadMore: () => void;
   openBottomSheet: (item: PostWithMedia) => void;
   openCommentSheet: (item: PostWithMedia) => void;
-  openShareModal: () => void;
+  openShareModal: (item: PostWithMedia) => void;
   setSkipReload: (value: boolean) => void;
 }
 
@@ -62,17 +67,35 @@ const ReelsList = ({
   );
 
   const handleLike = useCallback(
-    (postId: string, isLiked: boolean) => {
+    async (postId: string, isLiked: boolean) => {
+      const receiverId =
+        reels.find((r: any) => r._id === postId)?.user._id ?? '';
       const action = isLiked ? unlikePost : likePost;
-      dispatch(
-        action({
-          postId,
-          refreshToken,
-          receiverId: reels.find((r: any) => r._id === postId)?.user._id,
-          handleName: currentUser?.handleName ?? '',
-          userId: currentUser?._id,
-        }),
-      );
+      if (isLiked) {
+        dispatch(removeLikedPost(postId));
+      } else {
+        dispatch(addLikedPost(postId));
+      }
+
+      try {
+        await dispatch(
+          action({
+            postId,
+            refreshToken,
+            receiverId,
+            handleName: currentUser?.handleName ?? '',
+            userId: currentUser?._id,
+          }),
+        ).unwrap();
+      } catch (error) {
+        // 3. Nếu thất bại, rollback UI
+        console.log('Like/unlike thất bại, khôi phục UI:', error);
+        if (isLiked) {
+          dispatch(addLikedPost(postId));
+        } else {
+          dispatch(removeLikedPost(postId));
+        }
+      }
     },
     [dispatch, refreshToken, currentUser, reels],
   );
@@ -93,7 +116,7 @@ const ReelsList = ({
 
   const handleProfilePress = useCallback(
     (userId: string) => {
-      navigation.navigate('ProfileComp', { userID: userId });
+      navigation.navigate('ProfileComp', {userID: userId});
     },
     [navigation],
   );
@@ -106,7 +129,7 @@ const ReelsList = ({
   );
 
   const handleOpenCommentSheet = useCallback(
-    (item: any) => {
+    (item: PostWithMedia) => {
       openCommentSheet(item);
     },
     [openCommentSheet],
@@ -126,7 +149,9 @@ const ReelsList = ({
   }, [handleLoadMore]);
 
   return (
-    <View style={{ flex: 1 }} onLayout={e => setVisibleHeight(e.nativeEvent.layout.height)}>
+    <View
+      style={{flex: 1}}
+      onLayout={e => setVisibleHeight(e.nativeEvent.layout.height)}>
       {visibleHeight > 0 && (
         <FlashList
           ref={flashListRef}
@@ -139,20 +164,22 @@ const ReelsList = ({
           ListFooterComponent={
             loading && !isInitialLoad
               ? () => (
-                  <View style={{ padding: 12 }}>
+                  <View style={{padding: 12}}>
                     <ActivityIndicator color={Colors.white} />
                   </View>
                 )
               : null
           }
-          renderItem={({ item }) => {
+          renderItem={({item}) => {
             const shouldPlay = item?._id === currentVisible;
             const isLiked = likedPostIds.includes(item._id);
-            const isFollowing = followingUserIds.includes(item.user._id);
+            const isFollowing = followingUserIds.some(
+              (user: UserProfile) => user._id === item.userID,
+            );
             const isCurrentUser = currentUser?._id === item.user._id;
 
             let currentLikeCount = item.likeCount;
-            if (item.isLike !== isLiked) {
+            if (currentLikeCount && item.likeCount && item.isLike !== isLiked) {
               currentLikeCount = isLiked
                 ? item.likeCount + 1
                 : item.likeCount - 1;
@@ -189,7 +216,7 @@ const ReelsList = ({
           estimatedFirstItemOffset={3}
           showsVerticalScrollIndicator={false}
           estimatedItemSize={visibleHeight}
-          estimatedListSize={{ height: visibleHeight, width }}
+          estimatedListSize={{height: visibleHeight, width}}
           keyExtractor={(item: PostWithMedia) => item._id}
           onViewableItemsChanged={onViewRef.current}
           viewabilityConfig={{

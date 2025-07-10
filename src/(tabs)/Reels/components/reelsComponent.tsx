@@ -25,31 +25,34 @@ const MemoizedText = memo(Text);
 
 const ReelsComponent = memo((props: any) => {
   const {
-    _id,
-    caption,
-    share,
-    media,
-    user,
-    muted,
-    currentVisible,
-    isFocused,
-    likeCount,
-    isLiked,
-    commentCount,
-    isFollowing,
-    isCurrentUser,
-    containerHeight,
-    // callbacks func
-    onLike,
-    onComment,
-    onFollow,
-    onShare,
-    onMenu,
-    onProfilePress,
-    onTagPress,
-    setSkipReload,
-  } = props;
-
+  _id,
+  type,
+  caption,
+  createdAt,
+  media,
+  user,
+  likeCount,
+  commentCount,
+  isBookmarked,
+  isLiked,
+  isFollow,
+  isFollowing,
+  isCurrentUser,
+  share,
+  music,
+  currentVisible,
+  isFocused,
+  containerHeight,
+  muted = false,
+  onLike,
+  openComment,
+  onFollow,
+  onProfilePress,
+  onTagPress,
+  onMenu,
+  openShareModal,
+  setSkipReload,
+} = props;
   const navigation = useNavigation<any>();
   const { theme } = useTheme();
   const color = Colors[theme];
@@ -116,10 +119,6 @@ const ReelsComponent = memo((props: any) => {
         hideShutterView={true}
       />
 
-      <View style={styles.headerOverlay}>
-        <ReelsHeader />
-      </View>
-
       <View style={styles.tagOverlay}>
         {media[0]?.tags?.map((tag: any) => (
           <MemoizedTagMarker
@@ -165,13 +164,13 @@ const ReelsComponent = memo((props: any) => {
           {renderActionButton(
             require('../../../../assets/icon/comment.png'),
             commentCount,
-            onComment,
+            openComment,
           )}
 
           {renderActionButton(
             require('../../../../assets/icon/share.png'),
             share,
-            onShare,
+            openShareModal,
           )}
 
           <View style={styles.sectionContainer}>
@@ -211,11 +210,6 @@ const styles = StyleSheet.create({
     width: width,
     backgroundColor: Colors.black,
     position: 'absolute',
-  },
-  headerOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
   },
   tagOverlay: {
     position: 'absolute',
