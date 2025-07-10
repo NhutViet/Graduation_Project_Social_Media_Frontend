@@ -15,10 +15,12 @@ const ModalPeopleSeen = ({
   visible,
   onClose,
   users,
+  onUserPress, // thêm prop này
 }: {
   visible: boolean;
   onClose: () => void;
   users: {_id: string; handleName: string; profilePic: string}[];
+  onUserPress: (user: any) => void;
 }) => {
   console.log('ModalPeopleSeen users:', JSON.stringify(users, null, 2));
   const RenderItem = ({
@@ -26,10 +28,12 @@ const ModalPeopleSeen = ({
   }: {
     item: {_id: string; handleName: string; profilePic: string};
   }) => (
-    <View style={styles.itemContainer}>
-      <Image style={styles.itemIcon} source={{uri: item.profilePic}} />
-      <Text style={styles.itemName}>{item.handleName}</Text>
-    </View>
+    <TouchableOpacity onPress={() => onUserPress(item)}>
+      <View style={styles.itemContainer}>
+        <Image style={styles.itemIcon} source={{uri: item.profilePic}} />
+        <Text style={styles.itemName}>{item.handleName}</Text>
+      </View>
+    </TouchableOpacity>
   );
 
   return (

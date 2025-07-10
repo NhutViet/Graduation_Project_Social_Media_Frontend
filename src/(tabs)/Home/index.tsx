@@ -276,6 +276,19 @@ export const Home = forwardRef(({onReload, route}: any, ref) => {
     }
   }, [loadMore, isLoadingMore, hasNextPage, hasCalledLoadMore]);
 
+  // ✅ Force refresh stories when user comes back to Home after viewing stories
+  useEffect(() => {
+    if (isFocused) {
+      // Small delay to ensure story viewing is complete
+      const timeoutId = setTimeout(() => {
+        dispatch(fetchFollowingStories({page: 1}));
+      }, 500);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isFocused, dispatch]);
+
+  // ✅ Force refresh seenMap when storyDetails change (when stories are marked as seen)
   useEffect(() => {
     const syncSeenStories = async () => {
       const map: Record<string, boolean> = {};
@@ -290,6 +303,7 @@ export const Home = forwardRef(({onReload, route}: any, ref) => {
       }
       setSeenMap(map);
     };
+
     if (followingUsers.length && storyDetails.length) {
       syncSeenStories();
     }
@@ -516,6 +530,7 @@ export const Home = forwardRef(({onReload, route}: any, ref) => {
                         borderColor: color.border,
                         justifyContent: 'center',
                         alignItems: 'center',
+                        alignSelf: 'center',
                       }}>
                       <ActivityIndicator size="small" color={color.text} />
                     </View>
@@ -537,6 +552,7 @@ export const Home = forwardRef(({onReload, route}: any, ref) => {
                         borderStyle: 'dashed',
                         justifyContent: 'center',
                         alignItems: 'center',
+                        alignSelf: 'center',
                       }}>
                       <Text
                         style={{

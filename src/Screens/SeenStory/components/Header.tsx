@@ -12,6 +12,9 @@ export const Header = ({
   mute,
   onToggleMute,
   createdAt,
+  navigation,
+  creatorId,
+  yourUserId,
 }: {
   onClose: () => void;
   username?: string;
@@ -21,6 +24,9 @@ export const Header = ({
   mute: boolean;
   onToggleMute: () => void;
   createdAt?: string;
+  navigation?: any;
+  creatorId?: string;
+  yourUserId?: string;
 }) => {
   const [timeAgo, setTimeAgo] = useState('');
   useEffect(() => {
@@ -53,18 +59,39 @@ export const Header = ({
     const interval = setInterval(updateTimeAgo, 1000);
     return () => clearInterval(interval);
   }, [createdAt]);
+
+  // ✅ Handle avatar press navigation
+  const handleAvatarPress = () => {
+    if (!navigation || !creatorId) return;
+
+    // ✅ Pause story khi navigate
+    if (!pause) {
+      onTogglePause();
+    }
+
+    // ✅ Kiểm tra nếu là chính tài khoản hiện tại thì chuyển qua Account
+    if (creatorId === yourUserId) {
+      navigation.navigate('Account');
+    } else {
+      navigation.navigate('ProfileComp', {userID: creatorId});
+    }
+  };
+
   return (
     <View style={styles.header}>
       <View style={styles.viewUser}>
-        <TouchableOpacity>
+        <TouchableOpacity
+          style={{flexDirection: 'row', alignItems: 'center'}}
+          onPress={handleAvatarPress}
+          activeOpacity={0.7}>
           <Image
             style={styles.avatar}
             source={{
               uri: profilePic,
             }}
           />
+          <Text style={styles.nameUser}>{username}</Text>
         </TouchableOpacity>
-        <Text style={styles.nameUser}>{username}</Text>
         {timeAgo ? <Text style={styles.textTime}>{timeAgo}</Text> : null}
       </View>
 
