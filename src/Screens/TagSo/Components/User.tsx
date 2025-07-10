@@ -3,7 +3,15 @@ import React from 'react';
 import {useTheme} from '../../../../src/util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
 
-const User = (props: any) => {
+export interface UserProps {
+  image: string;
+  name: string;
+  handle: string;
+  isDelete?: boolean;
+  func: () => void;
+}
+
+const User = (props: UserProps) => {
   const {theme} = useTheme();
   const colors = Colors[theme];
   const {image, name, handle, isDelete, func} = props;

@@ -41,7 +41,6 @@ interface SectionProps {
 }
 
 const Section: React.FC<SectionProps> = ({title, items}) => {
-  const navigation: any = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];
   return (

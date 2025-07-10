@@ -24,7 +24,7 @@ type ModalSearchProps = {
   onSelectUser: (user: UserProfile) => void;
 };
 
-const ModalSearch = (props: any) => {
+const ModalSearch = (props: ModalSearchProps) => {
   const {visible, setVisible, onSelectUser}: ModalSearchProps = props;
   const [searchText, setSearchText] = useState('');
   const [searchList, setSearchList] = useState<UserProfile[]>([]);

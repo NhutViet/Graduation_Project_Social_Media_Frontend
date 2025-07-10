@@ -223,7 +223,7 @@ export const UserInfo = () => {
     </View>
   );
 
-  const renderItem = ({item}: any) => (
+  const renderItem = ({item}: {item: string}) => (
     <TouchableOpacity
       style={{width: screenWidth / 3, height: screenWidth / 3, margin: 1}}>
       <Image source={{uri: item}} style={styles.image} />

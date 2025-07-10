@@ -4,9 +4,10 @@ import Video, {VideoRef} from 'react-native-video';
 import Sound from 'react-native-sound';
 import {styles} from './style';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
+import { Story } from '@services/StoryRedux/StoryType';
 
 interface MediaSectionProps {
-  selectedItem: any;
+  selectedItem: Story;
   onLoad?: (data: {duration: number}) => void;
   onEnd?: () => void;
   onMediaLayout?: (size: {width: number; height: number}) => void;

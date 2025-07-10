@@ -24,6 +24,7 @@ import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 import StoryLoadingSkeleton from '../../(tabs)/Home/components/StoryLoadingSkeleton';
 import {debugStoryGroups} from '../../(tabs)/Home/util';
 import {renderTextWithMentions} from '../../util/storyTextRenderer';
+import {VideoRef} from 'react-native-video';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -77,7 +78,7 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
     (stories || []).map(() => new Animated.Value(0)),
   ).current;
   const animationRef = useRef<Animated.CompositeAnimation | null>(null);
-  const videoRef = useRef<any>(null);
+  const videoRef = useRef<VideoRef>(null);
   const viewModalRef = useRef<Modalize>(null);
   const addModalRef = useRef<Modalize>(null);
   const isNavigatingRef = useRef(false);
@@ -428,12 +429,12 @@ export const SeenStoryOwner = ({route, navigation}: any) => {
     [debouncedHandleTouch],
   );
 
-  const onVideoLoad = (data: any) => {
+  const onVideoLoad = (data: {duration: number}) => {
     setVideoDuration(data.duration);
     setIsVideoLoaded(true);
   };
 
-  const onMusicLoad = (data: any) => {
+  const onMusicLoad = (data: {duration: number}) => {
     setMusicDuration(data.duration);
     setIsMusicLoaded(true);
   };
