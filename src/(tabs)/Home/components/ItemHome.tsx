@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {memo, useCallback, useEffect, useState} from 'react';
 import {View, Text, FlatList, Dimensions} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
@@ -230,4 +230,4 @@ const ItemHome = (props: ItemHomeProps) => {
   );
 };
 
-export default ItemHome;
+export default memo(ItemHome);
