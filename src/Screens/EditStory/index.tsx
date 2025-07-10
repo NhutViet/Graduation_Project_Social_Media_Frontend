@@ -14,7 +14,7 @@ import {
   Platform,
   ActivityIndicator,
 } from 'react-native';
-import Video from 'react-native-video';
+import Video, { OnLoadData, OnProgressData, VideoRef } from 'react-native-video';
 import Draggable from 'react-native-draggable';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import Sound from 'react-native-sound';
@@ -29,6 +29,7 @@ import axiosInstance from '../../../services/axiosInstance';
 import {Dimensions} from 'react-native';
 import {X, ChevronRight} from 'lucide-react-native';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+import { userFollow } from '@services/StoryRedux/StoryType';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -41,11 +42,11 @@ export const EditStory = ({route, navigation}: any) => {
   const [videoCurrentTime, setVideoCurrentTime] = useState(0);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [hasShownModal, setHasShownModal] = useState(false);
-  const [filteredSuggestions, setFilteredSuggestions] = useState<any[]>([]);
+  const [filteredSuggestions, setFilteredSuggestions] = useState<userFollow[]>([]);
   const [caption, setCaption] = useState('');
   const progressAnim = useRef(new Animated.Value(0)).current;
   const animationRef = useRef<Animated.CompositeAnimation | null>(null);
-  const videoRef = useRef<any>(null);
+  const videoRef = useRef<VideoRef>(null);
   const audioRef = useRef<Sound | null>(null); // ref cho âm thanh
   // Lấy tọa độ, đặt giá trị mặc định ở giữa nếu không kéo thả
   const positionRef = useRef({x: 50, y: 50}); // Mặc định ở giữa (50% x, 50% y)
@@ -95,12 +96,12 @@ export const EditStory = ({route, navigation}: any) => {
     });
   };
 
-  const onVideoLoad = (data: any) => {
+  const onVideoLoad = (data: OnLoadData) => {
   
     setVideoDuration(data.duration);
   };
 
-  const onVideoProgress = (data: any) => {
+  const onVideoProgress = (data: OnProgressData) => {
     if (selectedItem?.type.includes('video')) {
       const currentTime = data.currentTime;
       setVideoCurrentTime(currentTime);
@@ -196,7 +197,7 @@ export const EditStory = ({route, navigation}: any) => {
     }
   };
 
-  const handleSuggestionPress = (user: any) => {
+  const handleSuggestionPress = (user: userFollow) => {
     const updated = caption.replace(
       /@([a-zA-Z0-9._]*)$/,
       `@${user.handleName} `,
@@ -238,7 +239,7 @@ export const EditStory = ({route, navigation}: any) => {
    
     
     const mentionRegex = /@([a-zA-Z0-9._]+)/g;
-    const mentions: Array<{handleName: string, user: any}> = [];
+    const mentions: Array<{handleName: string, user: userFollow}> = [];
     let match;
 
     while ((match = mentionRegex.exec(text)) !== null) {

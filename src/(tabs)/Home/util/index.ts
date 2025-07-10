@@ -14,6 +14,8 @@ import {
   markStoryAsSeen,
 } from '../../../../services/storage/storage';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
+import {Story, userFollow, UserMini} from '@services/StoryRedux/StoryType';
+import {User} from '@services/userRedux/userTypes';
 
 export const handleBookmark = async ({
   isBookmarked,
@@ -112,14 +114,14 @@ export const handleFollowToggle = async ({
 };
 
 export const handleUserPress = async (
-  item: any,
-  dispatch: any,
+  item: userFollow,
+  dispatch: AppDispatch,
   navigation: any,
-  storyDetails: any[],
-  user: any,
+  storyDetails: Story[],
+  user: User | null,
   followingUsers: any[],
   setIsStoryLoading?: (val: boolean) => void,
-  getCachedStoryData?: (userId: string) => any[] | null,
+  getCachedStoryData?: (userId: string) => Story[] | null,
 ) => {
   const isCurrentUser =
     item._id === user?._id || item.handleName === user?.handleName;
@@ -207,25 +209,31 @@ export const handleUserPress = async (
     if (hasRealData) {
       // Mark stories as seen first
       await Promise.all(
-        basicStoryData.map(async (story: any) => {
-          try {
-            await dispatch(seenStory({storyId: story._id}));
-            const hasSeen = await checkStorySeenInStorage(
-              story._id,
-              story.createdAt,
-            );
-            if (!hasSeen) {
-              await markStoryAsSeen(story._id, story.createdAt);
+        basicStoryData.map(
+          async (story: Story | {_id: string; isLoading: boolean}) => {
+            try {
+              await dispatch(seenStory({storyId: story._id}));
+              if ('createdAt' in story) {
+                const hasSeen = await checkStorySeenInStorage(
+                  story._id,
+                  story.createdAt,
+                );
+                if (!hasSeen) {
+                  await markStoryAsSeen(story._id, story.createdAt);
+                }
+              }
+            } catch (error) {
+              console.error('Error marking cached story as seen:', error);
             }
-          } catch (error) {
-            console.error('Error marking cached story as seen:', error);
-          }
-        }),
+          },
+        ),
       );
 
       // Fetch updated story data to get latest viewedByUsers
       try {
-        const storyIds = basicStoryData.map((story: any) => story._id);
+        const storyIds = basicStoryData.map(
+          (story: Story | {_id: string; isLoading: boolean}) => story._id,
+        );
         const updatedStoryDetails = await dispatch(
           fetchStoryDetails({storyIds}),
         ).unwrap();
@@ -238,10 +246,10 @@ export const handleUserPress = async (
             profilePic: item.profilePic,
             _id: item._id,
           },
-          storyGroups: initialStoryGroups.map(group => 
-            group.creator.username === item.handleName 
-              ? { ...group, stories: updatedStoryDetails }
-              : group
+          storyGroups: initialStoryGroups.map(group =>
+            group.creator.username === item.handleName
+              ? {...group, stories: updatedStoryDetails}
+              : group,
           ),
           storyGroupIndex: Math.max(0, initialGroupIndex),
           isLoading: false,
@@ -263,7 +271,7 @@ export const handleUserPress = async (
           ).unwrap();
 
           const stories = await Promise.all(
-            detailRes.map(async (story: any) => {
+            detailRes.map(async (story: Story) => {
               try {
                 await dispatch(seenStory({storyId: story._id}));
                 const hasSeen = await checkStorySeenInStorage(
@@ -274,28 +282,36 @@ export const handleUserPress = async (
                   await markStoryAsSeen(story._id, story.createdAt);
                 }
 
-                const populatedTags = (story.tags || []).map((tag: any) => {
-                  const userDetail = tag.user;
-                  if (typeof userDetail === 'string') {
-                    const foundUser =
-                      story.viewedByUsers?.find(
-                        (u: any) => u._id === userDetail,
-                      ) ||
-                      storyDetails
-                        .flatMap(s => s.viewedByUsers || [])
-                        .find((u: any) => u._id === userDetail);
-
-                    return {
-                      ...tag,
-                      user: foundUser || {
-                        _id: userDetail,
-                        handleName: 'unknown',
-                        username: 'unknown',
-                      },
+                const populatedTags = (story.tags || []).map(
+                  (tag: {
+                    user: UserMini;
+                    position: {
+                      x: number;
+                      y: number;
                     };
-                  }
-                  return tag;
-                });
+                  }) => {
+                    const userDetail = tag.user;
+                    if (typeof userDetail === 'string') {
+                      const foundUser =
+                        story.viewedByUsers?.find(
+                          (u: UserMini) => u._id === userDetail,
+                        ) ||
+                        storyDetails
+                          .flatMap(s => s.viewedByUsers || [])
+                          .find(u => u._id === userDetail);
+
+                      return {
+                        ...tag,
+                        user: foundUser || {
+                          _id: userDetail,
+                          handleName: 'unknown',
+                          username: 'unknown',
+                        },
+                      };
+                    }
+                    return tag;
+                  },
+                );
 
                 return {
                   ...story,
@@ -405,7 +421,7 @@ export const handleHighlightPress = async (
   navigation: any,
   viewerUser: any,
   isOwner: boolean,
-  highlightStories?: any[],
+  highlightStories?: Story[],
 ) => {
   try {
     // Validate input
@@ -421,7 +437,7 @@ export const handleHighlightPress = async (
     // Tìm stories đã có trong state
     const existingStories = (story.storyIds || [])
       .map((storyId: string) =>
-        existingStoryDetails.find((s: any) => s._id === storyId),
+        existingStoryDetails.find(s => s._id === storyId),
       )
       .filter(Boolean);
 
@@ -495,7 +511,7 @@ export const handleHighlightPress = async (
           // ✅ Đảm bảo data được lưu trữ trong Redux state
           const state = store.getState();
           const existingIndex = state.stories.storyDetails.findIndex(
-            (s: any) => s._id === item._id,
+            s => s._id === item._id,
           );
 
           if (existingIndex !== -1) {
@@ -589,7 +605,7 @@ export const handleHighlightPress = async (
         try {
           // Tìm highlight tương ứng để lấy storyId
           const currentHighlight = highlightStories?.find(
-            (h: any) => h._id === group.highlightId,
+            (h: Story) => h._id === group.highlightId,
           );
           if (
             !currentHighlight?.storyId ||
@@ -608,7 +624,7 @@ export const handleHighlightPress = async (
           // Tìm stories đã có trong state
           const existingStories = (currentHighlight.storyId || [])
             .map((storyId: string) =>
-              existingStoryDetails.find((s: any) => s._id === storyId),
+              existingStoryDetails.find((s: Story) => s._id === storyId),
             )
             .filter(Boolean);
 
@@ -619,7 +635,7 @@ export const handleHighlightPress = async (
           ) {
             const missingStoryIds = (currentHighlight.storyId || []).filter(
               (storyId: string) =>
-                !existingStories.find((s: any) => s._id === storyId),
+                !existingStories.find(s => s?._id === storyId),
             );
 
             if (missingStoryIds.length > 0) {
@@ -637,33 +653,41 @@ export const handleHighlightPress = async (
           }
 
           const loadedStories = await Promise.all(
-            highlightDetailRes.map(async (item: any) => {
+            highlightDetailRes.filter((item): item is Story => item !== undefined).map(async (item: Story) => {
               try {
                 await dispatch(seenStory({storyId: item._id}));
 
                 // ✅ Populate tags với user information cho các highlight khác
-                const populatedTags = (item.tags || []).map((tag: any) => {
-                  const userDetail = tag.user;
-                  if (typeof userDetail === 'string') {
-                    const foundUser =
-                      item.viewedByUsers?.find(
-                        (u: any) => u._id === userDetail,
-                      ) ||
-                      highlightDetailRes
-                        .flatMap((s: any) => s.viewedByUsers || [])
-                        .find((u: any) => u._id === userDetail);
-
-                    return {
-                      ...tag,
-                      user: foundUser || {
-                        _id: userDetail,
-                        handleName: 'unknown',
-                        username: 'unknown',
-                      },
+                const populatedTags = (item.tags || []).map(
+                  (tag: {
+                    user: UserMini;
+                    position: {
+                      x: number;
+                      y: number;
                     };
-                  }
-                  return tag;
-                });
+                  }) => {
+                    const userDetail = tag.user;
+                    if (typeof userDetail === 'string') {
+                      const foundUser =
+                        item.viewedByUsers?.find(
+                          (u: UserMini) => u._id === userDetail,
+                        ) ||
+                        highlightDetailRes
+                          .flatMap((s) => s?.viewedByUsers || [])
+                          .find((u) => u._id === userDetail);
+
+                      return {
+                        ...tag,
+                        user: foundUser || {
+                          _id: userDetail,
+                          handleName: 'unknown',
+                          username: 'unknown',
+                        },
+                      };
+                    }
+                    return tag;
+                  },
+                );
 
                 const processedStory = {
                   ...item,
@@ -681,7 +705,7 @@ export const handleHighlightPress = async (
                 // ✅ Đảm bảo data được lưu trữ trong Redux state cho các highlight khác
                 const state = store.getState();
                 const existingIndex = state.stories.storyDetails.findIndex(
-                  (s: any) => s._id === item._id,
+                  (s: Story) => s._id === item._id,
                 );
 
                 if (existingIndex !== -1) {
@@ -722,11 +746,11 @@ export const handleHighlightPress = async (
 
     // Lọc ra các groups có stories
     const validStoryGroups = allHighlightStories.filter(
-      (group: any) => group.stories.length > 0,
+      (group) => group.stories.length > 0,
     );
 
     const currentGroupIndex = validStoryGroups.findIndex(
-      (group: any) => group.highlightId === story._id,
+      (group) => group.highlightId === story._id,
     );
 
     // ✅ Đảm bảo tất cả stories được lưu trữ trong Redux state trước khi navigate
@@ -734,7 +758,7 @@ export const handleHighlightPress = async (
     allStories.forEach(story => {
       const state = store.getState();
       const existingIndex = state.stories.storyDetails.findIndex(
-        (s: any) => s._id === story._id,
+        (s: Story) => s._id === story._id,
       );
 
       if (existingIndex === -1) {

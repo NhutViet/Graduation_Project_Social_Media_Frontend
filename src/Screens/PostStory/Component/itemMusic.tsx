@@ -20,7 +20,17 @@ import {
 } from '../../../../services/musicRedux/musicReducer';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 
-const ItemMusic = (props: any) => {
+type ItemMusicProps = {
+  _id: string;
+  coverImg: string;
+  song: string;
+  author: string;
+  countVideoUsed?: number;
+  onPress?: () => void;
+  isBookmarked?: boolean;
+};
+
+const ItemMusic = (props: ItemMusicProps) => {
   const {
     _id,
     coverImg,

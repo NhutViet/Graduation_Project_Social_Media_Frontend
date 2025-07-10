@@ -16,9 +16,16 @@ import {useNavigation} from '@react-navigation/native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 
+type UserType = {
+  id: number;
+  name: string;
+  handle: string;
+  uri: string;
+};
+
 export const AddPeopleToGroupChat = () => {
-  const [users, setUsers] = useState<any>(list);
-  const [selected, setSelected] = useState<any[]>([]);
+  const [users, setUsers] = useState<UserType[]>(list);
+  const [selected, setSelected] = useState<UserType[]>([]);
   const [searchText, setSearchText] = useState('');
   const {theme} = useTheme();
   const colors = Colors[theme];
@@ -49,10 +56,10 @@ export const AddPeopleToGroupChat = () => {
   }, [searchText]);
 
   const onHandleSelect = useCallback(
-    (item: any) => {
-      const isSelected = selected.some((prev: any) => prev.id === item.id);
+    (item: UserType) => {
+      const isSelected = selected.some((prev: UserType) => prev.id === item.id);
       if (isSelected) {
-        const filter = selected.filter((prev: any) => prev.id !== item.id);
+        const filter = selected.filter((prev: UserType) => prev.id !== item.id);
         setSelected(filter);
       } else {
         setSelected(prev => [...prev, item]);
@@ -61,8 +68,8 @@ export const AddPeopleToGroupChat = () => {
     [selected],
   );
 
-  const onDeleteSelect = (item: any) => {
-    const index = selected.findIndex((i: any) => i.id === item.id);
+  const onDeleteSelect = (item: UserType) => {
+    const index = selected.findIndex((i: UserType) => i.id === item.id);
     if (index !== -1) {
       selected.splice(index, 1);
       setSelected([...selected]);
@@ -149,7 +156,7 @@ export const AddPeopleToGroupChat = () => {
             estimatedItemSize={200}
             showsHorizontalScrollIndicator={false}
             horizontal={true}
-            renderItem={({item}: any) => {
+            renderItem={({item}: {item: UserType}) => {
               return (
                 <View style={{marginRight: 15}}>
                   <Image
@@ -177,8 +184,8 @@ export const AddPeopleToGroupChat = () => {
           data={users}
           estimatedItemSize={200}
           showsVerticalScrollIndicator={false}
-          renderItem={({item}: any) => {
-            const isSelect = selected.some((user: any) => user.id === item.id);
+          renderItem={({ item }: { item: UserType }) => {
+            const isSelect = selected.some((user: UserType) => user.id === item.id);
             return (
               <View style={styles.header}>
                 <Image source={{uri: item.uri}} style={styles.avatar} />

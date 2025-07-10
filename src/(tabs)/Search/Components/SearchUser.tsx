@@ -6,16 +6,17 @@ import {FlashList} from '@shopify/flash-list';
 import {useSelector} from 'react-redux';
 import {RootState} from '../../../../services/store';
 import User from './User';
+import { User as userType, UserR } from '@services/searchRedux/searchType';
 
 const SearchUser: React.FC = React.memo(() => {
   const {theme} = useTheme();
   const color = Colors[theme];
   const {users, isLoading} = useSelector((state: RootState) => state.search);
 
-  const dataU = (users as any)?.items || [];
+  const dataU = (users as UserR)?.items || [];
 
   const renderItem = React.useCallback(
-    ({item}: {item: any}) => (
+    ({item}: {item: userType}) => (
       <User
         id={item._id}
         name={item.username}
@@ -54,7 +55,7 @@ const SearchUser: React.FC = React.memo(() => {
         <FlashList
           data={dataU}
           renderItem={renderItem}
-          keyExtractor={item => item._id || item.username}
+          keyExtractor={item => item?._id || item?.username || ''}
           estimatedItemSize={200}
           showsVerticalScrollIndicator={false}
           removeClippedSubviews

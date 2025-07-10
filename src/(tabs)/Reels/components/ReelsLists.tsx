@@ -69,7 +69,7 @@ const ReelsList = ({
   const handleLike = useCallback(
     async (postId: string, isLiked: boolean) => {
       const receiverId =
-        reels.find((r: any) => r._id === postId)?.user._id ?? '';
+        reels.find((r: PostWithMedia) => r._id === postId)?.user._id ?? '';
       const action = isLiked ? unlikePost : likePost;
       if (isLiked) {
         dispatch(removeLikedPost(postId));
@@ -122,7 +122,7 @@ const ReelsList = ({
   );
 
   const handleOpenBottomSheet = useCallback(
-    (item: any) => {
+    (item: PostWithMedia) => {
       openBottomSheet(item);
     },
     [openBottomSheet],

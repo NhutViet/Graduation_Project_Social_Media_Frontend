@@ -22,7 +22,13 @@ const Filter = [
 ];
 
 export const LikedScreen = () => {
-  const [selected, setSelected] = useState<any[]>([]);
+  const [selected, setSelected] = useState<
+    {
+      postID: number;
+      image_url: string[];
+      video: string[];
+    }[]
+  >([]);
   const {theme} = useTheme();
   const styles = LikedStyles(theme);
 
@@ -51,7 +57,7 @@ export const LikedScreen = () => {
   };
 
   const onHandleSelect = useCallback(
-    (item: any) => {
+    (item: {postID: number; image_url: string[]; video: string[]}) => {
       const isSelected = selected.some(prev => prev.postID === item.postID);
       if (isSelected) {
         const filter = selected.filter(prev => prev.postID !== item.postID);

@@ -44,8 +44,14 @@ export type BottomSheetRef = {
 };
 
 export type Props = {
-  onDoneSelect: any;
-  songUrl?: any;
+  onDoneSelect: (data: {
+    musicId: string;
+    timeStart: number;
+    timeEnd: number;
+    song: string;
+    songImage: string;
+  }) => void;
+  songUrl?: (value: string) => void;
 };
 
 const BottomSheet = forwardRef<BottomSheetRef, Props>(
@@ -369,12 +375,12 @@ const BottomSheet = forwardRef<BottomSheetRef, Props>(
         <AudioTrimModal
           visible={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          audioUrl={music?.link}
+          audioUrl={music?.link ?? ''}
           songInfo={{
-            _id: music?._id,
-            image: music?.coverImg,
-            title: music?.song,
-            artist: music?.author,
+            _id: music?._id ?? '',
+            image: music?.coverImg ?? '',
+            title: music?.song ?? '',
+            artist: music?.author ?? '',
           }}
           onDoneSelect={onDoneSelect}
           songUrl={songUrl}

@@ -288,10 +288,10 @@ const PostStory = () => {
 
       <BottomSheet
         ref={sheetRef}
-        onDoneSelect={(musicInfo: any) => {
+        onDoneSelect={(musicInfo: MusicInfo) => {
           setSelectedMusic(musicInfo);
         }}
-        songUrl={(url: any) => {
+        songUrl={(url: string) => {
           setSongUrl(url);
         }}
       />

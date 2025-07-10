@@ -118,13 +118,17 @@ export const SaveMusic = () => {
     return num.toString();
   };
 
-  const renderReelItem = ({item}: any) => (
+  const renderReelItem = ({item}: {item: {
+    id: string;
+    thumbnail: string;
+    views: string;
+}}) => (
     <TouchableOpacity style={styles.reelItem}>
       <Image source={{uri: item.thumbnail}} style={styles.reelThumbnail} />
       <View style={styles.viewCount}>
         <Eye size={14} color={colors.background} />
         <Text style={[styles.viewCountText, {color: Colors.lightGray}]}>
-          {formatReelViews(item.views)}
+          {formatReelViews(parseInt(item.views))}
         </Text>
       </View>
     </TouchableOpacity>
