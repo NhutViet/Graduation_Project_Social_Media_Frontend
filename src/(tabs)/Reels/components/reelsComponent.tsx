@@ -214,8 +214,8 @@ const styles = StyleSheet.create({
   },
   headerOverlay: {
     position: 'absolute',
-    top: 18,
-    left: 18,
+    top: 0,
+    left: 0,
   },
   tagOverlay: {
     position: 'absolute',
@@ -227,7 +227,7 @@ const styles = StyleSheet.create({
   bottomOverlay: {
     position: 'absolute',
     width: width,
-    bottom: 60,
+    bottom: 0,
     paddingBottom: 20,
     paddingHorizontal: 20,
     flexDirection: 'row',
