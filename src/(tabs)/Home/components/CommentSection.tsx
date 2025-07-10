@@ -64,6 +64,7 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
     const [replyTo, setReplyTo] = useState<{
       id: string;
       handleName: string;
+      userId?: string;
     } | null>(null);
     const inputRef = useRef<TextInput>(null);
     const scrollY = useSharedValue(0);
@@ -113,6 +114,7 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
             postId: postId,
             receiverId: receiverId,
             userId: user?._id,
+            parentUserId: payload.parentID.length > 0 ? replyTo?.userId : '',
           }),
         );
 
@@ -198,6 +200,7 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
                             data={comments}
                             renderItem={({item}) => (
                               <CommentComponent
+                                postId={postId}
                                 _id={item._id}
                                 content={item.content}
                                 isDeleted={item.isDeleted}
@@ -206,8 +209,8 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
                                 reply={item.reply}
                                 totalLikes={item.totalLikes}
                                 user={item.user}
-                                onReply={(id, handleName) => {
-                                  setReplyTo({id, handleName});
+                                onReply={(id, handleName, userId) => {
+                            setReplyTo({id, handleName, userId});
                                   setTimeout(() => {
                                     inputRef.current?.focus();
                                   }, 200);

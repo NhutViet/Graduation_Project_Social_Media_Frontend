@@ -31,4 +31,5 @@ export interface ReqComment {
   handleName?: string;
   postId: string;
   userId?: string;
+  parentUserId?: string;
 }
