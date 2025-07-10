@@ -7,10 +7,15 @@ import {
   StyleSheet,
   ScrollView,
   SafeAreaView,
-  Image,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import {Info, Ban} from 'lucide-react-native';
+import {
+  Info,
+  Ban,
+  UserMinus2,
+  AlertOctagon,
+  ChevronRight,
+} from 'lucide-react-native';
 import {Colors} from '../../../assets/color/Colors';
 import {useTheme} from '../../util/ThemeContext';
 import Header from '../../../components/Header';
@@ -30,7 +35,7 @@ export const PrivacyAndSafety = () => {
       <View style={{width: '100%', height: 60}}>
         <Header
           title="Privacy & safety"
-          iconBack={require('../../../assets/icon/left.png')}
+          iconBack={true}
           func={() => navigation.goBack()}
           navigation={navigation}
         />
@@ -51,10 +56,7 @@ export const PrivacyAndSafety = () => {
               Về tài khoản này
             </Text>
             <View style={{flex: 1, alignItems: 'flex-end'}}>
-              <Image
-                style={{tintColor: color.textSecondary}}
-                source={require('../../../assets/icon/right.png')}
-              />
+              <ChevronRight size={20} color={color.textSecondary} />
             </View>
           </TouchableOpacity>
         </View>
@@ -86,8 +88,7 @@ export const PrivacyAndSafety = () => {
             />
           </View>
           <Text style={[styles.note, {color: color.textSecondary}]}>
-            Người khác có thể nhìn thấy khi bạn đã đọc tin nhắn của họ.{' '}
-            {'\n \n'}
+            Người khác có thể nhìn thấy khi bạn đã đọc tin nhắn của họ. {'\n\n'}
             Tin nhắn biến mất luôn gửi thông báo đã đọc.
           </Text>
           <View style={styles.switchRow}>
@@ -111,29 +112,17 @@ export const PrivacyAndSafety = () => {
             Những người có thể liên hệ tới bạn
           </Text>
           <TouchableOpacity style={styles.row}>
-            <Image
-              style={[styles.rowIcon, {tintColor: color.text}]}
-              source={require('../../../assets/icon/block-user.png')}
-            />
+            <UserMinus2 style={styles.rowIcon} size={24} color={color.text} />
             <Text style={[styles.rowText, {color: color.text}]}>Hạn chế</Text>
             <View style={{flex: 1, alignItems: 'flex-end'}}>
-              <Image
-                style={{tintColor: color.textSecondary}}
-                source={require('../../../assets/icon/right.png')}
-              />
+              <ChevronRight size={20} color={color.textSecondary} />
             </View>
           </TouchableOpacity>
           <TouchableOpacity style={styles.row}>
             <Ban style={styles.rowIcon} size={24} color="red" />
-            <Text
-              style={[[styles.rowText, {color: color.text}], {color: 'red'}]}>
-              Chặn
-            </Text>
+            <Text style={[styles.rowText, {color: 'red'}]}>Chặn</Text>
             <View style={{flex: 1, alignItems: 'flex-end'}}>
-              <Image
-                style={{tintColor: color.textSecondary}}
-                source={require('../../../assets/icon/right.png')}
-              />
+              <ChevronRight size={20} color={color.textSecondary} />
             </View>
           </TouchableOpacity>
         </View>
@@ -141,19 +130,10 @@ export const PrivacyAndSafety = () => {
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, {color: color.text}]}>Hỗ trợ</Text>
           <TouchableOpacity style={styles.row}>
-            <Image
-              style={styles.rowIcon}
-              source={require('../../../assets/icon/report.png')}
-            />
-            <Text
-              style={[[styles.rowText, {color: color.text}], {color: 'red'}]}>
-              Báo cáo
-            </Text>
+            <AlertOctagon style={styles.rowIcon} size={24} color="red" />
+            <Text style={[styles.rowText, {color: 'red'}]}>Báo cáo</Text>
             <View style={{flex: 1, alignItems: 'flex-end'}}>
-              <Image
-                style={{tintColor: color.textSecondary}}
-                source={require('../../../assets/icon/right.png')}
-              />
+              <ChevronRight size={20} color={color.textSecondary} />
             </View>
           </TouchableOpacity>
         </View>

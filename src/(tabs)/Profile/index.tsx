@@ -9,7 +9,6 @@ import {
   Grid,
   Lock,
   ChevronDown,
-  Share2,
   Moon,
   Video,
   SquareUserRound,
@@ -17,7 +16,7 @@ import {
 import {Styles} from '../../StyleSheet/Profile.Styles';
 import {SwitchAccount} from '../../../components/SwitchAccount';
 import {ViewMore} from '../../../components/ViewMore';
-import ModalCreate from './components/ModalCreate';
+import ModalCreate, {ModalCreateRef} from './components/ModalCreate';
 import {PostsView, ReelsView, TagsView} from './components/PostView.component';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '@services/store';
@@ -32,8 +31,7 @@ import ACNavigateModal, {
 import {fetchTaggedPosts} from '@services/taggedPostRedux/taggedPostSlice';
 import {FlashList} from '@shopify/flash-list';
 import HighlightStoriesComponent from './components/HighlightStoriesComponent';
-import {Load} from '@services/postUserRedux/postUserType';
-import { TaggedPost } from '@services/taggedPostRedux/taggedPostTypes';
+import {TaggedPost} from '@services/taggedPostRedux/taggedPostTypes';
 
 const Profile = () => {
   const navigation: any = useNavigation();
@@ -53,7 +51,7 @@ const Profile = () => {
   const reelsState = useSelector((state: RootState) => state.postUser.reels);
   const ReelsItem = reelsState && 'items' in reelsState ? reelsState.items : [];
   const {isSuccess} = useSelector((state: RootState) => state.postUser);
-  const [visibleModalCreate, setVisibleModalCreate] = useState(false);
+  const modalCreateRef = useRef<ModalCreateRef>(null);
   const [isSwitchAccountVisible, setSwitchAccountVisible] = useState(false);
   const handleUsernamePress = () => {
     setSwitchAccountVisible(true);
@@ -123,7 +121,7 @@ const Profile = () => {
         <View style={styles.headerRight}>
           <TouchableOpacity
             style={styles.iconButton}
-            onPress={() => setVisibleModalCreate(true)}>
+            onPress={() => modalCreateRef.current?.open()}>
             <PlusSquare color={color.text} size={24} />
           </TouchableOpacity>
           <TouchableOpacity
@@ -240,8 +238,7 @@ const Profile = () => {
           />
         )}
         <ModalCreate
-          visible={visibleModalCreate}
-          onClose={() => setVisibleModalCreate(false)}
+          ref={modalCreateRef}
           onSelect={(id: string) => {
             switch (id) {
               case 'reels':
@@ -255,6 +252,12 @@ const Profile = () => {
                 break;
               case 'highlight':
                 navigation.navigate('Archive');
+                break;
+              case 'live':
+                navigation.navigate('LiveStreamSetup');
+                break;
+              case 'ai':
+                navigation.navigate('CreateWithAI');
                 break;
               default:
                 break;

@@ -6,6 +6,7 @@ import {ItemHomeStyles} from '../component_styles/ItemHomeStyles';
 import {Media} from '../../../../services/postRedux/postTypes';
 import TagMarker from './TagMarker';
 import {useNavigation} from '@react-navigation/native';
+import {Volume2, VolumeX} from 'lucide-react-native';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -65,17 +66,18 @@ export const RenderMediaItem = React.memo(
         )}
 
         {/* Hiển thị các tag (nếu có) */}
-        {item.tags?.length > 0 && item.tags?.map((tag, index) => (
-          <TagMarker
-            key={`${tag.userId}_${index}`}
-            tag={tag}
-            screenWidth={screenWidth}
-            imageHeight={item.videoUrl ? 600 : 520}
-            onPress={userId => {
-              navigation.navigate('ProfileComp', {userID: userId});
-            }}
-          />
-        ))}
+        {item.tags?.length > 0 &&
+          item.tags?.map((tag, index) => (
+            <TagMarker
+              key={`${tag.userId}_${index}`}
+              tag={tag}
+              screenWidth={screenWidth}
+              imageHeight={item.videoUrl ? 600 : 520}
+              onPress={userId => {
+                navigation.navigate('ProfileComp', {userID: userId});
+              }}
+            />
+          ))}
       </View>
     );
   },
@@ -111,14 +113,11 @@ export const RenderMuteButton = React.memo(
       <TouchableOpacity
         style={ItemHomeStyles.muteButton}
         onPress={() => setMuted(!muted)}>
-        <Image
-          source={
-            muted
-              ? require('../../../../assets/icon/mute.png')
-              : require('../../../../assets/icon/volume.png')
-          }
-          style={[{tintColor: Colors.dark.text}, ItemHomeStyles.icon]}
-        />
+        {muted ? (
+          <VolumeX size={22} color={Colors.dark.text} />
+        ) : (
+          <Volume2 size={22} color={Colors.dark.text} />
+        )}
       </TouchableOpacity>
     );
   },

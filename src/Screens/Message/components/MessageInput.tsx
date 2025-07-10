@@ -1,6 +1,7 @@
 import {Colors} from '@assets/color/Colors';
 import React from 'react';
-import {View, TouchableOpacity, Image, TextInput} from 'react-native';
+import {View, TouchableOpacity, TextInput} from 'react-native';
+import {Camera, Send, Mic, Image as ImageIcon, Plus} from 'lucide-react-native';
 
 interface MessageInputProps {
   message: string;
@@ -26,10 +27,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
         {backgroundColor: color.bgInputText, zIndex: 10},
       ]}>
       <TouchableOpacity style={styles.blockCamera}>
-        <Image
-          style={{tintColor: color.black, width: 20, height: 20}}
-          source={require('@assets/icon/camera.png')}
-        />
+        <Camera size={22} color={color.black} />
       </TouchableOpacity>
 
       <TextInput
@@ -45,32 +43,20 @@ const MessageInput: React.FC<MessageInputProps> = ({
 
       {message.trim().length > 0 ? (
         <TouchableOpacity style={styles.blockCamera} onPress={sendMessage}>
-          <Image
-            style={{tintColor: color.black, width: 20, height: 20}}
-            source={require('@assets/icon/share.png')}
-          />
+          <Send size={22} color={color.black} />
         </TouchableOpacity>
       ) : (
         <View style={styles.rowContainer}>
           <TouchableOpacity style={styles.blockIcon1}>
-            <Image
-              style={styles.icon}
-              source={require('@assets/icon/Microphone.png')}
-            />
+            <Mic size={22} color={color.black} />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.blockIcon1}
             onPress={pickImageAndSend}>
-            <Image
-              style={styles.icon}
-              source={require('@assets/icon/Picture.png')}
-            />
+            <ImageIcon size={22} color={color.black} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.blockIcon1}>
-            <Image
-              style={styles.icon}
-              source={require('@assets/icon/Plus.png')}
-            />
+            <Plus size={22} color={color.black} />
           </TouchableOpacity>
         </View>
       )}

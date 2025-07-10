@@ -1,113 +1,71 @@
+import React, {forwardRef, useImperativeHandle, useRef} from 'react';
+import {Text, TouchableOpacity, StyleSheet} from 'react-native';
 import {Colors} from '@assets/color/Colors';
-import React from 'react';
-import {
-  Modal,
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  StatusBar,
-  Platform,
-} from 'react-native';
-import {useTheme} from '../../../../src/util/ThemeContext';
+import {useTheme} from '../../../util/ThemeContext';
+import CustomPopupModal, {
+  CustomPopupModalRef,
+} from '../../../../components/Global/CustomPopupModal';
 
-interface MoreActionModalProps {
-  visible: boolean;
-  onClose: () => void;
-  onUnfollow: () => void;
-  onReport: () => void;
-}
-
-export const MoreActionModal: React.FC<MoreActionModalProps> = ({
-  visible,
-  onClose,
-  onUnfollow,
-  onReport,
-}) => {
-  const {theme} = useTheme();
-  const color = Colors[theme];
-
-  if (!visible) return null;
-
-  return (
-    <Modal
-      transparent
-      visible={visible}
-      animationType="slide"
-      statusBarTranslucent>
-      <StatusBar backgroundColor="rgba(0,0,0,0.4)" barStyle="light-content" />
-      <View style={styles.overlay}>
-        <View style={styles.sheet}>
-          <View
-            style={[styles.optionsBox, {backgroundColor: color.background}]}>
-            <Option
-              text="Bỏ theo dõi"
-              onPress={() => {
-                onUnfollow();
-                onClose();
-              }}
-              destructive
-            />
-            <Option
-              text="Báo cáo"
-              onPress={() => {
-                onReport();
-                onClose();
-              }}
-            />
-          </View>
-          <View style={[styles.cancelBox, {backgroundColor: color.background}]}>
-            <Option text="Hủy" onPress={onClose} />
-          </View>
-        </View>
-      </View>
-    </Modal>
-  );
+export type MoreActionPopupRef = {
+  open: () => void;
+  close: () => void;
+  setUser: (id: string) => void;
 };
 
-const Option = ({
-  text,
-  onPress,
-  destructive = false,
-}: {
-  text: string;
-  onPress: () => void;
-  destructive?: boolean;
-}) => (
-  <TouchableOpacity onPress={onPress} style={styles.option}>
-    <Text style={[styles.optionText, destructive && styles.destructiveText]}>
-      {text}
-    </Text>
-  </TouchableOpacity>
+type MoreActionPopupProps = {
+  onUnfollow: (targetId: string) => void;
+  onReport: (targetId: string) => void;
+};
+
+const MoreActionPopup = forwardRef<MoreActionPopupRef, MoreActionPopupProps>(
+  ({onUnfollow, onReport}, ref) => {
+    const modalRef = useRef<CustomPopupModalRef>(null);
+    const {theme} = useTheme();
+    const colors = Colors[theme];
+    const userIdRef = useRef<string | null>(null);
+
+    useImperativeHandle(ref, () => ({
+      open: () => modalRef.current?.open(),
+      close: () => modalRef.current?.close(),
+      setUser: (id: string) => (userIdRef.current = id),
+    }));
+
+    const handleUnfollow = () => {
+      if (userIdRef.current) onUnfollow(userIdRef.current);
+      modalRef.current?.close();
+    };
+
+    const handleReport = () => {
+      if (userIdRef.current) onReport(userIdRef.current);
+      modalRef.current?.close();
+    };
+
+    return (
+      <CustomPopupModal
+        ref={modalRef}
+        backgroundColor={colors.white}
+        cancelText="Hủy"
+        cancelTextColor="#FF3B30">
+        <TouchableOpacity style={styles.option} onPress={handleUnfollow}>
+          <Text style={[styles.text, {color: '#FF3B30'}]}>Bỏ theo dõi</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.option} onPress={handleReport}>
+          <Text style={[styles.text, {color: colors.text}]}>Báo cáo</Text>
+        </TouchableOpacity>
+      </CustomPopupModal>
+    );
+  },
 );
 
+export default MoreActionPopup;
+
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.25)',
-    justifyContent: 'flex-end',
-  },
-  sheet: {
-    padding: 10,
-  },
-  optionsBox: {
-    borderRadius: 14,
-    overflow: 'hidden',
-  },
-  cancelBox: {
-    borderRadius: 14,
-    marginTop: 10,
-  },
   option: {
     paddingVertical: 16,
     alignItems: 'center',
   },
-  optionText: {
+  text: {
     fontSize: 17,
-    color: '#007AFF',
-    fontWeight: Platform.OS === 'ios' ? '500' : 'bold',
-  },
-  destructiveText: {
-    color: '#FF3B30',
+    fontWeight: '500',
   },
 });

@@ -1,5 +1,5 @@
 import React from 'react';
-import {Image, ImageSourcePropType, StyleSheet, ImageStyle} from 'react-native';
+import {Image, ImageSourcePropType, ImageStyle} from 'react-native';
 
 interface IconProps {
   name: string;
@@ -12,7 +12,6 @@ const Icon: React.FC<IconProps> = ({name, size = 24, style, tintColor}) => {
   // Import tất cả icon từ thư mục assets/icon
   const iconMap: {[key: string]: ImageSourcePropType} = {
     // Account & User
-    account: require('../assets/icon/account.png'),
     user: require('../assets/icon/user.png'),
     users: require('../assets/icon/users.png'),
     infor_user: require('../assets/icon/infor_user.png'),
@@ -36,7 +35,6 @@ const Icon: React.FC<IconProps> = ({name, size = 24, style, tintColor}) => {
     heart: require('../assets/icon/heart.png'),
     heart_fill: require('../assets/icon/heart_fill.png'),
     heartred: require('../assets/icon/heartred.png'),
-    bookmark: require('../assets/icon/bookmark.png'),
     bookmark_fill: require('../assets/icon/bookmark_fill.png'),
     share: require('../assets/icon/share.png'),
     reply: require('../assets/icon/reply.png'),
@@ -51,7 +49,6 @@ const Icon: React.FC<IconProps> = ({name, size = 24, style, tintColor}) => {
 
     // Media
     play: require('../assets/icon/play.png'),
-    pause: require('../assets/icon/pause.png'),
     volume: require('../assets/icon/volume.png'),
     mute: require('../assets/icon/mute.png'),
     full_screen: require('../assets/icon/full_screen.png'),
@@ -76,7 +73,6 @@ const Icon: React.FC<IconProps> = ({name, size = 24, style, tintColor}) => {
     eye_filled: require('../assets/icon/eye-filled.png'),
     eye_invisible: require('../assets/icon/eye-invisible-filled.png'),
     hide: require('../assets/icon/hide.png'),
-    blind: require('../assets/icon/blind.png'),
     ellipsis: require('../assets/icon/ellipsis.png'),
     // Status
     success: require('../assets/icon/success.png'),
@@ -98,7 +94,6 @@ const Icon: React.FC<IconProps> = ({name, size = 24, style, tintColor}) => {
     yourActivity: require('../assets/icon/yourActivity.png'),
 
     // Social Media
-    fb: require('../assets/icon/fb.png'),
     gg: require('../assets/icon/gg.png'),
 
     // Other
@@ -138,13 +133,11 @@ const Icon: React.FC<IconProps> = ({name, size = 24, style, tintColor}) => {
     // Features
     Microphone: require('../assets/icon/Microphone.png'),
     invite: require('../assets/icon/invite.png'),
-    another: require('../assets/icon/another.png'),
     seperator_or: require('../assets/icon/seperator_or.png'),
     myPost: require('../assets/icon/myPost.png'),
     nickname: require('../assets/icon/nickname.png'),
 
     // Default fallback
-    default: require('../assets/icon/account.png'),
   };
 
   const iconSource = iconMap[name] || iconMap.default;

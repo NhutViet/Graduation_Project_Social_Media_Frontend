@@ -22,7 +22,6 @@ import {
 } from '../../../services/bookmarkRedux/bookmarkSlice';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 import {checkProfanityAndAlert} from '../../util/profanityFilter';
-import {Media, MediaR} from '@services/bookmarkRedux/bookmarkTypes';
 
 export const AddCollectionScreen = () => {
   const {theme} = useTheme();
@@ -70,7 +69,7 @@ export const AddCollectionScreen = () => {
   ///////////////redux
   const dispatch = useDispatch<AppDispatch>();
   const {refreshToken} = useSelector((state: RootState) => state.user);
-  const {isloading, messageError} = useSelector(
+  const {isloading} = useSelector(
     (state: RootState) => state.bookmark,
   );
 

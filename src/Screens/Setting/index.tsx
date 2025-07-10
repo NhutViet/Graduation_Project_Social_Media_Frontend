@@ -22,6 +22,9 @@ import {
   User,
   Lock,
   UserRoundCheck,
+  ShieldX,
+  Clock,
+  Bookmark,
 } from 'lucide-react-native';
 import PersonalDetails from './PersonalDetail';
 import ContactInfo from './ContactInfo';
@@ -31,7 +34,7 @@ import {AppDispatch} from '../../../services/store';
 import {resetBookmarkState} from '../../../services/bookmarkRedux/bookmarkReducer';
 import {resetReaction} from '../../../services/reactionRedux/reactionReducer';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
-import { registerRoom } from '@services/roomRedux/roomReducer';
+import {registerRoom} from '@services/roomRedux/roomReducer';
 
 export const Setting = () => {
   const navigation: any = useNavigation();
@@ -46,17 +49,13 @@ export const Setting = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   const handleLogout = () => {
-    GlobalAlertManager.show(
-      'Đã đăng xuất',
-      'Đăng xuất thành công',
-      () => {
-        dispatch(fetchLogout());
-        dispatch(resetBookmarkState());
-        dispatch(registerRoom());
-        dispatch(resetReaction());
-        navigation.reset({index: 0, routes: [{name: 'SwitchAccount'}]});
-      },
-    );
+    GlobalAlertManager.show('Đã đăng xuất', 'Đăng xuất thành công', () => {
+      dispatch(fetchLogout());
+      dispatch(resetBookmarkState());
+      dispatch(registerRoom());
+      dispatch(resetReaction());
+      navigation.reset({index: 0, routes: [{name: 'SwitchAccount'}]});
+    });
   };
 
   return (
@@ -65,8 +64,8 @@ export const Setting = () => {
       <ScrollView>
         <Header
           title="Cài đặt và hoạt động "
-          iconBack={require('../../../assets/icon/left.png')}
-          iconQR={require('../../../assets/icon/qr.png')}
+          iconBack={true}
+          iconQR={true}
           func={() => navigation.goBack()}
           navigation={navigation}
         />
@@ -192,10 +191,7 @@ export const Setting = () => {
                   styles.settingIconContainer,
                   {backgroundColor: mColor.gray},
                 ]}>
-                <Image
-                  source={require('../../../assets/icon/block.png')}
-                  style={{width: 20, height: 20, tintColor: mColor.text}}
-                />
+                <ShieldX size={22} stroke={mColor.text} />
               </View>
               <View style={styles.settingContent}>
                 <Text style={[styles.settingTitle, {color: mColor.text}]}>
@@ -382,10 +378,7 @@ export const Setting = () => {
                   styles.settingIconContainer,
                   {backgroundColor: mColor.gray},
                 ]}>
-                <Image
-                  source={require('../../../assets/icon/clock.png')}
-                  style={{width: 20, height: 20, tintColor: mColor.text}}
-                />
+                <Clock size={22} stroke={mColor.text} />
               </View>
               <View style={styles.settingContent}>
                 <Text style={[styles.settingTitle, {color: mColor.text}]}>
@@ -409,10 +402,7 @@ export const Setting = () => {
                   styles.settingIconContainer,
                   {backgroundColor: mColor.gray},
                 ]}>
-                <Image
-                  source={require('../../../assets/icon/bookmark.png')}
-                  style={{width: 20, height: 20, tintColor: mColor.text}}
-                />
+                <Bookmark size={22} stroke={mColor.text} />
               </View>
               <View style={styles.settingContent}>
                 <Text style={[styles.settingTitle, {color: mColor.text}]}>

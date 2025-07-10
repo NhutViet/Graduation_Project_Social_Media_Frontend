@@ -1,65 +1,108 @@
-import React, {Suspense} from 'react';
-import {Modalize} from 'react-native-modalize';
-import {Portal} from 'react-native-portalize';
+import React, {forwardRef, useImperativeHandle, useRef} from 'react';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {useTheme} from '../../../util/ThemeContext';
-import BottomSheetOptions, { ConfigOption } from '../../../../components/BottomSheetOptions';
 import {Colors} from '../../../../assets/color/Colors';
+import CustomPopupModal, {
+  CustomPopupModalRef,
+} from '../../../../components/Global/CustomPopupModal';
 
-const BottomSheetOptionsModal = ({
-  sheetRef,
-  isBookmarked,
-  onBookmarkPress,
-  topOptions,
-  firstListOptions,
-  secondListOptions,
-  onSelect,
-}: {
-  sheetRef: React.RefObject<Modalize>;
+export interface ConfigOption {
+  id: string;
+  icon: any;
+  label: string;
+  labelColor?: string;
+  onPress?: () => void;
+}
+
+export interface CustomBottomSheetOptionsRef {
+  open: () => void;
+  close: () => void;
+}
+
+interface Props {
   isBookmarked?: boolean;
-  isFollowing?: boolean;
   topOptions?: ConfigOption[];
   firstListOptions: ConfigOption[];
   secondListOptions: ConfigOption[];
   onBookmarkPress: () => void;
-  onSelect: (id: string) => void;
-}) => {
-  const {theme} = useTheme();
-  const color = Colors[theme];
+}
 
-  return (
-    <Portal>
-      <Suspense fallback={null}>
-        <Modalize
-          ref={sheetRef}
-          adjustToContentHeight
-          handlePosition="inside"
-          modalStyle={{
-            backgroundColor: color.background,
-            borderTopLeftRadius: 16,
-            borderTopRightRadius: 16,
-            overflow: 'hidden',
-            paddingTop: 24,
-          }}
-          handleStyle={{
-            backgroundColor: color.text,
-            width: 40,
-            height: 5,
-            borderRadius: 2.5,
-            marginVertical: 8,
-            alignSelf: 'center',
-            top: 8,
-          }}>
-          <BottomSheetOptions
-            topOptions={topOptions ?? []}
-            isBookmarked={isBookmarked}
-            listOptionGroups={[firstListOptions, secondListOptions]}
-            onSelect={onSelect}
-            onBookmarkPress={onBookmarkPress}
-          />
-        </Modalize>
-      </Suspense>
-    </Portal>
-  );
-};
+const CustomBottomSheetOptions = forwardRef<CustomBottomSheetOptionsRef, Props>(
+  (
+    {
+      isBookmarked,
+      topOptions = [],
+      firstListOptions,
+      secondListOptions,
+      onBookmarkPress,
+    },
+    ref,
+  ) => {
+    const modalRef = useRef<CustomPopupModalRef>(null);
+    const {theme} = useTheme();
+    const palette = Colors[theme];
 
-export default BottomSheetOptionsModal;
+    useImperativeHandle(ref, () => ({
+      open: () => modalRef.current?.open(),
+      close: () => modalRef.current?.close(),
+    }));
+
+    const allOptions = [
+      ...topOptions,
+      ...firstListOptions,
+      ...secondListOptions,
+    ];
+
+    return (
+      <CustomPopupModal ref={modalRef} backgroundColor={palette.background}>
+        {allOptions.map(opt => {
+          const Icon = opt.icon;
+          return (
+            <TouchableOpacity
+              key={opt.id}
+              style={styles.optionButton}
+              onPress={opt.id === 'bookmark' ? onBookmarkPress : opt.onPress}>
+              <View style={styles.optionIcon}>
+                <Icon
+                  size={22}
+                  color={
+                    opt.labelColor ??
+                    (isBookmarked && opt.id === 'bookmark'
+                      ? '#F2C641'
+                      : palette.text)
+                  }
+                />
+              </View>
+              <Text
+                style={[
+                  styles.optionLabel,
+                  {color: opt.labelColor ?? palette.text},
+                ]}>
+                {isBookmarked && opt.id === 'bookmark' ? 'Đã lưu' : opt.label}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </CustomPopupModal>
+    );
+  },
+);
+
+export default CustomBottomSheetOptions;
+
+const styles = StyleSheet.create({
+  optionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+  },
+  optionIcon: {
+    width: 24,
+    marginRight: 12,
+  },
+  optionLabel: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+});

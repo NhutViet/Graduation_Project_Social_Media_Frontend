@@ -1,7 +1,6 @@
 export * from './Addpost';
 export * from './EditStory';
 export * from './FollowerRequests';
-export * from './Login';
 export * from './NotificationsScreen';
 export * from './PostSetting';
 export * from './PostStory';

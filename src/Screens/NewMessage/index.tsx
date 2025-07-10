@@ -9,15 +9,16 @@ import {
   View,
 } from 'react-native';
 import ItemNewMessage from './component/itemNewMessage';
-import { useNavigation } from '@react-navigation/native';
-import { useTheme } from '../../util/ThemeContext';
-import { Colors } from '../../../assets/color/Colors';
-import { useState } from 'react';
-import { FlashList } from '@shopify/flash-list';
+import {useNavigation} from '@react-navigation/native';
+import {useTheme} from '../../util/ThemeContext';
+import {Colors} from '../../../assets/color/Colors';
+import {useState} from 'react';
+import {FlashList} from '@shopify/flash-list';
+import {ArrowLeft} from 'lucide-react-native';
 
 const NewMessage = () => {
   const navigation: any = useNavigation();
-  const { theme } = useTheme();
+  const {theme} = useTheme();
   const color = Colors[theme];
 
   const [search, setSearch] = useState('');
@@ -68,22 +69,19 @@ const NewMessage = () => {
 
   return (
     <SafeAreaView
-      style={[styles.container, { backgroundColor: color.background }]}>
+      style={[styles.container, {backgroundColor: color.background}]}>
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.blockIcon}
           onPress={() => navigation.goBack()}>
-          <Image
-            style={[styles.icon, { tintColor: color.text }]}
-            source={require('../../../assets/icon/left.png')}
-          />
+          <ArrowLeft size={22} color={color.text} />
         </TouchableOpacity>
-        <Text style={[styles.title, { color: color.text }]}>Tin nhắn mới</Text>
+        <Text style={[styles.title, {color: color.text}]}>Tin nhắn mới</Text>
         <View style={styles.block}></View>
       </View>
       <FlashList
         data={chatList}
-        renderItem={({ item }) => (
+        renderItem={({item}) => (
           <ItemNewMessage
             nameChat={item.nameChat}
             img1={item.img1}
@@ -92,11 +90,11 @@ const NewMessage = () => {
           />
         )}
         estimatedItemSize={100}
-        contentContainerStyle={{ paddingBottom: 20 }}
+        contentContainerStyle={{paddingBottom: 20}}
         ListHeaderComponent={
           <>
             <View style={styles.rowContainer}>
-              <Text style={[styles.textNormal, { color: color.gray21 }]}>
+              <Text style={[styles.textNormal, {color: color.gray21}]}>
                 Đến:
               </Text>
               <TextInput
@@ -104,11 +102,11 @@ const NewMessage = () => {
                 onChangeText={setSearch}
                 placeholder="Search"
                 placeholderTextColor={color.gray21}
-                style={[styles.input, { color: color.text }]}
+                style={[styles.input, {color: color.text}]}
               />
             </View>
 
-            <ItemNewMessage
+            {/* <ItemNewMessage
               roomId=""
               nameChat="Group Chat"
               img1={require('../../../assets/icon/group_chat.png')}
@@ -117,12 +115,12 @@ const NewMessage = () => {
               nameChat="AI Chat"
               img1={require('../../../assets/icon/ai.png')}
               roomId=""
-            />
+            /> */}
 
             <Text
               style={[
                 styles.title,
-                { color: color.text, marginHorizontal: 16, marginBottom: 22 },
+                {color: color.text, marginHorizontal: 16, marginBottom: 22},
               ]}>
               Đề xuất
             </Text>

@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useMemo} from 'react';
+import React, {useState, useEffect, useMemo, useRef} from 'react';
 import {
   StyleSheet,
   Text,
@@ -21,8 +21,8 @@ import {
 } from '../../../../services/relationRedux/relationSlice';
 import {createRoom} from '../../../../services/roomRedux/roomSlice';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
-import {MoreActionModal} from './MoreActionModal';
 import {UserProfile} from '@services/relationRedux/relationTypes';
+import MoreActionPopup, {MoreActionPopupRef} from './MoreActionModal';
 
 const FollowingTab = () => {
   const navigation: any = useNavigation();
@@ -38,7 +38,7 @@ const FollowingTab = () => {
     error,
   } = useSelector((state: RootState) => state.relation);
 
-  const [modalVisible, setModalVisible] = useState(false);
+  const popupRef = useRef<MoreActionPopupRef>(null);
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
 
   useEffect(() => {
@@ -87,31 +87,27 @@ const FollowingTab = () => {
   };
 
   const handleMorePress = (item: UserProfile) => {
-    setSelectedUser(item);
-    setModalVisible(true);
+    popupRef.current?.setUser(item._id);
+    popupRef.current?.open();
   };
 
-  const onUnfollow = async () => {
-    if (!selectedUser) return;
-    try {
-      await dispatch(
-        relationAction({
-          targetId: selectedUser._id,
-          action: 'unfollow',
-          senderId: user?._id!,
-          handleName: user?.handleName!,
-        }),
-      ).unwrap();
-    } catch {
-      GlobalAlertManager.show(
-        'Lỗi',
-        'Không thể bỏ theo dõi. Vui lòng thử lại.',
-      );
-    }
+  const onUnfollow = (targetId: string) => {
+    dispatch(
+      relationAction({
+        targetId,
+        action: 'unfollow',
+        senderId: user?._id!,
+        handleName: user?.handleName!,
+      }),
+    )
+      .unwrap()
+      .catch(() => {
+        GlobalAlertManager.show('Lỗi', 'Không thể bỏ theo dõi');
+      });
   };
 
-  const onReport = () => {
-    GlobalAlertManager.show('Thông báo', 'Đã báo cáo');
+  const onReport = (targetId: string) => {
+    GlobalAlertManager.show('Thông báo', 'Đã báo cáo người dùng');
   };
 
   const renderUserItem = (item: UserProfile, isFollowing: boolean) => (
@@ -205,9 +201,8 @@ const FollowingTab = () => {
         showsVerticalScrollIndicator={false}
       />
 
-      <MoreActionModal
-        visible={modalVisible}
-        onClose={() => setModalVisible(false)}
+      <MoreActionPopup
+        ref={popupRef}
         onUnfollow={onUnfollow}
         onReport={onReport}
       />

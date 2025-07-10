@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { useNotificationStyles } from '../src/StyleSheet/NotificationStyles';
+import {useNotificationStyles} from '../src/StyleSheet/NotificationStyles';
+import {PlayCircle, Flag, Camera, User} from 'lucide-react-native';
 
 interface Notification {
   id: string;
@@ -12,8 +13,11 @@ interface Notification {
   actionType: string;
 }
 
- const NotificationItem: React.FC<{ notification: Notification; stackTime?: boolean; }> = ({ notification, stackTime = false }) => {
-  const { id, imageIcon, hasStoryRing, content, time, actionType } = notification;
+const NotificationItem: React.FC<{
+  notification: Notification;
+  stackTime?: boolean;
+}> = ({notification, stackTime = false}) => {
+  const {id, imageIcon, hasStoryRing, content, time, actionType} = notification;
   const styles = useNotificationStyles();
 
   const renderIcon = () => {
@@ -21,29 +25,28 @@ interface Notification {
       case 'video':
         return (
           <View style={styles.iconContainer}>
-            <Text style={styles.iconText}>▶</Text>
+            <PlayCircle size={22} color="#fff" />
           </View>
         );
       case 'flag':
         return (
           <View style={styles.iconContainer}>
-            <Text style={styles.iconText}>⚑</Text>
+            <Flag size={22} color="#fff" />
           </View>
         );
       case 'post':
         return (
           <View style={styles.iconContainer}>
-            <Text style={styles.iconText}>📷</Text>
+            <Camera size={22} color="#fff" />
           </View>
         );
       default:
-        // Profile image with optional story ring. Conditions may change in the future
+        // Profile image with optional story ring
         return hasStoryRing ? (
           <View>
             <LinearGradient
               colors={['#C13584', '#F77737', '#FFDC80']}
-              style={styles.storyRing}
-            >
+              style={styles.storyRing}>
               <View style={styles.imageIconContainer}>
                 <View
                   style={[
@@ -52,24 +55,23 @@ interface Notification {
                       width: hasStoryRing ? 40 : 44,
                       height: hasStoryRing ? 40 : 44,
                       borderRadius: hasStoryRing ? 20 : 22,
+                      alignItems: 'center',
+                      justifyContent: 'center',
                     },
-                  ]}
-                >
-                  <Image 
-                    style={styles.userIcon}
-                    source={require('../assets/icon/account.png')}
-                  />
+                  ]}>
+                  <User size={22} color="#fff" />
                 </View>
               </View>
             </LinearGradient>
           </View>
         ) : (
           <View style={styles.imageIconContainer}>
-            <View style={styles.imageIcon}>
-              <Image 
-                style={styles.userIcon}
-                source={require('../assets/icon/account.png')}
-              />
+            <View
+              style={[
+                styles.imageIcon,
+                {alignItems: 'center', justifyContent: 'center'},
+              ]}>
+              <User size={22} color="#fff" />
             </View>
           </View>
         );
@@ -81,21 +83,19 @@ interface Notification {
       <View style={styles.contentContainer}>
         {renderIcon()}
         <View style={styles.textContainer}>
-         {stackTime ? (
-           <>
-             <Text numberOfLines={2} style={styles.contentText}>
-               {content}
-             </Text>
-             <Text style={[styles.timeText, { marginTop: 4 }]}>
-               {time}
-             </Text>
-           </>
-         ) : (
-           <Text numberOfLines={3} style={styles.contentText}>
-             {content}
-             <Text style={styles.timeText}> • {time}</Text>
-           </Text>
-         )}
+          {stackTime ? (
+            <>
+              <Text numberOfLines={2} style={styles.contentText}>
+                {content}
+              </Text>
+              <Text style={[styles.timeText, {marginTop: 4}]}>{time}</Text>
+            </>
+          ) : (
+            <Text numberOfLines={3} style={styles.contentText}>
+              {content}
+              <Text style={styles.timeText}> • {time}</Text>
+            </Text>
+          )}
         </View>
         {actionType === 'request' ? (
           <View style={styles.actionButtonsContainer}>

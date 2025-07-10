@@ -41,7 +41,7 @@ import {
 import {ModalLoading} from './components/loading';
 import {useStoryPrefetch} from './hook/useStoryPrefetch';
 import {getNotification} from '@services/notificationRedux/notificationSlice';
-import { fetchMyRooms } from '@services/roomRedux/roomSlice';
+import {fetchMyRooms} from '@services/roomRedux/roomSlice';
 
 const HEADER_HEIGHT = 100;
 const AnimatedFlatList = Animated.createAnimatedComponent(Animated.FlatList);
@@ -437,9 +437,9 @@ export const Home = forwardRef(({onReload, route}: HomeProps, ref) => {
         ]}>
         <Header
           icon={require('../../../assets/icon/logo_row.png')}
-          iconQR={require('../../../assets/icon/qr.png')}
-          iconNotify={require('../../../assets/icon/heart.png')}
-          iconMessage={require('../../../assets/icon/message.png')}
+          iconQR={true}
+          iconNotify={true}
+          iconMessage={true}
           navigation={navigation}
         />
       </Animated.View>
@@ -493,7 +493,6 @@ export const Home = forwardRef(({onReload, route}: HomeProps, ref) => {
                       key={item._id}
                       name={isCurrentUser ? 'Tin của tôi' : item.handleName}
                       image={item?.profilePic}
-                      status={hasStory ? 1 : 0}
                       hasStory={hasStory}
                       isSeen={isSeen}
                       isCurrentUser={isCurrentUser}

@@ -1,23 +1,30 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, {memo, useCallback} from 'react';
 import {
   Dimensions,
   Image,
-  ImageSourcePropType,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import Video from 'react-native-video';
-import { Colors } from '../../../../assets/color/Colors';
+import {Colors} from '../../../../assets/color/Colors';
 import HashtagText from '../../../../components/HashtagText';
-import { useTheme } from '../../../util/ThemeContext';
-import { formatNumber } from '../../../../src/(tabs)/Home/util';
+import {useTheme} from '../../../util/ThemeContext';
+import {formatNumber} from '../../../../src/(tabs)/Home/util';
 import ReelsHeader from './ReelsHeader';
 import TagMarker from './TagMarker';
+import {
+  Heart,
+  MessageCircle,
+  MoreVertical,
+  Music,
+  Share2,
+  UserCircle2,
+} from 'lucide-react-native';
 
-const { width } = Dimensions.get('window');
+const {width} = Dimensions.get('window');
 
 const MemoizedTagMarker = memo(TagMarker);
 const MemoizedImage = memo(Image);
@@ -39,7 +46,6 @@ const ReelsComponent = memo((props: any) => {
     isFollowing,
     isCurrentUser,
     containerHeight,
-    // callbacks func
     onLike,
     onComment,
     onFollow,
@@ -51,66 +57,86 @@ const ReelsComponent = memo((props: any) => {
   } = props;
 
   const navigation = useNavigation<any>();
-  const { theme } = useTheme();
+  const {theme} = useTheme();
   const color = Colors[theme];
 
-  const handleLike = useCallback(() => onLike(_id, isLiked), [_id, isLiked, onLike]);
-  const handleFollow = useCallback(() => onFollow(user._id, isFollowing), [user._id, isFollowing, onFollow]);
-  const handleProfilePress = useCallback(() => onProfilePress(user._id), [user._id, onProfilePress]);
-  const handleTagPress = useCallback((userId: string) => onTagPress(userId), [onTagPress]);
+  const handleLike = useCallback(
+    () => onLike(_id, isLiked),
+    [_id, isLiked, onLike],
+  );
+  const handleFollow = useCallback(
+    () => onFollow(user._id, isFollowing),
+    [user._id, isFollowing, onFollow],
+  );
+  const handleProfilePress = useCallback(
+    () => onProfilePress(user._id),
+    [user._id, onProfilePress],
+  );
+  const handleTagPress = useCallback(
+    (userId: string) => onTagPress(userId),
+    [onTagPress],
+  );
 
-  const renderProfileImage = useCallback(() =>
-    user.profilePic ? (
-      <MemoizedImage style={styles.img} source={{ uri: user.profilePic }} />
-    ) : (
-      <MemoizedImage
-        style={styles.img}
-        source={require('../../../../assets/icon/account.png')}
-      />
-    ), [user.profilePic]);
+  const renderProfileImage = useCallback(
+    () =>
+      user.profilePic ? (
+        <MemoizedImage style={styles.img} source={{uri: user.profilePic}} />
+      ) : (
+        <UserCircle2 size={40} color={Colors.white} />
+      ),
+    [user.profilePic],
+  );
 
-  const renderFollowButton = useCallback(() =>
-    !isCurrentUser && (
-      <TouchableOpacity onPress={handleFollow} style={styles.btnFollow}>
-        <MemoizedText style={{ fontSize: 14, color: Colors.white }}>
-          {isFollowing ? 'Đang theo dõi' : 'Theo dõi'}
-        </MemoizedText>
-      </TouchableOpacity>
-    ), [isCurrentUser, isFollowing, handleFollow]);
+  const renderFollowButton = useCallback(
+    () =>
+      !isCurrentUser && (
+        <TouchableOpacity onPress={handleFollow} style={styles.btnFollow}>
+          <MemoizedText style={{fontSize: 14, color: Colors.white}}>
+            {isFollowing ? 'Đang theo dõi' : 'Theo dõi'}
+          </MemoizedText>
+        </TouchableOpacity>
+      ),
+    [isCurrentUser, isFollowing, handleFollow],
+  );
 
-  const renderActionButton = useCallback((
-    iconSource: ImageSourcePropType,
-    count: number,
-    onPress: () => void,
-    tintColor?: string,
-  ) => (
-    <View style={[styles.sectionContainer, styles.topSection]}>
-      <TouchableOpacity style={styles.iconContainer} onPress={onPress}>
-        <MemoizedImage
-          style={[styles.icon, tintColor ? { tintColor } : {}]}
-          source={iconSource}
-        />
-      </TouchableOpacity>
-      <TouchableOpacity onPress={onPress}>
-        <MemoizedText style={styles.textNormal}>
-          {formatNumber(count || 0)}
-        </MemoizedText>
-      </TouchableOpacity>
-    </View>
-  ), []);
+  const renderActionButton = useCallback(
+    (
+      IconComponent: React.ElementType,
+      count: number,
+      onPress: () => void,
+      iconColor?: string,
+      filled?: boolean,
+    ) => (
+      <View style={[styles.sectionContainer, styles.topSection]}>
+        <TouchableOpacity style={styles.iconContainer} onPress={onPress}>
+          <IconComponent
+            size={22}
+            color={iconColor || Colors.white}
+            fill={filled ? iconColor || Colors.white : 'none'}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={onPress}>
+          <MemoizedText style={styles.textNormal}>
+            {formatNumber(count || 0)}
+          </MemoizedText>
+        </TouchableOpacity>
+      </View>
+    ),
+    [],
+  );
 
   return (
-    <View style={[styles.container, { height: containerHeight }]}>
+    <View style={[styles.container, {height: containerHeight}]}>
       <Video
-        source={{ uri: media[0]?.videoUrl }}
+        source={{uri: media[0]?.videoUrl}}
         resizeMode="contain"
-        style={[styles.videoPlayer, { height: containerHeight }]}
+        style={[styles.videoPlayer, {height: containerHeight}]}
         repeat={false}
         paused={!currentVisible || !isFocused}
         muted={muted}
         maxBitRate={0}
         progressUpdateInterval={1000}
-        onError={(error) => console.warn('Video error:', error)}
+        onError={error => console.warn('Video error:', error)}
         playInBackground={false}
         playWhenInactive={false}
         hideShutterView={true}
@@ -122,11 +148,7 @@ const ReelsComponent = memo((props: any) => {
 
       <View style={styles.tagOverlay}>
         {media[0]?.tags?.map((tag: any) => (
-          <MemoizedTagMarker
-            key={tag._id}
-            tag={tag}
-            onPress={handleTagPress}
-          />
+          <MemoizedTagMarker key={tag._id} tag={tag} onPress={handleTagPress} />
         ))}
       </View>
 
@@ -146,7 +168,7 @@ const ReelsComponent = memo((props: any) => {
             clickable={true}
             baseStyle={styles.textNormal}
             hashtagColor={Colors.hashtag}
-            hashtagStyle={{ fontWeight: '600' }}
+            hashtagStyle={{fontWeight: '600'}}
             setSkipReload={setSkipReload}
             navigation={navigation}
           />
@@ -154,34 +176,18 @@ const ReelsComponent = memo((props: any) => {
 
         <View style={styles.block2}>
           {renderActionButton(
-            isLiked
-              ? require('../../../../assets/icon/heart_fill.png')
-              : require('../../../../assets/icon/heart.png'),
+            Heart,
             likeCount,
             handleLike,
-            isLiked ? color.error : '#fff',
+            isLiked ? color.error : Colors.white,
+            isLiked,
           )}
-
-          {renderActionButton(
-            require('../../../../assets/icon/comment.png'),
-            commentCount,
-            onComment,
-          )}
-
-          {renderActionButton(
-            require('../../../../assets/icon/share.png'),
-            share,
-            onShare,
-          )}
+          {renderActionButton(MessageCircle, commentCount, onComment)}
+          {renderActionButton(Share2, share, onShare)}
 
           <View style={styles.sectionContainer}>
-            <TouchableOpacity
-              style={styles.iconContainer}
-              onPress={onMenu}>
-              <MemoizedImage
-                style={styles.icon}
-                source={require('../../../../assets/icon/menu-dots-vertical.png')}
-              />
+            <TouchableOpacity style={styles.iconContainer} onPress={onMenu}>
+              <MoreVertical size={22} color={Colors.white} />
             </TouchableOpacity>
           </View>
 
@@ -189,10 +195,7 @@ const ReelsComponent = memo((props: any) => {
             <TouchableOpacity
               style={styles.iconMusicContainer}
               onPress={() => navigation.navigate('SaveMusic')}>
-              <MemoizedImage
-                style={styles.icon}
-                source={require('../../../../assets/icon/musical-note.png')}
-              />
+              <Music size={18} color={Colors.white} />
             </TouchableOpacity>
           </View>
         </View>
@@ -279,12 +282,8 @@ const styles = StyleSheet.create({
   iconContainer: {
     width: 25,
     height: 25,
-  },
-  icon: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'contain',
-    tintColor: Colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   sectionContainer: {
     marginTop: 20,
@@ -293,12 +292,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   iconMusicContainer: {
-    width: 25,
-    height: 25,
-    padding: 5,
+    width: 24,
+    height: 24,
     borderRadius: 2,
     borderColor: Colors.white,
     borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

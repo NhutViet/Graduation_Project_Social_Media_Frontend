@@ -1,7 +1,15 @@
 import React from 'react';
-import {View, Text, TouchableOpacity, Image} from 'react-native';
+import {View, Text, TouchableOpacity} from 'react-native';
 import {ItemHomeStyles} from '../component_styles/ItemHomeStyles';
 import {formatNumber} from '../util';
+import {
+  Heart,
+  HeartIcon,
+  MessageCircle,
+  Bookmark,
+  BookmarkCheck,
+  Share2,
+} from 'lucide-react-native';
 
 interface ItemHomeActionsProps {
   iconColor: string;
@@ -29,7 +37,7 @@ export const ItemHomeActions: React.FC<ItemHomeActionsProps> = ({
   numLike,
   commentCount,
   share,
-  likeDisabled = false, 
+  likeDisabled = false,
   onLikePress,
   onCommentPress,
   onSharePress,
@@ -38,69 +46,56 @@ export const ItemHomeActions: React.FC<ItemHomeActionsProps> = ({
 }) => {
   return (
     <View
-      style={[ItemHomeStyles.rowContainer, { justifyContent: 'space-between' }]}
-    >
+      style={[ItemHomeStyles.rowContainer, {justifyContent: 'space-between'}]}>
       <View style={ItemHomeStyles.rowContainer}>
+        {/* Like */}
         <TouchableOpacity
-          style={[ItemHomeStyles.iconBlock, { opacity: likeDisabled ? 0.5 : 1 }]}
+          style={[ItemHomeStyles.iconBlock, {opacity: likeDisabled ? 0.5 : 1}]}
           onPress={onLikePress}
-          disabled={likeDisabled} // ignore taps when loading
-        >
-          <Image
-            style={[{ tintColor: likedColor }, ItemHomeStyles.icon]}
-            source={
-              isLiked
-                ? require('../../../../assets/icon/heart_fill.png')
-                : require('../../../../assets/icon/heart.png')
-            }
-          />
+          disabled={likeDisabled}>
+          {isLiked ? (
+            <HeartIcon size={22} color={likedColor} fill={likedColor} />
+          ) : (
+            <Heart size={22} color={likedColor} />
+          )}
         </TouchableOpacity>
 
         <TouchableOpacity onPress={onReactionModalPress}>
-          <Text style={{ color: iconColor, marginLeft: 8, marginRight: 16 }}>
+          <Text style={{color: iconColor, marginLeft: 8, marginRight: 16}}>
             {formatNumber(numLike)}
           </Text>
         </TouchableOpacity>
 
+        {/* Comment */}
         <TouchableOpacity
           style={ItemHomeStyles.iconBlock}
-          onPress={onCommentPress}
-        >
-          <Image
-            style={[{ tintColor: iconColor }, ItemHomeStyles.icon]}
-            source={require('../../../../assets/icon/comment.png')}
-          />
+          onPress={onCommentPress}>
+          <MessageCircle size={22} color={iconColor} />
         </TouchableOpacity>
-        <Text style={{ color: iconColor, marginLeft: 8, marginRight: 16 }}>
+        <Text style={{color: iconColor, marginLeft: 8, marginRight: 16}}>
           {formatNumber(commentCount)}
         </Text>
 
+        {/* Share */}
         <TouchableOpacity
           style={ItemHomeStyles.iconBlock}
-          onPress={onSharePress}
-        >
-          <Image
-            style={[{ tintColor: iconColor }, ItemHomeStyles.icon]}
-            source={require('../../../../assets/icon/share.png')}
-          />
+          onPress={onSharePress}>
+          <Share2 size={22} color={iconColor} />
         </TouchableOpacity>
-        <Text style={{ color: iconColor, marginLeft: 8, marginRight: 16 }}>
+        <Text style={{color: iconColor, marginLeft: 8, marginRight: 16}}>
           {formatNumber(share)}
         </Text>
       </View>
 
+      {/* Bookmark */}
       <TouchableOpacity
         style={ItemHomeStyles.iconBlock}
-        onPress={onBookmarkPress}
-      >
-        <Image
-          style={[{ tintColor: bookmarkColor }, ItemHomeStyles.icon]}
-          source={
-            isBookmarked
-              ? require('../../../../assets/icon/bookmark_fill.png')
-              : require('../../../../assets/icon/bookmark.png')
-          }
-        />
+        onPress={onBookmarkPress}>
+        {isBookmarked ? (
+          <BookmarkCheck size={22} color={bookmarkColor} fill={bookmarkColor} />
+        ) : (
+          <Bookmark size={22} color={bookmarkColor} />
+        )}
       </TouchableOpacity>
     </View>
   );

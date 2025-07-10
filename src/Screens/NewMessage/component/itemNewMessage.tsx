@@ -1,8 +1,9 @@
 import React from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Colors } from '../../../../assets/color/Colors';
-import { useTheme } from '../../../util/ThemeContext';
-import { useNavigation } from '@react-navigation/native';
+import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {Colors} from '../../../../assets/color/Colors';
+import {useTheme} from '../../../util/ThemeContext';
+import {useNavigation} from '@react-navigation/native';
+import {ChevronRight} from 'lucide-react-native';
 
 interface ItemNewMessageProps {
   roomId: string;
@@ -23,7 +24,7 @@ const ItemNewMessage: React.FC<ItemNewMessageProps> = ({
   img2,
   type,
 }) => {
-  const { theme } = useTheme();
+  const {theme} = useTheme();
   const color = Colors[theme];
   const navigation: any = useNavigation();
 
@@ -49,7 +50,7 @@ const ItemNewMessage: React.FC<ItemNewMessageProps> = ({
           ]}>
           {img2 && (
             <>
-              <Image style={styles.iconW} source={{ uri: img1 }} />
+              <Image style={styles.iconW} source={{uri: img1}} />
               <Image
                 style={[
                   styles.iconF,
@@ -58,29 +59,24 @@ const ItemNewMessage: React.FC<ItemNewMessageProps> = ({
                     backgroundColor: color.backgroundSecondary,
                   },
                 ]}
-                source={{ uri: img2 }}
+                source={{uri: img2}}
               />
             </>
           )}
-          {!img2 && img1 && <Image style={styles.img} source={{ uri: img1 }} />}
+          {!img2 && img1 && <Image style={styles.img} source={{uri: img1}} />}
         </View>
         <View>
-          <Text style={[styles.nameChat, { color: color.text }]}>{nameChat}</Text>
+          <Text style={[styles.nameChat, {color: color.text}]}>{nameChat}</Text>
           {latestMessage?.content && (
             <Text
-              style={[styles.textNormal, { color: color.text }]}
+              style={[styles.textNormal, {color: color.text}]}
               numberOfLines={1}>
               {latestMessage?.content}
             </Text>
           )}
         </View>
       </View>
-      <View style={styles.blockIcon}>
-        <Image
-          style={[styles.img, { tintColor: color.text }]}
-          source={require('../../../../assets/icon/right.png')}
-        />
-      </View>
+      <ChevronRight size={22} color={color.text} />
     </TouchableOpacity>
   );
 };
@@ -145,13 +141,6 @@ const styles = StyleSheet.create({
   },
   textNormal: {
     fontSize: 14,
-  },
-  blockIcon: {
-    width: 20,
-    height: 20,
-    padding: 2,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
 });
 

@@ -7,8 +7,6 @@ import {
   TouchableOpacity,
   TextInput,
   ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform
 } from 'react-native';
 import {FlashList, ListRenderItem} from '@shopify/flash-list';
 import {useNavigation} from '@react-navigation/native';
@@ -24,7 +22,8 @@ import {
 import {createRoom} from '../../../../services/roomRedux/roomSlice';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 import {UserProfile} from '@services/relationRedux/relationTypes';
-import { selectDisplayFollowers } from '@services/relationRedux/relationSelector';
+import {selectDisplayFollowers} from '@services/relationRedux/relationSelector';
+import {Search, User, UserX, X} from 'lucide-react-native';
 
 const FollowersTab = () => {
   const navigation: any = useNavigation();
@@ -55,7 +54,7 @@ const FollowersTab = () => {
   const followersList = useSelector(selectDisplayFollowers);
 
   const displayList = followersList.filter(u =>
-    u.handleName.toLowerCase().includes(searchQuery.toLowerCase())
+    u.handleName.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const handleActionButton = useCallback(
@@ -106,14 +105,11 @@ const FollowersTab = () => {
     return (
       <View style={styles.userContainer}>
         <TouchableOpacity style={styles.touchableInfo}>
-          <Image
-            source={
-              item.profilePic
-                ? {uri: item.profilePic}
-                : require('../../../../assets/icon/user.png')
-            }
-            style={styles.avatar}
-          />
+          {item.profilePic ? (
+            <Image source={{uri: item.profilePic}} style={styles.avatar} />
+          ) : (
+            <User size={styles.avatar.width || 40} color={color.text} />
+          )}
           <View style={styles.userInfo}>
             <Text style={[styles.handle, {color: color.text}]}>
               {item.handleName}
@@ -166,11 +162,7 @@ const FollowersTab = () => {
     return (
       <View
         style={[styles.emptyContainer, {backgroundColor: color.background}]}>
-        <Image
-          source={require('../../../../assets/icon/block-user.png')}
-          style={styles.emptyImage}
-          resizeMode="contain"
-        />
+        <UserX size={styles.emptyImage?.width || 60} color={color.text} />
         <Text style={[styles.emptyTitle, {color: color.text}]}>
           Bạn chưa có người theo dõi
         </Text>
@@ -187,7 +179,10 @@ const FollowersTab = () => {
         <View
           style={[
             styles.searchBarArea,
-            {backgroundColor: color.background, borderBottomColor: color.border},
+            {
+              backgroundColor: color.background,
+              borderBottomColor: color.border,
+            },
           ]}>
           <View style={styles.searchBarContainer}>
             <TextInput
@@ -201,18 +196,12 @@ const FollowersTab = () => {
               value={searchQuery}
               onChangeText={setSearchQuery}
             />
-            <Image
-              source={require('../../../../assets/icon/search.png')}
-              style={[styles.searchIcon, {tintColor: color.text}]}
-            />
+            <Search size={22} color={color.text} />
             {searchQuery.length > 0 && (
               <TouchableOpacity
                 style={styles.clearButton}
                 onPress={() => setSearchQuery('')}>
-                  <Image
-                    style={[styles.clearIcon, {tintColor: color.text}]}
-                    source={require('../../../../assets/icon/closer.png')}
-                  />
+                <X size={20} color={color.text} />
               </TouchableOpacity>
             )}
           </View>
@@ -221,12 +210,11 @@ const FollowersTab = () => {
 
       {displayList.length === 0 && searchQuery.length && (
         <View
-          style={[styles.emptyContainer, {backgroundColor: color.background, flex: 2, paddingTop: 150}]}>
-          <Image
-            source={require('../../../../assets/icon/block-user.png')}
-            style={styles.emptyImage}
-            resizeMode="contain"
-          />
+          style={[
+            styles.emptyContainer,
+            {backgroundColor: color.background, flex: 2, paddingTop: 150},
+          ]}>
+          <UserX size={styles.emptyImage?.width || 60} color={color.text} />
           <Text style={[styles.emptyTitle, {color: color.text}]}>
             Không tìm thấy tên người dùng
           </Text>
@@ -311,13 +299,6 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
   },
-  searchIcon: {
-    height: 15,
-    width: 15,
-    position: 'absolute',
-    left: 10,
-    resizeMode: 'contain',
-  },
   searchBar: {
     flex: 1,
     paddingRight: 10,
@@ -373,9 +354,5 @@ const styles = StyleSheet.create({
     height: 24,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  clearIcon: {
-    width: 14,
-    height: 14,
   },
 });

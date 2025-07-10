@@ -1,5 +1,4 @@
 import {useCallback, useMemo, useRef} from 'react';
-import {Modalize} from 'react-native-modalize';
 import {
   postTopOptions,
   postFirstList,
@@ -7,24 +6,27 @@ import {
   reportChoices,
   icons,
 } from '../../../config/postOptions';
-import { useSelector } from 'react-redux';
-import { RootState } from '@services/store';
+import {useSelector} from 'react-redux';
+import {RootState} from '@services/store';
+import {
+  ConfigOption,
+  CustomBottomSheetOptionsRef,
+} from '../components/BottomSheetOptionsModal';
 
 export const useItemHomeModal = (
   actions: any,
   state: any,
   isFollow: boolean,
 ) => {
-  const intentRef = useRef<Modalize>(null);
-  const sheetRef = useRef<Modalize>(null);
-  const modalReactionRef = useRef<Modalize>(null);
-  const modalShareRef = useRef<Modalize>(null);
-  const user = useSelector((state: RootState) => state.user.user);
+  const intentRef = useRef<CustomBottomSheetOptionsRef>(null);
+  const sheetRef = useRef<CustomBottomSheetOptionsRef>(null);
+  const modalReactionRef = useRef<CustomBottomSheetOptionsRef>(null);
+  const modalShareRef = useRef<CustomBottomSheetOptionsRef>(null);
 
+  const user = useSelector((state: RootState) => state.user.user);
   const {handleHidePost, handleFollowAction, handleBookmarkAction} = actions;
   const {setIsModalVisible} = state;
 
-  /** Open bottom sheet options */
   const openOptions = useCallback(() => {
     sheetRef.current?.open();
   }, []);
@@ -46,7 +48,6 @@ export const useItemHomeModal = (
     modalShareRef.current?.open();
   }, []);
 
-  /** Handle selecting an option from the first sheet */
   const handleOptionSelect = useCallback(
     (id: string) => {
       switch (id) {
@@ -67,56 +68,65 @@ export const useItemHomeModal = (
       }
       sheetRef.current?.close();
     },
-    [handleHidePost, handleFollowAction, openIntentions],
+    [
+      handleHidePost,
+      handleFollowAction,
+      handleBookmarkAction,
+      openIntentions,
+      user,
+    ],
   );
 
   const handleIntentionSelect = useCallback((id: string) => {
     intentRef.current?.close();
   }, []);
 
-  const topOptions = useMemo(
-    () =>
-      postTopOptions.map(opt => ({
-        ...opt,
-        onPress: () => handleOptionSelect(opt.id),
-      })),
-    [handleOptionSelect],
-  );
+  const topOptions = useMemo<ConfigOption[]>(() => {
+    return postTopOptions.map(opt => ({
+      id: opt.id,
+      label: opt.label,
+      icon: opt.icon,
+      labelColor: opt.labelColor,
+      onPress: () => handleOptionSelect(opt.id),
+    }));
+  }, [handleOptionSelect]);
 
-  const firstListOptions = useMemo(() => {
-    return postFirstList.map(opt => {
-      if (opt.id === 'unfollow') {
-        return {
-          ...opt,
-          label: isFollow ? 'Bỏ theo dõi' : 'Theo dõi',
-          icon: isFollow ? icons.unfollow : icons.follow,
-          onPress: () => handleOptionSelect(opt.id),
-        };
-      }
-      return {
-        ...opt,
-        onPress: () => handleOptionSelect(opt.id),
-      };
-    });
-  }, [handleOptionSelect, state.follow]);
+  const firstListOptions = useMemo<ConfigOption[]>(() => {
+    return postFirstList.map(opt => ({
+      id: opt.id,
+      label:
+        opt.id === 'unfollow'
+          ? isFollow
+            ? 'Bỏ theo dõi'
+            : 'Theo dõi'
+          : opt.label,
+      icon:
+        opt.id === 'unfollow'
+          ? isFollow
+            ? icons.unfollow
+            : icons.follow
+          : opt.icon,
+      labelColor: opt.labelColor,
+      onPress: () => handleOptionSelect(opt.id),
+    }));
+  }, [isFollow, handleOptionSelect]);
 
-  const secondListOptions = useMemo(
-    () =>
-      postSecondList.map(opt => ({
-        ...opt,
-        onPress: () => handleOptionSelect(opt.id),
-      })),
-    [handleOptionSelect],
-  );
+  const secondListOptions = useMemo<ConfigOption[]>(() => {
+    return postSecondList.map(opt => ({
+      id: opt.id,
+      label: opt.label,
+      icon: opt.icon,
+      labelColor: opt.labelColor,
+      onPress: () => handleOptionSelect(opt.id),
+    }));
+  }, [handleOptionSelect]);
 
-  const intentionOptions = useMemo(
-    () =>
-      reportChoices.map(opt => ({
-        ...opt,
-        onPress: () => handleIntentionSelect(opt.id),
-      })),
-    [handleIntentionSelect],
-  );
+  const intentionOptions = useMemo(() => {
+    return reportChoices.map(opt => ({
+      ...opt,
+      onPress: () => handleIntentionSelect(opt.id),
+    }));
+  }, [handleIntentionSelect]);
 
   return {
     intentRef,
