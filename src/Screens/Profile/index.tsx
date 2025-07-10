@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   ScrollView,
   SafeAreaView,
-  ActivityIndicator,
 } from 'react-native';
 import {
   ChevronLeft,
@@ -19,7 +18,6 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
-import StoryComponent from './components/story.component';
 import ActionButtons from './components/actionButton.component';
 import UserInfo from './components/userInfo.component';
 import {Modalize} from 'react-native-modalize';
@@ -45,6 +43,7 @@ import {clearPostsAndReels} from '../../../services/postUserRedux/postUserReduce
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 import {fetchTaggedPosts} from '@services/taggedPostRedux/taggedPostSlice';
 import HighlightStoriesComponent from '../../(tabs)/Profile/components/HighlightStoriesComponent';
+import { ProfileSkeleton } from '../../../components/SkeletonGrid';
 
 const ProfileComp = ({route}: any) => {
   const navigation: any = useNavigation();
@@ -271,26 +270,7 @@ const ProfileComp = ({route}: any) => {
 
   // Show loading indicator while fetching profile
   if (isInitializing || isLoadingPublicProfile || !publicProfile) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.Header}>
-          <TouchableOpacity
-            style={{alignItems: 'center', paddingRight: 12}}
-            onPress={() => navigation.goBack()}>
-            <ChevronLeft size={28} color={Colors[theme].text} />
-          </TouchableOpacity>
-          <Text style={styles.headTitle}>Đang tải...</Text>
-          <View style={styles.SectionRight}>
-            <TouchableOpacity>
-              <Ellipsis size={24} color={Colors[theme].text} />
-            </TouchableOpacity>
-          </View>
-        </View>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={Colors[theme].text} />
-        </View>
-      </SafeAreaView>
-    );
+    return <View style={[{backgroundColor: Colors[theme].background}]}><ProfileSkeleton /></View>;
   }
 
   // Show error message if failed to load profile

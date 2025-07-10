@@ -135,11 +135,13 @@ const postReducer = createSlice({
         const {items, pagination, isLoadMore} = action.payload;
 
         if (isLoadMore) {
-          // Append new items for pagination
-          state.reels.push(...items);
+          const newItems = items.filter(
+            i => !state.reels.some(existing => existing._id === i._id)
+          );
+          state.reels.push(...newItems);
         } else {
-          // Replace all items for initial load/refresh
-          state.reels = items;
+          // initial load or pull-to-refresh: replace the entire list
+          state.reels = [...items];
           state.firstPageItems = [...items];
         }
 

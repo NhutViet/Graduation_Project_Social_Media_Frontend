@@ -13,7 +13,7 @@ import {FlashList} from '@shopify/flash-list';
 import {useSelector} from 'react-redux';
 import {RootState} from '../../../../services/store';
 import {useNavigation} from '@react-navigation/native';
-import {ActivityIndicator} from 'react-native-paper';
+import { SearchSkeletonGrid } from '../../../../components/SkeletonGrid'
 
 const screenWidth = Dimensions.get('window').width;
 const mediasHeight = ((screenWidth - 4) / 3) * 2;
@@ -127,13 +127,19 @@ const SearchForYou: React.FC<SearchForYouProps> = ({
     [handlePressItem],
   );
 
+  const renderSkeleton = () => (
+    <SearchSkeletonGrid
+      itemCount={9}
+      columns={3}
+      itemWidth={mediasWidth}
+      itemHeight={mediasHeight}
+      spacing={2}
+    />
+  );
+
   const renderContent = () => {
     if (!isSuccess && isLoading) {
-      return (
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color={color.primary} />
-        </View>
-      );
+      return renderSkeleton();
     }
 
     if (randomList.length > 0 && isSuccess) {

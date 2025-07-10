@@ -6,7 +6,6 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  ActivityIndicator,
 } from 'react-native';
 import React, {useEffect, useRef, useState, useMemo, useCallback, forwardRef, useImperativeHandle} from 'react';
 import {FlashList} from '@shopify/flash-list';
@@ -34,6 +33,7 @@ import {
 import User from './Components/User';
 import {clearPosts, clearReels} from '@services/searchRedux/searchReducer';
 import {fetchMedia} from '@services/SearchPost/searchPostReducer';
+import { SkeletonExploreSection } from '../../../components/SkeletonGrid';
 
 const SEARCH_HISTORY_KEY = 'search_history';
 
@@ -246,8 +246,8 @@ export const Search = forwardRef<SearchRef, {}>((props, ref) => {
   const renderFooter = () => {
     if (pagination?.hasNextPage && loading) {
       return (
-        <View style={{paddingVertical: 20, alignItems: 'center'}}>
-          <ActivityIndicator size="small" color={color.primary} />
+        <View >
+          <SkeletonExploreSection/>
         </View>
       );
     }
@@ -286,8 +286,8 @@ export const Search = forwardRef<SearchRef, {}>((props, ref) => {
   if (isInitializing) {
     return (
       <SafeAreaView style={[styles.container]}>
-        <View style={[styles.container, {justifyContent: 'center', alignItems: 'center'}]}>
-          <ActivityIndicator size="large" color={color.primary} />
+        <View style={[styles.container]}>
+          <SkeletonExploreSection />
         </View>
       </SafeAreaView>
     );
@@ -295,11 +295,6 @@ export const Search = forwardRef<SearchRef, {}>((props, ref) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {isShowResult && isLoading && (
-        <View style={styles.overlay} pointerEvents="auto">
-          <ActivityIndicator size="large" color={color.primary} />
-        </View>
-      )}
 
       {/* Search Bar */}
       <View style={styles.searchContainer}>

@@ -81,7 +81,7 @@ const DarkTheme = {
   background: '#212121',
   text: '#FFFFFF',
   modal: '#1A1A1A',
-  gray: '#1A1A1A',
+  gray: '#6b6a6a',
   lightDark: '#FFFFFF20',
   lessBlack: '#141414',
   search: '#222222',
