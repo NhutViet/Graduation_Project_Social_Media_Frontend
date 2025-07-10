@@ -233,7 +233,7 @@ const storySlice = createSlice({
         (state, action: PayloadAction<Story[]>) => {
           console.log('🔍 Redux: fetchHighlightStory.fulfilled:', {
             payloadLength: action.payload?.length || 0,
-            payload: action.payload?.map((h: any) => ({
+            payload: action.payload?.map((h: Story) => ({
               id: h._id,
               name: h.collectionName,
             })),

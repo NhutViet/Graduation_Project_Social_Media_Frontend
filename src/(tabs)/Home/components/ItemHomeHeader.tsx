@@ -3,15 +3,17 @@ import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { ItemHomeStyles } from '../component_styles/ItemHomeStyles';
 import {useSelector} from 'react-redux';
 import {RootState} from '../../../../services/store';
+import { User as Mine } from '@services/userRedux/userTypes';
+import { User } from '../types';
 
 interface ItemHomeHeaderProps {
-  user: any;
+  user: User;
   textColor: string;
   borderColor: string;
   iconTintColor: string;
   follow: boolean;
   onUserPress: () => void;
-  onFollowPress: (mine: any) => void;
+  onFollowPress: (mine: Mine | null) => void;
   onOptionsPress: () => void;
 }
 

@@ -1,7 +1,8 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 import {
   Dimensions,
   Image,
+  ImageSourcePropType,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -78,7 +79,7 @@ const ReelsComponent = memo((props: any) => {
     ), [isCurrentUser, isFollowing, handleFollow]);
 
   const renderActionButton = useCallback((
-    iconSource: any,
+    iconSource: ImageSourcePropType,
     count: number,
     onPress: () => void,
     tintColor?: string,
@@ -101,10 +102,9 @@ const ReelsComponent = memo((props: any) => {
   return (
     <View style={[styles.container, { height: containerHeight }]}>
       <Video
-      // DO NOT CHANGE ANY VIDEO CONFIG BELOW!!!!!!!
         source={{ uri: media[0]?.videoUrl }}
         resizeMode="contain"
-        style={[styles.videoPlayer, {height: containerHeight}]}
+        style={[styles.videoPlayer, { height: containerHeight }]}
         repeat={false}
         paused={!currentVisible || !isFocused}
         muted={muted}
@@ -211,8 +211,6 @@ const styles = StyleSheet.create({
     width: width,
     backgroundColor: Colors.black,
     position: 'absolute',
-    // borderWidth: 1,
-    // borderColor: 'blue',
   },
   headerOverlay: {
     position: 'absolute',

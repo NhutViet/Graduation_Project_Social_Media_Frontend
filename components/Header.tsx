@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {
   Alert,
   Image,
+  ImageSourcePropType,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -15,7 +16,25 @@ import {useSelector} from 'react-redux';
 import {RootState} from '@services/store';
 import { getUnreadNotificationCount } from '@services/notificationRedux/notificationSlice';
 
-const Header = (props: any) => {
+type HeaderProps = {
+  title?: string;
+  pressableTitle?: string;
+  icon?: ImageSourcePropType;
+  iconBack?: ImageSourcePropType;
+  iconQR?: ImageSourcePropType;
+  iconNotify?: ImageSourcePropType;
+  iconMessage?: ImageSourcePropType;
+  iconLeft?: ImageSourcePropType;
+  iconNewChat?: ImageSourcePropType;
+  func?: () => void;
+  funcLeft?: () => void;
+  pressableTilFunc?: () => void;
+  navigation: {
+    navigate: (screen: string) => void;
+  };
+};
+
+const Header = (props: HeaderProps) => {
   const {
     title,
     icon,

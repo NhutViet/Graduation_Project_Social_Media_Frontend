@@ -9,7 +9,7 @@ import {
   SafeAreaView,
   LayoutChangeEvent,
 } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '@services/store';
 import { fetchCommentsByPost } from '@services/commentRedux/commentSlice';
@@ -24,10 +24,20 @@ import ReelsComponent from '../src/(tabs)/Reels/components/reelsComponent';
 import { Portal } from 'react-native-portalize';
 import ModalShare from '../src/(tabs)/Home/components/ModalShare';
 import { useShareModal } from '../src/(tabs)/Reels/hooks/useShareModal';
+import { PostWithMedia } from '@services/postRedux/postTypes';
+
+type RootStackParamList = {
+  AllReels: {
+    reels: PostWithMedia[];
+    initialId: string;
+  };
+};
+
+type ReelsScreenRouteProp = RouteProp<RootStackParamList, 'AllReels'>;
 
 const AllReels = () => {
   const navigation = useNavigation();
-  const route = useRoute<any>();
+  const route = useRoute<ReelsScreenRouteProp>();
   const dispatch = useDispatch<AppDispatch>();
   const { reels = [], initialId } = route.params || {};
   const [visibleHeight, setVisibleHeight] = useState(0);
@@ -38,7 +48,7 @@ const AllReels = () => {
   const { modalShareRef, openShareModal } = useShareModal();
 
   const [currentVisible, setCurrentVisible] = useState<string | null>(initialId);
-  const [selectedItem, setSelectedItem] = useState<any | null>(null);
+  const [selectedItem, setSelectedItem] = useState<PostWithMedia | null>(null);
   const [selectedPostId, setSelectedPostId] = useState({
     postId: '',
     receiverId: '',
@@ -47,7 +57,7 @@ const AllReels = () => {
   const [initialIndex, setInitialIndex] = useState<number>(0);
 
   useEffect(() => {
-    const index = reels.findIndex((item: any) => item._id === initialId);
+    const index = reels.findIndex((item: PostWithMedia) => item._id === initialId);
     setInitialIndex(index >= 0 ? index : 0);
     setLoading(false);
   }, [initialId, reels]);
@@ -62,13 +72,13 @@ const AllReels = () => {
     if (firstVisible) setCurrentVisible(firstVisible);
   });
 
-  const openComment = useCallback((item: any) => {
+  const openComment = useCallback((item: PostWithMedia) => {
     setSelectedPostId({ postId: item._id, receiverId: item.user._id });
     dispatch(fetchCommentsByPost(item._id));
     sheetRefComment.current?.open();
   }, [dispatch]);
 
-  const openBottomSheet = useCallback((item: any) => {
+  const openBottomSheet = useCallback((item: PostWithMedia) => {
     setSelectedItem(item);
     sheetRef.current?.open();
   }, []);

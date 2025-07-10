@@ -9,10 +9,17 @@ const rooms = ['room1', 'room2'];
 
 type RoomSelectorProp = StackNavigationProp<
   RootStackParamList,
-  'PendingMessages'
+  'MessageScreen'
 >;
 
-const MessageItem = (props: any) => {
+type MessageItemProps = {
+  img: string;
+  name: string;
+  description: string;
+  isGroup: boolean;
+};
+
+const MessageItem = (props: MessageItemProps) => {
   const {img, name, description, isGroup = false} = props;
   const navigation: any = useNavigation();
   const {theme} = useTheme();

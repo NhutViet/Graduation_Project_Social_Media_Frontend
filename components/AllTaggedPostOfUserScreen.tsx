@@ -18,6 +18,7 @@ import {RootState} from '../services/store';
 import ItemHome from '../src/(tabs)/Home/components/ItemHome';
 import {useTheme} from '../src/util/ThemeContext';
 import {Colors} from '../assets/color/Colors';
+import { TaggedPost } from '@services/taggedPostRedux/taggedPostTypes';
 
 const AllTaggedPostOfUserScreen = () => {
   const route = useRoute();
@@ -37,7 +38,7 @@ const AllTaggedPostOfUserScreen = () => {
   const [selectedPostId, setSelectedPostId] = useState<{postId: string, receiverId: string}>({postId: '', receiverId: ''});
 
   const targetIndex = Array.isArray(taggedPosts)
-    ? taggedPosts.findIndex((post: any) => post._id === targetPostId)
+    ? taggedPosts.findIndex((post: TaggedPost) => post._id === targetPostId)
     : -1;
 
   const onViewRef = useCallback(({viewableItems}: {viewableItems: any[]}) => {

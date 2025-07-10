@@ -20,6 +20,7 @@ import {fetchMyRooms} from '@services/roomRedux/roomSlice';
 // import { fetchFollowers, fetchFollowing } from '@services/relationRedux/relationSlice';
 import ChatRoomAvatar from '../../../../components/ChatRoomAvatar';
 import {RootState, AppDispatch} from '../../../../services/store';
+import { RoomUser } from '@services/roomRedux/roomType';
 
 export interface CombinedItem {
   kind: 'room' | 'friend';
@@ -80,7 +81,6 @@ const ModalShare = forwardRef<ModalShareHandle, ModalShareProps>(
           // dispatch(fetchFollowers({ userId: userID })).unwrap(),
           // dispatch(fetchFollowing({ userId: userID })).unwrap(),
         ]);
-
         const roomItems: CombinedItem[] = roomsRes.map(r => {
           const otherUsers = r.user_ids.filter(u => u._id !== userID);
           const name = r.name?.trim().length

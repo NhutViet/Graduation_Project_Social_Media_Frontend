@@ -9,7 +9,7 @@ export interface ExploreMedia {
 }
 
 interface ExploreSectionProps {
-  data: any;
+  data: ExploreMedia[];
   media: ExploreMedia[];
   index: number;
 }

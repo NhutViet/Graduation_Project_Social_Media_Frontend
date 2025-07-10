@@ -27,6 +27,7 @@ import {
   removeBookmark,
   saveBookmark,
 } from '../../../../services/bookmarkRedux/bookmarkSlice';
+import { PostWithMedia } from '@services/postRedux/postTypes';
 
 const height = Dimensions.get('window').height * 0.7;
 
@@ -37,7 +38,7 @@ export type BottomSheetReelsRef = {
 
 type BottomSheetReelsProps = {
   isBookmarked?: boolean;
-  selectedItem: any | null;
+  selectedItem?: PostWithMedia | null;
 };
 
 const BottomSheetReels = forwardRef<BottomSheetReelsRef, BottomSheetReelsProps>(

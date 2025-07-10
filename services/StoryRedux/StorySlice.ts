@@ -160,7 +160,7 @@ export const fetchHighlightStory = createAsyncThunk<
     console.log('🔍 API response:', {
       status: response.status,
       dataLength: response.data?.data?.length || 0,
-      data: response.data?.data?.map((h: any) => ({
+      data: response.data?.data?.map((h: Story) => ({
         id: h._id,
         name: h.collectionName,
       })),

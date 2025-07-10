@@ -2,7 +2,7 @@ import React, {Suspense} from 'react';
 import {Modalize} from 'react-native-modalize';
 import {Portal} from 'react-native-portalize';
 import {useTheme} from '../../../util/ThemeContext';
-import BottomSheetOptions from '../../../../components/BottomSheetOptions';
+import BottomSheetOptions, { ConfigOption } from '../../../../components/BottomSheetOptions';
 import {Colors} from '../../../../assets/color/Colors';
 
 const BottomSheetOptionsModal = ({
@@ -17,11 +17,11 @@ const BottomSheetOptionsModal = ({
   sheetRef: React.RefObject<Modalize>;
   isBookmarked?: boolean;
   isFollowing?: boolean;
-  topOptions?: any[];
-  firstListOptions: any[];
-  secondListOptions: any[];
+  topOptions?: ConfigOption[];
+  firstListOptions: ConfigOption[];
+  secondListOptions: ConfigOption[];
   onBookmarkPress: () => void;
-  onSelect: (value: any) => void;
+  onSelect: (id: string) => void;
 }) => {
   const {theme} = useTheme();
   const color = Colors[theme];

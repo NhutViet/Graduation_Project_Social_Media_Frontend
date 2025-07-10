@@ -79,7 +79,7 @@ import AllTaggedPostOfUserScreen from '../../components/AllTaggedPostOfUserScree
 export type RootStackParamList = {
   MessageScreen: {
     room: string;
-    isWaiting: boolean;
+    isWaiting?: boolean;
   };
   InforGroupChat: {
     roomId: string;

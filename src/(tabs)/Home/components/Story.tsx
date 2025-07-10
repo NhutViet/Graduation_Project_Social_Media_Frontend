@@ -4,7 +4,18 @@ import {Colors} from '../../../../assets/color/Colors';
 import {useTheme} from '../../../util/ThemeContext';
 import {Plus} from 'lucide-react-native';
 
-const Story = (props: any) => {
+type StoryProps = {
+  name: string;
+  image?: string;
+  func: () => void;
+  isStory?: boolean;
+  isHashTag?: boolean;
+  isCurrentUser?: boolean;
+  hasStory?: boolean;
+  isSeen?: boolean;
+};
+
+const Story = (props: StoryProps) => {
   const {
     name,
     image,

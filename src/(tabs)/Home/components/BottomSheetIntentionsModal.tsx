@@ -5,6 +5,11 @@ import BottomSheetIntentions from '../../../../components/BottomSheetIntentions'
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
 
+export interface IntentionOptionConfig {
+  id: string;
+  label: string;
+}
+
 const BottomSheetIntentionsModal = ({
   sheetRef,
   title = 'Báo cáo',
@@ -17,8 +22,8 @@ const BottomSheetIntentionsModal = ({
   title?: string;
   subtitle?: string;
   content?: string;
-  options: any[];
-  onSelect: (value: any) => void;
+  options: IntentionOptionConfig[];
+  onSelect: (id: string) => void;
 }) => {
   const {theme} = useTheme();
   const color = Colors[theme];

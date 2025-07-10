@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
-import {useIsFocused, useNavigation} from '@react-navigation/native';
+import {RouteProp, useIsFocused, useNavigation} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
 import Animated, {
   useAnimatedScrollHandler,
@@ -46,7 +46,19 @@ import { fetchMyRooms } from '@services/roomRedux/roomSlice';
 const HEADER_HEIGHT = 100;
 const AnimatedFlatList = Animated.createAnimatedComponent(Animated.FlatList);
 
-export const Home = forwardRef(({onReload, route}: any, ref) => {
+type HomeStackParamList = {
+  Home: {
+    shouldRefresh?: boolean;
+    timestamp?: number;
+  };
+};
+
+type HomeProps = {
+  onReload?: () => void;
+  route?: RouteProp<HomeStackParamList, 'Home'>;
+};
+
+export const Home = forwardRef(({onReload, route}: HomeProps, ref) => {
   const navigation = useNavigation<any>();
   const {theme} = useTheme();
   const color = Colors[theme];

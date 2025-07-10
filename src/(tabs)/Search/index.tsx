@@ -28,6 +28,7 @@ import {
 } from '../../../services/searchRedux/searchSlice';
 import {
   selectSearchLoading,
+  User as userType,
   UserR,
 } from '../../../services/searchRedux/searchType';
 import User from './Components/User';
@@ -166,7 +167,7 @@ export const Search = forwardRef<SearchRef, {}>((props, ref) => {
       const userItems = (users as UserR)?.items || [];
       return [
         ...hist.map((h, i) => ({type: 'history', value: h, id: `history-${i}`})),
-        ...userItems.map((u: any, i: any) => ({type: 'user', value: u, id: `user-${u._id || i}`})),
+        ...userItems.map((u: userType, i: number) => ({type: 'user', value: u, id: `user-${u._id || i}`})),
       ];
     }
     return searchHistory.map((h, i) => ({type: 'history', value: h, id: `history-${i}`}));

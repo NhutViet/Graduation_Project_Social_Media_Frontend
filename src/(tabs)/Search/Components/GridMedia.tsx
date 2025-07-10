@@ -3,9 +3,20 @@ import React from 'react';
 import Video from 'react-native-video';
 import {useTheme} from '../../../util/ThemeContext';
 import {SearchStyles} from '../../../StyleSheet/SearchStyles';
+import { MediaItem } from '@services/postRedux/postTypes';
 
-const GridMedia = (props: any) => {
-  const {images, item, index, currentVisibleIndex, isFocused, func, isFocusedPage, isPause} = props;
+interface GridMediaProps {
+  images: any[];
+  index: number;
+  currentVisibleIndex: number;
+  isFocused: boolean;
+  isFocusedPage: boolean;
+  isPause: boolean;
+  func?: () => void; // optional, nếu có thể là callback
+}
+
+const GridMedia = (props: GridMediaProps) => {
+  const {images, index, currentVisibleIndex, isFocused, func, isFocusedPage, isPause} = props;
 
   const theme = useTheme();
   const styles = SearchStyles(theme.theme);

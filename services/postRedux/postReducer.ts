@@ -162,8 +162,8 @@ const postReducer = createSlice({
 
       .addCase(hidePost.fulfilled, (state, action) => {
         const postId = action.meta.arg;
-        state.posts = state.posts.filter((post: any) => post._id !== postId);
-        state.reels = state.reels.filter((post: any) => post._id !== postId);
+        state.posts = state.posts.filter((post: PostWithMedia) => post._id !== postId);
+        state.reels = state.reels.filter((post: PostWithMedia) => post._id !== postId);
       });
   },
 });

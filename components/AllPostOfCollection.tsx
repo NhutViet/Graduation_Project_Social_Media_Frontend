@@ -19,10 +19,11 @@ import { clearPosts, clearReels } from '../services/searchRedux/searchReducer';
 import {useTheme} from '../src/util/ThemeContext';
 import {Colors} from '../assets/color/Colors';
 import { AppDispatch } from '../services/store';
+import { PostWithMedia } from '@services/postRedux/postTypes';
 
 interface RouteParams {
-  posts: any[]; // danh sách post được truyền vào
-  targetPostId: string; // bài viết cần scroll đến
+  posts: PostWithMedia[];
+  targetPostId: string;
   playlistName: string;
   clickableHashtag?: boolean;
   clearSearchRedux?: boolean;
@@ -77,7 +78,7 @@ const AllPostOfCollection = () => {
       <View style={{flex: 1, backgroundColor: colors.background}}>
         <FlatList
           ref={listRef}
-          data={posts.filter(p => p.media && p.media.length > 0)} // lọc bỏ post không có media
+          data={posts.filter(p => p.media && p.media.length > 0)}
           keyExtractor={item => item._id}
           extraData={[currentVisible, isFocused]}
           onViewableItemsChanged={onViewRef}

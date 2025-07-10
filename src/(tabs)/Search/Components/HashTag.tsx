@@ -103,7 +103,7 @@ const HashTag: React.FC = React.memo(() => {
             #{item.tag}
           </Text>
           <Text style={[styles.countText, {color: color.textSecondary}]}>  
-            {item.count} post{item.count > 1 ? 's' : ''}
+            {item.count} bài viết
           </Text>
         </View>
       </TouchableOpacity>

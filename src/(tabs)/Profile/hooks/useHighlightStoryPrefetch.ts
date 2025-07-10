@@ -2,10 +2,11 @@ import {useCallback, useRef} from 'react';
 import {useDispatch} from 'react-redux';
 import {AppDispatch} from '@services/store';
 import {fetchStoryDetails} from '@services/StoryRedux/StorySlice';
+import { Story } from '@services/StoryRedux/StoryType';
 
 interface HighlightPrefetchCache {
   [highlightId: string]: {
-    data: any[];
+    data: Story[];
     timestamp: number;
     isLoading: boolean;
     priority: number;
@@ -76,7 +77,7 @@ export const useHighlightStoryPrefetch = () => {
         ).unwrap();
 
         // Optimize story processing
-        const processedStories = detailRes.map((story: any) => ({
+        const processedStories = detailRes.map((story: Story) => ({
           ...story,
           uriVideo: story.mediaUrl?.endsWith('.m3u8') ? story.mediaUrl : null,
           image:
@@ -153,7 +154,7 @@ export const useHighlightStoryPrefetch = () => {
   const preloadAdjacentHighlights = useCallback(
     async (
       currentHighlightId: string,
-      allHighlights: any[],
+      allHighlights: Story[],
       direction: 'next' | 'prev' = 'next',
     ) => {
       const currentIndex = allHighlights.findIndex(
@@ -165,7 +166,7 @@ export const useHighlightStoryPrefetch = () => {
         direction === 'next' ? currentIndex + 1 : currentIndex - 1;
       const adjacentHighlight = allHighlights[adjacentIndex];
 
-      if (adjacentHighlight?.storyId?.length > 0) {
+      if (adjacentHighlight?.storyId && adjacentHighlight?.storyId?.length > 0) {
         // Lower priority for adjacent highlights
         await prefetchHighlightStoryData(
           adjacentHighlight._id,
@@ -179,11 +180,11 @@ export const useHighlightStoryPrefetch = () => {
 
   // Preload first 5 highlights for better performance
   const preloadInitialHighlights = useCallback(
-    async (highlights: any[]) => {
+    async (highlights: Story[]) => {
       const highlightsToPreload = highlights.slice(0, 5);
 
       for (const highlight of highlightsToPreload) {
-        if (highlight.storyId?.length > 0) {
+        if (highlight.storyId && highlight.storyId?.length > 0) {
           try {
             await prefetchHighlightStoryData(
               highlight._id,

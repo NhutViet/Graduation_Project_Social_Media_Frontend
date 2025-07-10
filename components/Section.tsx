@@ -1,9 +1,17 @@
-import {StyleSheet, Text, TouchableOpacity, Image} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, Image, ImageSourcePropType} from 'react-native';
 import React from 'react';
 import {useTheme} from '../src/util/ThemeContext';
 import {Colors} from '../assets/color/Colors';
 
-const Section = (props: any) => {
+type SectionProps = {
+  title: string;
+  iconLeft: ImageSourcePropType;
+  iconRight: ImageSourcePropType;
+  func?: () => void;
+  backData?: string;
+};
+
+const Section = (props: SectionProps) => {
   const {theme} = useTheme();
   const color = Colors[theme];
 
