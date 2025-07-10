@@ -33,7 +33,6 @@ const {height} = Dimensions.get('window');
 
 const CommentSection = ({postId, receiverId}: Props) => {
   const dispatch = useDispatch<AppDispatch>();
-  const navigation = useNavigation();
   const user = useSelector((state: RootState) => state.user.user);
   const {comments, loading} = useSelector((state: RootState) => state.comment);
   const {theme} = useTheme();
@@ -107,13 +106,14 @@ const CommentSection = ({postId, receiverId}: Props) => {
             renderItem={({item}) => (
               <CommentComponent
                 _id={item._id}
+                postId={postId}
                 content={item.content}
                 isDeleted={item.isDeleted}
                 isLiked={item.isLiked}
                 createdAt={item.createdAt}
                 reply={item.reply}
                 user={item.user}
-                onReply={(id, handleName) => {
+                onReply={(id, handleName, userId) => {
                   setReplyTo({id, handleName, userId});
                   setTimeout(() => {
                     inputRef.current?.focus();

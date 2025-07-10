@@ -210,7 +210,7 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
                                 totalLikes={item.totalLikes}
                                 user={item.user}
                                 onReply={(id, handleName, userId) => {
-                            setReplyTo({id, handleName, userId});
+                                  setReplyTo({id, handleName, userId});
                                   setTimeout(() => {
                                     inputRef.current?.focus();
                                   }, 200);

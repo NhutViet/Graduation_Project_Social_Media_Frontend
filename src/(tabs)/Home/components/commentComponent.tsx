@@ -150,6 +150,7 @@ const CommentComponent = memo((props: CommentComponentProps) => {
     user,
     content,
     createdAt,
+    postId,
     totalLikes,
     likedBy = [],
     isLiked: defaultLiked,
@@ -174,7 +175,7 @@ const CommentComponent = memo((props: CommentComponentProps) => {
     if (likeTimeout.current) clearTimeout(likeTimeout.current);
     likeTimeout.current = setTimeout(() => {
       if (newLiked) {
-        dispatch(likeComment({commentId: _id, receiverId: user?._id, handleName: currentUser?.handleName, userId: currentUser?._id,}));
+        dispatch(likeComment({commentId: _id, receiverId: user?._id, handleName: currentUser?.handleName, userId: currentUser?._id, postId: postId}));
         dispatch(updateCommentLike({commentId: _id, userId: userId || ''}));
       } else {
         dispatch(unlikeComment(_id));
