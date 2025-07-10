@@ -14,6 +14,7 @@ import {useSelector} from 'react-redux';
 import {RootState} from '../../../../services/store';
 import {useNavigation} from '@react-navigation/native';
 import { SearchSkeletonGrid } from '../../../../components/SkeletonGrid'
+import { Item, Post } from '@services/searchRedux/searchType';
 
 const screenWidth = Dimensions.get('window').width;
 const mediasHeight = ((screenWidth - 4) / 3) * 2;
@@ -57,12 +58,12 @@ const SearchForYou: React.FC<SearchForYouProps> = ({
   const color = Colors[theme];
   const navigation = useNavigation<any>();
 
-  const shuffleCache = useRef<{data: any[]; shuffled: any[]}>({data: [], shuffled: []});
+  const shuffleCache = useRef<{data: Item[]; shuffled: Item[]}>({data: [], shuffled: []});
 
   const {posts, reels, isSuccess, isLoading} = useSelector((state: RootState) => state.search);
 
-  const postItems = (posts as any)?.items || [];
-  const reelItems = (reels as any)?.items || [];
+  const postItems = (posts as Post)?.items || [];
+  const reelItems = (reels as Post)?.items || [];
 
   // Cached shuffled list
   const randomList = useMemo(() => {
@@ -82,7 +83,7 @@ const SearchForYou: React.FC<SearchForYouProps> = ({
   const viewabilityConfig = useMemo(() => ({viewAreaCoveragePercentThreshold: 50}), []);
 
   const handlePressItem = useCallback(
-    (item: any) => {
+    (item: Item) => {
       navigation.navigate('AllPostOfCollection', {
         posts: randomList,
         targetPostId: item._id,
@@ -95,7 +96,7 @@ const SearchForYou: React.FC<SearchForYouProps> = ({
   );
 
   const renderMediaItem = useCallback(
-    ({item, index}: any) => {
+    ({item, index}: {item: Item; index: number}) => {
       const media = item.media?.[0];
       if (!media) return null;
 
@@ -106,7 +107,7 @@ const SearchForYou: React.FC<SearchForYouProps> = ({
           key={item._id || index}
           style={styles.itemContainer}
           onPress={() => handlePressItem(item)}>
-          {shouldUseImageOnly ? (
+          {shouldUseImageOnly && media.videoUrl ? (
             <Image
               source={{uri: convertToImage(media.videoUrl)}}
               style={styles.media}

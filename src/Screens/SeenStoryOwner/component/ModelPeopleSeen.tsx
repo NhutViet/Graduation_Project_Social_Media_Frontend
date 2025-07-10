@@ -20,7 +20,11 @@ const ModalPeopleSeen = ({
   visible: boolean;
   onClose: () => void;
   users: {_id: string; handleName: string; profilePic: string}[];
-  onUserPress: (user: any) => void;
+  onUserPress: (user: {
+    _id: string;
+    handleName: string;
+    profilePic: string;
+  }) => void;
 }) => {
   console.log('ModalPeopleSeen users:', JSON.stringify(users, null, 2));
   const RenderItem = ({

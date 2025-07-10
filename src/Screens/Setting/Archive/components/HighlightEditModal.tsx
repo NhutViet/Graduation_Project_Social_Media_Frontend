@@ -14,6 +14,25 @@ import * as ImagePicker from 'react-native-image-picker';
 import {Colors} from '../../../../../assets/color/Colors';
 import {useTheme} from '../../../../util/ThemeContext';
 import {GlobalAlertManager} from '../../../../../components/Global/AlertModal';
+import { Story } from '@services/StoryRedux/StoryType';
+
+export interface HighlightEditModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  selectedStories: Story[];
+  onSaveHighlight: (
+    storyIds: string[],
+    highlightName: string,
+    coverImageUrl: string
+  ) => Promise<void>;
+  uploadImageToR2: any;
+  showUploadModal: () => void;
+  hideUploadModal: () => void;
+  setProgress: (value: number) => void;
+  onComplete: () => void;
+  isProcessing: boolean;
+  setIsProcessing: (value: boolean) => void;
+}
 
 const HighlightEditModal = ({
   isOpen,
@@ -27,7 +46,7 @@ const HighlightEditModal = ({
   onComplete,
   isProcessing,
   setIsProcessing,
-}: any) => {
+}: HighlightEditModalProps) => {
   const [highlightName, setHighlightName] = useState('');
   const [coverImage, setCoverImage] = useState<string | null>(null);
   const [isCustomCover, setIsCustomCover] = useState(false);
@@ -94,7 +113,7 @@ const HighlightEditModal = ({
         // Không làm gì
       }
 
-      const storyIds = selectedStories.map((s: any) => s._id);
+      const storyIds = selectedStories.map((s: Story) => s._id);
       await onSaveHighlight(storyIds, highlightName, uploadedCoverUrl);
 
       // reset

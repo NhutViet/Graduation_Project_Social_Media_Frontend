@@ -230,7 +230,7 @@ export const AddPost = () => {
     });
   };
 
-  const handleFilter = (filter: any) => {
+  const handleFilter = (filter: string) => {
     setFilter(filter);
     setShowModalFilter(false);
   };

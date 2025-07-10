@@ -232,7 +232,7 @@ export const PostSetting = () => {
               data={selectedMedia}
               horizontal
               showsHorizontalScrollIndicator={false}
-              renderItem={({item}) => (
+              renderItem={({item}: {item: PhotoIdentifier}) => (
                 <Image
                   source={{uri: item.node.image.uri}}
                   style={styles.imgShow}
@@ -339,7 +339,13 @@ export const PostSetting = () => {
 
       <BottomSheet
         ref={sheetRef}
-        onDoneSelect={(musicInfo: any) => {
+        onDoneSelect={(musicInfo: {
+          musicId: string;
+          timeStart: number;
+          timeEnd: number;
+          song: string;
+          songImage: string;
+        }) => {
           setSelectedMusic(musicInfo);
         }}
       />

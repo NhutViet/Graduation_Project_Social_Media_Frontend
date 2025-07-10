@@ -3,7 +3,13 @@ import React from 'react';
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
 
-const ModalIsBlock = (props: any) => {
+interface ModalIsBlockProps {
+  uri: string;
+  handle: string;
+  onHandleBlock: () => void;
+}
+
+const ModalIsBlock = (props: ModalIsBlockProps) => {
   const {uri, handle, onHandleBlock} = props;
   const {theme} = useTheme();
   const color = Colors[theme];

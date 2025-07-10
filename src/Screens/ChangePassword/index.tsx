@@ -22,7 +22,12 @@ export const ChangePassword = () => {
   const styles = ChangePasswordStyles(theme);
   const navigation = useNavigation();
   const modalRef = useRef<Modalize>(null);
-  const [selectAccount, setSelectAccount] = useState<any | null>(null);
+  const [selectAccount, setSelectAccount] = useState<{
+    id: string;
+    name: string;
+    handle: string;
+    uri: string;
+  } | null>(null);
   const [currentPass, setCurrentPass] = useState('');
   const [newPass, setNewPass] = useState('');
   const [reNewPass, setReNewPass] = useState('');

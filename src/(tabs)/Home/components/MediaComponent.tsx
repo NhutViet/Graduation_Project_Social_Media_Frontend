@@ -1,4 +1,4 @@
-import React, {useMemo, useState} from 'react';
+import React, {useCallback, useMemo, useState} from 'react';
 import {View, Image, TouchableOpacity, Dimensions} from 'react-native';
 import Video from 'react-native-video';
 import {Colors} from '../../../../assets/color/Colors';
@@ -37,6 +37,10 @@ export const RenderMediaItem = React.memo(
       return 'contain';
     }, [videoSize]);
 
+    const handleTagPress = useCallback((userId: string) => {
+      navigation.navigate('ProfileComp', {userID: userId});
+    }, [navigation]);
+
     return (
       <View style={{width: screenWidth, height: item.videoUrl ? 600 : 520}}>
         {item.videoUrl ? (
@@ -44,7 +48,7 @@ export const RenderMediaItem = React.memo(
             source={{uri: item.videoUrl}}
             resizeMode={videoResizeMode}
             style={{width: screenWidth, height: 600}}
-            repeat
+            repeat={false}
             paused={!currentVisible || !isFocused}
             muted={muted}
             playInBackground={false}
@@ -66,18 +70,15 @@ export const RenderMediaItem = React.memo(
         )}
 
         {/* Hiển thị các tag (nếu có) */}
-        {item.tags?.length > 0 &&
-          item.tags?.map((tag, index) => (
-            <TagMarker
-              key={`${tag.userId}_${index}`}
-              tag={tag}
-              screenWidth={screenWidth}
-              imageHeight={item.videoUrl ? 600 : 520}
-              onPress={userId => {
-                navigation.navigate('ProfileComp', {userID: userId});
-              }}
-            />
-          ))}
+        {item.tags?.length > 0 && item.tags?.map((tag, index) => (
+          <TagMarker
+            key={`${tag.userId}_${index}`}
+            tag={tag}
+            screenWidth={screenWidth}
+            imageHeight={item.videoUrl ? 600 : 520}
+            onPress={userId => handleTagPress(userId)}
+          />
+        ))}
       </View>
     );
   },

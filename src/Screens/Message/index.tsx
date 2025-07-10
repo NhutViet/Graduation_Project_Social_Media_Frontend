@@ -255,7 +255,8 @@ export const MessageScreen = () => {
 
   const isMessageRequest = !relationStatus && chat.length > 0;
   const isCurrentUserSender = isMessageRequest && roomMember1?._id === userC?._id;
-
+  // console.log(` 258 >>>>>>>>> ${isMeSender} <<<<<<<<<<<<< `);
+  // console.log(` 259 >>>>>>>>> ${relationStatus} <<<<<<<<<<<<< `);
   const MessageRequestBanner = ({ onAccept }: { onAccept: () => void }) => (
     <View style={styles.requestBanner}>
       <Text style={styles.requestBannerText}>

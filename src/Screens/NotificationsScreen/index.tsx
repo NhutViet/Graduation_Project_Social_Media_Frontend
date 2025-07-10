@@ -59,7 +59,7 @@ const formatNotisWithHeaders = (notifications: ItemNoti[]) => {
     a.getMonth() === b.getMonth() &&
     a.getFullYear() === b.getFullYear();
 
-  const result: Array<{type: 'header' | 'item'; data: any}> = [];
+  const result: Array<{type: 'header' | 'item'; data: ItemNoti | string}> = [];
 
   const groups: {[key: string]: ItemNoti[]} = {};
 
@@ -170,12 +170,12 @@ export const NotificationsScreen = () => {
     }
   };
 
-  const renderItem = ({item}: {item: {type: 'header' | 'item'; data: any}}) => {
+  const renderItem = ({item}: {item: {type: 'header' | 'item'; data: ItemNoti | string}}) => {
     if (item.type === 'header') {
-      return <Text style={styles.sectionTitle}>{item.data}</Text>;
+      return <Text style={styles.sectionTitle}>{(item.data as string)}</Text>;
     }
 
-    const noti: ItemNoti = item.data;
+    const noti: ItemNoti = item.data as ItemNoti;
     const isRead = noti.isRead ?? false;
 
     return (
@@ -237,7 +237,7 @@ export const NotificationsScreen = () => {
             horizontal={false}
             renderItem={renderItem}
             keyExtractor={(item, index) =>
-              item.type === 'header' ? `header-${item.data}` : item.data._id
+              item.type === 'header' ? `header-${item.data}` : (item.data as ItemNoti)._id
             }
             onEndReached={handleLoadMore}
             onEndReachedThreshold={0.5}

@@ -4,16 +4,18 @@ import {Colors} from '@assets/color/Colors';
 import IncomingCallModal from '../../../../components/IncomingCallModal';
 import {useSocket} from '@services/SocketContext';
 import {ArrowLeft, Phone, Video, AlertCircle} from 'lucide-react-native';
+import {Room, RoomUser} from '@services/roomRedux/roomType';
+import {User} from '@services/userRedux/userTypes';
 
 interface MessageHeaderProps {
-  user1?: any;
-  user2?: any;
-  room?: any;
+  user1?: RoomUser;
+  user2?: RoomUser;
+  room: Room | null;
   navigation: any;
   handleGoBack: () => void;
   styles: any;
   color: any;
-  userC: any;
+  userC: User | null;
 }
 
 const MessageHeader: React.FC<MessageHeaderProps> = ({
@@ -75,7 +77,7 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
   useEffect(() => {
     if (!socket) return;
 
-    const onIncoming = ({callerName, type}: any) => {
+    const onIncoming = ({callerName, type}: {callerName: string; type: 'video' | 'voice'}) => {
       setIncomingCall({
         visible: true,
         callerName,
@@ -125,7 +127,6 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
   }, [incomingCall.visible]);
 
   const isWaitingRoom = room.type === 'waiting';
-
   return (
     <>
       <View

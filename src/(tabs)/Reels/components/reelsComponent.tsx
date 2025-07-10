@@ -32,30 +32,34 @@ const MemoizedText = memo(Text);
 
 const ReelsComponent = memo((props: any) => {
   const {
-    _id,
-    caption,
-    share,
-    media,
-    user,
-    muted,
-    currentVisible,
-    isFocused,
-    likeCount,
-    isLiked,
-    commentCount,
-    isFollowing,
-    isCurrentUser,
-    containerHeight,
-    onLike,
-    onComment,
-    onFollow,
-    onShare,
-    onMenu,
-    onProfilePress,
-    onTagPress,
-    setSkipReload,
-  } = props;
-
+  _id,
+  type,
+  caption,
+  createdAt,
+  media,
+  user,
+  likeCount,
+  commentCount,
+  isBookmarked,
+  isLiked,
+  isFollow,
+  isFollowing,
+  isCurrentUser,
+  share,
+  music,
+  currentVisible,
+  isFocused,
+  containerHeight,
+  muted = false,
+  onLike,
+  openComment,
+  onFollow,
+  onProfilePress,
+  onTagPress,
+  onMenu,
+  openShareModal,
+  setSkipReload,
+} = props;
   const navigation = useNavigation<any>();
   const {theme} = useTheme();
   const color = Colors[theme];
@@ -142,10 +146,6 @@ const ReelsComponent = memo((props: any) => {
         hideShutterView={true}
       />
 
-      <View style={styles.headerOverlay}>
-        <ReelsHeader />
-      </View>
-
       <View style={styles.tagOverlay}>
         {media[0]?.tags?.map((tag: any) => (
           <MemoizedTagMarker key={tag._id} tag={tag} onPress={handleTagPress} />
@@ -179,8 +179,19 @@ const ReelsComponent = memo((props: any) => {
             Heart,
             likeCount,
             handleLike,
-            isLiked ? color.error : Colors.white,
-            isLiked,
+            isLiked ? color.error : '#fff',
+          )}
+
+          {renderActionButton(
+            require('../../../../assets/icon/comment.png'),
+            commentCount,
+            openComment,
+          )}
+
+          {renderActionButton(
+            require('../../../../assets/icon/share.png'),
+            share,
+            openShareModal,
           )}
           {renderActionButton(MessageCircle, commentCount, onComment)}
           {renderActionButton(Share2, share, onShare)}
@@ -214,11 +225,6 @@ const styles = StyleSheet.create({
     width: width,
     backgroundColor: Colors.black,
     position: 'absolute',
-  },
-  headerOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
   },
   tagOverlay: {
     position: 'absolute',

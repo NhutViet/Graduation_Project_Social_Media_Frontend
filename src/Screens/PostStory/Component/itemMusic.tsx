@@ -15,7 +15,17 @@ import {
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 import {Bookmark, BookmarkCheck} from 'lucide-react-native';
 
-const ItemMusic = (props: any) => {
+type ItemMusicProps = {
+  _id: string;
+  coverImg: string;
+  song: string;
+  author: string;
+  countVideoUsed?: number;
+  onPress?: () => void;
+  isBookmarked?: boolean;
+};
+
+const ItemMusic = (props: ItemMusicProps) => {
   const {
     _id,
     coverImg,

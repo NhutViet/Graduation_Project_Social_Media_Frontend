@@ -7,7 +7,7 @@ import { useCameraStyles } from '../../../src/StyleSheet/CameraStyles';
 
 const modes = ['Bình thường', 'Chân dung', 'Video', 'Toàn cảnh'];
 
-export const CameraScreen = ({ navigation, onBack }: any) => {
+export const CameraScreen = ({ navigation, onBack }: {navigation: any, onBack: () => void}) => {
   const cameraRef = useRef<CameraVisionHandle>(null);
   const [mode, setMode] = useState<string>('Bình thường');
   const [previewUri, setPreviewUri] = useState<string | null>(null);

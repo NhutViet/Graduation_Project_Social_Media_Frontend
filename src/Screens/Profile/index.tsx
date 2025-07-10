@@ -43,7 +43,8 @@ import {clearPostsAndReels} from '../../../services/postUserRedux/postUserReduce
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 import {fetchTaggedPosts} from '@services/taggedPostRedux/taggedPostSlice';
 import HighlightStoriesComponent from '../../(tabs)/Profile/components/HighlightStoriesComponent';
-import { ProfileSkeleton } from '../../../components/SkeletonGrid';
+import {ProfileSkeleton} from '../../../components/SkeletonGrid';
+import {Item} from '@services/postUserRedux/postUserType';
 
 const ProfileComp = ({route}: any) => {
   const navigation: any = useNavigation();
@@ -157,12 +158,10 @@ const ProfileComp = ({route}: any) => {
     errorMessagePublicProfile,
   } = useSelector((state: RootState) => state.user);
 
-  const {items: PostsItem}: any | null = useSelector(
-    (state: RootState) => state.postUser.posts,
-  );
-  const {items: ReelsItem}: any | null = useSelector(
-    (state: RootState) => state.postUser.reels,
-  );
+  const postState = useSelector((state: RootState) => state.postUser.posts);
+  const PostsItem: Item[] | null = 'items' in postState ? postState.items : [];
+  const reelState = useSelector((state: RootState) => state.postUser.reels);
+  const ReelsItem: Item[] | null = 'items' in reelState ? reelState.items : [];
 
   const {isSuccess} = useSelector((state: RootState) => state.postUser);
   const {refreshToken} = useSelector((state: RootState) => state.user);
@@ -270,7 +269,11 @@ const ProfileComp = ({route}: any) => {
 
   // Show loading indicator while fetching profile
   if (isInitializing || isLoadingPublicProfile || !publicProfile) {
-    return <View style={[{backgroundColor: Colors[theme].background}]}><ProfileSkeleton /></View>;
+    return (
+      <View style={[{backgroundColor: Colors[theme].background}]}>
+        <ProfileSkeleton />
+      </View>
+    );
   }
 
   // Show error message if failed to load profile

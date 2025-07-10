@@ -2,6 +2,9 @@ import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {FlashList} from '@shopify/flash-list';
 import {
   ActivityIndicator,
+  Image,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
   RefreshControl,
   SafeAreaView,
   ScrollView,
@@ -33,7 +36,7 @@ import {
   XCircle,
 } from 'lucide-react-native';
 
-export const MessageBox = (props: any) => {
+export const MessageBox = (props: {onBack: () => void}) => {
   const navigation: any = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];
@@ -87,9 +90,11 @@ export const MessageBox = (props: any) => {
   }, [processedStories, visibleStoryCount]);
 
   const handleStoryScroll = useCallback(
-    (event: any) => {
-      const {contentOffset} = event.nativeEvent;
-      const currentIndex = Math.floor(contentOffset.x / 70);
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const {contentOffset, contentSize, layoutMeasurement} = event.nativeEvent;
+      const currentIndex = Math.floor(contentOffset.x / 70); // Assuming each story item is ~70px wide
+
+      // ✅ Load more when user reaches 3rd item from the end of visible stories
       const triggerPoint = Math.max(0, visibleStoryCount - 3);
 
       if (
