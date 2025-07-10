@@ -19,6 +19,7 @@ import {LogBox} from 'react-native';
 import AppContent from './AppContent';
 
 LogBox.ignoreLogs(['Warning: componentWillReceiveProps has been renamed']);
+LogBox.ignoreLogs(['This method is deprecated (as well as all React Native Firebase namespaced API)'])
 global.Buffer = Buffer;
 
 if (__DEV__) {
