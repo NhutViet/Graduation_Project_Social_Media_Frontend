@@ -1,5 +1,5 @@
 import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
-import { ActivityIndicator, Dimensions, SafeAreaView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, SafeAreaView, StyleSheet } from 'react-native';
 import { useIsFocused, useFocusEffect } from '@react-navigation/native';
 import { Colors } from '../../../assets/color/Colors';
 import { useDispatch } from 'react-redux';
@@ -11,11 +11,8 @@ import { useReels } from './hooks/useReels';
 import { useShareModal } from './hooks/useShareModal';
 import { Modalize } from 'react-native-modalize';
 import { fetchReelsWithMedia } from '@services/postRedux/postSlice';
-import ReelsHeader from './components/ReelsHeader';
 import ReelsList from './components/ReelsLists';
 import ReelsBottomSheets from './components/ReelsBottomSheets';
-
-const height = Dimensions.get('window').height;
 
 const Reels = forwardRef((props, ref) => {
   const isFocused = useIsFocused();
@@ -91,7 +88,6 @@ const Reels = forwardRef((props, ref) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ReelsHeader />
       <ReelsList
         reels={reels}
         currentVisible={currentVisible}
