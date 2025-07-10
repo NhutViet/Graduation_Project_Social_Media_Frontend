@@ -3,6 +3,7 @@ import {View, TouchableOpacity, Image, Text} from 'react-native';
 import {Colors} from '@assets/color/Colors';
 import IncomingCallModal from '../../../../components/IncomingCallModal';
 import {useSocket} from '@services/SocketContext';
+import {ArrowLeft, Phone, Video, AlertCircle} from 'lucide-react-native';
 import {Room, RoomUser} from '@services/roomRedux/roomType';
 import {User} from '@services/userRedux/userTypes';
 
@@ -125,17 +126,14 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
     };
   }, [incomingCall.visible]);
 
-  const isWaitingRoom = room?.type === 'waiting';
+  const isWaitingRoom = room.type === 'waiting';
   return (
     <>
       <View
         style={[styles.header, {backgroundColor: 'rgba(243, 244, 246, 0.6)'}]}>
         <View style={styles.rowContainer2}>
           <TouchableOpacity style={styles.blockIcon} onPress={handleGoBack}>
-            <Image
-              style={[styles.icon, {tintColor: color.text}]}
-              source={require('@assets/icon/left.png')}
-            />
+            <ArrowLeft size={22} color={color.text} />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -197,24 +195,15 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
               <TouchableOpacity
                 style={styles.blockIcon}
                 onPress={handleVoiceCall}>
-                <Image
-                  style={styles.icon}
-                  source={require('../../../../assets/icon/telephone.png')}
-                />
+                <Phone size={22} color={color.text} />
               </TouchableOpacity>
               <TouchableOpacity style={styles.blockIcon} onPress={handleCall}>
-                <Image
-                  style={[styles.icon, {tintColor: color.text}]}
-                  source={require('@assets/icon/videoCamera.png')}
-                />
+                <Video size={22} color={color.text} />
               </TouchableOpacity>
             </>
           )}
           <TouchableOpacity style={styles.blockIcon}>
-            <Image
-              style={[styles.icon, {tintColor: color.text}]}
-              source={require('@assets/icon/danger.png')}
-            />
+            <AlertCircle size={22} color={color.text} />
           </TouchableOpacity>
         </View>
       </View>

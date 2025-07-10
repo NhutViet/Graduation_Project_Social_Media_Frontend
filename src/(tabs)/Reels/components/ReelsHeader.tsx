@@ -1,6 +1,7 @@
-import React, { memo } from 'react';
-import { View, Text, Image, StyleSheet, Dimensions } from 'react-native';
-import { Colors } from '@assets/color/Colors';
+import React, {memo} from 'react';
+import {View, Text, StyleSheet, Dimensions} from 'react-native';
+import {Colors} from '@assets/color/Colors';
+import {ChevronDown} from 'lucide-react-native';
 
 const width = Dimensions.get('window').width;
 
@@ -10,10 +11,7 @@ const ReelsHeader = () => {
       <View style={styles.rowContainer}>
         <Text style={styles.textHeader}>Reels</Text>
         <View style={styles.iconDownContainer}>
-          <Image
-            style={styles.icon}
-            source={require('../../../../assets/icon/down.png')}
-          />
+          <ChevronDown size={22} color={Colors.white} />
         </View>
       </View>
     </View>
@@ -43,14 +41,10 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   iconDownContainer: {
-    width: 12,
-    height: 12,
-  },
-  icon: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'contain',
-    tintColor: Colors.white,
+    width: 22,
+    height: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

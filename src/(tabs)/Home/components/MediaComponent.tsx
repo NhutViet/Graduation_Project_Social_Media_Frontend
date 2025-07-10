@@ -6,6 +6,7 @@ import {ItemHomeStyles} from '../component_styles/ItemHomeStyles';
 import {Media} from '../../../../services/postRedux/postTypes';
 import TagMarker from './TagMarker';
 import {useNavigation} from '@react-navigation/native';
+import {Volume2, VolumeX} from 'lucide-react-native';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -113,14 +114,11 @@ export const RenderMuteButton = React.memo(
       <TouchableOpacity
         style={ItemHomeStyles.muteButton}
         onPress={() => setMuted(!muted)}>
-        <Image
-          source={
-            muted
-              ? require('../../../../assets/icon/mute.png')
-              : require('../../../../assets/icon/volume.png')
-          }
-          style={[{tintColor: Colors.dark.text}, ItemHomeStyles.icon]}
-        />
+        {muted ? (
+          <VolumeX size={22} color={Colors.dark.text} />
+        ) : (
+          <Volume2 size={22} color={Colors.dark.text} />
+        )}
       </TouchableOpacity>
     );
   },

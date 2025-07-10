@@ -6,12 +6,13 @@ import {
   Dimensions,
   TouchableOpacity,
 } from 'react-native';
-import React, {useCallback} from 'react'
+import React, {useCallback} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {Colors} from '../../../../assets/color/Colors';
 import {useTheme} from '../../../util/ThemeContext';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import Header from '../../../../components/Header';
+import {ChevronRight} from 'lucide-react-native';
 
 interface HelpOption {
   id: string;
@@ -20,15 +21,14 @@ interface HelpOption {
 }
 
 export const HelpCenter = () => {
-    const {theme} = useTheme();
-    const color = Colors[theme];
-    const navigation: any = useNavigation();
-    const goBack = useCallback((): void => {
-        navigation.goBack();
-      }, [navigation]);
-    
+  const {theme} = useTheme();
+  const color = Colors[theme];
+  const navigation: any = useNavigation();
+  const goBack = useCallback((): void => {
+    navigation.goBack();
+  }, [navigation]);
 
-    const options: HelpOption[] = [
+  const options: HelpOption[] = [
     {
       id: 'faq',
       title: 'FAQ',
@@ -81,7 +81,7 @@ export const HelpCenter = () => {
       <View style={{width: '100%', height: 60}}>
         <Header
           pressableTitle="Trung tâm trợ giúp"
-          iconBack={require('../../../../assets/icon/left.png')}
+          iconBack={true}
           func={goBack}
           navigation={navigation}
         />
@@ -91,16 +91,12 @@ export const HelpCenter = () => {
           <TouchableOpacity
             key={option.id}
             style={styles.item}
-            onPress={option.onPress}
-          >
+            onPress={option.onPress}>
             <Text style={styles.itemText}>{option.title}</Text>
-            <Image
-              source={require('../../../../assets/icon/right.png')}
-              style={styles.arrowIcon}
-            />
+            <ChevronRight size={22} color={color.text} />
           </TouchableOpacity>
         ))}
       </View>
     </SafeAreaView>
-  )
-}
+  );
+};

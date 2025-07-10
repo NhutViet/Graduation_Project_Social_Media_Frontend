@@ -70,7 +70,7 @@ export const AddCollectionScreen = () => {
   ///////////////redux
   const dispatch = useDispatch<AppDispatch>();
   const {refreshToken} = useSelector((state: RootState) => state.user);
-  const {isloading, messageError} = useSelector(
+  const {isloading} = useSelector(
     (state: RootState) => state.bookmark,
   );
 

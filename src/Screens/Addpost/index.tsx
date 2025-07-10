@@ -7,10 +7,8 @@ import {
   TouchableOpacity,
   Image,
   Dimensions,
-  Alert,
-  Modal,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   CameraRoll,
   PhotoIdentifier,
@@ -22,6 +20,9 @@ import {getAddPostStyles} from '../../StyleSheet/AddPostStyles';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+import CustomPopupModal, {
+  CustomPopupModalRef,
+} from '../../../components/Global/CustomPopupModal';
 
 const menu: string[] = ['Tất cả', 'Thước phim', 'Hình ảnh'];
 
@@ -37,17 +38,17 @@ export const AddPost = () => {
   const [selectedMedia, setSelectedMedia] = useState<PhotoIdentifier | null>(
     null,
   );
-  
-  const route = useRoute();
-  const type = (route.params as { type?: string })?.type ?? '';
 
+  const route = useRoute();
+  const {type}: any = route.params || {};
+  const popupFilterRef = useRef<CustomPopupModalRef>(null);
   const [selectedItems, setSelectedItems] = useState<PhotoIdentifier[]>([]);
   const [isMultiSelect, setIsMultiSelect] = useState(false);
 
   //phân loại ảnh và video
   const [filter, setFilter] = useState(() => {
     console.log('typoe', type);
-    if(type === 'video') return 'Thước phim';
+    if (type === 'video') return 'Thước phim';
     if (type === 'image') return 'Hình ảnh';
     return 'Tất cả';
   });
@@ -175,7 +176,10 @@ export const AddPost = () => {
           setSelectedMedia(selectedItems[selectedItems.length - 2]);
         } else {
           if (selectedItems.length >= 10) {
-            Alert.alert('Thông báo', 'Chỉ được chọn tối đa 10 ảnh!');
+            GlobalAlertManager.show(
+              'Thông báo',
+              'Chỉ được chọn tối đa 10 ảnh!',
+            );
             return;
           }
 
@@ -270,7 +274,7 @@ export const AddPost = () => {
             ]}>
             <TouchableOpacity
               style={styles.row}
-              onPress={() => setShowModalFilter(true)}>
+              onPress={() => popupFilterRef.current?.open()}>
               <Text style={styles.textR}>{filter}</Text>
               <Image
                 source={require('../../../assets/icon/right.png')}
@@ -391,33 +395,33 @@ export const AddPost = () => {
         </View>
       </View>
 
-      {/* modal filter ---------------------------------------*/}
-      <Modal visible={showModalFilter} animationType="fade" transparent>
-        <View style={styles.modal}>
-          <View style={styles.modalContainer}>
-            <FlashList
-              data={menu}
-              estimatedItemSize={200}
-              showsVerticalScrollIndicator={false}
-              renderItem={item => {
-                return (
-                  <TouchableOpacity
-                    style={styles.filterContainer}
-                    onPress={() => handleFilter(item.item)}>
-                    <Text style={styles.textR}>{item.item}</Text>
-                    {filter === item.item && (
-                      <Image
-                        source={require('../../../assets/icon/check.png')}
-                        style={styles.iconCheck}
-                      />
-                    )}
-                  </TouchableOpacity>
-                );
-              }}
-            />
-          </View>
-        </View>
-      </Modal>
+      <CustomPopupModal
+        ref={popupFilterRef}
+        backgroundColor={color.background}
+        cancelText="Huỷ"
+        cancelTextColor="#ff3b30">
+        <FlashList
+          data={menu}
+          estimatedItemSize={40}
+          showsVerticalScrollIndicator={false}
+          renderItem={item => (
+            <TouchableOpacity
+              style={styles.filterContainer}
+              onPress={() => {
+                setFilter(item.item);
+                popupFilterRef.current?.close();
+              }}>
+              <Text style={styles.textR}>{item.item}</Text>
+              {filter === item.item && (
+                <Image
+                  source={require('../../../assets/icon/check.png')}
+                  style={styles.iconCheck}
+                />
+              )}
+            </TouchableOpacity>
+          )}
+        />
+      </CustomPopupModal>
     </SafeAreaView>
   );
 };

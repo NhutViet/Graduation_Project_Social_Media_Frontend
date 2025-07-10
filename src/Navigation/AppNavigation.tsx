@@ -6,7 +6,6 @@ import {
   AddPost,
   EditStory,
   FollowerRequests,
-  Login,
   NotificationsScreen,
   PostSetting,
   SeenStory,
@@ -144,7 +143,6 @@ const AppNavigator = () => {
         <Stack.Screen name="BlockUser" component={BlockUser} />
         <Stack.Screen name="PostSetting" component={PostSetting} />
         <Stack.Screen name="AddPost" component={AddPost} />
-        <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="SwitchAccount" component={SwitchAccount} />
         <Stack.Screen name="BottomTabs" component={BottomTabs} />
         <Stack.Screen name="Setting" component={Setting} />

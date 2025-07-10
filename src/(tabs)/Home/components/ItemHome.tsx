@@ -10,7 +10,6 @@ import {AppDispatch, RootState} from '../../../../services/store';
 import ModalShare from './ModalShare';
 import ModalReaction from './ModalReaction';
 import BottomSheetIntentionsModal from './BottomSheetIntentionsModal';
-import BottomSheetOptionsModal from './BottomSheetOptionsModal';
 import {
   RenderMediaItem,
   RenderMuteButton,
@@ -27,6 +26,7 @@ import {ItemHomeActions} from './ItemHomeActions';
 import {fetchCommentsByPost} from '@services/commentRedux/commentSlice';
 import HashtagText from '../../../../components/HashtagText';
 import {Colors} from '@assets/color/Colors';
+import CustomBottomSheetOptions from './BottomSheetOptionsModal';
 
 Sound.setCategory('Playback');
 const screenWidth = Dimensions.get('window').width;
@@ -143,18 +143,17 @@ const ItemHome = (props: ItemHomeProps) => {
 
   return (
     <View style={ItemHomeStyles.wrapper}>
-      <BottomSheetOptionsModal
-        sheetRef={modal.sheetRef}
+      <CustomBottomSheetOptions
+        ref={modal.sheetRef}
         isBookmarked={state.isBookmark}
-        onBookmarkPress={actions.handleBookmarkAction}
         topOptions={modal.topOptions}
         firstListOptions={modal.firstListOptions}
         secondListOptions={modal.secondListOptions}
-        onSelect={modal.handleOptionSelect}
+        onBookmarkPress={actions.handleBookmarkAction}
       />
 
       <BottomSheetIntentionsModal
-        sheetRef={modal.intentRef}
+        ref={modal.intentRef}
         options={modal.intentionOptions}
         onSelect={modal.handleIntentionSelect}
       />

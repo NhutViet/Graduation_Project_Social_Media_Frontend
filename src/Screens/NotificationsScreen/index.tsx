@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect} from 'react';
+import React, {useCallback} from 'react';
 import {
   SafeAreaView,
   FlatList,
@@ -26,19 +26,20 @@ import {useTheme} from '../../../src/util/ThemeContext';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import 'dayjs/locale/vi';
+import {ArrowLeft, User} from 'lucide-react-native';
+import {Colors} from '@assets/color/Colors';
 
 dayjs.extend(relativeTime);
 dayjs.locale('vi');
 
 const Header: React.FC<{onBackPress: () => void}> = ({onBackPress}) => {
   const styles = useNotificationStyles();
+  const {theme} = useTheme();
+  const color = Colors[theme];
   return (
     <View style={styles.header}>
       <TouchableOpacity style={styles.backButton} onPress={onBackPress}>
-        <Image
-          style={styles.backIcon}
-          source={require('../../../assets/icon/left.png')}
-        />
+        <ArrowLeft size={22} color={color.text} />
       </TouchableOpacity>
       <Text style={styles.headerTitle}>Thông báo</Text>
       <View style={styles.backIcon} />
@@ -191,8 +192,12 @@ export const NotificationsScreen = () => {
         ]}
         onPress={() => handlePress(noti)}>
         {noti.sender === null ? (
-          <Image style={styles.avatar} source={require('../../../assets/icon/account.png')}/>
-        ) : (<Image style={styles.avatar} source={{uri: noti.sender.profilePic}} />)}
+          <View style={styles.avatar}>
+            <User size={28} color="#aaa" />
+          </View>
+        ) : (
+          <Image style={styles.avatar} source={{uri: noti.sender.profilePic}} />
+        )}
         <View style={styles.textContainer}>
           <Text
             style={[styles.contentText, !isRead && {fontWeight: 'bold'}]}

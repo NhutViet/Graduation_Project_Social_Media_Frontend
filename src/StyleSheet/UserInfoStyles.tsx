@@ -48,6 +48,7 @@ const UserInfoStyles = (theme: ThemeType) => {
       color: color.text,
       fontSize: 14,
       marginTop: 4,
+      marginLeft: 16,
       fontWeight: '600' as FontWeight,
     },
     featureContainer: {
@@ -60,10 +61,6 @@ const UserInfoStyles = (theme: ThemeType) => {
     blockFeature: {
       marginHorizontal: 6,
       alignItems: 'center',
-    },
-    blockIcon: {
-      width: 18,
-      height: 18,
     },
     icon: {
       width: '100%',

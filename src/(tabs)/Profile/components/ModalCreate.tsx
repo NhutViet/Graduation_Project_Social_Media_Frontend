@@ -1,12 +1,5 @@
-import React from 'react';
-import {
-  Modal,
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-} from 'react-native';
+import React, {forwardRef, useImperativeHandle, useRef} from 'react';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {
   Video,
   FileText,
@@ -17,10 +10,16 @@ import {
 } from 'lucide-react-native';
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
+import CustomPopupModal, {
+  CustomPopupModalRef,
+} from '../../../../components/Global/CustomPopupModal';
+
+export type ModalCreateRef = {
+  open: () => void;
+  close: () => void;
+};
 
 interface ModalCreateProps {
-  visible: boolean;
-  onClose: () => void;
   onSelect: (optionId: string) => void;
 }
 
@@ -33,73 +32,54 @@ const options = [
   {id: 'ai', label: 'AI', icon: Sparkles},
 ];
 
-const ModalCreate: React.FC<ModalCreateProps> = ({
-  visible,
-  onClose,
-  onSelect,
-}) => {
-  const {theme} = useTheme();
-  const color = Colors[theme];
+const ModalCreate = forwardRef<ModalCreateRef, ModalCreateProps>(
+  ({onSelect}, ref) => {
+    const popupRef = useRef<CustomPopupModalRef>(null);
+    const {theme} = useTheme();
+    const color = Colors[theme];
 
-  return (
-    <Modal visible={visible} animationType="slide" transparent>
-      <TouchableWithoutFeedback onPress={onClose}>
-        <View style={styles.overlay}>
-          <TouchableWithoutFeedback>
-            <View
-              style={[styles.container, {backgroundColor: color.background}]}>
-              <Text style={[styles.title, {color: color.text}]}>Tạo</Text>
+    useImperativeHandle(ref, () => ({
+      open: () => popupRef.current?.open(),
+      close: () => popupRef.current?.close(),
+    }));
 
-              {options.map(({id, label, icon: Icon}) => (
-                <TouchableOpacity
-                  key={id}
-                  style={styles.option}
-                  onPress={() => {
-                    onSelect(id);
-                    onClose();
-                  }}>
-                  <View style={styles.icon}>
-                    <Icon size={24} color={color.text} />
-                  </View>
-                  <Text style={[styles.label, {color: color.text}]}>
-                    {label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </TouchableWithoutFeedback>
+    return (
+      <CustomPopupModal
+        ref={popupRef}
+        title="Tạo mới"
+        cancelText="Hủy"
+        cancelTextColor="#FF3B30"
+        backgroundColor={color.background}>
+        <View style={{gap: 10, paddingBottom: 10}}>
+          {options.map(({id, label, icon: Icon}) => (
+            <TouchableOpacity
+              key={id}
+              style={[styles.option, {backgroundColor: color.background}]}
+              onPress={() => {
+                onSelect(id);
+                popupRef.current?.close();
+              }}>
+              <View style={styles.icon}>
+                <Icon size={22} color={color.text} />
+              </View>
+              <Text style={[styles.label, {color: color.text}]}>{label}</Text>
+            </TouchableOpacity>
+          ))}
         </View>
-      </TouchableWithoutFeedback>
-    </Modal>
-  );
-};
+      </CustomPopupModal>
+    );
+  },
+);
 
 export default ModalCreate;
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0,0,0,0.6)',
-  },
-  container: {
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    paddingTop: 16,
-    paddingHorizontal: 20,
-    paddingBottom: 30,
-    gap: 20,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: '600',
-    alignSelf: 'center',
-    marginBottom: 16,
-  },
   option: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 14,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderRadius: 12,
   },
   icon: {
     width: 30,
@@ -107,6 +87,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    marginLeft: 16,
+    marginLeft: 12,
+    fontWeight: '500',
   },
 });

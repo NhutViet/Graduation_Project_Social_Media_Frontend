@@ -1,22 +1,21 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
-  Image,
   Switch,
   ScrollView,
   SafeAreaView,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { useNotificationSettingsStyles } from '../../../StyleSheet/NotificationSetingsStyles';
+import {useNavigation} from '@react-navigation/native';
+import {useNotificationSettingsStyles} from '../../../StyleSheet/NotificationSetingsStyles';
+import {ArrowLeft, Bell, ChevronRight} from 'lucide-react-native';
 
 export const Notifications = () => {
   const navigation: any = useNavigation();
   const styles = useNotificationSettingsStyles();
   const [pauseAll, setPauseAll] = useState(false);
 
-  // options that have detailed screens
   const detailedOptions = [
     'Người theo dõi và đang theo dõi',
     'Cuộc gọi',
@@ -39,32 +38,37 @@ export const Notifications = () => {
     }
   };
 
-  const renderNotificationOption = (title: string, subtitle?: string, hasSwitch?: boolean) => {
+  const renderNotificationOption = (
+    title: string,
+    subtitle?: string,
+    hasSwitch?: boolean,
+  ) => {
     return (
       <TouchableOpacity
         key={title}
         style={styles.optionRow}
         disabled={hasSwitch}
-        onPress={hasSwitch ? undefined : () => handleOptionPress(title)}
-      >
+        onPress={hasSwitch ? undefined : () => handleOptionPress(title)}>
         <View style={styles.optionContent}>
           <Text style={styles.optionTitle}>{title}</Text>
-          {subtitle && (
-            <Text style={styles.optionSubtitle}>{subtitle}</Text>
-          )}
+          {subtitle && <Text style={styles.optionSubtitle}>{subtitle}</Text>}
         </View>
         {hasSwitch ? (
           <Switch
             value={pauseAll}
             onValueChange={setPauseAll}
-            trackColor={{ false: styles.switchTrack.backgroundColor, true: styles.switchTrackActive.backgroundColor }}
-            thumbColor={pauseAll ? styles.switchThumbActive.backgroundColor : styles.switchThumb.backgroundColor}
+            trackColor={{
+              false: styles.switchTrack.backgroundColor,
+              true: styles.switchTrackActive.backgroundColor,
+            }}
+            thumbColor={
+              pauseAll
+                ? styles.switchThumbActive.backgroundColor
+                : styles.switchThumb.backgroundColor
+            }
           />
         ) : (
-          <Image
-            source={require('../../../../assets/icon/right.png')}
-            style={[styles.rightIcon, { resizeMode: 'contain' }]}
-          />
+          <ChevronRight size={22} color={styles.rightIcon.tintColor} />
         )}
       </TouchableOpacity>
     );
@@ -77,12 +81,8 @@ export const Notifications = () => {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
-            <Image
-              source={require('../../../../assets/icon/left.png')}
-              style={[styles.backIcon, { resizeMode: 'contain' }]}
-            />
+            onPress={() => navigation.goBack()}>
+            <ArrowLeft size={22} color={styles.backIcon.tintColor} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Thông báo</Text>
           <View style={styles.headerSpacer} />
@@ -91,14 +91,12 @@ export const Notifications = () => {
         {/* Notification Banner */}
         <View style={styles.bannerContainer}>
           <View style={styles.bellIconContainer}>
-            <Image
-              source={require('../../../../assets/icon/bell.png')}
-              style={[styles.bellIcon, { resizeMode: 'contain' }]}
-            />
+            <Bell size={22} color={styles.bellIcon.tintColor} />
           </View>
           <View style={styles.bannerTextContainer}>
             <Text style={styles.bannerText}>
-              Bật thông báo từ cài đặt thiết bị của bạn để xem các cập nhật trên màn hình khóa.
+              Bật thông báo từ cài đặt thiết bị của bạn để xem các cập nhật trên
+              màn hình khóa.
             </Text>
             <Text style={styles.bannerLink}>Chuyển đến cài đặt thiết bị</Text>
           </View>
@@ -107,19 +105,21 @@ export const Notifications = () => {
         {/* Push Notifications Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Nhận thông báo</Text>
-          
+
           {renderNotificationOption(
             'Tạm dừng tất cả',
             'tạm thời dừng các thông báo',
-            true
+            true,
           )}
-          
+
           {renderNotificationOption(
             'Chế độ ngủ',
-            'Tự động tắt tiếng thông báo khi đã tối hoặc khi bạn cần tập trung.'
+            'Tự động tắt tiếng thông báo khi đã tối hoặc khi bạn cần tập trung.',
           )}
-          
-          {[...detailedOptions, ...simpleOptions].map(option => renderNotificationOption(option))}
+
+          {[...detailedOptions, ...simpleOptions].map(option =>
+            renderNotificationOption(option),
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>

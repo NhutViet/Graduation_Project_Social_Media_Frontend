@@ -512,9 +512,9 @@ export const Home = forwardRef(({ onReload, route }: HomeProps, ref) => {
         ]}>
         <Header
           icon={require('../../../assets/icon/logo_row.png')}
-          iconQR={require('../../../assets/icon/qr.png')}
-          iconNotify={require('../../../assets/icon/heart.png')}
-          iconMessage={require('../../../assets/icon/message.png')}
+          iconQR={true}
+          iconNotify={true}
+          iconMessage={true}
           navigation={navigation}
         />
       </Animated.View>

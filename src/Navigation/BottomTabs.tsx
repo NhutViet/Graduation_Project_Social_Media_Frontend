@@ -1,5 +1,5 @@
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {ActivityIndicator, Image, StyleSheet, View} from 'react-native';
+import {ActivityIndicator, StyleSheet, View} from 'react-native';
 import {Colors} from '../../assets/color/Colors';
 import {useTheme} from '../util/ThemeContext';
 import Post from '../(tabs)/Post';
@@ -9,19 +9,24 @@ import Reels from '../(tabs)/Reels';
 import {Home} from '../(tabs)/Home';
 import {useRef, useState} from 'react';
 import {useTabLoading} from '../../services/TabLoadingContext';
+import {
+  Home as HomeIcon,
+  Search as SearchIcon,
+  PlusSquare,
+  PlaySquare,
+  UserCircle2,
+} from 'lucide-react-native';
 
 const Tab = createBottomTabNavigator();
 
 const TabIcon = ({
-  source,
+  IconComponent,
   focused,
-  size,
   tintColor,
   loading,
 }: {
-  source: any;
+  IconComponent: React.ElementType;
   focused: boolean;
-  size: number;
   tintColor: string;
   loading?: boolean;
 }) => (
@@ -29,17 +34,7 @@ const TabIcon = ({
     {loading ? (
       <ActivityIndicator size="small" color={tintColor} />
     ) : (
-      <Image
-        source={source}
-        style={[
-          styles.icon,
-          {
-            tintColor: focused ? tintColor : `${tintColor}66`,
-            width: size,
-            height: size,
-          },
-        ]}
-      />
+      <IconComponent size={22} color={focused ? tintColor : `${tintColor}99`} />
     )}
   </View>
 );
@@ -61,7 +56,7 @@ const BottomTabs = ({onTabChange}: {onTabChange?: (index: number) => void}) => {
     const previousIndex = tabIndex;
     setTabIndex(newIndex);
     onTabChange?.(newIndex);
-    
+
     // Reset search screen when navigating away from search tab (index 1)
     if (previousIndex === 1 && newIndex !== 1) {
       searchRef.current?.resetToInitial();
@@ -92,7 +87,7 @@ const BottomTabs = ({onTabChange}: {onTabChange?: (index: number) => void}) => {
         name="Home"
         children={() => <Home ref={homeRef} />}
         listeners={{
-          tabPress: async e => {
+          tabPress: async () => {
             setTabLoading('Home', true);
             try {
               await homeRef.current?.reload();
@@ -104,9 +99,8 @@ const BottomTabs = ({onTabChange}: {onTabChange?: (index: number) => void}) => {
         options={{
           tabBarIcon: ({focused}) => (
             <TabIcon
-              source={require('../../assets/icon/home.png')}
+              IconComponent={HomeIcon}
               focused={focused}
-              size={20}
               tintColor={iconTint}
               loading={loadingTabs['Home']}
             />
@@ -119,9 +113,8 @@ const BottomTabs = ({onTabChange}: {onTabChange?: (index: number) => void}) => {
         options={{
           tabBarIcon: ({focused}) => (
             <TabIcon
-              source={require('../../assets/icon/search.png')}
+              IconComponent={SearchIcon}
               focused={focused}
-              size={20}
               tintColor={iconTint}
             />
           ),
@@ -133,9 +126,8 @@ const BottomTabs = ({onTabChange}: {onTabChange?: (index: number) => void}) => {
         options={{
           tabBarIcon: ({focused}) => (
             <TabIcon
-              source={require('../../assets/icon/post.png')}
+              IconComponent={PlusSquare}
               focused={focused}
-              size={20}
               tintColor={iconTint}
             />
           ),
@@ -157,9 +149,8 @@ const BottomTabs = ({onTabChange}: {onTabChange?: (index: number) => void}) => {
         options={{
           tabBarIcon: ({focused}) => (
             <TabIcon
-              source={require('../../assets/icon/reels.png')}
+              IconComponent={PlaySquare}
               focused={focused}
-              size={20}
               tintColor={iconTint}
               loading={loadingTabs['Reels']}
             />
@@ -172,9 +163,8 @@ const BottomTabs = ({onTabChange}: {onTabChange?: (index: number) => void}) => {
         options={{
           tabBarIcon: ({focused}) => (
             <TabIcon
-              source={require('../../assets/icon/account.png')}
+              IconComponent={UserCircle2}
               focused={focused}
-              size={20}
               tintColor={iconTint}
             />
           ),
@@ -185,9 +175,6 @@ const BottomTabs = ({onTabChange}: {onTabChange?: (index: number) => void}) => {
 };
 
 const styles = StyleSheet.create({
-  icon: {
-    resizeMode: 'contain',
-  },
   iconWrapper: {
     alignItems: 'center',
     justifyContent: 'center',

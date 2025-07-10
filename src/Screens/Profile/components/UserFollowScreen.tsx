@@ -27,7 +27,6 @@ export const UserFollowScreen = () => {
   const navigation = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];
-  const user = useSelector((state: RootState) => state.user.user);
   const route = useRoute<UserFollowScreenRouteProp>();
   const routes = [
     {key: 'followers', title: 'Người theo dõi'},
@@ -50,7 +49,7 @@ export const UserFollowScreen = () => {
       <View style={{height: 60}}>
         <Header
           title={route.params.profileName || ''}
-          iconBack={require('../../../../assets/icon/left.png')}
+          iconBack={true}
           func={() => navigation.goBack()}
           navigation={navigation}
         />

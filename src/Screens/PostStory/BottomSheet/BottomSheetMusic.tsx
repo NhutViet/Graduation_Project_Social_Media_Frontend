@@ -34,6 +34,12 @@ import {
   addToBookmark,
   removeFromBookmark,
 } from '../../../../services/musicRedux/musicReducer';
+import {
+  Search,
+  X,
+  ArrowLeft,
+  Bookmark as BookmarkIcon,
+} from 'lucide-react-native';
 
 const height = Dimensions.get('window').height * 0.8;
 const width = Dimensions.get('window').width - 100;
@@ -232,10 +238,7 @@ const BottomSheet = forwardRef<BottomSheetRef, Props>(
             ]}>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
               <View style={styles.blockIcon}>
-                <Image
-                  style={[styles.icon, {tintColor: color.text}]}
-                  source={require('../../../../assets/icon/search.png')}
-                />
+                <Search size={22} color={color.text} />
               </View>
               <TextInput
                 value={search}
@@ -249,10 +252,7 @@ const BottomSheet = forwardRef<BottomSheetRef, Props>(
               <TouchableOpacity
                 style={[styles.blockIcon, {padding: 5}]}
                 onPress={() => setSearch('')}>
-                <Image
-                  style={styles.icon}
-                  source={require('../../../../assets/icon/closer.png')}
-                />
+                <X size={20} color={color.text} />
               </TouchableOpacity>
             ) : null}
           </View>
@@ -281,10 +281,7 @@ const BottomSheet = forwardRef<BottomSheetRef, Props>(
                 <TouchableOpacity
                   onPress={() => setShowSavedView(false)}
                   style={styles.blockIcon}>
-                  <Image
-                    style={[styles.icon, {tintColor: color.text}]}
-                    source={require('../../../../assets/icon/left.png')}
-                  />
+                  <ArrowLeft size={22} color={color.text} />
                 </TouchableOpacity>
                 <Text style={[styles.textNormal, {color: color.text}]}>
                   Đã lưu
@@ -321,10 +318,7 @@ const BottomSheet = forwardRef<BottomSheetRef, Props>(
                 ]}
                 onPress={() => setShowSavedView(true)}>
                 <View style={styles.blockIcon}>
-                  <Image
-                    style={[styles.icon, {tintColor: color.text}]}
-                    source={require('../../../../assets/icon/bookmark.png')}
-                  />
+                  <BookmarkIcon size={22} color={color.text} />
                 </View>
                 <Text
                   style={[

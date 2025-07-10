@@ -13,6 +13,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '@services/store';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 import {useSocket} from '@services/SocketContext';
+import {Reply, Copy, Trash2} from 'lucide-react-native';
 
 interface Props {
   visible: boolean;
@@ -150,23 +151,19 @@ const ActionModalMessage = ({visible, onClose, content, setChat}: Props) => {
           </View>
           <View style={styles.actionContainer}>
             <TouchableOpacity style={styles.featureContainer}>
-              <Image
-                style={styles.icon}
-                source={require('../../../../assets/icon/reply.png')}
-              />
+              <Reply size={22} color="black" />
               <Text style={styles.text} numberOfLines={1}>
                 Trả lời
               </Text>
             </TouchableOpacity>
+
             <TouchableOpacity style={styles.featureContainer}>
-              <Image
-                style={styles.icon}
-                source={require('../../../../assets/icon/copy.png')}
-              />
+              <Copy size={22} color="black" />
               <Text style={styles.text} numberOfLines={1}>
                 Sao chép
               </Text>
             </TouchableOpacity>
+
             <TouchableOpacity
               style={styles.featureContainer}
               onPress={async () => {
@@ -204,10 +201,7 @@ const ActionModalMessage = ({visible, onClose, content, setChat}: Props) => {
                   }
                 }
               }}>
-              <Image
-                style={styles.icon}
-                source={require('../../../../assets/icon/trash.png')}
-              />
+              <Trash2 size={22} color="black" />
               <Text style={styles.text} numberOfLines={1}>
                 Xoá tin nhắn
               </Text>
@@ -272,6 +266,7 @@ const styles = StyleSheet.create({
   },
   text: {
     color: Colors.black,
+    marginTop: 6,
   },
   textContainer: {
     backgroundColor: Colors.white,

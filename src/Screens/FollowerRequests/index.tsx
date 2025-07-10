@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   FlatList,
   TextInput,
-  Image,
   ScrollView,
 } from 'react-native';
 import NotificationSection from '../../../components/NotificationSection';
@@ -14,6 +13,8 @@ import NotificationItem, {
   Notification,
 } from '../../../components/NotificationItem';
 import {useNotificationStyles} from '../../StyleSheet/NotificationStyles';
+import {ArrowLeft, Search} from 'lucide-react-native';
+import {Colors} from '@assets/color/Colors';
 
 const mockRequests: Notification[] = Array.from({length: 10}).map((_, i) => ({
   id: `req${i + 1}`,
@@ -35,15 +36,14 @@ const mockRecommended: Notification[] = Array.from({length: 10}).map(
   }),
 );
 
-const Header: React.FC<{ navigation: any }> = ({ navigation }) => {
+const Header: React.FC<{navigation: any}> = ({navigation}) => {
   const styles = useNotificationStyles();
   return (
     <View style={styles.header}>
-      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-        <Image 
-          style={styles.backIcon}
-          source={require('../../../assets/icon/left.png')}
-        />
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => navigation.goBack()}>
+        <ArrowLeft size={22} color={Colors.black} />
       </TouchableOpacity>
       <Text style={styles.headerTitle}>Yêu cầu theo dõi</Text>
       <Text style={styles.headerManageText}>Quản lý</Text>
@@ -54,7 +54,7 @@ const Header: React.FC<{ navigation: any }> = ({ navigation }) => {
 export const FollowerRequests: React.FC<{navigation: any}> = ({navigation}) => {
   const styles = useNotificationStyles();
   const [search, setSearch] = useState('');
-  const [showAll, setShowAll] = useState(false); 
+  const [showAll, setShowAll] = useState(false);
 
   const displayed = showAll ? mockRequests : mockRequests.slice(0, 5);
   const moreCount = mockRequests.length - (showAll ? mockRequests.length : 5);
@@ -70,7 +70,7 @@ export const FollowerRequests: React.FC<{navigation: any}> = ({navigation}) => {
         style={styles.scrollView}
         contentContainerStyle={{paddingBottom: 16}}>
         <View style={styles.searchBar}>
-          <Image style={styles.searchIcon} source={require('../../../assets/icon/search.png')} />
+          <Search size={22} color={Colors.black} />
           <TextInput
             style={styles.searchPlaceholderText}
             placeholder="Tìm kiếm"
@@ -83,7 +83,9 @@ export const FollowerRequests: React.FC<{navigation: any}> = ({navigation}) => {
         <FlatList
           data={displayed}
           keyExtractor={item => item.id}
-          renderItem={({item}) => ( <NotificationItem notification={item} stackTime /> )}
+          renderItem={({item}) => (
+            <NotificationItem notification={item} stackTime />
+          )}
           scrollEnabled={false}
         />
 

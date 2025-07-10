@@ -1,6 +1,5 @@
 import React, {useState, useEffect} from 'react';
 import {
-  Image,
   Modal,
   SafeAreaView,
   Text,
@@ -20,10 +19,13 @@ import ItemUnlock from './Components/ItemUnlock';
 import {BlockedAccountsStyles} from '../../StyleSheet/BlockedAccountsStyles';
 import {useTheme} from '../../util/ThemeContext';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+import {ArrowLeft, Plus} from 'lucide-react-native';
+import {Colors} from '@assets/color/Colors';
 
 export const BlockedAccounts = () => {
   const navigation = useNavigation<NavigationProp<any>>();
   const {theme} = useTheme();
+  const color = Colors[theme];
   const styles = BlockedAccountsStyles(theme);
   const dispatch = useDispatch<AppDispatch>();
   const userId = useSelector((state: RootState) => state.user.user?._id);
@@ -34,7 +36,6 @@ export const BlockedAccounts = () => {
   const [isModal, setIsModal] = useState(false);
   const [selected, setSelected] = useState<any | null>(null);
 
-  // Fetch on mount and on focus
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       if (userId) dispatch(fetchBlocking({userId}));
@@ -42,7 +43,6 @@ export const BlockedAccounts = () => {
     return unsubscribe;
   }, [navigation, userId]);
 
-  // Show error
   useEffect(() => {
     if (error) GlobalAlertManager.show('Lỗi', error);
   }, [error]);
@@ -71,17 +71,11 @@ export const BlockedAccounts = () => {
 
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Image
-            source={require('../../../assets/icon/left.png')}
-            style={styles.icon}
-          />
+          <ArrowLeft size={22} color={color.black} />
         </TouchableOpacity>
         <Text style={styles.title}>Tài khoản bị chặn</Text>
         <TouchableOpacity onPress={() => navigation.navigate('BlockUser')}>
-          <Image
-            source={require('../../../assets/icon/add.png')}
-            style={styles.icon}
-          />
+          <Plus size={22} color={color.black} />
         </TouchableOpacity>
       </View>
 
