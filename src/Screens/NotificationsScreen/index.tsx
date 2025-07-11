@@ -28,6 +28,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import 'dayjs/locale/vi';
 import {ArrowLeft, User} from 'lucide-react-native';
 import {Colors} from '@assets/color/Colors';
+import { NotificationSkeleton } from '../../../components/SkeletonGrid';
 
 dayjs.extend(relativeTime);
 dayjs.locale('vi');
@@ -224,7 +225,7 @@ export const NotificationsScreen = () => {
 
       {!isSuccess ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#888" />
+          <NotificationSkeleton count={10} />
         </View>
       ) : notifications.length === 0 ? (
         <View style={styles.emptyContainer}>
