@@ -192,37 +192,26 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
                   <View style={{flex: 1, paddingHorizontal: 20}}>
                     <FlashList
                       data={comments}
-                      renderItem={({item}) => {
-                        if (!item) return null;
-
-                        return (
-                          <FlashList
-                            data={comments}
-                            renderItem={({item}) => (
-                              <CommentComponent
-                                postId={postId}
-                                _id={item._id}
-                                content={item.content}
-                                isDeleted={item.isDeleted}
-                                isLiked={item.isLiked}
-                                createdAt={item.createdAt}
-                                reply={item.reply}
-                                totalLikes={item.totalLikes}
-                                user={item.user}
-                                onReply={(id, handleName, userId) => {
-                                  setReplyTo({id, handleName, userId});
-                                  setTimeout(() => {
-                                    inputRef.current?.focus();
-                                  }, 200);
-                                }}
-                                navigation={navigation}
-                              />
-                            )}
-                            estimatedItemSize={50}
-                          />
-                        );
-                      }}
                       estimatedItemSize={50}
+                      keyExtractor={item => item._id}
+                      renderItem={({ item }) => (
+                        <CommentComponent
+                          postId={postId}
+                          _id={item._id}
+                          content={item.content}
+                          isDeleted={item.isDeleted}
+                          isLiked={item.isLiked}
+                          createdAt={item.createdAt}
+                          reply={item.reply}
+                          totalLikes={item.totalLikes}
+                          user={item.user}
+                          onReply={(id, handleName, userId) => {
+                            setReplyTo({ id, handleName, userId });
+                            setTimeout(() => inputRef.current?.focus(), 200);
+                          }}
+                          navigation={navigation}
+                        />
+                      )}
                     />
                   </View>
                 ) : (

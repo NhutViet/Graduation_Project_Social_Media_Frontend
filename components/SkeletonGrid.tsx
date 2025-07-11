@@ -9,6 +9,7 @@ const GAP = Colors.spacing.xs;
 const SMALL = (Colors.dimensions.width - GAP * 3) / 3;
 const BIG = SMALL * 2 + GAP;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
+const { width: screenWidth } = Dimensions.get('window');
 
 export const SearchSkeletonGrid: React.FC<{
   itemCount?: number;
@@ -272,6 +273,48 @@ export const ProfileSkeleton: React.FC = () => {
           />
         </SkeletonPlaceholder.Item>
       </SkeletonPlaceholder.Item>
+    </SkeletonPlaceholder>
+  );
+};
+
+export const NotificationSkeleton: React.FC<{ count?: number }> = ({ count = 6 }) => {
+  const { theme } = useTheme();
+  const currentTheme = Colors[theme];
+  const placeholders = Array.from({ length: count });
+
+  return (
+    <SkeletonPlaceholder
+      backgroundColor={currentTheme.gray}
+      highlightColor={currentTheme.backgroundSecondary}
+      speed={1200}
+    >
+      <>
+        {placeholders.map((_, i) => (
+          <SkeletonPlaceholder.Item
+            key={i}
+            flexDirection="row"
+            alignItems="center"
+            padding={GAP}
+            marginBottom={GAP}
+          >
+            {/* Avatar circle */}
+            <SkeletonPlaceholder.Item
+              width={50}
+              height={50}
+              borderRadius={25}
+              marginBottom={20}
+            />
+
+            {/* Notification box */}
+            <SkeletonPlaceholder.Item
+              width={screenWidth - 50 - GAP * 3}
+              height={70}
+              borderRadius={Colors.radius.s}
+              marginLeft={GAP}
+            />
+          </SkeletonPlaceholder.Item>
+        ))}
+      </>
     </SkeletonPlaceholder>
   );
 };
