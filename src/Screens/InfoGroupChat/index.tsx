@@ -1,4 +1,4 @@
-import React, {useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {
   View,
   Text,
@@ -11,14 +11,8 @@ import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {
   Bell,
-  Link as LinkIcon,
   Search,
   UserPlus,
-  Lock,
-  AlertTriangle,
-  Users,
-  UserCheck,
-  ChevronRight,
   PenLine,
   LogOut,
 } from 'lucide-react-native';
@@ -33,6 +27,9 @@ import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../services/store';
 import {ModalRenameRoom} from '../../../components/ModalRenameRoom';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+import { MenuSection } from './component/menuItem';
+import { MediaItem } from '@services/postRedux/postTypes';
+import { getAllMediaInRoom } from '../../util/msgImgList';
 
 export const InforGroupChat = () => {
   const {theme} = useTheme();
@@ -50,6 +47,27 @@ export const InforGroupChat = () => {
     () => rooms.find(r => r._id === roomId),
     [rooms, roomId],
   );
+
+  // State to manage MessageMedia fetching data
+  const [media, setMedia] = useState<MediaItem[]>([]);
+  useEffect(() => {
+    const fetchInitialMedia = async () => {
+      if (!roomId) { return; }
+
+      try {
+        const res = await getAllMediaInRoom({ roomId, page: 1 });
+        if (res && res.media && res.media.length > 0) {
+          setMedia(res.media as MediaItem[]);
+        } else {
+          setMedia([]);
+        }
+      } catch (error) {
+        setMedia([]);
+      }
+    };
+
+    fetchInitialMedia();
+  }, [roomId]);
 
   return (
     <SafeAreaView
@@ -120,121 +138,14 @@ export const InforGroupChat = () => {
         </TouchableOpacity>
       </View>
 
-      <View
-        style={{
-          flex: 1,
-          padding: 24,
-        }}>
-        <TouchableOpacity
-          style={styles.btn}
-          onPress={() => {
-            setVisibleThemeModal(true);
-          }}>
-          <View style={styles.menuItem}>
-            <View style={styles.menuIcon}>
-              <UserCheck size={24} color={color.text} />
-            </View>
-            <View style={styles.menuTextBlock}>
-              <Text style={[styles.menuTitle, {color: color.text}]}>
-                Chủ đề
-              </Text>
-              <Text style={styles.menuSubtitle}>Mặc định</Text>
-            </View>
-          </View>
-          <ChevronRight size={24} color={color.text} />
-        </TouchableOpacity>
+      <MenuSection
+        media={media}
+        color={color}
+        navigation={navigation}
+        setVisibleThemeModal={setVisibleThemeModal}
+        room={roomId}
+      />
 
-        <TouchableOpacity style={styles.btn}>
-          <View style={styles.menuItem}>
-            <View style={styles.menuIcon}>
-              <LinkIcon size={24} color={color.text} />
-            </View>
-            <View style={styles.menuTextBlock}>
-              <Text style={[styles.menuTitle, {color: color.text}]}>
-                Liên kết
-              </Text>
-              <Text style={styles.menuSubtitle}>Đang tắt</Text>
-            </View>
-          </View>
-          <ChevronRight size={24} color={color.text} />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.btn}
-          onPress={() => navigation.navigate('PeopleGroupChat')}>
-          <View style={styles.menuItem}>
-            <View style={styles.menuIcon}>
-              <Users size={24} color={color.text} />
-            </View>
-            <View style={styles.menuTextBlock}>
-              <Text style={[styles.menuTitle, {color: color.text}]}>
-                Mọi người
-              </Text>
-            </View>
-          </View>
-          <ChevronRight size={24} color={color.text} />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.btn}>
-          <View style={styles.menuItem}>
-            <View style={styles.menuIcon}>
-              <UserPlus size={24} color={color.text} />
-            </View>
-            <View style={styles.menuTextBlock}>
-              <Text style={[styles.menuTitle, {color: color.text}]}>
-                Biệt danh
-              </Text>
-            </View>
-          </View>
-          <ChevronRight size={24} color={color.text} />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.btn}>
-          <View style={styles.menuItem}>
-            <View style={styles.menuIcon}>
-              <Lock size={24} color={color.text} />
-            </View>
-            <View style={styles.menuTextBlock}>
-              <Text style={[styles.menuTitle, {color: color.text}]}>
-                Quyền riêng tư và an toàn
-              </Text>
-            </View>
-          </View>
-          <ChevronRight size={24} color={color.text} />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.btn}
-          onPress={() => {
-            navigation.navigate('CreateGroupScreen');
-          }}>
-          <View style={styles.menuItem}>
-            <View style={styles.menuIcon}>
-              <Users size={24} color={color.text} />
-            </View>
-            <View style={styles.menuTextBlock}>
-              <Text style={[styles.menuTitle, {color: color.text}]}>
-                Tạo nhóm mới
-              </Text>
-            </View>
-          </View>
-          <ChevronRight size={24} color={color.text} />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.btn}>
-          <View style={styles.menuItem}>
-            <View style={styles.menuIcon}>
-              <AlertTriangle size={24} color={color.text} />
-            </View>
-            <View style={styles.menuTextBlock}>
-              <Text style={[styles.menuTitle, {color: color.text}]}>
-                Đã xảy ra lỗi
-              </Text>
-            </View>
-          </View>
-          <ChevronRight size={24} color={color.text} />
-        </TouchableOpacity>
-      </View>
       <ModalTheme
         visible={visibleThemeModal}
         onClose={() => {
@@ -273,7 +184,7 @@ export const InforGroupChat = () => {
   );
 };
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
