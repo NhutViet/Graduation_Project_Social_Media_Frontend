@@ -42,7 +42,7 @@ const User = (props: UserProps) => {
       </View>
       {isDelete && (
         <TouchableOpacity onPress={func}>
-        <Image source={require('../../../../assets/icon/closer.png')} style={{width: 10, height: 10, tintColor: colors.textSecondary, resizeMode: 'contain'}}/>
+        <Image source={require('../../../../assets/icon/closer.png')} style={{width: 20, height: 20, tintColor: colors.textSecondary, resizeMode: 'contain'}}/>
       </TouchableOpacity>
       )}
     </TouchableOpacity>
