@@ -5,7 +5,6 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  ActivityIndicator,
 } from 'react-native';
 import {useNavigation, NavigationProp} from '@react-navigation/native';
 import {FlashList} from '@shopify/flash-list';
@@ -24,6 +23,7 @@ import {Colors} from '../../../assets/color/Colors';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 import {UserProfile} from '@services/relationRedux/relationTypes';
 import {ArrowLeft, Search} from 'lucide-react-native';
+import LoadingModal from '../../../components/Global/LoadingModal';
 
 export const BlockUser = () => {
   const {theme} = useTheme();
@@ -91,7 +91,7 @@ export const BlockUser = () => {
     <SafeAreaView style={styles.container}>
       {loading && (
         <View style={styles.loaderOverlay}>
-          <ActivityIndicator size="large" />
+          <LoadingModal />
         </View>
       )}
       <View style={styles.header}>

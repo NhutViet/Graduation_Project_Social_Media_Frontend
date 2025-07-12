@@ -3,6 +3,7 @@ import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {useTheme} from '../../../../src/util/ThemeContext';
 import {useNavigation} from '@react-navigation/native';
 import {EditUserDto} from '@services/userRedux/userTypes';
+import {ChevronRight} from 'lucide-react-native';
 
 interface Props {
   user: EditUserDto;
@@ -25,10 +26,7 @@ const AccountCenterComponent = (props: Props) => {
         <Text style={[styles.name, {color: color.text}]}>{user?.username}</Text>
         <Text style={[styles.text, {color: color.text}]}>Cirla</Text>
       </View>
-      <Image
-        style={styles.icon}
-        source={require('../../../../assets/icon/right.png')}
-      />
+      <ChevronRight size={22} color={color.text} />
     </TouchableOpacity>
   );
 };
@@ -44,11 +42,6 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-  },
-  icon: {
-    width: 18,
-    height: 18,
-    resizeMode: 'contain',
   },
   body: {
     flex: 1,

@@ -6,7 +6,6 @@ import {
   Image,
   TouchableOpacity,
   TextInput,
-  ActivityIndicator,
 } from 'react-native';
 import {FlashList, ListRenderItem} from '@shopify/flash-list';
 import {useNavigation} from '@react-navigation/native';
@@ -24,6 +23,7 @@ import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 import {UserProfile} from '@services/relationRedux/relationTypes';
 import {selectDisplayFollowers} from '@services/relationRedux/relationSelector';
 import {Search, User, UserX, X} from 'lucide-react-native';
+import LoadingModal from '../../../../components/Global/LoadingModal';
 
 const FollowersTab = () => {
   const navigation: any = useNavigation();
@@ -145,7 +145,7 @@ const FollowersTab = () => {
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color={color.primary} />
+        <LoadingModal />
       </View>
     );
   }

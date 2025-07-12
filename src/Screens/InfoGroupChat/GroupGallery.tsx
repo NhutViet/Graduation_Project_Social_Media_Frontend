@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   View,
   StyleSheet,
@@ -7,30 +7,34 @@ import {
   SafeAreaView,
   useWindowDimensions,
   Image,
-  ActivityIndicator,
   Text,
 } from 'react-native';
-import { useTheme } from '../../util/ThemeContext';
-import { Colors } from '../../../assets/color/Colors';
-import { ArrowLeft } from 'lucide-react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import { FlashList } from '@shopify/flash-list';
-import { MediaItem, getAllMediaInRoom } from '../../util/msgImgList';
+import {useTheme} from '../../util/ThemeContext';
+import {Colors} from '../../../assets/color/Colors';
+import {ArrowLeft} from 'lucide-react-native';
+import {useNavigation, useRoute} from '@react-navigation/native';
+import {FlashList} from '@shopify/flash-list';
+import {MediaItem, getAllMediaInRoom} from '../../util/msgImgList';
+import LoadingModal from '../../../components/Global/LoadingModal';
 
 // helper func
-const calculateItemSize = (screenWidth: number, numColumns: number, spacing: number) => {
+const calculateItemSize = (
+  screenWidth: number,
+  numColumns: number,
+  spacing: number,
+) => {
   const totalSpacing = (numColumns - 1) * spacing;
   const availableWidth = screenWidth - totalSpacing;
   return availableWidth / numColumns;
 };
 
 export const GroupGallery = () => {
-  const { theme } = useTheme();
+  const {theme} = useTheme();
   const color = Colors[theme];
   const navigation = useNavigation();
   const route = useRoute();
-  const { width } = useWindowDimensions();
-  const roomId = (route.params as { roomId: string })?.roomId;
+  const {width} = useWindowDimensions();
+  const roomId = (route.params as {roomId: string})?.roomId;
 
   // State to manage MessageMedia fetching data
   const [media, setMedia] = useState<MediaItem[]>([]);
@@ -52,7 +56,7 @@ export const GroupGallery = () => {
       setIsLoading(true);
 
       try {
-        const res = await getAllMediaInRoom({ roomId, page: 1 });
+        const res = await getAllMediaInRoom({roomId, page: 1});
         if (res && res.media && res.media.length > 0) {
           setMedia(res.media);
           setMediaPage(2);
@@ -74,11 +78,13 @@ export const GroupGallery = () => {
 
   // Handle loading more media
   const handleLoadMore = useCallback(async () => {
-    if (isLoadingMore || !hasNextPage || !roomId) { return; }
+    if (isLoadingMore || !hasNextPage || !roomId) {
+      return;
+    }
     setIsLoadingMore(true);
 
     try {
-      const res = await getAllMediaInRoom({ roomId, page: mediaPage });
+      const res = await getAllMediaInRoom({roomId, page: mediaPage});
       if (res && res.media && res.media.length > 0) {
         setMedia(prev => [...prev, ...res.media]);
         setMediaPage(prevPage => prevPage + 1);
@@ -92,35 +98,33 @@ export const GroupGallery = () => {
     }
   }, [isLoadingMore, hasNextPage, roomId, mediaPage]);
 
-  const renderItem = useCallback(({ item }: { item: MediaItem }) => (
-    <TouchableOpacity
-      style={{
-        width: ITEM_SIZE,
-        height: ITEM_SIZE,
-        padding: 1,
-      }}
-    >
-      <Image
-        source={{ uri: item.media.url }}
-        style={styles.image}
-      />
-    </TouchableOpacity>
-  ), [ITEM_SIZE]);
+  const renderItem = useCallback(
+    ({item}: {item: MediaItem}) => (
+      <TouchableOpacity
+        style={{
+          width: ITEM_SIZE,
+          height: ITEM_SIZE,
+          padding: 1,
+        }}>
+        <Image source={{uri: item.media.url}} style={styles.image} />
+      </TouchableOpacity>
+    ),
+    [ITEM_SIZE],
+  );
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: color.background }]}>
-      <View style={[styles.header, { height: 56 }]}>
+    <SafeAreaView
+      style={[styles.container, {backgroundColor: color.background}]}>
+      <View style={[styles.header, {height: 56}]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <ArrowLeft size={24} color={color.text} />
         </TouchableOpacity>
-        <Text style={[styles.headerText, { color: color.text }]}>
-          Ảnh, video
-        </Text>
-</View>
+        <Text style={[styles.headerText, {color: color.text}]}>Ảnh, video</Text>
+      </View>
 
       {isLoading ? (
         <View style={styles.loading}>
-          <ActivityIndicator size="large" color={color.primary} />
+          <LoadingModal />
         </View>
       ) : (
         <FlashList
@@ -129,21 +133,23 @@ export const GroupGallery = () => {
           keyExtractor={item => item._id}
           numColumns={NUM_COLUMNS}
           estimatedItemSize={ITEM_SIZE}
-          contentContainerStyle={{ paddingHorizontal: ITEM_SPACING / 2 }}
+          contentContainerStyle={{paddingHorizontal: ITEM_SPACING / 2}}
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.5}
-          ListFooterComponent={isLoadingMore ? (
-            <View style={styles.loading}>
-              <ActivityIndicator size="small" color={color.primary} />
-            </View>
-          ) : null}
-          ListEmptyComponent={(
+          ListFooterComponent={
+            isLoadingMore ? (
+              <View style={styles.loading}>
+                <LoadingModal />
+              </View>
+            ) : null
+          }
+          ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <Text style={[styles.text, { color: color.textSecondary }]} >
+              <Text style={[styles.text, {color: color.textSecondary}]}>
                 Không có ảnh hoặc file nào trong cuộc trò chuyện này
               </Text>
             </View>
-          )}
+          }
         />
       )}
     </SafeAreaView>
@@ -151,7 +157,7 @@ export const GroupGallery = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: {flex: 1},
   loading: {
     flex: 1,
     justifyContent: 'center',

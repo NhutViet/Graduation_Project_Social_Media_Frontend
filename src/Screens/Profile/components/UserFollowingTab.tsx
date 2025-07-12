@@ -5,7 +5,6 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
-  ActivityIndicator,
 } from 'react-native';
 import {FlashList, ListRenderItem} from '@shopify/flash-list';
 import React, {useEffect} from 'react';
@@ -25,6 +24,7 @@ import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 import {UserProfile} from '@services/relationRedux/relationTypes';
 import {selectDisplayViewedFollowing} from '@services/relationRedux/relationSelector';
 import {User, UserPlus} from 'lucide-react-native';
+import LoadingModal from '../../../../components/Global/LoadingModal';
 
 type Props = {
   userID: string;
@@ -163,7 +163,7 @@ const UserFollowingTab = ({userID}: Props) => {
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color={color.text} />
+        <LoadingModal />
       </View>
     );
   }

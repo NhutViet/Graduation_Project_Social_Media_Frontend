@@ -5,7 +5,6 @@ import {
   Image,
   TouchableOpacity,
   TextInput,
-  ActivityIndicator,
 } from 'react-native';
 import React, {useRef, useState, useCallback, useEffect, useMemo} from 'react';
 import {FlashList, ListRenderItem} from '@shopify/flash-list';
@@ -24,6 +23,7 @@ import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 import {UserProfile} from '@services/relationRedux/relationTypes';
 import {selectDisplayViewedFollowers} from '@services/relationRedux/relationSelector';
 import {Search, User, UserX, X} from 'lucide-react-native';
+import LoadingModal from '../../../../components/Global/LoadingModal';
 
 type DisplayProfile = UserProfile & {isMeFollowing: boolean};
 
@@ -146,7 +146,7 @@ const UserFollowersTab = ({route}: any) => {
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color={color.primary} />
+        <LoadingModal />
       </View>
     );
   }
@@ -177,43 +177,39 @@ const UserFollowersTab = ({route}: any) => {
   return (
     <View style={{flex: 1, backgroundColor: color.background}}>
       {followersList.length > 0 && (
-  <View
-    style={[
-      styles.searchBarArea,
-      {
-        backgroundColor: color.background,
-        borderBottomColor: color.border,
-      },
-    ]}>
-    <View style={[styles.searchBarContainer]}>
-      <View style={styles.searchInputContainer}>
-        <Search 
-          size={22} 
-          color={color.text} 
-          style={styles.searchIcon} 
-        />
-        <TextInput
-          ref={searchInputRef}
+        <View
           style={[
-            styles.searchBar,
-            {color: color.text, backgroundColor: color.lessBlack},
-          ]}
-          placeholder="Tìm kiếm"
-          placeholderTextColor={color.text}
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
-        {searchQuery.length > 0 && (
-          <TouchableOpacity
-            style={styles.clearButton}
-            onPress={() => setSearchQuery('')}>
-            <X size={22} color={color.text} />
-          </TouchableOpacity>
-        )}
-      </View>
-    </View>
-  </View>
-)}
+            styles.searchBarArea,
+            {
+              backgroundColor: color.background,
+              borderBottomColor: color.border,
+            },
+          ]}>
+          <View style={[styles.searchBarContainer]}>
+            <View style={styles.searchInputContainer}>
+              <Search size={22} color={color.text} style={styles.searchIcon} />
+              <TextInput
+                ref={searchInputRef}
+                style={[
+                  styles.searchBar,
+                  {color: color.text, backgroundColor: color.lessBlack},
+                ]}
+                placeholder="Tìm kiếm"
+                placeholderTextColor={color.text}
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+              />
+              {searchQuery.length > 0 && (
+                <TouchableOpacity
+                  style={styles.clearButton}
+                  onPress={() => setSearchQuery('')}>
+                  <X size={22} color={color.text} />
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+        </View>
+      )}
 
       {displayList.length === 0 && searchQuery.length && (
         <View
@@ -318,10 +314,10 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 10,
   },
-searchBarContainer: {
+  searchBarContainer: {
     marginVertical: 3,
   },
-  
+
   searchInputContainer: {
     position: 'relative',
     flexDirection: 'row',

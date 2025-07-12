@@ -6,7 +6,6 @@ import {
   Image,
   TextInput,
   TouchableOpacity,
-  ActivityIndicator,
   StyleSheet,
   Dimensions,
 } from 'react-native';
@@ -23,6 +22,7 @@ import {Send} from 'lucide-react-native';
 import {GlobalAlertManager} from '../components/Global/AlertModal';
 import CommentComponent from '../src/(tabs)/Home/components/commentComponent';
 import {useNavigation} from '@react-navigation/native';
+import LoadingModal from './Global/LoadingModal';
 
 interface Props {
   postId: string;
@@ -94,11 +94,7 @@ const CommentSection = ({postId, receiverId}: Props) => {
       </Text>
 
       {loading ? (
-        <ActivityIndicator
-          size="large"
-          color={color.text}
-          style={{marginTop: 20}}
-        />
+        <LoadingModal />
       ) : comments.length > 0 ? (
         <View style={{flex: 1, paddingLeft: 15, paddingTop: 10}}>
           <FlashList

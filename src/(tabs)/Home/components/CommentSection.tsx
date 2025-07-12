@@ -13,7 +13,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   Dimensions,
-  ActivityIndicator,
   Keyboard,
 } from 'react-native';
 import {Modalize} from 'react-native-modalize';
@@ -36,6 +35,7 @@ import {useSharedValue} from 'react-native-reanimated';
 import {fetchFollowers} from '@services/relationRedux/relationSlice';
 import MentionSuggestion from '../../../../src/Screens/PostSetting/Components/MentionSuggestion';
 import {useNavigation} from '@react-navigation/native';
+import LoadingModal from '../../../../components/Global/LoadingModal';
 
 export type BottomSheetCommentRef = {
   open: () => void;
@@ -185,7 +185,7 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
           <View style={{flex: 1, height: height, paddingTop: 40}}>
             {loading ? (
               <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color={color.text} />
+                <LoadingModal />
               </View>
             ) : (
               <>
@@ -195,7 +195,7 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
                       data={comments}
                       estimatedItemSize={50}
                       keyExtractor={item => item._id}
-                      renderItem={({ item }) => (
+                      renderItem={({item}) => (
                         <CommentComponent
                           postId={selectedPostRef.current?.postId ?? ''}
                           _id={item._id}
@@ -207,7 +207,7 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
                           totalLikes={item.totalLikes}
                           user={item.user}
                           onReply={(id, handleName, userId) => {
-                            setReplyTo({ id, handleName, userId });
+                            setReplyTo({id, handleName, userId});
                             setTimeout(() => inputRef.current?.focus(), 200);
                           }}
                           navigation={navigation}
@@ -307,20 +307,13 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
                       positionY={inputLayoutY.value}
                     />
 
-                    {comment.length > 0 ? (
+                    {comment.length > 0 && (
                       <TouchableOpacity
                         onPress={handleSendComment}
                         disabled={isSending}>
                         <Send
                           size={24}
                           color={isSending ? 'gray' : color.text}
-                        />
-                      </TouchableOpacity>
-                    ) : (
-                      <TouchableOpacity style={styles.blockIcon}>
-                        <Image
-                          style={[styles.icon, {tintColor: color.text}]}
-                          source={require('../../../../assets/icon/sticker.png')}
                         />
                       </TouchableOpacity>
                     )}

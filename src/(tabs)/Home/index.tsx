@@ -7,7 +7,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import {SafeAreaView, View, ActivityIndicator, Dimensions} from 'react-native';
+import {SafeAreaView, View, Dimensions} from 'react-native';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {RouteProp, useIsFocused, useNavigation} from '@react-navigation/native';
@@ -39,6 +39,7 @@ import {fetchMyRooms} from '@services/roomRedux/roomSlice';
 import StoryListHeader from './components/headerContainer';
 import messaging from '@react-native-firebase/messaging';
 import { fetchEditUser } from '@services/userRedux/userSlice';
+import LoadingModal from '../../../components/Global/LoadingModal';
 
 const HEADER_HEIGHT = 100;
 const AnimatedFlatList = Animated.createAnimatedComponent(Animated.FlatList);
@@ -421,7 +422,7 @@ export const Home = forwardRef(({onReload, route}: HomeProps, ref) => {
           alignItems: 'center',
           backgroundColor: color.background,
         }}>
-        <ActivityIndicator size="small" color={color.text} />
+        <LoadingModal />
       </View>
     );
   }, [isLoadingMore, color]);
@@ -514,7 +515,7 @@ export const Home = forwardRef(({onReload, route}: HomeProps, ref) => {
           alignItems: 'center',
           backgroundColor: color.background,
         }}>
-        <ActivityIndicator size="large" color={color.text} />
+        <LoadingModal />
       </SafeAreaView>
     );
   }

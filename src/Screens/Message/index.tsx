@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  ActivityIndicator,
   FlatList,
   ImageBackground,
   SafeAreaView,
@@ -36,6 +35,7 @@ import {
   updatedRoomStatus,
 } from './utils/helpers';
 import {fetchMyRooms, fetchMyWaitingRooms} from '@services/roomRedux/roomSlice';
+import LoadingModal from '../../../components/Global/LoadingModal';
 
 export const MessageScreen = () => {
   const navigation: any = useNavigation();
@@ -279,7 +279,7 @@ export const MessageScreen = () => {
   if (loading || !rooms) {
     return (
       <SafeAreaView style={styles.loading}>
-        <ActivityIndicator size="large" color={color.text} />
+        <LoadingModal />
       </SafeAreaView>
     );
   }

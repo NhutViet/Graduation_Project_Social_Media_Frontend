@@ -7,9 +7,8 @@ import {
   TouchableOpacity,
   FlatList,
   Pressable,
-  ActivityIndicator,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {Colors} from '../../../../../assets/color/Colors';
@@ -20,6 +19,7 @@ import {AppDispatch, RootState} from '../../../../../services/store';
 import {fetchGetPostedSotry} from '../../../../../services/StoryRedux/StorySlice';
 import {History, CircleFadingArrowUp} from 'lucide-react-native';
 import {handleHighlightPress} from '../../../../(tabs)/Home/util/index';
+import LoadingModal from '../../../../../components/Global/LoadingModal';
 
 const formatMonthText = (dateString?: string): string => {
   if (!dateString) return '--\n--';
@@ -125,7 +125,7 @@ const StoriesTab = () => {
   if (loading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#000" />
+        <LoadingModal />
       </View>
     );
   }

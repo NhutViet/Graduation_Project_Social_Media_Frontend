@@ -33,6 +33,7 @@ import {
   Clapperboard,
   X,
   Check,
+  Video,
 } from 'lucide-react-native';
 
 interface RouteParams {
@@ -212,10 +213,7 @@ export const PlaylistsScreen = () => {
         />
         {isVideo && (
           <View style={styles.videoIconContainer}>
-            <Image
-              source={require('../../../assets/icon/reels.png')}
-              style={styles.videoIcon}
-            />
+            <Video size={22} color="#fff" style={styles.videoIcon} />
           </View>
         )}
         {isSelec && (

@@ -1,8 +1,6 @@
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {FlashList} from '@shopify/flash-list';
 import {
-  ActivityIndicator,
-  Image,
   NativeScrollEvent,
   NativeSyntheticEvent,
   RefreshControl,
@@ -35,6 +33,7 @@ import {
   Search,
   XCircle,
 } from 'lucide-react-native';
+import LoadingModal from '../../../components/Global/LoadingModal';
 
 export const MessageBox = (props: any) => {
   const navigation: any = useNavigation();
@@ -310,7 +309,7 @@ export const MessageBox = (props: any) => {
                   justifyContent: 'center',
                   alignItems: 'center',
                 }}>
-                <ActivityIndicator size="small" color={color.text} />
+                <LoadingModal />
               </View>
             )}
           {!isLoadingMoreStories &&
@@ -359,7 +358,7 @@ export const MessageBox = (props: any) => {
         {loading ? (
           <View
             style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-            <ActivityIndicator size="large" color={color.primary} />
+            <LoadingModal />
           </View>
         ) : (
           <FlashList

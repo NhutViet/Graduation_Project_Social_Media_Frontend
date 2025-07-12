@@ -6,28 +6,24 @@ import {
   Animated,
   TouchableOpacity,
   Dimensions,
-  ActivityIndicator,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../services/store';
-import {
-  fetchFollowingStories,
-  toggleLikeStory,
-} from '../../../services/StoryRedux/StorySlice';
+import {toggleLikeStory} from '../../../services/StoryRedux/StorySlice';
 import {styles} from './components/styles';
 import {Header} from './components/Header';
 import {ProgressBar} from './components/ProgressBar';
 import {MediaPlayer} from './components/MediaPlayer';
 import {Footer} from './components/Footer';
-
 import {Keyboard} from 'react-native';
 import ModalShareStory, {ModalShareHandle} from './components/modalShare';
 import StoryLoadingSkeleton from '../../(tabs)/Home/components/StoryLoadingSkeleton';
 import {debugStoryGroups} from '../../(tabs)/Home/util';
 import {renderTextWithMentions} from '../../util/storyTextRenderer';
-import { Story } from '@services/StoryRedux/StoryType';
-import { VideoRef } from 'react-native-video';
-import { GestureResponderEvent } from 'react-native-modal';
+import {Story} from '@services/StoryRedux/StoryType';
+import {VideoRef} from 'react-native-video';
+import {GestureResponderEvent} from 'react-native-modal';
+import LoadingModal from '../../../components/Global/LoadingModal';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -41,7 +37,7 @@ const SimpleLoading = () => (
       justifyContent: 'center',
       alignItems: 'center',
     }}>
-    <ActivityIndicator size="large" color="#fff" />
+    <LoadingModal />
     <Text
       style={{
         color: '#fff',
@@ -303,19 +299,21 @@ export const SeenStory = ({route, navigation}: any) => {
           const routeName = isOwner ? 'SeenStoryOwner' : 'SeenStory';
 
           // ✅ Use synced stories data for navigation
-          const syncedPrevGroupStories = prevGroup.stories.map((story: Story) => {
-            const updatedStory = storyDetails.find(s => s._id === story._id);
-            if (updatedStory) {
-              return {
-                ...story,
-                likedByUsers:
-                  updatedStory.likedByUsers || story.likedByUsers || [],
-                viewedByUsers:
-                  updatedStory.viewedByUsers || story.viewedByUsers || [],
-              };
-            }
-            return story;
-          });
+          const syncedPrevGroupStories = prevGroup.stories.map(
+            (story: Story) => {
+              const updatedStory = storyDetails.find(s => s._id === story._id);
+              if (updatedStory) {
+                return {
+                  ...story,
+                  likedByUsers:
+                    updatedStory.likedByUsers || story.likedByUsers || [],
+                  viewedByUsers:
+                    updatedStory.viewedByUsers || story.viewedByUsers || [],
+                };
+              }
+              return story;
+            },
+          );
 
           navigation.replace(routeName, {
             storyGroups: currentStoryGroups,

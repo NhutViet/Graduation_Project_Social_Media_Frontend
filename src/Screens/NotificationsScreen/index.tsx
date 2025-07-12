@@ -8,7 +8,6 @@ import {
   Image,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
-import {ActivityIndicator} from 'react-native-paper';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {AppDispatch, RootState, store} from '@services/store';
 import {
@@ -28,7 +27,8 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import 'dayjs/locale/vi';
 import {ArrowLeft, User} from 'lucide-react-native';
 import {Colors} from '@assets/color/Colors';
-import { NotificationSkeleton } from '../../../components/SkeletonGrid';
+import {NotificationSkeleton} from '../../../components/SkeletonGrid';
+import LoadingModal from '../../../components/Global/LoadingModal';
 
 dayjs.extend(relativeTime);
 dayjs.locale('vi');
@@ -171,9 +171,13 @@ export const NotificationsScreen = () => {
     }
   };
 
-  const renderItem = ({item}: {item: {type: 'header' | 'item'; data: ItemNoti | string}}) => {
+  const renderItem = ({
+    item,
+  }: {
+    item: {type: 'header' | 'item'; data: ItemNoti | string};
+  }) => {
     if (item.type === 'header') {
-      return <Text style={styles.sectionTitle}>{(item.data as string)}</Text>;
+      return <Text style={styles.sectionTitle}>{item.data as string}</Text>;
     }
 
     const noti: ItemNoti = item.data as ItemNoti;
@@ -238,16 +242,14 @@ export const NotificationsScreen = () => {
             horizontal={false}
             renderItem={renderItem}
             keyExtractor={(item, index) =>
-              item.type === 'header' ? `header-${item.data}` : (item.data as ItemNoti)._id
+              item.type === 'header'
+                ? `header-${item.data}`
+                : (item.data as ItemNoti)._id
             }
             onEndReached={handleLoadMore}
             onEndReachedThreshold={0.5}
             contentContainerStyle={{paddingBottom: 16}}
-            ListFooterComponent={
-              isLoadingMore ? (
-                <ActivityIndicator size="small" color="#888" />
-              ) : null
-            }
+            ListFooterComponent={isLoadingMore ? <LoadingModal /> : null}
           />
         </View>
       )}

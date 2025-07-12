@@ -1,12 +1,5 @@
 import React, {useMemo, useCallback} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ActivityIndicator,
-  Image,
-} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
 import {FlashList} from '@shopify/flash-list';
@@ -16,6 +9,7 @@ import {useNavigation} from '@react-navigation/native';
 import {extractHashtags, hasHashtags} from '../../../util/hashtagUtils';
 import {Item} from '@services/searchRedux/searchType';
 import {Hash} from 'lucide-react-native';
+import LoadingModal from '../../../../components/Global/LoadingModal';
 
 interface TagCount {
   tag: string;
@@ -118,10 +112,7 @@ const HashTag: React.FC = React.memo(() => {
   if (isLoading) {
     return (
       <View style={[styles.center, {backgroundColor: color.background}]}>
-        <ActivityIndicator size="large" color={color.primary} />
-        <Text style={[styles.loadingText, {color: color.textSecondary}]}>
-          Đang tải…
-        </Text>
+        <LoadingModal />
       </View>
     );
   }

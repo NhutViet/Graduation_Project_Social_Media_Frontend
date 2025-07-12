@@ -6,7 +6,6 @@ import {
   TextInput,
   Image,
   TouchableOpacity,
-  ActivityIndicator,
   Dimensions,
   TextStyle,
 } from 'react-native';
@@ -16,10 +15,10 @@ import {useTheme} from '../../../util/ThemeContext';
 import {Modalize} from 'react-native-modalize';
 import {useDispatch, useSelector} from 'react-redux';
 import {fetchMyRooms} from '@services/roomRedux/roomSlice';
-// import { fetchFollowers, fetchFollowing } from '@services/relationRedux/relationSlice';
 import ChatRoomAvatar from '../../../../components/ChatRoomAvatar';
 import {RootState, AppDispatch} from '../../../../services/store';
 import {Search, UserPlus, X, CheckCircle, Link2} from 'lucide-react-native';
+import LoadingModal from '../../../../components/Global/LoadingModal';
 
 export interface CombinedItem {
   kind: 'room' | 'friend';
@@ -346,11 +345,7 @@ const ModalShare = forwardRef<ModalShareHandle, ModalShareProps>(
 
           {/* Content */}
           {loading ? (
-            <ActivityIndicator
-              size="large"
-              color={color.text}
-              style={styles.loader}
-            />
+            <LoadingModal />
           ) : items.length === 0 ? (
             <View style={styles.emptyContainer}>
               <Text

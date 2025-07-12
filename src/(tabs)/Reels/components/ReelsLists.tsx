@@ -1,5 +1,5 @@
-import React, {useCallback, useMemo, useRef, useState} from 'react';
-import {ActivityIndicator, Dimensions, View} from 'react-native';
+import React, {useCallback, useRef, useState} from 'react';
+import {Dimensions, View} from 'react-native';
 import {FlashList} from '@shopify/flash-list';
 import {useDispatch, useSelector} from 'react-redux';
 import {useNavigation} from '@react-navigation/native';
@@ -10,15 +10,14 @@ import {
 } from '../../../../services/reactionRedux/reactionSlice';
 import {relationAction} from '@services/relationRedux/relationSlice';
 import ReelsComponent from './reelsComponent';
-import {Colors} from '@assets/color/Colors';
 import {PostWithMedia} from '@services/postRedux/postTypes';
 import {UserProfile} from '@services/relationRedux/relationTypes';
 import {
   addLikedPost,
   removeLikedPost,
 } from '@services/reactionRedux/reactionReducer';
+import LoadingModal from '../../../../components/Global/LoadingModal';
 
-const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
 
 interface ReelsListProps {
@@ -165,7 +164,7 @@ const ReelsList = ({
             loading && !isInitialLoad
               ? () => (
                   <View style={{padding: 12}}>
-                    <ActivityIndicator color={Colors.white} />
+                    <LoadingModal />
                   </View>
                 )
               : null

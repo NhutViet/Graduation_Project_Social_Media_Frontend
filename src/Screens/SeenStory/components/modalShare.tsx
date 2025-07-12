@@ -6,7 +6,6 @@ import {
   TextInput,
   Image,
   TouchableOpacity,
-  ActivityIndicator,
   Dimensions,
   TextStyle,
 } from 'react-native';
@@ -20,6 +19,7 @@ import ChatRoomAvatar from '../../../../components/ChatRoomAvatar';
 import {RootState, AppDispatch} from '../../../../services/store';
 import {RoomUser} from '@services/roomRedux/roomType';
 import {Search, UserPlus, Link, CheckCircle} from 'lucide-react-native';
+import LoadingModal from '../../../../components/Global/LoadingModal';
 
 export interface CombinedItem {
   kind: 'room' | 'friend';
@@ -323,11 +323,7 @@ const ModalShareStory = forwardRef<ModalShareHandle, ModalShareProps>(
 
           {/* Content */}
           {loading ? (
-            <ActivityIndicator
-              size="large"
-              color={color.text}
-              style={styles.loader}
-            />
+            <LoadingModal />
           ) : items.length === 0 ? (
             <View style={styles.emptyContainer}>
               <Text
@@ -363,14 +359,7 @@ const ModalShareStory = forwardRef<ModalShareHandle, ModalShareProps>(
                       )}
                       {isSel && (
                         <View style={[styles.checkmark]}>
-                          <Image
-                            style={{
-                              width: 20,
-                              height: 20,
-                              tintColor: color.primary,
-                            }}
-                            source={require('@assets/icon/success.png')}
-                          />
+                          <CheckCircle size={22} color={color.primary} />
                         </View>
                       )}
                       <Text

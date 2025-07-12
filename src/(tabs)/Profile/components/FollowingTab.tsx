@@ -6,7 +6,6 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
-  ActivityIndicator,
 } from 'react-native';
 import {FlashList} from '@shopify/flash-list';
 import {useTheme} from '../../../util/ThemeContext';
@@ -24,6 +23,7 @@ import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 import {UserProfile} from '@services/relationRedux/relationTypes';
 import MoreActionPopup, {MoreActionPopupRef} from './MoreActionModal';
 import {MoreVertical, Users} from 'lucide-react-native';
+import LoadingModal from '../../../../components/Global/LoadingModal';
 
 const FollowingTab = () => {
   const navigation: any = useNavigation();
@@ -150,7 +150,7 @@ const FollowingTab = () => {
   if (loading)
     return (
       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-        <ActivityIndicator size="large" color={color.primary} />
+        <LoadingModal />
       </View>
     );
   if (error)

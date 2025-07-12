@@ -1,10 +1,11 @@
 import React, {forwardRef, useEffect, useRef, useState} from 'react';
-import {View, Image, Text, Alert, ActivityIndicator} from 'react-native';
+import {View, Image, Text} from 'react-native';
 import Video, {VideoRef} from 'react-native-video';
 import Sound from 'react-native-sound';
 import {styles} from './style';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
-import { Story } from '@services/StoryRedux/StoryType';
+import {Story} from '@services/StoryRedux/StoryType';
+import LoadingModal from '../../../../components/Global/LoadingModal';
 
 interface MediaSectionProps {
   selectedItem: Story;
@@ -155,18 +156,7 @@ export const MediaSection = forwardRef<VideoRef, MediaSectionProps>(
                 }}
               />
               {!isVideoLoaded && selectedItem?.mediaUrl?.endsWith('.m3u8') && (
-                <ActivityIndicator
-                  size="large"
-                  color="#fff"
-                  style={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    marginLeft: -15,
-                    marginTop: -15,
-                    zIndex: 20,
-                  }}
-                />
+                <LoadingModal />
               )}
             </>
           ) : (
@@ -198,7 +188,7 @@ export const MediaSection = forwardRef<VideoRef, MediaSectionProps>(
               backgroundColor: 'rgba(0,0,0,0.2)', // có thể thêm nền mờ nếu muốn
               zIndex: 10,
             }}>
-            <ActivityIndicator size="large" color="#fff" />
+            <LoadingModal />
           </View>
         )}
       </View>

@@ -1,12 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {
-  Modal,
-  SafeAreaView,
-  Text,
-  TouchableOpacity,
-  View,
-  ActivityIndicator,
-} from 'react-native';
+import {Modal, SafeAreaView, Text, TouchableOpacity, View} from 'react-native';
 import {useNavigation, NavigationProp} from '@react-navigation/native';
 import {FlashList} from '@shopify/flash-list';
 import {useDispatch, useSelector} from 'react-redux';
@@ -21,6 +14,7 @@ import {useTheme} from '../../util/ThemeContext';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 import {ArrowLeft, Plus} from 'lucide-react-native';
 import {Colors} from '@assets/color/Colors';
+import LoadingModal from '../../../components/Global/LoadingModal';
 
 export const BlockedAccounts = () => {
   const navigation = useNavigation<NavigationProp<any>>();
@@ -65,7 +59,7 @@ export const BlockedAccounts = () => {
     <SafeAreaView style={styles.container}>
       {loading && (
         <View style={styles.loaderOverlay}>
-          <ActivityIndicator size="large" />
+          <LoadingModal />
         </View>
       )}
 
