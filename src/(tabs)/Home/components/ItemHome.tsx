@@ -27,6 +27,8 @@ import {fetchCommentsByPost} from '@services/commentRedux/commentSlice';
 import HashtagText from '../../../../components/HashtagText';
 import {Colors} from '@assets/color/Colors';
 import CustomBottomSheetOptions from './BottomSheetOptionsModal';
+import { Media } from '@services/postRedux/postTypes';
+import { addLikedPost, removeLikedPost } from '@services/reactionRedux/reactionReducer';
 
 Sound.setCategory('Playback');
 const screenWidth = Dimensions.get('window').width;
@@ -87,6 +89,11 @@ const ItemHome = (props: ItemHomeProps) => {
 
   // Initialize local state from props only once
   useEffect(() => {
+    if(isLike){
+      dispatch(addLikedPost(_id));
+    }else {
+      dispatch(removeLikedPost(_id));
+    }
     state.setIsLiked(isLike);
   }, [isLike, state.setIsLiked]);
 
@@ -130,7 +137,7 @@ const ItemHome = (props: ItemHomeProps) => {
   );
 
   const renderPostItem = useCallback(
-    ({item}) => (
+    ({item}: {item: Media}) => (
       <RenderMediaItem
         item={item}
         isFocused={isFocused}
