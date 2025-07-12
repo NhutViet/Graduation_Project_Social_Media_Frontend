@@ -1,12 +1,17 @@
-import React, {useRef, useState} from 'react';
+import React, {useRef} from 'react';
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import LinearGradient from 'react-native-linear-gradient';
-export const ScreenQRCode = ({navigation}: any) => {
+import { useNavigation } from '@react-navigation/native';
+import { useSelector } from 'react-redux';
+import { RootState } from '@services/store';
+
+export const ScreenQRCode = () => {
+  const navigation: any = useNavigation();
   const qrCodeRef = useRef<any>(null);
-  const [linkQR, setLinkQR] = useState(
-    'https://www.youtube.com/watch?v=GKxkw0FQBm0',
-  );
+  const myUserId = useSelector((state: RootState) => {
+    return state.user?.user?._id;
+  });
   const hanldeDownloadQRCode = async () => {
     console.log('download');
   };
@@ -40,7 +45,7 @@ export const ScreenQRCode = ({navigation}: any) => {
         <View style={styles.content}>
           <View style={styles.ViewQR}>
             <QRCode
-              value={linkQR}
+              value={myUserId}
               size={200}
               quietZone={10}
               logo={require('../../../assets/icon/logo.png')}
