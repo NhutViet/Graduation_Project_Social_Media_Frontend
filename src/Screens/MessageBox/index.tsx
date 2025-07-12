@@ -36,7 +36,7 @@ import {
   XCircle,
 } from 'lucide-react-native';
 
-export const MessageBox = (props: {onBack: () => void}) => {
+export const MessageBox = (props: any) => {
   const navigation: any = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];

@@ -43,14 +43,15 @@ export type BottomSheetCommentRef = {
 };
 
 interface Props {
-  postId: string;
-  receiverId?: string;
+  selectedPostRef: React.RefObject<{
+    postId: string;
+    receiverId: string;
+  }>;
 }
-
 const height = Dimensions.get('window').height * 0.85;
 
 const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
-  ({postId, receiverId}, ref) => {
+  ({selectedPostRef}, ref) => {
     const modalizeRef = useRef<Modalize>(null);
     const dispatch = useDispatch<AppDispatch>();
     const user = useSelector((state: RootState) => state.user.user);
@@ -96,7 +97,7 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
       }
 
       const payload = {
-        postID: postId,
+        postID: selectedPostRef.current?.postId ?? '',
         content: comment.trim(),
         parentID: replyTo?.id || '',
         mediaUrl: null,
@@ -111,15 +112,15 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
           addComment({
             payload,
             handleName: user?.handleName,
-            postId: postId,
-            receiverId: receiverId,
+            postId: selectedPostRef.current?.postId ?? '',
+            receiverId: selectedPostRef.current?.receiverId,
             userId: user?._id,
             parentUserId: payload.parentID.length > 0 ? replyTo?.userId : '',
           }),
         );
 
-        dispatch(incrementCommentCountByPostId(postId));
-        dispatch(fetchCommentsByPost(postId));
+        dispatch(incrementCommentCountByPostId(selectedPostRef.current?.postId ?? ''));
+        dispatch(fetchCommentsByPost(selectedPostRef.current?.postId ?? ''));
       } catch (error) {
         GlobalAlertManager.show('Thất bại', 'Không thể bình luận');
       } finally {
@@ -196,7 +197,7 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
                       keyExtractor={item => item._id}
                       renderItem={({ item }) => (
                         <CommentComponent
-                          postId={postId}
+                          postId={selectedPostRef.current?.postId ?? ''}
                           _id={item._id}
                           content={item.content}
                           isDeleted={item.isDeleted}

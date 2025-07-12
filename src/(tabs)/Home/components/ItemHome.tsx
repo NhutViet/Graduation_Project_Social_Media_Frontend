@@ -50,7 +50,7 @@ const ItemHome = (props: ItemHomeProps) => {
     likeCount,
     share,
     music,
-    setSelectedPostId,
+    SelectedPostRef,
     clickableHashtags = true,
     isFollow,
   } = props;
@@ -67,6 +67,15 @@ const ItemHome = (props: ItemHomeProps) => {
   useEffect(() => {
     state.setIsBookmark(isBookmarked);
   }, [isBookmarked]);
+
+  // Initialize local state from props only once
+  useEffect(() => {
+    if(isLike){
+      dispatch(addLikedPost(_id));
+    }else {
+      dispatch(removeLikedPost(_id));
+    }
+  }, [isLike]);
 
   // Get Redux like state for this specific post
   const isLikedFromRedux = useSelector((state: RootState) =>
@@ -86,16 +95,6 @@ const ItemHome = (props: ItemHomeProps) => {
   useEffect(() => {
     state.setNumLike(likeCount);
   }, [likeCount]);
-
-  // Initialize local state from props only once
-  useEffect(() => {
-    if(isLike){
-      dispatch(addLikedPost(_id));
-    }else {
-      dispatch(removeLikedPost(_id));
-    }
-    state.setIsLiked(isLike);
-  }, [isLike, state.setIsLiked]);
 
   const handleLikePress = useCallback(async () => {
     if (likeLoading) return;
@@ -119,10 +118,10 @@ const ItemHome = (props: ItemHomeProps) => {
   const handleOpenComment = useCallback(
     (postId: string, receiverId: string) => {
       dispatch(fetchCommentsByPost(postId));
-      setSelectedPostId({postId, receiverId});
+      SelectedPostRef.current = { postId, receiverId };
       sheetRef.current?.open();
     },
-    [dispatch, setSelectedPostId, sheetRef],
+    [dispatch, SelectedPostRef, sheetRef],
   );
 
   const handleMediaScroll = useCallback(

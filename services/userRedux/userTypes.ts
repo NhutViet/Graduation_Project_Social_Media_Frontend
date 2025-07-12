@@ -15,6 +15,7 @@ export interface User {
   createdAt: string;
   updateAt: string;
   currentSessionId: string;
+  wantNotified?: boolean;
 }
 
 export interface UserRes {
@@ -31,6 +32,8 @@ export interface EditUserDto {
   dateOfBirth?: string;
   handleName?: string;
   profilePic?: string;
+  wantNotified?: boolean;
+  fcmToken?: string;
 }
 
 export interface PublicUserRes {

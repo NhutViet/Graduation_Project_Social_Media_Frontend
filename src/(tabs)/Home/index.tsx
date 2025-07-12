@@ -45,6 +45,8 @@ import { useStoryPrefetch } from './hook/useStoryPrefetch';
 import { getNotification } from '@services/notificationRedux/notificationSlice';
 import { fetchMyRooms } from '@services/roomRedux/roomSlice';
 import StoryListHeader from './components/headerContainer';
+import messaging from '@react-native-firebase/messaging';
+import { fetchEditUser } from '@services/userRedux/userSlice';
 
 const HEADER_HEIGHT = 100;
 const AnimatedFlatList = Animated.createAnimatedComponent(Animated.FlatList);
@@ -72,10 +74,10 @@ export const Home = forwardRef(({ onReload, route }: HomeProps, ref) => {
   );
   const sheetRef = useRef<BottomSheetCommentRef>(null);
   const [currentVisible, setCurrentVisible] = useState<string | null>(null);
-  const [selectedPostId, setSelectedPostId] = useState<{
-    postId: string;
-    receiverId: string;
-  }>({ postId: '', receiverId: '' });
+  const selectedPostRef = useRef<{ postId: string; receiverId: string }>({
+  postId: '',
+  receiverId: '',
+});
   const [seenMap, setSeenMap] = useState<Record<string, boolean>>({});
 
   // Add loading state for pagination
@@ -285,6 +287,21 @@ export const Home = forwardRef(({ onReload, route }: HomeProps, ref) => {
     dispatch(fetchMyRooms());
   }, [dispatch]);
 
+  useEffect(() => {
+    const removeFcmtoken = async () => {
+      try {
+        await messaging().deleteToken();
+        dispatch(fetchEditUser({fcmToken: ''}));
+      } catch (error) {
+        console.warn('Lỗi khi xóa FcmToken: ', error);
+      }
+    };
+
+    if(user && user.wantNotified === false){
+      removeFcmtoken();
+    }
+  }, [user?.wantNotified]);
+
   const prefetchNextPage = useCallback(() => {
     if (!isLoadingMore && hasNextPage && !hasCalledLoadMore) {
       loadMore();
@@ -394,7 +411,7 @@ export const Home = forwardRef(({ onReload, route }: HomeProps, ref) => {
           isFocused={isFocused}
           sheetRef={sheetRef}
           isFollow={item.isFollow}
-          setSelectedPostId={setSelectedPostId}
+          SelectedPostRef={selectedPostRef}
         />
       );
     },
@@ -539,11 +556,7 @@ export const Home = forwardRef(({ onReload, route }: HomeProps, ref) => {
         getItemLayout={getItemLayout}
         ListHeaderComponent={storyListHeader}
       />
-      <BottomSheetComment
-        ref={sheetRef}
-        postId={selectedPostId.postId}
-        receiverId={selectedPostId.receiverId}
-      />
+      <BottomSheetComment ref={sheetRef} selectedPostRef={selectedPostRef} />
       <ModalLoading visible={isStoryLoading} />
     </SafeAreaView>
   );

@@ -98,6 +98,14 @@ export type RootStackParamList = {
   };
   ProfileComp: {userID: string};
   InfoAccountCenter: {user: User};
+  ZegoCallScreens: {
+    userID: string;
+    userName: string;
+    callID: string;
+    image: string;
+    isCaller: boolean;
+    callType: 'video' | 'voice';
+  };
 };
 
 const Stack = createStackNavigator();
@@ -163,7 +171,6 @@ const AppNavigator = () => {
         <Stack.Screen name="QRCode" component={ScreenQRCode} />
         <Stack.Screen name="MessageBox" component={MessageBox} />
         <Stack.Screen name="Streaming" component={Streaming} />
-        <Stack.Screen name="CameraScreen" component={CameraScreen} />
         <Stack.Screen name="CreateGroupScreen" component={CreateGroupScreen} />
         <Stack.Screen name="BookmarkScreen" component={BookmarkScreen} />
         <Stack.Screen name="PlaylistsScreen" component={PlaylistsScreen} />

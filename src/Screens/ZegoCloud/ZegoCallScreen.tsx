@@ -2,29 +2,16 @@ import React, {useEffect, useState} from 'react';
 import {StyleSheet, View, Image} from 'react-native';
 import {ZegoUIKitPrebuiltCall} from '@zegocloud/zego-uikit-prebuilt-call-rn';
 import {CallAppID, CallAppSign} from '../../../services/api';
-import {RouteProp, useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import {useSocket} from '../../../services/SocketContext';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+import {RootStackParamList} from 'src/Navigation/AppNavigation';
+import type {RouteProp} from '@react-navigation/native';
 
-type RootStackParamList = {
-  ZegoCallScreen: {
-    userID: string;
-    userName: string;
-    callID: string;
-    image: string;
-    isCaller: boolean;
-    callType: 'video' | 'voice';
-  };
-};
-
-type ZegoCallScreenRouteProp = RouteProp<RootStackParamList, 'ZegoCallScreen'>;
-
-type ZegoCallScreenProps = {
-  route: ZegoCallScreenRouteProp;
-};
-
-export default function ZegoCallScreen({route}: ZegoCallScreenProps) {
+export default function ZegoCallScreen() {
+  const route = useRoute<RouteProp<RootStackParamList, 'ZegoCallScreens'>>();
   const {userID, userName, callID, image, isCaller, callType} = route.params;
+
   const navigation = useNavigation();
   const {socket} = useSocket();
   const [callEnded, setCallEnded] = useState(false);
@@ -106,9 +93,9 @@ export default function ZegoCallScreen({route}: ZegoCallScreenProps) {
               <Image
                 style={{width: '100%', height: '100%'}}
                 resizeMode="cover"
-                source={
-                  {uri: 'https://i.pinimg.com/736x/09/80/62/098062ede8791dc791c3110250d2a413.jpg'}
-                }
+                source={{
+                  uri: 'https://i.pinimg.com/736x/09/80/62/098062ede8791dc791c3110250d2a413.jpg',
+                }}
               />
             </View>
           ),
