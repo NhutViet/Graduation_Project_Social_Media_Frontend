@@ -38,12 +38,6 @@ export const useBookmarkStyles = () => {
           justifyContent: 'space-between',
           marginBottom: spacing.m,
         } as ViewStyle,
-        icon: {
-          width: 20,
-          height: 20,
-          tintColor: palette.text,
-          resizeMode: 'contain',
-        } as ImageStyle,
         headerTitle: {
           fontSize: typography.fontSizes.l,
           fontWeight: '600',
@@ -347,7 +341,7 @@ export const useBookmarkStyles = () => {
           fontWeight: '500',
           color: palette.text,
         },
-        centerContainer:{
+        centerContainer: {
           flex: 1,
           justifyContent: 'center',
           alignItems: 'center',

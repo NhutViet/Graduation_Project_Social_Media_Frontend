@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import {FlashList, ListRenderItem} from '@shopify/flash-list';
-import React, {useState, useEffect, useMemo} from 'react';
+import React, {useEffect} from 'react';
 import {Colors} from '@assets/color/Colors';
 import {useTheme} from '../../../util/ThemeContext';
 import {useNavigation} from '@react-navigation/native';
@@ -22,14 +22,15 @@ import {
 } from '../../../../services/relationRedux/relationSlice';
 import {createRoom} from '../../../../services/roomRedux/roomSlice';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
-import { UserProfile } from '@services/relationRedux/relationTypes';
-import { selectDisplayViewedFollowing } from '@services/relationRedux/relationSelector';
+import {UserProfile} from '@services/relationRedux/relationTypes';
+import {selectDisplayViewedFollowing} from '@services/relationRedux/relationSelector';
+import {User, UserPlus} from 'lucide-react-native';
 
 type Props = {
   userID: string;
 };
 
-type DisplayProfile = UserProfile & { isMeFollowing: boolean };
+type DisplayProfile = UserProfile & {isMeFollowing: boolean};
 
 const UserFollowingTab = ({userID}: Props) => {
   const navigation: any = useNavigation();
@@ -38,22 +39,22 @@ const UserFollowingTab = ({userID}: Props) => {
   const user = useSelector((state: RootState) => state.user?.user);
   const myUserId = useSelector((state: RootState) => state.user?.user?._id);
   const dispatch = useDispatch<AppDispatch>();
-  const {
-    recommendations,
-    loading,
-    error,
-  } = useSelector((state: RootState) => state.relation);
+  const {recommendations, loading, error} = useSelector(
+    (state: RootState) => state.relation,
+  );
 
   useEffect(() => {
     if (!userID || !myUserId) return;
-    dispatch(fetchViewedFollowing({ userId: userID }));
-    dispatch(fetchFollowing({ userId: myUserId }));
-    dispatch(fetchRecommendations({ limit: 10 }));
+    dispatch(fetchViewedFollowing({userId: userID}));
+    dispatch(fetchFollowing({userId: myUserId}));
+    dispatch(fetchRecommendations({limit: 10}));
   }, [dispatch, userID, myUserId]);
 
   const displayList = useSelector(selectDisplayViewedFollowing);
 
-  const handleActionButton = async (item: UserProfile & { isMeFollowing?: boolean }) => {
+  const handleActionButton = async (
+    item: UserProfile & {isMeFollowing?: boolean},
+  ) => {
     const mutual = item.isMeFollowing ?? false;
     if (mutual) {
       try {
@@ -95,18 +96,15 @@ const UserFollowingTab = ({userID}: Props) => {
     }
   };
 
-  const renderSortItem: ListRenderItem<DisplayProfile> = ({ item }) => {
+  const renderSortItem: ListRenderItem<DisplayProfile> = ({item}) => {
     const isMe = item._id === myUserId;
-    return(
+    return (
       <View style={[styles.suggestedItem, {backgroundColor: color.background}]}>
         <TouchableOpacity style={styles.touchableInfo}>
           {item.profilePic ? (
-            <Image source={{ uri: item.profilePic }} style={styles.profilePic} />
-            ) : (
-              <Image
-                source={require('../../../../assets/icon/user.png')}
-                style={styles.profilePic}
-              />
+            <Image source={{uri: item.profilePic}} style={styles.profilePic} />
+          ) : (
+            <User size={40} color={color.text} style={{marginRight: 10}} />
           )}
           <View style={styles.suggestedInfo}>
             <Text style={[styles.handle, {color: color.text}]}>
@@ -138,10 +136,10 @@ const UserFollowingTab = ({userID}: Props) => {
           </TouchableOpacity>
         )}
       </View>
-    )
+    );
   };
 
-  const renderRecommendItem: ListRenderItem<UserProfile> = ({ item }) => (
+  const renderRecommendItem: ListRenderItem<UserProfile> = ({item}) => (
     <View style={[styles.suggestedItem, {backgroundColor: color.background}]}>
       <TouchableOpacity style={styles.touchableInfo}>
         <Image source={{uri: item.profilePic}} style={styles.profilePic} />
@@ -188,11 +186,7 @@ const UserFollowingTab = ({userID}: Props) => {
             justifyContent: 'center',
             padding: 20,
           }}>
-          <Image
-            source={require('../../../../assets/icon/invite.png')}
-            style={{width: 200, height: 200, marginBottom: 24}}
-            resizeMode="contain"
-          />
+          <UserPlus size={80} color={color.text} style={{marginBottom: 24}} />
           <Text
             style={{
               color: color.text,

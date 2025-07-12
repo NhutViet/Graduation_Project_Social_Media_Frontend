@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
-import {useState, useRef, memo, useEffect} from 'react';
+import {useState, useRef, memo} from 'react';
 import {FlashList} from '@shopify/flash-list';
 import {formatTimeAgo} from '../util';
 import {useDispatch, useSelector} from 'react-redux';
@@ -19,6 +19,7 @@ import {
   updateCommentLike,
   updateCommentUnlike,
 } from '@services/commentRedux/commentReducer';
+import {Heart} from 'lucide-react-native';
 
 const width = Dimensions.get('window').width - 96;
 const fallbackImg =
@@ -79,7 +80,15 @@ const ReplyComment = memo(
       if (likeTimeout.current) clearTimeout(likeTimeout.current);
       likeTimeout.current = setTimeout(() => {
         if (newLiked) {
-          dispatch(likeComment({commentId: _id, receiverId: user?._id, handleName: currentUser?.handleName, userId: currentUser?._id, postId: item.postId}));
+          dispatch(
+            likeComment({
+              commentId: _id,
+              receiverId: user?._id,
+              handleName: currentUser?.handleName,
+              userId: currentUser?._id,
+              postId: item.postId,
+            }),
+          );
           dispatch(updateCommentLike({commentId: _id, userId: userId || ''}));
         } else {
           dispatch(unlikeComment(_id));
@@ -126,14 +135,10 @@ const ReplyComment = memo(
           </View>
           <View style={{alignItems: 'center', marginTop: 20}}>
             <TouchableOpacity style={styles.blockIcon} onPress={handleLike}>
-              <Image
-                style={styles.icon}
-                source={
-                  isLiked
-                    ? require('../../../../assets/icon/heart_fill.png')
-                    : require('../../../../assets/icon/heart.png')
-                }
-                tintColor={!isLiked ? color.text : 'red'}
+              <Heart
+                size={22}
+                color={isLiked ? 'red' : color.text}
+                fill={isLiked ? 'red' : 'none'}
               />
             </TouchableOpacity>
             <Text style={[styles.text, {color: color.text}]}>{totalLikes}</Text>
@@ -175,7 +180,15 @@ const CommentComponent = memo((props: CommentComponentProps) => {
     if (likeTimeout.current) clearTimeout(likeTimeout.current);
     likeTimeout.current = setTimeout(() => {
       if (newLiked) {
-        dispatch(likeComment({commentId: _id, receiverId: user?._id, handleName: currentUser?.handleName, userId: currentUser?._id, postId: postId}));
+        dispatch(
+          likeComment({
+            commentId: _id,
+            receiverId: user?._id,
+            handleName: currentUser?.handleName,
+            userId: currentUser?._id,
+            postId: postId,
+          }),
+        );
         dispatch(updateCommentLike({commentId: _id, userId: userId || ''}));
       } else {
         dispatch(unlikeComment(_id));
@@ -259,14 +272,10 @@ const CommentComponent = memo((props: CommentComponentProps) => {
 
         <View style={styles.heartContainer}>
           <TouchableOpacity style={styles.blockIcon} onPress={handleToggleLike}>
-            <Image
-              style={styles.icon}
-              source={
-                isLiked
-                  ? require('../../../../assets/icon/heart_fill.png')
-                  : require('../../../../assets/icon/heart.png')
-              }
-              tintColor={!isLiked ? color.text : 'red'}
+            <Heart
+              size={22}
+              color={isLiked ? 'red' : color.text}
+              fill={isLiked ? 'red' : 'none'}
             />
           </TouchableOpacity>
           <Text style={[styles.text, {color: color.text}]}>{totalLikes}</Text>

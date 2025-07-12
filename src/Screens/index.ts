@@ -43,7 +43,6 @@ export * from './AddCollectionScreen';
 export * from './LinkToGroup';
 export * from './MusicDetail';
 export * from './ChangePassword';
-export * from './ChangeBirthday';
 export * from './Setting/YourActivity';
 export * from './UserInfo/components/SearchMessages.tsx';
 export * from './Setting/YourActivity';

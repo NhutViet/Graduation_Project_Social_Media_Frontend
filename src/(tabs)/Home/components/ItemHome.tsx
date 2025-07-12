@@ -108,7 +108,7 @@ const ItemHome = (props: ItemHomeProps) => {
     }
   }, [actions, likeLoading]);
 
-   const handleUserPress = useCallback(() => {
+  const handleUserPress = useCallback(() => {
     if (user._id !== currentUserID) {
       navigation.navigate('ProfileComp', {
         userID: user._id,

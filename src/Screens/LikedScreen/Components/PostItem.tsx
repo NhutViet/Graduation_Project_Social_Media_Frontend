@@ -2,7 +2,6 @@ import {
   Dimensions,
   Image,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -10,6 +9,11 @@ import React from 'react';
 import Video from 'react-native-video';
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
+import {
+  Clapperboard,
+  GalleryHorizontal,
+  CheckCircle2,
+} from 'lucide-react-native';
 
 const {width} = Dimensions.get('window');
 
@@ -39,28 +43,27 @@ const PostItem = (props: PostItemProps) => {
             muted={true}
             paused={true}
           />
-          <Image
-            source={require('../../../../assets/icon/clapperboard.png')}
-            style={[styles.note, {tintColor: color.background}]}
+          <Clapperboard
+            size={22}
+            color={color.background}
+            style={styles.note}
           />
         </View>
       ) : data.image_url.length > 1 ||
         (data.image_url.length > 0 && data.video.length > 0) ? (
         <View>
           <Image source={{uri: data.image_url[0]}} style={styles.container} />
-          <Image
-            source={require('../../../../assets/icon/gallery.png')}
-            style={[styles.note, {tintColor: color.background}]}
+          <GalleryHorizontal
+            size={22}
+            color={color.background}
+            style={styles.note}
           />
         </View>
       ) : (
         <Image source={{uri: data.image_url[0]}} style={styles.container} />
       )}
       {isSelect ? (
-        <Image
-          source={require('../../../../assets/icon/checked.png')}
-          style={[styles.tick, {tintColor: color.text}]}
-        />
+        <CheckCircle2 size={22} color={color.text} style={styles.tick} />
       ) : (
         <View style={[styles.rounded, {borderColor: color.textSecondary}]} />
       )}

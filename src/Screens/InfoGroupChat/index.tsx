@@ -15,6 +15,7 @@ import {
   UserPlus,
   PenLine,
   LogOut,
+  ArrowLeft,
 } from 'lucide-react-native';
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {RootStackParamList} from '../../Navigation/AppNavigation';
@@ -74,10 +75,7 @@ export const InforGroupChat = () => {
       style={[styles.container, {backgroundColor: color.background}]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Image
-            source={require('../../../assets/icon/left.png')}
-            style={{width: 20, height: 20, tintColor: color.text}}
-          />
+          <ArrowLeft size={24} color={color.text} />
         </TouchableOpacity>
       </View>
 

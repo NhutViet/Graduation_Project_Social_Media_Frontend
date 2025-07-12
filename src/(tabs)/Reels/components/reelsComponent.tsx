@@ -32,34 +32,34 @@ const MemoizedText = memo(Text);
 
 const ReelsComponent = memo((props: any) => {
   const {
-  _id,
-  type,
-  caption,
-  createdAt,
-  media,
-  user,
-  likeCount,
-  commentCount,
-  isBookmarked,
-  isLiked,
-  isFollow,
-  isFollowing,
-  isCurrentUser,
-  share,
-  music,
-  currentVisible,
-  isFocused,
-  containerHeight,
-  muted = false,
-  onLike,
-  openComment,
-  onFollow,
-  onProfilePress,
-  onTagPress,
-  onMenu,
-  openShareModal,
-  setSkipReload,
-} = props;
+    _id,
+    type,
+    caption,
+    createdAt,
+    media,
+    user,
+    likeCount,
+    commentCount,
+    isBookmarked,
+    isLiked,
+    isFollow,
+    isFollowing,
+    isCurrentUser,
+    share,
+    music,
+    currentVisible,
+    isFocused,
+    containerHeight,
+    muted = false,
+    onLike,
+    openComment,
+    onFollow,
+    onProfilePress,
+    onTagPress,
+    onMenu,
+    openShareModal,
+    setSkipReload,
+  } = props;
   const navigation = useNavigation<any>();
   const {theme} = useTheme();
   const color = Colors[theme];
@@ -182,19 +182,9 @@ const ReelsComponent = memo((props: any) => {
             isLiked ? color.error : '#fff',
           )}
 
-          {renderActionButton(
-            require('../../../../assets/icon/comment.png'),
-            commentCount,
-            openComment,
-          )}
+          {renderActionButton(MessageCircle, commentCount, openComment)}
 
-          {renderActionButton(
-            require('../../../../assets/icon/share.png'),
-            share,
-            openShareModal,
-          )}
-          {renderActionButton(MessageCircle, commentCount, onComment)}
-          {renderActionButton(Share2, share, onShare)}
+          {renderActionButton(Share2, share, openShareModal)}
 
           <View style={styles.sectionContainer}>
             <TouchableOpacity style={styles.iconContainer} onPress={onMenu}>

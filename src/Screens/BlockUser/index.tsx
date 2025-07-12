@@ -1,6 +1,5 @@
 import React, {useState, useEffect} from 'react';
 import {
-  Image,
   SafeAreaView,
   Text,
   TextInput,
@@ -23,7 +22,8 @@ import {Modalize} from 'react-native-modalize';
 import ModalIsBlock from './Components/ModalIsBlock';
 import {Colors} from '../../../assets/color/Colors';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
-import { UserProfile } from '@services/relationRedux/relationTypes';
+import {UserProfile} from '@services/relationRedux/relationTypes';
+import {ArrowLeft, Search} from 'lucide-react-native';
 
 export const BlockUser = () => {
   const {theme} = useTheme();
@@ -96,10 +96,7 @@ export const BlockUser = () => {
       )}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Image
-            source={require('../../../assets/icon/left.png')}
-            style={styles.iconBack}
-          />
+          <ArrowLeft size={22} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.title}>Chặn tài khoản</Text>
         <View style={{width: 14}} />
@@ -112,10 +109,7 @@ export const BlockUser = () => {
           placeholderTextColor={colors.textSecondary}
           style={styles.inputBox}
         />
-        <Image
-          source={require('../../../assets/icon/search.png')}
-          style={styles.iconSearch}
-        />
+        <Search size={20} color={colors.text} style={styles.iconSearch} />
         {searchText !== '' && (
           <TouchableOpacity onPress={() => setSearchText('')}>
             <Text style={styles.cancel}>Hủy</Text>

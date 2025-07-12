@@ -5,6 +5,7 @@ import {useNavigation} from '@react-navigation/native';
 import {useSelector} from 'react-redux';
 import {RootState} from '@services/store';
 import AccountCenterComponent from './components/AccountCenterComponent';
+import {ArrowLeft} from 'lucide-react-native';
 
 const AccountCenter = () => {
   const {theme} = useTheme();
@@ -21,10 +22,7 @@ const AccountCenter = () => {
         onPress={() => {
           navigation.goBack();
         }}>
-        <Image
-          style={[styles.icon, {tintColor: color.text}]}
-          source={require('../../../assets/icon/left.png')}
-        />
+        <ArrowLeft size={22} color={color.text} />
       </TouchableOpacity>
       <Text style={[styles.title, {color: color.text}]}>Trang cá nhân</Text>
       <Text style={[styles.text, {color: color.text}]} numberOfLines={4}>

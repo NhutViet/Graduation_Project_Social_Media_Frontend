@@ -1,10 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import {View, Text, Image, TouchableOpacity, Animated} from 'react-native';
 import {styles} from './style';
-import {Pause, Play, VolumeX, Volume2} from 'lucide-react-native';
-import {useSelector} from 'react-redux';
-import {RootState} from '@services/store';
-import Icon from '../../../../components/Icon';
+import {Pause, Play, VolumeX, Volume2, X} from 'lucide-react-native';
+
 interface Props {
   onClose: () => void;
   progressAnims: any[];
@@ -131,7 +129,7 @@ const SeenStoryOwnerHeader: React.FC<Props> = ({
         )}
       </TouchableOpacity>
       <TouchableOpacity style={styles.btnCloser} onPress={onClose}>
-        <Icon name="close" size={20} tintColor="#fff" />
+        <X size={22} color="#fff" />
       </TouchableOpacity>
     </View>
   );
