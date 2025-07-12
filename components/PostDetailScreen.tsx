@@ -11,14 +11,13 @@ import {
 } from 'react-native';
 import {useRoute, useNavigation, useIsFocused} from '@react-navigation/native';
 import {useEffect, useRef, useState} from 'react';
-import {
-  BottomSheetCommentRef,
-} from '../src/(tabs)/Home/components/CommentSection';
+import {BottomSheetCommentRef} from '../src/(tabs)/Home/components/CommentSection';
 import ItemHome from '../src/(tabs)/Home/components/ItemHome';
 import {useTheme} from '../src/util/ThemeContext';
 import {Colors} from '../assets/color/Colors';
 import axiosInstance from '@services/axiosInstance';
 import CommentSection from './CommentSection';
+import {ArrowLeft} from 'lucide-react-native';
 
 interface RouteParams {
   postId: string;
@@ -71,55 +70,47 @@ const PostDetailScreen = () => {
   }
 
   return (
-  <SafeAreaView style={{flex: 1, backgroundColor: colors.background}}>
-    <KeyboardAvoidingView
-      style={{flex: 1}}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}>
-      
-      <View style={[styles.header, {backgroundColor: colors.background}]}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Image
-            source={require('../assets/icon/left.png')}
-            style={[styles.iconBack, {tintColor: colors.text}]}
+    <SafeAreaView style={{flex: 1, backgroundColor: colors.background}}>
+      <KeyboardAvoidingView
+        style={{flex: 1}}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}>
+        <View style={[styles.header, {backgroundColor: colors.background}]}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <ArrowLeft size={22} color={colors.text} />
+          </TouchableOpacity>
+          <Text style={[styles.title, {color: colors.text}]}>
+            Chi tiết bài viết
+          </Text>
+          <View style={styles.iconBack} />
+        </View>
+
+        <ScrollView keyboardShouldPersistTaps="handled">
+          <ItemHome
+            _id={post._id}
+            type={post.type}
+            caption={post.caption}
+            createdAt={post.createdAt}
+            media={post.media}
+            user={post.user}
+            isLike={post.isLike}
+            isBookmarked={post.isBookmarked}
+            commentCount={post.commentCount}
+            likeCount={post.likeCount}
+            share={post.share}
+            music={post.music}
+            currentVisible={true}
+            isFocused={isFocused}
+            sheetRef={sheetRef}
+            isFollow={post.isFollow}
+            setSelectedPostId={setSelectedPostId}
           />
-        </TouchableOpacity>
-        <Text style={[styles.title, {color: colors.text}]}>Chi tiết bài viết</Text>
-        <View style={styles.iconBack} />
-      </View>
 
-      <ScrollView
-        keyboardShouldPersistTaps="handled">
-        
-        <ItemHome
-          _id={post._id}
-          type={post.type}
-          caption={post.caption}
-          createdAt={post.createdAt}
-          media={post.media}
-          user={post.user}
-          isLike={post.isLike}
-          isBookmarked={post.isBookmarked}
-          commentCount={post.commentCount}
-          likeCount={post.likeCount}
-          share={post.share}
-          music={post.music}
-          currentVisible={true}
-          isFocused={isFocused}
-          sheetRef={sheetRef}
-          isFollow={post.isFollow}
-          setSelectedPostId={setSelectedPostId}
-        />
-
-        <CommentSection
-          postId={post._id}
-          receiverId={post.user?._id}
-        />
-      </ScrollView>
-    </KeyboardAvoidingView>
-  </SafeAreaView>
-);
-
+          <CommentSection postId={post._id} receiverId={post.user?._id} />
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
 };
 
 export default PostDetailScreen;

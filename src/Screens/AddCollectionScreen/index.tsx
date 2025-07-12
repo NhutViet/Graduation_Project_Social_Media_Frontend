@@ -22,7 +22,12 @@ import {
 } from '../../../services/bookmarkRedux/bookmarkSlice';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 import {checkProfanityAndAlert} from '../../util/profanityFilter';
-import {Media, MediaR, PlaylistItem} from '@services/bookmarkRedux/bookmarkTypes';
+import {
+  Media,
+  MediaR,
+  PlaylistItem,
+} from '@services/bookmarkRedux/bookmarkTypes';
+import {PlayCircle, ImageIcon} from 'lucide-react-native';
 
 export const AddCollectionScreen = () => {
   const {theme} = useTheme();
@@ -70,9 +75,7 @@ export const AddCollectionScreen = () => {
   ///////////////redux
   const dispatch = useDispatch<AppDispatch>();
   const {refreshToken} = useSelector((state: RootState) => state.user);
-  const {isloading} = useSelector(
-    (state: RootState) => state.bookmark,
-  );
+  const {isloading} = useSelector((state: RootState) => state.bookmark);
 
   const handleSave = async () => {
     if (!name.trim()) {
@@ -135,14 +138,11 @@ export const AddCollectionScreen = () => {
           style={styles.postItem}>
           <Image source={{uri: thumbnail}} style={styles.postImage} />
           <View style={styles.iconOverlay}>
-            <Image
-              style={styles.icon}
-              source={
-                isVideo
-                  ? require('../../../assets/icon/reels.png')
-                  : require('../../../assets/icon/gallery.png')
-              }
-            />
+            {isVideo ? (
+              <PlayCircle size={14} color="#fff" />
+            ) : (
+              <ImageIcon size={14} color="#fff" />
+            )}
           </View>
           {isSelected && (
             <View style={styles.overlayCheck}>

@@ -40,7 +40,6 @@ import {
   AddCollectionScreen,
   Archive,
   ChangePassword,
-  ChangeBirthday,
   YourActivity,
   LinkToGroup,
   SearchMessages,
@@ -96,6 +95,8 @@ export type RootStackParamList = {
     userName: string;
     callID: string;
     image: string;
+    isCaller: boolean;
+    callType: 'video' | 'voice';
   };
   ProfileComp: {userID: string};
   InfoAccountCenter: {user: User};
@@ -126,7 +127,6 @@ const AppNavigator = () => {
         <Stack.Screen name="TagSo" component={TagSo} />
         <Stack.Screen name="Profile" component={Profile} />
         <Stack.Screen name="ZegoCallScreen" component={ZegoCallScreen} />
-        <Stack.Screen name="ChangeBirthday" component={ChangeBirthday} />
         <Stack.Screen name="ChangePassword" component={ChangePassword} />
         <Stack.Screen name="BlockedAccounts" component={BlockedAccounts} />
         <Stack.Screen name="ShowActivity" component={ShowActivity} />

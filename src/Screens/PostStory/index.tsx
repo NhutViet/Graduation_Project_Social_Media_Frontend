@@ -18,6 +18,7 @@ import {Colors} from '../../../assets/color/Colors';
 import {useNavigation} from '@react-navigation/native';
 import BottomSheet, {BottomSheetRef} from './BottomSheet/BottomSheetMusic';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+import {ArrowLeft, Music2} from 'lucide-react-native';
 
 const ITEM_SIZE = Dimensions.get('window').width / 4;
 
@@ -229,16 +230,13 @@ const PostStory = () => {
         <TouchableOpacity
           style={styles.headerIcon}
           onPress={() => navigation.navigate('BottomTabs')}>
-          <Image
-            style={[styles.icon, {tintColor: color.text}]}
-            source={require('../../../assets/icon/left.png')}
-          />
+          <ArrowLeft size={22} color={color.text} />
         </TouchableOpacity>
       </View>
 
       <View style={styles.topSection}>
         <TopButton
-          icon={require('../../../assets/icon/music.png')}
+          IconComponent={Music2}
           label="Music"
           color={color.text}
           onPress={() => sheetRef.current?.open()}
@@ -300,14 +298,10 @@ const PostStory = () => {
 };
 
 // Component TopButton không thay đổi
-const TopButton = ({icon, label, onPress, color}: any) => (
+const TopButton = ({IconComponent, label, onPress, color}: any) => (
   <TouchableOpacity style={styles.btnTop} onPress={onPress}>
     <View style={styles.iconBlock}>
-      <Image
-        style={[styles.imgTop, {tintColor: color}]}
-        source={icon}
-        resizeMode="contain"
-      />
+      <IconComponent size={28} color={color} />
     </View>
     <Text style={[styles.txtTop, {color}]}>{label}</Text>
   </TouchableOpacity>
