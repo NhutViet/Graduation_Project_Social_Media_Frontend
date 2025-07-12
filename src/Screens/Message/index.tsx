@@ -8,35 +8,38 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import { useTheme } from '../../util/ThemeContext';
-import { Colors } from '../../../assets/color/Colors';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
+import {useTheme} from '../../util/ThemeContext';
+import {Colors} from '../../../assets/color/Colors';
+import {useEffect, useMemo, useRef, useState} from 'react';
 import MessageStyles from '../../StyleSheet/MessageStyles';
-import { RootStackParamList } from '../../Navigation/AppNavigation';
+import {RootStackParamList} from '../../Navigation/AppNavigation';
 import LinkPreview from 'react-native-link-preview';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '../../../services/store';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '../../../services/store';
 import MessageItemComponent from './components/MessageItemComponent';
-import { fetchMessages } from '../../../services/messageRedux/messageSlice';
-import { Message } from '../../../services/messageRedux/messageType';
-import { launchImageLibrary } from 'react-native-image-picker';
-import { uploadImageToR2 } from '../../core/upload';
-import { useUploadProgress } from '../../../services/UploadProgressManager';
-import { clearMessages } from '../../../services/messageRedux/messageReducer';
+import {fetchMessages} from '../../../services/messageRedux/messageSlice';
+import {Message} from '../../../services/messageRedux/messageType';
+import {launchImageLibrary} from 'react-native-image-picker';
+import {uploadImageToR2} from '../../core/upload';
+import {useUploadProgress} from '../../../services/UploadProgressManager';
+import {clearMessages} from '../../../services/messageRedux/messageReducer';
 import ImagePreviewModal from './components/ImagePreviewModal';
-import { useSocket } from '../../../services/SocketContext';
+import {useSocket} from '../../../services/SocketContext';
 import ActionModalMessage from './components/ActionModalMessage';
 import MessageInput from './components/MessageInput';
 import MessageHeader from './components/MessageHeader';
 import {getRoomById} from '../../../services/roomRedux/roomSlice';
 import {Room} from '../../../services/roomRedux/roomType';
-import { getRelationShip as fetchRelation, updatedRoomStatus } from './utils/helpers';
-import { fetchMyRooms, fetchMyWaitingRooms } from '@services/roomRedux/roomSlice';
+import {
+  getRelationShip as fetchRelation,
+  updatedRoomStatus,
+} from './utils/helpers';
+import {fetchMyRooms, fetchMyWaitingRooms} from '@services/roomRedux/roomSlice';
 
 export const MessageScreen = () => {
   const navigation: any = useNavigation();
-  const { theme } = useTheme();
+  const {theme} = useTheme();
   const color = Colors[theme];
   const styles = MessageStyles(theme);
   const dispatch = useDispatch<AppDispatch>();
@@ -44,38 +47,26 @@ export const MessageScreen = () => {
   const [message, setMessage] = useState('');
   const [chat, setChat] = useState<Message[]>([]);
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
-  const [linkPreviews, setLinkPreviews] = useState<{ [key: number]: any }>({});
+  const [linkPreviews, setLinkPreviews] = useState<{[key: number]: any}>({});
   const [modalVisible, setModalVisible] = useState(false);
   const [content, setContent] = useState<Message>();
   const [relationStatus, setRelationStatus] = useState<boolean>(false);
   const flatListRef = useRef<FlatList>(null);
 
   const route = useRoute<RouteProp<RootStackParamList, 'MessageScreen'>>();
-  const { room: roomId, isWaiting = false } = route?.params || {};
+  const {room: roomId, isWaiting = false} = route?.params || {};
   const userC = useSelector((state: RootState) => state.user.user);
-  const { messages, loading } = useSelector((state: RootState) => state.messages);
+  const {messages, loading} = useSelector((state: RootState) => state.messages);
   const acceptedRooms = useSelector((state: RootState) => state.rooms.rooms);
-  const waitingRooms = useSelector((state: RootState) => state.rooms.waitingRooms);
+  const waitingRooms = useSelector(
+    (state: RootState) => state.rooms.waitingRooms,
+  );
 
   const [originalRoom, setOriginalRoom] = useState<Room | null>(null);
 
-  const rooms = useMemo(() => {
-    const foundRoom = acceptedRooms.find(r => r._id === roomId) ||
-                      waitingRooms.find(r => r._id === roomId);
-    if (foundRoom) {
-      setOriginalRoom(foundRoom);
-      return foundRoom;
-    }
-    return originalRoom;
-  }, [acceptedRooms, waitingRooms, roomId, originalRoom]);
-
-  const filteredUsers = rooms?.user_ids.filter(user => user._id !== userC?._id);
-  const roomMember1 = filteredUsers?.[0];
-  const roomMember2 = filteredUsers?.[1];
-  const isMeSender = rooms?.created_by === userC?._id;
-
-  const { showUploadModal, hideUploadModal, setProgress } = useUploadProgress();
-  const { socket, connectToSocket, disconnectSocket } = useSocket();
+  const roomFromList =
+    acceptedRooms.find(r => r._id === roomId) ||
+    waitingRooms.find(r => r._id === roomId);
 
   const fetchRoomDetail = async (roomId: string) => {
     try {
@@ -87,10 +78,22 @@ export const MessageScreen = () => {
   };
 
   useEffect(() => {
-    if (!rooms && roomId) {
+    if (roomFromList) {
+      setOriginalRoom(roomFromList);
+    } else if (roomId && !originalRoom) {
       fetchRoomDetail(roomId);
     }
-  }, [rooms, roomId]);
+  }, [roomFromList, roomId]);
+
+  const rooms = originalRoom;
+
+  const filteredUsers = rooms?.user_ids.filter(user => user._id !== userC?._id);
+  const roomMember1 = filteredUsers?.[0];
+  const roomMember2 = filteredUsers?.[1];
+  const isMeSender = rooms?.created_by === userC?._id;
+
+  const {showUploadModal, hideUploadModal, setProgress} = useUploadProgress();
+  const {socket, connectToSocket, disconnectSocket} = useSocket();
 
   useEffect(() => {
     const checkRelation = async () => {
@@ -111,7 +114,7 @@ export const MessageScreen = () => {
   useEffect(() => {
     setChat([]);
     if (rooms?._id) {
-      dispatch(fetchMessages({ roomId: rooms._id }));
+      dispatch(fetchMessages({roomId: rooms._id}));
     }
   }, [rooms?._id]);
 
@@ -139,7 +142,7 @@ export const MessageScreen = () => {
       reactions: Message['reactions'];
     }) => {
       setChat(prev =>
-        prev.map(msg => (msg._id === messageId ? { ...msg, reactions } : msg))
+        prev.map(msg => (msg._id === messageId ? {...msg, reactions} : msg)),
       );
     };
 
@@ -156,7 +159,7 @@ export const MessageScreen = () => {
     chat.forEach((item, index) => {
       if (!linkPreviews[index] && item.content.match(/https?:\/\/\S+/)) {
         LinkPreview.getPreview(item.content).then(data => {
-          setLinkPreviews(prev => ({ ...prev, [index]: data }));
+          setLinkPreviews(prev => ({...prev, [index]: data}));
         });
       }
     });
@@ -164,7 +167,7 @@ export const MessageScreen = () => {
 
   useEffect(() => {
     if (chat.length > 0) {
-      flatListRef.current?.scrollToEnd({ animated: true });
+      flatListRef.current?.scrollToEnd({animated: true});
     }
   }, [chat]);
 
@@ -215,7 +218,7 @@ export const MessageScreen = () => {
 
   const handleAcceptRequest = async () => {
     try {
-      await updatedRoomStatus({ roomId: rooms!._id });
+      await updatedRoomStatus({roomId: rooms!._id});
       setRelationStatus(true);
       dispatch(fetchMyRooms());
       dispatch(fetchMyWaitingRooms());
@@ -235,7 +238,7 @@ export const MessageScreen = () => {
     navigation.goBack();
   };
 
-  const renderItem = ({ item, index }: { item: Message; index: number }) => (
+  const renderItem = ({item, index}: {item: Message; index: number}) => (
     <MessageItemComponent
       roomId={roomId}
       item={item}
@@ -254,10 +257,11 @@ export const MessageScreen = () => {
   );
 
   const isMessageRequest = !relationStatus && chat.length > 0;
-  const isCurrentUserSender = isMessageRequest && roomMember1?._id === userC?._id;
+  const isCurrentUserSender =
+    isMessageRequest && roomMember1?._id === userC?._id;
   // console.log(` 258 >>>>>>>>> ${isMeSender} <<<<<<<<<<<<< `);
   // console.log(` 259 >>>>>>>>> ${relationStatus} <<<<<<<<<<<<< `);
-  const MessageRequestBanner = ({ onAccept }: { onAccept: () => void }) => (
+  const MessageRequestBanner = ({onAccept}: {onAccept: () => void}) => (
     <View style={styles.requestBanner}>
       <Text style={styles.requestBannerText}>
         {isMeSender
@@ -272,7 +276,7 @@ export const MessageScreen = () => {
     </View>
   );
 
-  if (loading) {
+  if (loading || !rooms) {
     return (
       <SafeAreaView style={styles.loading}>
         <ActivityIndicator size="large" color={color.text} />
@@ -283,10 +287,22 @@ export const MessageScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       {rooms?.theme && (
-        <ImageBackground source={{ uri: rooms.theme }} style={styles.bg} resizeMode="cover" />
+        <ImageBackground
+          source={{uri: rooms.theme}}
+          style={styles.bg}
+          resizeMode="cover"
+        />
       )}
-      <View style={[styles.viewDf, { backgroundColor: rooms?.theme ? 'rgba(0,0,0,0.2)' : color.background }]}>
-        <View style={{ flex: 1 }}>
+      <View
+        style={[
+          styles.viewDf,
+          {
+            backgroundColor: rooms?.theme
+              ? 'rgba(0,0,0,0.2)'
+              : color.background,
+          },
+        ]}>
+        <View style={{flex: 1}}>
           <MessageHeader
             user1={roomMember1}
             user2={roomMember2}
@@ -309,9 +325,13 @@ export const MessageScreen = () => {
               paddingHorizontal: 10,
               flexGrow: 1,
             }}
-            onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
+            onContentSizeChange={() =>
+              flatListRef.current?.scrollToEnd({animated: true})
+            }
           />
-          {isMessageRequest && !isCurrentUserSender && rooms?.type === 'waiting' ? (
+          {isMessageRequest &&
+          !isCurrentUserSender &&
+          rooms?.type === 'waiting' ? (
             <MessageRequestBanner onAccept={handleAcceptRequest} />
           ) : (
             <MessageInput
