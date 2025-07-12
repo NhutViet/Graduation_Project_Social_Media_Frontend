@@ -33,6 +33,7 @@ const HashtagText: React.FC<HashtagTextProps> = ({
   const color = Colors[theme];
   const dispatch = useDispatch<AppDispatch>();
   const {refreshToken} = useSelector((state: RootState) => state.user);
+  const userId = useSelector((state: RootState) => state.user?.user?._id);
 
   const tokens = useMemo(() => {
     const result: Array<{text: string; type: 'plain' | 'hashtag' | 'mention'}> =
@@ -92,8 +93,14 @@ const HashtagText: React.FC<HashtagTextProps> = ({
         const result = await dispatch(fetchUserIdByHandleName({handleName}));
 
         if (fetchUserIdByHandleName.fulfilled.match(result)) {
-          const userId = result.payload.userId;
-          navigation.navigate('ProfileComp', {userID: userId});
+          const mentionedUserId = result.payload.userId;
+          
+          // Check if mentioned user is the current user
+          if (mentionedUserId === userId) {
+            navigation.navigate('Account');
+          } else {
+            navigation.navigate('ProfileComp', {userID: mentionedUserId});
+          }
         } else {
           GlobalAlertManager.show('Lỗi', 'Không tìm thấy người dùng');
         }
@@ -101,7 +108,7 @@ const HashtagText: React.FC<HashtagTextProps> = ({
         GlobalAlertManager.show('Lỗi', 'Lỗi khi chuyển trang người dùng');
       }
     },
-    [dispatch, navigation],
+    [dispatch, navigation, userId],
   );
 
   return (

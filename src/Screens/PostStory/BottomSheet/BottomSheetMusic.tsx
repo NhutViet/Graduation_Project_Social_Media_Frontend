@@ -236,14 +236,14 @@ const BottomSheet = forwardRef<BottomSheetRef, Props>(
               styles.searchContainer,
               {backgroundColor: color.backgroundSecondary},
             ]}>
-            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
               <View style={styles.blockIcon}>
-                <Search size={22} color={color.text} />
+                <Search size={20} color={color.text} />
               </View>
               <TextInput
                 value={search}
                 onChangeText={setSearch}
-                placeholder="Search music"
+                placeholder="Tìm kiếm âm thanh"
                 placeholderTextColor={color.text}
                 style={[styles.input, {color: color.text}]}
               />
@@ -413,7 +413,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 10,
-    paddingVertical: 8,
+    paddingBottom: 10,
+    paddingTop: 6,
     marginHorizontal: 16,
     borderRadius: 7,
   },
@@ -435,6 +436,7 @@ const styles = StyleSheet.create({
   },
   textNormal: {
     fontSize: 14,
+    marginHorizontal: 10,
   },
   saveButton: {
     flexDirection: 'row',

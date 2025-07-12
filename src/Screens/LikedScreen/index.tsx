@@ -1,5 +1,4 @@
 import {
-  Image,
   SafeAreaView,
   ScrollView,
   Text,
@@ -14,6 +13,7 @@ import {LikedStyles} from '../../StyleSheet/LikedStyles';
 import {useTheme} from '../../util/ThemeContext';
 import FilterModal from './Components/filter';
 import {useNavigation} from '@react-navigation/native';
+import {ArrowLeft, ChevronDown} from 'lucide-react-native';
 
 const Filter = [
   {id: 'sort', label: 'Mới nhất đến cũ nhất'},
@@ -73,10 +73,7 @@ export const LikedScreen = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Image
-            source={require('../../../assets/icon/left.png')}
-            style={styles.iconBack}
-          />
+          <ArrowLeft size={22} color={theme === 'dark' ? '#fff' : '#000'} />
         </TouchableOpacity>
         <Text style={styles.title}>Lượt thích</Text>
         <TouchableOpacity onPress={() => setSelected([])}>
@@ -95,9 +92,9 @@ export const LikedScreen = () => {
               style={styles.filterContainer}
               key={item.id}>
               <Text style={styles.textFilter}>{item.label}</Text>
-              <Image
-                source={require('../../../assets/icon/down.png')}
-                style={[styles.iconBack, {width: 10}]}
+              <ChevronDown
+                size={16}
+                color={theme === 'dark' ? '#fff' : '#000'}
               />
             </TouchableOpacity>
           ))}

@@ -3,7 +3,8 @@ import {TouchableOpacity, View, Image, Text} from 'react-native';
 import {FlashList} from '@shopify/flash-list';
 import {Styles} from '../../../StyleSheet/Profile.Styles';
 import {Colors} from '../../../../assets/color/Colors';
-import { PostWithMedia } from '@services/postRedux/postTypes';
+import {PostWithMedia} from '@services/postRedux/postTypes';
+import {ImageOff} from 'lucide-react-native';
 
 interface GridViewProps {
   data: PostWithMedia[];
@@ -27,10 +28,7 @@ export const GridView: React.FC<GridViewProps> = ({data, onPressItem}) => {
   if (!data || data.length === 0) {
     return (
       <View style={[Styles.styles.centerItem, {flex: 1}]}>
-        <Image
-          source={require('../../../../assets/icon/no_photo.png')}
-          style={Styles.styles.imgNoPhoto}
-        />
+        <ImageOff size={64} color="#ccc" style={{marginBottom: 16}} />
         <Text style={Styles.styles.textno}>Chưa đăng nội dung nào.</Text>
       </View>
     );

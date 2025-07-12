@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import { useCameraStyles } from '../src/StyleSheet/CameraStyles';
+import {View, TouchableOpacity, Image} from 'react-native';
+import {useCameraStyles} from '../src/StyleSheet/CameraStyles';
+import {Square, Zap, Repeat, Smile} from 'lucide-react-native';
 
 export type ActionBarProps = {
   mode: string;
@@ -27,24 +28,31 @@ const ActionBar: React.FC<ActionBarProps> = ({
   return (
     <View style={styles.actionBarContainer}>
       <TouchableOpacity style={styles.sideButton} onPress={onLeft1}>
-        <Image source={require('../assets/icon/square.png')} style={styles.sideButton}/>
+        <Square size={22} color="white" />
       </TouchableOpacity>
       <TouchableOpacity style={styles.sideButton} onPress={onLeft2}>
-        <Image source={require('../assets/icon/lightning.png')} style={styles.sideButton}/>
+        <Zap size={22} color="white" />
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={[styles.captureButton, isRecording && styles.captureButtonRecording]}
-        onPress={isRecording ? onStop : onCapture}
-      >
-        <View style={[styles.captureInner, isRecording && styles.captureInnerRecording]} />
+        style={[
+          styles.captureButton,
+          isRecording && styles.captureButtonRecording,
+        ]}
+        onPress={isRecording ? onStop : onCapture}>
+        <View
+          style={[
+            styles.captureInner,
+            isRecording && styles.captureInnerRecording,
+          ]}
+        />
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.sideButton} onPress={onRight1}>
-        <Image source={require('../assets/icon/remix.png')} style={styles.sideButton}/>
+        <Repeat size={22} color="white" />
       </TouchableOpacity>
       <TouchableOpacity style={styles.sideButton} onPress={onRight2}>
-        <Image source={require('../assets/icon/smiley.png')} style={styles.sideButton}/>
+        <Smile size={22} color="white" />
       </TouchableOpacity>
     </View>
   );

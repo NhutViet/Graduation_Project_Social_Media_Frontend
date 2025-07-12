@@ -32,7 +32,7 @@ const ItemNewMessage: React.FC<ItemNewMessageProps> = ({
     <TouchableOpacity
       style={styles.container}
       onPress={() => {
-        console.log(roomId);
+        console.log(`❤️‍🔥❤️‍🔥❤️‍🔥❤️‍🔥❤️‍🔥35 >>>>>> itemNewMsg - RoomID: ${roomId}`);
         if (nameChat === 'Không xác định') {
           navigation.navigate('MessageUndefined');
         } else {

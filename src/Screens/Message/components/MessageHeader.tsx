@@ -126,7 +126,7 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
     };
   }, [incomingCall.visible]);
 
-  const isWaitingRoom = room.type === 'waiting';
+  const isWaitingRoom = (room as Room).type === 'waiting';
   return (
     <>
       <View

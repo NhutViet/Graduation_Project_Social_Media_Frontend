@@ -71,6 +71,9 @@ const CustomBottomSheetOptions = forwardRef<CustomBottomSheetOptionsRef, Props>(
                       ? '#F2C641'
                       : palette.text)
                   }
+                  {...(isBookmarked && opt.id === 'bookmark'
+                    ? {fill: '#F2C641'}
+                    : {})}
                 />
               </View>
               <Text

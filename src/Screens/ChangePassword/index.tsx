@@ -15,6 +15,7 @@ import {Modalize} from 'react-native-modalize';
 import EditText from './Components/EditText';
 import {Colors} from '../../../assets/color/Colors';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+import {ArrowLeft, ChevronRight, CheckCircle2} from 'lucide-react-native';
 
 export const ChangePassword = () => {
   const {theme} = useTheme();
@@ -68,10 +69,7 @@ export const ChangePassword = () => {
     <SafeAreaView style={{flex: 1}}>
       <ScrollView style={styles.container}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Image
-            source={require('../../../assets/icon/left.png')}
-            style={styles.iconBack}
-          />
+          <ArrowLeft size={22} color={color.text} style={styles.iconBack} />
         </TouchableOpacity>
         <View style={styles.textContainer}>
           <Text style={styles.textXL}>Đổi mật khẩu</Text>
@@ -95,8 +93,9 @@ export const ChangePassword = () => {
                   <Text style={styles.textL}>{item.handle}</Text>
                   <Text style={styles.textM}>{item.name}</Text>
                 </View>
-                <Image
-                  source={require('../../../assets/icon/right.png')}
+                <ChevronRight
+                  size={22}
+                  color={color.text}
                   style={styles.iconSmall}
                 />
               </TouchableOpacity>
@@ -116,10 +115,13 @@ export const ChangePassword = () => {
             style={styles.topContainer}
             contentContainerStyle={{flexGrow: 1}}>
             <TouchableOpacity onPress={() => modalRef.current?.close()}>
-              <Image
-                source={require('../../../assets/icon/left.png')}
-                style={styles.iconBack}
-              />
+              <TouchableOpacity onPress={() => modalRef.current?.close()}>
+                <ArrowLeft
+                  size={22}
+                  color={color.text}
+                  style={styles.iconBack}
+                />
+              </TouchableOpacity>
             </TouchableOpacity>
             <View style={styles.textContainer}>
               {selectAccount && (
@@ -176,10 +178,7 @@ export const ChangePassword = () => {
             <View style={styles.row}>
               <TouchableOpacity onPress={() => setIsCheck(!isCheck)}>
                 {isCheck ? (
-                  <Image
-                    source={require('../../../assets/icon/checked.png')}
-                    style={styles.tick}
-                  />
+                  <CheckCircle2 size={22} color={color.primary} />
                 ) : (
                   <View style={styles.circle} />
                 )}

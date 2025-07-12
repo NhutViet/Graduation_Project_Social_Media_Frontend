@@ -1,7 +1,8 @@
 import React from 'react';
 import {View, TouchableOpacity, Image, Text} from 'react-native';
 import {styles} from './style';
-import { UserMini } from '@services/StoryRedux/StoryType';
+import {UserMini} from '@services/StoryRedux/StoryType';
+import {Users, MoreHorizontal} from 'lucide-react-native';
 
 interface Props {
   onShowPeopleSeen: () => void;
@@ -19,17 +20,11 @@ const SeenStoryOwnerBottom: React.FC<Props> = ({
   return (
     <View style={styles.viewBottom}>
       <TouchableOpacity style={styles.viewIconItem} onPress={onShowPeopleSeen}>
-        <Image
-          style={styles.icon}
-          source={require('../../../../assets/icon/users.png')}
-        />
+        <Users size={22} color={'black'} />
         <Text style={styles.txtIcon}>Hoạt động</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.viewIconItem} onPress={onShowMore}>
-        <Image
-          style={styles.icon}
-          source={require('../../../../assets/icon/ellipsis.png')}
-        />
+        <MoreHorizontal size={22} color={'black'} />
         <Text style={styles.txtIcon}>Xem thêm</Text>
       </TouchableOpacity>
     </View>

@@ -23,6 +23,7 @@ import {createRoom} from '../../../../services/roomRedux/roomSlice';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 import {UserProfile} from '@services/relationRedux/relationTypes';
 import MoreActionPopup, {MoreActionPopupRef} from './MoreActionModal';
+import {MoreVertical, Users} from 'lucide-react-native';
 
 const FollowingTab = () => {
   const navigation: any = useNavigation();
@@ -133,10 +134,7 @@ const FollowingTab = () => {
             </Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => handleMorePress(item)}>
-            <Image
-              source={require('../../../../assets/icon/menu-dots-vertical.png')}
-              style={[styles.moreIcon, {tintColor: color.text}]}
-            />
+            <MoreVertical size={22} color={color.text} />
           </TouchableOpacity>
         </>
       ) : (
@@ -166,11 +164,7 @@ const FollowingTab = () => {
     <ScrollView style={[styles.container, {backgroundColor: color.background}]}>
       {reduxFollowing.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <Image
-            source={require('../../../../assets/icon/invite.png')}
-            style={styles.emptyImage}
-            resizeMode="contain"
-          />
+          <Users size={200} color={color.text} />
           <Text style={[styles.emptyTitle, {color: color.text}]}>
             Bạn chưa theo dõi ai
           </Text>

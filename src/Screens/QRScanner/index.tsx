@@ -18,6 +18,7 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import {useNavigation} from '@react-navigation/native';
 import { GlobalAlertManager } from '../../../components/Global/AlertModal';
+import {ArrowLeft} from 'lucide-react-native';
 
 const {width, height} = Dimensions.get('window');
 const SCAN_AREA_SIZE = width * 0.7;
@@ -185,13 +186,8 @@ export const QRScanner = () => {
       />
       <TouchableOpacity
         style={styles.backButton}
-        onPress={() => {
-          navigation.goBack();
-        }}>
-        <Image
-          source={require('../../../assets/icon/left.png')}
-          style={styles.buttonImage}
-        />
+        onPress={() => navigation.goBack()}>
+        <ArrowLeft size={24} color="#fff" />
       </TouchableOpacity>
       <TouchableOpacity style={styles.libraryButton}></TouchableOpacity>
       <View style={styles.overlay}>
@@ -277,11 +273,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.5)',
     borderRadius: 10,
-  },
-  buttonImage: {
-    tintColor: '#fff',
-    width: '85%',
-    height: '85%',
-    resizeMode: 'contain',
   },
 });

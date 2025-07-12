@@ -23,6 +23,14 @@ import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 import CustomPopupModal, {
   CustomPopupModalRef,
 } from '../../../components/Global/CustomPopupModal';
+import {
+  X,
+  ChevronDown,
+  Check,
+  GalleryHorizontal,
+  ImageOff,
+  Video,
+} from 'lucide-react-native';
 
 const menu: string[] = ['Tất cả', 'Thước phim', 'Hình ảnh'];
 
@@ -240,10 +248,7 @@ export const AddPost = () => {
       <View style={styles.container}>
         <View style={styles.rowSpace}>
           <TouchableOpacity onPress={() => navigation.navigate('BottomTabs')}>
-            <Image
-              source={require('../../../assets/icon/closer.png')}
-              style={styles.iconR}
-            />
+            <X size={22} color={color.text} />
           </TouchableOpacity>
           <Text style={styles.title}>Bài đăng mới</Text>
           <TouchableOpacity onPress={handleNext}>
@@ -276,10 +281,6 @@ export const AddPost = () => {
               style={styles.row}
               onPress={() => popupFilterRef.current?.open()}>
               <Text style={styles.textR}>{filter}</Text>
-              <Image
-                source={require('../../../assets/icon/right.png')}
-                style={styles.iconRR}
-              />
             </TouchableOpacity>
             <TouchableOpacity
               onPress={toggleSelectMode}
@@ -287,18 +288,12 @@ export const AddPost = () => {
                 styles.btnCir,
                 {backgroundColor: isMultiSelect ? color.gray : 'transparent'},
               ]}>
-              <Image
-                source={require('../../../assets/icon/gallery.png')}
-                style={[styles.icon]}
-              />
+              <GalleryHorizontal size={22} color={color.text} />
             </TouchableOpacity>
           </View>
           {medias.length === 0 ? (
             <View style={styles.emtyContainer}>
-              <Image
-                source={require('../../../assets/icon/no_photo.png')}
-                style={styles.iconEmty}
-              />
+              <ImageOff size={60} color={color.gray} />
               <Text style={[styles.notFound]}>Không tìm thấy 🙂‍↔️!</Text>
             </View>
           ) : (
@@ -369,18 +364,16 @@ export const AddPost = () => {
                     )}
                     {/* Icon video */}
                     {item.node.type.startsWith('video') && (
-                      <Image
-                        source={require('../../../assets/icon/reels.png')}
+                      <Video
+                        size={22}
+                        color={color.white}
                         style={{
                           position: 'absolute',
                           bottom: 5,
                           right: 5,
-                          width: 20,
-                          height: 20,
-                          tintColor: color.white,
                           backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                          resizeMode: 'contain',
                           borderRadius: 3,
+                          padding: 2,
                         }}
                       />
                     )}
@@ -413,10 +406,7 @@ export const AddPost = () => {
               }}>
               <Text style={styles.textR}>{item.item}</Text>
               {filter === item.item && (
-                <Image
-                  source={require('../../../assets/icon/check.png')}
-                  style={styles.iconCheck}
-                />
+                <Check size={22} color={color.primary} />
               )}
             </TouchableOpacity>
           )}

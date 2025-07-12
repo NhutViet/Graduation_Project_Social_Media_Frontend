@@ -5,15 +5,15 @@ import {
   TouchableOpacity,
   View,
   StyleSheet,
-  Image,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { useTheme } from '../../util/ThemeContext';
-import { Colors } from '@assets/color/Colors';
+import {useNavigation} from '@react-navigation/native';
+import {useTheme} from '../../util/ThemeContext';
+import {Colors} from '@assets/color/Colors';
+import {ArrowLeft} from 'lucide-react-native';
 
 export const MessageUndefined = () => {
   const navigation: any = useNavigation();
-  const { theme } = useTheme();
+  const {theme} = useTheme();
   const color = Colors[theme];
 
   const handleGoBack = () => {
@@ -21,20 +21,17 @@ export const MessageUndefined = () => {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: color.background }]}>
+    <SafeAreaView
+      style={[styles.container, {backgroundColor: color.background}]}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
-          <Image
-            source={require('@assets/icon/left.png')}
-            style={[styles.backIcon, { tintColor: color.text }]}
-          />
+          <ArrowLeft size={22} color={color.text} />
         </TouchableOpacity>
       </View>
 
-      {/* Center Message */}
       <View style={styles.centerContainer}>
-        <Text style={[styles.messageText, { color: color.text }]}>
+        <Text style={[styles.messageText, {color: color.text}]}>
           Không tìm thấy hộp thoại tin nhắn
         </Text>
       </View>

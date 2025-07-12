@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {TouchableOpacity, View, Text, SafeAreaView, Image} from 'react-native';
+import {TouchableOpacity, View, Text, SafeAreaView, Image, ScrollView} from 'react-native';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
@@ -310,22 +310,23 @@ const Profile = () => {
   );
 
   const taggedPosts = useSelector((state: RootState) => state.taggedPosts.data);
+  
   const renderContent = () => {
     switch (activeTab) {
       case 'grid':
-        return isSuccess && PostsItem ? (
+        return isSuccess && PostsItem && PostsItem.length > 0 ? (
           <PostsView data={PostsItem} />
         ) : (
           <LoadingPlaceholder />
         );
       case 'reels':
-        return isSuccess && ReelsItem ? (
+        return isSuccess && ReelsItem && ReelsItem.length > 0 ? (
           <ReelsView data={ReelsItem} />
         ) : (
           <LoadingPlaceholder />
         );
       case 'tags':
-        return isSuccess && taggedPosts ? (
+        return isSuccess && taggedPosts && taggedPosts.length > 0 ? (
           <TagsView data={taggedPosts as TaggedPost[]} />
         ) : (
           <LoadingPlaceholder />
@@ -336,14 +337,16 @@ const Profile = () => {
   };
 
   const LoadingPlaceholder = () => (
-    <View style={[styles.content, styles.centerItem, {height: 50}]}>
-      <Text style={styles.textno}>Đang tải...</Text>
+    <View style={[styles.content, styles.centerItem, {height: 200}]}>
+      <Text style={[styles.textno, {color: color.text}]}>Đang tải...</Text>
     </View>
   );
 
   useFocusEffect(
     useCallback(() => {
-      dispatch(getPostsAndReelsOfUser({refreshToken, userId: userId}));
+      if (userId && refreshToken) {
+        dispatch(getPostsAndReelsOfUser({refreshToken, userId: userId}));
+      }
     }, [dispatch, refreshToken, userId]),
   );
 
@@ -356,18 +359,14 @@ const Profile = () => {
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
-      <FlashList
-        data={[{}]}
+      <ScrollView
+        style={{flex: 1}}
         showsVerticalScrollIndicator={false}
-        renderItem={() => renderContent()}
-        ListHeaderComponent={
-          <>
-            {renderHeader()}
-            {renderTabBar()}
-          </>
-        }
-        estimatedItemSize={1000}
-      />
+        bounces={false}>
+        {renderHeader()}
+        {renderTabBar()}
+        {renderContent()}
+      </ScrollView>
       <SwitchAccount
         visible={isSwitchAccountVisible}
         onClose={() => setSwitchAccountVisible(false)}

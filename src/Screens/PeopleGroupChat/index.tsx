@@ -1,5 +1,5 @@
+import React, {useEffect, useState} from 'react';
 import {
-  Image,
   SafeAreaView,
   ScrollView,
   Switch,
@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import ItemList from './Components/ItemList';
@@ -15,6 +14,7 @@ import {Peoples as list} from './Data';
 import {FlashList} from '@shopify/flash-list';
 import {PeopleGroupChatStyles} from '../../StyleSheet/PeopleGroupChatStyles';
 import {useNavigation} from '@react-navigation/native';
+import {ArrowLeft, UserPlus} from 'lucide-react-native'; // 👈 vector icons
 
 export const PeopleGroupChat = () => {
   const {theme} = useTheme();
@@ -43,26 +43,21 @@ export const PeopleGroupChat = () => {
     const following = list.filter(prev => prev.id !== 2);
     setAdmin(ad);
     setUser(following);
-  }, [list]);
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Image
-            source={require('../../../assets/icon/left.png')}
-            style={styles.icon}
-          />
+          <ArrowLeft size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.title}>Mọi người</Text>
         <TouchableOpacity
           onPress={() => navigation.navigate('AddPeopleToGroupChat')}>
-          <Image
-            source={require('../../../assets/icon/invite.png')}
-            style={styles.icon}
-          />
+          <UserPlus size={24} color={colors.text} />
         </TouchableOpacity>
       </View>
+
       <ScrollView style={styles.container}>
         <View style={styles.rowSpace}>
           <Text style={[styles.title, {fontWeight: '400'}]}>
@@ -78,6 +73,7 @@ export const PeopleGroupChat = () => {
             thumbColor={colors.white}
           />
         </View>
+
         <Text style={styles.titleS}>Quản lý</Text>
         {admin && (
           <View style={{marginHorizontal: 24}}>
@@ -90,31 +86,21 @@ export const PeopleGroupChat = () => {
             />
           </View>
         )}
+
         <Text style={styles.titleS}>Đang theo dõi</Text>
         <View style={[styles.container, {marginHorizontal: 24}]}>
           <FlashList
             data={user}
             estimatedItemSize={200}
             showsVerticalScrollIndicator={false}
-            renderItem={({
-              item,
-            }: {
-              item: {
-                id: number;
-                name: string;
-                handle: string;
-                uri: string;
-              };
-            }) => {
-              return (
-                <ItemList
-                  uri={item.uri}
-                  name={item.name}
-                  handle={item.handle}
-                  isMine={item.id === mine}
-                />
-              );
-            }}
+            renderItem={({item}) => (
+              <ItemList
+                uri={item.uri}
+                name={item.name}
+                handle={item.handle}
+                isMine={item.id === mine}
+              />
+            )}
           />
         </View>
       </ScrollView>
