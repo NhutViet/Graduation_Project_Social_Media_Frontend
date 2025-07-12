@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   View,
   FlatList,
@@ -9,11 +9,11 @@ import {
   SafeAreaView,
   LayoutChangeEvent,
 } from 'react-native';
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from '@services/store';
-import { fetchCommentsByPost } from '@services/commentRedux/commentSlice';
-import { Colors } from '../assets/color/Colors';
+import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
+import {useDispatch} from 'react-redux';
+import {AppDispatch} from '@services/store';
+import {fetchCommentsByPost} from '@services/commentRedux/commentSlice';
+import {Colors} from '../assets/color/Colors';
 import BottomSheetReels, {
   BottomSheetReelsRef,
 } from '../src/(tabs)/Reels/bottomSheet/reelBottomSheet';
@@ -21,10 +21,11 @@ import BottomSheetComment, {
   BottomSheetCommentRef,
 } from '../src/(tabs)/Home/components/CommentSection';
 import ReelsComponent from '../src/(tabs)/Reels/components/reelsComponent';
-import { Portal } from 'react-native-portalize';
+import {Portal} from 'react-native-portalize';
 import ModalShare from '../src/(tabs)/Home/components/ModalShare';
-import { useShareModal } from '../src/(tabs)/Reels/hooks/useShareModal';
-import { PostWithMedia } from '@services/postRedux/postTypes';
+import {useShareModal} from '../src/(tabs)/Reels/hooks/useShareModal';
+import {PostWithMedia} from '@services/postRedux/postTypes';
+import {ArrowLeft} from 'lucide-react-native';
 
 type RootStackParamList = {
   AllReels: {
@@ -39,15 +40,17 @@ const AllReels = () => {
   const navigation = useNavigation();
   const route = useRoute<ReelsScreenRouteProp>();
   const dispatch = useDispatch<AppDispatch>();
-  const { reels = [], initialId } = route.params || {};
+  const {reels = [], initialId} = route.params || {};
   const [visibleHeight, setVisibleHeight] = useState(0);
 
   const flatListRef = useRef<FlatList<any>>(null);
   const sheetRef = useRef<BottomSheetReelsRef>(null);
   const sheetRefComment = useRef<BottomSheetCommentRef>(null);
-  const { modalShareRef, openShareModal } = useShareModal();
+  const {modalShareRef, openShareModal} = useShareModal();
 
-  const [currentVisible, setCurrentVisible] = useState<string | null>(initialId);
+  const [currentVisible, setCurrentVisible] = useState<string | null>(
+    initialId,
+  );
   const [selectedItem, setSelectedItem] = useState<PostWithMedia | null>(null);
   const [selectedPostId, setSelectedPostId] = useState({
     postId: '',
@@ -57,26 +60,31 @@ const AllReels = () => {
   const [initialIndex, setInitialIndex] = useState<number>(0);
 
   useEffect(() => {
-    const index = reels.findIndex((item: PostWithMedia) => item._id === initialId);
+    const index = reels.findIndex(
+      (item: PostWithMedia) => item._id === initialId,
+    );
     setInitialIndex(index >= 0 ? index : 0);
     setLoading(false);
   }, [initialId, reels]);
 
   const onLayout = (event: LayoutChangeEvent) => {
-    const { height } = event.nativeEvent.layout;
+    const {height} = event.nativeEvent.layout;
     setVisibleHeight(height);
   };
 
-  const onViewRef = useRef(({ viewableItems }: { viewableItems: any[] }) => {
+  const onViewRef = useRef(({viewableItems}: {viewableItems: any[]}) => {
     const firstVisible = viewableItems?.[0]?.item?._id;
     if (firstVisible) setCurrentVisible(firstVisible);
   });
 
-  const openComment = useCallback((item: PostWithMedia) => {
-    setSelectedPostId({ postId: item._id, receiverId: item.user._id });
-    dispatch(fetchCommentsByPost(item._id));
-    sheetRefComment.current?.open();
-  }, [dispatch]);
+  const openComment = useCallback(
+    (item: PostWithMedia) => {
+      setSelectedPostId({postId: item._id, receiverId: item.user._id});
+      dispatch(fetchCommentsByPost(item._id));
+      sheetRefComment.current?.open();
+    },
+    [dispatch],
+  );
 
   const openBottomSheet = useCallback((item: PostWithMedia) => {
     setSelectedItem(item);
@@ -96,20 +104,17 @@ const AllReels = () => {
       <TouchableOpacity
         style={styles.backButton}
         onPress={() => navigation.goBack()}>
-        <Image
-          source={require('../assets/icon/left.png')}
-          style={styles.backIcon}
-        />
+        <ArrowLeft size={22} color={Colors.black} />
       </TouchableOpacity>
 
-      <View style={{ flex: 1 }} onLayout={onLayout}>
+      <View style={{flex: 1}} onLayout={onLayout}>
         {visibleHeight > 0 && (
           <FlatList
             ref={flatListRef}
             data={reels}
             keyExtractor={item => item._id}
             initialScrollIndex={initialIndex}
-            renderItem={({ item }) => (
+            renderItem={({item}) => (
               <ReelsComponent
                 containerHeight={visibleHeight}
                 {...item}
@@ -127,7 +132,7 @@ const AllReels = () => {
             pagingEnabled
             showsVerticalScrollIndicator={false}
             onViewableItemsChanged={onViewRef.current}
-            viewabilityConfig={{ itemVisiblePercentThreshold: 70 }}
+            viewabilityConfig={{itemVisiblePercentThreshold: 70}}
             getItemLayout={(_, index) => ({
               length: visibleHeight,
               offset: visibleHeight * index,

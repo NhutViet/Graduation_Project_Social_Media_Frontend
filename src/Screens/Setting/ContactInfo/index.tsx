@@ -12,6 +12,7 @@ import {useSelector} from 'react-redux';
 import {RootState} from '../../../../services/store';
 import {Colors} from '@assets/color/Colors';
 import {useTheme} from '../../../../src/util/ThemeContext';
+import {X, Mail, Phone} from 'lucide-react-native';
 
 interface ContactInformationProps {
   isVisible: boolean;
@@ -85,15 +86,7 @@ const ContactInformation: React.FC<ContactInformationProps> = ({
       <View style={styles.modalContainer}>
         <View style={styles.header}>
           <TouchableOpacity onPress={onClose}>
-            <Image
-              source={require('@assets/icon/closer.png')}
-              resizeMode="cover"
-              style={{
-                tintColor: colors.text,
-                width: 18,
-                height: 18,
-              }}
-            />
+            <X size={22} color={colors.text} />
           </TouchableOpacity>
         </View>
 
@@ -106,36 +99,14 @@ const ContactInformation: React.FC<ContactInformationProps> = ({
 
           <View style={styles.section}>
             <View style={styles.menuItem}>
-              <Image
-                source={require('@assets/icon/mail.png')}
-                resizeMode="cover"
-                style={[
-                  styles.menuIcon,
-                  {
-                    tintColor: colors.text,
-                    width: 18,
-                    height: 18,
-                  },
-                ]}
-              />
+              <Mail size={18} color={colors.text} style={styles.menuIcon} />
               <View style={{flex: 0}}>
                 <Text style={styles.menuText}>{user?.email}</Text>
               </View>
             </View>
 
             <View style={styles.menuItem}>
-              <Image
-                source={require('@assets/icon/phone.png')}
-                resizeMode="cover"
-                style={[
-                  styles.menuIcon,
-                  {
-                    tintColor: colors.text,
-                    width: 18,
-                    height: 18,
-                  },
-                ]}
-              />
+              <Phone size={18} color={colors.text} style={styles.menuIcon} />
               <Text style={styles.menuText}>{user?.phoneNumber}</Text>
             </View>
           </View>

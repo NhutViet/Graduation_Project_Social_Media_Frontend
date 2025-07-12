@@ -1,15 +1,34 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { SafeAreaView, View, TextInput, Text, TouchableOpacity, Image } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import { FlashList } from '@shopify/flash-list';
+import React, {useState, useRef} from 'react';
+import {
+  SafeAreaView,
+  View,
+  TextInput,
+  Text,
+  TouchableOpacity,
+} from 'react-native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import MessageBoxStyles from '../../../StyleSheet/MessageBoxStyles';
-import { useTheme } from '../../../util/ThemeContext';
-import { Colors } from '../../../../assets/color/Colors';
+import {useTheme} from '../../../util/ThemeContext';
+import {Colors} from '../../../../assets/color/Colors';
+import {ArrowLeft} from 'lucide-react-native';
 
 // Highlight component (as in MessageBox)
-const HighlightedText = ({ text, highlight, normalColor, grayColor }: { text: string; highlight: string; normalColor: string; grayColor: string; }) => {
-  if (!highlight.trim()) return <Text style={{ color: grayColor }}>{text}</Text>;
-  const keywords = highlight.toLowerCase().split(' ').filter(w => w);
+const HighlightedText = ({
+  text,
+  highlight,
+  normalColor,
+  grayColor,
+}: {
+  text: string;
+  highlight: string;
+  normalColor: string;
+  grayColor: string;
+}) => {
+  if (!highlight.trim()) return <Text style={{color: grayColor}}>{text}</Text>;
+  const keywords = highlight
+    .toLowerCase()
+    .split(' ')
+    .filter(w => w);
   const pattern = new RegExp(`(${keywords.join('|')})`, 'gi');
   const splits = text.split(pattern);
   return (
@@ -17,7 +36,12 @@ const HighlightedText = ({ text, highlight, normalColor, grayColor }: { text: st
       {splits.map((part, i) => {
         const isMatch = keywords.includes(part.toLowerCase());
         return (
-          <Text key={i} style={{ color: isMatch ? normalColor : grayColor, fontWeight: isMatch ? '600' : 'normal' }}>
+          <Text
+            key={i}
+            style={{
+              color: isMatch ? normalColor : grayColor,
+              fontWeight: isMatch ? '600' : 'normal',
+            }}>
             {part}
           </Text>
         );
@@ -31,7 +55,7 @@ export const SearchMessages = () => {
   const route: any = useRoute();
   const userId: number = route.params?.userId ?? 1;
 
-  const { theme } = useTheme();
+  const {theme} = useTheme();
   const color = Colors[theme];
   const styles = MessageBoxStyles(theme);
 
@@ -63,12 +87,29 @@ export const SearchMessages = () => {
   return (
     <SafeAreaView style={styles.container}>
       {/* header above search bar */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', padding: 12, backgroundColor: color.background, }}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={{ width: 24, height: 24, marginRight: 16 }}>
-          <Image source={require('../../../../assets/icon/left.png')} style={{ width: '100%', height: '100%', tintColor: color.text, resizeMode: 'contain' }} />
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          padding: 12,
+          backgroundColor: color.background,
+        }}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={{width: 24, height: 24, marginRight: 16}}>
+          <ArrowLeft size={22} color={color.text} />
         </TouchableOpacity>
-        <Text style={{ flex: 1, textAlign: 'center', fontSize: 16, fontWeight: '600', color: color.text }}>Tìm kiếm tin nhắn</Text>
-        <View style={{ width: 24 }} />
+        <Text
+          style={{
+            flex: 1,
+            textAlign: 'center',
+            fontSize: 16,
+            fontWeight: '600',
+            color: color.text,
+          }}>
+          Tìm kiếm tin nhắn
+        </Text>
+        <View style={{width: 24}} />
       </View>
 
       {/* search bar */}
@@ -78,7 +119,7 @@ export const SearchMessages = () => {
             ref={inputRef}
             placeholder="Tìm kiếm tin nhắn"
             placeholderTextColor={color.text}
-            style={[styles.searchInput, { flex: 1 }]}
+            style={[styles.searchInput, {flex: 1}]}
             value={query}
             onChangeText={setQuery}
           />

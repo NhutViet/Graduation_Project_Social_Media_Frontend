@@ -2,35 +2,54 @@ import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import React from 'react';
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
+import {MoreVertical} from 'lucide-react-native';
 
 type ItemListProps = {
   uri: string;
   handle: string;
   name: string;
-  onHandleMessage?: () => void; // optional callback function
+  onHandleMessage?: () => void;
   isMine?: boolean;
   isAdmin?: boolean;
 };
 
 const ItemList = (props: ItemListProps) => {
-  const {uri, handle, name, onHandleMessage, isMine = false, isAdmin=false} = props;
+  const {
+    uri,
+    handle,
+    name,
+    onHandleMessage,
+    isMine = false,
+    isAdmin = false,
+  } = props;
   const {theme} = useTheme();
   const colors = Colors[theme];
   return (
     <TouchableOpacity style={[styles.container]}>
       <Image source={{uri: uri}} style={styles.avatar} />
       <View style={styles.midContainer}>
-        <Text style={[styles.message, {color: colors.text}]} numberOfLines={1} ellipsizeMode='tail'>{name}</Text>
-        <Text style={[styles.textHandle, {color: colors.textSecondary}]} numberOfLines={1} ellipsizeMode='tail'>
-            {isAdmin && 'Admin . '}
+        <Text
+          style={[styles.message, {color: colors.text}]}
+          numberOfLines={1}
+          ellipsizeMode="tail">
+          {name}
+        </Text>
+        <Text
+          style={[styles.textHandle, {color: colors.textSecondary}]}
+          numberOfLines={1}
+          ellipsizeMode="tail">
+          {isAdmin && 'Admin . '}
           {handle}
         </Text>
       </View>
       {!isMine && (
         <View style={styles.row}>
-          <Image source={require('../../../../assets/icon/ellipsis.png')} style={styles.ellipses}/>
-          <TouchableOpacity style={[styles.btnContainer, {borderColor: colors.text}]}>
-            <Text style={[styles.message, {color: colors.text, fontSize: 14}]}>Tin nhắn</Text>
+          <MoreVertical size={22} color={colors.text} />
+          <TouchableOpacity
+            style={[styles.btnContainer, {borderColor: colors.text}]}>
+            <Text style={[styles.message, {color: colors.text, fontSize: 14}]}>
+              Tin nhắn
+            </Text>
           </TouchableOpacity>
         </View>
       )}

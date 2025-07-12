@@ -18,7 +18,8 @@ import {RootState} from '../services/store';
 import ItemHome from '../src/(tabs)/Home/components/ItemHome';
 import {useTheme} from '../src/util/ThemeContext';
 import {Colors} from '../assets/color/Colors';
-import { TaggedPost } from '@services/taggedPostRedux/taggedPostTypes';
+import {TaggedPost} from '@services/taggedPostRedux/taggedPostTypes';
+import {ArrowLeft} from 'lucide-react-native';
 
 const AllTaggedPostOfUserScreen = () => {
   const route = useRoute();
@@ -30,12 +31,13 @@ const AllTaggedPostOfUserScreen = () => {
   const isFocused = useIsFocused();
 
   const {targetPostId} = route.params as {targetPostId: string};
-  const taggedPosts = useSelector(
-    (state: RootState) => state.taggedPosts.data,
-  );
+  const taggedPosts = useSelector((state: RootState) => state.taggedPosts.data);
 
   const [currentVisible, setCurrentVisible] = useState<string | null>(null);
-  const [selectedPostId, setSelectedPostId] = useState<{postId: string, receiverId: string}>({postId: '', receiverId: ''});
+  const [selectedPostId, setSelectedPostId] = useState<{
+    postId: string;
+    receiverId: string;
+  }>({postId: '', receiverId: ''});
 
   const targetIndex = Array.isArray(taggedPosts)
     ? taggedPosts.findIndex((post: TaggedPost) => post._id === targetPostId)
@@ -46,15 +48,11 @@ const AllTaggedPostOfUserScreen = () => {
     if (id) setCurrentVisible(id);
   }, []);
 
-
   return (
     <SafeAreaView style={{flex: 1}}>
       <View style={[styles.header, {backgroundColor: colors.background}]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Image
-            source={require('../assets/icon/left.png')}
-            style={[styles.iconBack, {tintColor: colors.text}]}
-          />
+          <ArrowLeft size={22} color={colors.text} />
         </TouchableOpacity>
         <Text style={[styles.title, {color: colors.text}]}>
           Tất cả bài viết
@@ -108,7 +106,11 @@ const AllTaggedPostOfUserScreen = () => {
             index,
           })}
         />
-        <BottomSheetComment ref={sheetRef} postId={selectedPostId.postId} receiverId={selectedPostId.receiverId}/>
+        <BottomSheetComment
+          ref={sheetRef}
+          postId={selectedPostId.postId}
+          receiverId={selectedPostId.receiverId}
+        />
       </View>
     </SafeAreaView>
   );

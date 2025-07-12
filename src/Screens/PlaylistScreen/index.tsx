@@ -8,7 +8,7 @@ import {
   SafeAreaView,
   StatusBar,
 } from 'react-native';
-import VideoPlayer, { VideoRef } from 'react-native-video';
+import VideoPlayer, {VideoRef} from 'react-native-video';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {Modalize} from 'react-native-modalize';
 import {Portal} from 'react-native-portalize';
@@ -22,11 +22,18 @@ import {
   removeBookmark,
   switchBookmark,
 } from '../../../services/bookmarkRedux/bookmarkSlice';
-import {Check} from 'lucide-react-native';
 import {FlashList} from '@shopify/flash-list';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
-import { PlaylistItem } from '@services/bookmarkRedux/bookmarkTypes';
-import { Media, MediaR } from '@services/bookmarkRedux/bookmarkTypes';
+import {PlaylistItem} from '@services/bookmarkRedux/bookmarkTypes';
+import {Media, MediaR} from '@services/bookmarkRedux/bookmarkTypes';
+import {
+  ArrowLeft,
+  MoreVertical,
+  LayoutGrid,
+  Clapperboard,
+  X,
+  Check,
+} from 'lucide-react-native';
 
 interface RouteParams {
   title: string;
@@ -160,8 +167,8 @@ export const PlaylistsScreen = () => {
     <View style={[styles.tabBar, {backgroundColor: palette.background}]}>
       {(
         [
-          {key: 'grid', icon: require('../../../assets/icon/grid.png')},
-          {key: 'reels', icon: require('../../../assets/icon/reels.png')},
+          {key: 'grid', icon: LayoutGrid},
+          {key: 'reels', icon: Clapperboard},
         ] as const
       ).map(tab => (
         <TouchableOpacity
@@ -172,15 +179,9 @@ export const PlaylistsScreen = () => {
             {borderBottomColor: palette.text},
           ]}
           onPress={() => setActiveTab(tab.key)}>
-          <Image
-            source={tab.icon}
-            style={[
-              styles.tabIcon,
-              {
-                tintColor:
-                  activeTab === tab.key ? palette.text : palette.textSecondary,
-              },
-            ]}
+          <tab.icon
+            size={20}
+            color={activeTab === tab.key ? palette.text : palette.textSecondary}
           />
         </TouchableOpacity>
       ))}
@@ -339,10 +340,17 @@ export const PlaylistsScreen = () => {
           {isSelec ? (
             <Text style={styles.textTop}>Hủy bỏ</Text>
           ) : (
-            <Image
-              source={require('../../../assets/icon/left.png')}
-              style={styles.icon}
-            />
+            <ArrowLeft size={24} color={palette.text} />
+          )}
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={handleRight}>
+          {isSelec ? (
+            <Text style={styles.textTop}>
+              {isAllSelected ? 'Bỏ chọn tất cả' : 'Chọn tất cả'}
+            </Text>
+          ) : (
+            <MoreVertical size={24} color={palette.text} />
           )}
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{title}</Text>
@@ -352,10 +360,9 @@ export const PlaylistsScreen = () => {
               {isAllSelected ? 'Bỏ chọn tất cả' : 'Chọn tất cả'}
             </Text>
           ) : (
-            <Image
-              source={require('../../../assets/icon/ellipsis.png')}
-              style={styles.icon}
-            />
+            <View style={styles.videoIconContainer}>
+              <Clapperboard size={16} color="#fff" />
+            </View>
           )}
         </TouchableOpacity>
       </View>
@@ -396,10 +403,9 @@ export const PlaylistsScreen = () => {
           onClose={() => setSelectedItem(null)}>
           <View style={styles.modalizeContent}>
             <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
-              <Image
-                source={require('../../../assets/icon/closer.png')}
-                style={styles.closeIcon}
-              />
+              <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
+                <X size={20} color={palette.text} />
+              </TouchableOpacity>
             </TouchableOpacity>
             {selectedItem &&
               (selectedItem.type === 'reel' ? (

@@ -2,6 +2,7 @@ import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import React from 'react';
 import {useTheme} from '../../../../src/util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
+import {X} from 'lucide-react-native';
 
 export interface UserProps {
   image: string;
@@ -17,15 +18,27 @@ const User = (props: UserProps) => {
   const {image, name, handle, isDelete, func} = props;
   return (
     <TouchableOpacity
-      style={{flexDirection: 'row', alignItems: 'center', gap: 10, marginVertical: 10}}
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+        marginVertical: 10,
+      }}
       onPress={() => {
-        if(!isDelete){
+        if (!isDelete) {
           func();
         }
       }}>
       <Image
         source={{uri: image}}
-        style={{width: 50, height: 50, resizeMode: 'cover', borderRadius: 100, borderColor: colors.border, borderWidth: 0.5}}
+        style={{
+          width: 50,
+          height: 50,
+          resizeMode: 'cover',
+          borderRadius: 100,
+          borderColor: colors.border,
+          borderWidth: 0.5,
+        }}
       />
       <View style={{flex: 1}}>
         <Text style={{fontSize: 14, fontWeight: '500', color: colors.text}}>
@@ -42,8 +55,8 @@ const User = (props: UserProps) => {
       </View>
       {isDelete && (
         <TouchableOpacity onPress={func}>
-        <Image source={require('../../../../assets/icon/closer.png')} style={{width: 20, height: 20, tintColor: colors.textSecondary, resizeMode: 'contain'}}/>
-      </TouchableOpacity>
+          <X size={22} color={colors.textSecondary} />
+        </TouchableOpacity>
       )}
     </TouchableOpacity>
   );

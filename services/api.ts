@@ -72,6 +72,7 @@ export const API = {
 
   //// Message
   MESSAGES_URL: 'messages',
+  MESSAGES_MEDIA: 'messages/media',
 
   ////Search
   POST_SEARCH_POST: 'posts/search',

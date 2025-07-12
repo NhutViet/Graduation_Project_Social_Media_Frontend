@@ -40,7 +40,6 @@ import {
   AddCollectionScreen,
   Archive,
   ChangePassword,
-  ChangeBirthday,
   YourActivity,
   LinkToGroup,
   SearchMessages,
@@ -58,6 +57,7 @@ import {
   ReportProblemScreen,
   SupportRequestsScreen,
   MessageUndefined,
+  GroupGallery,
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 import ProfileComp from '../Screens/Profile';
@@ -95,6 +95,8 @@ export type RootStackParamList = {
     userName: string;
     callID: string;
     image: string;
+    isCaller: boolean;
+    callType: 'video' | 'voice';
   };
   ProfileComp: {userID: string};
   InfoAccountCenter: {user: User};
@@ -133,7 +135,6 @@ const AppNavigator = () => {
         <Stack.Screen name="TagSo" component={TagSo} />
         <Stack.Screen name="Profile" component={Profile} />
         <Stack.Screen name="ZegoCallScreen" component={ZegoCallScreen} />
-        <Stack.Screen name="ChangeBirthday" component={ChangeBirthday} />
         <Stack.Screen name="ChangePassword" component={ChangePassword} />
         <Stack.Screen name="BlockedAccounts" component={BlockedAccounts} />
         <Stack.Screen name="ShowActivity" component={ShowActivity} />
@@ -184,6 +185,7 @@ const AppNavigator = () => {
         <Stack.Screen name="MessageUndefined" component={MessageUndefined} />
         <Stack.Screen name="Archive" component={Archive} />
         <Stack.Screen name="InforGroupChat" component={InforGroupChat} />
+        <Stack.Screen name="GroupGallery" component={GroupGallery} />
         <Stack.Screen name="AddCollection" component={AddCollectionScreen} />
         <Stack.Screen name="YourActivity" component={YourActivity} />
         <Stack.Screen name="LinkToGroup" component={LinkToGroup} />

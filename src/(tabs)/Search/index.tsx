@@ -7,7 +7,15 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useEffect, useRef, useState, useMemo, useCallback, forwardRef, useImperativeHandle} from 'react';
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  useMemo,
+  useCallback,
+  forwardRef,
+  useImperativeHandle,
+} from 'react';
 import {FlashList} from '@shopify/flash-list';
 import {useTheme} from '../../util/ThemeContext';
 import {SearchStyles} from '../../StyleSheet/SearchStyles';
@@ -33,7 +41,8 @@ import {
 import User from './Components/User';
 import {clearPosts, clearReels} from '@services/searchRedux/searchReducer';
 import {fetchMedia} from '@services/SearchPost/searchPostReducer';
-import { SkeletonExploreSection } from '../../../components/SkeletonGrid';
+import {SkeletonExploreSection} from '../../../components/SkeletonGrid';
+import {ArrowLeft, Search as SearchIcon} from 'lucide-react-native';
 
 const SEARCH_HISTORY_KEY = 'search_history';
 
@@ -46,7 +55,9 @@ export const Search = forwardRef<SearchRef, {}>((props, ref) => {
 
   // Redux state selectors
   const postsData = useSelector((state: RootState) => state.searchPost.items);
-  const {pagination, isLoading: loading} = useSelector((state: RootState) => state.searchPost);
+  const {pagination, isLoading: loading} = useSelector(
+    (state: RootState) => state.searchPost,
+  );
   const {refreshToken} = useSelector((state: RootState) => state.user);
   const {users, isError} = useSelector((state: RootState) => state.search);
   const isLoading = useSelector(selectSearchLoading);
@@ -62,7 +73,9 @@ export const Search = forwardRef<SearchRef, {}>((props, ref) => {
   const [searchText, setSearchText] = useState('');
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [isInitializing, setIsInitializing] = useState(true);
-  const [visibleIndexView2, setVisibleIndexView2] = useState<number | null>(null);
+  const [visibleIndexView2, setVisibleIndexView2] = useState<number | null>(
+    null,
+  );
 
   // Refs
   const inputRef = useRef<TextInput>(null);
@@ -82,7 +95,7 @@ export const Search = forwardRef<SearchRef, {}>((props, ref) => {
 
   // Cleanup function
   const cleanup = useCallback(() => {
-    console.log("🔄 [Search] cleanup() called — clearing search state");
+    console.log('🔄 [Search] cleanup() called — clearing search state');
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
       abortControllerRef.current = null;
@@ -95,7 +108,7 @@ export const Search = forwardRef<SearchRef, {}>((props, ref) => {
 
   // Reset to initial state function
   const resetToInitial = useCallback(() => {
-    console.log("[Search] resetToInitial() called");
+    console.log('[Search] resetToInitial() called');
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
       abortControllerRef.current = null;
@@ -110,9 +123,13 @@ export const Search = forwardRef<SearchRef, {}>((props, ref) => {
   }, [dispatch]);
 
   // Expose resetToInitial to parent via ref
-  useImperativeHandle(ref, () => ({
-    resetToInitial,
-  }), [resetToInitial]);
+  useImperativeHandle(
+    ref,
+    () => ({
+      resetToInitial,
+    }),
+    [resetToInitial],
+  );
 
   // Search effect
   useEffect(() => {
@@ -166,11 +183,23 @@ export const Search = forwardRef<SearchRef, {}>((props, ref) => {
         .slice(0, 2);
       const userItems = (users as UserR)?.items || [];
       return [
-        ...hist.map((h, i) => ({type: 'history', value: h, id: `history-${i}`})),
-        ...userItems.map((u: userType, i: number) => ({type: 'user', value: u, id: `user-${u._id || i}`})),
+        ...hist.map((h, i) => ({
+          type: 'history',
+          value: h,
+          id: `history-${i}`,
+        })),
+        ...userItems.map((u: userType, i: number) => ({
+          type: 'user',
+          value: u,
+          id: `user-${u._id || i}`,
+        })),
       ];
     }
-    return searchHistory.map((h, i) => ({type: 'history', value: h, id: `history-${i}`}));
+    return searchHistory.map((h, i) => ({
+      type: 'history',
+      value: h,
+      id: `history-${i}`,
+    }));
   }, [debouncedSearchText, searchHistory, users, isLoading, isError]);
 
   // Media groups for explore
@@ -213,41 +242,47 @@ export const Search = forwardRef<SearchRef, {}>((props, ref) => {
   }, [pagination, loading, dispatch]);
 
   // Render functions
-  const renderSearchItem = useCallback(({item}: any) => {
-    if (item.type === 'history') {
+  const renderSearchItem = useCallback(
+    ({item}: any) => {
+      if (item.type === 'history') {
+        return (
+          <HistoryItem
+            name={item.value}
+            onPress={() => {
+              setSearchText(item.value);
+              saveHistory(item.value);
+              setIsFocused(false);
+              setIsShowResult(true);
+              inputRef.current?.blur();
+            }}
+            onDelete={() => deleteHistory(item.value)}
+          />
+        );
+      }
       return (
-        <HistoryItem
-          name={item.value}
-          onPress={() => {
-            setSearchText(item.value);
-            saveHistory(item.value);
-            setIsFocused(false);
-            setIsShowResult(true);
-            inputRef.current?.blur();
-          }}
-          onDelete={() => deleteHistory(item.value)}
+        <User
+          id={item.value._id}
+          name={item.value.username}
+          image={item.value.profilePic}
+          handle={item.value.handleName}
         />
       );
-    }
-    return (
-      <User
-        id={item.value._id}
-        name={item.value.username}
-        image={item.value.profilePic}
-        handle={item.value.handleName}
-      />
-    );
-  }, [deleteHistory, saveHistory]);
+    },
+    [deleteHistory, saveHistory],
+  );
 
-  const renderExploreItem = useCallback(({item, index}: any) => {
-    return <ExploreSection media={item} index={index} data={postsData}/>;
-  }, [postsData]);
+  const renderExploreItem = useCallback(
+    ({item, index}: any) => {
+      return <ExploreSection media={item} index={index} data={postsData} />;
+    },
+    [postsData],
+  );
 
   const renderFooter = () => {
     if (pagination?.hasNextPage && loading) {
       return (
-        <View >
-          <SkeletonExploreSection/>
+        <View>
+          <SkeletonExploreSection />
         </View>
       );
     }
@@ -259,11 +294,14 @@ export const Search = forwardRef<SearchRef, {}>((props, ref) => {
     setVisibleIndexView2(prev => (prev !== idx ? idx : prev));
   }, []);
 
-  const viewabilityConfig = useMemo(() => ({viewAreaCoveragePercentThreshold: 50}), []);
+  const viewabilityConfig = useMemo(
+    () => ({viewAreaCoveragePercentThreshold: 50}),
+    [],
+  );
 
   // Effects
   useEffect(() => {
-    return () => console.log("🏷️ [Search] component is unmounting now");
+    return () => console.log('🏷️ [Search] component is unmounting now');
   }, []);
 
   useEffect(() => cleanup, [cleanup]);
@@ -295,15 +333,11 @@ export const Search = forwardRef<SearchRef, {}>((props, ref) => {
 
   return (
     <SafeAreaView style={styles.container}>
-
       {/* Search Bar */}
       <View style={styles.searchContainer}>
         {isShowResult && (
-          <TouchableOpacity onPress={handleBack}>
-            <Image
-              source={require('../../../assets/icon/left.png')}
-              style={[styles.icon, {marginRight: 10}]}
-            />
+          <TouchableOpacity onPress={handleBack} style={{marginRight: 10}}>
+            <ArrowLeft size={22} color={color.text} />
           </TouchableOpacity>
         )}
         <View style={styles.row}>
@@ -321,10 +355,7 @@ export const Search = forwardRef<SearchRef, {}>((props, ref) => {
             onSubmitEditing={handleSearchSubmit}
             returnKeyType="search"
           />
-          <Image
-            source={require('../../../assets/icon/search.png')}
-            style={styles.iconSearch}
-          />
+          <SearchIcon size={20} color={color.text} />
         </View>
         {isFocused && (
           <TouchableOpacity onPress={handleCancel}>
@@ -336,7 +367,11 @@ export const Search = forwardRef<SearchRef, {}>((props, ref) => {
       <View style={styles.container}>
         {/* Search History & Suggestions */}
         {isFocused && !isShowResult && (
-          <View style={[styles.container, {position: 'absolute', top: 0, bottom: 0, left: 0, right: 0}]}>
+          <View
+            style={[
+              styles.container,
+              {position: 'absolute', top: 0, bottom: 0, left: 0, right: 0},
+            ]}>
             {searchText === '' && searchHistory.length > 0 && (
               <View style={styles.rowSpace}>
                 <Text style={styles.textGD}>Gần đây</Text>
@@ -363,7 +398,11 @@ export const Search = forwardRef<SearchRef, {}>((props, ref) => {
 
         {/* Search Results */}
         {isShowResult && (
-          <View style={[styles.container, {position: 'absolute', top: 0, bottom: 0, left: 0, right: 0}]}>
+          <View
+            style={[
+              styles.container,
+              {position: 'absolute', top: 0, bottom: 0, left: 0, right: 0},
+            ]}>
             <SearchResult
               searchText={debouncedSearchText}
               currentVisibleIndex={visibleIndexView2}

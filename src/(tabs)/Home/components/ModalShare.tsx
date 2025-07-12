@@ -10,7 +10,6 @@ import {
   Dimensions,
   TextStyle,
 } from 'react-native';
-import {Search, UserPlus} from 'lucide-react-native';
 import {FlashList} from '@shopify/flash-list';
 import {Colors} from '../../../../assets/color/Colors';
 import {useTheme} from '../../../util/ThemeContext';
@@ -20,7 +19,7 @@ import {fetchMyRooms} from '@services/roomRedux/roomSlice';
 // import { fetchFollowers, fetchFollowing } from '@services/relationRedux/relationSlice';
 import ChatRoomAvatar from '../../../../components/ChatRoomAvatar';
 import {RootState, AppDispatch} from '../../../../services/store';
-import { RoomUser } from '@services/roomRedux/roomType';
+import {Search, UserPlus, X, CheckCircle, Link2} from 'lucide-react-native';
 
 export interface CombinedItem {
   kind: 'room' | 'friend';
@@ -89,7 +88,7 @@ const ModalShare = forwardRef<ModalShareHandle, ModalShareProps>(
           const avatars = otherUsers
             .map(u => u.profilePic || '')
             .filter(pic => pic.length > 0);
-          return { kind: 'room', _id: r._id, name, avatars };
+          return {kind: 'room', _id: r._id, name, avatars};
         });
 
         // const allFriends = [...followers, ...following];
@@ -337,12 +336,11 @@ const ModalShare = forwardRef<ModalShareHandle, ModalShareProps>(
                 <TouchableOpacity
                   style={styles.clearButton}
                   onPress={() => setSearchQuery('')}>
-                    <Image
-                      style={styles.clearIcon}
-                      source={require('../../../../assets/icon/closer.png')}
-                    />
+                  <X size={18} color={color.text} />
                 </TouchableOpacity>
-              ) : <UserPlus size={20} color="#aaa" />}
+              ) : (
+                <UserPlus size={22} color="#aaa" />
+              )}
             </View>
           </View>
 
@@ -394,15 +392,8 @@ const ModalShare = forwardRef<ModalShareHandle, ModalShareProps>(
                         />
                       )}
                       {isSel && (
-                        <View style={[styles.checkmark]}>
-                          <Image
-                            style={{
-                              width: 20,
-                              height: 20,
-                              tintColor: color.primary,
-                            }}
-                            source={require('@assets/icon/success.png')}
-                          />
+                        <View style={styles.checkmark}>
+                          <CheckCircle size={22} color={Colors.primary} />
                         </View>
                       )}
                       <Text
@@ -438,10 +429,7 @@ const ModalShare = forwardRef<ModalShareHandle, ModalShareProps>(
             ) : (
               <View style={styles.shareActions}>
                 <TouchableOpacity style={styles.actionItem}>
-                  <Image
-                    source={require('@assets/icon/link.png')}
-                    style={styles.actionIcon}
-                  />
+                  <Link2 size={22} color={color.text} />
                   <Text style={styles.actionLabel}>Sao chép liên kết</Text>
                 </TouchableOpacity>
               </View>
