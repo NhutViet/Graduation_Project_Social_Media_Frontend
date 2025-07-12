@@ -1,5 +1,5 @@
 import React, {forwardRef, useImperativeHandle, useRef, useState} from 'react';
-import {ActivityIndicator, SafeAreaView, StyleSheet, View} from 'react-native';
+import {SafeAreaView, StyleSheet, View} from 'react-native';
 import {useIsFocused, useFocusEffect} from '@react-navigation/native';
 import {Colors} from '../../../assets/color/Colors';
 import {useDispatch} from 'react-redux';
@@ -15,6 +15,7 @@ import ReelsList from './components/ReelsLists';
 import ReelsBottomSheets from './components/ReelsBottomSheets';
 import {PostWithMedia} from '@services/postRedux/postTypes';
 import ReelsHeader from './components/ReelsHeader';
+import LoadingModal from '../../../components/Global/LoadingModal';
 
 const Reels = forwardRef((props, ref) => {
   const isFocused = useIsFocused();
@@ -86,7 +87,7 @@ const Reels = forwardRef((props, ref) => {
   if (loading && isInitialLoad) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={Colors.white} />
+        <LoadingModal />
       </SafeAreaView>
     );
   }

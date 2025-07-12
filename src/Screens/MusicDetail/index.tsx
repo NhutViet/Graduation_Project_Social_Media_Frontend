@@ -11,7 +11,7 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
-import {ChevronLeft, Bookmark, Ellipsis, Send, Eye} from 'lucide-react-native';
+import {ChevronLeft, Bookmark, Ellipsis, Send, Eye, Music} from 'lucide-react-native';
 import {FlashList} from '@shopify/flash-list';
 
 export const musicData = {
@@ -175,11 +175,7 @@ export const SaveMusic = () => {
             </Text>
             <Text style={styles.statText}>·</Text>
             <View style={styles.statFrame}>
-              <Image
-                style={{tintColor: colors.text, width: 24, height: 24}}
-                resizeMode="cover"
-                source={require('../../../assets/icon/spotify.png')}
-              />
+              <Music size={22} color={colors.text} />
               <Text style={[styles.statText, {color: colors.text}]}>Thêm</Text>
             </View>
           </View>

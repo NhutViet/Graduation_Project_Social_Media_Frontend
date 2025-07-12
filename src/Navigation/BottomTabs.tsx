@@ -32,7 +32,7 @@ const TabIcon = ({
 }) => (
   <View style={styles.iconWrapper}>
     {loading ? (
-      <ActivityIndicator size="small" color={tintColor} />
+      <ActivityIndicator size="small" color={Colors.primary} />
     ) : (
       <IconComponent size={22} color={focused ? tintColor : `${tintColor}99`} />
     )}

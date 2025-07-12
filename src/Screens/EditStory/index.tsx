@@ -12,9 +12,8 @@ import {
   Modal,
   KeyboardAvoidingView,
   Platform,
-  ActivityIndicator,
 } from 'react-native';
-import Video, { OnLoadData, OnProgressData, VideoRef } from 'react-native-video';
+import Video, {OnLoadData, OnProgressData, VideoRef} from 'react-native-video';
 import Draggable from 'react-native-draggable';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import Sound from 'react-native-sound';
@@ -29,7 +28,8 @@ import axiosInstance from '../../../services/axiosInstance';
 import {Dimensions} from 'react-native';
 import {X, ChevronRight} from 'lucide-react-native';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
-import { userFollow } from '@services/StoryRedux/StoryType';
+import {userFollow} from '@services/StoryRedux/StoryType';
+import LoadingModal from '../../../components/Global/LoadingModal';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -42,7 +42,9 @@ export const EditStory = ({route, navigation}: any) => {
   const [videoCurrentTime, setVideoCurrentTime] = useState(0);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [hasShownModal, setHasShownModal] = useState(false);
-  const [filteredSuggestions, setFilteredSuggestions] = useState<userFollow[]>([]);
+  const [filteredSuggestions, setFilteredSuggestions] = useState<userFollow[]>(
+    [],
+  );
   const [caption, setCaption] = useState('');
   const progressAnim = useRef(new Animated.Value(0)).current;
   const animationRef = useRef<Animated.CompositeAnimation | null>(null);
@@ -97,7 +99,6 @@ export const EditStory = ({route, navigation}: any) => {
   };
 
   const onVideoLoad = (data: OnLoadData) => {
-  
     setVideoDuration(data.duration);
   };
 
@@ -172,12 +173,10 @@ export const EditStory = ({route, navigation}: any) => {
   }, [selectedItem]);
 
   const handleScreenTap = () => {
-   
     setIsModalVisible(true);
   };
 
   const handleDonePress = () => {
-   
     setIsModalVisible(false);
     setHasShownModal(true);
   };
@@ -207,7 +206,6 @@ export const EditStory = ({route, navigation}: any) => {
   };
 
   const handleCloserPress = () => {
-   
     navigation.goBack();
   };
 
@@ -236,22 +234,18 @@ export const EditStory = ({route, navigation}: any) => {
 
   // Function để parse @mentions từ text
   const parseMentionsFromText = (text: string) => {
-   
-    
     const mentionRegex = /@([a-zA-Z0-9._]+)/g;
-    const mentions: Array<{handleName: string, user: userFollow}> = [];
+    const mentions: Array<{handleName: string; user: userFollow}> = [];
     let match;
 
     while ((match = mentionRegex.exec(text)) !== null) {
       const handleName = match[1];
-      
-      
-      const user = followingUsers.find(u => 
-        u.handleName.toLowerCase() === handleName.toLowerCase()
+
+      const user = followingUsers.find(
+        u => u.handleName.toLowerCase() === handleName.toLowerCase(),
       );
-      
+
       if (user) {
-       
         mentions.push({handleName, user});
       } else {
         console.log('❌ User not found for handle:', handleName);
@@ -260,8 +254,7 @@ export const EditStory = ({route, navigation}: any) => {
 
     // Remove @mentions từ text để chỉ giữ content thuần
     const cleanText = text.replace(mentionRegex, '').trim();
-    
-    
+
     return {cleanText, mentions};
   };
 
@@ -270,7 +263,6 @@ export const EditStory = ({route, navigation}: any) => {
       setIsUploading(true);
       setProgress(0);
       if (!selectedItem) {
-   
         setIsUploading(false);
         return;
       }
@@ -306,7 +298,8 @@ export const EditStory = ({route, navigation}: any) => {
         typeof mediaUrl === 'string' && mediaUrl.trim() !== '';
       const isValidMusic =
         selectedMusic?.musicId && typeof selectedMusic.musicId === 'string';
-      const isValidContent = caption !== undefined && caption !== null && caption.trim() !== '';
+      const isValidContent =
+        caption !== undefined && caption !== null && caption.trim() !== '';
 
       // Parse mentions từ caption
       const {cleanText, mentions} = parseMentionsFromText(caption);
@@ -336,30 +329,24 @@ export const EditStory = ({route, navigation}: any) => {
 
       // Thêm tags nếu có mentions
       if (mentions.length > 0) {
-        
         payload.tags = mentions.map(mention => ({
           user: mention.user._id, // Chỉ gửi ID string thay vì object
           position: {
             x: 0.5, // Default position, có thể customize sau
             y: 0.3,
-          }
+          },
         }));
         console.log('📤 Final tags payload:', payload.tags);
       }
 
-     
-      
       // ✅ Sử dụng Redux action thay vì direct API call
       const storyResult = await dispatch(createStory(payload)).unwrap();
-      
-      
 
       if (storyResult) {
         GlobalAlertManager.show('Thông báo', 'Đăng story thành công.');
-        
-     
+
         dispatch(forceRefreshStories());
-        
+
         // ✅ Gửi notification
         try {
           await axiosInstance.post(
@@ -385,20 +372,22 @@ export const EditStory = ({route, navigation}: any) => {
 
       hideUploadModal();
       setIsUploading(false);
-      
+
       // ✅ Navigate về Home và trigger immediate refresh
       navigation.reset({
-        index: 0, 
-        routes: [{
-          name: 'BottomTabs',
-          params: {
-            screen: 'Home',
+        index: 0,
+        routes: [
+          {
+            name: 'BottomTabs',
             params: {
-              shouldRefresh: true,
-              timestamp: Date.now() // Force refresh với timestamp mới
-            }
-          }
-        }]
+              screen: 'Home',
+              params: {
+                shouldRefresh: true,
+                timestamp: Date.now(), // Force refresh với timestamp mới
+              },
+            },
+          },
+        ],
       });
     } catch (error: any) {
       setIsUploading(false);
@@ -494,7 +483,6 @@ export const EditStory = ({route, navigation}: any) => {
             transparent={true}
             animationType="fade"
             onRequestClose={() => {
-              
               setIsModalVisible(false);
             }}>
             <View style={styles.modalContainer}>
@@ -546,7 +534,7 @@ export const EditStory = ({route, navigation}: any) => {
                 justifyContent: 'center',
                 alignItems: 'center',
               }}>
-              <ActivityIndicator size="large" color="#fff" />
+              <LoadingModal />
               <Text style={{color: '#fff', marginTop: 10}}>
                 Đang đăng story...
               </Text>

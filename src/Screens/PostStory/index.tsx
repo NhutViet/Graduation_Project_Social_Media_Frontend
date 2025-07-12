@@ -9,7 +9,6 @@ import {
   Platform,
   SafeAreaView,
   Dimensions,
-  ActivityIndicator,
 } from 'react-native';
 import {FlashList} from '@shopify/flash-list';
 import {CameraRoll} from '@react-native-camera-roll/camera-roll';
@@ -19,6 +18,7 @@ import {useNavigation} from '@react-navigation/native';
 import BottomSheet, {BottomSheetRef} from './BottomSheet/BottomSheetMusic';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 import {ArrowLeft, Music2} from 'lucide-react-native';
+import LoadingModal from '../../../components/Global/LoadingModal';
 
 const ITEM_SIZE = Dimensions.get('window').width / 4;
 
@@ -250,7 +250,9 @@ const PostStory = () => {
       </View>
 
       {isLoading ? (
-        <ActivityIndicator size="large" color={color.text} style={{flex: 1}} />
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <LoadingModal />
+        </View>
       ) : error ? (
         <Text style={styles.errorText}>{error}</Text>
       ) : (
@@ -266,15 +268,7 @@ const PostStory = () => {
           ListEmptyComponent={
             <Text style={styles.emptyText}>Không tìm thấy media</Text>
           }
-          ListFooterComponent={
-            isLoadingMore ? (
-              <ActivityIndicator
-                size="small"
-                color={color.text}
-                style={{margin: 20}}
-              />
-            ) : null
-          }
+          ListFooterComponent={isLoadingMore ? <LoadingModal /> : null}
           onEndReachedThreshold={0.3}
           onEndReached={onEndReached}
           maintainVisibleContentPosition={{

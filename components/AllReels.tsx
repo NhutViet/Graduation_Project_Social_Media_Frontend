@@ -4,8 +4,6 @@ import {
   FlatList,
   StyleSheet,
   TouchableOpacity,
-  Image,
-  ActivityIndicator,
   SafeAreaView,
   LayoutChangeEvent,
 } from 'react-native';
@@ -26,6 +24,7 @@ import ModalShare from '../src/(tabs)/Home/components/ModalShare';
 import {useShareModal} from '../src/(tabs)/Reels/hooks/useShareModal';
 import {PostWithMedia} from '@services/postRedux/postTypes';
 import {ArrowLeft} from 'lucide-react-native';
+import LoadingModal from './Global/LoadingModal';
 
 type RootStackParamList = {
   AllReels: {
@@ -94,7 +93,7 @@ const AllReels = () => {
   if (loading) {
     return (
       <View style={[styles.container, styles.center]}>
-        <ActivityIndicator size="large" color={Colors.primary} />
+        <LoadingModal />
       </View>
     );
   }

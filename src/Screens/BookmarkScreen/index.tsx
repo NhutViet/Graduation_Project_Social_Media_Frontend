@@ -2,12 +2,10 @@ import React, {useCallback} from 'react';
 import {
   View,
   Text,
-  Image,
   TouchableOpacity,
   ScrollView,
   FlatList,
   SafeAreaView,
-  ActivityIndicator,
 } from 'react-native';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {useBookmarkStyles} from '../../StyleSheet/BookmarkedStyles';
@@ -19,6 +17,7 @@ import {Playlist} from '../../../services/bookmarkRedux/bookmarkTypes';
 import {useTheme} from '../../../src/util/ThemeContext';
 import {Colors} from '@assets/color/Colors';
 import {ArrowLeft, Plus} from 'lucide-react-native';
+import LoadingModal from '../../../components/Global/LoadingModal';
 
 export const BookmarkScreen = () => {
   const navigation = useNavigation<any>();
@@ -66,7 +65,7 @@ export const BookmarkScreen = () => {
   if (isloading) {
     return (
       <SafeAreaView style={styles.centerContainer}>
-        <ActivityIndicator size="large" color={'#0095F6'} />
+        <LoadingModal />
       </SafeAreaView>
     );
   } else {

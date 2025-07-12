@@ -1,15 +1,15 @@
-import React, { memo, useCallback } from 'react';
+import React, {memo, useCallback} from 'react';
 import {
   TouchableOpacity,
   Image,
   Text,
-  ActivityIndicator,
   View,
   StyleSheet,
   useWindowDimensions,
 } from 'react-native';
-import { MediaItem } from '../../../util/msgImgList';
-import { FlashList } from '@shopify/flash-list';
+import {MediaItem} from '../../../util/msgImgList';
+import {FlashList} from '@shopify/flash-list';
+import LoadingModal from '../../../../components/Global/LoadingModal';
 
 interface TabViProps {
   medi: MediaItem[] | undefined;
@@ -18,31 +18,33 @@ interface TabViProps {
 }
 
 const ITEM_HEIGHT = (width: number) => width / 3;
-export const TabVi = memo(({ medi, isLoading, onEndReached }: TabViProps) => {
-  const { width: screenWidth } = useWindowDimensions();
+export const TabVi = memo(({medi, isLoading, onEndReached}: TabViProps) => {
+  const {width: screenWidth} = useWindowDimensions();
   const itemSize = ITEM_HEIGHT(screenWidth);
 
-  const renderItem = useCallback(({ item }: { item: MediaItem }) => (
-    <TouchableOpacity
-      style={{
-        width: itemSize - 1,
-        height: itemSize,
-      }}
-    >
-      <Image
-        source={{ uri: item.media.url }}
-        style={styles.image}
-        resizeMode="cover"
-      />
-    </TouchableOpacity>
-  ), [itemSize]);
+  const renderItem = useCallback(
+    ({item}: {item: MediaItem}) => (
+      <TouchableOpacity
+        style={{
+          width: itemSize - 1,
+          height: itemSize,
+        }}>
+        <Image
+          source={{uri: item.media.url}}
+          style={styles.image}
+          resizeMode="cover"
+        />
+      </TouchableOpacity>
+    ),
+    [itemSize],
+  );
 
   const keyExtractor = useCallback((item: MediaItem) => item._id, []);
 
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" />
+        <LoadingModal />
       </View>
     );
   }

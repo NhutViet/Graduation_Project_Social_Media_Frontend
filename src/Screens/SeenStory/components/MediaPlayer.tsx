@@ -1,8 +1,9 @@
 import React, {forwardRef, useEffect, useRef} from 'react';
-import {ActivityIndicator, Image, Text, View} from 'react-native';
+import {Image, Text, View} from 'react-native';
 import Video from 'react-native-video';
 import Sound from 'react-native-sound';
 import {styles} from './styles';
+import LoadingModal from '../../../../components/Global/LoadingModal';
 
 interface MediaPlayerProps {
   item: {
@@ -20,7 +21,7 @@ interface MediaPlayerProps {
   muted?: boolean;
   isMediaLoading?: boolean;
   onImageLoad?: () => void;
-  forceReset?: boolean; // ✅ Prop để force reset sound
+  forceReset?: boolean;
 }
 
 export const MediaPlayer = forwardRef<any, MediaPlayerProps>(
@@ -172,7 +173,7 @@ export const MediaPlayer = forwardRef<any, MediaPlayerProps>(
               backgroundColor: 'rgba(0,0,0,0.2)',
               zIndex: 2,
             }}>
-            <ActivityIndicator size="large" color="#fff" />
+            <LoadingModal />
           </View>
         )}
       </View>

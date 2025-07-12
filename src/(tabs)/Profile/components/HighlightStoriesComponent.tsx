@@ -7,7 +7,6 @@ import {
   Dimensions,
   StyleSheet,
   Modal,
-  ActivityIndicator,
   FlatList,
 } from 'react-native';
 
@@ -21,8 +20,8 @@ import {Plus} from 'lucide-react-native';
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import {handleHighlightPress} from '../../Home/util/index';
 import {useHighlightStoryPrefetch} from '../hooks/useHighlightStoryPrefetch';
+import LoadingModal from '../../../../components/Global/LoadingModal';
 
-const {width} = Dimensions.get('window');
 const ITEM_SIZE = 70;
 
 interface HighlightStoriesComponentProps {
@@ -272,7 +271,7 @@ const HighlightStoriesComponent: React.FC<HighlightStoriesComponentProps> = ({
         onRequestClose={() => setIsLoadingModalVisible(false)}>
         <View style={styles.loadingModalOverlay}>
           <View style={styles.loadingModalContent}>
-            <ActivityIndicator size="large" color="#fff" />
+            <LoadingModal />
             <Text style={styles.modalLoadingText}>Đang tải story...</Text>
           </View>
         </View>
