@@ -51,7 +51,7 @@ export const useItemHomeActions = (
         refreshToken,
         receiverId: user._id,
         handleName: handleName,
-        userId: userID
+        userId: userID,
       }),
     ).unwrap();
 
@@ -61,7 +61,6 @@ export const useItemHomeActions = (
     // Optimistic update
     setIsLiked(shouldLike);
     setNumLike((prev: number) => prev + (shouldLike ? 1 : -1));
-
     try {
       await requestPromise;
       // Success - Redux state is already updated by the fulfilled action
@@ -95,15 +94,18 @@ export const useItemHomeActions = (
       });
   }, [_id]);
 
-  const handleFollowAction = useCallback((mine: User) => {
-    handleFollowToggle({
-      userId: user._id,
-      follow: isFollow,
-      senderId: mine?._id,
-      handleName: mine?.handleName,
-      dispatch,
-    });
-  }, [user._id, isFollow, dispatch]);
+  const handleFollowAction = useCallback(
+    (mine: User) => {
+      handleFollowToggle({
+        userId: user._id,
+        follow: isFollow,
+        senderId: mine?._id,
+        handleName: mine?.handleName,
+        dispatch,
+      });
+    },
+    [user._id, isFollow, dispatch],
+  );
 
   const handleBookmarkAction = useCallback(() => {
     handleBookmark({

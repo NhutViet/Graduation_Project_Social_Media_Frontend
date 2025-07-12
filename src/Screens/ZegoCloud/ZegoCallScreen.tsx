@@ -2,16 +2,16 @@ import React, {useEffect, useState} from 'react';
 import {StyleSheet, View, Image} from 'react-native';
 import {ZegoUIKitPrebuiltCall} from '@zegocloud/zego-uikit-prebuilt-call-rn';
 import {CallAppID, CallAppSign} from '../../../services/api';
-import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import {useSocket} from '../../../services/SocketContext';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 import {RootStackParamList} from 'src/Navigation/AppNavigation';
-
-type ZegoCallScreenRouteProp = RouteProp<RootStackParamList, 'ZegoCallScreen'>;
+import type {RouteProp} from '@react-navigation/native';
 
 export default function ZegoCallScreen() {
-  const route = useRoute<ZegoCallScreenRouteProp>();
+  const route = useRoute<RouteProp<RootStackParamList, 'ZegoCallScreens'>>();
   const {userID, userName, callID, image, isCaller, callType} = route.params;
+
   const navigation = useNavigation();
   const {socket} = useSocket();
   const [callEnded, setCallEnded] = useState(false);
