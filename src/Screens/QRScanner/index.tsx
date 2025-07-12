@@ -17,6 +17,7 @@ import {
 } from 'react-native-vision-camera';
 import LinearGradient from 'react-native-linear-gradient';
 import {useNavigation} from '@react-navigation/native';
+import { GlobalAlertManager } from '../../../components/Global/AlertModal';
 import {ArrowLeft} from 'lucide-react-native';
 
 const {width, height} = Dimensions.get('window');
@@ -57,6 +58,14 @@ export const QRScanner = () => {
     cooldownTimer.current = setTimeout(() => {
       setCanScan(true);
     }, COOLDOWN_TIME);
+  };
+
+  const resetCooldown = () => {
+    if (cooldownTimer.current) {
+      clearTimeout(cooldownTimer.current);
+      cooldownTimer.current = null;
+    }
+    setCanScan(true);
   };
 
   useEffect(() => {
@@ -119,6 +128,11 @@ export const QRScanner = () => {
     })();
   }, []);
 
+  const isValidUserId = (value: string): boolean => {
+    const uuidRegex = /^[0-9a-fA-F]{24}$/;
+    return uuidRegex.test(value);
+  };
+
   const codeScanner = useCodeScanner({
     onCodeScanned: (codes: Code[]) => {
       if (!canScan || codes.length === 0) return;
@@ -129,17 +143,24 @@ export const QRScanner = () => {
 
       if (codeValue && isCodeInScanArea(codeBounds)) {
         startCooldown();
-
-        // thực hiện chức năng sau khi quét QR code ở đây, sau khi xong thêm dòng resetCooldown(); như mẫu alert dưới
-
-        // Alert.alert('QR Code Detected', codeValue, [
-        //   {
-        //     text: 'OK',
-        //     onPress: () => {
-        //       resetCooldown();
-        //     }
-        //   }
-        // ]);
+        if (isValidUserId(codeValue)) {
+          GlobalAlertManager.show(
+            'Đã tìm thấy người dùng',
+            'Chuyển đến trang cá nhân',
+            () => {
+              navigation.navigate('ProfileComp', { userID: codeValue });
+              resetCooldown();
+            }
+          );
+        } else {
+          GlobalAlertManager.show(
+            'Lỗi',
+            'Mã QR không hợp lệ',
+            () => {
+              resetCooldown();
+            }
+          );
+        }
       }
     },
     codeTypes: ['qr'],
