@@ -10,7 +10,6 @@ import {
   Dimensions,
   TextStyle,
 } from 'react-native';
-import {Search, UserPlus, Link} from 'lucide-react-native';
 import {FlashList} from '@shopify/flash-list';
 import {Colors} from '../../../../assets/color/Colors';
 import {useTheme} from '../../../util/ThemeContext';
@@ -19,7 +18,8 @@ import {useDispatch, useSelector} from 'react-redux';
 import {fetchMyRooms} from '@services/roomRedux/roomSlice';
 import ChatRoomAvatar from '../../../../components/ChatRoomAvatar';
 import {RootState, AppDispatch} from '../../../../services/store';
-import { RoomUser } from '@services/roomRedux/roomType';
+import {RoomUser} from '@services/roomRedux/roomType';
+import {Search, UserPlus, Link, CheckCircle} from 'lucide-react-native';
 
 export interface CombinedItem {
   kind: 'room' | 'friend';
@@ -406,10 +406,7 @@ const ModalShareStory = forwardRef<ModalShareHandle, ModalShareProps>(
             ) : (
               <View style={styles.shareActions}>
                 <TouchableOpacity style={styles.actionItem}>
-                  <Image
-                    source={require('@assets/icon/link.png')}
-                    style={styles.actionIcon}
-                  />
+                  <Link size={20} color={color.text} />
                   <Text style={styles.actionLabel}>Sao chép liên kết</Text>
                 </TouchableOpacity>
               </View>

@@ -11,6 +11,7 @@ import {fetchLogin, fetchLogout} from '@services/userRedux/userSlice';
 import {resetBookmarkState} from '@services/bookmarkRedux/bookmarkReducer';
 import {resetReaction} from '@services/reactionRedux/reactionReducer';
 import messaging from '@react-native-firebase/messaging';
+import {ArrowLeft} from 'lucide-react-native';
 
 type InfoAccountCenterRouteProp = RouteProp<
   RootStackParamList,
@@ -81,10 +82,7 @@ const InfoAccountCenter = () => {
         onPress={() => {
           navigation.goBack();
         }}>
-        <Image
-          style={[styles.icon, {tintColor: color.text}]}
-          source={require('../../../assets/icon/left.png')}
-        />
+        <ArrowLeft size={22} color={color.text} />
       </TouchableOpacity>
       <View style={styles.blockImage}>
         <Image source={{uri: user.profilePic}} style={styles.img} />

@@ -11,6 +11,7 @@ import {useSelector} from 'react-redux';
 import {RootState} from '@services/store';
 import {Colors} from '@assets/color/Colors';
 import {useTheme} from '../../../../src/util/ThemeContext';
+import {X} from 'lucide-react-native';
 
 interface PersonalDetailsProps {
   isVisible: boolean;
@@ -86,11 +87,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
       <View style={styles.modalContainer}>
         <View style={styles.header}>
           <TouchableOpacity onPress={onClose}>
-            <Image
-              source={require('@assets/icon/closer.png')}
-              resizeMode="cover"
-              style={styles.closeButton}
-            />
+            <X size={22} color={colors.text} />
           </TouchableOpacity>
         </View>
 

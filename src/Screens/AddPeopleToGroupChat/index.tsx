@@ -15,6 +15,7 @@ import {AddPeopleToGroupChatStyles} from '../../StyleSheet/AddPeopleToGroupChatS
 import {useNavigation} from '@react-navigation/native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+import {ArrowLeft, Link2, Search, X, CheckCircle2} from 'lucide-react-native';
 
 type UserType = {
   id: number;
@@ -86,16 +87,13 @@ export const AddPeopleToGroupChat = () => {
         <TouchableOpacity
           style={styles.iconBack}
           onPress={() => navigation.goBack()}>
-          <Image source={require('../../../assets/icon/left.png')} />
+          <ArrowLeft size={22} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.title}>Thêm người</Text>
         <View style={styles.iconBack} />
       </View>
       <View style={styles.header}>
-        <Image
-          source={require('../../../assets/icon/link.png')}
-          style={styles.icon}
-        />
+        <Link2 size={22} color={colors.text} style={styles.icon} />
         <View style={styles.max}>
           <Text style={styles.invite}>Liên kết mời</Text>
           <Text
@@ -128,8 +126,9 @@ export const AddPeopleToGroupChat = () => {
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
         />
-        <Image
-          source={require('../../../assets/icon/search.png')}
+        <Search
+          size={22}
+          color={colors.lightDark}
           style={[styles.iconBack, {position: 'absolute', left: 30}]}
         />
         {searchText !== '' && (
@@ -142,10 +141,7 @@ export const AddPeopleToGroupChat = () => {
               borderRadius: 20,
               padding: 1,
             }}>
-            <Image
-              source={require('../../../assets/icon/closer.png')}
-              style={styles.iconCloser}
-            />
+            <X size={18} color={colors.background} style={styles.iconCloser} />
           </TouchableOpacity>
         )}
       </View>
@@ -166,10 +162,15 @@ export const AddPeopleToGroupChat = () => {
                   <TouchableOpacity
                     onPress={() => onDeleteSelect(item)}
                     style={styles.btnDelete}>
-                    <Image
-                      source={require('../../../assets/icon/closer.png')}
-                      style={styles.iconDelete}
-                    />
+                    <TouchableOpacity
+                      onPress={() => onDeleteSelect(item)}
+                      style={styles.btnDelete}>
+                      <X
+                        size={16}
+                        color={colors.background}
+                        style={styles.iconDelete}
+                      />
+                    </TouchableOpacity>
                   </TouchableOpacity>
                 </View>
               );
@@ -184,8 +185,10 @@ export const AddPeopleToGroupChat = () => {
           data={users}
           estimatedItemSize={200}
           showsVerticalScrollIndicator={false}
-          renderItem={({ item }: { item: UserType }) => {
-            const isSelect = selected.some((user: UserType) => user.id === item.id);
+          renderItem={({item}: {item: UserType}) => {
+            const isSelect = selected.some(
+              (user: UserType) => user.id === item.id,
+            );
             return (
               <View style={styles.header}>
                 <Image source={{uri: item.uri}} style={styles.avatar} />
@@ -208,8 +211,9 @@ export const AddPeopleToGroupChat = () => {
                 </View>
                 <TouchableOpacity onPress={() => onHandleSelect(item)}>
                   {isSelect ? (
-                    <Image
-                      source={require('../../../assets/icon/checked.png')}
+                    <CheckCircle2
+                      size={22}
+                      color={colors.primary}
                       style={styles.tick}
                     />
                   ) : (

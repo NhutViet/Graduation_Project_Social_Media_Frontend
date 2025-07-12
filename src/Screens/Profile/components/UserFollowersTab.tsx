@@ -177,34 +177,43 @@ const UserFollowersTab = ({route}: any) => {
   return (
     <View style={{flex: 1, backgroundColor: color.background}}>
       {followersList.length > 0 && (
-        <View
+  <View
+    style={[
+      styles.searchBarArea,
+      {
+        backgroundColor: color.background,
+        borderBottomColor: color.border,
+      },
+    ]}>
+    <View style={[styles.searchBarContainer]}>
+      <View style={styles.searchInputContainer}>
+        <Search 
+          size={22} 
+          color={color.text} 
+          style={styles.searchIcon} 
+        />
+        <TextInput
+          ref={searchInputRef}
           style={[
-            styles.searchBarArea,
-            {
-              backgroundColor: color.background,
-              borderBottomColor: color.border,
-            },
-          ]}>
-          <View style={[styles.searchBarContainer]}>
-            <TextInput
-              style={[
-                styles.searchBar,
-                {color: color.text, backgroundColor: color.lessBlack},
-              ]}
-              placeholder="Tìm kiếm"
-              placeholderTextColor={color.text}
-            />
-            <Search size={22} color={color.text} />
-            {searchQuery.length > 0 && (
-              <TouchableOpacity
-                style={styles.clearButton}
-                onPress={() => setSearchQuery('')}>
-                <X size={22} color={color.text} />
-              </TouchableOpacity>
-            )}
-          </View>
-        </View>
-      )}
+            styles.searchBar,
+            {color: color.text, backgroundColor: color.lessBlack},
+          ]}
+          placeholder="Tìm kiếm"
+          placeholderTextColor={color.text}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+        {searchQuery.length > 0 && (
+          <TouchableOpacity
+            style={styles.clearButton}
+            onPress={() => setSearchQuery('')}>
+            <X size={22} color={color.text} />
+          </TouchableOpacity>
+        )}
+      </View>
+    </View>
+  </View>
+)}
 
       {displayList.length === 0 && searchQuery.length && (
         <View
@@ -298,20 +307,25 @@ const styles = StyleSheet.create({
     height: 15,
     width: 15,
     position: 'absolute',
-    left: 10,
     resizeMode: 'contain',
+    left: 12,
+    zIndex: 1,
   },
   searchBar: {
     flex: 1,
-    paddingRight: 10,
-    paddingLeft: 40,
-    paddingVertical: 5,
+    paddingRight: 45,
+    paddingLeft: 45,
+    paddingVertical: 10,
     borderRadius: 10,
   },
-  searchBarContainer: {
+searchBarContainer: {
     marginVertical: 3,
-    alignItems: 'center',
+  },
+  
+  searchInputContainer: {
+    position: 'relative',
     flexDirection: 'row',
+    alignItems: 'center',
   },
   searchBarArea: {
     position: 'absolute',

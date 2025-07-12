@@ -108,7 +108,7 @@ const ItemMusic = (props: ItemMusicProps) => {
 
       <TouchableOpacity style={styles.playBlock} onPress={handleBookmark}>
         {isSave ? (
-          <BookmarkCheck size={22} color={'#F2C641'} />
+          <BookmarkCheck size={22} color={'#F2C641'} fill='#F2C641' />
         ) : (
           <Bookmark size={22} color={color.text} />
         )}

@@ -15,14 +15,17 @@ import BookmarkedPlaylist from './components/BookmarkedPlaylist';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../services/store';
 import {getAllPlaylists} from '../../../services/bookmarkRedux/bookmarkSlice';
-import {
-  Playlist,
-} from '../../../services/bookmarkRedux/bookmarkTypes';
+import {Playlist} from '../../../services/bookmarkRedux/bookmarkTypes';
+import {useTheme} from '../../../src/util/ThemeContext';
+import {Colors} from '@assets/color/Colors';
+import {ArrowLeft, Plus} from 'lucide-react-native';
 
 export const BookmarkScreen = () => {
   const navigation = useNavigation<any>();
   const styles = useBookmarkStyles();
   const dispatch = useDispatch<AppDispatch>();
+  const {theme} = useTheme();
+  const colors = Colors[theme];
 
   const {refreshToken} = useSelector((state: RootState) => state.user);
   const {playlists, isloading} = useSelector(
@@ -66,8 +69,7 @@ export const BookmarkScreen = () => {
         <ActivityIndicator size="large" color={'#0095F6'} />
       </SafeAreaView>
     );
-  }else{
-
+  } else {
   }
 
   return (
@@ -76,18 +78,12 @@ export const BookmarkScreen = () => {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Image
-              source={require('../../../assets/icon/left.png')}
-              style={styles.icon}
-            />
+            <ArrowLeft size={24} color={colors.text} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Đã lưu</Text>
           <TouchableOpacity
             onPress={() => navigation.navigate('AddCollection' as never)}>
-            <Image
-              source={require('../../../assets/icon/Plus.png')}
-              style={styles.icon}
-            />
+            <Plus size={24} color={colors.text} />
           </TouchableOpacity>
         </View>
 

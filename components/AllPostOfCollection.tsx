@@ -13,13 +13,14 @@ import BottomSheetComment, {
   BottomSheetCommentRef,
 } from '../src/(tabs)/Home/components/CommentSection';
 import ItemHome from '../src/(tabs)/Home/components/ItemHome';
-import { useDispatch } from 'react-redux';
-import { clearSearchResults } from '../services/searchRedux/searchSlice';
-import { clearPosts, clearReels } from '../services/searchRedux/searchReducer';
+import {useDispatch} from 'react-redux';
+import {clearSearchResults} from '../services/searchRedux/searchSlice';
+import {clearPosts, clearReels} from '../services/searchRedux/searchReducer';
 import {useTheme} from '../src/util/ThemeContext';
 import {Colors} from '../assets/color/Colors';
-import { AppDispatch } from '../services/store';
-import { PostWithMedia } from '@services/postRedux/postTypes';
+import {AppDispatch} from '../services/store';
+import {PostWithMedia} from '@services/postRedux/postTypes';
+import {ArrowLeft} from 'lucide-react-native';
 
 interface RouteParams {
   posts: PostWithMedia[];
@@ -36,14 +37,23 @@ const AllPostOfCollection = () => {
   const colors = Colors[theme];
   const isFocused = useIsFocused();
 
-  const {posts, targetPostId, playlistName, clickableHashtag = true, clearSearchRedux = true} = route.params as RouteParams;
+  const {
+    posts,
+    targetPostId,
+    playlistName,
+    clickableHashtag = true,
+    clearSearchRedux = true,
+  } = route.params as RouteParams;
   const dispatch = useDispatch<AppDispatch>();
 
   const listRef = useRef<FlatList<any>>(null);
   const sheetRef = useRef<BottomSheetCommentRef>(null);
 
   const [currentVisible, setCurrentVisible] = useState<string | null>(null);
-  const [selectedPostId, setSelectedPostId] = useState<{postId: string, receiverId: string}>({postId: '', receiverId: ''});
+  const [selectedPostId, setSelectedPostId] = useState<{
+    postId: string;
+    receiverId: string;
+  }>({postId: '', receiverId: ''});
 
   const targetIndex = posts.findIndex(p => p._id === targetPostId);
 
@@ -66,10 +76,7 @@ const AllPostOfCollection = () => {
     <SafeAreaView style={{flex: 1}}>
       <View style={[styles.header, {backgroundColor: colors.background}]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Image
-            source={require('../assets/icon/left.png')}
-            style={[styles.iconBack, {tintColor: colors.text}]}
-          />
+          <ArrowLeft size={22} color={colors.text} />
         </TouchableOpacity>
         <Text style={[styles.title, {color: colors.text}]}>{playlistName}</Text>
         <View style={styles.iconBack} />
@@ -120,7 +127,11 @@ const AllPostOfCollection = () => {
             index,
           })}
         />
-        <BottomSheetComment ref={sheetRef} postId={selectedPostId.postId} receiverId={selectedPostId.receiverId}/>
+        <BottomSheetComment
+          ref={sheetRef}
+          postId={selectedPostId.postId}
+          receiverId={selectedPostId.receiverId}
+        />
       </View>
     </SafeAreaView>
   );

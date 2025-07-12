@@ -2,7 +2,7 @@ import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {Colors} from '../../../../assets/color/Colors';
 import {useTheme} from '../../../util/ThemeContext';
-import {Plus} from 'lucide-react-native';
+import {Plus, Hash} from 'lucide-react-native';
 import React from 'react';
 
 type StoryProps = {
@@ -34,20 +34,20 @@ const Story = (props: StoryProps) => {
   const AvatarContent = () => (
     <View style={[styles.bgWhite, {backgroundColor: color.background}]}>
       <View style={[styles.imgContainer, {backgroundColor: color.background}]}>
-        <Image
-          style={
-            isHashTag ? [styles.imgHash, {tintColor: color.text}] : styles.img
-          }
-          source={
-            isHashTag
-              ? require('../../../../assets/icon/hash.png')
-              : image
-              ? {uri: image}
-              : {
-                  uri: 'https://i.pinimg.com/736x/09/80/62/098062ede8791dc791c3110250d2a413.jpg',
-                }
-          }
-        />
+        {isHashTag ? (
+          <Hash size={22} color={color.text} />
+        ) : (
+          <Image
+            style={styles.img}
+            source={
+              image
+                ? {uri: image}
+                : {
+                    uri: 'https://i.pinimg.com/736x/09/80/62/098062ede8791dc791c3110250d2a413.jpg',
+                  }
+            }
+          />
+        )}
       </View>
     </View>
   );

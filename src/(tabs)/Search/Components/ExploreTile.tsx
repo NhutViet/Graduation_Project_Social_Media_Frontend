@@ -1,7 +1,14 @@
-import { Dimensions, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  Dimensions,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import React from 'react';
-import { Media } from '@services/postRedux/postTypes';
-import { useNavigation } from '@react-navigation/native';
+import {Media} from '@services/postRedux/postTypes';
+import {useNavigation} from '@react-navigation/native';
+import {Layers, Video} from 'lucide-react-native';
 
 export interface ExploreMedia {
   _id: string;
@@ -41,15 +48,26 @@ const ExploreSection: React.FC<ExploreSectionProps> = ({
   const navigation = useNavigation<any>();
   if (!media || !Array.isArray(media) || media.length === 0) return null;
 
-  const allMedia: Media[] = media.map(exploreMedia => exploreMedia?.media?.[0]).filter(Boolean);
+  const allMedia: Media[] = media
+    .map(exploreMedia => exploreMedia?.media?.[0])
+    .filter(Boolean);
   if (allMedia.length === 0) return null;
 
   const isReversed = index % 2 === 0;
   const bigMedia = allMedia.find(m => m?.videoUrl) || allMedia[0];
-  const smallMedias = allMedia.filter(m => m?._id !== bigMedia?._id).slice(0, 4);
+  const smallMedias = allMedia
+    .filter(m => m?._id !== bigMedia?._id)
+    .slice(0, 4);
 
-  const handleMediaPress = (exploreMediaId: string, isBigMedia: boolean = false) => {
-    navigation.navigate('AllPostOfCollection', {posts: data, targetPostId: exploreMediaId, playlistName: 'Bài viết'})
+  const handleMediaPress = (
+    exploreMediaId: string,
+    isBigMedia: boolean = false,
+  ) => {
+    navigation.navigate('AllPostOfCollection', {
+      posts: data,
+      targetPostId: exploreMediaId,
+      playlistName: 'Bài viết',
+    });
   };
 
   const renderMediaItem = (item: Media, isBigMedia: boolean = false) => {
@@ -59,37 +77,35 @@ const ExploreSection: React.FC<ExploreSectionProps> = ({
     const parentExploreMedia = media.find(em =>
       em?.media?.some(m => m?._id === item._id),
     );
-    const showOverlay = !isVideo && (parentExploreMedia?.media?.length || 0) > 1;
+    const showOverlay =
+      !isVideo && (parentExploreMedia?.media?.length || 0) > 1;
 
-    const displayImage = isVideo ? convertToImage(item.videoUrl) : item.imageUrl;
+    const displayImage = isVideo
+      ? convertToImage(item.videoUrl)
+      : item.imageUrl;
 
     return (
-      <View style={isBigMedia ? styles.bigMediaContainer : styles.smallMediaContainer}>
+      <View
+        style={
+          isBigMedia ? styles.bigMediaContainer : styles.smallMediaContainer
+        }>
         {displayImage && (
           <Image
-            source={{ uri: displayImage }}
+            source={{uri: displayImage}}
             style={styles.media}
             resizeMode="cover"
           />
         )}
 
-        {isVideo ? (
+        {(isVideo || showOverlay) && (
           <View style={styles.overlayContainer}>
-            <Image
-              source={require('@assets/icon/reels.png')}
-              resizeMode="contain"
-              style={styles.overlayIcon}
-            />
+            {isVideo ? (
+              <Video size={22} color="white" />
+            ) : (
+              <Layers size={22} color="white" />
+            )}
           </View>
-        ) : showOverlay && (
-          <View style={styles.overlayContainer}>
-            <Image
-              source={require('@assets/icon/layers.png')}
-              resizeMode="contain"
-              style={styles.overlayIcon}
-            />
-          </View>
-        ) }
+        )}
       </View>
     );
   };
@@ -99,12 +115,16 @@ const ExploreSection: React.FC<ExploreSectionProps> = ({
   );
 
   return (
-    <View style={[styles.row, isReversed && styles.rowReverse, { marginBottom: GAP }]}>
+    <View
+      style={[
+        styles.row,
+        isReversed && styles.rowReverse,
+        {marginBottom: GAP},
+      ]}>
       <View style={isReversed ? styles.marginLeft : styles.marginRight}>
         <TouchableOpacity
           onPress={() => handleMediaPress(bigMediaParent?._id || '', true)}
-          activeOpacity={0.8}
-        >
+          activeOpacity={0.8}>
           {renderMediaItem(bigMedia, true)}
         </TouchableOpacity>
       </View>
@@ -118,7 +138,9 @@ const ExploreSection: React.FC<ExploreSectionProps> = ({
           return (
             <TouchableOpacity
               key={item?._id || `small-media-${idx}`}
-              onPress={() => smallMediaParent && handleMediaPress(smallMediaParent._id)}
+              onPress={() =>
+                smallMediaParent && handleMediaPress(smallMediaParent._id)
+              }
               activeOpacity={0.8}
               style={[
                 styles.smallMediaWrapper,
@@ -126,8 +148,7 @@ const ExploreSection: React.FC<ExploreSectionProps> = ({
                   marginRight: idx % 2 === 1 ? 0 : GAP,
                   marginBottom: GAP,
                 },
-              ]}
-            >
+              ]}>
               {renderMediaItem(item)}
             </TouchableOpacity>
           );
