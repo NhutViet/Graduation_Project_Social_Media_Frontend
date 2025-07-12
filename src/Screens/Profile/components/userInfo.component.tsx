@@ -10,7 +10,7 @@ interface UserInfoProps {
   following: number;
   // posts: {id: string; image: string}[];
   posts: number;
-  avatar: string;
+  avatar?: string;
   bio?: string;
   theme: Theme;
   onFollowersPress: () => void;
@@ -42,7 +42,10 @@ const UserInfo: React.FC<UserInfoProps> = ({
   return (
     <View>
       <View style={styles.header}>
-        <Image source={{uri: avatar}} style={styles.profileImage} />
+        {avatar ?
+          <Image source={{uri: avatar}} style={styles.profileImage} />:
+          <Image source={require('../../../../assets/icon/user.png')} style={styles.profileImage} /> 
+        }
         <View style={styles.statsContainer}>
           <View style={styles.statItem}>
             <Text style={[styles.statNumber, {color: color.text}]}>

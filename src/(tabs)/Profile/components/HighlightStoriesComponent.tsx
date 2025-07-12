@@ -167,10 +167,15 @@ const HighlightStoriesComponent: React.FC<HighlightStoriesComponentProps> = ({
           style={styles.highlightItem}
           onPress={() => handleHighlightItemPress(item)}>
           <View style={styles.highlightCircle}>
-            <Image
-              source={{uri: item.thumbnail || item.mediaUrl}}
-              style={styles.highlightImage}
-            />
+            {item.thumbnail || item.mediaUrl ? 
+              <Image
+                source={{uri: item.thumbnail || item.mediaUrl}}
+                style={styles.highlightImage}
+              />:
+              <View style={styles.placeholderView}>
+                <Text style={{color: color.textSecondary, fontSize: 50}}>-</Text>
+              </View>
+            }
             {/* Hiển thị indicator nếu chưa pre-load xong */}
             {!isPreloaded && item.storyId?.length > 0 && (
               <View style={styles.preloadDot}>
@@ -368,6 +373,13 @@ const styles = StyleSheet.create({
     marginTop: 12,
     fontWeight: '500',
   },
+  placeholderView: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#E0E0E0',
+  }
 });
 
 export default HighlightStoriesComponent;
