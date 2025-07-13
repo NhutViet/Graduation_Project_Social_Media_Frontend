@@ -110,7 +110,8 @@ const ReelsComponent = memo((props: any) => {
       onPress: () => void,
       iconColor?: string,
       filled?: boolean,
-    ) => (
+    ) => {
+      return (
       <View style={[styles.sectionContainer, styles.topSection]}>
         <TouchableOpacity style={styles.iconContainer} onPress={onPress}>
           <IconComponent
@@ -125,7 +126,7 @@ const ReelsComponent = memo((props: any) => {
           </MemoizedText>
         </TouchableOpacity>
       </View>
-    ),
+    )},
     [],
   );
 
@@ -180,6 +181,7 @@ const ReelsComponent = memo((props: any) => {
             likeCount,
             handleLike,
             isLiked ? color.error : '#fff',
+            isLiked,
           )}
 
           {renderActionButton(MessageCircle, commentCount, openComment)}

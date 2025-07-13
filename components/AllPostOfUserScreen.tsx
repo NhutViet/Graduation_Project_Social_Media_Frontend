@@ -18,7 +18,7 @@ import ItemHome from '../src/(tabs)/Home/components/ItemHome';
 import {useTheme} from '../src/util/ThemeContext';
 import {Colors} from '../assets/color/Colors';
 import {Item, Load} from '@services/postUserRedux/postUserType';
-import { ArrowLeft } from 'lucide-react-native';
+import {ArrowLeft} from 'lucide-react-native';
 
 const AllPostOfUserScreen = () => {
   const route = useRoute();
@@ -36,10 +36,10 @@ const AllPostOfUserScreen = () => {
   const PostsItem: Item[] = postData.items;
 
   const [currentVisible, setCurrentVisible] = useState<string | null>(null);
-  const [selectedPostId, setSelectedPostId] = useState<{
-    postId: string;
-    receiverId: string;
-  }>({postId: '', receiverId: ''});
+  const selectedPostRef = useRef<{postId: string; receiverId: string}>({
+    postId: '',
+    receiverId: '',
+  });
 
   const targetIndex = Array.isArray(PostsItem)
     ? PostsItem.findIndex((post: Item) => post._id === targetPostId)
@@ -90,7 +90,7 @@ const AllPostOfUserScreen = () => {
                 isFocused={isFocused}
                 sheetRef={sheetRef}
                 isFollow={item.isFollow}
-                setSelectedPostId={setSelectedPostId}
+                SelectedPostRef={selectedPostRef}
               />
             );
           }}
@@ -108,11 +108,7 @@ const AllPostOfUserScreen = () => {
             index,
           })}
         />
-        <BottomSheetComment
-          ref={sheetRef}
-          postId={selectedPostId.postId}
-          receiverId={selectedPostId.receiverId}
-        />
+        <BottomSheetComment ref={sheetRef} selectedPostRef={selectedPostRef} />
       </View>
     </SafeAreaView>
   );

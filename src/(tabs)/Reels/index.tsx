@@ -44,7 +44,7 @@ const Reels = forwardRef((props, ref) => {
 
   const [selectedItem, setSelectedItem] = useState<PostWithMedia>();
   const [isCurrentBookmarked, setIsCurrentBookmarked] = useState(false);
-  const [selectedPostId, setSelectedPostId] = useState({
+  const selectedPostRef = useRef<{postId: string; receiverId: string}>({
     postId: '',
     receiverId: '',
   });
@@ -56,7 +56,7 @@ const Reels = forwardRef((props, ref) => {
   };
 
   const openCommentSheet = (item: PostWithMedia) => {
-    setSelectedPostId({postId: item._id, receiverId: item.user._id});
+    selectedPostRef.current = {postId: item._id, receiverId: item.user._id};
     dispatch(fetchCommentsByPost(item._id));
     sheetRefComment.current?.open();
   };
@@ -116,7 +116,7 @@ const Reels = forwardRef((props, ref) => {
         sheetRefComment={sheetRefComment}
         isBookmarked={isCurrentBookmarked}
         selectedItem={selectedItem}
-        selectedPostId={selectedPostId}
+        selectedPostId={selectedPostRef}
       />
       <Portal>
         <ModalShare ref={modalShareRef} isDark={true} />
