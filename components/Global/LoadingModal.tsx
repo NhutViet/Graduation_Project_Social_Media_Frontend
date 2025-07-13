@@ -1,13 +1,38 @@
 import React, {useEffect, useRef} from 'react';
-import {View, Animated, StyleSheet, Image, Easing} from 'react-native';
+import {
+  View,
+  Animated,
+  StyleSheet,
+  Image,
+  Easing,
+  Platform,
+} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import {useTheme} from '../../src/util/ThemeContext';
+import {Colors} from '@assets/color/Colors';
 
 const SIZE = 40;
-const BORDER_WIDTH = 5;
+const BORDER_WIDTH = 4;
 const OUTER_SIZE = SIZE + BORDER_WIDTH * 2;
-const LOGO_PADDING = 4;
+const LOGO_PADDING = 2;
 
-const LoadingModal: React.FC = () => {
+const GRADIENTS = ['#ffffff', '#d8f1ff', '#56c8ff', '#0073e6', '#003366'];
+
+const LOGO_SHADOW = Platform.select({
+  ios: {
+    shadowColor: '#0073e6',
+    shadowOpacity: 0.24,
+    shadowOffset: {width: 0, height: 4},
+    shadowRadius: 12,
+  },
+  android: {elevation: 11},
+});
+
+const LoadingModal: React.FC<{withBackdrop?: boolean}> = ({
+  withBackdrop = false,
+}) => {
+  const {theme} = useTheme();
+  const color = Colors[theme];
   const rotate = useRef(new Animated.Value(0)).current;
   const shimmer = useRef(new Animated.Value(0)).current;
 
@@ -15,7 +40,7 @@ const LoadingModal: React.FC = () => {
     Animated.loop(
       Animated.timing(rotate, {
         toValue: 1,
-        duration: 1700,
+        duration: 1150,
         easing: Easing.linear,
         useNativeDriver: true,
       }),
@@ -25,7 +50,7 @@ const LoadingModal: React.FC = () => {
       Animated.sequence([
         Animated.timing(shimmer, {
           toValue: 1,
-          duration: 1200,
+          duration: 800,
           easing: Easing.inOut(Easing.linear),
           useNativeDriver: true,
         }),
@@ -45,25 +70,36 @@ const LoadingModal: React.FC = () => {
 
   const shimmerTranslate = shimmer.interpolate({
     inputRange: [0, 1],
-    outputRange: [-SIZE * 0.6, SIZE * 0.6],
+    outputRange: [-SIZE * 0.55, SIZE * 0.7],
   });
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, withBackdrop && styles.backdrop]}>
       <Animated.View
         style={[
           styles.gradientBorder,
           {
             transform: [{rotate: rotateInterpolate}],
             borderRadius: OUTER_SIZE / 2,
-            overflow: 'hidden',
+            backgroundColor: color.background,
+            shadowColor: '#0073e6',
+            shadowOpacity: theme === 'dark' ? 0.28 : 0.13,
+            shadowOffset: {width: 0, height: 3},
+            shadowRadius: 11,
+            elevation: 9,
+            overflow: 'visible',
           },
         ]}>
         <LinearGradient
-          colors={['#cbefff', '#00b2ff', '#0073e6', '#cbefff']}
+          colors={GRADIENTS}
           start={{x: 0, y: 0}}
           end={{x: 1, y: 1}}
-          style={{width: OUTER_SIZE, height: OUTER_SIZE}}
+          style={{
+            width: OUTER_SIZE,
+            height: OUTER_SIZE,
+            borderRadius: OUTER_SIZE / 2,
+            opacity: 0.98,
+          }}
         />
         <View
           style={{
@@ -73,24 +109,28 @@ const LoadingModal: React.FC = () => {
             width: SIZE,
             height: SIZE,
             borderRadius: SIZE / 2,
-            backgroundColor: 'white',
+            backgroundColor:
+              theme === 'dark' ? '#182C3A' : 'rgba(255,255,255,0.97)',
+            opacity: 0.93,
           }}
         />
       </Animated.View>
 
-      <View style={styles.logoWrap}>
+      <View
+        style={[
+          styles.logoWrap,
+          LOGO_SHADOW,
+          {
+            backgroundColor:
+              theme === 'dark' ? '#142237EE' : 'rgba(255,255,255,0.9)',
+            borderColor: '#e2eafe',
+            borderWidth: 0.5,
+          },
+        ]}>
         <Image
           source={require('@assets/icon/logo_loading.png')}
           style={styles.logo}
           resizeMode="contain"
-        />
-        <Animated.View
-          style={[
-            styles.shimmer,
-            {
-              transform: [{translateX: shimmerTranslate}],
-            },
-          ]}
         />
       </View>
     </View>
@@ -104,6 +144,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(14,38,60,0.22)',
+    zIndex: 99,
+  },
   gradientBorder: {
     position: 'absolute',
     width: OUTER_SIZE,
@@ -111,6 +156,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1,
+    opacity: 0.99,
   },
   logoWrap: {
     width: SIZE,
@@ -119,26 +165,12 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
     zIndex: 2,
     padding: LOGO_PADDING,
   },
   logo: {
     width: SIZE - LOGO_PADDING * 2,
     height: SIZE - LOGO_PADDING * 2,
-  },
-  shimmer: {
-    position: 'absolute',
-    width: SIZE * 0.5,
-    height: SIZE,
-    backgroundColor: 'rgba(255,255,255,0.44)',
-    opacity: 0.85,
-    borderRadius: SIZE / 5,
-    left: 0,
-    top: 0,
-    shadowColor: '#fff',
-    shadowOpacity: 0.45,
-    shadowRadius: 6,
   },
 });
 

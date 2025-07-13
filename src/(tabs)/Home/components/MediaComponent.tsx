@@ -37,9 +37,12 @@ export const RenderMediaItem = React.memo(
       return 'contain';
     }, [videoSize]);
 
-    const handleTagPress = useCallback((userId: string) => {
-      navigation.navigate('ProfileComp', {userID: userId});
-    }, [navigation]);
+    const handleTagPress = useCallback(
+      (userId: string) => {
+        navigation.navigate('ProfileComp', {userID: userId});
+      },
+      [navigation],
+    );
 
     return (
       <View style={{width: screenWidth, height: item.videoUrl ? 600 : 520}}>
@@ -48,7 +51,7 @@ export const RenderMediaItem = React.memo(
             source={{uri: item.videoUrl}}
             resizeMode={videoResizeMode}
             style={{width: screenWidth, height: 600}}
-            repeat={false}
+            repeat
             paused={!currentVisible || !isFocused}
             muted={muted}
             playInBackground={false}
@@ -70,15 +73,16 @@ export const RenderMediaItem = React.memo(
         )}
 
         {/* Hiển thị các tag (nếu có) */}
-        {item.tags?.length > 0 && item.tags?.map((tag, index) => (
-          <TagMarker
-            key={`${tag.userId}_${index}`}
-            tag={tag}
-            screenWidth={screenWidth}
-            imageHeight={item.videoUrl ? 600 : 520}
-            onPress={userId => handleTagPress(userId)}
-          />
-        ))}
+        {item.tags?.length > 0 &&
+          item.tags?.map((tag, index) => (
+            <TagMarker
+              key={`${tag.userId}_${index}`}
+              tag={tag}
+              screenWidth={screenWidth}
+              imageHeight={item.videoUrl ? 600 : 520}
+              onPress={userId => handleTagPress(userId)}
+            />
+          ))}
       </View>
     );
   },

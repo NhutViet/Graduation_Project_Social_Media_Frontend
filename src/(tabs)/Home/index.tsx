@@ -7,7 +7,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import {SafeAreaView, View, Dimensions} from 'react-native';
+import {SafeAreaView, View} from 'react-native';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {RouteProp, useIsFocused, useNavigation} from '@react-navigation/native';
@@ -38,8 +38,9 @@ import {getNotification} from '@services/notificationRedux/notificationSlice';
 import {fetchMyRooms} from '@services/roomRedux/roomSlice';
 import StoryListHeader from './components/headerContainer';
 import messaging from '@react-native-firebase/messaging';
-import { fetchEditUser } from '@services/userRedux/userSlice';
+import {fetchEditUser} from '@services/userRedux/userSlice';
 import LoadingModal from '../../../components/Global/LoadingModal';
+import {selectHomeData} from './selectors/homeSelectors';
 
 const HEADER_HEIGHT = 100;
 const AnimatedFlatList = Animated.createAnimatedComponent(Animated.FlatList);
@@ -62,37 +63,35 @@ export const Home = forwardRef(({onReload, route}: HomeProps, ref) => {
   const color = Colors[theme];
   const isFocused = useIsFocused();
   const dispatch = useDispatch<AppDispatch>();
-  const storyDetails = useSelector(
-    (state: RootState) => state.stories.storyDetails,
-  );
+  const {
+    posts,
+    loading,
+    page,
+    hasNextPage,
+    storyDetails,
+    followingUsers,
+    myStories,
+    user,
+  } = useSelector(selectHomeData);
   const sheetRef = useRef<BottomSheetCommentRef>(null);
   const [currentVisible, setCurrentVisible] = useState<string | null>(null);
-  const selectedPostRef = useRef<{ postId: string; receiverId: string }>({
-  postId: '',
-  receiverId: '',
-});
+  const selectedPostRef = useRef<{postId: string; receiverId: string}>({
+    postId: '',
+    receiverId: '',
+  });
   const [seenMap, setSeenMap] = useState<Record<string, boolean>>({});
 
   // Add loading state for pagination
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasCalledLoadMore, setHasCalledLoadMore] = useState(false);
-
-  const {posts, loading, page, hasNextPage} = useSelector(
-    (state: RootState) => state?.post,
-  );
-  const followingUsers = useSelector(
-    (state: RootState) => state.stories.followingUsers,
-  );
-  const myStories = useSelector((state: RootState) => state.stories.myStories);
-  const user = useSelector((state: RootState) => state.user.user);
   const [isStoryLoading, setIsStoryLoading] = useState(false);
 
-  // ✅ Add lazy loading state for stories
+  // // ✅ Add lazy loading state for stories
   const [visibleStoryCount, setVisibleStoryCount] = useState(5);
   const STORIES_LOAD_BATCH = 5; // Load 5 stories at a time
   const [isLoadingMoreStories, setIsLoadingMoreStories] = useState(false);
 
-  // ✅ Use prefetch hook
+  // // ✅ Use prefetch hook
   const {prefetchStoryData, getCachedStoryData, clearExpiredCache} =
     useStoryPrefetch();
 
@@ -106,7 +105,7 @@ export const Home = forwardRef(({onReload, route}: HomeProps, ref) => {
     setVisibleStoryCount(5);
   }, [dispatch, clearExpiredCache]);
 
-  // ✅ Immediate refresh when myStories changes (story created/deleted)
+  // // ✅ Immediate refresh when myStories changes (story created/deleted)
   useEffect(() => {
     if (myStories.length > 0) {
       dispatch(forceRefreshStories()); // Force component re-render
@@ -115,7 +114,7 @@ export const Home = forwardRef(({onReload, route}: HomeProps, ref) => {
     }
   }, [myStories.length, dispatch, clearExpiredCache]);
 
-  // ✅ Listen for navigation params to trigger immediate refresh
+  // // ✅ Listen for navigation params to trigger immediate refresh
   useEffect(() => {
     if (route?.params?.shouldRefresh || route?.params?.timestamp) {
       dispatch(forceRefreshStories());
@@ -135,7 +134,7 @@ export const Home = forwardRef(({onReload, route}: HomeProps, ref) => {
     clearExpiredCache,
   ]);
 
-  // ✅ Force refresh stories when user comes back to Home after creating/deleting story
+  // // ✅ Force refresh stories when user comes back to Home after creating/deleting story
   useEffect(() => {
     if (isFocused) {
       // Reduced delay for faster refresh
@@ -147,11 +146,27 @@ export const Home = forwardRef(({onReload, route}: HomeProps, ref) => {
     }
   }, [isFocused, dispatch]);
 
-  useImperativeHandle(ref, () => ({reload: reloadAllData}));
+  useImperativeHandle(ref, () => ({
+    reload: () => {
+      dispatch(fetchPostsWithMedia({page: 1}));
+      dispatch(fetchFollowingStories({page: 1}));
+      clearExpiredSeenStories();
+      clearExpiredCache && clearExpiredCache();
+      setHasCalledLoadMore(false);
+      setVisibleStoryCount(5);
+    },
+  }));
 
-  useEffect(reloadAllData, [reloadAllData]);
+  useEffect(() => {
+    dispatch(fetchPostsWithMedia({page: 1}));
+    dispatch(fetchFollowingStories({page: 1}));
+    clearExpiredSeenStories();
+    clearExpiredCache && clearExpiredCache();
+    setHasCalledLoadMore(false);
+    setVisibleStoryCount(5);
+  }, [dispatch]);
 
-  // ✅ Process and sort stories data
+  // // ✅ Process and sort stories data
   const processedStories = React.useMemo(() => {
     return [
       // 1. "Tin của tôi" (current user) - luôn đầu tiên
@@ -171,18 +186,18 @@ export const Home = forwardRef(({onReload, route}: HomeProps, ref) => {
     ];
   }, [followingUsers, user?._id, user?.handleName]);
 
-  // ✅ Get visible stories based on current count
+  // // ✅ Get visible stories based on current count
   const visibleStories = React.useMemo(() => {
     return processedStories.slice(0, visibleStoryCount);
   }, [processedStories, visibleStoryCount]);
 
-  // ✅ Handler for loading more stories when scrolling
+  // // ✅ Handler for loading more stories when scrolling
   const handleStoryScroll = useCallback(
     (event: any) => {
       const {contentOffset, contentSize, layoutMeasurement} = event.nativeEvent;
       const currentIndex = Math.floor(contentOffset.x / 70); // Assuming each story item is ~70px wide
 
-      // ✅ Load more when user reaches 3rd item from the end of visible stories
+      //     // ✅ Load more when user reaches 3rd item from the end of visible stories
       const triggerPoint = Math.max(0, visibleStoryCount - 3);
 
       if (
@@ -196,11 +211,6 @@ export const Home = forwardRef(({onReload, route}: HomeProps, ref) => {
           visibleStoryCount + STORIES_LOAD_BATCH,
           processedStories.length,
         );
-        console.log(
-          `📱 Loading more stories: ${visibleStoryCount} → ${newCount}`,
-        );
-
-        // ✅ Add slight delay for smooth UX
         setTimeout(() => {
           setVisibleStoryCount(newCount);
           setIsLoadingMoreStories(false);
@@ -210,11 +220,11 @@ export const Home = forwardRef(({onReload, route}: HomeProps, ref) => {
     [visibleStoryCount, processedStories.length, isLoadingMoreStories],
   );
 
-  // ✅ Prefetch stories when visible stories change
+  // // ✅ Prefetch stories when visible stories change
   const prefetchStoriesForVisibleUsers = useCallback(async () => {
     const usersToPreload = visibleStories.filter(u => u.stories?.length > 0);
 
-    // Prefetch for visible users
+    //   // Prefetch for visible users
     const priorityUsers = usersToPreload.slice(
       0,
       Math.min(5, usersToPreload.length),
@@ -231,10 +241,9 @@ export const Home = forwardRef(({onReload, route}: HomeProps, ref) => {
     }
   }, [visibleStories, prefetchStoryData]);
 
-  // ✅ Run prefetch when visible stories change
+  // // ✅ Run prefetch when visible stories change
   useEffect(() => {
     if (visibleStories.length > 0 && storyDetails.length > 0) {
-      // Small delay to not block main thread
       setTimeout(prefetchStoriesForVisibleUsers, 500);
     }
   }, [
@@ -243,13 +252,10 @@ export const Home = forwardRef(({onReload, route}: HomeProps, ref) => {
     prefetchStoriesForVisibleUsers,
   ]);
 
-  // ✅ Reset visible story count when followingUsers data changes significantly
+  // // ✅ Reset visible story count when followingUsers data changes significantly
   useEffect(() => {
-    // Reset to initial count when data refreshes
     if (followingUsers.length > 0) {
       const currentProcessedLength = processedStories.length;
-
-      // If current visible count is more than available stories, reset it
       if (visibleStoryCount > currentProcessedLength) {
         setVisibleStoryCount(Math.min(5, currentProcessedLength));
       }
@@ -270,7 +276,6 @@ export const Home = forwardRef(({onReload, route}: HomeProps, ref) => {
       console.error('Error loading more posts:', error);
     } finally {
       setIsLoadingMore(false);
-      // Reset the flag after a delay to allow next load
       setTimeout(() => setHasCalledLoadMore(false), 1000);
     }
   }, [dispatch, isLoadingMore, hasNextPage, page, hasCalledLoadMore]);
@@ -290,7 +295,7 @@ export const Home = forwardRef(({onReload, route}: HomeProps, ref) => {
       }
     };
 
-    if(user && user.wantNotified === false){
+    if (user && user.wantNotified === false) {
       removeFcmtoken();
     }
   }, [user?.wantNotified]);
@@ -301,10 +306,9 @@ export const Home = forwardRef(({onReload, route}: HomeProps, ref) => {
     }
   }, [loadMore, isLoadingMore, hasNextPage, hasCalledLoadMore]);
 
-  // ✅ Force refresh stories when user comes back to Home after viewing stories
+  // // ✅ Force refresh stories when user comes back to Home after viewing stories
   useEffect(() => {
     if (isFocused) {
-      // Small delay to ensure story viewing is complete
       const timeoutId = setTimeout(() => {
         dispatch(fetchFollowingStories({page: 1}));
       }, 500);
@@ -313,7 +317,7 @@ export const Home = forwardRef(({onReload, route}: HomeProps, ref) => {
     }
   }, [isFocused, dispatch]);
 
-  // ✅ Force refresh seenMap when storyDetails change (when stories are marked as seen)
+  // // ✅ Force refresh seenMap when storyDetails change (when stories are marked as seen)
   useEffect(() => {
     const syncSeenStories = async () => {
       const map: Record<string, boolean> = {};
@@ -385,25 +389,12 @@ export const Home = forwardRef(({onReload, route}: HomeProps, ref) => {
 
   const renderItem = useCallback(
     ({item}: {item: any}) => {
-      const shouldPlay = item._id === currentVisible;
       return (
         <ItemHome
-          _id={item._id}
-          type={item.type}
-          caption={item.caption}
-          createdAt={item.createdAt}
-          media={item.media}
-          user={item.user}
-          isLike={item.isLike}
-          isBookmarked={item.isBookmarked}
-          commentCount={item.commentCount}
-          likeCount={item.likeCount}
-          share={item.share}
-          music={item.music}
-          currentVisible={shouldPlay}
+          {...item}
+          currentVisible={item._id === currentVisible}
           isFocused={isFocused}
           sheetRef={sheetRef}
-          isFollow={item.isFollow}
           SelectedPostRef={selectedPostRef}
         />
       );
@@ -497,15 +488,6 @@ export const Home = forwardRef(({onReload, route}: HomeProps, ref) => {
     ],
   );
 
-  const getItemLayout = useCallback(
-    (data: any, index: number) => ({
-      length: Dimensions.get('window').height - 220,
-      offset: Dimensions.get('window').height - 220 * index,
-      index,
-    }),
-    [],
-  );
-
   if (loading && posts.length === 0) {
     return (
       <SafeAreaView
@@ -537,15 +519,15 @@ export const Home = forwardRef(({onReload, route}: HomeProps, ref) => {
       </Animated.View>
       <AnimatedFlatList
         data={posts}
-        keyExtractor={(item, index) => `${item._id}-${index}-${Math.random()}`}
+        keyExtractor={item => item._id}
         renderItem={renderItem}
         removeClippedSubviews={true}
-        initialNumToRender={7}
-        maxToRenderPerBatch={5}
-        windowSize={7}
+        initialNumToRender={5}
+        maxToRenderPerBatch={2}
+        windowSize={3}
         updateCellsBatchingPeriod={50}
         onViewableItemsChanged={onViewRef}
-        viewabilityConfig={{itemVisiblePercentThreshold: 90}}
+        viewabilityConfig={{itemVisiblePercentThreshold: 80}}
         scrollEventThrottle={16}
         onScroll={scrollHandler}
         showsVerticalScrollIndicator={false}
@@ -553,7 +535,6 @@ export const Home = forwardRef(({onReload, route}: HomeProps, ref) => {
         onEndReached={loadMore}
         onEndReachedThreshold={0.5}
         ListFooterComponent={renderFooter}
-        getItemLayout={getItemLayout}
         ListHeaderComponent={storyListHeader}
       />
       <BottomSheetComment ref={sheetRef} selectedPostRef={selectedPostRef} />

@@ -78,7 +78,7 @@ const LightTheme = {
 
 const DarkTheme = {
   ...CommonColors,
-  background: '#212121',
+  background: '#191919',
   text: '#FFFFFF',
   modal: '#1A1A1A',
   gray: '#6b6a6a',

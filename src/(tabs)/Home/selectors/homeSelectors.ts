@@ -1,0 +1,69 @@
+import {RootState} from '@services/store';
+import {createSelector} from 'reselect';
+
+export const selectHomeData = createSelector(
+  [
+    (state: RootState) => state.post.posts,
+    (state: RootState) => state.post.loading,
+    (state: RootState) => state.post.page,
+    (state: RootState) => state.post.hasNextPage,
+    (state: RootState) => state.stories.storyDetails,
+    (state: RootState) => state.stories.followingUsers,
+    (state: RootState) => state.stories.myStories,
+    (state: RootState) => state.user.user,
+  ],
+  (
+    posts,
+    loading,
+    page,
+    hasNextPage,
+    storyDetails,
+    followingUsers,
+    myStories,
+    user,
+  ) => ({
+    posts,
+    loading,
+    page,
+    hasNextPage,
+    storyDetails,
+    followingUsers,
+    myStories,
+    user,
+  }),
+);
+
+export const selectItemHomeData = createSelector(
+  [
+    (state: RootState) => state.reactions.likePosts,
+    (state: RootState) => state.user.refreshToken,
+    (state: RootState) => state.user.user?._id,
+    (state: RootState) => state.user.user?.handleName,
+    (state: RootState) => state.relation.followers,
+    (state: RootState) => state.relation.following,
+    (state: RootState) => state.relation.loading,
+    (state: RootState) => state.bookmark.itemsByPlaylist,
+    (state: RootState) => state.bookmark.playlists,
+  ],
+  (
+    likePosts,
+    refreshToken,
+    userID,
+    handleName,
+    followers,
+    following,
+    loading,
+    itemsByPlaylist,
+    playlists,
+  ) => ({
+    likePosts,
+    refreshToken,
+    userID,
+    handleName,
+    followers,
+    following,
+    loading,
+    itemsByPlaylist,
+    playlists,
+  }),
+);
