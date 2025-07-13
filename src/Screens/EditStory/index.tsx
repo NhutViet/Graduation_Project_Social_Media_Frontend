@@ -23,7 +23,7 @@ import {useSelector, useDispatch} from 'react-redux';
 import {RootState, AppDispatch} from '../../../services/store';
 import {createStory} from '../../../services/StoryRedux/StorySlice';
 import {forceRefreshStories} from '../../../services/StoryRedux/StoryReducer';
-import {uploadImageToR2, uploadToCloudflare} from '../../core/upload';
+import {uploadImageToR2, uploadVideoToR2} from '../../core/upload';
 import axiosInstance from '../../../services/axiosInstance';
 import {Dimensions} from 'react-native';
 import {X, ChevronRight} from 'lucide-react-native';
@@ -270,12 +270,12 @@ export const EditStory = ({route, navigation}: any) => {
       let mediaUrl = '';
       try {
         if (selectedItem?.type.includes('video')) {
-          const videoKey = await uploadToCloudflare(selectedItem.uri, {
+          const videoUrl = await uploadVideoToR2(selectedItem.uri, {
             showUploadModal,
             hideUploadModal,
             setProgress,
           });
-          mediaUrl = `https://videodelivery.net/${videoKey}/manifest/video.m3u8`;
+          mediaUrl = videoUrl;
         } else {
           mediaUrl = await uploadImageToR2(selectedItem.uri, {
             showUploadModal,

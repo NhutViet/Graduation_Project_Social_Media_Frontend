@@ -22,6 +22,7 @@ export interface ItemHomeProps {
   sheetRef: any;
   setSelectedPostId?: (v: {postId: string; receiverId: string}) => void;
   clickableHashtags?: boolean;
+  SelectedPostRef?: any;
 }
 
 export interface User {

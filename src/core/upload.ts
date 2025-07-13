@@ -4,8 +4,8 @@ import {Platform} from 'react-native';
 import {Buffer} from 'buffer';
 import {BASE_URL} from '../../services/api';
 
-const R2_PUBLIC_BASE_URL =
-  'https://pub-ad59fb2f0d474d27b87956b4048028d8.r2.dev';
+const R2_PUBLIC_VIDEO_BASE_URL = 'https://media.cirla.io.vn';
+const R2_PUBLIC_IMAGE_BASE_URL = 'https://image.cirla.io.vn';
 
 type UploadCallbacks = {
   showUploadModal: (uri: string, type: 'image' | 'video') => void;
@@ -13,25 +13,26 @@ type UploadCallbacks = {
   setProgress: (progress: number) => void;
 };
 
-export const uploadToCloudflare = async (
+export const uploadVideoToR2 = async (
   uri: string,
   {showUploadModal, hideUploadModal, setProgress}: UploadCallbacks,
 ): Promise<string> => {
   showUploadModal(uri, 'video');
   try {
-    const res = await axios.get(`${BASE_URL}/stream/upload-url`);
-    const {uploadURL, key} = res.data.uploadURL;
-
-    const formData = new FormData();
-    formData.append('file', {
-      uri: Platform.OS === 'ios' ? uri.replace('file://', '') : uri,
-      type: 'video/mp4',
-      name: 'video.mp4',
+    const fileName = `video_${Date.now()}.mp4`;
+    const {data} = await axios.post(`${BASE_URL}/r2/presigned-video-url`, {
+      fileName,
+      contentType: 'video/mp4',
     });
 
-    await axios.post(uploadURL, formData, {
+    const {url: signedUrl} = data;
+    const fileUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
+    const fileData = await RNFS.readFile(fileUri, 'base64');
+    const fileBuffer = Buffer.from(fileData, 'base64');
+
+    await axios.put(signedUrl, fileBuffer, {
       headers: {
-        'Content-Type': 'multipart/form-data',
+        'Content-Type': 'video/mp4',
       },
       onUploadProgress: progressEvent => {
         const progress = progressEvent.loaded / progressEvent.total;
@@ -39,9 +40,10 @@ export const uploadToCloudflare = async (
       },
     });
 
+    const publicUrl = `${R2_PUBLIC_VIDEO_BASE_URL}/${fileName}`;
     hideUploadModal();
-    return key;
-  } catch (error) {
+    return publicUrl;
+  } catch (error) { 
     hideUploadModal();
     console.error('Video upload error:', error);
     throw error;
@@ -75,7 +77,7 @@ export const uploadImageToR2 = async (
       },
     });
 
-    const publicUrl = `${R2_PUBLIC_BASE_URL}/${fileName}`;
+    const publicUrl = `${R2_PUBLIC_IMAGE_BASE_URL}/${fileName}`;
     hideUploadModal();
     return publicUrl;
   } catch (error) {

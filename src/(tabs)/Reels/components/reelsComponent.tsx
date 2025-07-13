@@ -135,7 +135,7 @@ const ReelsComponent = memo((props: any) => {
         source={{uri: media[0]?.videoUrl}}
         resizeMode="contain"
         style={[styles.videoPlayer, {height: containerHeight}]}
-        repeat={false}
+        repeat
         paused={!currentVisible || !isFocused}
         muted={muted}
         maxBitRate={0}

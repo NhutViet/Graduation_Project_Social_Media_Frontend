@@ -31,7 +31,7 @@ export const fetchLogin = createAsyncThunk<
     };
   } catch (error: any) {
     return rejectWithValue({
-      message: error.response?.data?.message || 'Login failed',
+      message: error.response?.data?.message || 'Đăng nhập thất bại',
     });
   }
 });
@@ -55,7 +55,7 @@ export const fetchCheckRefreshToken = createAsyncThunk<
     return res.data;
   } catch (error: any) {
     return rejectWithValue({
-      message: error.response?.data?.message || 'Check refresh token failed',
+      message: error.response?.data?.message || 'Kiểm tra token thất bại',
     });
   }
 });
@@ -80,7 +80,7 @@ export const fetchLogout = createAsyncThunk<
 
     return;
   } catch (error: any) {
-    const message = error.response?.data?.message || 'Logout failed!!!';
+    const message = error.response?.data?.message || 'Đang xuất thất bại';
     return rejectWithValue({message});
   }
 });
@@ -111,7 +111,7 @@ export const fetchRegister = createAsyncThunk<
     };
   } catch (error: any) {
     return rejectWithValue({
-      message: error.response?.data?.message || 'Registration failed',
+      message: error.response?.data?.message || 'Đăng ký thất bại',
     });
   }
 });
@@ -127,7 +127,7 @@ export const fetchCheckEmail = createAsyncThunk<
     return res.data;
   } catch (error: any) {
     return rejectWithValue({
-      message: error.response?.data?.message || 'Check email failed',
+      message: error.response?.data?.message || 'Kiểm tra email thất bại',
     });
   }
 });
@@ -148,7 +148,7 @@ export const getAccessTokenFromRefresh = async (): Promise<string | null> => {
 
     return accessToken;
   } catch (error) {
-    console.error('Failed to refresh access token', error);
+    console.error('Thất bại khi lấy token', error);
     return null;
   }
 };
@@ -191,7 +191,8 @@ export const getPublicProfile = createAsyncThunk<
     return res.data;
   } catch (error: any) {
     return rejectWithValue({
-      message: error.response?.data?.message || 'Failed to get public profile',
+      message:
+        error.response?.data?.message || 'Lấy thông tin người dùng thất bại',
     });
   }
 });
@@ -214,7 +215,7 @@ export const fetchUserIdByHandleName = createAsyncThunk<
     return {userId: res.data.userId};
   } catch (error: any) {
     return rejectWithValue({
-      message: error.response?.data?.message || 'Failed to fetch user ID',
+      message: error.response?.data?.message || 'Lấy ID người dùng thất bại',
     });
   }
 });

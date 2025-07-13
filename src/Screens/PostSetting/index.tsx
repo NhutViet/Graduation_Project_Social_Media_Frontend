@@ -24,7 +24,7 @@ import VideoModal from './Components/VideoModal';
 import BottomSheet, {
   BottomSheetRef,
 } from '../PostStory/BottomSheet/BottomSheetMusic';
-import {uploadImageToR2, uploadToCloudflare} from '../../core/upload';
+import {uploadImageToR2, uploadVideoToR2} from '../../core/upload';
 import {useUploadProgress} from '../../../services/UploadProgressManager';
 import {PhotoIdentifier} from '@react-native-camera-roll/camera-roll';
 import {TaggedMedia} from '../TagSo';
@@ -134,12 +134,12 @@ export const PostSetting = () => {
         let uploadedItem: any = {};
 
         if (isVideo) {
-          const videoUrl = await uploadToCloudflare(uri, {
+          const videoUrl = await uploadVideoToR2(uri, {
             showUploadModal,
             hideUploadModal,
             setProgress,
           });
-          uploadedItem.videoUrl = `https://videodelivery.net/${videoUrl}/manifest/video.m3u8`;
+          uploadedItem.videoUrl = videoUrl;
         } else {
           const imageUrl = await uploadImageToR2(uri, {
             showUploadModal,
