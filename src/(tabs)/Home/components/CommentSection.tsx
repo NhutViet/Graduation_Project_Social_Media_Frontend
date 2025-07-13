@@ -48,7 +48,7 @@ interface Props {
     receiverId: string;
   }>;
 }
-const height = Dimensions.get('window').height * 0.85;
+const height = Dimensions.get('window').height * 0.9;
 
 const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
   ({selectedPostRef}, ref) => {
@@ -119,7 +119,9 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
           }),
         );
 
-        dispatch(incrementCommentCountByPostId(selectedPostRef.current?.postId ?? ''));
+        dispatch(
+          incrementCommentCountByPostId(selectedPostRef.current?.postId ?? ''),
+        );
         dispatch(fetchCommentsByPost(selectedPostRef.current?.postId ?? ''));
       } catch (error) {
         GlobalAlertManager.show('Thất bại', 'Không thể bình luận');

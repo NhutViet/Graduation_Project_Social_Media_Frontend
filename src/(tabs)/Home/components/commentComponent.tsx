@@ -21,7 +21,6 @@ import {
 } from '@services/commentRedux/commentReducer';
 import {Heart} from 'lucide-react-native';
 
-const width = Dimensions.get('window').width - 96;
 const fallbackImg =
   'https://i.pinimg.com/736x/30/01/1e/30011ec01f59434d761d323e0d4b5a07.jpg';
 
@@ -52,7 +51,7 @@ const ReplyComment = memo(
     navigation,
   }: {
     item: CommentComponentProps;
-    onReply: (id: string, handleName: string) => void;
+    onReply: (id: string, handleName: string, userId?: string) => void;
     navigation: any;
   }) => {
     const {theme} = useTheme();
@@ -63,8 +62,8 @@ const ReplyComment = memo(
       content,
       createdAt,
       totalLikes,
-      likedBy = [],
       isLiked: defaultLiked,
+      postId,
     } = item;
 
     const dispatch = useDispatch<AppDispatch>();
@@ -86,7 +85,7 @@ const ReplyComment = memo(
               receiverId: user?._id,
               handleName: currentUser?.handleName,
               userId: currentUser?._id,
-              postId: item.postId,
+              postId: postId,
             }),
           );
           dispatch(updateCommentLike({commentId: _id, userId: userId || ''}));
@@ -98,51 +97,55 @@ const ReplyComment = memo(
     };
 
     return (
-      <View style={[styles.rowContainer, {marginTop: 10}]}>
-        <TouchableOpacity style={styles.blockImgReply}>
+      <View style={styles.replyContainer}>
+        <TouchableOpacity style={styles.replyAvatar}>
           <Image
             style={styles.imgUser}
             source={{uri: user?.profilePic || fallbackImg}}
           />
         </TouchableOpacity>
-        <View
-          style={[
-            styles.rowContainer,
-            {justifyContent: 'space-between', width: width - 46},
-          ]}>
-          <View style={{width: '80%'}}>
-            <View style={[styles.rowContainer, {alignItems: 'center'}]}>
-              <Text style={[styles.name, {color: color.text, marginRight: 20}]}>
-                {user?.handleName || 'Người dùng'}
+        <View style={styles.replyContentBox}>
+          <View style={styles.rowTop}>
+            <Text style={[styles.name, {color: color.text, marginRight: 8}]}>
+              {user?.handleName || 'Người dùng'}
+            </Text>
+            <Text style={[styles.text, {color: color.text}]}>
+              {formatTimeAgo(createdAt)}
+            </Text>
+          </View>
+          <HashtagText
+            text={content}
+            clickable={true}
+            baseStyle={[styles.content, {color: color.text}]}
+            hashtagColor={Colors.hashtag}
+            hashtagStyle={{fontWeight: '600'}}
+            navigation={navigation}
+          />
+          <View style={styles.rowBottom}>
+            <TouchableOpacity
+              onPress={() => onReply(_id, user?.handleName || '', user?._id)}>
+              <Text style={[styles.text, {color: color.text, marginRight: 16}]}>
+                Trả lời
               </Text>
-              <Text style={[styles.text, {color: color.text}]}>
-                {formatTimeAgo(createdAt)}
-              </Text>
-            </View>
-            <HashtagText
-              text={content}
-              clickable={true}
-              baseStyle={[styles.content, {color: color.text}]}
-              hashtagColor={Colors.hashtag}
-              hashtagStyle={{fontWeight: '600'}}
-              navigation={navigation}
-            />
+            </TouchableOpacity>
             <TouchableOpacity>
               <Text style={[styles.text, {color: color.text}]}>
                 xem bản dịch
               </Text>
             </TouchableOpacity>
           </View>
-          <View style={{alignItems: 'center', marginTop: 20}}>
-            <TouchableOpacity style={styles.blockIcon} onPress={handleLike}>
-              <Heart
-                size={22}
-                color={isLiked ? 'red' : color.text}
-                fill={isLiked ? 'red' : 'none'}
-              />
-            </TouchableOpacity>
-            <Text style={[styles.text, {color: color.text}]}>{totalLikes}</Text>
-          </View>
+        </View>
+        <View style={styles.heartContainer}>
+          <TouchableOpacity style={styles.blockIcon} onPress={handleLike}>
+            <Heart
+              size={20}
+              color={isLiked ? 'red' : color.text}
+              fill={isLiked ? 'red' : 'none'}
+            />
+          </TouchableOpacity>
+          <Text style={[styles.text, {color: color.text, alignSelf: 'center'}]}>
+            {totalLikes}
+          </Text>
         </View>
       </View>
     );
@@ -157,7 +160,6 @@ const CommentComponent = memo((props: CommentComponentProps) => {
     createdAt,
     postId,
     totalLikes,
-    likedBy = [],
     isLiked: defaultLiked,
     reply = [],
     onReply,
@@ -198,21 +200,17 @@ const CommentComponent = memo((props: CommentComponentProps) => {
   };
 
   return (
-    <View style={[styles.rowContainer, {marginBottom: 20}]}>
-      <TouchableOpacity style={styles.blockImg}>
-        <Image
-          style={styles.imgUser}
-          source={{uri: user?.profilePic || fallbackImg}}
-        />
-      </TouchableOpacity>
-      <View
-        style={[
-          styles.rowContainer,
-          {justifyContent: 'space-between', width: width},
-        ]}>
-        <View style={{width: width}}>
-          <View style={[styles.rowContainer, {alignItems: 'center'}]}>
-            <Text style={[styles.name, {color: color.text, marginRight: 20}]}>
+    <View style={styles.container}>
+      <View style={styles.row}>
+        <TouchableOpacity style={styles.blockImg}>
+          <Image
+            style={styles.imgUser}
+            source={{uri: user?.profilePic || fallbackImg}}
+          />
+        </TouchableOpacity>
+        <View style={{flex: 1}}>
+          <View style={styles.rowTop}>
+            <Text style={[styles.name, {color: color.text, marginRight: 8}]}>
               {user?.handleName || 'Người dùng'}
             </Text>
             <Text style={[styles.text, {color: color.text}]}>
@@ -227,10 +225,10 @@ const CommentComponent = memo((props: CommentComponentProps) => {
             hashtagStyle={{fontWeight: '600'}}
             navigation={navigation}
           />
-          <View style={[styles.rowContainer, {alignItems: 'center'}]}>
+          <View style={styles.rowBottom}>
             <TouchableOpacity
               onPress={() => onReply(_id, user?.handleName || '', user?._id)}>
-              <Text style={[styles.text, {color: color.text, marginRight: 20}]}>
+              <Text style={[styles.text, {color: color.text, marginRight: 16}]}>
                 Trả lời
               </Text>
             </TouchableOpacity>
@@ -242,7 +240,7 @@ const CommentComponent = memo((props: CommentComponentProps) => {
           </View>
 
           {reply.length > 0 && (
-            <View>
+            <View style={{marginTop: 6}}>
               {moreComment && (
                 <FlashList
                   data={reply}
@@ -255,12 +253,17 @@ const CommentComponent = memo((props: CommentComponentProps) => {
                   )}
                   keyExtractor={item => item._id}
                   estimatedItemSize={50}
+                  scrollEnabled={false}
                 />
               )}
               <TouchableOpacity
-                style={{marginLeft: 66, marginTop: 10}}
+                style={{marginLeft: 40, marginTop: 10}}
                 onPress={() => setMoreComment(!moreComment)}>
-                <Text style={[styles.text, {color: color.text}]}>
+                <Text
+                  style={[
+                    styles.text,
+                    {color: color.text, fontWeight: 'bold'},
+                  ]}>
                   {!moreComment
                     ? `Xem ${reply.length} câu trả lời khác`
                     : 'Ẩn câu trả lời'}
@@ -269,7 +272,6 @@ const CommentComponent = memo((props: CommentComponentProps) => {
             </View>
           )}
         </View>
-
         <View style={styles.heartContainer}>
           <TouchableOpacity style={styles.blockIcon} onPress={handleToggleLike}>
             <Heart
@@ -278,7 +280,9 @@ const CommentComponent = memo((props: CommentComponentProps) => {
               fill={isLiked ? 'red' : 'none'}
             />
           </TouchableOpacity>
-          <Text style={[styles.text, {color: color.text}]}>{totalLikes}</Text>
+          <Text style={[styles.text, {color: color.text, alignSelf: 'center'}]}>
+            {totalLikes}
+          </Text>
         </View>
       </View>
     </View>
@@ -286,22 +290,19 @@ const CommentComponent = memo((props: CommentComponentProps) => {
 });
 
 const styles = StyleSheet.create({
-  rowContainer: {
+  container: {
+    marginBottom: 20,
+  },
+  row: {
     flexDirection: 'row',
+    alignItems: 'flex-start',
   },
   blockImg: {
     width: 40,
     height: 40,
     borderRadius: 20,
     overflow: 'hidden',
-    marginRight: 16,
-  },
-  blockImgReply: {
-    width: 30,
-    height: 30,
-    borderRadius: 20,
-    overflow: 'hidden',
-    marginRight: 16,
+    marginRight: 12,
   },
   imgUser: {
     width: '100%',
@@ -320,22 +321,46 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     marginVertical: 4,
   },
-  blockIcon: {
-    width: 18,
-    height: 18,
-    resizeMode: 'contain',
+  rowTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 2,
+    flexWrap: 'wrap',
   },
-  icon: {
-    width: '100%',
-    height: '100%',
+  rowBottom: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 2,
+  },
+  blockIcon: {
+    width: 22,
+    height: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 2,
   },
   heartContainer: {
     alignItems: 'center',
-    position: 'absolute',
-    right: 0,
-    marginTop: 20,
-    marginLeft: 10,
+    justifyContent: 'flex-start',
+    marginLeft: 8,
+    marginTop: 4,
+    minWidth: 34,
+  },
+  // Reply styles
+  replyContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginTop: 8,
+  },
+  replyAvatar: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    overflow: 'hidden',
+    marginRight: 10,
+  },
+  replyContentBox: {
+    flex: 1,
   },
 });
 
