@@ -24,6 +24,7 @@ export const API = {
   GET_STORY_BY_USERID: '/stories/following/',
   GET_USER_FOLLOW: 'stories/following',
   CREATE_HIGHLIGHT_STORY: '/stories/create/highlight',
+  SHARE_STORY: '/stories/send',
   //// music
   GET_ALL_MUSIC: 'music/find-all',
 

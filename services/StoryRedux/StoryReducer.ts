@@ -10,6 +10,7 @@ import {
   fetchHighlightStory, // New thunk
   deleteStory,
   createStory,
+  shareStory,
 } from './StorySlice';
 
 interface StoryState {
@@ -365,6 +366,26 @@ const storySlice = createSlice({
       .addCase(createStory.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Không thể tạo story';
+      })
+      // ====== SHARE STORY ======
+      .addCase(shareStory.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(
+        shareStory.fulfilled,
+        (
+          state,
+          action: PayloadAction<{shareTo: string[]; content: string}>,
+        ) => {
+          state.loading = false;
+          state.error = null;
+          // Story shared successfully - no state changes needed
+        },
+      )
+      .addCase(shareStory.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Không thể chia sẻ story';
       });
   },
 });

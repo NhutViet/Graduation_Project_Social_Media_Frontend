@@ -20,6 +20,9 @@ import {RootState, AppDispatch} from '../../../../services/store';
 import {RoomUser} from '@services/roomRedux/roomType';
 import {Search, UserPlus, Link, CheckCircle} from 'lucide-react-native';
 import LoadingModal from '../../../../components/Global/LoadingModal';
+import {shareStory} from '../../../../services/StoryRedux/StorySlice';
+import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
+import Clipboard from '@react-native-clipboard/clipboard';
 
 export interface CombinedItem {
   kind: 'room' | 'friend';
@@ -38,10 +41,15 @@ interface ModalShareProps {
   isDark?: boolean;
   onOpen?: () => void;
   onClose?: () => void;
+  storyData?: {
+    _id: string;
+    mediaUrl: string;
+    type?: 'image' | 'video';
+  };
 }
 
 const ModalShareStory = forwardRef<ModalShareHandle, ModalShareProps>(
-  ({isDark, onOpen, onClose}, ref) => {
+  ({isDark, onOpen, onClose, storyData}, ref) => {
     const {theme} = useTheme();
     let color;
     if (isDark) {
@@ -51,6 +59,7 @@ const ModalShareStory = forwardRef<ModalShareHandle, ModalShareProps>(
     }
     const [selectedFriendIds, setSelectedFriendIds] = useState<string[]>([]);
     const [message, setMessage] = useState('');
+    const [isSharing, setIsSharing] = useState(false);
 
     const dispatch = useDispatch<AppDispatch>();
     const userID = useSelector((s: RootState) => s.user.user?._id);
@@ -82,12 +91,33 @@ const ModalShareStory = forwardRef<ModalShareHandle, ModalShareProps>(
           // dispatch(fetchFollowers({userId: userID})).unwrap(),
           // dispatch(fetchFollowing({userId: userID})).unwrap(),
         ]);
-        const roomItems: CombinedItem[] = rooms.map(r => ({
-          kind: 'room',
-          _id: r._id,
-          name: r.name || 'Chat nhóm',
-          avatars: r.user_ids.map((u: RoomUser) => u.profilePic),
-        }));
+        const roomItems: CombinedItem[] = rooms.map(r => {
+          // Filter out current user from the room
+          const otherUsers = r.user_ids.filter(
+            (u: RoomUser) => u._id !== userID,
+          );
+
+          // For 1:1 chat (2 people total), show single avatar
+          if (r.user_ids.length === 2) {
+            return {
+              kind: 'room',
+              _id: r._id,
+              name: r.name || otherUsers[0]?.handleName || 'Chat nhóm',
+              avatars: [otherUsers[0]?.profilePic],
+            };
+          }
+          // For group chat (3+ people), show overlapping avatars
+          else {
+            return {
+              kind: 'room',
+              _id: r._id,
+              name: r.name || 'Chat nhóm',
+              avatars: otherUsers
+                .slice(0, 2)
+                .map((u: RoomUser) => u.profilePic),
+            };
+          }
+        });
         // const users = [...followers, ...following];
         // const seen = new Set<string>();
         // const friendItems: CombinedItem[] = users.reduce((acc: CombinedItem[], u) => {
@@ -117,6 +147,51 @@ const ModalShareStory = forwardRef<ModalShareHandle, ModalShareProps>(
       setSelectedFriendIds(prev =>
         prev.includes(id) ? prev.filter(fid => fid !== id) : [...prev, id],
       );
+    };
+
+    const handleShareStory = async () => {
+      if (!storyData || selectedFriendIds.length === 0) {
+        GlobalAlertManager.show(
+          'Lỗi',
+          'Vui lòng chọn ít nhất một cuộc trò chuyện',
+        );
+        return;
+      }
+
+      setIsSharing(true);
+      try {
+        const payload = {
+          roomIds: selectedFriendIds,
+          message: message,
+          media: {
+            type: storyData.type || 'image',
+            url: storyData.mediaUrl,
+          },
+        };
+
+        await dispatch(shareStory(payload)).unwrap();
+
+        GlobalAlertManager.show('Thành công', 'Đã chia sẻ story thành công');
+
+        // Close modal and reset
+        modalizeRef.current?.close();
+        setSelectedFriendIds([]);
+        setMessage('');
+        onClose?.();
+      } catch (error: any) {
+        GlobalAlertManager.show('Lỗi', error || 'Không thể chia sẻ story');
+      } finally {
+        setIsSharing(false);
+      }
+    };
+
+    const handleCopyLink = () => {
+      if (storyData?.mediaUrl) {
+        Clipboard.setString(storyData.mediaUrl);
+        GlobalAlertManager.show('Thành công', 'Đã sao chép liên kết');
+      } else {
+        GlobalAlertManager.show('Lỗi', 'Không có liên kết để sao chép');
+      }
     };
 
     const contentHeight = Dimensions.get('window').height * 0.6;
@@ -347,9 +422,13 @@ const ModalShareStory = forwardRef<ModalShareHandle, ModalShareProps>(
                       onPress={() => toggleSelectFriend(item._id)}>
                       {item.kind === 'room' ? (
                         <ChatRoomAvatar
-                          avatars={item.avatars!}
-                          size={60}
-                          overlap={50}
+                          roomId={item._id}
+                          img1={item.avatars![0]}
+                          img2={
+                            item.avatars!.length > 1
+                              ? item.avatars![1]
+                              : undefined
+                          }
                         />
                       ) : (
                         <Image
@@ -388,13 +467,20 @@ const ModalShareStory = forwardRef<ModalShareHandle, ModalShareProps>(
                   onChangeText={setMessage}
                   multiline
                 />
-                <TouchableOpacity style={styles.sendButton}>
-                  <Text style={styles.sendButtonText}>Gửi</Text>
+                <TouchableOpacity
+                  style={[styles.sendButton, isSharing && {opacity: 0.7}]}
+                  onPress={handleShareStory}
+                  disabled={isSharing}>
+                  <Text style={styles.sendButtonText}>
+                    {isSharing ? 'Đang gửi...' : 'Gửi'}
+                  </Text>
                 </TouchableOpacity>
               </View>
             ) : (
               <View style={styles.shareActions}>
-                <TouchableOpacity style={styles.actionItem}>
+                <TouchableOpacity
+                  style={styles.actionItem}
+                  onPress={handleCopyLink}>
                   <Link size={20} color={color.text} />
                   <Text style={styles.actionLabel}>Sao chép liên kết</Text>
                 </TouchableOpacity>

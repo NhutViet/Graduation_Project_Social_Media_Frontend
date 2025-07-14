@@ -143,7 +143,6 @@ const StoryListHeader = React.memo<StoryListHeaderProps>(
             key={item.id}
             name={item.name}
             image={item.image}
-            status={item.status}
             hasStory={item.hasStory}
             isSeen={item.isSeen}
             isCurrentUser={item.isCurrentUser}
@@ -202,7 +201,5 @@ const StoryListHeader = React.memo<StoryListHeaderProps>(
     );
   },
 );
-
-StoryListHeader.displayName = 'StoryListHeader';
 
 export default StoryListHeader;
