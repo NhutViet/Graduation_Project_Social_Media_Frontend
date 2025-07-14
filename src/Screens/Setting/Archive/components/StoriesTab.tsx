@@ -19,7 +19,7 @@ import {AppDispatch, RootState} from '../../../../../services/store';
 import {fetchGetPostedSotry} from '../../../../../services/StoryRedux/StorySlice';
 import {History, CircleFadingArrowUp} from 'lucide-react-native';
 import {handleHighlightPress} from '../../../../(tabs)/Home/util/index';
-import LoadingModal from '../../../../../components/Global/LoadingModal';
+import { SearchSkeletonGrid } from '../../../../../components/SkeletonGrid';
 
 const formatMonthText = (dateString?: string): string => {
   if (!dateString) return '--\n--';
@@ -124,9 +124,7 @@ const StoriesTab = () => {
 
   if (loading) {
     return (
-      <View style={styles.centered}>
-        <LoadingModal />
-      </View>
+      <SearchSkeletonGrid itemWidth={115} itemHeight={230}/>
     );
   }
 
