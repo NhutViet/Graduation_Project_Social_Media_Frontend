@@ -171,18 +171,15 @@ const ReelsList = ({
           }
           renderItem={({item}) => {
             const shouldPlay = item?._id === currentVisible;
-            const isLiked = likedPostIds.includes(item._id);
+            const isLiked = likedPostIds.includes(item._id) ?? false;
             const isFollowing = followingUserIds.some(
               (user: UserProfile) => user._id === item.userID,
             );
             const isCurrentUser = currentUser?._id === item.user._id;
 
-            let currentLikeCount = item.likeCount;
-            if (currentLikeCount && item.likeCount && item.isLike !== isLiked) {
-              currentLikeCount = isLiked
-                ? item.likeCount + 1
-                : item.likeCount - 1;
-            }
+            const currentLikeCount =
+              (item.likeCount ?? 0) +
+              (isLiked === item.isLike ? 0 : isLiked ? 1 : -1);
 
             return (
               <ReelsComponent
