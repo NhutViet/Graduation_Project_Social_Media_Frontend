@@ -4,6 +4,7 @@ import {Colors} from '../../../../assets/color/Colors';
 import {useTheme} from '../../../util/ThemeContext';
 import {Plus, Hash} from 'lucide-react-native';
 import React from 'react';
+import LoadingModal from '../../../../components/Global/LoadingModal';
 
 type StoryProps = {
   name: string;
@@ -14,6 +15,8 @@ type StoryProps = {
   isCurrentUser?: boolean;
   hasStory?: boolean;
   isSeen?: boolean;
+  isLoadingStoryDetails?: boolean; // ✅ Add loading state prop
+  onHover?: () => void; // ✅ Add hover handler prop
 };
 
 const Story = (props: StoryProps) => {
@@ -26,6 +29,8 @@ const Story = (props: StoryProps) => {
     isCurrentUser = false,
     hasStory = true,
     isSeen = false,
+    isLoadingStoryDetails = false, // ✅ Add loading state prop
+    onHover,
   } = props;
 
   const {theme} = useTheme();
@@ -62,6 +67,10 @@ const Story = (props: StoryProps) => {
         style={[styles.box, {marginTop: 10}]}
         onPress={() => {
           func();
+        }}
+        onPressIn={() => {
+          // ✅ Trigger hover event when user starts interaction
+          onHover?.();
         }}>
         {hasStory ? (
           <LinearGradient
@@ -77,6 +86,12 @@ const Story = (props: StoryProps) => {
               {width: isStory ? 75 : 50, height: isStory ? 75 : 50},
             ]}>
             <AvatarContent />
+            {/* ✅ Show loading indicator if story details are loading */}
+            {isLoadingStoryDetails && (
+              <View style={styles.loadingOverlay}>
+                <LoadingModal />
+              </View>
+            )}
           </LinearGradient>
         ) : (
           <View
@@ -167,6 +182,17 @@ const styles = StyleSheet.create({
     padding: 4,
     borderWidth: 2,
     borderColor: '#fff',
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    borderRadius: 40,
   },
 });
 

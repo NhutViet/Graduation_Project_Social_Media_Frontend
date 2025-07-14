@@ -9,6 +9,7 @@ interface StoryPrefetchCache {
     timestamp: number;
     isLoading: boolean;
     priority: number;
+    isRequested: boolean; // ✅ Track if story details have been requested
   };
 }
 
@@ -37,7 +38,8 @@ export const useStoryPrefetch = () => {
     });
   }, []);
 
-  const prefetchStoryData = useCallback(async (userId: string, storyIds: string[], priority: number = 1) => {
+  // ✅ Lazy load story details only when needed
+  const prefetchStoryData = useCallback(async (userId: string, storyIds: string[], priority: number = 1, forceFetch: boolean = false) => {
     const now = Date.now();
     const cached = cache.current[userId];
 
@@ -49,6 +51,11 @@ export const useStoryPrefetch = () => {
       return cached.data;
     }
 
+    // ✅ If not forced and already requested, don't fetch again
+    if (!forceFetch && cached?.isRequested && !cached.isLoading) {
+      return null;
+    }
+
     // Prevent multiple simultaneous requests for same user
     if (cached?.isLoading) {
       return null;
@@ -58,12 +65,13 @@ export const useStoryPrefetch = () => {
       // ✅ Evict old cache entries if needed
       evictOldestCache();
 
-      // Mark as loading
+      // Mark as loading and requested
       cache.current[userId] = {
         data: [],
         timestamp: now,
         isLoading: true,
         priority,
+        isRequested: true,
       };
 
       const detailRes = await dispatch(
@@ -88,6 +96,7 @@ export const useStoryPrefetch = () => {
         timestamp: now,
         isLoading: false,
         priority,
+        isRequested: true,
       };
 
       return processedStories;
@@ -115,6 +124,12 @@ export const useStoryPrefetch = () => {
     return null;
   }, []);
 
+  // ✅ Check if story details have been requested for a user
+  const isStoryDetailsRequested = useCallback((userId: string) => {
+    const cached = cache.current[userId];
+    return cached?.isRequested || false;
+  }, []);
+
   // ✅ Optimize cache management
   const clearCache = useCallback(() => {
     cache.current = {};
@@ -137,6 +152,7 @@ export const useStoryPrefetch = () => {
       size: entries.length,
       loading: entries.filter(e => e.isLoading).length,
       expired: entries.filter(e => Date.now() - e.timestamp >= CACHE_DURATION).length,
+      requested: entries.filter(e => e.isRequested).length,
     };
   }, []);
 
@@ -158,6 +174,24 @@ export const useStoryPrefetch = () => {
     }
   }, [prefetchStoryData]);
 
+  // ✅ Lazy load story details when user is about to view stories
+  const lazyLoadStoryDetails = useCallback(async (userId: string, storyIds: string[]) => {
+    // Only fetch if not already requested
+    if (!isStoryDetailsRequested(userId)) {
+      return await prefetchStoryData(userId, storyIds, 1, true);
+    }
+    return getCachedStoryData(userId);
+  }, [prefetchStoryData, isStoryDetailsRequested, getCachedStoryData]);
+
+  // ✅ Prefetch story details on hover/focus for better UX
+  const prefetchOnHover = useCallback(async (userId: string, storyIds: string[]) => {
+    // Only prefetch if not already requested and not loading
+    if (!isStoryDetailsRequested(userId)) {
+      // Use lower priority for hover prefetch
+      await prefetchStoryData(userId, storyIds, 0.5, false);
+    }
+  }, [prefetchStoryData, isStoryDetailsRequested]);
+
   return {
     prefetchStoryData,
     getCachedStoryData,
@@ -165,5 +199,8 @@ export const useStoryPrefetch = () => {
     clearExpiredCache,
     getCacheStats,
     preloadAdjacentStories,
+    isStoryDetailsRequested,
+    lazyLoadStoryDetails,
+    prefetchOnHover,
   };
 }; 

@@ -92,7 +92,7 @@ export const Home = forwardRef(({onReload, route}: HomeProps, ref) => {
   const [isLoadingMoreStories, setIsLoadingMoreStories] = useState(false);
 
   // // ✅ Use prefetch hook
-  const {prefetchStoryData, getCachedStoryData, clearExpiredCache} =
+  const {prefetchStoryData, getCachedStoryData, clearExpiredCache, isStoryDetailsRequested, lazyLoadStoryDetails, prefetchOnHover} =
     useStoryPrefetch();
 
   const reloadAllData = useCallback(() => {
@@ -220,31 +220,41 @@ export const Home = forwardRef(({onReload, route}: HomeProps, ref) => {
     [visibleStoryCount, processedStories.length, isLoadingMoreStories],
   );
 
-  // // ✅ Prefetch stories when visible stories change
+  // // ✅ Handler for story hover/focus to prefetch details
+  const handleStoryHover = useCallback((item: any) => {
+    if (item.stories?.length > 0) {
+      // Prefetch story details on hover with lower priority
+      prefetchOnHover(item._id, item.stories);
+    }
+  }, [prefetchOnHover]);
+
+  // // ✅ Prefetch stories when visible stories change - REMOVED IMMEDIATE FETCH
   const prefetchStoriesForVisibleUsers = useCallback(async () => {
     const usersToPreload = visibleStories.filter(u => u.stories?.length > 0);
 
-    //   // Prefetch for visible users
-    const priorityUsers = usersToPreload.slice(
-      0,
-      Math.min(5, usersToPreload.length),
-    );
+    //   // Prefetch for visible users - ONLY for users not already requested
+    const priorityUsers = usersToPreload
+      .filter(u => !isStoryDetailsRequested(u._id))
+      .slice(0, Math.min(3, usersToPreload.length)); // ✅ Reduce initial prefetch to 3 users
 
     for (const user of priorityUsers) {
       if (user.stories?.length > 0) {
         try {
-          await prefetchStoryData(user._id, user.stories);
+          // ✅ Use lazy loading instead of immediate fetch
+          await lazyLoadStoryDetails(user._id, user.stories);
         } catch (error) {
           console.log('Error prefetching stories for user:', user.handleName);
         }
       }
     }
-  }, [visibleStories, prefetchStoryData]);
+  }, [visibleStories, isStoryDetailsRequested, lazyLoadStoryDetails]);
 
-  // // ✅ Run prefetch when visible stories change
+  // // ✅ Run prefetch when visible stories change - DELAYED AND REDUCED
   useEffect(() => {
     if (visibleStories.length > 0 && storyDetails.length > 0) {
-      setTimeout(prefetchStoriesForVisibleUsers, 500);
+      // ✅ Delay prefetch to avoid blocking initial render
+      const timeoutId = setTimeout(prefetchStoriesForVisibleUsers, 1000);
+      return () => clearTimeout(timeoutId);
     }
   }, [
     visibleStories.length,
@@ -422,16 +432,19 @@ export const Home = forwardRef(({onReload, route}: HomeProps, ref) => {
     (item: any) => {
       const hasStory = item.stories?.length > 0;
       if (hasStory) {
-        handleUserPress(
-          item,
-          dispatch,
-          navigation,
-          storyDetails,
-          user,
-          followingUsers,
-          setIsStoryLoading,
-          getCachedStoryData,
-        );
+        // ✅ Ensure story details are loaded before navigation
+        lazyLoadStoryDetails(item._id, item.stories).then(() => {
+          handleUserPress(
+            item,
+            dispatch,
+            navigation,
+            storyDetails,
+            user,
+            followingUsers,
+            setIsStoryLoading,
+            getCachedStoryData,
+          );
+        });
       } else {
         const isCurrentUser =
           item._id === user?._id || item.handleName === user?.handleName;
@@ -454,6 +467,7 @@ export const Home = forwardRef(({onReload, route}: HomeProps, ref) => {
       followingUsers,
       setIsStoryLoading,
       getCachedStoryData,
+      lazyLoadStoryDetails,
     ],
   );
 
@@ -471,6 +485,8 @@ export const Home = forwardRef(({onReload, route}: HomeProps, ref) => {
           seenMap={seenMap}
           onStoryPress={handleStoryPress}
           onStoryScroll={handleStoryScroll}
+          onStoryHover={handleStoryHover}
+          isStoryDetailsRequested={isStoryDetailsRequested}
         />
       </View>
     ),
@@ -485,6 +501,8 @@ export const Home = forwardRef(({onReload, route}: HomeProps, ref) => {
       seenMap,
       handleStoryPress,
       handleStoryScroll,
+      handleStoryHover,
+      isStoryDetailsRequested,
     ],
   );
 
