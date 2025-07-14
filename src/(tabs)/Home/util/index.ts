@@ -193,7 +193,7 @@ export const handleUserPress = async (
     // ✅ Navigate immediately với complete storyGroups structure
     const hasRealData = cachedData && cachedData.length > 0;
 
-    navigation.navigate(isCurrentUser ? 'SeenStoryOwner' : 'SeenStory', {
+    navigation.navigate('SeenStory', {
       stories: basicStoryData,
       creator: {
         username: item.handleName,
@@ -290,26 +290,12 @@ export const handleUserPress = async (
                       y: number;
                     };
                   }) => {
-                    const userDetail = tag.user;
-                    if (typeof userDetail === 'string') {
-                      const foundUser =
-                        story.viewedByUsers?.find(
-                          (u: UserMini) => u._id === userDetail,
-                        ) ||
-                        storyDetails
-                          .flatMap(s => s.viewedByUsers || [])
-                          .find(u => u._id === userDetail);
-
-                      return {
-                        ...tag,
-                        user: foundUser || {
-                          _id: userDetail,
-                          handleName: 'unknown',
-                          username: 'unknown',
-                        },
-                      };
-                    }
-                    return tag;
+                    // Giữ nguyên cấu trúc gốc, chỉ đảm bảo user field là string ID
+                    return {
+                      ...tag,
+                      // Đảm bảo user field vẫn là string ID như gốc
+                      user: typeof tag.user === 'string' ? tag.user : tag.user?._id || tag.user,
+                    };
                   },
                 );
 
@@ -476,26 +462,14 @@ export const handleHighlightPress = async (
             await markStoryAsSeen(item._id, item.createdAt);
           }
 
-          // ✅ Populate tags với user information giống như handleUserPress
+          // ✅ Giữ nguyên cấu trúc tags gốc để tránh lỗi navigation
           const populatedTags = (item.tags || []).map((tag: any) => {
-            const userDetail = tag.user;
-            if (typeof userDetail === 'string') {
-              const foundUser =
-                item.viewedByUsers?.find((u: any) => u._id === userDetail) ||
-                existingStoryDetails
-                  .flatMap(s => s.viewedByUsers || [])
-                  .find((u: any) => u._id === userDetail);
-
-              return {
-                ...tag,
-                user: foundUser || {
-                  _id: userDetail,
-                  handleName: 'unknown',
-                  username: 'unknown',
-                },
-              };
-            }
-            return tag;
+            // Giữ nguyên cấu trúc gốc, chỉ thêm thông tin nếu cần
+            return {
+              ...tag,
+              // Đảm bảo user field vẫn là string ID như gốc
+              user: typeof tag.user === 'string' ? tag.user : tag.user?._id || tag.user,
+            };
           });
 
           const processedStory = {
@@ -549,7 +523,7 @@ export const handleHighlightPress = async (
       _id: viewerUser?._id,
     };
 
-    // Tạo story groups từ tất cả highlights (sắp xếp theo thứ tự mới nhất)
+    // ✅ Tạo story groups từ tất cả highlights (sắp xếp theo thứ tự mới nhất)
     const storyGroups = (highlightStories ? [...highlightStories] : [])
       .sort((a: any, b: any) => {
         // Sắp xếp theo createdAt, mới nhất lên đầu (giống component)
@@ -574,8 +548,8 @@ export const handleHighlightPress = async (
     );
 
     if (currentHighlightIndex === -1) {
-      // Nếu không tìm thấy, chỉ hiển thị highlight hiện tại
-      navigation.navigate(isOwner ? 'SeenStoryOwner' : 'SeenStory', {
+      // ✅ Nếu không tìm thấy, chỉ hiển thị highlight hiện tại - sử dụng unified SeenStory
+      navigation.navigate('SeenStory', {
         storyGroups: [
           {
             creator,
@@ -657,7 +631,7 @@ export const handleHighlightPress = async (
               try {
                 await dispatch(seenStory({storyId: item._id}));
 
-                // ✅ Populate tags với user information cho các highlight khác
+                // ✅ Giữ nguyên cấu trúc tags gốc cho các highlight khác
                 const populatedTags = (item.tags || []).map(
                   (tag: {
                     user: UserMini;
@@ -666,26 +640,12 @@ export const handleHighlightPress = async (
                       y: number;
                     };
                   }) => {
-                    const userDetail = tag.user;
-                    if (typeof userDetail === 'string') {
-                      const foundUser =
-                        item.viewedByUsers?.find(
-                          (u: UserMini) => u._id === userDetail,
-                        ) ||
-                        highlightDetailRes
-                          .flatMap((s) => s?.viewedByUsers || [])
-                          .find((u) => u._id === userDetail);
-
-                      return {
-                        ...tag,
-                        user: foundUser || {
-                          _id: userDetail,
-                          handleName: 'unknown',
-                          username: 'unknown',
-                        },
-                      };
-                    }
-                    return tag;
+                    // Giữ nguyên cấu trúc gốc, chỉ đảm bảo user field là string ID
+                    return {
+                      ...tag,
+                      // Đảm bảo user field vẫn là string ID như gốc
+                      user: typeof tag.user === 'string' ? tag.user : tag.user?._id || tag.user,
+                    };
                   },
                 );
 
@@ -770,7 +730,8 @@ export const handleHighlightPress = async (
       }
     });
 
-    navigation.navigate(isOwner ? 'SeenStoryOwner' : 'SeenStory', {
+    // ✅ Sử dụng unified SeenStory component cho cả owner và viewer
+    navigation.navigate('SeenStory', {
       storyGroups: validStoryGroups,
       storyGroupIndex: currentGroupIndex >= 0 ? currentGroupIndex : 0,
       creator,

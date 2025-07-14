@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../services/store';
-import {toggleLikeStory} from '../../../services/StoryRedux/StorySlice';
+import {toggleLikeStory, deleteStory} from '../../../services/StoryRedux/StorySlice';
 import {styles} from './components/styles';
 import {Header} from './components/Header';
 import {ProgressBar} from './components/ProgressBar';
@@ -24,6 +24,15 @@ import {Story} from '@services/StoryRedux/StoryType';
 import {VideoRef} from 'react-native-video';
 import {GestureResponderEvent} from 'react-native-modal';
 import LoadingModal from '../../../components/Global/LoadingModal';
+import {Modalize} from 'react-native-modalize';
+import {Portal} from 'react-native-portalize';
+import debounce from 'lodash/debounce';
+import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+
+// Import owner-specific components
+import ModelPeopleSeen from './componentStoryOwner/ModelPeopleSeen';
+import SeenStoryOwnerBottom from './componentStoryOwner/BottomBar';
+import ModalSeeMore from './componentStoryOwner/ModelSeeMore';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -87,6 +96,19 @@ export const SeenStory = ({route, navigation}: any) => {
   // ✅ Get story details from Redux store
   const {storyDetails} = useSelector((state: RootState) => state.stories);
 
+  // ✅ Owner-specific states
+  const [visible, setVisible] = useState(false);
+  const [visibleSeeMore, setVisibleSeeMore] = useState(false);
+  const [isNavigatedAway, setIsNavigatedAway] = useState(false);
+  const [wasPausedByUser, setWasPausedByUser] = useState(false);
+  const progressValues = useRef<number[]>(stories.map(() => 0)).current;
+  const isNavigatingRef = useRef(false);
+  const currentIndexRef = useRef(0);
+
+  // ✅ Check if current user is the story owner
+  const isCurrentUserStory = currentCreator?.username === user?.handleName || 
+                            currentCreator?._id === user?._id;
+
   // ✅ Sync stories with Redux store data
   const syncedStories = useMemo(() => {
     return stories.map((story: Story) => {
@@ -117,6 +139,9 @@ export const SeenStory = ({route, navigation}: any) => {
         setIsDataLoading(params.isLoading || false);
       }
 
+      // ✅ Reset navigated away state khi quay lại
+      setIsNavigatedAway(false);
+
       // ✅ Resume story khi quay lại từ profile
       if (isPaused) {
         setIsPaused(false);
@@ -125,6 +150,9 @@ export const SeenStory = ({route, navigation}: any) => {
 
     // ✅ Listen for blur event (khi navigate away)
     const blurUnsubscribe = navigation.addListener('blur', () => {
+      // ✅ Set navigated away state
+      setIsNavigatedAway(true);
+
       // Pause story khi navigate away
       if (!isPaused) {
         setIsPaused(true);
@@ -137,13 +165,30 @@ export const SeenStory = ({route, navigation}: any) => {
     };
   }, [navigation, route.params, isPaused]);
 
+  // ✅ Reset video và music khi navigate away và quay lại (owner mode)
+  useEffect(() => {
+    if (isCurrentUserStory && isNavigatedAway) {
+      // Khi navigate away, pause cả video và music
+      setIsPaused(true);
+    } else if (isCurrentUserStory && !isNavigatedAway) {
+      // Khi quay lại, resume nếu trước đó không bị pause bởi user
+      if (!wasPausedByUser) {
+        setIsPaused(false);
+      }
+    }
+  }, [isNavigatedAway, wasPausedByUser, isCurrentUserStory]);
+
   // ✅ Update progress anims when stories change
   useEffect(() => {
     if (stories.length !== progressAnims.length) {
       progressAnims.splice(0, progressAnims.length);
       progressAnims.push(...stories.map(() => new Animated.Value(0)));
+      if (isCurrentUserStory) {
+        progressValues.splice(0, progressValues.length);
+        progressValues.push(...stories.map(() => 0));
+      }
     }
-  }, [stories.length]);
+  }, [stories.length, isCurrentUserStory]);
 
   const selectedItem = useMemo(
     () => syncedStories[currentIndex] || {},
@@ -187,12 +232,142 @@ export const SeenStory = ({route, navigation}: any) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const videoRef = useRef<VideoRef>(null);
 
-  // hàm next story
+  // ✅ Owner-specific: Delete story functionality
+  const handleDeleteStory = async () => {
+    try {
+      const currentStory = syncedStories[currentIndex];
+      if (!currentStory?._id) return;
+
+      // ✅ Tắt modal ngay lập tức
+      setVisibleSeeMore(false);
+
+      // Xóa story từ server (Redux store sẽ tự động cập nhật)
+      await dispatch(deleteStory({storyId: currentStory._id})).unwrap();
+
+      GlobalAlertManager.show('Thành công', 'Tin của bạn đã được xoá');
+
+      // ✅ Cập nhật state local ngay lập tức để UI responsive
+      const updatedStories = syncedStories.filter(
+        (_: any, index: number) => index !== currentIndex,
+      );
+
+      if (updatedStories.length === 0) {
+        // Không còn story nào, quay lại
+        setTimeout(() => {
+          navigation.goBack();
+        }, 1000);
+      } else {
+        // ✅ Cập nhật local state để không bị lag UI
+        const updatedStoryGroups = [...currentStoryGroups];
+        updatedStoryGroups[storyGroupIndex] = {
+          ...currentStoryGroups[storyGroupIndex],
+          stories: updatedStories,
+        };
+        setCurrentStoryGroups(updatedStoryGroups);
+        setStories(updatedStories);
+
+        // Điều chỉnh currentIndex nếu cần
+        const newIndex =
+          currentIndex >= updatedStories.length
+            ? updatedStories.length - 1
+            : currentIndex;
+        setCurrentIndex(newIndex);
+      }
+    } catch (error) {
+      GlobalAlertManager.show('Thất bại', 'Không thể xoá story');
+      // ✅ Đóng modal nếu có lỗi
+      setVisibleSeeMore(false);
+    }
+  };
+
+  // ✅ Owner-specific: Progress animation with tracking
+  const startProgressAnimation = (forceRestart = false) => {
+    if (isCurrentUserStory) {
+      // Owner mode: Use tracking progress
+      if (animationRef.current) {
+        animationRef.current.stop();
+      }
+
+      const anim = progressAnims[currentIndex];
+      if (!anim) return;
+
+      // Nếu reset thì đặt lại
+      if (forceRestart || progressValues[currentIndex] >= 1) {
+        anim.setValue(0);
+        progressValues[currentIndex] = 0;
+      }
+
+      const remainingDuration =
+        (1 - progressValues[currentIndex]) * getItemDuration();
+
+      animationRef.current = Animated.timing(anim, {
+        toValue: 1,
+        duration: remainingDuration,
+        useNativeDriver: false,
+      });
+
+      // Theo dõi giá trị tiến độ để cập nhật lại `progressValues`
+      const listenerId = anim.addListener(({value}) => {
+        progressValues[currentIndex] = value;
+      });
+
+      animationRef.current.start(({finished}) => {
+        anim.removeListener(listenerId);
+        if (finished) {
+          progressValues[currentIndex] = 1;
+          goToNextStory();
+        }
+      });
+    } else {
+      // Viewer mode: Use simple animation
+      animationRef.current?.stop();
+
+      const anim = progressAnims[currentIndex];
+      if (!anim) return;
+
+      // ⚠️ Chỉ reset nếu anim đang ở 0
+      anim.stopAnimation(value => {
+        if (value === 0 || value >= 1) {
+          anim.setValue(0);
+        }
+
+        const duration = getItemDuration() * (1 - value); // phần còn lại
+
+        animationRef.current = Animated.timing(anim, {
+          toValue: 1,
+          duration,
+          useNativeDriver: false,
+        });
+
+        animationRef.current.start(({finished}) => {
+          if (finished) goToNextStory();
+        });
+      });
+    }
+  };
+
+  const stopCurrentAnimation = () => {
+    animationRef.current?.stop();
+    animationRef.current = null;
+  };
+
+  // ✅ Owner-specific: Enhanced navigation with tracking
   const goToNextStory = () => {
+    if (isCurrentUserStory && isNavigatingRef.current) return;
+    
+    if (isCurrentUserStory) {
+      isNavigatingRef.current = true;
+    }
+
     stopCurrentAnimation();
 
     if (currentIndex < syncedStories.length - 1) {
       setCurrentIndex(currentIndex + 1);
+      if (isCurrentUserStory) {
+        setTimeout(() => {
+          isNavigatingRef.current = false;
+        }, 300);
+      }
     } else {
       const nextGroupIndex = storyGroupIndex + 1;
 
@@ -209,7 +384,7 @@ export const SeenStory = ({route, navigation}: any) => {
         const isOwner =
           nextGroup.creator?.username === user?.handleName ||
           nextGroup.creator?._id === user?._id;
-        const routeName = isOwner ? 'SeenStoryOwner' : 'SeenStory';
+        const routeName = isOwner ? 'SeenStory' : 'SeenStory'; // Use unified component
 
         // ✅ Use synced stories data for navigation
         const syncedNextGroupStories = nextGroup.stories.map((story: Story) => {
@@ -240,44 +415,23 @@ export const SeenStory = ({route, navigation}: any) => {
     }
   };
 
-  // hàm thanh ProgressBar hoạt dộng
-  const startProgressAnimation = () => {
-    animationRef.current?.stop();
-
-    const anim = progressAnims[currentIndex];
-    if (!anim) return;
-
-    // ⚠️ Chỉ reset nếu anim đang ở 0
-    anim.stopAnimation(value => {
-      if (value === 0 || value >= 1) {
-        anim.setValue(0);
-      }
-
-      const duration = getItemDuration() * (1 - value); // phần còn lại
-
-      animationRef.current = Animated.timing(anim, {
-        toValue: 1,
-        duration,
-        useNativeDriver: false,
-      });
-
-      animationRef.current.start(({finished}) => {
-        if (finished) goToNextStory();
-      });
-    });
-  };
-
-  const stopCurrentAnimation = () => {
-    animationRef.current?.stop();
-    animationRef.current = null;
-  };
-
-  // hàm lùi story
+  // ✅ Owner-specific: Enhanced previous navigation
   const goToPreviousStory = () => {
+    if (isCurrentUserStory && isNavigatingRef.current) return;
+    
+    if (isCurrentUserStory) {
+      isNavigatingRef.current = true;
+    }
+
     stopCurrentAnimation();
 
     if (currentIndex > 0) {
       setCurrentIndex(currentIndex - 1);
+      if (isCurrentUserStory) {
+        setTimeout(() => {
+          isNavigatingRef.current = false;
+        }, 300);
+      }
     } else {
       let prevGroupIndex = storyGroupIndex - 1;
 
@@ -296,7 +450,7 @@ export const SeenStory = ({route, navigation}: any) => {
           const isOwner =
             prevGroup.creator?.username === user?.handleName ||
             prevGroup.creator?._id === user?._id;
-          const routeName = isOwner ? 'SeenStoryOwner' : 'SeenStory';
+          const routeName = isOwner ? 'SeenStory' : 'SeenStory'; // Use unified component
 
           // ✅ Use synced stories data for navigation
           const syncedPrevGroupStories = prevGroup.stories.map(
@@ -334,8 +488,26 @@ export const SeenStory = ({route, navigation}: any) => {
     }
   };
 
-  // pause
-  const togglePause = () => setIsPaused(prev => !prev);
+  // ✅ Owner-specific: Enhanced pause toggle
+  const togglePause = () => {
+    if (isCurrentUserStory) {
+      setIsPaused(prev => {
+        const newState = !prev;
+        // ✅ Track khi user pause/resume
+        setWasPausedByUser(newState);
+
+        if (newState) {
+          animationRef.current?.stop();
+        } else {
+          startProgressAnimation();
+        }
+        return newState;
+      });
+    } else {
+      setIsPaused(prev => !prev);
+    }
+  };
+
   // mute
   const toggleMute = () => setIsMuted(prev => !prev);
 
@@ -345,7 +517,10 @@ export const SeenStory = ({route, navigation}: any) => {
     else if (locationX > (screenWidth * 2) / 3) goToNextStory();
   };
 
+  // ✅ Viewer-specific: Like functionality
   const handleLike = async () => {
+    if (isCurrentUserStory) return; // Owner can't like their own story
+
     try {
       await dispatch(toggleLikeStory({storyId: selectedItem._id})).unwrap();
 
@@ -502,6 +677,7 @@ export const SeenStory = ({route, navigation}: any) => {
       );
     });
   };
+
   // logic khi nhấn vàp textInput thì dứng story
   useEffect(() => {
     const keyboardDidShow = Keyboard.addListener('keyboardDidShow', () => {
@@ -565,10 +741,31 @@ export const SeenStory = ({route, navigation}: any) => {
     }
   }, [isPaused]);
 
+  // ✅ Viewer-specific: Share functionality
   const handleOpenShare = () => {
+    if (isCurrentUserStory) return; // Owner doesn't have share
+    
     stopCurrentAnimation();
     shareModalRef.current?.open(); // phải dùng ref để mở Modal
   };
+
+  // ✅ Owner-specific: Modal handlers
+  useEffect(() => {
+    if (visible) {
+      setIsPaused(true);
+    } else {
+      setIsPaused(false);
+    }
+  }, [visible]);
+
+  // ✅ Owner-specific: Cleanup
+  useEffect(() => {
+    return () => {
+      if (isCurrentUserStory) {
+        isNavigatingRef.current = false;
+      }
+    };
+  }, [isCurrentUserStory]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -576,6 +773,8 @@ export const SeenStory = ({route, navigation}: any) => {
         style={styles.mediaWrapper}
         activeOpacity={1}
         onPress={handleTouch}>
+        
+        {/* Unified Header for both owner and viewer */}
         <Header
           onClose={() => navigation.goBack()}
           username={currentCreator?.username}
@@ -588,11 +787,14 @@ export const SeenStory = ({route, navigation}: any) => {
           navigation={navigation}
           creatorId={currentCreator?._id}
           yourUserId={yourUserId}
+          isOwner={isCurrentUserStory}
         />
+
         <ProgressBar
           progressAnims={progressAnims}
           storyCount={syncedStories.length}
         />
+        
         <MediaPlayer
           key={`${selectedItem?._id}-${currentIndex}`} // ✅ Force re-render khi chuyển story
           item={selectedItem}
@@ -614,26 +816,96 @@ export const SeenStory = ({route, navigation}: any) => {
           onImageLoad={onImageLoad}
           forceReset={true} // ✅ Force reset sound khi chuyển story
         />
+        
         {renderCaption()}
         {/* {renderTags()} */}
       </TouchableOpacity>
-      <Footer
-        onLike={handleLike}
-        isLiked={isLiked}
-        scaleAnim={scaleAnim}
-        onPressSend={handleOpenShare}
-      />
-      <ModalShareStory
-        ref={shareModalRef}
-        onOpen={() => {
-          setIsPaused(true); // dừng story
-          stopCurrentAnimation(); // đảm bảo animation ngừng
-        }}
-        onClose={() => {
-          setIsPaused(false); // tiếp tục
-          startProgressAnimation(); // gọi lại animation!
-        }}
-      />
+
+      {/* Conditional Footer based on ownership */}
+      {isCurrentUserStory ? (
+        <SeenStoryOwnerBottom
+          onShowPeopleSeen={() => {
+            setVisible(true);
+            // ✅ Pause story khi mở modal People Seen
+            if (!isPaused) {
+              setIsPaused(true);
+              setWasPausedByUser(true);
+            }
+          }}
+          onShowMore={() => {
+            setVisibleSeeMore(true);
+            // ✅ Pause story khi mở modal SeeMore
+            if (!isPaused) {
+              setIsPaused(true);
+              setWasPausedByUser(true);
+            }
+          }}
+          visible={visible}
+          users={selectedItem?.viewedByUsers || []}
+          onClose={() => setVisible(false)}
+          onDelete={handleDeleteStory}
+        />
+      ) : (
+        <Footer
+          onLike={handleLike}
+          isLiked={isLiked}
+          scaleAnim={scaleAnim}
+          onPressSend={handleOpenShare}
+        />
+      )}
+
+      {/* Conditional Modals based on ownership */}
+      {!isCurrentUserStory && (
+        <ModalShareStory
+          ref={shareModalRef}
+          onOpen={() => {
+            setIsPaused(true); // dừng story
+            stopCurrentAnimation(); // đảm bảo animation ngừng
+          }}
+          onClose={() => {
+            setIsPaused(false); // tiếp tục
+            startProgressAnimation(); // gọi lại animation!
+          }}
+        />
+      )}
+
+      {/* Owner-specific modals */}
+      {isCurrentUserStory && (
+        <Portal>
+          <ModelPeopleSeen
+            visible={visible}
+            onClose={() => {
+              setVisible(false);
+              // ✅ Resume story khi đóng modal People Seen (nếu không phải do user pause)
+              if (wasPausedByUser && !isNavigatedAway) {
+                setIsPaused(false);
+                setWasPausedByUser(false);
+              }
+            }}
+            users={selectedItem?.viewedByUsers || []}
+            onUserPress={user => {
+              setVisible(false);
+              if (user._id === yourUserId) {
+                navigation.navigate('Account');
+              } else {
+                navigation.navigate('ProfileComp', {userID: user._id});
+              }
+            }}
+          />
+          <ModalSeeMore
+            visible={visibleSeeMore}
+            onClose={() => {
+              setVisibleSeeMore(false);
+              // ✅ Resume story khi đóng modal SeeMore (nếu không phải do user pause)
+              if (wasPausedByUser && !isNavigatedAway) {
+                setIsPaused(false);
+                setWasPausedByUser(false);
+              }
+            }}
+            onDelete={handleDeleteStory}
+          />
+        </Portal>
+      )}
     </SafeAreaView>
   );
 };

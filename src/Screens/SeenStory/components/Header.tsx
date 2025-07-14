@@ -2,6 +2,23 @@ import React, {useEffect, useState} from 'react';
 import {View, Text, Image, TouchableOpacity} from 'react-native';
 import {styles} from './styles';
 import {Pause, Play, VolumeX, Volume2, X} from 'lucide-react-native';
+
+interface HeaderProps {
+  onClose: () => void;
+  username?: string;
+  profilePic?: string;
+  pause: boolean;
+  onTogglePause: () => void;
+  mute: boolean;
+  onToggleMute: () => void;
+  createdAt?: string;
+  navigation?: any;
+  creatorId?: string;
+  yourUserId?: string;
+  // ✅ New prop to distinguish between owner and viewer mode
+  isOwner?: boolean;
+}
+
 export const Header = ({
   onClose,
   username,
@@ -14,27 +31,24 @@ export const Header = ({
   navigation,
   creatorId,
   yourUserId,
-}: {
-  onClose: () => void;
-  username?: string;
-  profilePic?: string;
-  pause: boolean;
-  onTogglePause: () => void;
-  mute: boolean;
-  onToggleMute: () => void;
-  createdAt?: string;
-  navigation?: any;
-  creatorId?: string;
-  yourUserId?: string;
-}) => {
+  isOwner = false,
+}: HeaderProps) => {
   const [timeAgo, setTimeAgo] = useState('');
+  
   useEffect(() => {
     if (!createdAt) return;
 
     const updateTimeAgo = () => {
       const now = new Date();
       const created = new Date(createdAt);
-      const diffMs = now.getTime() - created.getTime();
+
+      // Lấy offset múi giờ hiện tại (ví dụ: -420 phút = GMT+7)
+      const timezoneOffset = now.getTimezoneOffset(); // đơn vị: phút
+      const localCreated = new Date(
+        created.getTime() - timezoneOffset * 60 * 1000,
+      );
+
+      const diffMs = now.getTime() - localCreated.getTime();
 
       if (diffMs >= 24 * 60 * 60 * 1000) {
         setTimeAgo('');
@@ -59,20 +73,25 @@ export const Header = ({
     return () => clearInterval(interval);
   }, [createdAt]);
 
-  // ✅ Handle avatar press navigation
+  // ✅ Handle avatar press navigation based on ownership
   const handleAvatarPress = () => {
-    if (!navigation || !creatorId) return;
+    if (!navigation) return;
 
     // ✅ Pause story khi navigate
     if (!pause) {
       onTogglePause();
     }
 
-    // ✅ Kiểm tra nếu là chính tài khoản hiện tại thì chuyển qua Account
-    if (creatorId === yourUserId) {
+    if (isOwner) {
+      // ✅ Owner mode: chuyển qua Account
       navigation.navigate('Account');
     } else {
-      navigation.navigate('ProfileComp', {userID: creatorId});
+      // ✅ Viewer mode: kiểm tra nếu là chính tài khoản hiện tại thì chuyển qua Account
+      if (creatorId === yourUserId) {
+        navigation.navigate('Account');
+      } else {
+        navigation.navigate('ProfileComp', {userID: creatorId});
+      }
     }
   };
 
