@@ -1,9 +1,9 @@
 import React from 'react';
-import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import {Colors} from '../../../../assets/color/Colors';
-import {useTheme} from '../../../util/ThemeContext';
-import {useNavigation} from '@react-navigation/native';
-import {ChevronRight} from 'lucide-react-native';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Colors } from '../../../../assets/color/Colors';
+import { useTheme } from '../../../util/ThemeContext';
+import { useNavigation } from '@react-navigation/native';
+import { ChevronRight } from 'lucide-react-native';
 
 interface ItemNewMessageProps {
   roomId: string;
@@ -24,85 +24,98 @@ const ItemNewMessage: React.FC<ItemNewMessageProps> = ({
   img2,
   type,
 }) => {
-  const {theme} = useTheme();
+  const { theme } = useTheme();
   const color = Colors[theme];
   const navigation: any = useNavigation();
 
   return (
-    <TouchableOpacity
-      style={styles.container}
-      onPress={() => {
-        console.log(`❤️‍🔥❤️‍🔥❤️‍🔥❤️‍🔥❤️‍🔥35 >>>>>> itemNewMsg - RoomID: ${roomId}`);
-        if (nameChat === 'Không xác định') {
-          navigation.navigate('MessageUndefined');
-        } else {
-          navigation.navigate('MessageScreen', {
-            room: roomId,
-            isWaiting: type === 'waiting',
-          });
-        }
-      }}>
-      <View style={styles.rowContainer}>
-        <View
-          style={[
-            styles.imgContainer,
-            {overflow: img1 && !img2 ? 'hidden' : 'visible'},
-          ]}>
-          {img2 && (
-            <>
-              <Image style={styles.iconW} source={{uri: img1}} />
-              <Image
-                style={[
-                  styles.iconF,
-                  {
-                    borderColor: color.background,
-                    backgroundColor: color.backgroundSecondary,
-                  },
-                ]}
-                source={{uri: img2}}
-              />
-            </>
-          )}
-          {!img2 && img1 && <Image style={styles.img} source={{uri: img1}} />}
+    <View style={styles.surround}>
+      <TouchableOpacity
+        style={styles.container}
+        onPress={() => {
+          console.log(`❤️‍🔥❤️‍🔥❤️‍🔥❤️‍🔥❤️‍🔥35 >>>>>> itemNewMsg - RoomID: ${roomId}`);
+          if (nameChat === 'Không xác định') {
+            navigation.navigate('MessageUndefined');
+          } else {
+            navigation.navigate('MessageScreen', {
+              room: roomId,
+              isWaiting: type === 'waiting',
+            });
+          }
+        }}>
+        <View style={styles.contentContainer}>
+          <View style={styles.rowContainer}>
+            <View
+              style={[
+                styles.imgContainer,
+                { overflow: img1 && !img2 ? 'hidden' : 'visible' },
+              ]}>
+              {img2 && (
+                <>
+                  <Image style={styles.iconW} source={{ uri: img1 }} />
+                  <Image
+                    style={[
+                      styles.iconF,
+                      {
+                        borderColor: color.background,
+                        backgroundColor: color.backgroundSecondary,
+                      },
+                    ]}
+                    source={{ uri: img2 }}
+                  />
+                </>
+              )}
+              {!img2 && img1 && <Image style={styles.img} source={{ uri: img1 }} />}
+            </View>
+            <View style={styles.textContainer}>
+              <Text style={[styles.nameChat, { color: color.text }]}>{nameChat}</Text>
+              {latestMessage?.content && (
+                <Text
+                  style={[styles.textNormal, { color: color.textSecondary }]}
+                  numberOfLines={1}>
+                  {latestMessage?.content}
+                </Text>
+              )}
+            </View>
+          </View>
+          <ChevronRight size={22} color={color.textSecondary} />
         </View>
-        <View>
-          <Text style={[styles.nameChat, {color: color.text}]}>{nameChat}</Text>
-          {latestMessage?.content && (
-            <Text
-              style={[styles.textNormal, {color: color.text}]}
-              numberOfLines={1}>
-              {latestMessage?.content}
-            </Text>
-          )}
-        </View>
-      </View>
-      <ChevronRight size={22} color={color.text} />
-    </TouchableOpacity>
+      </TouchableOpacity>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  surround: {
+    paddingHorizontal: 5,
+  },
   container: {
-    width: '100%',
-    paddingHorizontal: 20,
-    marginBottom: 22,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginBottom: 8,
+    borderRadius: 32,
+  },
+  contentContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
   rowContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
   },
   imgContainer: {
     position: 'relative',
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    marginRight: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    marginRight: 12,
     overflow: 'hidden',
+  },
+  textContainer: {
+    flex: 1,
+    justifyContent: 'center',
   },
   iconW: {
     width: '75%',
@@ -128,19 +141,16 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     resizeMode: 'cover',
-  },
-  icon: {
-    width: '40%',
-    height: '40%',
-    resizeMode: 'contain',
+    borderRadius: 25,
   },
   nameChat: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
     marginBottom: 4,
   },
   textNormal: {
     fontSize: 14,
+    opacity: 0.7,
   },
 });
 
