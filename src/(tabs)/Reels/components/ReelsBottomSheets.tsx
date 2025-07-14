@@ -8,7 +8,7 @@ interface Props {
   sheetRefComment: React.RefObject<BottomSheetCommentRef>;
   isBookmarked: boolean;
   selectedItem?: PostWithMedia | null;
-  selectedPostId: { postId: string; receiverId: string };
+  selectedPostId: React.RefObject<{ postId: string; receiverId: string }>;
 }
 
 const ReelsBottomSheets = ({
@@ -27,8 +27,7 @@ const ReelsBottomSheets = ({
       />
       <BottomSheetComment
         ref={sheetRefComment}
-        postId={selectedPostId.postId}
-        receiverId={selectedPostId.receiverId}
+        selectedPostRef={selectedPostId}
       />
     </>
   );

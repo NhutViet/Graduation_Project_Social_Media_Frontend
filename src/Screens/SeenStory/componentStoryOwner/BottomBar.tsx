@@ -20,11 +20,11 @@ const SeenStoryOwnerBottom: React.FC<Props> = ({
   return (
     <View style={styles.viewBottom}>
       <TouchableOpacity style={styles.viewIconItem} onPress={onShowPeopleSeen}>
-        <Users size={22} color={'black'} />
+        <Users size={22} color={"#fff"} />
         <Text style={styles.txtIcon}>Hoạt động</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.viewIconItem} onPress={onShowMore}>
-        <MoreHorizontal size={22} color={'black'} />
+        <MoreHorizontal size={22} color={'#fff'} />
         <Text style={styles.txtIcon}>Xem thêm</Text>
       </TouchableOpacity>
     </View>

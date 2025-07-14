@@ -50,10 +50,10 @@ const AllPostOfCollection = () => {
   const sheetRef = useRef<BottomSheetCommentRef>(null);
 
   const [currentVisible, setCurrentVisible] = useState<string | null>(null);
-  const [selectedPostId, setSelectedPostId] = useState<{
-    postId: string;
-    receiverId: string;
-  }>({postId: '', receiverId: ''});
+  const selectedPostRef = useRef<{postId: string; receiverId: string}>({
+    postId: '',
+    receiverId: '',
+  });
 
   const targetIndex = posts.findIndex(p => p._id === targetPostId);
 
@@ -110,7 +110,7 @@ const AllPostOfCollection = () => {
                 isFocused={isFocused}
                 sheetRef={sheetRef}
                 isFollow={item.isFollow}
-                setSelectedPostId={setSelectedPostId}
+                SelectedPostRef={selectedPostRef}
                 clickableHashtags={clickableHashtag}
               />
             );
@@ -127,11 +127,7 @@ const AllPostOfCollection = () => {
             index,
           })}
         />
-        <BottomSheetComment
-          ref={sheetRef}
-          postId={selectedPostId.postId}
-          receiverId={selectedPostId.receiverId}
-        />
+        <BottomSheetComment ref={sheetRef} selectedPostRef={selectedPostRef} />
       </View>
     </SafeAreaView>
   );

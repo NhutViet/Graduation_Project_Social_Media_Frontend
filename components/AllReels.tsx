@@ -51,7 +51,7 @@ const AllReels = () => {
     initialId,
   );
   const [selectedItem, setSelectedItem] = useState<PostWithMedia | null>(null);
-  const [selectedPostId, setSelectedPostId] = useState({
+  const selectedPostRef = useRef<{postId: string; receiverId: string}>({
     postId: '',
     receiverId: '',
   });
@@ -78,7 +78,7 @@ const AllReels = () => {
 
   const openComment = useCallback(
     (item: PostWithMedia) => {
-      setSelectedPostId({postId: item._id, receiverId: item.user._id});
+      selectedPostRef.current = {postId: item._id, receiverId: item.user._id};
       dispatch(fetchCommentsByPost(item._id));
       sheetRefComment.current?.open();
     },
@@ -151,8 +151,7 @@ const AllReels = () => {
       />
       <BottomSheetComment
         ref={sheetRefComment}
-        postId={selectedPostId.postId}
-        receiverId={selectedPostId.receiverId}
+        selectedPostRef={selectedPostRef}
       />
       <Portal>
         <ModalShare ref={modalShareRef} isDark={true} />

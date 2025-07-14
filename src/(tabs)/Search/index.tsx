@@ -320,17 +320,6 @@ export const Search = forwardRef<SearchRef, {}>((props, ref) => {
     }
   }, [postsData, isInitializing]);
 
-  // Loading state
-  if (isInitializing) {
-    return (
-      <SafeAreaView style={[styles.container]}>
-        <View style={[styles.container]}>
-          <SkeletonExploreSection />
-        </View>
-      </SafeAreaView>
-    );
-  }
-
   return (
     <SafeAreaView style={styles.container}>
       {/* Search Bar */}
@@ -341,21 +330,23 @@ export const Search = forwardRef<SearchRef, {}>((props, ref) => {
           </TouchableOpacity>
         )}
         <View style={styles.row}>
-          <TextInput
-            ref={inputRef}
-            placeholder="Tìm kiếm..."
-            placeholderTextColor={color.text}
-            style={styles.search}
-            onFocus={() => {
-              setIsFocused(true);
-              setIsShowResult(false);
-            }}
-            value={searchText}
-            onChangeText={setSearchText}
-            onSubmitEditing={handleSearchSubmit}
-            returnKeyType="search"
-          />
-          <SearchIcon size={20} color={color.text} />
+          <View style={styles.searchInputContainer}>
+            <SearchIcon size={15} color={color.text} />
+            <TextInput
+              ref={inputRef}
+              placeholder="Tìm kiếm..."
+              placeholderTextColor={color.text}
+              onFocus={() => {
+                setIsFocused(true);
+                setIsShowResult(false);
+              }}
+              style={{color: color.text,}}
+              value={searchText}
+              onChangeText={setSearchText}
+              onSubmitEditing={handleSearchSubmit}
+              returnKeyType="search"
+            />
+          </View>
         </View>
         {isFocused && (
           <TouchableOpacity onPress={handleCancel}>
@@ -412,21 +403,25 @@ export const Search = forwardRef<SearchRef, {}>((props, ref) => {
           </View>
         )}
 
-        {/* Explore Media Grid */}
+        {/* Explore Media Grid - Show skeleton when initializing */}
         {!isFocused && !isShowResult && (
           <View style={styles.container}>
-            <FlashList
-              data={mediaGroups}
-              keyExtractor={(_, i) => `media-group-${i}`}
-              renderItem={renderExploreItem}
-              estimatedItemSize={screenDimensions.BIG + 4}
-              viewabilityConfig={viewabilityConfig}
-              removeClippedSubviews
-              onEndReached={loadMore}
-              onEndReachedThreshold={0.1}
-              ListFooterComponent={renderFooter}
-              getItemType={() => 'media-group'}
-            />
+            {isInitializing ? (
+              <SkeletonExploreSection />
+            ) : (
+              <FlashList
+                data={mediaGroups}
+                keyExtractor={(_, i) => `media-group-${i}`}
+                renderItem={renderExploreItem}
+                estimatedItemSize={screenDimensions.BIG + 4}
+                viewabilityConfig={viewabilityConfig}
+                removeClippedSubviews
+                onEndReached={loadMore}
+                onEndReachedThreshold={0.1}
+                ListFooterComponent={renderFooter}
+                getItemType={() => 'media-group'}
+              />
+            )}
           </View>
         )}
       </View>

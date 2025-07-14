@@ -48,7 +48,7 @@ import {
   PrivacyAndSafety,
   Splash,
   UserFollowScreen,
-  SeenStoryOwner,
+
   TagSo,
   HighlightCreateScreen,
   HelpCenter,
@@ -166,7 +166,6 @@ const AppNavigator = () => {
         <Stack.Screen name="FollowerRequests" component={FollowerRequests} />
         <Stack.Screen name="Register" component={Register} />
         <Stack.Screen name="SeenStory" component={SeenStory} />
-        <Stack.Screen name="SeenStoryOwner" component={SeenStoryOwner} />
         <Stack.Screen name="MessageScreen" component={MessageScreen} />
         <Stack.Screen name="InfoUser" component={UserInfo} />
         <Stack.Screen name="QRCode" component={ScreenQRCode} />

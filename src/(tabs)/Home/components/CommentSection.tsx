@@ -35,7 +35,7 @@ import {useSharedValue} from 'react-native-reanimated';
 import {fetchFollowers} from '@services/relationRedux/relationSlice';
 import MentionSuggestion from '../../../../src/Screens/PostSetting/Components/MentionSuggestion';
 import {useNavigation} from '@react-navigation/native';
-import LoadingModal from '../../../../components/Global/LoadingModal';
+import { CommentSkeleton } from '../../../../components/SkeletonGrid';
 
 export type BottomSheetCommentRef = {
   open: () => void;
@@ -186,9 +186,7 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
           }}>
           <View style={{flex: 1, height: height, paddingTop: 40}}>
             {loading ? (
-              <View style={styles.loadingContainer}>
-                <LoadingModal />
-              </View>
+                <CommentSkeleton itemCount={6} spacing={16} />
             ) : (
               <>
                 {comments.length > 0 ? (
@@ -331,11 +329,6 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
 );
 
 const styles = StyleSheet.create({
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   visibleReply: {
     flexDirection: 'row',
     alignItems: 'center',

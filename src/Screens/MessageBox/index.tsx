@@ -33,8 +33,8 @@ import {
   Search,
   XCircle,
 } from 'lucide-react-native';
+import { ChatSkeleton } from '../../../components/SkeletonGrid';
 import LoadingModal from '../../../components/Global/LoadingModal';
-
 export const MessageBox = (props: any) => {
   const navigation: any = useNavigation();
   const { theme } = useTheme();
@@ -356,10 +356,7 @@ export const MessageBox = (props: any) => {
 
       <View style={styles.messagesListContainer}>
         {loading ? (
-          <View
-            style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <LoadingModal />
-          </View>
+          <ChatSkeleton count={10}/>
         ) : (
           <FlashList
             data={filteredRooms}
