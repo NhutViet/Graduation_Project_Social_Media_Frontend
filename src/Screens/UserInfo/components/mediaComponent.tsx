@@ -1,6 +1,5 @@
 import React, {memo, useCallback} from 'react';
 import {
-  TouchableOpacity,
   Image,
   Text,
   View,
@@ -19,23 +18,32 @@ interface TabViProps {
 
 const ITEM_HEIGHT = (width: number) => width / 3;
 export const TabVi = memo(({medi, isLoading, onEndReached}: TabViProps) => {
-  const {width: screenWidth} = useWindowDimensions();
+  const {height, width: screenWidth} = useWindowDimensions();
   const itemSize = ITEM_HEIGHT(screenWidth);
 
   const renderItem = useCallback(
-    ({item}: {item: MediaItem}) => (
-      <TouchableOpacity
-        style={{
-          width: itemSize - 1,
-          height: itemSize,
-        }}>
-        <Image
-          source={{uri: item.media.url}}
-          style={styles.image}
-          resizeMode="cover"
-        />
-      </TouchableOpacity>
-    ),
+    ({item}: {item: MediaItem}) => {
+      const isValidUrl = item.media.url && item.media.url.trim() !== '';
+
+      return (
+        <View
+          style={{
+            width: itemSize - 1,
+            height: itemSize,
+            backgroundColor: '#f0f0f0',
+          }}>
+          {isValidUrl ? (
+            <Image
+              source={{uri: item.media.url}}
+              style={styles.image}
+              resizeMode="cover"
+            />
+          ) : (
+            <View style={styles.placeholder} />
+          )}
+        </View>
+      );
+    },
     [itemSize],
   );
 
@@ -69,7 +77,7 @@ export const TabVi = memo(({medi, isLoading, onEndReached}: TabViProps) => {
       contentContainerStyle={styles.listContainer}
       showsVerticalScrollIndicator={false}
       estimatedListSize={{
-        height: screenWidth,
+        height: height,
         width: screenWidth,
       }}
     />
@@ -80,6 +88,13 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: '100%',
+  },
+  placeholder: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#e0e0e0',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   loadingContainer: {
     flex: 1,

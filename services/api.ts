@@ -49,6 +49,7 @@ export const API = {
   /// User
   GET_PUBLIC_PROFILE: '/users/public',
   GET_USER_ID_BY_HANDLE: '/users/username-by-handle',
+  CHANGE_PASSWORD: '/users/password',
   ////bookmark
   POST_SAVE_BOOKMARK: 'bookmark-playlists/add-default',
   DELETE_BOOKMARK: 'bookmark-items/remove',
