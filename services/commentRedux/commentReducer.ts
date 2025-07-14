@@ -1,6 +1,6 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {CommentPost} from './commentTypes';
-import {fetchCommentsByPost} from './commentSlice';
+import {addComment, fetchCommentsByPost} from './commentSlice';
 
 interface CommentState {
   comments: CommentPost[];
@@ -70,6 +70,33 @@ const commentReducer = createSlice({
       .addCase(fetchCommentsByPost.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to load comments';
+      })
+      .addCase(addComment.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(addComment.fulfilled, (state, action) => {
+        state.loading = false;
+        const newComment = action.payload;
+        if (!newComment.parentID) {
+          state.comments.push(newComment);
+        } else {
+          const added = findAndUpdateComment(
+            state.comments,
+            newComment.parentID,
+            parentComment => {
+              if (!parentComment.reply) parentComment.reply = [];
+              parentComment.reply.push(newComment);
+            },
+          );
+          if (!added) {
+            console.warn('Không tìm thấy bình luận cha.', newComment);
+          }
+        }
+      })
+      .addCase(addComment.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Thất  bại khi gửi bình luận.';
       });
   },
 });

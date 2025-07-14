@@ -1,4 +1,3 @@
-// CommentSection.tsx
 import React, {useRef, useState} from 'react';
 import {
   View,
@@ -70,7 +69,6 @@ const CommentSection = ({postId, receiverId}: Props) => {
       ).unwrap();
       setComment('');
       setReplyTo(null);
-      dispatch(fetchCommentsByPost(postId));
     } catch (error) {
       GlobalAlertManager.show('Thất bại', 'Không thể bình luận');
     }
