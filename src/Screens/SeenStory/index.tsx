@@ -9,7 +9,10 @@ import {
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../services/store';
-import {toggleLikeStory, deleteStory} from '../../../services/StoryRedux/StorySlice';
+import {
+  toggleLikeStory,
+  deleteStory,
+} from '../../../services/StoryRedux/StorySlice';
 import {styles} from './components/styles';
 import {Header} from './components/Header';
 import {ProgressBar} from './components/ProgressBar';
@@ -17,6 +20,7 @@ import {MediaPlayer} from './components/MediaPlayer';
 import {Footer} from './components/Footer';
 import {Keyboard} from 'react-native';
 import ModalShareStory, {ModalShareHandle} from './components/modalShare';
+import ModalReplyStory, {ModalReplyHandle} from './components/ModalReplyStory';
 import StoryLoadingSkeleton from '../../(tabs)/Home/components/StoryLoadingSkeleton';
 import {debugStoryGroups} from '../../(tabs)/Home/util';
 import {renderTextWithMentions} from '../../util/storyTextRenderer';
@@ -91,6 +95,7 @@ export const SeenStory = ({route, navigation}: any) => {
   const [isMusicLoaded, setIsMusicLoaded] = useState(false);
   const [isMediaLoading, setIsMediaLoading] = useState(true);
   const shareModalRef = useRef<ModalShareHandle>(null);
+  const replyModalRef = useRef<ModalReplyHandle>(null);
   const yourUserId = useSelector((state: RootState) => state.user.user?._id);
 
   // ✅ Get story details from Redux store
@@ -106,8 +111,9 @@ export const SeenStory = ({route, navigation}: any) => {
   const currentIndexRef = useRef(0);
 
   // ✅ Check if current user is the story owner
-  const isCurrentUserStory = currentCreator?.username === user?.handleName || 
-                            currentCreator?._id === user?._id;
+  const isCurrentUserStory =
+    currentCreator?.username === user?.handleName ||
+    currentCreator?._id === user?._id;
 
   // ✅ Sync stories with Redux store data
   const syncedStories = useMemo(() => {
@@ -354,7 +360,7 @@ export const SeenStory = ({route, navigation}: any) => {
   // ✅ Owner-specific: Enhanced navigation with tracking
   const goToNextStory = () => {
     if (isCurrentUserStory && isNavigatingRef.current) return;
-    
+
     if (isCurrentUserStory) {
       isNavigatingRef.current = true;
     }
@@ -418,7 +424,7 @@ export const SeenStory = ({route, navigation}: any) => {
   // ✅ Owner-specific: Enhanced previous navigation
   const goToPreviousStory = () => {
     if (isCurrentUserStory && isNavigatingRef.current) return;
-    
+
     if (isCurrentUserStory) {
       isNavigatingRef.current = true;
     }
@@ -744,9 +750,17 @@ export const SeenStory = ({route, navigation}: any) => {
   // ✅ Viewer-specific: Share functionality
   const handleOpenShare = () => {
     if (isCurrentUserStory) return; // Owner doesn't have share
-    
+
     stopCurrentAnimation();
     shareModalRef.current?.open(); // phải dùng ref để mở Modal
+  };
+
+  // ✅ Viewer-specific: Reply functionality
+  const handleOpenReply = () => {
+    if (isCurrentUserStory) return; // Owner can't reply to their own story
+
+    stopCurrentAnimation();
+    replyModalRef.current?.open(); // phải dùng ref để mở Modal
   };
 
   // ✅ Owner-specific: Modal handlers
@@ -773,7 +787,6 @@ export const SeenStory = ({route, navigation}: any) => {
         style={styles.mediaWrapper}
         activeOpacity={1}
         onPress={handleTouch}>
-        
         {/* Unified Header for both owner and viewer */}
         <Header
           onClose={() => navigation.goBack()}
@@ -794,7 +807,7 @@ export const SeenStory = ({route, navigation}: any) => {
           progressAnims={progressAnims}
           storyCount={syncedStories.length}
         />
-        
+
         <MediaPlayer
           key={`${selectedItem?._id}-${currentIndex}`} // ✅ Force re-render khi chuyển story
           item={selectedItem}
@@ -816,7 +829,7 @@ export const SeenStory = ({route, navigation}: any) => {
           onImageLoad={onImageLoad}
           forceReset={true} // ✅ Force reset sound khi chuyển story
         />
-        
+
         {renderCaption()}
         {/* {renderTags()} */}
       </TouchableOpacity>
@@ -851,22 +864,47 @@ export const SeenStory = ({route, navigation}: any) => {
           isLiked={isLiked}
           scaleAnim={scaleAnim}
           onPressSend={handleOpenShare}
+          onPressReply={handleOpenReply}
         />
       )}
 
       {/* Conditional Modals based on ownership */}
       {!isCurrentUserStory && (
-        <ModalShareStory
-          ref={shareModalRef}
-          onOpen={() => {
-            setIsPaused(true); // dừng story
-            stopCurrentAnimation(); // đảm bảo animation ngừng
-          }}
-          onClose={() => {
-            setIsPaused(false); // tiếp tục
-            startProgressAnimation(); // gọi lại animation!
-          }}
-        />
+        <>
+          <ModalShareStory
+            ref={shareModalRef}
+            storyData={{
+              _id: selectedItem?._id,
+              mediaUrl: selectedItem?.mediaUrl,
+              type: selectedItem?.uriVideo ? 'video' : 'image',
+            }}
+            onOpen={() => {
+              setIsPaused(true); // dừng story
+              stopCurrentAnimation(); // đảm bảo animation ngừng
+            }}
+            onClose={() => {
+              setIsPaused(false); // tiếp tục
+              startProgressAnimation(); // gọi lại animation!
+            }}
+          />
+          <ModalReplyStory
+            ref={replyModalRef}
+            storyData={{
+              _id: selectedItem?._id,
+              mediaUrl: selectedItem?.mediaUrl,
+              type: selectedItem?.uriVideo ? 'video' : 'image',
+            }}
+            creatorId={currentCreator?._id}
+            onOpen={() => {
+              setIsPaused(true); // dừng story
+              stopCurrentAnimation(); // đảm bảo animation ngừng
+            }}
+            onClose={() => {
+              setIsPaused(false); // tiếp tục
+              startProgressAnimation(); // gọi lại animation!
+            }}
+          />
+        </>
       )}
 
       {/* Owner-specific modals */}

@@ -234,3 +234,29 @@ export const createStory = createAsyncThunk<
     );
   }
 });
+
+export const shareStory = createAsyncThunk<
+  {shareTo: string[]; content: string},
+  {
+    roomIds: string[];
+    message?: string;
+    media: {
+      type: 'image' | 'video';
+      url: string;
+    };
+  },
+  {rejectValue: string}
+>('stories/shareStory', async (payload, {rejectWithValue}) => {
+  try {
+    const response = await axiosInstance.post(API.SHARE_STORY, payload, {
+      headers: {
+        token: 'refresh',
+      },
+    });
+    return response.data.data;
+  } catch (error: any) {
+    return rejectWithValue(
+      error.response?.data?.message || 'Không thể chia sẻ story',
+    );
+  }
+});
