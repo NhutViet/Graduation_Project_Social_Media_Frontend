@@ -1,40 +1,40 @@
 import React from 'react';
-import { Dimensions, StyleSheet, View } from 'react-native';
+import { Animated, Easing, View } from 'react-native';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import { Colors } from '../assets/color/Colors';
-import { useTheme } from '../src/util/ThemeContext';
-import { ScreenContainer } from 'react-native-screens';
+import { useSkeletonStyles } from '../src/StyleSheet/SkeletonStyles';
 
-const GAP = Colors.spacing.xs;
-const SMALL = (Colors.dimensions.width - GAP * 3) / 3;
-const BIG = SMALL * 2 + GAP;
-const SCREEN_HEIGHT = Dimensions.get('window').height;
-const { width: screenWidth } = Dimensions.get('window');
-
-export const SearchSkeletonGrid: React.FC<{
+interface SearchSkeletonGridProps {
   itemCount?: number;
   columns?: number;
   itemWidth: number;
   itemHeight: number;
   spacing?: number;
-}> = ({
+}
+interface HomeSkeletonProps {
+  postCount?: number;
+  storyCount?: number;
+}
+interface NotificationSkeletonProps {
+  count?: number;
+}
+interface CommentSkeletonLoaderProps {
+  itemCount?: number;
+  spacing?: number;
+}
+
+export const SearchSkeletonGrid: React.FC<SearchSkeletonGridProps> = ({
   itemCount = 9,
   columns = 3,
   itemWidth,
   itemHeight,
   spacing = Colors.spacing.xs,
 }) => {
-  const { theme } = useTheme();
-  const currentTheme = Colors[theme];
-  
+  const { skeletonProps, styles } = useSkeletonStyles();
   const placeholders = Array.from({ length: itemCount });
 
   return (
-    <SkeletonPlaceholder
-      backgroundColor={currentTheme.gray}
-      highlightColor={currentTheme.backgroundSecondary}
-      speed={1200}
-    >
+    <SkeletonPlaceholder {...skeletonProps}>
       <SkeletonPlaceholder.Item style={styles.grid}>
         {placeholders.map((_, i) => (
           <SkeletonPlaceholder.Item
@@ -52,17 +52,12 @@ export const SearchSkeletonGrid: React.FC<{
 };
 
 export const SkeletonExploreSection: React.FC = () => {
-  const { theme } = useTheme();
-  const currentTheme = Colors[theme];
+  const { dimensions, skeletonProps } = useSkeletonStyles();
+  const { GAP, SMALL, BIG } = dimensions;
   
   return (
-    <SkeletonPlaceholder
-      backgroundColor={currentTheme.gray}
-      highlightColor={currentTheme.backgroundSecondary}
-      speed={1200}
-    >
+    <SkeletonPlaceholder {...skeletonProps}>
       <SkeletonPlaceholder.Item>
-        {/* Render 3 rows */}
         {[0, 1, 2].map((rowIndex) => {
           const isReversed = rowIndex % 2 === 0;
           
@@ -74,7 +69,6 @@ export const SkeletonExploreSection: React.FC = () => {
               paddingHorizontal={GAP / 2}
               marginBottom={GAP}
             >
-              {/* Big cell */}
               <SkeletonPlaceholder.Item
                 width={SMALL}
                 height={BIG}
@@ -83,13 +77,11 @@ export const SkeletonExploreSection: React.FC = () => {
                 borderRadius={Colors.radius.xs}
               />
               
-              {/* Small cells container */}
               <SkeletonPlaceholder.Item
                 width={BIG}
                 flexDirection="row"
                 flexWrap="wrap"
               >
-                {/* Top row small cells */}
                 <SkeletonPlaceholder.Item
                   width={SMALL}
                   height={SMALL}
@@ -104,7 +96,6 @@ export const SkeletonExploreSection: React.FC = () => {
                   borderRadius={Colors.radius.xs}
                 />
                 
-                {/* Bottom row small cells */}
                 <SkeletonPlaceholder.Item
                   width={SMALL}
                   height={SMALL}
@@ -126,17 +117,12 @@ export const SkeletonExploreSection: React.FC = () => {
 };
 
 export const ProfileSkeleton: React.FC = () => {
-  const { theme } = useTheme();
-  const currentTheme = Colors[theme];
+  const { dimensions, skeletonProps, styles } = useSkeletonStyles();
+  const { SMALL } = dimensions;
   
   return (
-    <SkeletonPlaceholder
-      backgroundColor={currentTheme.gray}
-      highlightColor={currentTheme.backgroundSecondary}
-      speed={1200}
-    >
+    <SkeletonPlaceholder {...skeletonProps}>
       <SkeletonPlaceholder.Item style={styles.screenContainer}>
-        {/* Header: single bar */}
         <SkeletonPlaceholder.Item padding={Colors.spacing.m}>
           <SkeletonPlaceholder.Item 
             width="100%" 
@@ -145,7 +131,6 @@ export const ProfileSkeleton: React.FC = () => {
           />
         </SkeletonPlaceholder.Item>
 
-        {/* User Info */}
         <SkeletonPlaceholder.Item>
           <SkeletonPlaceholder.Item 
             flexDirection="row" 
@@ -181,7 +166,6 @@ export const ProfileSkeleton: React.FC = () => {
             </SkeletonPlaceholder.Item>
           </SkeletonPlaceholder.Item>
           
-          {/* Text lines: username + bio */}
           <SkeletonPlaceholder.Item 
             height={20} 
             marginHorizontal={Colors.spacing.m} 
@@ -203,7 +187,6 @@ export const ProfileSkeleton: React.FC = () => {
           />
         </SkeletonPlaceholder.Item>
 
-        {/* Action Buttons: two spaced bars */}
         <SkeletonPlaceholder.Item 
           flexDirection="row" 
           paddingHorizontal={Colors.spacing.m} 
@@ -222,7 +205,6 @@ export const ProfileSkeleton: React.FC = () => {
           />
         </SkeletonPlaceholder.Item>
 
-        {/* Highlight Stories */}
         <SkeletonPlaceholder.Item 
           flexDirection="row" 
           paddingHorizontal={Colors.spacing.l} 
@@ -239,30 +221,21 @@ export const ProfileSkeleton: React.FC = () => {
           ))}
         </SkeletonPlaceholder.Item>
 
-        {/* Tabs Bar Skeleton */}
         <SkeletonPlaceholder.Item 
           flexDirection="row" 
           justifyContent="space-around" 
           marginBottom={Colors.spacing.m}
         >
-          <SkeletonPlaceholder.Item 
-            width={SMALL} 
-            height={30} 
-            borderRadius={Colors.radius.xs} 
-          />
-          <SkeletonPlaceholder.Item 
-            width={SMALL} 
-            height={30} 
-            borderRadius={Colors.radius.xs} 
-          />
-          <SkeletonPlaceholder.Item 
-            width={SMALL} 
-            height={30} 
-            borderRadius={Colors.radius.xs} 
-          />
+          {Array.from({ length: 3 }).map((_, i) => (
+            <SkeletonPlaceholder.Item
+              key={i}
+              width={SMALL} 
+              height={30} 
+              borderRadius={Colors.radius.xs} 
+            />
+          ))}
         </SkeletonPlaceholder.Item>
 
-        {/* Tab Content Grid: 2 rows x 3 columns */}
         <SkeletonPlaceholder.Item paddingHorizontal={Colors.spacing.xs}>
           <SearchSkeletonGrid 
             itemCount={6} 
@@ -277,78 +250,556 @@ export const ProfileSkeleton: React.FC = () => {
   );
 };
 
-export const NotificationSkeleton: React.FC<{ count?: number }> = ({ count = 6 }) => {
-  const { theme } = useTheme();
-  const currentTheme = Colors[theme];
-  const placeholders = Array.from({ length: count });
+export const NotificationSkeleton: React.FC<NotificationSkeletonProps> = ({ count = 6 }) => {
+  const { dimensions, styles, currentTheme } = useSkeletonStyles();
+  const { NOTI_AVATAR, NOTI_LINE_HEIGHT, NOTI_LINE_SPACING } = dimensions;
+
+  // Animation value for the shimmer effect
+  const shimmerValue = React.useRef(new Animated.Value(0)).current;
+
+  React.useEffect(() => {
+    const shimmerAnimation = Animated.loop(
+      Animated.timing(shimmerValue, {
+        toValue: 1,
+        duration: 1200,
+        easing: Easing.linear,
+        useNativeDriver: false,
+      })
+    );
+    shimmerAnimation.start();
+
+    return () => shimmerAnimation.stop();
+  }, [shimmerValue]);
+
+  const shimmerTranslateX = shimmerValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-100, 100],
+  });
 
   return (
-    <SkeletonPlaceholder
-      backgroundColor={currentTheme.gray}
-      highlightColor={currentTheme.backgroundSecondary}
-      speed={1200}
-    >
-      <>
-        {placeholders.map((_, i) => (
-          <SkeletonPlaceholder.Item
-            key={i}
-            flexDirection="row"
-            alignItems="center"
-            padding={GAP}
-            marginBottom={GAP}
+    <>
+      {Array.from({ length: count }).map((_, i) => (
+        <View key={i} style={styles.notiContainer}>
+          {/* Background with skeleton color */}
+          <View
+            style={[
+              styles.notiRow,
+              {
+                backgroundColor: currentTheme.gray,
+                borderRadius: dimensions.NOTI_CONTAINER_RADIUS,
+                padding: dimensions.NOTI_CONTAINER_PADDING,
+                overflow: 'hidden',
+              },
+            ]}
           >
-            {/* Avatar circle */}
-            <SkeletonPlaceholder.Item
-              width={50}
-              height={50}
-              borderRadius={25}
-              marginBottom={20}
+            {/* Shimmer overlay */}
+            <Animated.View
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: currentTheme.backgroundSecondary,
+                opacity: 0.3,
+                transform: [{ translateX: shimmerTranslateX }],
+              }}
             />
 
-            {/* Notification box */}
-            <SkeletonPlaceholder.Item
-              width={screenWidth - 50 - GAP * 3}
-              height={70}
-              borderRadius={Colors.radius.s}
-              marginLeft={GAP}
+            {/* Avatar hole */}
+            <View
+              style={{
+                width: NOTI_AVATAR,
+                height: NOTI_AVATAR,
+                borderRadius: NOTI_AVATAR / 2,
+                backgroundColor: currentTheme.card, // Same as container background
+              }}
             />
-          </SkeletonPlaceholder.Item>
+
+            {/* Text lines holes */}
+            <View
+              style={{
+                flex: 1,
+                marginLeft: dimensions.GAP,
+              }}
+            >
+              <View
+                style={{
+                  width: '80%',
+                  height: NOTI_LINE_HEIGHT,
+                  borderRadius: 4,
+                  backgroundColor: currentTheme.card,
+                  marginBottom: NOTI_LINE_SPACING,
+                }}
+              />
+              <View
+                style={{
+                  width: '60%',
+                  height: NOTI_LINE_HEIGHT,
+                  borderRadius: 4,
+                  backgroundColor: currentTheme.card,
+                  marginBottom: NOTI_LINE_SPACING,
+                }}
+              />
+              <View
+                style={{
+                  width: '40%',
+                  height: NOTI_LINE_HEIGHT,
+                  borderRadius: 4,
+                  backgroundColor: currentTheme.card,
+                }}
+              />
+            </View>
+          </View>
+        </View>
+      ))}
+    </>
+  );
+};
+
+export const HomeSkeleton: React.FC<HomeSkeletonProps> = ({ 
+  postCount = 5, 
+  storyCount = 8 
+}) => {
+  const { dimensions, sizes, skeletonProps } = useSkeletonStyles();
+  const { GAP, VIDEO_HEIGHT } = dimensions;
+  const { 
+    STORY_AVATAR, 
+    STORY_LABEL, 
+    STORY_PADDING, 
+    POST_MARGIN_TOP, 
+    HEADER_AVATAR, 
+    HEADER_TEXT1, 
+    HEADER_TEXT2, 
+    FOLLOW_BUTTON, 
+    OPTIONS_ICON 
+  } = sizes;
+
+  const posts = Array.from({ length: postCount });
+  const stories = Array.from({ length: storyCount });
+
+  return (
+    <SkeletonPlaceholder {...skeletonProps}>
+      <>
+        <SkeletonPlaceholder.Item
+          flexDirection="row"
+          paddingHorizontal={STORY_PADDING + 14}
+        >
+          {stories.map((_, i) => (
+            <SkeletonPlaceholder.Item
+              key={i}
+              alignItems="center"
+              marginRight={GAP + 13}
+            >
+              <SkeletonPlaceholder.Item
+                width={STORY_AVATAR}
+                height={STORY_AVATAR}
+                borderRadius={STORY_AVATAR / 2}
+              />
+              <SkeletonPlaceholder.Item
+                width={STORY_AVATAR * 0.6}
+                height={STORY_LABEL + 5}
+                marginTop={6}
+                borderRadius={STORY_LABEL / 2}
+              />
+            </SkeletonPlaceholder.Item>
+          ))}
+        </SkeletonPlaceholder.Item>
+
+        {posts.map((_, i) => (
+          <View key={i} style={{ marginTop: POST_MARGIN_TOP }}>
+            <SkeletonPlaceholder.Item
+              flexDirection="row"
+              alignItems="center"
+              padding={STORY_PADDING}
+            >
+              <SkeletonPlaceholder.Item
+                width={HEADER_AVATAR}
+                height={HEADER_AVATAR}
+                borderRadius={HEADER_AVATAR / 2}
+              />
+
+              <SkeletonPlaceholder.Item
+                flex={1}
+                marginLeft={GAP}
+              >
+                <SkeletonPlaceholder.Item
+                  width="60%"
+                  height={HEADER_TEXT1}
+                  borderRadius={HEADER_TEXT1 / 2}
+                />
+                <SkeletonPlaceholder.Item
+                  marginTop={4}
+                  width="40%"
+                  height={HEADER_TEXT2}
+                  borderRadius={HEADER_TEXT2 / 2}
+                />
+              </SkeletonPlaceholder.Item>
+
+              <SkeletonPlaceholder.Item
+                width={FOLLOW_BUTTON.width + 15}
+                height={FOLLOW_BUTTON.height}
+                borderRadius={FOLLOW_BUTTON.borderRadius}
+                marginRight={GAP}
+              />
+
+              <SkeletonPlaceholder.Item
+                width={OPTIONS_ICON.width}
+                height={OPTIONS_ICON.height}
+                borderRadius={OPTIONS_ICON.width / 2}
+              />
+            </SkeletonPlaceholder.Item>
+
+            <SkeletonPlaceholder.Item
+              width="100%"
+              height={VIDEO_HEIGHT + 190}
+            />
+
+            <SkeletonPlaceholder.Item
+              flexDirection="row"
+              alignItems="center"
+              paddingHorizontal={STORY_PADDING}
+              paddingVertical={8}
+            >
+              {Array.from({ length: 3 }).map((_, j) => (
+                <SkeletonPlaceholder.Item
+                  key={j}
+                  flexDirection="row"
+                  alignItems="center"
+                  marginRight={GAP * 2}
+                >
+                  <SkeletonPlaceholder.Item
+                    width={24}
+                    height={24}
+                    borderRadius={12}
+                  />
+                  <SkeletonPlaceholder.Item
+                    width={12}
+                    height={12}
+                    borderRadius={6}
+                    marginLeft={4}
+                  />
+                </SkeletonPlaceholder.Item>
+              ))}
+
+              <SkeletonPlaceholder.Item flex={1} />
+
+              <SkeletonPlaceholder.Item
+                width={24}
+                height={24}
+                borderRadius={12}
+              />
+            </SkeletonPlaceholder.Item>
+
+            <SkeletonPlaceholder.Item
+              marginHorizontal={STORY_PADDING}
+              marginTop={4}
+            >
+              <SkeletonPlaceholder.Item
+                width="90%"
+                height={12}
+                borderRadius={6}
+              />
+              <SkeletonPlaceholder.Item
+                marginTop={6}
+                width="60%"
+                height={12}
+                borderRadius={6}
+              />
+            </SkeletonPlaceholder.Item>
+          </View>
         ))}
       </>
     </SkeletonPlaceholder>
   );
 };
 
-const styles = StyleSheet.create({
-  screenContainer: { 
-    minHeight: SCREEN_HEIGHT 
-  },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  container: {
-    flexDirection: 'row',
-    paddingHorizontal: GAP / 2,
-    width: '100%',
-  },
-  smallGrid: {
-    width: BIG,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  row: {
-    flexDirection: 'row',
-    width: '100%',
-    paddingHorizontal: GAP / 2,
-  },
-  rowReverse: {
-    flexDirection: 'row-reverse',
-  },
-  marginRight: {
-    marginRight: GAP,
-  },
-  marginLeft: {
-    marginLeft: GAP,
-  },
-});
+export const CommentSkeleton: React.FC<CommentSkeletonLoaderProps> = ({
+  itemCount = 5,
+  spacing,
+}) => {
+  const { skeletonProps, sizes, dimensions } = useSkeletonStyles();
+  const gap = spacing ?? dimensions.GAP;
+
+  return (
+    <SkeletonPlaceholder {...skeletonProps}>
+      <>
+      {Array.from({ length: itemCount }).map((_, i) => (
+        <SkeletonPlaceholder.Item
+          key={i}
+          flexDirection="row"
+          alignItems="flex-start"
+          justifyContent="space-between"
+          paddingHorizontal={gap}
+          marginBottom={gap}
+        >
+          {/* Left side: avatar + text block */}
+          <SkeletonPlaceholder.Item flexDirection="row" flex={1}>
+            {/* avatar */}
+            <SkeletonPlaceholder.Item
+              width={sizes.HEADER_AVATAR}
+              height={sizes.HEADER_AVATAR}
+              borderRadius={sizes.HEADER_AVATAR / 2}
+            />
+
+            {/* text block */}
+            <SkeletonPlaceholder.Item flex={1} marginLeft={gap / 2}>
+              {/* name + time on one line */}
+              <SkeletonPlaceholder.Item flexDirection="row" alignItems="center" marginBottom={4}>
+                <SkeletonPlaceholder.Item
+                  width={100}
+                  height={sizes.HEADER_TEXT1}
+                  borderRadius={4}
+                  marginRight={8}
+                />
+                <SkeletonPlaceholder.Item
+                  width={60}
+                  height={sizes.HEADER_TEXT2}
+                  borderRadius={4}
+                />
+              </SkeletonPlaceholder.Item>
+
+              {/* content: one long line */}
+              <SkeletonPlaceholder.Item
+                width="100%"
+                height={sizes.STORY_LABEL}
+                borderRadius={4}
+                marginBottom={4}
+              />
+
+              {/* reply/translate line */}
+              <SkeletonPlaceholder.Item
+                width="50%"
+                height={sizes.STORY_LABEL}
+                borderRadius={4}
+              />
+            </SkeletonPlaceholder.Item>
+          </SkeletonPlaceholder.Item>
+
+          {/* Right side: heart icon placeholder */}
+          <SkeletonPlaceholder.Item
+            width={sizes.OPTIONS_ICON.width}
+            height={sizes.OPTIONS_ICON.height}
+            borderRadius={sizes.OPTIONS_ICON.width / 2}
+            marginLeft={gap}
+          />
+        </SkeletonPlaceholder.Item>
+      ))}
+      </>
+    </SkeletonPlaceholder>
+  );
+};
+
+interface ChatRoomsSkeletonProps {
+  count?: number;
+}
+export const ChatSkeleton: React.FC<ChatRoomsSkeletonProps> = ({
+  count = 8,
+}) => {
+  const { dimensions, skeletonProps, styles } = useSkeletonStyles();
+  const {
+    CHAT_AVATAR,
+    CHAT_LINE1_HEIGHT,
+    CHAT_LINE2_HEIGHT,
+    CHAT_LINE_SPACING,
+    CHAT_ARROW_SIZE,
+    GAP,
+  } = dimensions;
+
+  return (
+    <>
+      {Array.from({ length: count }).map((_, i) => (
+        <View key={i} style={[styles.chatContainer]}>
+          {/* avatar placeholder */}
+          <SkeletonPlaceholder {...skeletonProps}>
+            <SkeletonPlaceholder.Item
+              width={CHAT_AVATAR}
+              height={CHAT_AVATAR}
+              borderRadius={CHAT_AVATAR / 2}
+            />
+          </SkeletonPlaceholder>
+
+          {/* text block */}
+          <View style={{ flex: 1, marginLeft: GAP, justifyContent: 'center' }}>
+            <SkeletonPlaceholder {...skeletonProps}>
+              <SkeletonPlaceholder.Item
+                width="40%"
+                height={CHAT_LINE1_HEIGHT}
+                borderRadius={4}
+                marginBottom={CHAT_LINE_SPACING}
+              />
+            </SkeletonPlaceholder>
+            <SkeletonPlaceholder {...skeletonProps}>
+              <SkeletonPlaceholder.Item
+                width="60%"
+                height={CHAT_LINE2_HEIGHT}
+                borderRadius={4}
+              />
+            </SkeletonPlaceholder>
+          </View>
+
+          {/* arrow placeholder */}
+          <SkeletonPlaceholder {...skeletonProps}>
+            <SkeletonPlaceholder.Item
+              width={CHAT_ARROW_SIZE}
+              height={CHAT_ARROW_SIZE}
+              borderRadius={4}
+            />
+          </SkeletonPlaceholder>
+        </View>
+      ))}
+    </>
+  );
+};
+
+interface ReelsSkeletonProps {
+  containerHeight: number;
+}
+
+export const ReelsSkeleton: React.FC<ReelsSkeletonProps> = ({
+  containerHeight,
+}) => {
+  const { skeletonProps, styles, dimensions, currentTheme } = useSkeletonStyles();
+
+  return (
+    <View style={[styles.reelsContainer, { height: containerHeight }]}>
+      <>
+      <SkeletonPlaceholder {...skeletonProps} backgroundColor={Colors.dark.gray}>
+        <>
+          {/* Right side action buttons */}
+          <View style={styles.reelsActionsContainer}>
+            {/* Heart icon */}
+            <SkeletonPlaceholder.Item
+              width={dimensions.REELS_ACTION_BUTTON}
+              height={dimensions.REELS_ACTION_BUTTON}
+              borderRadius={dimensions.REELS_ACTION_BUTTON / 2}
+              marginBottom={dimensions.REELS_ACTION_SPACING}
+            />
+            <SkeletonPlaceholder.Item
+              width={dimensions.REELS_ACTION_TEXT}
+              height={dimensions.REELS_ACTION_TEXT_HEIGHT}
+              borderRadius={Colors.radius.xs}
+              marginBottom={dimensions.REELS_ACTION_SPACING}
+            />
+            
+            {/* Comment icon */}
+            <SkeletonPlaceholder.Item
+              width={dimensions.REELS_ACTION_BUTTON}
+              height={dimensions.REELS_ACTION_BUTTON}
+              borderRadius={dimensions.REELS_ACTION_BUTTON / 2}
+              marginBottom={dimensions.REELS_ACTION_SPACING}
+            />
+            <SkeletonPlaceholder.Item
+              width={dimensions.REELS_ACTION_TEXT}
+              height={dimensions.REELS_ACTION_TEXT_HEIGHT}
+              borderRadius={Colors.radius.xs}
+              marginBottom={dimensions.REELS_ACTION_SPACING}
+            />
+            
+            {/* Share icon */}
+            <SkeletonPlaceholder.Item
+              width={dimensions.REELS_ACTION_BUTTON}
+              height={dimensions.REELS_ACTION_BUTTON}
+              borderRadius={dimensions.REELS_ACTION_BUTTON / 2}
+              marginBottom={dimensions.REELS_ACTION_SPACING}
+            />
+            <SkeletonPlaceholder.Item
+              width={dimensions.REELS_ACTION_TEXT}
+              height={dimensions.REELS_ACTION_TEXT_HEIGHT}
+              borderRadius={Colors.radius.xs}
+              marginBottom={dimensions.REELS_ACTION_SPACING}
+            />
+
+            {/* Music note icon (4th icon) */}
+            <SkeletonPlaceholder.Item
+              width={dimensions.REELS_MUSIC_ICON}
+              height={dimensions.REELS_MUSIC_ICON}
+              borderRadius={Colors.radius.xs}
+              marginBottom={dimensions.REELS_ACTION_SPACING}
+            />
+
+            {/* Three dots menu */}
+            <SkeletonPlaceholder.Item
+              width={dimensions.REELS_MENU_BUTTON}
+              height={dimensions.REELS_MENU_BUTTON}
+              borderRadius={Colors.radius.xs}
+            />
+          </View>
+
+          {/* Bottom profile section */}
+          <View style={styles.reelsBottomSection}>
+            <View style={styles.reelsProfileRow}>
+              {/* Avatar */}
+              <SkeletonPlaceholder.Item
+                width={dimensions.REELS_AVATAR}
+                height={dimensions.REELS_AVATAR}
+                borderRadius={dimensions.REELS_AVATAR / 2}
+                marginRight={dimensions.GAP}
+              />
+              
+              {/* Username */}
+              <SkeletonPlaceholder.Item
+                width={dimensions.REELS_USERNAME_WIDTH}
+                height={dimensions.REELS_USERNAME_HEIGHT}
+                borderRadius={Colors.radius.xs}
+                marginRight={dimensions.GAP}
+              />
+              
+              {/* Follow button */}
+              <SkeletonPlaceholder.Item
+                width={dimensions.REELS_FOLLOW_BUTTON_WIDTH}
+                height={dimensions.REELS_FOLLOW_BUTTON_HEIGHT}
+                borderRadius={Colors.radius.s}
+              />
+            </View>
+            
+            {/* Caption lines - 3 rows total */}
+            <View style={styles.reelsCaptionSection}>
+              {/* First caption line */}
+              <SkeletonPlaceholder.Item
+                width={dimensions.REELS_CAPTION_LINE1_WIDTH}
+                height={dimensions.REELS_CAPTION_LINE_HEIGHT}
+                borderRadius={Colors.radius.xs}
+                marginBottom={dimensions.REELS_CAPTION_LINE_SPACING}
+              />
+              {/* Second caption line */}
+              <SkeletonPlaceholder.Item
+                width={dimensions.REELS_CAPTION_LINE2_WIDTH}
+                height={dimensions.REELS_CAPTION_LINE_HEIGHT}
+                borderRadius={Colors.radius.xs}
+                marginBottom={dimensions.REELS_CAPTION_LINE_SPACING}
+              />
+              {/* Third caption line */}
+              <SkeletonPlaceholder.Item
+                width={dimensions.REELS_CAPTION_LINE3_WIDTH}
+                height={dimensions.REELS_CAPTION_LINE_HEIGHT}
+                borderRadius={Colors.radius.xs}
+              />
+            </View>
+          </View>
+        </>
+      </SkeletonPlaceholder>
+      </>
+    </View>
+  );
+};
+
+interface ReelsSkeletonListProps {
+  containerHeight: number;
+  itemCount?: number;
+}
+
+export const ReelsSkeletonList: React.FC<ReelsSkeletonListProps> = ({
+  containerHeight,
+  itemCount = 3,
+}) => {
+  const placeholders = Array.from({ length: itemCount });
+
+  return (
+    <View style={{ flex: 1 }}>
+      {placeholders.map((_, index) => (
+        <ReelsSkeleton key={index} containerHeight={containerHeight} />
+      ))}
+    </View>
+  );
+};

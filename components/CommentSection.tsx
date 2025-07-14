@@ -1,4 +1,3 @@
-// CommentSection.tsx
 import React, {useRef, useState} from 'react';
 import {
   View,
@@ -22,7 +21,7 @@ import {Send} from 'lucide-react-native';
 import {GlobalAlertManager} from '../components/Global/AlertModal';
 import CommentComponent from '../src/(tabs)/Home/components/commentComponent';
 import {useNavigation} from '@react-navigation/native';
-import LoadingModal from './Global/LoadingModal';
+import { CommentSkeleton } from '../components/SkeletonGrid';
 
 interface Props {
   postId: string;
@@ -94,7 +93,7 @@ const CommentSection = ({postId, receiverId}: Props) => {
       </Text>
 
       {loading ? (
-        <LoadingModal />
+        <CommentSkeleton itemCount={6} spacing={16} />
       ) : comments.length > 0 ? (
         <View style={{flex: 1, paddingLeft: 15, paddingTop: 10}}>
           <FlashList

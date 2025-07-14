@@ -65,11 +65,11 @@ export const BlockedAccounts = () => {
 
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <ArrowLeft size={22} color={color.black} />
+          <ArrowLeft size={22} color={color.text} />
         </TouchableOpacity>
         <Text style={styles.title}>Tài khoản bị chặn</Text>
         <TouchableOpacity onPress={() => navigation.navigate('BlockUser')}>
-          <Plus size={22} color={color.black} />
+          <Plus size={22} color={color.text} />
         </TouchableOpacity>
       </View>
 

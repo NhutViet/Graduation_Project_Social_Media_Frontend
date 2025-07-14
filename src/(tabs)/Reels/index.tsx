@@ -1,5 +1,5 @@
 import React, {forwardRef, useImperativeHandle, useRef, useState} from 'react';
-import {SafeAreaView, StyleSheet, View} from 'react-native';
+import {SafeAreaView, StyleSheet, View, Dimensions} from 'react-native';
 import {useIsFocused, useFocusEffect} from '@react-navigation/native';
 import {Colors} from '../../../assets/color/Colors';
 import {useDispatch} from 'react-redux';
@@ -15,9 +15,12 @@ import ReelsList from './components/ReelsLists';
 import ReelsBottomSheets from './components/ReelsBottomSheets';
 import {PostWithMedia} from '@services/postRedux/postTypes';
 import ReelsHeader from './components/ReelsHeader';
-import LoadingModal from '../../../components/Global/LoadingModal';
+import { ReelsSkeletonList } from '../../../components/SkeletonGrid';
+
+const { height: screenHeight } = Dimensions.get('window');
 
 const Reels = forwardRef((props, ref) => {
+  const [debugLoading, setDebugLoading] = useState(true);
   const isFocused = useIsFocused();
   const dispatch = useDispatch<AppDispatch>();
 
@@ -44,7 +47,7 @@ const Reels = forwardRef((props, ref) => {
 
   const [selectedItem, setSelectedItem] = useState<PostWithMedia>();
   const [isCurrentBookmarked, setIsCurrentBookmarked] = useState(false);
-  const [selectedPostId, setSelectedPostId] = useState({
+  const selectedPostRef = useRef<{postId: string; receiverId: string}>({
     postId: '',
     receiverId: '',
   });
@@ -56,7 +59,7 @@ const Reels = forwardRef((props, ref) => {
   };
 
   const openCommentSheet = (item: PostWithMedia) => {
-    setSelectedPostId({postId: item._id, receiverId: item.user._id});
+    selectedPostRef.current = {postId: item._id, receiverId: item.user._id};
     dispatch(fetchCommentsByPost(item._id));
     sheetRefComment.current?.open();
   };
@@ -86,8 +89,14 @@ const Reels = forwardRef((props, ref) => {
 
   if (loading && isInitialLoad) {
     return (
-      <SafeAreaView style={styles.loadingContainer}>
-        <LoadingModal />
+      <SafeAreaView style={styles.container}>
+        <View style={styles.headerOverlay}>
+          <ReelsHeader />
+        </View>
+        <ReelsSkeletonList 
+          containerHeight={screenHeight} 
+          itemCount={3}
+        />
       </SafeAreaView>
     );
   }
@@ -116,7 +125,7 @@ const Reels = forwardRef((props, ref) => {
         sheetRefComment={sheetRefComment}
         isBookmarked={isCurrentBookmarked}
         selectedItem={selectedItem}
-        selectedPostId={selectedPostId}
+        selectedPostId={selectedPostRef}
       />
       <Portal>
         <ModalShare ref={modalShareRef} isDark={true} />
@@ -140,6 +149,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     left: 0,
+    zIndex: 10,
   },
 });
 

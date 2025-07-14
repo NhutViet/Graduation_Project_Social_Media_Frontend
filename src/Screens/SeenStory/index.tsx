@@ -360,7 +360,6 @@ export const SeenStory = ({route, navigation}: any) => {
   // ✅ Owner-specific: Enhanced navigation with tracking
   const goToNextStory = () => {
     if (isCurrentUserStory && isNavigatingRef.current) return;
-
     if (isCurrentUserStory) {
       isNavigatingRef.current = true;
     }
@@ -424,7 +423,6 @@ export const SeenStory = ({route, navigation}: any) => {
   // ✅ Owner-specific: Enhanced previous navigation
   const goToPreviousStory = () => {
     if (isCurrentUserStory && isNavigatingRef.current) return;
-
     if (isCurrentUserStory) {
       isNavigatingRef.current = true;
     }
@@ -807,7 +805,6 @@ export const SeenStory = ({route, navigation}: any) => {
           progressAnims={progressAnims}
           storyCount={syncedStories.length}
         />
-
         <MediaPlayer
           key={`${selectedItem?._id}-${currentIndex}`} // ✅ Force re-render khi chuyển story
           item={selectedItem}
@@ -829,7 +826,6 @@ export const SeenStory = ({route, navigation}: any) => {
           onImageLoad={onImageLoad}
           forceReset={true} // ✅ Force reset sound khi chuyển story
         />
-
         {renderCaption()}
         {/* {renderTags()} */}
       </TouchableOpacity>
