@@ -28,7 +28,6 @@ import 'dayjs/locale/vi';
 import {ArrowLeft, User} from 'lucide-react-native';
 import {Colors} from '@assets/color/Colors';
 import {NotificationSkeleton} from '../../../components/SkeletonGrid';
-import LoadingModal from '../../../components/Global/LoadingModal';
 
 dayjs.extend(relativeTime);
 dayjs.locale('vi');
@@ -219,7 +218,7 @@ export const NotificationsScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { flex: 1 }]}>
       <Header
         onBackPress={() => {
           navigation.goBack();
@@ -228,7 +227,7 @@ export const NotificationsScreen = () => {
       />
 
       {!isSuccess ? (
-        <View style={styles.loadingContainer}>
+        <View style={{ flex: 1, paddingTop: 8 }}>
           <NotificationSkeleton count={10} />
         </View>
       ) : notifications.length === 0 ? (
@@ -249,7 +248,7 @@ export const NotificationsScreen = () => {
             onEndReached={handleLoadMore}
             onEndReachedThreshold={0.5}
             contentContainerStyle={{paddingBottom: 16}}
-            ListFooterComponent={isLoadingMore ? <LoadingModal /> : null}
+            ListFooterComponent={isLoadingMore ? <NotificationSkeleton count={10} /> : null}
           />
         </View>
       )}

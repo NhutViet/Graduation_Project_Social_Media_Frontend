@@ -7,7 +7,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import {SafeAreaView, View} from 'react-native';
+import {SafeAreaView, ScrollView, View} from 'react-native';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {RouteProp, useIsFocused, useNavigation} from '@react-navigation/native';
@@ -41,6 +41,7 @@ import messaging from '@react-native-firebase/messaging';
 import {fetchEditUser} from '@services/userRedux/userSlice';
 import LoadingModal from '../../../components/Global/LoadingModal';
 import {selectHomeData} from './selectors/homeSelectors';
+import { HomeSkeleton } from '../../../components/SkeletonGrid';
 
 const HEADER_HEIGHT = 100;
 const AnimatedFlatList = Animated.createAnimatedComponent(Animated.FlatList);
@@ -489,15 +490,34 @@ export const Home = forwardRef(({onReload, route}: HomeProps, ref) => {
   );
 
   if (loading && posts.length === 0) {
-    return (
-      <SafeAreaView
-        style={{
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: color.background,
-        }}>
-        <LoadingModal />
+        return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: color.background }}>
+        {/* keep your animated header in place */}
+        <Animated.View
+          style={[
+            { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10 },
+            animatedHeaderStyle,
+          ]}
+        >
+          <Header
+            icon={require('../../../assets/icon/logo_row.png')}
+            iconQR={true}
+            iconNotify={true}
+            iconMessage={true}
+            navigation={navigation}
+          />
+        </Animated.View>
+
+        {/* scrollable skeleton content below header */}
+        <ScrollView
+          contentContainerStyle={{
+            paddingTop: HEADER_HEIGHT - 35,
+            paddingBottom: 16,
+          }}
+          showsVerticalScrollIndicator={false}
+        >
+          <HomeSkeleton postCount={5} storyCount={8} />
+        </ScrollView>
       </SafeAreaView>
     );
   }
