@@ -58,8 +58,27 @@ const storySlice = createSlice({
         state.followingUsers = users;
         state.loading = false;
 
-        // ✅ REMOVED: Don't create placeholder story details automatically
-        // Story details will be fetched only when needed via lazy loading
+        for (const user of users) {
+          const storyIds = user.stories || [];
+
+          for (const storyId of storyIds) {
+            const exists = state.storyDetails.some(s => s._id === storyId);
+            if (!exists) {
+              state.storyDetails.push({
+                _id: storyId,
+                ownerId: user._id,
+                type: 'stories',
+                mediaUrl: '',
+                isArchived: false,
+                thumbnail: '',
+                viewedByUsers: [],
+                likedByUsers: [],
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+              });
+            }
+          }
+        }
       })
       .addCase(fetchFollowingStories.rejected, (state, action) => {
         state.loading = false;

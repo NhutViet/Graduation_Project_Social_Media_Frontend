@@ -4,21 +4,6 @@ import {FlashList} from '@shopify/flash-list';
 import Story from './Story';
 import LoadingModal from '../../../../components/Global/LoadingModal';
 
-interface StoryDataItem {
-  id: string;
-  item?: any;
-  name?: string;
-  image?: string;
-  status?: number;
-  hasStory?: boolean;
-  isSeen?: boolean;
-  isCurrentUser?: boolean;
-  isLoadingStoryDetails?: boolean;
-  isLoading?: boolean;
-  isLoadMore?: boolean;
-  remainingCount?: number;
-}
-
 interface StoryListHeaderProps {
   visibleStories: any[];
   processedStories: any[];
@@ -30,8 +15,6 @@ interface StoryListHeaderProps {
   seenMap: Record<string, boolean>;
   onStoryPress: (item: any) => void;
   onStoryScroll: (event: any) => void;
-  onStoryHover?: (item: any) => void; // ✅ Add hover handler prop
-  isStoryDetailsRequested?: (userId: string) => boolean; // ✅ Add prop for checking if story details are requested
 }
 
 const StoryListHeader = React.memo<StoryListHeaderProps>(
@@ -46,25 +29,16 @@ const StoryListHeader = React.memo<StoryListHeaderProps>(
     seenMap,
     onStoryPress,
     onStoryScroll,
-    onStoryHover,
-    isStoryDetailsRequested,
   }) => {
-    const storyData = useMemo((): StoryDataItem[] => {
-      const stories: StoryDataItem[] = visibleStories.map(item => {
+    const storyData = useMemo(() => {
+      const stories = visibleStories.map(item => {
         const isCurrentUser =
           item._id === user?._id || item.handleName === user?.handleName;
-        
-        // ✅ Check if story details have been requested for this user
-        const storyDetailsRequested = isStoryDetailsRequested?.(item._id) || false;
-        
         const story = storyDetails.find(s => s._id === item.stories?.[0]);
         const isSeen = story
           ? story.isSeen === true || seenMap[story._id] === true
           : false;
         const hasStory = item.stories?.length > 0;
-
-        // ✅ Show loading state if story details not yet requested
-        const isLoadingStoryDetails = hasStory && !storyDetailsRequested;
 
         return {
           id: item._id,
@@ -75,7 +49,6 @@ const StoryListHeader = React.memo<StoryListHeaderProps>(
           hasStory,
           isSeen,
           isCurrentUser,
-          isLoadingStoryDetails, // ✅ Add loading state for story details
         };
       });
 
@@ -110,7 +83,6 @@ const StoryListHeader = React.memo<StoryListHeaderProps>(
       user?.handleName,
       storyDetails,
       seenMap,
-      isStoryDetailsRequested,
     ]);
 
     const renderStoryItem = useCallback(
@@ -165,17 +137,16 @@ const StoryListHeader = React.memo<StoryListHeaderProps>(
           );
         }
 
-        // ✅ Render story item with loading state for story details
+        // Render story item
         return (
           <Story
             key={item.id}
             name={item.name}
             image={item.image}
+            status={item.status}
             hasStory={item.hasStory}
             isSeen={item.isSeen}
             isCurrentUser={item.isCurrentUser}
-            isLoadingStoryDetails={item.isLoadingStoryDetails}
-            onHover={() => onStoryHover?.(item.item)}
             func={() => onStoryPress(item.item)}
           />
         );
