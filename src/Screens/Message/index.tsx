@@ -245,7 +245,6 @@ export const MessageScreen = () => {
       chat={chat}
       setSelectedImageUri={setSelectedImageUri}
       linkPreviews={linkPreviews}
-      color={color}
       onLongPress={(content: Message) => {
         setModalVisible(true);
         setContent(content);
