@@ -20,8 +20,27 @@ const AppContent = () => {
     if (!navigationRef.isReady()) return;
 
     switch (data?.type) {
+      case 'comment':
+        if (data?.postId) {
+          navigationRef.navigate('PostDetailScreen', {
+            postId: data?.postId,
+            commentId: data?.commentId,
+          });
+        }
+        break;
+      case 'like':
+      case 'unlike':
       case 'post':
-        navigationRef.navigate('PostDetail', {postId: data.id});
+        if (data?.postId) {
+          navigationRef.navigate('PostDetailScreen', {
+            postId: data?.postId,
+          });
+        }
+        break;
+      case 'follow':
+        navigationRef.navigate('ProfileComp', {
+          userID: data?.userId,
+        });
         break;
       case 'call':
         navigationRef.navigate('ZegoCallScreen', {
@@ -63,9 +82,26 @@ const AppContent = () => {
             clearModal();
             if (modalData.data) {
               switch (modalData.data.type) {
+                case 'comment':
+                  if (modalData.data?.postId) {
+                    navigationRef.navigate('PostDetailScreen', {
+                      postId: modalData.data?.postId,
+                      commentId: modalData.data?.commentId,
+                    });
+                  }
+                  break;
+                case 'like':
+                case 'unlike':
                 case 'post':
-                  navigationRef.navigate('PostDetail', {
-                    postId: modalData.data.id,
+                  if (modalData.data?.postId) {
+                    navigationRef.navigate('PostDetailScreen', {
+                      postId: modalData.data?.postId,
+                    });
+                  }
+                  break;
+                case 'follow':
+                  navigationRef.navigate('ProfileComp', {
+                    userID: modalData.data?.userId,
                   });
                   break;
                 case 'call':

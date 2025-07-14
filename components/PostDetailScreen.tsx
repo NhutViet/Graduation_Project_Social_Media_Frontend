@@ -36,10 +36,10 @@ const PostDetailScreen = () => {
   const sheetRef = useRef<BottomSheetCommentRef>(null);
   const [post, setPost] = useState<any | null>(null);
 
-  const [selectedPostId, setSelectedPostId] = useState<{
-    postId: string;
-    receiverId: string;
-  }>({postId: '', receiverId: ''});
+  const selectedPostRef = useRef<{postId: string; receiverId: string}>({
+    postId: '',
+    receiverId: '',
+  });
 
   useEffect(() => {
     const fetchPostById = async () => {
@@ -103,7 +103,7 @@ const PostDetailScreen = () => {
             isFocused={isFocused}
             sheetRef={sheetRef}
             isFollow={post.isFollow}
-            setSelectedPostId={setSelectedPostId}
+            SelectedPostRef={selectedPostRef}
           />
 
           <CommentSection postId={post._id} receiverId={post.user?._id} />

@@ -44,13 +44,13 @@ export const addComment = createAsyncThunk<
       const currentUser = state.user.user;
 
       const newComment: CommentPost = {
-        _id: commentData._id,
-        postID: commentData.postID,
-        parentID: commentData.parentID,
-        content: commentData.content,
-        mediaUrl: commentData.mediaUrl,
-        isDeleted: commentData.isDeleted,
-        createdAt: commentData.createdAt,
+        _id: commentData.comment._id,
+        postID: commentData.comment.postID,
+        parentID: commentData.comment.parentID,
+        content: commentData.comment.content,
+        mediaUrl: commentData.comment.mediaUrl,
+        isDeleted: commentData.comment.isDeleted,
+        createdAt: commentData.comment.createdAt,
         totalLikes: 0,
         isLiked: false,
         reply: [],
@@ -79,7 +79,7 @@ export const addComment = createAsyncThunk<
           },
         );
 
-        if (res.data?.comment?.parentID && parentUserId &&  parentUserId.length > 0) {
+        if (res.data?.comment?.parentID && parentUserId &&  parentUserId.length > 0 && userId !== parentUserId) {
           await axiosInstance.post(
             API.NOTIFICATION_API,
             {
