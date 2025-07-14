@@ -15,7 +15,7 @@ export interface MediaItem {
 
 interface MediaResponse {
   media: MediaItem[];
-  page: string;
+  page: number;
 }
 
 export const getAllMediaInRoom = async ({
@@ -33,13 +33,16 @@ export const getAllMediaInRoom = async ({
       }
     );
 
-    if (response.data && response.data.data) {
+    if (!response.data || !response.data.media) {
       return {
-        media: response.data.data.media,
-        page: response.data.data.page,
+        media: [],
+        page: 1,
       };
     }
-    return false;
+    return {
+      media: response.data.media,
+      page: response.data.page,
+    };
   } catch (error: any) {
     console.warn('❌❌❌❌❌❌Error fetching media:', error);
     return false;

@@ -84,7 +84,6 @@ export const MenuSection = memo(({ media, color, navigation, setVisibleThemeModa
       <TouchableOpacity
         style={[styles.btn, {
           marginVertical: 10,
-          // backgroundColor: color.backgroundSecondary,
           borderRadius: 8,
         }]}
         onPress={handleMoveToGalleryPress}
@@ -109,10 +108,11 @@ export const MenuSection = memo(({ media, color, navigation, setVisibleThemeModa
           backgroundColor: color.backgroundSecondary,
           borderRadius: 8,
           overflow: 'hidden',
+          flex: 1,
         }}>
           <FlashList
             data={media.slice(0, 4)}
-            numColumns={2}
+            numColumns={5}
             estimatedItemSize={100}
             renderItem={({ item }) => (
               <TouchableOpacity
