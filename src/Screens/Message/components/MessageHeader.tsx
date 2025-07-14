@@ -1,11 +1,12 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {View, TouchableOpacity, Image, Text} from 'react-native';
+import {View, TouchableOpacity, Image, Text, StyleSheet} from 'react-native';
 import {Colors} from '@assets/color/Colors';
 import IncomingCallModal from '../../../../components/IncomingCallModal';
 import {useSocket} from '@services/SocketContext';
 import {ArrowLeft, Phone, Video, AlertCircle} from 'lucide-react-native';
 import {Room, RoomUser} from '@services/roomRedux/roomType';
 import {User} from '@services/userRedux/userTypes';
+import {useTheme} from '../../../../src/util/ThemeContext';
 
 interface MessageHeaderProps {
   user1?: RoomUser;
@@ -13,8 +14,6 @@ interface MessageHeaderProps {
   room: Room | null;
   navigation: any;
   handleGoBack: () => void;
-  styles: any;
-  color: any;
   userC: User | null;
 }
 
@@ -24,10 +23,10 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
   room,
   navigation,
   handleGoBack,
-  styles,
-  color,
   userC,
 }) => {
+  const {theme} = useTheme();
+  const color = Colors[theme];
   const {socket} = useSocket();
   const [incomingCall, setIncomingCall] = useState({
     visible: false,
@@ -77,7 +76,13 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
   useEffect(() => {
     if (!socket) return;
 
-    const onIncoming = ({callerName, type}: {callerName: string; type: 'video' | 'voice'}) => {
+    const onIncoming = ({
+      callerName,
+      type,
+    }: {
+      callerName: string;
+      type: 'video' | 'voice';
+    }) => {
       setIncomingCall({
         visible: true,
         callerName,
@@ -132,7 +137,7 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
       <View
         style={[styles.header, {backgroundColor: 'rgba(243, 244, 246, 0.6)'}]}>
         <View style={styles.rowContainer2}>
-          <TouchableOpacity style={styles.blockIcon} onPress={handleGoBack}>
+          <TouchableOpacity onPress={handleGoBack}>
             <ArrowLeft size={22} color={color.text} />
           </TouchableOpacity>
 
@@ -192,17 +197,15 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
         <View style={styles.rowContainer1}>
           {!isWaitingRoom && (
             <>
-              <TouchableOpacity
-                style={styles.blockIcon}
-                onPress={handleVoiceCall}>
+              <TouchableOpacity onPress={handleVoiceCall}>
                 <Phone size={22} color={color.text} />
               </TouchableOpacity>
-              <TouchableOpacity style={styles.blockIcon} onPress={handleCall}>
+              <TouchableOpacity onPress={handleCall}>
                 <Video size={22} color={color.text} />
               </TouchableOpacity>
             </>
           )}
-          <TouchableOpacity style={styles.blockIcon}>
+          <TouchableOpacity>
             <AlertCircle size={22} color={color.text} />
           </TouchableOpacity>
         </View>
@@ -220,3 +223,59 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
 };
 
 export default MessageHeader;
+
+const styles = StyleSheet.create({
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 60,
+    paddingHorizontal: 10,
+    justifyContent: 'space-between',
+  },
+  rowContainer2: {
+    width: '40%',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  imgContainer: {
+    position: 'relative',
+    width: 40,
+    height: 40,
+    borderRadius: 23,
+    marginHorizontal: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconW: {
+    width: '75%',
+    height: '75%',
+    resizeMode: 'cover',
+    borderRadius: 25,
+    top: 0,
+    left: 0,
+    position: 'absolute',
+  },
+  iconF: {
+    width: '85%',
+    height: '85%',
+    resizeMode: 'cover',
+    borderRadius: 25,
+    zIndex: 1,
+    bottom: 0,
+    right: 0,
+    borderWidth: 2,
+    position: 'absolute',
+  },
+  img: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  rowContainer1: {
+    width: '25%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: 14,
+  },
+});

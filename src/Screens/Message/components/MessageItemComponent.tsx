@@ -1,6 +1,15 @@
 import React from 'react';
-import {Image, Linking, Text, TouchableOpacity, View} from 'react-native';
+import {
+  Image,
+  Linking,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {Message} from '../../../../services/messageRedux/messageType';
+import {useTheme} from '../../../../src/util/ThemeContext';
+import {Colors} from '@assets/color/Colors';
 
 interface MessageItemProps {
   roomId: string;
@@ -10,8 +19,6 @@ interface MessageItemProps {
   chat: Message[];
   setSelectedImageUri: (uri: string | null) => void;
   linkPreviews: {[key: number]: any};
-  styles: any;
-  color: any;
   onLongPress: (content: Message) => void;
 }
 
@@ -22,10 +29,10 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
   chat,
   setSelectedImageUri,
   linkPreviews,
-  styles,
-  color,
   onLongPress,
 }) => {
+  const {theme} = useTheme();
+  const color = Colors[theme];
   const isMe = item.sender.handleName === userHandleName;
   const prevMsg = chat[index - 1];
   const showAvatar =
@@ -306,3 +313,29 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
 };
 
 export default MessageItemComponent;
+
+const styles = StyleSheet.create({
+  blockAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 25,
+    overflow: 'hidden',
+  },
+  avatar: {
+    width: '100%',
+    height: '100%',
+  },
+  message: {
+    position: 'relative',
+    borderRadius: 10,
+  },
+  containerMessage: {
+    width: '100%',
+    flexDirection: 'row',
+    paddingHorizontal: 5,
+    paddingVertical: 2,
+  },
+  row: {
+    width: '100%',
+  },
+});

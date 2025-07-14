@@ -3,6 +3,7 @@ import {
   FlatList,
   ImageBackground,
   SafeAreaView,
+  StyleSheet,
   Text,
   TouchableOpacity,
   View,
@@ -10,8 +11,7 @@ import {
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
-import {useEffect, useMemo, useRef, useState} from 'react';
-import MessageStyles from '../../StyleSheet/MessageStyles';
+import {useEffect, useRef, useState} from 'react';
 import {RootStackParamList} from '../../Navigation/AppNavigation';
 import LinkPreview from 'react-native-link-preview';
 import {useDispatch, useSelector} from 'react-redux';
@@ -41,9 +41,7 @@ export const MessageScreen = () => {
   const navigation: any = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];
-  const styles = MessageStyles(theme);
   const dispatch = useDispatch<AppDispatch>();
-
   const [message, setMessage] = useState('');
   const [chat, setChat] = useState<Message[]>([]);
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
@@ -247,8 +245,6 @@ export const MessageScreen = () => {
       chat={chat}
       setSelectedImageUri={setSelectedImageUri}
       linkPreviews={linkPreviews}
-      styles={styles}
-      color={color}
       onLongPress={(content: Message) => {
         setModalVisible(true);
         setContent(content);
@@ -269,7 +265,12 @@ export const MessageScreen = () => {
           : `${roomMember1?.handleName} muốn nhắn tin cho bạn. Chấp nhận để tiếp tục cuộc trò chuyện.`}
       </Text>
       {!isMeSender && (
-        <TouchableOpacity style={styles.acceptButton} onPress={onAccept}>
+        <TouchableOpacity
+          style={[
+            styles.acceptButton,
+            {backgroundColor: color.background, shadowColor: color.text},
+          ]}
+          onPress={onAccept}>
           <Text style={styles.callText}>Chấp nhận</Text>
         </TouchableOpacity>
       )}
@@ -278,7 +279,8 @@ export const MessageScreen = () => {
 
   if (loading || !rooms) {
     return (
-      <SafeAreaView style={styles.loading}>
+      <SafeAreaView
+        style={[styles.loading, {backgroundColor: color.background}]}>
         <LoadingModal />
       </SafeAreaView>
     );
@@ -309,8 +311,6 @@ export const MessageScreen = () => {
             room={rooms}
             navigation={navigation}
             handleGoBack={handleGoBack}
-            styles={styles}
-            color={color}
             userC={userC}
           />
           <FlatList
@@ -339,7 +339,6 @@ export const MessageScreen = () => {
               setMessage={setMessage}
               sendMessage={sendMessage}
               pickImageAndSend={pickImageAndSend}
-              styles={styles}
               color={color}
             />
           )}
@@ -360,3 +359,71 @@ export const MessageScreen = () => {
     </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  rowContainer1: {
+    width: '25%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+  },
+  loading: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  requestBanner: {
+    backgroundColor: '#eef5ff',
+    padding: 15,
+    margin: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  requestBannerText: {
+    width: '100%',
+    color: '#333',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  acceptButton: {
+    elevation: 2,
+    shadowOffset: {width: 0, height: 1},
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 30,
+    borderRadius: 20,
+  },
+  acceptButtonText: {
+    fontSize: 14,
+    textAlign: 'center',
+    fontWeight: '700',
+  },
+  callText: {
+    fontSize: 14,
+    textAlign: 'center',
+    fontWeight: '500',
+  },
+  container: {
+    flex: 1,
+    justifyContent: 'flex-end',
+  },
+  bg: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 0,
+    backgroundColor: 'transparent',
+  },
+  viewDf: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1,
+  },
+});
