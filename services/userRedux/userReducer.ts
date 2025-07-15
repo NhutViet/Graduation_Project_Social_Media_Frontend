@@ -96,11 +96,17 @@ const UserReducer = createSlice({
       );
     },
     resetForgotStatus: state => {
-      state.isLoadingForgot = state.isSuccessForgot = state.isErrorForgot = false;
+      state.isLoadingForgot =
+        state.isSuccessForgot =
+        state.isErrorForgot =
+          false;
       state.forgotMessage = '';
     },
     resetConfirmStatus: state => {
-      state.isLoadingConfirm = state.isSuccessConfirm = state.isErrorConfirm = false;
+      state.isLoadingConfirm =
+        state.isSuccessConfirm =
+        state.isErrorConfirm =
+          false;
       state.confirmMessage = '';
     },
   },
@@ -173,10 +179,26 @@ const UserReducer = createSlice({
       })
       .addCase(fetchEditUser.fulfilled, (state, action) => {
         state.isLoading = false;
+        state.isSuccess = true;
+        state.errorMessage = '';
+
         if (state.user) {
-          state.user = {...state.user, ...action.payload};
+          state.user = {
+            ...state.user,
+            ...action.payload,
+          };
         } else {
           state.user = action.payload;
+        }
+
+        const index = state.loggedInUsers.findIndex(
+          u => u._id === state.user?._id,
+        );
+        if (index !== -1) {
+          state.loggedInUsers[index] = {
+            ...state.loggedInUsers[index],
+            ...action.payload,
+          };
         }
       })
       .addCase(fetchEditUser.rejected, (state, action) => {
@@ -203,7 +225,7 @@ const UserReducer = createSlice({
           action.payload?.message || 'Failed to get public profile';
         state.publicProfile = null;
       })
-      
+
       // INIT FORGOT PASSWORD
       .addCase(fetchInitForgotPassword.pending, state => {
         state.isLoadingForgot = true;
@@ -218,7 +240,8 @@ const UserReducer = createSlice({
       .addCase(fetchInitForgotPassword.rejected, (state, action) => {
         state.isLoadingForgot = false;
         state.isErrorForgot = true;
-        state.forgotMessage = action.payload?.message || 'Init forgot password failed';
+        state.forgotMessage =
+          action.payload?.message || 'Init forgot password failed';
       })
 
       // CONFIRM NEW PASSWORD
@@ -235,7 +258,8 @@ const UserReducer = createSlice({
       .addCase(fetchConfirmNewPassword.rejected, (state, action) => {
         state.isLoadingConfirm = false;
         state.isErrorConfirm = true;
-        state.confirmMessage = action.payload?.message || 'Confirm new password failed';
+        state.confirmMessage =
+          action.payload?.message || 'Confirm new password failed';
       });
   },
 });
@@ -247,7 +271,7 @@ export const {
   resetPublicProfileStatus,
   clearPublicProfile,
   removeLoggedInUser,
-  resetForgotStatus, 
+  resetForgotStatus,
   resetConfirmStatus,
 } = UserReducer.actions;
 export default UserReducer.reducer;
