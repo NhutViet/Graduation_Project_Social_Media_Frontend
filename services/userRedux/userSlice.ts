@@ -219,3 +219,35 @@ export const fetchUserIdByHandleName = createAsyncThunk<
     });
   }
 });
+
+export const fetchInitForgotPassword = createAsyncThunk<
+  { token: string },
+  { email: string; newPassword: string },
+  { rejectValue: { message: string } }
+>('auth/initForgotPassword', async ({ email, newPassword }, { rejectWithValue }) => {
+  try {
+    const res = await axiosInstance.post<{ token: string }>(
+      API.INIT_FORGOT_PASSWORD,
+      { email, newPassword }
+    );
+    return { token: res.data.token };
+  } catch (error: any) {
+    return rejectWithValue({ message: error.response?.data?.message || 'Init forgot password failed' });
+  }
+});
+
+export const fetchConfirmNewPassword = createAsyncThunk<
+  { message: string; newPassword: string },
+  { token: string; code: string },
+  { rejectValue: { message: string } }
+>('auth/confirmNewPassword', async ({ token, code }, { rejectWithValue }) => {
+  try {
+    const res = await axiosInstance.post<{ message: string; newPassword: string }>(
+      API.CONFIRM_NEW_PASSWORD,
+      { token, code }
+    );
+    return { message: res.data.message, newPassword: res.data.newPassword };
+  } catch (error: any) {
+    return rejectWithValue({ message: error.response?.data?.message || 'Confirm new password failed' });
+  }
+});
