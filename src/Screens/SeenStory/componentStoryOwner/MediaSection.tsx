@@ -136,7 +136,7 @@ export const MediaSection = forwardRef<VideoRef, MediaSectionProps>(
     return (
       <View style={styles.ViewMedia}>
         {selectedItem?.mediaUrl ? (
-          selectedItem.mediaUrl.endsWith('.m3u8') ? (
+          selectedItem.mediaUrl.endsWith('.mp4') ? (
             <>
               <Video
                 ref={ref}
@@ -144,6 +144,7 @@ export const MediaSection = forwardRef<VideoRef, MediaSectionProps>(
                 style={styles.media}
                 resizeMode="contain"
                 repeat={false}
+                poster={selectedItem.mediaUrl}
                 onLoad={onLoad}
                 onEnd={onEnd}
                 playInBackground={false}
@@ -155,7 +156,7 @@ export const MediaSection = forwardRef<VideoRef, MediaSectionProps>(
                   onMediaLayout?.({width, height});
                 }}
               />
-              {!isVideoLoaded && selectedItem?.mediaUrl?.endsWith('.m3u8') && (
+              {!isVideoLoaded && selectedItem?.mediaUrl?.endsWith('.mp4') && (
                 <LoadingModal />
               )}
             </>
