@@ -7,6 +7,9 @@ import {ArrowLeft, Phone, Video, AlertCircle} from 'lucide-react-native';
 import {Room, RoomUser} from '@services/roomRedux/roomType';
 import {User} from '@services/userRedux/userTypes';
 import {useTheme} from '../../../../src/util/ThemeContext';
+import CustomPopupModal, {
+  CustomPopupModalRef,
+} from '../../../../components/Global/CustomPopupModal';
 
 interface MessageHeaderProps {
   user1?: RoomUser;
@@ -28,6 +31,7 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
   const {theme} = useTheme();
   const color = Colors[theme];
   const {socket} = useSocket();
+  const modalRef = useRef<CustomPopupModalRef>(null);
   const [incomingCall, setIncomingCall] = useState({
     visible: false,
     callerName: '',
@@ -205,7 +209,7 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
               </TouchableOpacity>
             </>
           )}
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => modalRef.current?.open()}>
             <AlertCircle size={22} color={color.text} />
           </TouchableOpacity>
         </View>
@@ -218,6 +222,35 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
         onAccept={handleAcceptCall}
         onReject={handleRejectCall}
       />
+
+      <CustomPopupModal
+        ref={modalRef}
+        title={undefined}
+        showCancelButton={true}
+        cancelText="Huỷ"
+        cancelTextColor="#007AFF"
+        onCancel={() => modalRef.current?.close()}>
+        <TouchableOpacity
+          style={styles.destructiveButton}
+          onPress={() => {
+            modalRef.current?.close();
+            console.log('Báo cáo');
+          }}>
+          <Text style={[styles.destructiveText, {color: '#007AFF'}]}>
+            Ẩn đoạn chat
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.destructiveButton}
+          onPress={() => {
+            modalRef.current?.close();
+            console.log('Báo cáo');
+          }}>
+          <Text style={[styles.destructiveText, {color: '#FF3B30'}]}>
+            Báo cáo đoạn chat
+          </Text>
+        </TouchableOpacity>
+      </CustomPopupModal>
     </>
   );
 };
@@ -277,5 +310,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-end',
     gap: 14,
+  },
+  destructiveButton: {
+    paddingVertical: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+    borderTopColor: '#E5E5EA',
+  },
+  destructiveText: {
+    fontSize: 18,
+    fontWeight: '600',
   },
 });

@@ -294,15 +294,12 @@ const PostStory = () => {
 // Component TopButton không thay đổi
 const TopButton = ({IconComponent, label, onPress, color}: any) => (
   <TouchableOpacity style={styles.btnTop} onPress={onPress}>
-    <View style={styles.iconBlock}>
-      <IconComponent size={28} color={color} />
-    </View>
+    <IconComponent size={28} color={color} />
     <Text style={[styles.txtTop, {color}]}>{label}</Text>
   </TouchableOpacity>
 );
 
 const styles = StyleSheet.create({
-  // Styles không thay đổi, nhưng đảm bảo ITEM_SIZE khớp với thumbnailWrapper
   container: {
     flex: 1,
   },
@@ -327,7 +324,7 @@ const styles = StyleSheet.create({
   btnTop: {
     borderWidth: 1,
     borderColor: '#CDD7E1',
-    width: '75%',
+    width: '100%',
     paddingVertical: 12,
     borderRadius: 8,
     justifyContent: 'center',

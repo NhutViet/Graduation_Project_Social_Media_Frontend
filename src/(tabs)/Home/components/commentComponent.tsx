@@ -291,7 +291,7 @@ const CommentComponent = memo((props: CommentComponentProps) => {
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 20,
+    marginBottom: 30,
   },
   row: {
     flexDirection: 'row',
