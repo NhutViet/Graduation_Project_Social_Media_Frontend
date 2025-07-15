@@ -251,3 +251,24 @@ export const fetchConfirmNewPassword = createAsyncThunk<
     return rejectWithValue({ message: error.response?.data?.message || 'Confirm new password failed' });
   }
 });
+
+export const validateUserId = createAsyncThunk<
+  { message: string; success: boolean },
+  { userId: string },
+  { rejectValue: { message: string } }
+>('users/validate', async ({userId}, { rejectWithValue }) => {
+  try {
+    const res = await axiosInstance.get(`${API.VALIDATE_USER}/${userId}`, {
+      headers: {
+        token: 'refresh',
+      },
+    });
+
+    return res.data;
+  } catch (error: any){
+    return rejectWithValue({
+      message:
+        error.response?.data?.message || 'Lỗi khi xác thực người dùng',
+    });
+  }
+})
