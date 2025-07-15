@@ -48,7 +48,8 @@ import {
   PrivacyAndSafety,
   Splash,
   UserFollowScreen,
-
+  ForgotPassword,
+  ConfirmationCode,
   TagSo,
   HighlightCreateScreen,
   HelpCenter,
@@ -214,6 +215,8 @@ const AppNavigator = () => {
         />
         <Stack.Screen name="AccountCenter" component={AccountCenter} />
         <Stack.Screen name="InfoAccountCenter" component={InfoAccountCenter} />
+        <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
+        <Stack.Screen name="ConfirmationCode" component={ConfirmationCode} />
       </Stack.Navigator>
     </NavigationContainer>
   );

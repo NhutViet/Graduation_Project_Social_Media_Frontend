@@ -27,7 +27,7 @@ import messaging from '@react-native-firebase/messaging';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 import { fetchMyRooms } from '@services/roomRedux/roomSlice';
 
-export const SwitchAccount = ({navigation}: any) => {
+export const SwitchAccount = ({navigation, route}: any) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorEmail, setErrorEmail] = useState('');
@@ -40,6 +40,11 @@ export const SwitchAccount = ({navigation}: any) => {
   //redux
   const dispatch = useDispatch<AppDispatch>();
   const {isLoading} = useSelector((state: RootState) => state.user);
+  const { email: initialEmail, newPassword: initialPassword } = route?.params || {};
+  useEffect(() => {
+    if (initialEmail) setEmail(initialEmail);
+    if (initialPassword) setPassword(initialPassword);
+  }, [initialEmail, initialPassword]);
 
   const requestNotificationPermission = async () => {
     if (Platform.OS === 'android' && Platform.Version >= 33) {
@@ -51,6 +56,10 @@ export const SwitchAccount = ({navigation}: any) => {
     return true; // iOS or Android < 13
   };
 
+  const handleForgot = async () => {
+    navigation.navigate('ForgotPassword');
+  }
+ 
   const handleLogin = async () => {
     setErrorEmail('');
     setErrorPassword('');
@@ -256,7 +265,7 @@ export const SwitchAccount = ({navigation}: any) => {
             <Text style={styles.errorText}>{errorPassword}</Text>
           )}
 
-          <TouchableOpacity style={SwitchStyles.btnForgot}>
+          <TouchableOpacity style={SwitchStyles.btnForgot} onPress={handleForgot}>
             <Text style={SwitchStyles.textForgot}>Quên mật khẩu?</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.buttonLogin} onPress={handleLogin}>

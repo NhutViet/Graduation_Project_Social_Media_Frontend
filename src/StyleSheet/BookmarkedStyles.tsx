@@ -183,10 +183,13 @@ export const useBookmarkStyles = () => {
         postItem: {
           width: ITEM_WIDTH,
           height: ITEM_WIDTH,
-          borderRadius: 2,
-          margin: 3,
+          borderRadius: 8,
+          margin: spacing.xs,
           overflow: 'hidden',
-        } as ViewStyle,
+          backgroundColor: palette.backgroundSecondary,
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
         fullImage: {
           width: '100%',
           backgroundColor: Colors.border,
@@ -278,7 +281,7 @@ export const useBookmarkStyles = () => {
         optionText: {
           textAlign: 'center',
           fontSize: 16,
-          color: '#000',
+          color: palette.text,
         },
         cancelText: {
           textAlign: 'center',
@@ -349,6 +352,16 @@ export const useBookmarkStyles = () => {
         },
         coloText: {
           color: palette.text,
+        },
+        headerSlot: {
+          flex: 1,
+          alignItems: 'center',
+        },
+        headerSlotLeft: {
+          alignItems: 'flex-start',
+        },
+        headerSlotRight: {
+          alignItems: 'flex-end',
         },
       }),
     [palette, spacing, typography],

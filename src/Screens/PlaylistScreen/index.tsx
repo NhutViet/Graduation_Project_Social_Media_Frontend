@@ -326,43 +326,28 @@ export const PlaylistsScreen = () => {
     <SafeAreaView style={styles.playlistsContainer}>
       <StatusBar barStyle="dark-content" />
 
-      <View style={styles.playlistsHeader}>
-        <TouchableOpacity
-          onPress={() => {
-            if (isSelec) {
-              handleCancel();
-            } else {
-              navigation.goBack();
-            }
-          }}>
-          {isSelec ? (
-            <Text style={styles.textTop}>Hủy bỏ</Text>
-          ) : (
-            <ArrowLeft size={24} color={palette.text} />
-          )}
-        </TouchableOpacity>
+            <View style={styles.playlistsHeader}>
+        {/* left: back or cancel */}
+        <View style={[styles.headerSlot, styles.headerSlotLeft]}>
+          <TouchableOpacity
+            onPress={() => isSelec ? handleCancel() : navigation.goBack()}>
+            {isSelec 
+              ? <Text style={styles.textTop}>Hủy bỏ</Text>
+              : <ArrowLeft size={24} color={palette.text} />}
+          </TouchableOpacity>
+        </View>
 
-        <TouchableOpacity onPress={handleRight}>
-          {isSelec ? (
-            <Text style={styles.textTop}>
-              {isAllSelected ? 'Bỏ chọn tất cả' : 'Chọn tất cả'}
-            </Text>
-          ) : (
+        {/* center: title */}
+        <View style={styles.headerSlot}>
+          <Text style={styles.headerTitle} numberOfLines={1}>{title}</Text>
+        </View>
+
+        {/* right: options */}
+        <View style={[styles.headerSlot, styles.headerSlotRight]}>
+          <TouchableOpacity onPress={handleRight}>
             <MoreVertical size={24} color={palette.text} />
-          )}
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>{title}</Text>
-        <TouchableOpacity onPress={handleRight}>
-          {isSelec ? (
-            <Text style={styles.textTop}>
-              {isAllSelected ? 'Bỏ chọn tất cả' : 'Chọn tất cả'}
-            </Text>
-          ) : (
-            <View style={styles.videoIconContainer}>
-              <Clapperboard size={16} color="#fff" />
-            </View>
-          )}
-        </TouchableOpacity>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {renderTabBar()}

@@ -147,9 +147,9 @@ export const Register = ({navigation}: any) => {
             />
             <TouchableOpacity onPress={() => setIsPassWord(p => !p)}>
               {isPassWord ? (
-                <EyeOff size={22} color="#000" />
+                <EyeOff strokeWidth={1.5} size={20} color={'#000'} />
               ) : (
-                <Eye size={22} color="#000" />
+                <Eye strokeWidth={1.5} size={20} color={'#000'} />
               )}
             </TouchableOpacity>
           </View>
@@ -170,9 +170,9 @@ export const Register = ({navigation}: any) => {
             />
             <TouchableOpacity onPress={() => setIsRePassWord(p => !p)}>
               {isRePassWord ? (
-                <EyeOff size={20} color="#000" />
+                <EyeOff strokeWidth={1.5} size={20} color={'#000'} />
               ) : (
-                <Eye size={20} color="#000" />
+                <Eye strokeWidth={1.5} size={20} color={'#000'} />
               )}
             </TouchableOpacity>
           </View>
