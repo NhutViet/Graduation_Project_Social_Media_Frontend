@@ -45,7 +45,7 @@ const formatMonthText = (dateString?: string): string => {
 };
 
 const {width} = Dimensions.get('window');
-const ITEM_SIZE = width / 3;
+const ITEM_SIZE = (width - 32) / 3; // Trừ đi padding và khoảng cách
 
 const StoriesTab = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -140,7 +140,8 @@ const StoriesTab = () => {
           renderItem={renderItem}
           keyExtractor={item => item._id}
           numColumns={3}
-          contentContainerStyle={{paddingBottom: 16}}
+          contentContainerStyle={{paddingBottom: 16, paddingHorizontal: 8}}
+          columnWrapperStyle={{justifyContent: 'space-between'}}
           showsVerticalScrollIndicator={false}
         />
       ) : (
@@ -195,21 +196,32 @@ const styles = StyleSheet.create({
   itemContainer: {
     width: ITEM_SIZE,
     height: ITEM_SIZE * 2,
-    margin: 1,
+    marginBottom: 8,
     position: 'relative',
+    borderRadius: 8,
+    overflow: 'hidden',
   },
   media: {
     width: '100%',
     height: '100%',
+    borderRadius: 8,
   },
   dateBadge: {
     position: 'absolute',
     top: 8,
     left: 8,
-    backgroundColor: '#fff',
-    borderRadius: 4,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
   },
   dateText: {
     fontSize: 12,
@@ -222,9 +234,17 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 8,
     right: 8,
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
     borderRadius: 16,
     padding: 6,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
   },
   icon: {
     width: 16,

@@ -101,6 +101,7 @@ const StoryListHeader = React.memo<StoryListHeaderProps>(
                 justifyContent: 'center',
                 alignItems: 'center',
                 alignSelf: 'center',
+                marginTop: 18,
               }}>
               <LoadingModal />
             </View>
@@ -123,6 +124,7 @@ const StoryListHeader = React.memo<StoryListHeaderProps>(
                 justifyContent: 'center',
                 alignItems: 'center',
                 alignSelf: 'center',
+                marginTop: 18,
               }}>
               <Text
                 style={{

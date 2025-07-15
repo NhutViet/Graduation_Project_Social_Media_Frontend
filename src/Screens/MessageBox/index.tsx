@@ -247,13 +247,15 @@ export const MessageBox = (props: any) => {
       </View>
 
       <View style={styles.storiesContainer}>
-        <ScrollView
+        <FlashList
+          data={visibleStories}
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingHorizontal: 10 }}
           onScroll={handleStoryScroll}
-          scrollEventThrottle={16}>
-          {visibleStories.map(item => {
+          scrollEventThrottle={16}
+          estimatedItemSize={70}
+          renderItem={({ item }) => {
             const isCurrentUser = item._id === user?._id;
             const story = storyDetails.find(s => s._id === item.stories?.[0]);
             const viewedByUsers = (story as any)?.viewedByUsers || [];
@@ -294,52 +296,58 @@ export const MessageBox = (props: any) => {
                 }}
               />
             );
-          })}
-          {isLoadingMoreStories &&
-            visibleStoryCount < processedStories.length && (
-              <View
-                style={{
-                  width: 70,
-                  height: 70,
-                  marginHorizontal: 8,
-                  borderRadius: 35,
-                  backgroundColor: color.background,
-                  borderWidth: 2,
-                  borderColor: color.border,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}>
-                <LoadingModal />
-              </View>
-            )}
-          {!isLoadingMoreStories &&
-            visibleStoryCount < processedStories.length &&
-            visibleStories.length > 0 && (
-              <View
-                style={{
-                  width: 70,
-                  height: 70,
-                  marginHorizontal: 8,
-                  borderRadius: 35,
-                  backgroundColor: color.backgroundSecondary,
-                  borderWidth: 2,
-                  borderColor: color.border,
-                  borderStyle: 'dashed',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}>
-                <Text
-                  style={{
-                    color: color.textSecondary,
-                    fontSize: 16,
-                    textAlign: 'center',
-                    fontWeight: '500',
-                  }}>
-                  +{processedStories.length - visibleStoryCount}
-                </Text>
-              </View>
-            )}
-        </ScrollView>
+          }}
+          ListFooterComponent={() => (
+            <>
+              {isLoadingMoreStories &&
+                visibleStoryCount < processedStories.length && (
+                  <View
+                    style={{
+                      width: 70,
+                      height: 70,
+                      marginHorizontal: 8,
+                      borderRadius: 35,
+                      backgroundColor: color.background,
+                      borderWidth: 2,
+                      borderColor: color.border,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      marginTop: 18,
+                    }}>
+                    <LoadingModal />
+                  </View>
+                )}
+              {!isLoadingMoreStories &&
+                visibleStoryCount < processedStories.length &&
+                visibleStories.length > 0 && (
+                  <View
+                    style={{
+                      width: 70,
+                      height: 70,
+                      marginHorizontal: 8,
+                      borderRadius: 35,
+                      backgroundColor: color.backgroundSecondary,
+                      borderWidth: 2,
+                      borderColor: color.border,
+                      borderStyle: 'dashed',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      marginTop: 18,
+                    }}>
+                    <Text
+                      style={{
+                        color: color.textSecondary,
+                        fontSize: 16,
+                        textAlign: 'center',
+                        fontWeight: '500',
+                      }}>
+                      +{processedStories.length - visibleStoryCount}
+                    </Text>
+                  </View>
+                )}
+            </>
+          )}
+        />
       </View>
 
       <View style={styles.messagesHeader}>
