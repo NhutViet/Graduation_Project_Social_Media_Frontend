@@ -1,48 +1,47 @@
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { FlashList } from '@shopify/flash-list';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {FlashList} from '@shopify/flash-list';
 import {
   NativeScrollEvent,
   NativeSyntheticEvent,
   RefreshControl,
   SafeAreaView,
-  ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
-import { useTheme } from '../../util/ThemeContext';
-import { Colors } from '../../../assets/color/Colors';
+import {useTheme} from '../../util/ThemeContext';
+import {Colors} from '../../../assets/color/Colors';
 import MessageBoxStyles from '../../StyleSheet/MessageBoxStyles';
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '../../../services/store';
-import { fetchMyRooms } from '../../../services/roomRedux/roomSlice';
+import React, {useState, useEffect, useRef, useCallback} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '../../../services/store';
+import {fetchMyRooms} from '../../../services/roomRedux/roomSlice';
 import ItemNewMessage from '../NewMessage/component/itemNewMessage';
 import Story from '../../(tabs)/Home/components/Story';
-import { handleUserPress } from '../../(tabs)/Home/util';
-import { fetchFollowingStories } from '../../../services/StoryRedux/StorySlice';
+import {handleUserPress} from '../../(tabs)/Home/util';
+import {fetchFollowingStories} from '../../../services/StoryRedux/StorySlice';
 import {
   checkStorySeenInStorage,
   clearExpiredSeenStories,
 } from '../../../services/storage/storage';
-import { useStoryPrefetch } from '../../(tabs)/Home/hook/useStoryPrefetch';
+import {useStoryPrefetch} from '../../(tabs)/Home/hook/useStoryPrefetch';
 import {
   ArrowLeft,
   MessageSquarePlus,
   Search,
   XCircle,
 } from 'lucide-react-native';
-import { ChatSkeleton } from '../../../components/SkeletonGrid';
+import {ChatSkeleton} from '../../../components/SkeletonGrid';
 import LoadingModal from '../../../components/Global/LoadingModal';
 export const MessageBox = (props: any) => {
   const navigation: any = useNavigation();
-  const { theme } = useTheme();
+  const {theme} = useTheme();
   const color = Colors[theme];
   const styles = MessageBoxStyles(theme);
-  const { onBack } = props;
+  const {onBack} = props;
   const dispatch = useDispatch<AppDispatch>();
-  const { rooms, loading } = useSelector((state: RootState) => state.rooms);
+  const {rooms, loading} = useSelector((state: RootState) => state.rooms);
   const [seenMap, setSeenMap] = useState<Record<string, boolean>>({});
   const followingUsers = useSelector(
     (state: RootState) => state.stories.followingUsers,
@@ -58,7 +57,7 @@ export const MessageBox = (props: any) => {
   const STORIES_LOAD_BATCH = 5;
   const [isLoadingMoreStories, setIsLoadingMoreStories] = useState(false);
 
-  const { prefetchStoryData, getCachedStoryData, clearExpiredCache } =
+  const {prefetchStoryData, getCachedStoryData, clearExpiredCache} =
     useStoryPrefetch();
 
   const onRefresh = async () => {
@@ -90,7 +89,7 @@ export const MessageBox = (props: any) => {
 
   const handleStoryScroll = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent;
+      const {contentOffset, contentSize, layoutMeasurement} = event.nativeEvent;
       const currentIndex = Math.floor(contentOffset.x / 70); // Assuming each story item is ~70px wide
 
       // ✅ Load more when user reaches 3rd item from the end of visible stories
@@ -152,16 +151,10 @@ export const MessageBox = (props: any) => {
   }, [followingUsers.length, processedStories.length, visibleStoryCount]);
 
   useEffect(() => {
-    dispatch(fetchFollowingStories({ page: 1 }));
+    dispatch(fetchFollowingStories({page: 1}));
     clearExpiredSeenStories();
     clearExpiredCache();
   }, []);
-
-  useFocusEffect(
-    useCallback(() => {
-      dispatch(fetchMyRooms());
-    }, [dispatch]),
-  );
 
   useEffect(() => {
     const syncSeenStories = async () => {
@@ -185,7 +178,7 @@ export const MessageBox = (props: any) => {
 
   useEffect(() => {
     const forceRefresh = () => {
-      setSeenMap((prev: Record<string, boolean>) => ({ ...prev }));
+      setSeenMap((prev: Record<string, boolean>) => ({...prev}));
     };
     const timeoutId = setTimeout(forceRefresh, 100);
     return () => clearTimeout(timeoutId);
@@ -222,7 +215,7 @@ export const MessageBox = (props: any) => {
 
       <View style={styles.searchContainer}>
         <View style={styles.searchBlock}>
-          <View style={{ marginLeft: 10 }}>
+          <View style={{marginLeft: 10}}>
             <Search size={22} color={color.text} />
           </View>
           <TextInput
@@ -231,7 +224,7 @@ export const MessageBox = (props: any) => {
             placeholderTextColor={color.text}
             style={[
               styles.searchInput,
-              { paddingRight: searchQuery.length > 0 ? 40 : 0 },
+              {paddingRight: searchQuery.length > 0 ? 40 : 0},
             ]}
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -251,11 +244,11 @@ export const MessageBox = (props: any) => {
           data={visibleStories}
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 10 }}
+          contentContainerStyle={{paddingHorizontal: 10}}
           onScroll={handleStoryScroll}
           scrollEventThrottle={16}
           estimatedItemSize={70}
-          renderItem={({ item }) => {
+          renderItem={({item}) => {
             const isCurrentUser = item._id === user?._id;
             const story = storyDetails.find(s => s._id === item.stories?.[0]);
             const viewedByUsers = (story as any)?.viewedByUsers || [];
@@ -364,11 +357,11 @@ export const MessageBox = (props: any) => {
 
       <View style={styles.messagesListContainer}>
         {loading ? (
-          <ChatSkeleton count={10}/>
+          <ChatSkeleton count={10} />
         ) : (
           <FlashList
             data={filteredRooms}
-            renderItem={({ item }) => {
+            renderItem={({item}) => {
               const filteredUsers = item.user_ids.filter(
                 u => u._id !== user?._id,
               );

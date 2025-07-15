@@ -28,9 +28,9 @@ import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../services/store';
 import {ModalRenameRoom} from '../../../components/ModalRenameRoom';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
-import { MenuSection } from './component/menuItem';
-import { MediaItem } from '@services/postRedux/postTypes';
-import { getAllMediaInRoom } from '../../util/msgImgList';
+import {MenuSection} from './component/menuItem';
+import {MediaItem} from '@services/postRedux/postTypes';
+import {getAllMediaInRoom} from '../../util/msgImgList';
 
 export const InforGroupChat = () => {
   const {theme} = useTheme();
@@ -53,10 +53,12 @@ export const InforGroupChat = () => {
   const [media, setMedia] = useState<MediaItem[]>([]);
   useEffect(() => {
     const fetchInitialMedia = async () => {
-      if (!roomId) { return; }
+      if (!roomId) {
+        return;
+      }
 
       try {
-        const res = await getAllMediaInRoom({ roomId, page: 1 });
+        const res = await getAllMediaInRoom({roomId, page: 1});
         if (res && res.media && res.media.length > 0) {
           setMedia(res.media as MediaItem[]);
         } else {
@@ -266,7 +268,7 @@ export const styles = StyleSheet.create({
   iconF: {
     width: '85%',
     height: '85%',
-    resizeMode: 'contain',
+    resizeMode: 'cover',
     borderRadius: 40,
     zIndex: 1,
     bottom: 0,
@@ -277,6 +279,6 @@ export const styles = StyleSheet.create({
   img: {
     width: '100%',
     height: '100%',
-    resizeMode: 'contain',
+    resizeMode: 'cover',
   },
 });

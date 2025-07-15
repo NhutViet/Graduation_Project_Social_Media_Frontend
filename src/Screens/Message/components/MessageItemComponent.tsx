@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  Image,
-  Linking,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {Image, Linking, Pressable, StyleSheet, Text, View} from 'react-native';
 import {Message} from '../../../../services/messageRedux/messageType';
 import {useTheme} from '../../../../src/util/ThemeContext';
 import {Colors} from '@assets/color/Colors';
@@ -44,17 +37,16 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
    */
   const renderAvatar = () =>
     !isMe && showAvatar ? (
-      <TouchableOpacity style={[styles.blockAvatar, {marginRight: 10}]}>
+      <Pressable style={[styles.blockAvatar, {marginRight: 10}]}>
         <Image source={{uri: item.sender.profilePic}} style={styles.avatar} />
-      </TouchableOpacity>
+      </Pressable>
     ) : null;
 
   const renderContent = () => {
-    // Nếu có ảnh và có text thì hiển thị ảnh trước, text sau
     if (item.media?.type === 'image') {
       return (
         <View>
-          <TouchableOpacity
+          <Pressable
             onPress={() => setSelectedImageUri(item.media?.url ?? null)}
             onLongPress={() => onLongPress(item)}>
             <View
@@ -70,34 +62,50 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
                 resizeMode="cover"
               />
             </View>
-          </TouchableOpacity>
-          {item.content ? (
+          </Pressable>
+          {item.content && (
             <View
               style={{
-                marginTop: 8,
-                backgroundColor: isMe ? '#00BFFF' : color.backgroundSecondary,
-                paddingVertical: 8,
-                paddingHorizontal: 14,
-                borderRadius: 10,
-                alignSelf: isMe ? 'flex-end' : 'flex-start',
-                maxWidth: 240,
+                position: 'absolute',
+                bottom: 8,
+                right: isMe ? 8 : undefined,
+                left: !isMe ? 8 : undefined,
+                backgroundColor: isMe
+                  ? 'rgba(0,191,255,0.9)'
+                  : 'rgba(0,0,0,0.65)',
+                paddingVertical: 6,
+                paddingHorizontal: 10,
+                borderRadius: 8,
+                maxWidth: 180,
+                zIndex: 10,
                 shadowColor: '#000',
-                shadowOffset: {width: 0, height: 1},
-                shadowOpacity: 0.08,
-                shadowRadius: 2,
-                elevation: 1,
+                shadowOffset: {width: 0, height: 2},
+                shadowOpacity: 0.3,
+                shadowRadius: 4,
+                elevation: 4,
               }}>
               <Text
                 style={{
-                  color: isMe ? '#fff' : color.text,
-                  fontSize: 15,
-                  textAlign: 'left',
-                  lineHeight: 20,
+                  color: '#fff',
+                  fontSize: 12,
+                  fontWeight: 'bold',
+                  marginBottom: 4,
                 }}>
+                {item.sender.handleName}
+              </Text>
+
+              <Text
+                style={{
+                  color: '#fff',
+                  fontSize: 14,
+                  lineHeight: 18,
+                }}
+                numberOfLines={2}
+                ellipsizeMode="tail">
                 {item.content}
               </Text>
             </View>
-          ) : null}
+          )}
         </View>
       );
     }
@@ -126,7 +134,7 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
               ⏱ {item.media.duration}
             </Text>
           )}
-          <TouchableOpacity
+          <Pressable
             style={{
               marginTop: 8,
               backgroundColor: '#00BFFF',
@@ -144,7 +152,7 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
               }}>
               Gọi lại
             </Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       );
     }
@@ -167,7 +175,7 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
           </Text>
         )}
         {linkPreviews[index] && (
-          <TouchableOpacity
+          <Pressable
             onPress={() => Linking.openURL(linkPreviews[index].url)}
             onLongPress={() => onLongPress?.(item)}
             style={{
@@ -213,7 +221,7 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
               ellipsizeMode="tail">
               {linkPreviews[index].url}
             </Text>
-          </TouchableOpacity>
+          </Pressable>
         )}
       </>
     );
@@ -227,7 +235,7 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
       (item.reactions?.length || 0) - displayedReactions.length;
 
     return (
-      <TouchableOpacity
+      <Pressable
         onLongPress={() => onLongPress?.(item)}
         style={{position: 'relative'}}>
         <View
@@ -290,7 +298,7 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
             )}
           </View>
         )}
-      </TouchableOpacity>
+      </Pressable>
     );
   };
 
@@ -328,6 +336,11 @@ const styles = StyleSheet.create({
   message: {
     position: 'relative',
     borderRadius: 10,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
   containerMessage: {
     width: '100%',
