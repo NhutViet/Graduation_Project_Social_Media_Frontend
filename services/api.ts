@@ -50,6 +50,7 @@ export const API = {
   GET_PUBLIC_PROFILE: '/users/public',
   GET_USER_ID_BY_HANDLE: '/users/username-by-handle',
   CHANGE_PASSWORD: '/users/password',
+  VALIDATE_USER: '/users/validate',
   /// Forgot and reset password
   INIT_FORGOT_PASSWORD: '/users/forgot-password',
   CONFIRM_NEW_PASSWORD: '/users/forgot-password/confirm',

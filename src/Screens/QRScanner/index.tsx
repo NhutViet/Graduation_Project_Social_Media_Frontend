@@ -16,7 +16,11 @@ import {
   Code,
 } from 'react-native-vision-camera';
 import LinearGradient from 'react-native-linear-gradient';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useIsFocused} from '@react-navigation/native';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '../../../services/store';
+import { unwrapResult } from '@reduxjs/toolkit';
+import { validateUserId } from '@services/userRedux/userSlice';
 import { GlobalAlertManager } from '../../../components/Global/AlertModal';
 import {ArrowLeft} from 'lucide-react-native';
 
@@ -45,6 +49,10 @@ export const QRScanner = () => {
   const devices = useCameraDevices();
   const device = getCameraDevice(devices, 'back');
   const navigation: any = useNavigation();
+  const dispatch = useDispatch<AppDispatch>();
+  const myUserId = useSelector((state: RootState) => state.user?.user?._id);
+  const isFocused = useIsFocused();
+  const didHandleScanRef = useRef(false);
 
   const scanArea: ScanAreaType = {
     x: (width - SCAN_AREA_SIZE) / 2,
@@ -75,6 +83,12 @@ export const QRScanner = () => {
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (isFocused) {
+      didHandleScanRef.current = false;
+    }
+  }, [isFocused]);
 
   const isCodeInScanArea = (bounds: CodeBounds | undefined): boolean => {
     if (!bounds) return false;
@@ -128,11 +142,6 @@ export const QRScanner = () => {
     })();
   }, []);
 
-  const isValidUserId = (value: string): boolean => {
-    const uuidRegex = /^[0-9a-fA-F]{24}$/;
-    return uuidRegex.test(value);
-  };
-
   const codeScanner = useCodeScanner({
     onCodeScanned: (codes: Code[]) => {
       if (!canScan || codes.length === 0) return;
@@ -143,24 +152,43 @@ export const QRScanner = () => {
 
       if (codeValue && isCodeInScanArea(codeBounds)) {
         startCooldown();
-        if (isValidUserId(codeValue)) {
-          GlobalAlertManager.show(
-            'Đã tìm thấy người dùng',
-            'Chuyển đến trang cá nhân',
-            () => {
-              navigation.navigate('ProfileComp', { userID: codeValue });
-              resetCooldown();
-            }
-          );
-        } else {
+
+        if (codeValue === myUserId) {
           GlobalAlertManager.show(
             'Lỗi',
-            'Mã QR không hợp lệ',
+            'Bạn không thể quét mã QR của chính mình',
             () => {
               resetCooldown();
             }
           );
+          return;
         }
+
+        dispatch(validateUserId({ userId: codeValue }))
+          .then(unwrapResult)
+          .then((payload) => {
+            if (payload.success) {
+              GlobalAlertManager.show(
+                'Đã tìm thấy người dùng',
+                payload.message,
+                () => {
+                  navigation.navigate('ProfileComp', { userID: codeValue });
+                  resetCooldown();
+                }
+              );
+            }
+          })
+          .catch((err: any) => {
+            const message =
+              err.payload?.message ||
+              err.message ||
+              'Đã xảy ra lỗi khi xác thực người dùng';
+            GlobalAlertManager.show(
+              'Lỗi',
+              message,
+              resetCooldown
+            );
+          });
       }
     },
     codeTypes: ['qr'],
@@ -175,7 +203,7 @@ export const QRScanner = () => {
       <Camera
         style={StyleSheet.absoluteFill}
         device={device}
-        isActive={true}
+        isActive={isFocused}
         codeScanner={codeScanner}
       />
       <LinearGradient
