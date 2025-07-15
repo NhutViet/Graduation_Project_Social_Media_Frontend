@@ -79,7 +79,7 @@ export const useHighlightStoryPrefetch = () => {
         // Optimize story processing
         const processedStories = detailRes.map((story: Story) => ({
           ...story,
-          uriVideo: story.mediaUrl?.endsWith('.m3u8') ? story.mediaUrl : null,
+          uriVideo: story.mediaUrl?.endsWith('.mp4') ? story.mediaUrl : null,
           image:
             story.mediaUrl?.endsWith('.jpg') || story.mediaUrl?.endsWith('.png')
               ? story.mediaUrl

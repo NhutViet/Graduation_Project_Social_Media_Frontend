@@ -1,5 +1,5 @@
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import Video from 'react-native-video';
 import {useTheme} from '../../../util/ThemeContext';
 import {SearchStyles} from '../../../StyleSheet/SearchStyles';
@@ -26,11 +26,11 @@ const GridMedia = (props: GridMediaProps) => {
   const smallImage2 = images[index * 5 + 2];
   const smallImage3 = images[index * 5 + 3];
   const smallImage4 = images[index * 5 + 4];
+  const [isPlaying, setIsPlaying] = useState<boolean>(currentVisibleIndex === index);
 
   if (!bigImage) return null;
 
   const isReversed = index % 2 === 0;
-  const isPlaying = currentVisibleIndex === index;
 
   return (
     <View
@@ -40,14 +40,14 @@ const GridMedia = (props: GridMediaProps) => {
         marginBottom: 2,
       }}>
       {bigImage && (
-        <TouchableOpacity style={{flex: 1}}>
+        <TouchableOpacity style={{flex: 1}} onPress={() => setIsPlaying(!isPlaying)}>
           <Video
             source={{
               uri: 'https://res.cloudinary.com/dsvcoywkc/video/upload/v1746718746/my_video/ncd28sjnze0wfaqti2hm.mp4',
             }}
             style={styles.bigImage}
             resizeMode="cover"
-            repeat
+            repeat={false}
             muted={true}
             paused={!isPlaying || isFocused || !isFocusedPage || isPause}
           />

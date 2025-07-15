@@ -82,7 +82,7 @@ const RenderImg = ({
                   source={{uri: item.node.image.uri}}
                   style={{width: '100%', height: '100%'}}
                   resizeMode={videoResizeMode}
-                  repeat
+                  repeat={false}
                   muted
                   paused={currentIndex !== index}
                   onLoad={meta => {

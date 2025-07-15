@@ -26,10 +26,11 @@ import {forceRefreshStories} from '../../../services/StoryRedux/StoryReducer';
 import {uploadImageToR2, uploadVideoToR2} from '../../core/upload';
 import axiosInstance from '../../../services/axiosInstance';
 import {Dimensions} from 'react-native';
-import {X, ChevronRight} from 'lucide-react-native';
+import {X, ChevronRight, Play} from 'lucide-react-native';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 import {userFollow} from '@services/StoryRedux/StoryType';
 import LoadingModal from '../../../components/Global/LoadingModal';
+import { Colors } from '@assets/color/Colors';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -398,6 +399,7 @@ export const EditStory = ({route, navigation}: any) => {
       hideUploadModal();
     }
   };
+  const [isPause, setIsPause] = useState<boolean>(true);
 
   return (
     <GestureHandlerRootView style={styles.container}>
@@ -431,18 +433,24 @@ export const EditStory = ({route, navigation}: any) => {
               <View style={styles.mediaTouchArea}>
                 {selectedItem ? (
                   selectedItem.type.includes('video') ? (
-                    <Video
-                      ref={videoRef}
-                      source={{uri: selectedItem.uri}}
-                      style={styles.media}
-                      resizeMode="contain"
-                      repeat={false}
-                      onLoad={onVideoLoad}
-                      onProgress={onVideoProgress}
-                      onEnd={onVideoEnd}
-                      playInBackground={false}
-                      playWhenInactive={false}
-                    />
+                    <TouchableOpacity onPress={() => setIsPause(!isPause)}>
+                      <Video
+                        ref={videoRef}
+                        source={{uri: selectedItem.uri}}
+                        style={styles.media}
+                        resizeMode="contain"
+                        repeat={false}
+                        paused={isPause}
+                        onLoad={onVideoLoad}
+                        onProgress={onVideoProgress}
+                        onEnd={onVideoEnd}
+                        playInBackground={false}
+                        playWhenInactive={false}
+                      />
+                      {isPause && (
+                        <Play size={20} color={Colors.white} />
+                      )}
+                    </TouchableOpacity>
                   ) : (
                     <Image
                       source={{uri: selectedItem.uri}}

@@ -8,7 +8,7 @@ import {
   FlatList,
   Pressable,
 } from 'react-native';
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {Colors} from '../../../../../assets/color/Colors';
@@ -17,7 +17,7 @@ import Video from 'react-native-video';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../../../services/store';
 import {fetchGetPostedSotry} from '../../../../../services/StoryRedux/StorySlice';
-import {History, CircleFadingArrowUp} from 'lucide-react-native';
+import {History, CircleFadingArrowUp, Play} from 'lucide-react-native';
 import {handleHighlightPress} from '../../../../(tabs)/Home/util/index';
 import { SearchSkeletonGrid } from '../../../../../components/SkeletonGrid';
 
@@ -63,6 +63,8 @@ const StoriesTab = () => {
     console.log('📦 myStories fetched:', myStories);
   }, []);
 
+  const [isPause, setIsPause] = useState<boolean>(true);
+
   const renderItem = ({item}: {item: any}) => {
     const handleOpenStory = (item: any) => {
       console.log('🟢 Nhấn vào story ID:', item._id);
@@ -91,18 +93,23 @@ const StoriesTab = () => {
         true,
       );
     };
-
     return (
       <View style={[styles.itemContainer, {backgroundColor: color.black}]}>
         <Pressable onPress={() => handleOpenStory(item)}>
           {item.mediaUrl ? (
-            item.mediaUrl.endsWith('.m3u8') ? (
-              <Video
-                source={{uri: item.mediaUrl}}
-                style={styles.media}
-                resizeMode="contain"
-                paused={true}
-              />
+            item.mediaUrl.endsWith('.mp4') ? (
+              <TouchableOpacity onPress={() => setIsPause(!isPause)}>
+                <Video
+                  source={{uri: item.mediaUrl}}
+                  style={styles.media}
+                  resizeMode="contain"
+                  repeat={false}
+                  paused={isPause}
+                />
+                {isPause && (
+                  <Play size={14} style={styles.playButtonOverlay} />
+                )}
+              </TouchableOpacity>
             ) : (
               <Image source={{uri: item.mediaUrl}} style={styles.media} />
             )
@@ -260,5 +267,17 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  playButtonOverlay: {
+    position: 'absolute',
+    left: '50%',
+    transform: [{ translateX: -25 }, { translateY: -25 }],
+    width: 50,
+    top: (Dimensions.get('window').height * 50 / 100 - 20),
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    borderRadius: 25,
   },
 });

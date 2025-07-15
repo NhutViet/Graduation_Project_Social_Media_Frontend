@@ -1,12 +1,12 @@
-import React, {useCallback, useMemo, useState} from 'react';
-import {View, Image, TouchableOpacity, Dimensions} from 'react-native';
+import React, { useCallback, useMemo, useState } from 'react';
+import { View, Image, TouchableOpacity, Dimensions, StyleSheet } from 'react-native';
 import Video from 'react-native-video';
-import {Colors} from '../../../../assets/color/Colors';
-import {ItemHomeStyles} from '../component_styles/ItemHomeStyles';
-import {Media} from '../../../../services/postRedux/postTypes';
+import { Colors } from '../../../../assets/color/Colors';
+import { ItemHomeStyles } from '../component_styles/ItemHomeStyles';
+import { Media } from '../../../../services/postRedux/postTypes';
 import TagMarker from './TagMarker';
-import {useNavigation} from '@react-navigation/native';
-import {Volume2, VolumeX} from 'lucide-react-native';
+import { useNavigation } from '@react-navigation/native';
+import { Play, Volume2, VolumeX } from 'lucide-react-native';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -29,9 +29,10 @@ interface RenderMuteButtonProps {
 }
 
 export const RenderMediaItem = React.memo(
-  ({item, currentVisible, isFocused, muted}: RenderMediaItemProps) => {
-    const [videoSize, setVideoSize] = useState({width: 0, height: 0});
+  ({ item, currentVisible, isFocused, muted }: RenderMediaItemProps) => {
+    const [videoSize, setVideoSize] = useState({ width: 0, height: 0 });
     const navigation = useNavigation<any>();
+    const [isPaused, setIsPaused] = useState<boolean>(true);
     const videoResizeMode = useMemo(() => {
       if (videoSize.height > videoSize.width) return 'cover';
       return 'contain';
@@ -39,35 +40,45 @@ export const RenderMediaItem = React.memo(
 
     const handleTagPress = useCallback(
       (userId: string) => {
-        navigation.navigate('ProfileComp', {userID: userId});
+        navigation.navigate('ProfileComp', { userID: userId });
       },
       [navigation],
     );
 
     return (
-      <View style={{width: screenWidth, height: item.videoUrl ? 600 : 520}}>
+      <View style={{ width: screenWidth, height: item.videoUrl ? 600 : 520 }}>
         {item.videoUrl ? (
-          <Video
-            source={{uri: item.videoUrl}}
-            resizeMode={videoResizeMode}
-            style={{width: screenWidth, height: 600}}
-            repeat
-            paused={!currentVisible || !isFocused}
-            muted={muted}
-            playInBackground={false}
-            maxBitRate={0}
-            progressUpdateInterval={500}
-            onLoad={({naturalSize}) => {
-              setVideoSize({
-                width: naturalSize.width,
-                height: naturalSize.height,
-              });
-            }}
-          />
+          <TouchableOpacity onPress={() => setIsPaused(!isPaused)}>
+            <View style={{ position: 'relative' }}>
+              <Video
+                source={{ uri: item.videoUrl }}
+                resizeMode={videoResizeMode}
+                style={{ width: screenWidth, height: 600 }}
+                repeat={false}
+                paused={isPaused}
+                poster={item.videoUrl}
+                muted={muted}
+                playInBackground={false}
+                maxBitRate={0}
+                progressUpdateInterval={500}
+                onLoad={({ naturalSize }) => {
+                  setVideoSize({
+                    width: naturalSize.width,
+                    height: naturalSize.height,
+                  });
+                }}
+              />
+              {isPaused && (
+                <View style={style.playButtonOverlay}>
+                  <Play size={28} color={Colors.white} />
+                </View>
+              )}
+            </View>
+          </TouchableOpacity>
         ) : (
           <Image
-            source={{uri: item.imageUrl ?? ''}}
-            style={{width: screenWidth, height: 520}}
+            source={{ uri: item.imageUrl ?? '' }}
+            style={[style.img, { width: screenWidth }]}
             resizeMode="cover"
           />
         )}
@@ -89,7 +100,7 @@ export const RenderMediaItem = React.memo(
 );
 
 export const RenderPagination = React.memo(
-  ({media, currentIndex}: RenderPaginationProps) => {
+  ({ media, currentIndex }: RenderPaginationProps) => {
     if (media.length <= 1) return null;
     return (
       <View style={ItemHomeStyles.pagination}>
@@ -111,7 +122,7 @@ export const RenderPagination = React.memo(
 );
 
 export const RenderMuteButton = React.memo(
-  ({muted, setMuted, isPostWithoutMusic}: RenderMuteButtonProps) => {
+  ({ muted, setMuted, isPostWithoutMusic }: RenderMuteButtonProps) => {
     if (isPostWithoutMusic) return null;
 
     return (
@@ -127,3 +138,19 @@ export const RenderMuteButton = React.memo(
     );
   },
 );
+
+const style = StyleSheet.create({
+  playButtonOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.3)',
+  },
+  img: {
+    height: 520,
+  },
+});

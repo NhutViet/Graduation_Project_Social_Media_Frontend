@@ -303,7 +303,7 @@ export const handleUserPress = async (
                   ...story,
                   isSeen: true,
                   tags: populatedTags,
-                  uriVideo: story.mediaUrl.endsWith('.m3u8')
+                  uriVideo: story.mediaUrl.endsWith('.mp4')
                     ? story.mediaUrl
                     : null,
                   image:
@@ -475,7 +475,7 @@ export const handleHighlightPress = async (
           const processedStory = {
             ...item,
             tags: populatedTags,
-            uriVideo: item.mediaUrl?.endsWith('.m3u8') ? item.mediaUrl : null,
+            uriVideo: item.mediaUrl?.endsWith('.mp4') ? item.mediaUrl : null,
             image:
               item.mediaUrl?.endsWith('.jpg') || item.mediaUrl?.endsWith('.png')
                 ? item.mediaUrl
@@ -652,7 +652,7 @@ export const handleHighlightPress = async (
                 const processedStory = {
                   ...item,
                   tags: populatedTags,
-                  uriVideo: item.mediaUrl?.endsWith('.m3u8')
+                  uriVideo: item.mediaUrl?.endsWith('.mp4')
                     ? item.mediaUrl
                     : null,
                   image:

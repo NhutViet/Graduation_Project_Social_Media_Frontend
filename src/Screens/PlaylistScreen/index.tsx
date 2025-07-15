@@ -396,9 +396,11 @@ export const PlaylistsScreen = () => {
                   ref={videoRef}
                   source={{uri: selectedItem.media[0]?.videoUrl}}
                   style={styles.fullScreenVideo}
+                  poster={selectedItem.media[0]?.videoUrl}
+                  repeat={false}
                   controls
                   resizeMode="contain"
-                  paused={false}
+                  paused={true}
                 />
               ) : (
                 <Image
