@@ -8,53 +8,56 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
-import {useTheme} from '../../util/ThemeContext';
-import {Colors} from '../../../assets/color/Colors';
-import {useEffect, useRef, useState} from 'react';
-import {RootStackParamList} from '../../Navigation/AppNavigation';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { useTheme } from '../../util/ThemeContext';
+import { Colors } from '../../../assets/color/Colors';
+import { useEffect, useRef, useState, useCallback } from 'react';
+import { RootStackParamList } from '../../Navigation/AppNavigation';
 import LinkPreview from 'react-native-link-preview';
-import {useDispatch, useSelector} from 'react-redux';
-import {AppDispatch, RootState} from '../../../services/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../../services/store';
 import MessageItemComponent from './components/MessageItemComponent';
-import {fetchMessages} from '../../../services/messageRedux/messageSlice';
-import {Message} from '../../../services/messageRedux/messageType';
-import {launchImageLibrary} from 'react-native-image-picker';
-import {uploadImageToR2} from '../../core/upload';
-import {useUploadProgress} from '../../../services/UploadProgressManager';
-import {clearMessages} from '../../../services/messageRedux/messageReducer';
+import { fetchMessages } from '../../../services/messageRedux/messageSlice';
+import { Message } from '../../../services/messageRedux/messageType';
+import { launchImageLibrary } from 'react-native-image-picker';
+import { uploadImageToR2 } from '../../core/upload';
+import { useUploadProgress } from '../../../services/UploadProgressManager';
+import { clearMessages } from '../../../services/messageRedux/messageReducer';
 import ImagePreviewModal from './components/ImagePreviewModal';
-import {useSocket} from '../../../services/SocketContext';
+import { useSocket } from '../../../services/SocketContext';
 import ActionModalMessage from './components/ActionModalMessage';
 import MessageInput from './components/MessageInput';
 import MessageHeader from './components/MessageHeader';
-import {getRoomById} from '../../../services/roomRedux/roomSlice';
-import {Room} from '../../../services/roomRedux/roomType';
+
+import { getRoomById } from '../../../services/roomRedux/roomSlice';
+import { Room } from '../../../services/roomRedux/roomType';
 import {
   getRelationShip as fetchRelation,
   updatedRoomStatus,
 } from './utils/helpers';
-import {fetchMyRooms, fetchMyWaitingRooms} from '@services/roomRedux/roomSlice';
+import { fetchMyRooms, fetchMyWaitingRooms } from '@services/roomRedux/roomSlice';
 import LoadingModal from '../../../components/Global/LoadingModal';
 
 export const MessageScreen = () => {
   const navigation: any = useNavigation();
-  const {theme} = useTheme();
+  const { theme } = useTheme();
   const color = Colors[theme];
   const dispatch = useDispatch<AppDispatch>();
   const [message, setMessage] = useState('');
   const [chat, setChat] = useState<Message[]>([]);
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
-  const [linkPreviews, setLinkPreviews] = useState<{[key: number]: any}>({});
+  const [linkPreviews, setLinkPreviews] = useState<{ [key: number]: any }>({});
   const [modalVisible, setModalVisible] = useState(false);
   const [content, setContent] = useState<Message>();
   const [relationStatus, setRelationStatus] = useState<boolean>(false);
+  const [highlightedMessageId, setHighlightedMessageId] = useState<string | null>(null);
+
   const flatListRef = useRef<FlatList>(null);
 
   const route = useRoute<RouteProp<RootStackParamList, 'MessageScreen'>>();
-  const {room: roomId, isWaiting = false} = route?.params || {};
+  const { room: roomId, isWaiting = false, highlightMessageId, scrollToIndex } = route?.params || {};
   const userC = useSelector((state: RootState) => state.user.user);
-  const {messages, loading} = useSelector((state: RootState) => state.messages);
+  const { messages, loading } = useSelector((state: RootState) => state.messages);
   const acceptedRooms = useSelector((state: RootState) => state.rooms.rooms);
   const waitingRooms = useSelector(
     (state: RootState) => state.rooms.waitingRooms,
@@ -90,8 +93,8 @@ export const MessageScreen = () => {
   const roomMember2 = filteredUsers?.[1];
   const isMeSender = rooms?.created_by === userC?._id;
 
-  const {showUploadModal, hideUploadModal, setProgress} = useUploadProgress();
-  const {socket, connectToSocket, disconnectSocket} = useSocket();
+  const { showUploadModal, hideUploadModal, setProgress } = useUploadProgress();
+  const { socket, connectToSocket, disconnectSocket } = useSocket();
 
   useEffect(() => {
     const checkRelation = async () => {
@@ -112,7 +115,7 @@ export const MessageScreen = () => {
   useEffect(() => {
     setChat([]);
     if (rooms?._id) {
-      dispatch(fetchMessages({roomId: rooms._id}));
+      dispatch(fetchMessages({ roomId: rooms._id }));
     }
   }, [rooms?._id]);
 
@@ -140,7 +143,7 @@ export const MessageScreen = () => {
       reactions: Message['reactions'];
     }) => {
       setChat(prev =>
-        prev.map(msg => (msg._id === messageId ? {...msg, reactions} : msg)),
+        prev.map(msg => (msg._id === messageId ? { ...msg, reactions } : msg)),
       );
     };
 
@@ -157,7 +160,7 @@ export const MessageScreen = () => {
     chat.forEach((item, index) => {
       if (!linkPreviews[index] && item.content.match(/https?:\/\/\S+/)) {
         LinkPreview.getPreview(item.content).then(data => {
-          setLinkPreviews(prev => ({...prev, [index]: data}));
+          setLinkPreviews(prev => ({ ...prev, [index]: data }));
         });
       }
     });
@@ -165,11 +168,34 @@ export const MessageScreen = () => {
 
   useEffect(() => {
     if (chat.length > 0) {
-      flatListRef.current?.scrollToEnd({animated: true});
+      flatListRef.current?.scrollToEnd({ animated: true });
     }
   }, [chat]);
 
-  const sendMessage = () => {
+  // Handle highlighting from search results
+  useEffect(() => {
+    if (highlightMessageId && chat.length > 0) {
+      setHighlightedMessageId(highlightMessageId);
+
+      // Scroll to the highlighted message if scrollToIndex is provided
+      if (scrollToIndex !== undefined) {
+        setTimeout(() => {
+          flatListRef.current?.scrollToIndex({
+            index: scrollToIndex,
+            animated: true,
+            viewPosition: 0.5, // Center the message in the view
+          });
+        }, 1500); // Wait a bit for messages to load
+      }
+
+      // Clear highlight after 1.5 seconds
+      setTimeout(() => {
+        setHighlightedMessageId(null);
+      }, 1500);
+    }
+  }, [highlightMessageId, scrollToIndex, chat]);
+
+  const sendMessage = useCallback(() => {
     const trimmedMessage = message.trim();
     if (trimmedMessage && socket) {
       socket.emit('sendMessage', {
@@ -179,9 +205,9 @@ export const MessageScreen = () => {
       });
       setMessage('');
     }
-  };
+  }, [message, socket, roomId, userC?._id]);
 
-  const pickImageAndSend = async () => {
+  const pickImageAndSend = useCallback(async () => {
     const result = await launchImageLibrary({
       mediaType: 'photo',
       quality: 0.8,
@@ -212,20 +238,20 @@ export const MessageScreen = () => {
         }
       }
     }
-  };
+  }, [socket, roomId, userC?._id, showUploadModal, hideUploadModal, setProgress]);
 
-  const handleAcceptRequest = async () => {
+  const handleAcceptRequest = useCallback(async () => {
     try {
-      await updatedRoomStatus({roomId: rooms!._id});
+      await updatedRoomStatus({ roomId: rooms!._id });
       setRelationStatus(true);
       dispatch(fetchMyRooms());
       dispatch(fetchMyWaitingRooms());
     } catch (error) {
       console.error('Error accepting request:', error);
     }
-  };
+  }, [rooms, dispatch]);
 
-  const handleGoBack = () => {
+  const handleGoBack = useCallback(() => {
     disconnectSocket();
     setChat([]);
     setMessage('');
@@ -234,9 +260,24 @@ export const MessageScreen = () => {
     dispatch(clearMessages());
     setOriginalRoom(null);
     navigation.goBack();
-  };
+  }, [disconnectSocket, dispatch, navigation]);
 
-  const renderItem = ({item, index}: {item: Message; index: number}) => (
+  const handleLongPress = useCallback((content: Message) => {
+    setModalVisible(true);
+    setContent(content);
+  }, []);
+
+  const handleCloseImagePreview = useCallback(() => {
+    setSelectedImageUri(null);
+  }, []);
+
+  const handleCloseActionModal = useCallback(() => {
+    setModalVisible(false);
+  }, []);
+
+
+
+  const renderItem = useCallback(({ item, index }: { item: Message; index: number }) => (
     <MessageItemComponent
       roomId={roomId}
       item={item}
@@ -245,19 +286,19 @@ export const MessageScreen = () => {
       chat={chat}
       setSelectedImageUri={setSelectedImageUri}
       linkPreviews={linkPreviews}
-      onLongPress={(content: Message) => {
-        setModalVisible(true);
-        setContent(content);
-      }}
+      onLongPress={handleLongPress}
+      isHighlighted={highlightedMessageId === item._id}
     />
-  );
+  ), [roomId, userC?.handleName, chat, linkPreviews, handleLongPress, highlightedMessageId]);
+
+  const keyExtractor = useCallback((item: Message) => item._id, []);
 
   const isMessageRequest = !relationStatus && chat.length > 0;
   const isCurrentUserSender =
     isMessageRequest && roomMember1?._id === userC?._id;
   // console.log(` 258 >>>>>>>>> ${isMeSender} <<<<<<<<<<<<< `);
   // console.log(` 259 >>>>>>>>> ${relationStatus} <<<<<<<<<<<<< `);
-  const MessageRequestBanner = ({onAccept}: {onAccept: () => void}) => (
+  const MessageRequestBanner = ({ onAccept }: { onAccept: () => void }) => (
     <View style={styles.requestBanner}>
       <Text style={styles.requestBannerText}>
         {isMeSender
@@ -268,7 +309,7 @@ export const MessageScreen = () => {
         <TouchableOpacity
           style={[
             styles.acceptButton,
-            {backgroundColor: color.background, shadowColor: color.text},
+            { backgroundColor: color.background, shadowColor: color.text },
           ]}
           onPress={onAccept}>
           <Text style={styles.callText}>Chấp nhận</Text>
@@ -280,7 +321,7 @@ export const MessageScreen = () => {
   if (loading || !rooms) {
     return (
       <SafeAreaView
-        style={[styles.loading, {backgroundColor: color.background}]}>
+        style={[styles.loading, { backgroundColor: color.background }]}>
         <LoadingModal />
       </SafeAreaView>
     );
@@ -290,7 +331,7 @@ export const MessageScreen = () => {
     <SafeAreaView style={styles.container}>
       {rooms?.theme && (
         <ImageBackground
-          source={{uri: rooms.theme}}
+          source={{ uri: rooms.theme }}
           style={styles.bg}
           resizeMode="cover"
         />
@@ -304,7 +345,7 @@ export const MessageScreen = () => {
               : color.background,
           },
         ]}>
-        <View style={{flex: 1}}>
+        <View style={{ flex: 1 }}>
           <MessageHeader
             user1={roomMember1}
             user2={roomMember2}
@@ -317,7 +358,7 @@ export const MessageScreen = () => {
             ref={flatListRef}
             data={chat}
             renderItem={renderItem}
-            keyExtractor={item => item._id}
+            keyExtractor={keyExtractor}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{
               paddingTop: 10,
@@ -326,12 +367,12 @@ export const MessageScreen = () => {
               flexGrow: 1,
             }}
             onContentSizeChange={() =>
-              flatListRef.current?.scrollToEnd({animated: true})
+              flatListRef.current?.scrollToEnd({ animated: true })
             }
           />
           {isMessageRequest &&
-          !isCurrentUserSender &&
-          rooms?.type === 'waiting' ? (
+            !isCurrentUserSender &&
+            rooms?.type === 'waiting' ? (
             <MessageRequestBanner onAccept={handleAcceptRequest} />
           ) : (
             <MessageInput
@@ -347,15 +388,16 @@ export const MessageScreen = () => {
       <ImagePreviewModal
         visible={!!selectedImageUri}
         imageUri={selectedImageUri}
-        onClose={() => setSelectedImageUri(null)}
+        onClose={handleCloseImagePreview}
         backgroundColor={Colors.light.background}
       />
       <ActionModalMessage
         visible={modalVisible}
-        onClose={() => setModalVisible(false)}
+        onClose={handleCloseActionModal}
         content={content}
         setChat={setChat}
       />
+
     </SafeAreaView>
   );
 };
@@ -387,7 +429,7 @@ const styles = StyleSheet.create({
   },
   acceptButton: {
     elevation: 2,
-    shadowOffset: {width: 0, height: 1},
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
     alignItems: 'center',
