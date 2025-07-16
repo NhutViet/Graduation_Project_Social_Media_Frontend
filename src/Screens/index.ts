@@ -61,3 +61,4 @@ export * from './Setting/HelpCenter/SupportRequest.tsx';
 export * from './MessageUndefined';
 export * from './ForgotPassword'
 export * from './ConfirmationCode'
+export * from './PrivacySafetyChat'

@@ -34,7 +34,7 @@ export const PrivacyAndSafety = () => {
       style={[styles.container, {backgroundColor: color.background}]}>
       <View style={{width: '100%', height: 60}}>
         <Header
-          title="Privacy & safety"
+          title="Quyền riêng tư và bảo mật"
           iconBack={true}
           func={() => navigation.goBack()}
           navigation={navigation}
@@ -48,7 +48,7 @@ export const PrivacyAndSafety = () => {
         ]}>
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, {color: color.text}]}>
-            username...
+            username... {/*truyền */}
           </Text>
           <TouchableOpacity style={styles.row}>
             <Info style={styles.rowIcon} size={24} color={color.text} />
