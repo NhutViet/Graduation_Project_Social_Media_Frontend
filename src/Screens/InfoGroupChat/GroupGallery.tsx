@@ -8,15 +8,20 @@ import {
   useWindowDimensions,
   Image,
   Text,
+  Modal,
+  Animated,
+  Dimensions,
 } from 'react-native';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
-import {ArrowLeft} from 'lucide-react-native';
+import {ArrowLeft, X} from 'lucide-react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {FlashList} from '@shopify/flash-list';
 import {MediaItem, getAllMediaInRoom} from '../../util/msgImgList';
 import LoadingModal from '../../../components/Global/LoadingModal';
+import ImagePreviewModal from '../Message/components/ImagePreviewModal';
 
+const width = Dimensions.get('window').width;
 // helper func
 const calculateItemSize = (
   screenWidth: number,
@@ -42,6 +47,8 @@ export const GroupGallery = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
   const [hasNextPage, setHasNextPage] = useState<boolean>(true);
+  const [previewVisible, setPreviewVisible] = useState(false);
+  const [previewUri, setPreviewUri] = useState<string | null>(null);
 
   const NUM_COLUMNS = 3;
   const ITEM_SPACING = 2;
@@ -98,6 +105,11 @@ export const GroupGallery = () => {
     }
   }, [isLoadingMore, hasNextPage, roomId, mediaPage]);
 
+  const openPreview = (uri: string) => {
+    setPreviewUri(uri);
+    setPreviewVisible(true);
+  };
+
   const renderItem = useCallback(
     ({item}: {item: MediaItem}) => (
       <TouchableOpacity
@@ -105,7 +117,9 @@ export const GroupGallery = () => {
           width: ITEM_SIZE,
           height: ITEM_SIZE,
           padding: 1,
-        }}>
+        }}
+        activeOpacity={0.8}
+        onPress={() => openPreview(item.media.url)}>
         <Image source={{uri: item.media.url}} style={styles.image} />
       </TouchableOpacity>
     ),
@@ -152,6 +166,12 @@ export const GroupGallery = () => {
           }
         />
       )}
+
+      <ImagePreviewModal
+        visible={previewVisible}
+        imageUri={previewUri}
+        onClose={() => setPreviewVisible(false)}
+      />
     </SafeAreaView>
   );
 };
@@ -191,5 +211,30 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 16,
     textAlign: 'center',
+  },
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#000',
+  },
+  modalWrapper: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    marginHorizontal: 16,
+    borderRadius: 8,
+    overflow: 'hidden',
+    padding: 16,
+  },
+  fullImage: {
+    width: width - 32,
+    minHeight: width,
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    zIndex: 10,
   },
 });
