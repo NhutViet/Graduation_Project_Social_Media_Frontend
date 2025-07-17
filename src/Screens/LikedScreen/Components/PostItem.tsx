@@ -4,77 +4,91 @@ import {
   StyleSheet,
   TouchableOpacity,
   View,
+  Text,
 } from 'react-native';
 import React, { useState } from 'react';
 import Video from 'react-native-video';
-import {useTheme} from '../../../util/ThemeContext';
-import {Colors} from '../../../../assets/color/Colors';
+import { useTheme } from '../../../util/ThemeContext';
+import { Colors } from '../../../../assets/color/Colors';
+import { Media, MediaR, Item } from '@services/postUserRedux/postUserType';
 import {
   Clapperboard,
   GalleryHorizontal,
   CheckCircle2,
-  Play,
 } from 'lucide-react-native';
 
 const {width} = Dimensions.get('window');
 
-type PostItemProps = {
-  data: {
-    image_url: string[];
-    video: string[];
-  };
+interface Props {
+  data: Item;
   onHandle: () => void;
   isSelect: boolean;
-};
+  showSelect?: boolean;
+}
 
-const PostItem = (props: PostItemProps) => {
+
+const PostItem = ({ data, onHandle, isSelect, showSelect }: Props) => {
   const {theme} = useTheme();
   const color = Colors[theme];
-  const {data, onHandle, isSelect} = props;
-  const [isPause, setIsPause] = useState<boolean>(true);
-  return (
-    <TouchableOpacity
-      onPress={onHandle}
-      style={{width: width / 3, aspectRatio: 1}}>
-      {data.image_url.length === 0 && data.video.length > 0 ? (
+
+  const media = data.media ?? [];
+
+  const images = media
+    .filter((m): m is MediaR => typeof (m as any).imageUrl === 'string')
+    .map(m => m.imageUrl!);
+
+  const videos = media
+    .filter((m): m is Media => typeof (m as any).videoUrl === 'string')
+    .map(m => m.videoUrl!);
+
+  let content: React.ReactNode;
+    if (images.length === 0 && videos.length > 0) {
+      content = (
         <View>
-          <TouchableOpacity onPress={() => setIsPause(!isPause)}>
-            <Video
-              source={{uri: data.video[0]}}
-              resizeMode="cover"
-              repeat={false}
-              style={[styles.container]}
-              muted={true}
-              paused={isPause}
-              poster={data.video[0]}
-            />
-            {isPause && (
-              <Play size={14} style={styles.playButtonOverlay}/>
-            )}
-          </TouchableOpacity>
+          <Video
+            source={{ uri: videos[0] }}
+            resizeMode="cover"
+            style={styles.container}
+            muted
+            paused
+            poster={videos[0]}
+          />
           <Clapperboard
             size={22}
             color={color.background}
             style={styles.note}
           />
         </View>
-      ) : data.image_url.length > 1 ||
-        (data.image_url.length > 0 && data.video.length > 0) ? (
+      );
+    } else if (images.length >= 1 || (images.length > 0 && videos.length > 0)) {
+      content = (
         <View>
-          <Image source={{uri: data.image_url[0]}} style={styles.container} />
+          <Image source={{ uri: images[0] }} style={styles.container} />
           <GalleryHorizontal
             size={22}
             color={color.background}
             style={styles.note}
           />
         </View>
-      ) : (
-        <Image source={{uri: data.image_url[0]}} style={styles.container} />
-      )}
-      {isSelect ? (
-        <CheckCircle2 size={22} color={color.text} style={styles.tick} />
-      ) : (
-        <View style={[styles.rounded, {borderColor: color.textSecondary}]} />
+      );
+    } else {
+      // không có media: placeholder
+      content = (
+        <View style={[styles.container, styles.placeholder]}>
+          <Text style={{ color: color.textSecondary }}>—</Text>
+        </View>
+      );
+    }
+
+
+
+  return (
+    <TouchableOpacity onPress={onHandle} style={{width: (width)/3, aspectRatio: 1,}}>
+      {content}
+      {showSelect && (
+        isSelect 
+          ? <CheckCircle2 size={22} color={color.primary} style={styles.tick} />
+          : <View style={[styles.rounded, { borderColor: color.textSecondary }]} />
       )}
     </TouchableOpacity>
   );
@@ -95,16 +109,16 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderRadius: 100,
     position: 'absolute',
-    bottom: 5,
-    right: 5,
+    bottom: 10,
+    right: 10,
   },
   tick: {
     width: 20,
     height: 20,
     resizeMode: 'contain',
     position: 'absolute',
-    bottom: 5,
-    right: 5,
+    bottom: 10,
+    right: 10,
     zIndex: 1,
   },
   note: {
@@ -126,5 +140,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.6)',
     borderRadius: 25,
+  },
+  placeholder: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f0f0f0',
   },
 });

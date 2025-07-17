@@ -17,9 +17,6 @@ interface FilterModalProps {
   onSelectFilter?: (filter: string) => void;
   selectedFilter?: string;
   type?: 'date' | 'sort' | 'content';
-  multiSelect?: boolean;
-  selectedItems?: string[];
-  onApply?: (items: string[]) => void;
 }
 
 const FilterModal: React.FC<FilterModalProps> = ({
@@ -28,9 +25,6 @@ const FilterModal: React.FC<FilterModalProps> = ({
   onSelectFilter = () => {},
   selectedFilter = '',
   type = 'date',
-  multiSelect = false,
-  selectedItems = [],
-  onApply,
 }) => {
   const {theme} = useTheme();
   const colors = Colors[theme];
@@ -41,10 +35,9 @@ const FilterModal: React.FC<FilterModalProps> = ({
       case 'date':
         return [
           {id: 'all', label: 'Tất cả các ngày'},
-          {id: 'week', label: 'Tuần trước'},
+          {id: 'week', label: 'Hôm nay'},
           {id: 'month', label: 'Tháng trước'},
           {id: 'year', label: 'Năm trước'},
-          {id: 'range', label: 'Khoảng thời gian'},
         ];
       case 'sort':
         return [
@@ -53,6 +46,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
         ];
       case 'content':
         return [
+          {id: 'all', label: 'Tất cả loại nội dung'},
           {id: 'posts', label: 'Bài đăng'},
           {id: 'reels', label: 'Reels'},
         ];
@@ -84,20 +78,6 @@ const FilterModal: React.FC<FilterModalProps> = ({
     outputRange: [300, 0],
   });
 
-  const handleSelect = (id: string) => {
-    if (multiSelect) {
-      const newSelected = selectedItems.includes(id)
-        ? selectedItems.filter(item => item !== id)
-        : [...selectedItems, id];
-      onSelectFilter(newSelected.join(','));
-    } else {
-      onSelectFilter(id);
-      if (type !== 'content') {
-        onClose();
-      }
-    }
-  };
-
   return (
     <Modal visible={visible} transparent={true} onRequestClose={onClose}>
       <TouchableOpacity
@@ -107,7 +87,6 @@ const FilterModal: React.FC<FilterModalProps> = ({
         <Animated.View
           style={[
             styles.modalContent,
-            type === 'content' ? {paddingBottom: 70} : {},
             {
               backgroundColor: colors.background,
               transform: [{translateY}],
@@ -123,68 +102,24 @@ const FilterModal: React.FC<FilterModalProps> = ({
                   ? 'Sắp xếp theo'
                   : 'Lọc theo loại nội dung'}
               </Text>
-              {type === 'content' && (
-                <TouchableOpacity
-                  style={styles.clearButton}
-                  onPress={() => onSelectFilter('')}>
-                  <Text style={[styles.clearText, {color: colors.primary}]}>
-                    Xóa
-                  </Text>
-                </TouchableOpacity>
-              )}
             </View>
 
             {filterOptions.map(option => (
               <TouchableOpacity
                 key={option.id}
                 style={[styles.filterOption]}
-                onPress={() => handleSelect(option.id)}>
+                onPress={() => {onSelectFilter(option.id); onClose();}}>
                 <Text style={[styles.filterText, {color: colors.text}]}>
                   {option.label}
-                </Text>{ multiSelect ? (
-                  <View
-                    style={[
-                      styles.radioButton,
-                      selectedItems.includes(option.id) && {
-                        backgroundColor: colors.primary,
-                        borderColor: colors.primary,
-                      },
-                    ]}>
-                    {selectedItems.includes(option.id) && (
-                      <Text style={styles.checkmark}>✓</Text>
-                    )}
-                  </View>
-                ) : (
-                  <View
-                    style={[
-                      styles.radioButton,
-                      selectedFilter === option.id && {
-                        borderColor: colors.primary,
-                      },
-                    ]}>
-                    {selectedFilter === option.id && (
-                      <View
-                        style={[
-                          styles.radioButtonInner,
-                          {backgroundColor: colors.primary},
-                        ]}
-                      />
-                    )}
-                  </View>
-                )}
+                </Text>
+                <View style={[
+                  styles.radioOuter,
+                  selectedFilter===option.id && { borderColor: colors.primary }
+                ]}>
+                  {selectedFilter===option.id && <View style={[styles.radioInner,{backgroundColor:colors.primary}]} />}
+                </View>
               </TouchableOpacity>
             ))}
-
-            {type === 'content' && (
-              <TouchableOpacity
-                style={[styles.applyButton, {backgroundColor: colors.primary}]}
-                onPress={() => {
-                  onApply?.(selectedItems);
-                  onClose();
-                }}>
-                <Text style={styles.applyButtonText}>Áp dụng</Text>
-              </TouchableOpacity>
-            )}
           </TouchableOpacity>
         </Animated.View>
       </TouchableOpacity>
@@ -269,6 +204,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  radioOuter: {
+    width:20, height:20, borderRadius:10, borderWidth:2, borderColor:'#DEDEDE',
+    justifyContent:'center', alignItems:'center'
+  },
+  radioInner: { width:12, height:12, borderRadius:6 },
 });
 
 export default FilterModal;
