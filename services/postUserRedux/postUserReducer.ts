@@ -1,14 +1,30 @@
 import {createSlice} from '@reduxjs/toolkit';
-import {Load} from './postUserType';
+import {Load, Pagination, LoadLiked} from './postUserType';
 import {
   getPostsAndReelsOfUser,
   getPostsOfUser,
   getReelsOfUser,
+  getLikedPosts
 } from './postUserSlice';
+
+const emptyPagination: Pagination = {
+  currentPage: 1,
+  totalPages: 0,
+  totalCount: 0,
+  limit: 20,
+  hasNextPage: false,
+  hasPrevPage: false,
+};
+
+const initialLiked: LoadLiked = {
+  items: [],
+  pagination: emptyPagination,
+};
 
 interface PostUser {
   posts: Load | {};
   reels: Load | {};
+  likedPosts: LoadLiked;
   isLoading: boolean;
   isSuccess: boolean;
   isError: boolean;
@@ -18,6 +34,7 @@ interface PostUser {
 const initialState: PostUser = {
   posts: {},
   reels: {},
+  likedPosts: initialLiked,
   isLoading: false,
   isSuccess: false,
   isError: false,
@@ -31,6 +48,10 @@ const PostUserReducer = createSlice({
     clearPostsAndReels(state) {
       state.posts = {};
       state.reels = {};
+    },
+    clearLikedPosts(state) {
+      state.likedPosts.items = [];
+      state.likedPosts.pagination = initialLiked.pagination;
     },
   },
   extraReducers: builder => {
@@ -93,9 +114,34 @@ const PostUserReducer = createSlice({
           action.payload?.message || 'Lấy bài viết và thước phim thất bại.';
         state.posts = {};
         state.reels = {};
+      })
+      // likedPost
+      .addCase(getLikedPosts.pending, state => {
+        state.isLoading = true;
+        state.isError = false;
+        state.isSuccess = false;
+        state.errorMessage = '';
+      })
+      .addCase(getLikedPosts.fulfilled, (state, action) => {
+        state.isLoading = false;
+        const { page } = action.meta.arg;
+        if (page && page > 1) {
+          state.likedPosts.items.push(...action.payload.data);
+        } else {
+          state.likedPosts.items = action.payload.data;
+        }
+        state.likedPosts.pagination = action.payload.pagination;
+      })
+      .addCase(getLikedPosts.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.errorMessage =
+          action.payload?.message || 'Lấy bài đã thích thất bại.';
+        state.likedPosts = initialLiked;
       });
+
   },
 });
 
-export const {clearPostsAndReels} = PostUserReducer.actions;
+export const {clearPostsAndReels, clearLikedPosts} = PostUserReducer.actions;
 export default PostUserReducer.reducer;
