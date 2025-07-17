@@ -1,4 +1,4 @@
-import React, {useState, useRef, useEffect, memo, useCallback} from 'react';
+import React, { useState, useRef, useEffect, memo, useCallback } from 'react';
 import {
   Animated,
   Dimensions,
@@ -8,25 +8,28 @@ import {
   View,
   Image,
 } from 'react-native';
-import {TabView, SceneMap} from 'react-native-tab-view';
-import {useTheme} from '../../util/ThemeContext';
+import { TabView, SceneMap } from 'react-native-tab-view';
+import { useTheme } from '../../util/ThemeContext';
 import UserInfoStyles from '../../StyleSheet/UserInfoStyles';
-import {Colors} from '../../../assets/color/Colors';
-import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
+import { Colors } from '../../../assets/color/Colors';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import BottomSheetNotification, {
   SwitchOption,
 } from '../../../components/BottomSheetNotification';
-import {Modalize} from 'react-native-modalize';
-import {Portal} from 'react-native-portalize';
-import {RootStackParamList} from '../../Navigation/AppNavigation';
+import { Modalize } from 'react-native-modalize';
+import { Portal } from 'react-native-portalize';
+import { RootStackParamList } from '../../Navigation/AppNavigation';
 import ModalTheme from '../Message/components/ModalTheme';
-import {useDispatch} from 'react-redux';
-import {AppDispatch} from '../../../services/store';
-import {updateRoomTheme} from '../../../services/roomRedux/roomSlice';
-import {GlobalAlertManager} from '../../../components/Global/AlertModal';
-import {getAllMediaInRoom} from '../../util/msgImgList';
-import {TabVi} from './components/mediaComponent';
-import {MediaItem} from '../../util/msgImgList';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '../../../services/store';
+import { updateRoomTheme } from '../../../services/roomRedux/roomSlice';
+import { GlobalAlertManager } from '../../../components/Global/AlertModal';
+import { getAllMediaInRoom } from '../../util/msgImgList';
+import { TabVi } from './components/mediaComponent';
+import { MediaItem } from '../../util/msgImgList';
+import MessageSearchModal from '../../../components/MessageSearchModal';
+import { fetchMessages } from '../../../services/messageRedux/messageSlice';
+import { Message } from '../../../services/messageRedux/messageType';
 import {
   ArrowLeft,
   User,
@@ -43,39 +46,41 @@ import {
 } from 'lucide-react-native';
 
 const screenWidth = Dimensions.get('window').width - 8;
-const initialLayout = {width: Dimensions.get('window').width};
-const createFeatureItems = (navigation: any, openNotifications: () => void) => [
-  {icon: User, text: 'Trang tài khoản', onPress: () => {}},
+const initialLayout = { width: Dimensions.get('window').width };
+const createFeatureItems = (navigation: any, openNotifications: () => void, handleSearchPress: () => void) => [
+  { icon: User, text: 'Trang tài khoản', onPress: () => { } },
   {
     icon: Search,
     text: 'Tìm kiếm tin nhắn',
-    onPress: () => navigation.navigate('SearchMessages', {userId: 1}),
+    onPress: handleSearchPress,
   },
-  {icon: Bell, text: 'Tắt thông báo', onPress: openNotifications},
-  {icon: MoreHorizontal, text: 'Thêm tùy chọn', onPress: () => {}},
+  { icon: Bell, text: 'Tắt thông báo', onPress: openNotifications },
+  { icon: MoreHorizontal, text: 'Thêm tùy chọn', onPress: () => { } },
 ];
 const createSettingItems = (
   navigation: any,
   setVisibleThemeModal: (visible: boolean) => void,
 ) => [
-  {icon: Palette, text: 'Chủ đề', onPress: () => setVisibleThemeModal(true)},
-  {icon: Shield, text: 'Quyền riêng tư và an toàn', onPress: () => {}},
-  {
-    icon: Users,
-    text: 'Tạo nhóm trò chuyện',
-    onPress: () => navigation.navigate('CreateGroupScreen'),
-  },
-];
+    { icon: Palette, text: 'Chủ đề', onPress: () => setVisibleThemeModal(true) },
+    { icon: Shield, text: 'Quyền riêng tư và an toàn', onPress: () => { } },
+    {
+      icon: Users,
+      text: 'Tạo nhóm trò chuyện',
+      onPress: () => navigation.navigate('CreateGroupScreen'),
+    },
+  ];
 
 export const UserInfo = () => {
   const [index, setIndex] = useState(0);
-  const {theme} = useTheme();
+  const { theme } = useTheme();
   const navigation = useNavigation<any>();
   const route = useRoute<RouteProp<RootStackParamList, 'InfoUser'>>();
-  const {roomId, img1, nameChat} = route.params || {};
+  const { roomId, img1, nameChat } = route.params || {};
   const dispatch = useDispatch<AppDispatch>();
   const animatedLeftValue = useRef(new Animated.Value(0)).current;
   const [visibleThemeModal, setVisibleThemeModal] = useState(false);
+  const [searchModalVisible, setSearchModalVisible] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([]);
   const styles = UserInfoStyles(theme);
   const color = Colors[theme];
 
@@ -95,7 +100,7 @@ export const UserInfo = () => {
 
       setIsLoading(true);
       try {
-        const res = await getAllMediaInRoom({roomId, page: 1});
+        const res = await getAllMediaInRoom({ roomId, page: 1 });
         if (res && res.media && res.media.length > 0) {
           setMedia(res.media);
           setMediaPage(2);
@@ -115,6 +120,62 @@ export const UserInfo = () => {
     fetchInitialMedia();
   }, [roomId]);
 
+  // Fetch messages for search functionality
+  useEffect(() => {
+    if (roomId) {
+      dispatch(fetchMessages({ roomId }))
+        .unwrap()
+        .then((fetchedMessages) => {
+          setMessages(fetchedMessages);
+        })
+        .catch((error) => {
+          console.error('Failed to fetch messages:', error);
+          setMessages([]);
+        });
+    }
+  }, [roomId, dispatch]);
+
+  const handleSearchPress = useCallback(() => {
+    setSearchModalVisible(true);
+  }, []);
+
+  const handleMessageSelect = useCallback((messageId: string, index: number) => {
+    // Navigate back to the message screen with the selected message
+    navigation.navigate('MessageScreen', {
+      room: roomId,
+      highlightMessageId: messageId,
+      scrollToIndex: index,
+    });
+  }, [navigation, roomId]);
+
+  const handleCloseSearchModal = useCallback(() => {
+    setSearchModalVisible(false);
+  }, []);
+
+  const handleCloseThemeModal = useCallback(() => {
+    setVisibleThemeModal(false);
+  }, []);
+
+  const handleThemeSelect = useCallback((selectedBackground: string) => {
+    dispatch(updateRoomTheme({ roomId, theme: selectedBackground }))
+      .unwrap()
+      .then(() =>
+        GlobalAlertManager.show('Thành công', 'Đã cập nhật chủ đề'),
+      )
+      .catch(() =>
+        GlobalAlertManager.show('Thất bại', 'Cập nhật chủ đề thất bại'),
+      );
+    setVisibleThemeModal(false);
+  }, [dispatch, roomId]);
+
+  const openNotifications = useCallback(() => {
+    sheetRef.current?.open();
+  }, []);
+
+  const closeNotifications = useCallback(() => {
+    sheetRef.current?.close();
+  }, []);
+
   const handleLoadMore = useCallback(async () => {
     if (isLoadingMore || !hasNextPage || !roomId) {
       return;
@@ -122,7 +183,7 @@ export const UserInfo = () => {
 
     setIsLoadingMore(true);
     try {
-      const res = await getAllMediaInRoom({roomId, page: mediaPage});
+      const res = await getAllMediaInRoom({ roomId, page: mediaPage });
       if (res && res.media && res.media.length > 0) {
         setMedia(prev => [...prev, ...res.media]);
         setMediaPage(prevPage => prevPage + 1);
@@ -146,8 +207,6 @@ export const UserInfo = () => {
   }, [animatedLeftValue, index]);
 
   const sheetRef = useRef<Modalize>(null);
-  const openNotifications = () => sheetRef.current?.open();
-  const closeNotifications = () => sheetRef.current?.close();
 
   const [notificationSettings, setNotificationSettings] = useState({
     msg: false,
@@ -159,7 +218,7 @@ export const UserInfo = () => {
     key: keyof typeof notificationSettings,
     value: boolean,
   ) => {
-    setNotificationSettings(prev => ({...prev, [key]: value}));
+    setNotificationSettings(prev => ({ ...prev, [key]: value }));
   };
 
   const notificationOptions: SwitchOption[] = [
@@ -185,12 +244,12 @@ export const UserInfo = () => {
   ];
 
   const [routes] = useState([
-    {key: 'tab1', title: 'Media'},
-    {key: 'tab2', title: 'Files'},
+    { key: 'tab1', title: 'Media' },
+    { key: 'tab2', title: 'Files' },
   ]);
 
   const Header = memo(() => {
-    const featureItems = createFeatureItems(navigation, openNotifications);
+    const featureItems = createFeatureItems(navigation, openNotifications, handleSearchPress);
     const settingItems = createSettingItems(navigation, setVisibleThemeModal);
 
     const renderIcon = (
@@ -224,7 +283,7 @@ export const UserInfo = () => {
       <View style={styles.container}>
         <View style={styles.blockHeader}>
           <TouchableOpacity style={styles.blockImg}>
-            <Image source={{uri: img1}} style={styles.imgUser} />
+            <Image source={{ uri: img1 }} style={styles.imgUser} />
           </TouchableOpacity>
           <Text style={styles.nameUser}>{nameChat}</Text>
         </View>
@@ -267,10 +326,10 @@ export const UserInfo = () => {
   });
 
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: color.background }}>
       <Header />
       <TabView
-        navigationState={{index, routes}}
+        navigationState={{ index, routes }}
         renderScene={renderScene}
         onIndexChange={setIndex}
         initialLayout={initialLayout}
@@ -287,7 +346,7 @@ export const UserInfo = () => {
             {[Repeat, ImageIcon].map((Icon, i) => (
               <TouchableOpacity
                 key={i}
-                style={{flex: 1, alignItems: 'center'}}
+                style={{ flex: 1, alignItems: 'center' }}
                 onPress={() => setIndex(i)}>
                 <Icon size={22} color={color.text} />
               </TouchableOpacity>
@@ -307,18 +366,8 @@ export const UserInfo = () => {
       />
       <ModalTheme
         visible={visibleThemeModal}
-        onClose={() => setVisibleThemeModal(false)}
-        onSelect={selectedBackground => {
-          dispatch(updateRoomTheme({roomId, theme: selectedBackground}))
-            .unwrap()
-            .then(() =>
-              GlobalAlertManager.show('Thành công', 'Đã cập nhật chủ đề'),
-            )
-            .catch(() =>
-              GlobalAlertManager.show('Thất bại', 'Cập nhật chủ đề thất bại'),
-            );
-          setVisibleThemeModal(false);
-        }}
+        onClose={handleCloseThemeModal}
+        onSelect={handleThemeSelect}
       />
       <Portal>
         <Modalize
@@ -345,6 +394,12 @@ export const UserInfo = () => {
           />
         </Modalize>
       </Portal>
+      <MessageSearchModal
+        visible={searchModalVisible}
+        onClose={handleCloseSearchModal}
+        messages={messages}
+        onMessageSelect={handleMessageSelect}
+      />
     </SafeAreaView>
   );
 };

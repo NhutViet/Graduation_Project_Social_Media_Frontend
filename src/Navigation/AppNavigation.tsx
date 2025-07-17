@@ -1,6 +1,6 @@
 import React from 'react';
-import {NavigationContainer} from '@react-navigation/native';
-import {createStackNavigator} from '@react-navigation/stack';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 
 import {
   AddPost,
@@ -69,11 +69,11 @@ import Profile from '../(tabs)/Profile/index';
 import AllPostOfUserScreen from '../../components/AllPostOfUserScreen';
 import AllPostOfCollection from '../../components/AllPostOfCollection';
 import ZegoCallScreen from '../Screens/ZegoCloud/ZegoCallScreen';
-import {navigationRef} from '../NavigationService';
+import { navigationRef } from '../NavigationService';
 import AllReels from '../../components/AllReels';
 import AccountCenter from '../../src/Screens/AccountCenter';
 import InfoAccountCenter from '../../src/Screens/AccountCenter/InfoAccountCenter';
-import {User} from '@services/userRedux/userTypes';
+import { User } from '@services/userRedux/userTypes';
 import PostDetailScreen from '../../components/PostDetailScreen';
 import AllTaggedPostOfUserScreen from '../../components/AllTaggedPostOfUserScreen';
 
@@ -81,6 +81,8 @@ export type RootStackParamList = {
   MessageScreen: {
     room: string;
     isWaiting?: boolean;
+    highlightMessageId?: string;
+    scrollToIndex?: number;
   };
   InforGroupChat: {
     roomId: string;
@@ -100,8 +102,8 @@ export type RootStackParamList = {
     isCaller: boolean;
     callType: 'video' | 'voice';
   };
-  ProfileComp: {userID: string};
-  InfoAccountCenter: {user: User};
+  ProfileComp: { userID: string };
+  InfoAccountCenter: { user: User };
   ZegoCallScreens: {
     userID: string;
     userName: string;
@@ -119,7 +121,7 @@ const AppNavigator = () => {
     <NavigationContainer ref={navigationRef}>
       <Stack.Navigator
         initialRouteName="Splash"
-        screenOptions={{headerShown: false}}>
+        screenOptions={{ headerShown: false }}>
         <Stack.Screen
           name="AllPostOfCollection"
           component={AllPostOfCollection}

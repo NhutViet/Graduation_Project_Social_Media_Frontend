@@ -1,8 +1,8 @@
-import React from 'react';
-import {Image, Linking, Pressable, StyleSheet, Text, View} from 'react-native';
-import {Message} from '../../../../services/messageRedux/messageType';
-import {useTheme} from '../../../../src/util/ThemeContext';
-import {Colors} from '@assets/color/Colors';
+import React, { memo, useCallback } from 'react';
+import { Image, Linking, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Message } from '../../../../services/messageRedux/messageType';
+import { useTheme } from '../../../../src/util/ThemeContext';
+import { Colors } from '@assets/color/Colors';
 
 interface MessageItemProps {
   roomId: string;
@@ -11,11 +11,12 @@ interface MessageItemProps {
   userHandleName: string;
   chat: Message[];
   setSelectedImageUri: (uri: string | null) => void;
-  linkPreviews: {[key: number]: any};
+  linkPreviews: { [key: number]: any };
   onLongPress: (content: Message) => void;
+  isHighlighted?: boolean;
 }
 
-const MessageItemComponent: React.FC<MessageItemProps> = ({
+const MessageItemComponent: React.FC<MessageItemProps> = memo(({
   item,
   index,
   userHandleName,
@@ -23,90 +24,60 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
   setSelectedImageUri,
   linkPreviews,
   onLongPress,
+  isHighlighted = false,
 }) => {
-  const {theme} = useTheme();
+  const { theme } = useTheme();
   const color = Colors[theme];
   const isMe = item.sender.handleName === userHandleName;
   const prevMsg = chat[index - 1];
   const showAvatar =
     !prevMsg || prevMsg.sender.handleName !== item.sender.handleName;
 
+  const handleImagePress = useCallback(() => {
+    setSelectedImageUri(item.media?.url ?? null);
+  }, [setSelectedImageUri, item.media?.url]);
+
+  const handleLongPress = useCallback(() => {
+    onLongPress(item);
+  }, [onLongPress, item]);
+
+  const handleLinkPress = useCallback(() => {
+    if (linkPreviews[index]?.url) {
+      Linking.openURL(linkPreviews[index].url);
+    }
+  }, [linkPreviews, index]);
+
   /**
    * RenderAvatar if its a OtherUserMessage
    * and the first message or different from the previous sender
    */
-  const renderAvatar = () =>
+  const renderAvatar = useCallback(() =>
     !isMe && showAvatar ? (
-      <Pressable style={[styles.blockAvatar, {marginRight: 10}]}>
-        <Image source={{uri: item.sender.profilePic}} style={styles.avatar} />
+      <Pressable style={[styles.blockAvatar, { marginRight: 10 }]}>
+        <Image source={{ uri: item.sender.profilePic }} style={styles.avatar} />
       </Pressable>
-    ) : null;
+    ) : null, [isMe, showAvatar, item.sender.profilePic]);
 
-  const renderContent = () => {
+  const renderContent = useCallback(() => {
     if (item.media?.type === 'image') {
       return (
-        <View>
-          <Pressable
-            onPress={() => setSelectedImageUri(item.media?.url ?? null)}
-            onLongPress={() => onLongPress(item)}>
-            <View
-              style={{
-                width: 150,
-                height: 200,
-                borderRadius: 10,
-                overflow: 'hidden',
-              }}>
-              <Image
-                source={{uri: item.media.url}}
-                style={{width: '100%', height: '100%'}}
-                resizeMode="cover"
-              />
-            </View>
-          </Pressable>
-          {item.content && (
-            <View
-              style={{
-                position: 'absolute',
-                bottom: 8,
-                right: isMe ? 8 : undefined,
-                left: !isMe ? 8 : undefined,
-                backgroundColor: isMe
-                  ? 'rgba(0,191,255,0.9)'
-                  : 'rgba(0,0,0,0.65)',
-                paddingVertical: 6,
-                paddingHorizontal: 10,
-                borderRadius: 8,
-                maxWidth: 180,
-                zIndex: 10,
-                shadowColor: '#000',
-                shadowOffset: {width: 0, height: 2},
-                shadowOpacity: 0.3,
-                shadowRadius: 4,
-                elevation: 4,
-              }}>
-              <Text
-                style={{
-                  color: '#fff',
-                  fontSize: 12,
-                  fontWeight: 'bold',
-                  marginBottom: 4,
-                }}>
-                {item.sender.handleName}
-              </Text>
-
-              <Text
-                style={{
-                  color: '#fff',
-                  fontSize: 14,
-                  lineHeight: 18,
-                }}
-                numberOfLines={2}
-                ellipsizeMode="tail">
-                {item.content}
-              </Text>
-            </View>
-          )}
-        </View>
+        <Pressable
+          onPress={handleImagePress}
+          onLongPress={handleLongPress}>
+          <View
+            style={{
+              width: 150,
+              height: 200,
+              borderRadius: 10,
+              overflow: 'hidden',
+            }}>
+            <Image
+              source={{ uri: item.media.url }}
+              style={{ width: '100%', height: '100%' }}
+              resizeMode="cover"
+            />
+          </View>
+        </Pressable>
       );
     }
 
@@ -121,7 +92,7 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
             alignItems: 'center',
             minWidth: 100,
           }}>
-          <Text style={{color: '#007AFF', fontWeight: '600', fontSize: 14}}>
+          <Text style={{ color: '#007AFF', fontWeight: '600', fontSize: 14 }}>
             {item.content}
           </Text>
           {item.media.duration && (
@@ -176,8 +147,8 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
         )}
         {linkPreviews[index] && (
           <Pressable
-            onPress={() => Linking.openURL(linkPreviews[index].url)}
-            onLongPress={() => onLongPress?.(item)}
+            onPress={handleLinkPress}
+            onLongPress={handleLongPress}
             style={{
               borderRadius: 8,
               backgroundColor: color.backgroundSecondary,
@@ -186,7 +157,7 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
             }}>
             {linkPreviews[index].images?.length > 0 && (
               <Image
-                source={{uri: linkPreviews[index].images[0]}}
+                source={{ uri: linkPreviews[index].images[0] }}
                 style={{
                   width: '100%',
                   height: 140,
@@ -211,12 +182,12 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
               <Text
                 numberOfLines={1}
                 ellipsizeMode="tail"
-                style={{color: 'gray', fontSize: 12}}>
+                style={{ color: 'gray', fontSize: 12 }}>
                 {linkPreviews[index].description}
               </Text>
             )}
             <Text
-              style={{color: '#007AFF', fontSize: 12, marginTop: 4}}
+              style={{ color: '#007AFF', fontSize: 12, marginTop: 4 }}
               numberOfLines={2}
               ellipsizeMode="tail">
               {linkPreviews[index].url}
@@ -225,9 +196,9 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
         )}
       </>
     );
-  };
+  }, [item.media, item.content, handleImagePress, handleLongPress, handleLinkPress, color.text, color.backgroundSecondary, linkPreviews, index]);
 
-  const renderMessageBubble = () => {
+  const renderMessageBubble = useCallback(() => {
     const maxShownReactions = 3;
     const displayedReactions =
       item.reactions?.slice(0, maxShownReactions) || [];
@@ -236,8 +207,8 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
 
     return (
       <Pressable
-        onLongPress={() => onLongPress?.(item)}
-        style={{position: 'relative'}}>
+        onLongPress={handleLongPress}
+        style={{ position: 'relative' }}>
         <View
           style={[
             styles.message,
@@ -250,10 +221,10 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
                   ? color.backgroundSecondary
                   : 'transparent'
                 : !isMe
-                ? color.backgroundSecondary
-                : !linkPreviews[index] && !item.media
-                ? '#00BFFF'
-                : color.backgroundSecondary,
+                  ? color.backgroundSecondary
+                  : !linkPreviews[index] && !item.media
+                    ? '#00BFFF'
+                    : color.backgroundSecondary,
               padding:
                 item.media?.type === 'image' || item.media?.type === 'call'
                   ? 0
@@ -284,7 +255,7 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
                 style={{
                   marginRight: idx === 0 ? 0 : -8,
                 }}>
-                <Text style={{fontSize: 16}}>{r.content}</Text>
+                <Text style={{ fontSize: 16 }}>{r.content}</Text>
               </View>
             ))}
 
@@ -300,7 +271,7 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
         )}
       </Pressable>
     );
-  };
+  }, [item.reactions, handleLongPress, isMe, showAvatar, item.media, color.backgroundSecondary, linkPreviews, index, renderContent]);
 
   return (
     <View
@@ -309,16 +280,22 @@ const MessageItemComponent: React.FC<MessageItemProps> = ({
         {
           justifyContent: isMe ? 'flex-end' : 'flex-start',
           marginBottom: item.reactions && item.reactions.length > 0 ? 20 : 0,
+          backgroundColor: isHighlighted ? '#fafaf0' : 'transparent',
+          borderRadius: isHighlighted ? 8 : 0,
+          paddingVertical: isHighlighted ? 4 : 2,
+          marginHorizontal: isHighlighted ? 4 : 0,
         },
       ]}>
       {renderAvatar()}
       <View
-        style={[styles.row, {alignItems: isMe ? 'flex-end' : 'flex-start'}]}>
+        style={[styles.row, { alignItems: isMe ? 'flex-end' : 'flex-start' }]}>
         {renderMessageBubble()}
       </View>
     </View>
   );
-};
+});
+
+MessageItemComponent.displayName = 'MessageItemComponent';
 
 export default MessageItemComponent;
 
@@ -338,7 +315,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     elevation: 4,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
   },
