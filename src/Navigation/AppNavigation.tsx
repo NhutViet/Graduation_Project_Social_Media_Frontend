@@ -59,6 +59,7 @@ import {
   SupportRequestsScreen,
   MessageUndefined,
   GroupGallery,
+  PrivacySafetyChat
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 import ProfileComp from '../Screens/Profile';
@@ -217,6 +218,7 @@ const AppNavigator = () => {
         <Stack.Screen name="InfoAccountCenter" component={InfoAccountCenter} />
         <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
         <Stack.Screen name="ConfirmationCode" component={ConfirmationCode} />
+        <Stack.Screen name="PrivacySafetyChat" component={PrivacySafetyChat} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -178,7 +178,8 @@ export const MenuSection = memo(({ media, color, navigation, setVisibleThemeModa
 
       <MenuItem
         icon={<Lock size={22} color={color.text} />}
-        title="Quyền riêng tư và an toàn"
+        title="Quyền riêng tư và bảo mật"
+        onPress={() => navigation.navigate('PrivacySafetyChat')}
         textColor={color.text}
       />
 
