@@ -6,15 +6,16 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import {View, Text, FlatList, Dimensions} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import {useDispatch, useSelector, shallowEqual} from 'react-redux';
-import {Portal} from 'react-native-portalize';
+import { View, Text, FlatList, Dimensions } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { useDispatch, useSelector, shallowEqual } from 'react-redux';
+import { Portal } from 'react-native-portalize';
 import Sound from 'react-native-sound';
+import { useVideoPause } from '../context/VideoPauseContext';
 
-import {ItemHomeStyles} from '../component_styles/ItemHomeStyles';
-import {formatTimeAgo} from '../util';
-import {AppDispatch, RootState} from '../../../../services/store';
+import { ItemHomeStyles } from '../component_styles/ItemHomeStyles';
+import { formatTimeAgo } from '../util';
+import { AppDispatch, RootState } from '../../../../services/store';
 
 import ModalShare from './ModalShare';
 import ModalReaction from './ModalReaction';
@@ -24,10 +25,10 @@ import {
   RenderMuteButton,
   RenderPagination,
 } from './MediaComponent';
-import {ItemHomeProps, User} from '../types';
-import {fetchCommentsByPost} from '@services/commentRedux/commentSlice';
+import { ItemHomeProps, User } from '../types';
+import { fetchCommentsByPost } from '@services/commentRedux/commentSlice';
 import HashtagText from '../../../../components/HashtagText';
-import {Colors} from '@assets/color/Colors';
+import { Colors } from '@assets/color/Colors';
 import CustomBottomSheetOptions, {
   CustomBottomSheetOptionsRef,
 } from './BottomSheetOptionsModal';
@@ -39,9 +40,9 @@ import {
   likePost,
   unlikePost,
 } from '../../../../services/reactionRedux/reactionSlice';
-import {hidePost} from '../../../../services/postRedux/postSlice';
-import {handleFollowToggle, handleBookmark} from '../util';
-import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
+import { hidePost } from '../../../../services/postRedux/postSlice';
+import { handleFollowToggle, handleBookmark } from '../util';
+import { GlobalAlertManager } from '../../../../components/Global/AlertModal';
 import {
   postTopOptions,
   postFirstList,
@@ -49,12 +50,12 @@ import {
   reportChoices,
   icons,
 } from '../../../config/postOptions';
-import {useTheme} from '../../../util/ThemeContext';
-import {ItemHomeHeader} from './ItemHomeHeader';
-import {ItemHomeActions} from './ItemHomeActions';
-import {StackNavigationProp} from '@react-navigation/stack';
-import {RootStackParamList} from 'src/Navigation/AppNavigation';
-import {selectItemHomeData} from '../selectors/homeSelectors';
+import { useTheme } from '../../../util/ThemeContext';
+import { ItemHomeHeader } from './ItemHomeHeader';
+import { ItemHomeActions } from './ItemHomeActions';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from 'src/Navigation/AppNavigation';
+import { selectItemHomeData } from '../selectors/homeSelectors';
 
 Sound.setCategory('Playback');
 const screenWidth = Dimensions.get('window').width;
@@ -118,7 +119,7 @@ const ItemHome = (props: ItemHomeProps) => {
     if (pendingLikeRequest.current) {
       try {
         await pendingLikeRequest.current;
-      } catch {}
+      } catch { }
     }
     const shouldLike = !isLiked;
     const requestPromise = dispatch(
@@ -273,7 +274,7 @@ const ItemHome = (props: ItemHomeProps) => {
   );
 
   // THEME
-  const {theme} = useTheme();
+  const { theme } = useTheme();
   const color = Colors[theme];
   const isReel = type === 'reel';
   const textColor = isReel ? Colors.dark.text : color.text;
@@ -295,7 +296,7 @@ const ItemHome = (props: ItemHomeProps) => {
   );
 
   const renderPostItem = useCallback(
-    ({item, index}: {item: any; index: number}) => (
+    ({ item, index }: { item: any; index: number }) => (
       <RenderMediaItem
         item={item}
         isFocused={isFocused}
@@ -310,13 +311,13 @@ const ItemHome = (props: ItemHomeProps) => {
   const currentUserID = useSelector((state: RootState) => state.user.user?._id);
   const handleUserPress = useCallback(() => {
     if (user._id !== currentUserID) {
-      navigation.navigate('ProfileComp', {userID: user._id});
+      navigation.navigate('ProfileComp', { userID: user._id });
     }
   }, [user._id, currentUserID, navigation]);
 
   const handleOpenComment = useCallback(() => {
     dispatch(fetchCommentsByPost(_id));
-    SelectedPostRef.current = {postId: _id, receiverId: user._id};
+    SelectedPostRef.current = { postId: _id, receiverId: user._id };
     sheetRef.current?.open();
   }, [dispatch, SelectedPostRef, sheetRef, _id, user._id]);
 
@@ -390,7 +391,7 @@ const ItemHome = (props: ItemHomeProps) => {
         />
       </View>
 
-      <View style={{backgroundColor: color.background, padding: 10}}>
+      <View style={{ backgroundColor: color.background, padding: 10 }}>
         <ItemHomeActions
           iconColor={iconColor}
           likedColor={likedColor}
@@ -411,13 +412,13 @@ const ItemHome = (props: ItemHomeProps) => {
           <HashtagText
             text={caption}
             clickable={clickableHashtags}
-            baseStyle={[ItemHomeStyles.title, {color: iconColor}]}
+            baseStyle={[ItemHomeStyles.title, { color: iconColor }]}
             hashtagColor={Colors.hashtag}
-            hashtagStyle={{fontWeight: '600'}}
+            hashtagStyle={{ fontWeight: '600' }}
             navigation={navigation}
           />
         )}
-        <Text style={{color: iconColor, fontSize: 12, marginTop: 5}}>
+        <Text style={{ color: iconColor, fontSize: 12, marginTop: 5 }}>
           {formatTimeAgo(createdAt)}
         </Text>
       </View>
