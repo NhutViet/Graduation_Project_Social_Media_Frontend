@@ -71,6 +71,18 @@ export interface Item {
     isBookmarked?: boolean;
 }
 
+export type UserPostItem = Item;
+
+export interface LikedPostItem extends Item {
+  type: 'post' | 'reel';
+//   dummy: boolean;
+}
+
+export interface LoadLiked {
+  items: LikedPostItem[];
+  pagination: Pagination;
+}
+
 export interface Pagination {
     currentPage: number;
     totalPages: number;
@@ -99,4 +111,29 @@ export interface ResGetPostsAndReels {
     message: string;
     posts: Load;
     reels: Load;
+}
+
+export enum TimeRange {
+  TODAY = 'today',
+  THIS_MONTH = 'this_month',
+  THIS_YEAR = 'this_year'
+}
+
+export enum SortOrder {
+  ASC = 'asc',
+  DESC = 'desc',
+}
+
+export interface ReqGetLikedPosts {
+  page?: number;
+  limit?: number;
+  timeRange?: TimeRange;
+  sortOrder?: SortOrder;
+  refreshToken: string;
+}
+
+export interface ResGetLikedPosts {
+  message: string;
+  data: LikedPostItem[];
+  pagination: Pagination;
 }
