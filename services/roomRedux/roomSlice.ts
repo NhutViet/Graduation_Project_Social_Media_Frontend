@@ -2,6 +2,7 @@ import {createAsyncThunk} from '@reduxjs/toolkit';
 import {
   CreateRoomDto,
   CreateRoomResponse,
+  ResRoomUser,
   Room,
   UpdateRoomNameArgs,
   UpdateRoomThemeArgs,
@@ -120,3 +121,23 @@ export const getRoomById = createAsyncThunk<
     return rejectWithValue({message: err.response?.data?.message || 'Lấy chi tiết phòng chat thất bại.'});
   }
 });
+
+export const getRoomUsers = createAsyncThunk<
+  ResRoomUser,
+  {roomId: string},
+  {rejectValue: {message: string}}
+>(
+  'rooms/users',
+  async ({roomId}, {rejectWithValue}) => {
+    try {
+      const res = await axiosInstance.get(`${API.ROOM}/${roomId}/users`, {
+        headers: {
+          token: 'refresh',
+        },
+      });
+      return res.data;
+    } catch (error: any) {
+      return rejectWithValue({message: error?.response?.data?.message || 'Không thể lấy danh sách người dùng.'})
+    }
+  },
+);

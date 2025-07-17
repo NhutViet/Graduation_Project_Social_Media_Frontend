@@ -45,7 +45,7 @@ export const MenuSection = memo(({ media, color, navigation, setVisibleThemeModa
   }, [setVisibleThemeModal]);
 
   const handlePeoplePress = useCallback(() => {
-    navigation.navigate('PeopleGroupChat');
+    navigation.navigate('PeopleGroupChat', {roomId: room});
   }, [navigation]);
 
   const handleCreateGroupPress = useCallback(() => {
