@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
   header: {
     position: 'absolute',
     width: width,
-    top: 0,
+    top: 10,
     zIndex: 1,
     padding: 20,
     flexDirection: 'row',
