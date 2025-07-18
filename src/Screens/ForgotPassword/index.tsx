@@ -1,4 +1,3 @@
-// ForgotPassword/index.tsx
 import React, { useState, useEffect } from 'react';
 import {
   Image,
@@ -20,16 +19,17 @@ import LoadingModal from '../../../components/Global/LoadingModal';
 import { GlobalAlertManager } from '../../../components/Global/AlertModal';
 
 export const ForgotPassword = ({ navigation }: any) => {
+  const [mode, setMode] = useState<'email' | 'phone'>('email');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [errorEmail, setErrorEmail] = useState('');
+  const [errorPhone, setErrorPhone] = useState('');
   const [errorPassword, setErrorPassword] = useState('');
   const dispatch = useDispatch<AppDispatch>();
-  const {
-    isLoadingForgot,
-    isErrorForgot,
-    forgotMessage,
-  } = useSelector((state: RootState) => state.user);
+  const { isLoadingForgot, isErrorForgot, forgotMessage } = useSelector(
+    (state: RootState) => state.user
+  );
 
   const { theme } = useTheme();
   const color = Colors[theme];
@@ -43,41 +43,62 @@ export const ForgotPassword = ({ navigation }: any) => {
   const handleResetPassword = async () => {
     // Clear existing errors
     setErrorEmail('');
+    setErrorPhone('');
     setErrorPassword('');
 
     let valid = true;
-    if (!email) {
-      setErrorEmail('Vui lòng nhập đầy đủ thông tin.');
-      valid = false;
-    } else if (!email.includes('.') || !email.includes('@')) {
-      setErrorEmail('Email không đúng định dạng');
-      valid = false;
+
+    // Validate identifier
+    if (mode === 'email') {
+      if (!email) {
+        setErrorEmail('Vui lòng nhập email.');
+        valid = false;
+      } else if (!email.includes('@') || !email.includes('.')) {
+        setErrorEmail('Email không đúng định dạng.');
+        valid = false;
+      }
+    } else {
+      const vnPhoneRe = /^0\d{8,9}$/;
+      if (!phone) {
+        setErrorPhone('Vui lòng nhập số điện thoại.');
+        valid = false;
+      } else if (!vnPhoneRe.test(phone)) {
+        setErrorPhone('Số điện thoại không hợp lệ.');
+        valid = false;
+      }
     }
 
     if (!password) {
-      setErrorPassword('Vui lòng nhập đầy đủ thông tin.');
+      setErrorPassword('Vui lòng nhập mật khẩu mới.');
       valid = false;
     }
 
     if (!valid) return;
 
     try {
-      const result = await dispatch(
-        fetchInitForgotPassword({ email, newPassword: password })
-      ).unwrap();
+      const args =
+        mode === 'email'
+          ? { email, newPassword: password }
+          : { phone, newPassword: password };
+
+      const result = await dispatch(fetchInitForgotPassword(args)).unwrap();
 
       navigation.navigate('ConfirmationCode', {
-        email,
+        identifier: mode === 'email' ? email : phone,
+        mode,
         password,
         token: result.token,
       });
     } catch (err: any) {
-      // Display API error
-      GlobalAlertManager.show('Lỗi!', err.message)
+      GlobalAlertManager.show('Lỗi!', err.message);
     }
   };
 
-  const isFormValid = email.trim() !== '' && password.trim() !== '';
+  const isFormValid =
+    password.trim() !== '' &&
+    (mode === 'email'
+      ? email.trim() !== ''
+      : phone.trim() !== '');
 
   return (
     <View style={styles.page}>
@@ -106,18 +127,24 @@ export const ForgotPassword = ({ navigation }: any) => {
         <View style={styles.body}>
           <Text style={styles.title}>Đặt lại mật khẩu</Text>
           <Text style={styles.subtitle}>
-            Nhập email và mật khẩu mới của bạn
+            {mode === 'email'
+              ? 'Nhập email và mật khẩu mới của bạn'
+              : 'Nhập số điện thoại và mật khẩu mới của bạn'}
           </Text>
 
           <TextInput
-            value={email}
-            onChangeText={setEmail}
-            placeholder="Email"
+            value={mode === 'email' ? email : phone}
+            onChangeText={mode === 'email' ? setEmail : setPhone}
+            placeholder={mode === 'email' ? 'Email' : 'Số điện thoại'}
             placeholderTextColor={Colors.light.lightDark}
+            keyboardType={mode === 'email' ? 'email-address' : 'phone-pad'}
             style={[styles.input, { marginBottom: 5 }]}
           />
-          {errorEmail !== '' && (
+          {mode === 'email' && errorEmail !== '' && (
             <Text style={styles.errorText}>{errorEmail}</Text>
+          )}
+          {mode === 'phone' && errorPhone !== '' && (
+            <Text style={styles.errorText}>{errorPhone}</Text>
           )}
 
           <View style={[styles.input, styles.passwordContainer]}>
@@ -140,7 +167,6 @@ export const ForgotPassword = ({ navigation }: any) => {
               )}
             </TouchableOpacity>
           </View>
-
           {errorPassword !== '' && (
             <Text style={styles.errorText}>{errorPassword}</Text>
           )}
@@ -167,9 +193,21 @@ export const ForgotPassword = ({ navigation }: any) => {
               Xác nhận
             </Text>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() =>
+              setMode(mode === 'email' ? 'phone' : 'email')
+            }
+          >
+            <Text style={styles.toggleText}>
+              {mode === 'email'
+                ? 'Chuyển sang xác nhận qua số điện thoại'
+                : 'Chuyển sang xác nhận qua email'}
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
-      
+
       {isLoadingForgot && (
         <View style={styles.loadingOverlay}>
           <LoadingModal withBackdrop={false} />

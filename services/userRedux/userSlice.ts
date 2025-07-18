@@ -220,21 +220,44 @@ export const fetchUserIdByHandleName = createAsyncThunk<
   }
 });
 
+type InitForgotPasswordArgs =
+  | { email: string; newPassword: string; phone?: never }
+  | { phone: string; newPassword: string; email?: never }
+
 export const fetchInitForgotPassword = createAsyncThunk<
   { token: string },
-  { email: string; newPassword: string },
+  InitForgotPasswordArgs,
   { rejectValue: { message: string } }
->('auth/initForgotPassword', async ({ email, newPassword }, { rejectWithValue }) => {
-  try {
-    const res = await axiosInstance.post<{ token: string }>(
-      API.INIT_FORGOT_PASSWORD,
-      { email, newPassword }
-    );
-    return { token: res.data.token };
-  } catch (error: any) {
-    return rejectWithValue({ message: error.response?.data?.message || 'Init forgot password failed' });
+>(
+  'auth/initForgotPassword',
+  async ({ email, phone, newPassword }, { rejectWithValue }) => {
+    // ensure exactly one of email/phone is provided
+    if ((!email && !phone) || (email && phone)) {
+      return rejectWithValue({
+        message: 'Vui lòng cung cấp email hoặc số điện thoại, không được cả hai.'
+      })
+    }
+
+    try {
+      // build payload with the correct field
+      const payload: Record<string, string> = { newPassword }
+      if (email) payload.email = email
+      else payload.phone = phone!
+
+      const res = await axiosInstance.post<{ token: string }>(
+        API.INIT_FORGOT_PASSWORD,
+        payload
+      )
+      return { token: res.data.token }
+    } catch (error: any) {
+      return rejectWithValue({
+        message:
+          error.response?.data?.message ||
+          'Gửi mã xác nhận không thành công.'
+      })
+    }
   }
-});
+)
 
 export const fetchConfirmNewPassword = createAsyncThunk<
   { message: string; newPassword: string },

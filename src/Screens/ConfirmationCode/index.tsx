@@ -11,29 +11,21 @@ import { useTheme } from '../../util/ThemeContext';
 import { ArrowLeft } from 'lucide-react-native';
 import ForgotPasswordStyles from '../../StyleSheet/ForgotPasswordStyles';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  fetchConfirmNewPassword,
-  fetchInitForgotPassword,
-} from '../../../services/userRedux/userSlice';
-import { 
-  resetConfirmStatus,
-  resetForgotStatus 
-} from '../../../services/userRedux/userReducer';
+import { fetchConfirmNewPassword, fetchInitForgotPassword } from '../../../services/userRedux/userSlice';
+import { resetConfirmStatus, resetForgotStatus } from '../../../services/userRedux/userReducer';
 import { RootState, AppDispatch } from '../../../services/store';
 import { Colors } from '../../../assets/color/Colors';
 import LoadingModal from '../../../components/Global/LoadingModal';
 import { GlobalAlertManager } from '../../../components/Global/AlertModal';
 
 export const ConfirmationCode = ({ navigation, route }: any) => {
-  const { email, password, token: initialToken } = route.params;
+  const { identifier, mode, password, token: initialToken } = route.params;
+
   const [currentToken, setCurrentToken] = useState<string>(initialToken);
   const [code, setCode] = useState<string[]>(['', '', '', '', '', '']);
   const [errorMessage, setErrorMessage] = useState('');
   const dispatch = useDispatch<AppDispatch>();
-  const {
-    isLoadingConfirm,
-    isLoadingForgot,
-  } = useSelector((state: RootState) => state.user);
+  const { isLoadingConfirm, isLoadingForgot } = useSelector((state: RootState) => state.user);
 
   const { theme } = useTheme();
   const color = Colors[theme];
@@ -82,12 +74,14 @@ export const ConfirmationCode = ({ navigation, route }: any) => {
       const result = await dispatch(
         fetchConfirmNewPassword({ token: currentToken, code: fullCode })
       ).unwrap();
+
       GlobalAlertManager.show(
         'Thành công',
         'Mật khẩu đã được đặt lại thành công.',
         () => {
           navigation.navigate('SwitchAccount', {
-            email,
+            identifier,
+            mode,
             newPassword: result.newPassword,
           });
         }
@@ -99,9 +93,13 @@ export const ConfirmationCode = ({ navigation, route }: any) => {
 
   const handleResendCode = async () => {
     try {
-      const result = await dispatch(
-        fetchInitForgotPassword({ email, newPassword: password })
-      ).unwrap();
+      // resend using same identifier & password
+      const args =
+        mode === 'email'
+          ? { email: identifier, newPassword: password }
+          : { phone: identifier, newPassword: password };
+
+      const result = await dispatch(fetchInitForgotPassword(args)).unwrap();
       setCurrentToken(result.token);
       GlobalAlertManager.show('Gửi lại mã', 'Mã xác nhận đã được gửi lại');
     } catch (err: any) {
@@ -138,7 +136,8 @@ export const ConfirmationCode = ({ navigation, route }: any) => {
         <View style={styles.body}>
           <Text style={styles.title}>Xác nhận mã</Text>
           <Text style={styles.subtitle}>
-            Nhập mã xác nhận 6 chữ số được gửi đến email của bạn
+            Nhập mã xác nhận 6 chữ số được gửi đến{' '}
+            {mode === 'email' ? 'email của bạn' : 'số điện thoại của bạn'}
           </Text>
 
           <View style={styles.codeContainer}>
