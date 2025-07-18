@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -12,8 +12,8 @@ import {Colors} from '../../../assets/color/Colors';
 import ItemList from './Components/ItemList';
 import {FlashList} from '@shopify/flash-list';
 import {PeopleGroupChatStyles} from '../../StyleSheet/PeopleGroupChatStyles';
-import {useNavigation, useRoute} from '@react-navigation/native';
-import {ArrowLeft, UserPlus} from 'lucide-react-native'; // 👈 vector icons
+import {useFocusEffect, useNavigation, useRoute} from '@react-navigation/native';
+import {ArrowLeft, UserPlus} from 'lucide-react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '@services/store';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
@@ -45,6 +45,9 @@ export const PeopleGroupChat = () => {
     isCreated: boolean;
   } | null>(null);
   const mine = useSelector((state: RootState) => state.user.user?._id);
+  const handleN = useSelector(
+    (state: RootState) => state.user.user?.handleName,
+  );
   const route = useRoute();
   const roomId = (route.params as {roomId: string})?.roomId;
   const dispatch = useDispatch<AppDispatch>();
@@ -99,31 +102,32 @@ export const PeopleGroupChat = () => {
     }
   };
 
-  useEffect(() => {
-    setIsLoading(true);
-    const fetchRoomUsers = async () => {
-      try {
-        const res = await dispatch(getRoomUsers({roomId})).unwrap(); // unwrap để lấy giá trị thật
-        if (res && res.users.length > 0) {
-          const ad = res.users.find(u => u.isCreated === true) ?? null;
-          const following = res.users.filter(u => u.isCreated !== true);
-          setAdmin(ad);
-          setUser(following);
+  useFocusEffect(
+    useCallback(() => {
+      setIsLoading(true);
+      const fetchRoomUsers = async () => {
+        try {
+          const res = await dispatch(getRoomUsers({roomId})).unwrap();
+          if (res && res.users.length > 0) {
+            const ad = res.users.find(u => u.isCreated === true) ?? null;
+            const following = res.users.filter(u => u.isCreated !== true);
+            setAdmin(ad);
+            setUser(following);
+          }
+        } catch (error: any) {
+          GlobalAlertManager.show(
+            'Thông báo',
+            error?.response?.data?.message ||
+              'Lấy danh sách người dùng thất bại.',
+          );
+        } finally {
           setIsLoading(false);
         }
-      } catch (error: any) {
-        setIsLoading(false);
-        GlobalAlertManager.show(
-          'Thông báo',
-          error?.response?.data?.message ||
-            'Lấy danh sách người dùng thất bại.',
-          () => {},
-        );
-      }
-    };
+      };
 
-    fetchRoomUsers();
-  }, [roomId]);
+      fetchRoomUsers();
+    }, [roomId]),
+  );
 
   if (isLoading) {
     <View style={styles.container}>
@@ -139,7 +143,9 @@ export const PeopleGroupChat = () => {
         </TouchableOpacity>
         <Text style={styles.title}>Mọi người</Text>
         <TouchableOpacity
-          onPress={() => navigation.navigate('AddPeopleToGroupChat')}>
+          onPress={() =>
+            navigation.navigate('AddPeopleToGroupChat', {roomId: roomId})
+          }>
           <UserPlus size={24} color={colors.text} />
         </TouchableOpacity>
       </View>
@@ -178,7 +184,7 @@ export const PeopleGroupChat = () => {
                 handleFollowToggle(
                   admin.user_id ?? '',
                   admin.isFollow,
-                  admin.handleName,
+                  handleN ?? '',
                 );
               }}
             />
@@ -203,7 +209,7 @@ export const PeopleGroupChat = () => {
                   handleFollowToggle(
                     item.user_id ?? '',
                     item.isFollow,
-                    item.handleName,
+                    handleN ?? '',
                   );
                 }}
               />
