@@ -59,5 +59,13 @@ export const LikedStyles = (theme: 'light' | 'dark') => {
       paddingLeft: 24,
       paddingVertical: 10,
     },
+    btnUnlike: {
+      paddingLeft: 24,
+      paddingVertical: 10,
+      borderWidth: 1,
+      borderColor: color.text,
+      borderRadius: 30,
+      marginBottom: 5
+    },
   });
 };

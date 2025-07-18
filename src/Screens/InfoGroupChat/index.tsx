@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useCallback, memo } from 'react';
+import React, {useEffect, useMemo, useState, useCallback, memo} from 'react';
 import {
   View,
   Text,
@@ -7,8 +7,8 @@ import {
   TouchableOpacity,
   SafeAreaView,
 } from 'react-native';
-import { useTheme } from '../../util/ThemeContext';
-import { Colors } from '../../../assets/color/Colors';
+import {useTheme} from '../../util/ThemeContext';
+import {Colors} from '../../../assets/color/Colors';
 import {
   Bell,
   Search,
@@ -17,26 +17,26 @@ import {
   LogOut,
   ArrowLeft,
 } from 'lucide-react-native';
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import { RootStackParamList } from '../../Navigation/AppNavigation';
+import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
+import {RootStackParamList} from '../../Navigation/AppNavigation';
 import ModalTheme from '../Message/components/ModalTheme';
 import {
   updateRoomName,
   updateRoomTheme,
 } from '../../../services/roomRedux/roomSlice';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '../../../services/store';
-import { ModalRenameRoom } from '../../../components/ModalRenameRoom';
-import { GlobalAlertManager } from '../../../components/Global/AlertModal';
-import { MenuSection } from './component/menuItem';
-import { MediaItem } from '@services/postRedux/postTypes';
-import { getAllMediaInRoom } from '../../util/msgImgList';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '../../../services/store';
+import {ModalRenameRoom} from '../../../components/ModalRenameRoom';
+import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+import {MenuSection} from './component/menuItem';
+import {MediaItem} from '@services/postRedux/postTypes';
+import {getAllMediaInRoom} from '../../util/msgImgList';
 import MessageSearchModal from '../../../components/MessageSearchModal';
-import { fetchMessages } from '../../../services/messageRedux/messageSlice';
-import { Message } from '../../../services/messageRedux/messageType';
+import {fetchMessages} from '../../../services/messageRedux/messageSlice';
+import {Message} from '../../../services/messageRedux/messageType';
 
 export const InforGroupChat = () => {
-  const { theme } = useTheme();
+  const {theme} = useTheme();
   const color = Colors[theme];
   const navigation: any = useNavigation();
   const dispatch = useDispatch<AppDispatch>();
@@ -63,7 +63,7 @@ export const InforGroupChat = () => {
       }
 
       try {
-        const res = await getAllMediaInRoom({ roomId, page: 1 });
+        const res = await getAllMediaInRoom({roomId, page: 1});
         if (res && res.media && res.media.length > 0) {
           setMedia(res.media as MediaItem[]);
         } else {
@@ -80,12 +80,12 @@ export const InforGroupChat = () => {
   // Fetch messages for search functionality
   useEffect(() => {
     if (roomId) {
-      dispatch(fetchMessages({ roomId }))
+      dispatch(fetchMessages({roomId}))
         .unwrap()
-        .then((fetchedMessages) => {
+        .then(fetchedMessages => {
           setMessages(fetchedMessages);
         })
-        .catch((error) => {
+        .catch(error => {
           console.error('Failed to fetch messages:', error);
           setMessages([]);
         });
@@ -96,14 +96,17 @@ export const InforGroupChat = () => {
     setSearchModalVisible(true);
   }, []);
 
-  const handleMessageSelect = useCallback((messageId: string, index: number) => {
-    // Navigate back to the message screen with the selected message
-    navigation.navigate('MessageScreen', {
-      room: roomId,
-      highlightMessageId: messageId,
-      scrollToIndex: index,
-    });
-  }, [navigation, roomId]);
+  const handleMessageSelect = useCallback(
+    (messageId: string, index: number) => {
+      // Navigate back to the message screen with the selected message
+      navigation.navigate('MessageScreen', {
+        room: roomId,
+        highlightMessageId: messageId,
+        scrollToIndex: index,
+      });
+    },
+    [navigation, roomId],
+  );
 
   const handleGoBack = useCallback(() => {
     navigation.goBack();
@@ -117,33 +120,39 @@ export const InforGroupChat = () => {
     setVisibleThemeModal(false);
   }, []);
 
-  const handleThemeSelect = useCallback((selectedBackground: string) => {
-    dispatch(updateRoomTheme({ roomId: roomId, theme: selectedBackground }))
-      .unwrap()
-      .then(() => {
-        GlobalAlertManager.show('Thành công', 'Đã cập nhật chủ đề');
-      })
-      .catch(() => {
-        GlobalAlertManager.show('Thất bại', 'Cập nhật chủ đề thất bại');
-      });
-    setVisibleThemeModal(false);
-  }, [dispatch, roomId]);
+  const handleThemeSelect = useCallback(
+    (selectedBackground: string) => {
+      dispatch(updateRoomTheme({roomId: roomId, theme: selectedBackground}))
+        .unwrap()
+        .then(() => {
+          GlobalAlertManager.show('Thành công', 'Đã cập nhật chủ đề');
+        })
+        .catch(() => {
+          GlobalAlertManager.show('Thất bại', 'Cập nhật chủ đề thất bại');
+        });
+      setVisibleThemeModal(false);
+    },
+    [dispatch, roomId],
+  );
 
   const handleCloseRenameModal = useCallback(() => {
     setVisibleRenameModal(false);
   }, []);
 
-  const handleRenameSubmit = useCallback((newName: string) => {
-    dispatch(updateRoomName({ roomId: roomId, name: newName }))
-      .unwrap()
-      .then(() => {
-        GlobalAlertManager.show('Thành công', 'Đã đổi tên nhóm');
-        setVisibleRenameModal(false);
-      })
-      .catch(() => {
-        GlobalAlertManager.show('Lỗi', 'Không thể đổi tên nhóm');
-      });
-  }, [dispatch, roomId]);
+  const handleRenameSubmit = useCallback(
+    (newName: string) => {
+      dispatch(updateRoomName({roomId: roomId, name: newName}))
+        .unwrap()
+        .then(() => {
+          GlobalAlertManager.show('Thành công', 'Đã đổi tên nhóm');
+          setVisibleRenameModal(false);
+        })
+        .catch(() => {
+          GlobalAlertManager.show('Lỗi', 'Không thể đổi tên nhóm');
+        });
+    },
+    [dispatch, roomId],
+  );
 
   const handleOpenRenameModal = useCallback(() => {
     setVisibleRenameModal(true);
@@ -155,7 +164,7 @@ export const InforGroupChat = () => {
 
   return (
     <SafeAreaView
-      style={[styles.container, { backgroundColor: color.background }]}>
+      style={[styles.container, {backgroundColor: color.background}]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={handleGoBack}>
           <ArrowLeft size={24} color={color.text} />
@@ -166,11 +175,11 @@ export const InforGroupChat = () => {
         <TouchableOpacity
           style={[
             styles.imgContainer,
-            { overflow: img1 && !img2 ? 'hidden' : undefined },
+            {overflow: img1 && !img2 ? 'hidden' : undefined},
           ]}>
           {img2 && (
             <>
-              <Image style={styles.iconW} source={{ uri: img1 }} />
+              <Image style={styles.iconW} source={{uri: img1}} />
               <Image
                 style={[
                   styles.iconF,
@@ -179,29 +188,27 @@ export const InforGroupChat = () => {
                     backgroundColor: color.backgroundSecondary,
                   },
                 ]}
-                source={{ uri: img2 }}
+                source={{uri: img2}}
               />
             </>
           )}
-          {!img2 && img1 && <Image style={styles.img} source={{ uri: img1 }} />}
+          {!img2 && img1 && <Image style={styles.img} source={{uri: img1}} />}
         </TouchableOpacity>
-        <Text style={[styles.name, { color: color.text }]}>{room?.name}</Text>
+        <Text style={[styles.name, {color: color.text}]}>{room?.name}</Text>
       </View>
 
       <View style={styles.actionRow}>
-        <TouchableOpacity
-          style={styles.actionItem}
-          onPress={handleAddPeople}>
+        <TouchableOpacity style={styles.actionItem} onPress={handleAddPeople}>
           <UserPlus size={20} color={color.text} />
-          <Text style={[styles.actionText, { color: color.text }]}>Thêm</Text>
+          <Text style={[styles.actionText, {color: color.text}]}>Thêm</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.actionItem} onPress={handleSearchPress}>
           <Search size={20} color={color.text} />
-          <Text style={[styles.actionText, { color: color.text }]}>Tìm kiếm</Text>
+          <Text style={[styles.actionText, {color: color.text}]}>Tìm kiếm</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.actionItem}>
           <Bell size={20} color={color.text} />
-          <Text style={[styles.actionText, { color: color.text }]}>
+          <Text style={[styles.actionText, {color: color.text}]}>
             Tắt thông báo
           </Text>
         </TouchableOpacity>
@@ -209,13 +216,13 @@ export const InforGroupChat = () => {
           style={styles.actionItem}
           onPress={handleOpenRenameModal}>
           <PenLine size={20} color={color.text} />
-          <Text style={[styles.actionText, { color: color.text }]}>
+          <Text style={[styles.actionText, {color: color.text}]}>
             Đổi tên nhóm
           </Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.actionItem}>
           <LogOut size={20} color={color.text} />
-          <Text style={[styles.actionText, { color: color.text }]}>Rời khỏi</Text>
+          <Text style={[styles.actionText, {color: color.text}]}>Rời khỏi</Text>
         </TouchableOpacity>
       </View>
 
@@ -345,5 +352,41 @@ export const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     resizeMode: 'cover',
+  },
+  mediaContainer: {
+    height: 70,
+    marginHorizontal: 10,
+    marginBottom: 15,
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  mediaRow: {
+    flexDirection: 'row',
+    gap: 4,
+    padding: 4,
+  },
+  mediaItem: {
+    width: 60,
+    height: 60,
+    aspectRatio: 1,
+    margin: 1,
+  },
+  mediaImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 4,
+  },
+  placeholder: {
+    flex: 1,
+    aspectRatio: 1,
+    margin: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.1)',
+    borderRadius: 4,
+  },
+  placeholderText: {
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });
