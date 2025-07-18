@@ -161,6 +161,12 @@ const ForgotPasswordStyles = (theme: ThemeType) => {
       alignItems: 'center',
       zIndex: 1000,
     },
+    toggleText: {
+      textAlign: 'center',
+      color: color.primary,
+      marginTop: 10,
+      textDecorationLine: 'underline',
+    },
   });
 };
 
