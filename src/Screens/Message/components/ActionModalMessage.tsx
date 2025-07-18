@@ -219,7 +219,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     zIndex: 0,
-    backgroundColor: 'rgba(50,50,50,0.7)',
+    backgroundColor: 'rgba(0,0,0,0.6)',
   },
   container: {
     width: '100%',
@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
   visibleAction: {
     position: 'absolute',
     zIndex: 1,
-    bottom: 40,
+    bottom: 60,
     alignItems: 'center',
   },
   reactionContainer: {
@@ -242,6 +242,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     alignItems: 'center',
     justifyContent: 'space-between',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 1},
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
   reactionText: {
     fontSize: 20,
@@ -253,6 +258,11 @@ const styles = StyleSheet.create({
     padding: 20,
     flexDirection: 'row',
     gap: 20,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 1},
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
   featureContainer: {
     maxWidth: '30%',
@@ -272,6 +282,11 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     borderRadius: 10,
     marginVertical: 10,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 1},
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
   callButton: {
     width: '100%',

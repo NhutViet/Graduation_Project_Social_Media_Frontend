@@ -1,13 +1,19 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import { View, Image, TouchableOpacity, Dimensions, StyleSheet } from 'react-native';
+import React, {useCallback, useMemo, useState} from 'react';
+import {
+  View,
+  Image,
+  TouchableOpacity,
+  Dimensions,
+  StyleSheet,
+} from 'react-native';
 import Video from 'react-native-video';
-import { Colors } from '../../../../assets/color/Colors';
-import { ItemHomeStyles } from '../component_styles/ItemHomeStyles';
-import { Media } from '../../../../services/postRedux/postTypes';
+import {Colors} from '../../../../assets/color/Colors';
+import {ItemHomeStyles} from '../component_styles/ItemHomeStyles';
+import {Media} from '../../../../services/postRedux/postTypes';
 import TagMarker from './TagMarker';
-import { useNavigation } from '@react-navigation/native';
-import { Play, Volume2, VolumeX } from 'lucide-react-native';
-import { useVideoPause } from '../context/VideoPauseContext';
+import {useNavigation} from '@react-navigation/native';
+import {Play, Volume2, VolumeX} from 'lucide-react-native';
+import {useVideoPause} from '../context/VideoPauseContext';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -30,11 +36,15 @@ interface RenderMuteButtonProps {
 }
 
 export const RenderMediaItem = React.memo(
-  ({ item, currentVisible, isFocused, muted }: RenderMediaItemProps) => {
-    const [videoSize, setVideoSize] = useState({ width: 0, height: 0 });
+  ({item, currentVisible, isFocused, muted}: RenderMediaItemProps) => {
+    const [videoSize, setVideoSize] = useState({width: 0, height: 0});
     const navigation = useNavigation<any>();
-    const { isPaused: isVideoPausedByUser, addPausedVideo, removePausedVideo } = useVideoPause();
-    
+    const {
+      isPaused: isVideoPausedByUser,
+      addPausedVideo,
+      removePausedVideo,
+    } = useVideoPause();
+
     // Logic pause:
     const videoId = item._id.toString();
     const isUserPaused = isVideoPausedByUser(videoId);
@@ -47,7 +57,7 @@ export const RenderMediaItem = React.memo(
 
     const handleTagPress = useCallback(
       (userId: string) => {
-        navigation.navigate('ProfileComp', { userID: userId });
+        navigation.navigate('ProfileComp', {userID: userId});
       },
       [navigation],
     );
@@ -60,22 +70,21 @@ export const RenderMediaItem = React.memo(
     }, [isUserPaused, videoId, addPausedVideo, removePausedVideo]);
 
     return (
-      <View style={{ width: screenWidth, height: item.videoUrl ? 600 : 520 }}>
+      <View style={{width: screenWidth, height: item.videoUrl ? 600 : 520}}>
         {item.videoUrl ? (
           <TouchableOpacity onPress={handleVideoPress}>
-            <View style={{ position: 'relative' }}>
+            <View style={{position: 'relative'}}>
               <Video
-                source={{ uri: item.videoUrl }}
+                source={{uri: item.videoUrl}}
                 resizeMode={videoResizeMode}
-                style={{ width: screenWidth, height: 600 }}
-                repeat={false}
+                style={{width: screenWidth, height: 600}}
+                repeat
                 paused={shouldPause}
                 poster={item.videoUrl}
                 muted={muted}
                 playInBackground={false}
-                maxBitRate={0}
                 progressUpdateInterval={500}
-                onLoad={({ naturalSize }) => {
+                onLoad={({naturalSize}) => {
                   setVideoSize({
                     width: naturalSize.width,
                     height: naturalSize.height,
@@ -91,8 +100,8 @@ export const RenderMediaItem = React.memo(
           </TouchableOpacity>
         ) : (
           <Image
-            source={{ uri: item.imageUrl ?? '' }}
-            style={[style.img, { width: screenWidth }]}
+            source={{uri: item.imageUrl ?? ''}}
+            style={[style.img, {width: screenWidth}]}
             resizeMode="cover"
           />
         )}
@@ -114,7 +123,7 @@ export const RenderMediaItem = React.memo(
 );
 
 export const RenderPagination = React.memo(
-  ({ media, currentIndex }: RenderPaginationProps) => {
+  ({media, currentIndex}: RenderPaginationProps) => {
     if (media.length <= 1) return null;
     return (
       <View style={ItemHomeStyles.pagination}>
@@ -136,7 +145,7 @@ export const RenderPagination = React.memo(
 );
 
 export const RenderMuteButton = React.memo(
-  ({ muted, setMuted, isPostWithoutMusic }: RenderMuteButtonProps) => {
+  ({muted, setMuted, isPostWithoutMusic}: RenderMuteButtonProps) => {
     if (isPostWithoutMusic) return null;
 
     return (
