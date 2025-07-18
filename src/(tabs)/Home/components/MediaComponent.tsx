@@ -7,6 +7,7 @@ import { Media } from '../../../../services/postRedux/postTypes';
 import TagMarker from './TagMarker';
 import { useNavigation } from '@react-navigation/native';
 import { Play, Volume2, VolumeX } from 'lucide-react-native';
+import { useVideoPause } from '../context/VideoPauseContext';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -32,7 +33,13 @@ export const RenderMediaItem = React.memo(
   ({ item, currentVisible, isFocused, muted }: RenderMediaItemProps) => {
     const [videoSize, setVideoSize] = useState({ width: 0, height: 0 });
     const navigation = useNavigation<any>();
-    const [isPaused, setIsPaused] = useState<boolean>(true);
+    const { isPaused: isVideoPausedByUser, addPausedVideo, removePausedVideo } = useVideoPause();
+    
+    // Logic pause:
+    const videoId = item._id.toString();
+    const isUserPaused = isVideoPausedByUser(videoId);
+    const shouldPause = isUserPaused || !currentVisible || !isFocused;
+
     const videoResizeMode = useMemo(() => {
       if (videoSize.height > videoSize.width) return 'cover';
       return 'contain';
@@ -44,18 +51,25 @@ export const RenderMediaItem = React.memo(
       },
       [navigation],
     );
+    const handleVideoPress = useCallback(() => {
+      if (isUserPaused) {
+        removePausedVideo(videoId);
+      } else {
+        addPausedVideo(videoId);
+      }
+    }, [isUserPaused, videoId, addPausedVideo, removePausedVideo]);
 
     return (
       <View style={{ width: screenWidth, height: item.videoUrl ? 600 : 520 }}>
         {item.videoUrl ? (
-          <TouchableOpacity onPress={() => setIsPaused(!isPaused)}>
+          <TouchableOpacity onPress={handleVideoPress}>
             <View style={{ position: 'relative' }}>
               <Video
                 source={{ uri: item.videoUrl }}
                 resizeMode={videoResizeMode}
                 style={{ width: screenWidth, height: 600 }}
                 repeat={false}
-                paused={isPaused}
+                paused={shouldPause}
                 poster={item.videoUrl}
                 muted={muted}
                 playInBackground={false}
@@ -68,7 +82,7 @@ export const RenderMediaItem = React.memo(
                   });
                 }}
               />
-              {isPaused && (
+              {shouldPause && (
                 <View style={style.playButtonOverlay}>
                   <Play size={28} color={Colors.white} />
                 </View>
