@@ -207,7 +207,7 @@ export const MessageBox = (props: any) => {
           <Text style={styles.name}>{user?.handleName}</Text>
         </View>
         <View style={styles.headerBlock}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => {navigation.navigate('CreateGroupScreen');}}>
             <MessageSquarePlus size={22} color={color.text} />
           </TouchableOpacity>
         </View>

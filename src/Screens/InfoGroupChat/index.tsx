@@ -113,7 +113,7 @@ export const InforGroupChat = () => {
   }, [navigation]);
 
   const handleAddPeople = useCallback(() => {
-    navigation.navigate('AddPeopleToGroupChat');
+    navigation.navigate('AddPeopleToGroupChat', {roomId: roomId});
   }, [navigation]);
 
   const handleCloseThemeModal = useCallback(() => {
