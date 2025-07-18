@@ -58,9 +58,9 @@ export const MenuSection = memo(
       setVisibleThemeModal(true);
     }, [setVisibleThemeModal]);
 
-    const handlePeoplePress = useCallback(() => {
-      navigation.navigate('PeopleGroupChat');
-    }, [navigation]);
+  const handlePeoplePress = useCallback(() => {
+    navigation.navigate('PeopleGroupChat', {roomId: room});
+  }, [navigation]);
 
     const handleCreateGroupPress = useCallback(() => {
       navigation.navigate('CreateGroupScreen');
