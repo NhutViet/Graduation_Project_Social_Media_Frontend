@@ -1,19 +1,20 @@
 import React, {useRef, useState} from 'react';
-import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import {useTheme} from '../../util/ThemeContext';
-import {Colors} from '../../../assets/color/Colors';
 import LinearGradient from 'react-native-linear-gradient';
+import {X, ScanLine, Share2, Link2, Download} from 'lucide-react-native';;
+import { useSelector } from 'react-redux';
+import { RootState } from '@services/store';
+
 export const ScreenQRCode = ({navigation}: any) => {
   const qrCodeRef = useRef<any>(null);
-  const {theme} = useTheme();
-  const color = Colors[theme];
-  const [linkQR, setLinkQR] = useState(
-    'https://www.youtube.com/watch?v=GKxkw0FQBm0',
-  );
+  const myUserId = useSelector((state: RootState) => {
+    return state.user?.user?._id;
+  });
   const hanldeDownloadQRCode = async () => {
     console.log('download');
   };
+
   return (
     <View style={styles.container}>
       <LinearGradient
@@ -26,25 +27,19 @@ export const ScreenQRCode = ({navigation}: any) => {
           <TouchableOpacity
             style={styles.btn}
             onPress={() => navigation.navigate('BottomTabs')}>
-            <Image
-              style={styles.iconClose}
-              source={require('../../../assets/icon/closer.png')}
-            />
+            <X size={22} color="#fff" />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.btn}
             onPress={() => navigation.navigate('QRScanner')}>
-            <Image
-              style={styles.iconClose}
-              source={require('../../../assets/icon/Qscan.png')}
-            />
+            <ScanLine size={22} color="#fff" />
           </TouchableOpacity>
         </View>
 
         <View style={styles.content}>
           <View style={styles.ViewQR}>
             <QRCode
-              value={linkQR}
+              value={myUserId}
               size={200}
               quietZone={10}
               logo={require('../../../assets/icon/logo.png')}
@@ -54,31 +49,21 @@ export const ScreenQRCode = ({navigation}: any) => {
               linearGradient={['#4F8EF7', '#B84592']}
               enableLinearGradient={true}
               backgroundColor="transparent"
-              getRef={qrCodeRef}
             />
           </View>
           <View style={styles.footer}>
             <TouchableOpacity style={styles.btnBottom}>
-              <Image
-                style={styles.icon}
-                source={require('../../../assets/icon/share.png')}
-              />
+              <Share2 size={22} color="#000" />
               <Text style={styles.txtBottom}>Chia sẻ</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.btnBottom}>
-              <Image
-                style={styles.icon}
-                source={require('../../../assets/icon/link.png')}
-              />
+              <Link2 size={22} color="#000" />
               <Text style={styles.txtBottom}>Sao chép</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.btnBottom}
               onPress={hanldeDownloadQRCode}>
-              <Image
-                style={styles.icon}
-                source={require('../../../assets/icon/download.png')}
-              />
+              <Download size={22} color="#000" />
               <Text style={styles.txtBottom}>Tải xuống</Text>
             </TouchableOpacity>
           </View>

@@ -4,19 +4,26 @@ import {FlashList} from '@shopify/flash-list';
 import {Styles} from '../../../StyleSheet/Profile.Styles';
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
-import {HighlightItem} from '../../../MockData/story.mock';
 
 const StoryComponent = ({
   isPrivate,
   highlights,
 }: {
   isPrivate: boolean;
-  highlights: HighlightItem[];
+  highlights: Array<{id: string; image: string; title: string}>;
 }) => {
   const {theme} = useTheme();
   const color = Colors[theme];
 
-  const renderStoryItem = ({item}: {item: HighlightItem}) => (
+  const renderStoryItem = ({
+    item,
+  }: {
+    item: {
+      id: string;
+      image: string;
+      title: string;
+    };
+  }) => (
     <View key={item.id} style={Styles.styles.highlightItem}>
       <View style={Styles.styles.highlightImageContainer}>
         <Image

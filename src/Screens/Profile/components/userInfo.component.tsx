@@ -3,6 +3,7 @@ import {View, Text, Image, StyleSheet, TouchableOpacity} from 'react-native';
 import {Theme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
 import {useNavigation} from '@react-navigation/native';
+import {UserIcon} from 'lucide-react-native';
 
 interface UserInfoProps {
   name: string;
@@ -10,7 +11,7 @@ interface UserInfoProps {
   following: number;
   // posts: {id: string; image: string}[];
   posts: number;
-  avatar: string;
+  avatar?: string;
   bio?: string;
   theme: Theme;
   onFollowersPress: () => void;
@@ -26,7 +27,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
   bio,
   theme,
   onFollowersPress,
-  onFollowingPress
+  onFollowingPress,
 }) => {
   const navigation: any = useNavigation();
   const color = Colors[theme];
@@ -42,7 +43,11 @@ const UserInfo: React.FC<UserInfoProps> = ({
   return (
     <View>
       <View style={styles.header}>
-        <Image source={{uri: avatar}} style={styles.profileImage} />
+        {avatar ? (
+          <Image source={{uri: avatar}} style={styles.profileImage} />
+        ) : (
+          <UserIcon size={80} color={color.text} />
+        )}
         <View style={styles.statsContainer}>
           <View style={styles.statItem}>
             <Text style={[styles.statNumber, {color: color.text}]}>

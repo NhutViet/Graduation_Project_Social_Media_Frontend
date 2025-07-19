@@ -1,13 +1,17 @@
-import React from 'react';
+import React, {useRef, useEffect, useState, useCallback} from 'react';
 import {
   Modal,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  Image,
-  FlatList,
+  Animated,
   Dimensions,
+  TouchableWithoutFeedback,
+  StyleSheet,
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  Image,
+  SafeAreaView,
+  Easing,
 } from 'react-native';
 import {Colors} from '../../../../assets/color/Colors';
 
@@ -34,46 +38,106 @@ const backgroundOptions = [
   'https://i.pinimg.com/736x/8f/be/04/8fbe04b72d7aaf5417bb146951c45530.jpg',
 ];
 
-const screenWidth = Dimensions.get('window').width;
-const numColumns = 3;
-const space = screenWidth * 0.055;
-const itemSize = screenWidth * 0.26;
+const {width, height} = Dimensions.get('window');
+const ITEM_SPACING = 16;
+const NUM_COLUMNS = 3;
+const ITEM_SIZE = (width - ITEM_SPACING * (NUM_COLUMNS + 1)) / NUM_COLUMNS;
+const SHEET_HEIGHT = height * 0.8;
 
 const ModalTheme: React.FC<ModalThemeProps> = ({
   visible,
   onClose,
   onSelect,
 }) => {
-  return (
-    <Modal visible={visible} transparent animationType="slide">
-      <TouchableOpacity
-        style={styles.overlay}
-        activeOpacity={1}
-        onPress={onClose}></TouchableOpacity>
+  const [show, setShow] = useState(false);
+  const opacity = useRef(new Animated.Value(0)).current;
+  const translateY = useRef(new Animated.Value(height)).current;
 
-      <View style={styles.container}>
-        <Text style={styles.title}>Đổi nền khung chat</Text>
-        <FlatList
-          data={backgroundOptions}
-          renderItem={({item}) => (
-            <TouchableOpacity
-              onPress={() => {
-                onSelect(item);
-                onClose();
-              }}
-              style={styles.option}>
-              <Image
-                source={{uri: item}}
-                style={styles.image}
-                onError={() => console.log(`Failed to load image: ${item}`)}
-              />
-            </TouchableOpacity>
-          )}
-          keyExtractor={item => item}
-          showsVerticalScrollIndicator={false}
-          numColumns={numColumns}
-        />
-      </View>
+  // Mở khi prop `visible` chuyển true
+  useEffect(() => {
+    if (visible) {
+      setShow(true);
+      Animated.parallel([
+        Animated.timing(opacity, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+          easing: Easing.out(Easing.ease),
+        }),
+        Animated.spring(translateY, {
+          toValue: 0,
+          damping: 20,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [visible, opacity, translateY]);
+
+  // Hàm đóng do bạn chủ động gọi
+  const close = useCallback(() => {
+    Animated.parallel([
+      Animated.timing(opacity, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+        easing: Easing.in(Easing.ease),
+      }),
+      Animated.timing(translateY, {
+        toValue: height,
+        duration: 300,
+        useNativeDriver: true,
+        easing: Easing.in(Easing.ease),
+      }),
+    ]).start(() => {
+      setShow(false);
+      onClose();
+    });
+  }, [opacity, translateY, onClose]);
+
+  if (!show) return null; // chỉ mount khi `show` = true
+
+  return (
+    <Modal
+      visible={true} // luôn mount
+      transparent
+      animationType="none"
+      statusBarTranslucent>
+      {/* Backdrop */}
+      <TouchableWithoutFeedback onPress={close}>
+        <Animated.View style={[styles.backdrop, {opacity}]} />
+      </TouchableWithoutFeedback>
+
+      {/* Bottom Sheet */}
+      <Animated.View
+        style={[
+          styles.sheet,
+          {transform: [{translateY}], height: SHEET_HEIGHT},
+        ]}>
+        <SafeAreaView style={styles.container}>
+          <View style={styles.grabber} />
+          <Text style={styles.title}>Đổi nền khung chat</Text>
+
+          <FlatList
+            data={backgroundOptions}
+            keyExtractor={uri => uri}
+            numColumns={NUM_COLUMNS}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.list}
+            columnWrapperStyle={styles.row}
+            renderItem={({item}) => (
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => {
+                  onSelect(item);
+                  close(); // đóng khi chọn
+                }}
+                style={styles.item}>
+                <Image source={{uri: item}} style={styles.image} />
+              </TouchableOpacity>
+            )}
+          />
+        </SafeAreaView>
+      </Animated.View>
     </Modal>
   );
 };
@@ -81,44 +145,53 @@ const ModalTheme: React.FC<ModalThemeProps> = ({
 export default ModalTheme;
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0,0,0,0.4)',
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
   },
-  container: {
+  sheet: {
     position: 'absolute',
     bottom: 0,
+    width: '100%',
     backgroundColor: '#fff',
     borderTopLeftRadius: 12,
     borderTopRightRadius: 12,
-    width: '100%',
-    height: '80%',
-    paddingVertical: space,
+  },
+  container: {
+    flex: 1,
+    paddingHorizontal: ITEM_SPACING,
+  },
+  grabber: {
+    width: 40,
+    height: 4,
+    backgroundColor: '#ccc',
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginVertical: 8,
   },
   title: {
-    width: '100%',
-    fontWeight: 'bold',
-    marginBottom: space,
-    fontSize: 16,
+    fontSize: 18,
+    fontWeight: '600',
     textAlign: 'center',
+    marginBottom: ITEM_SPACING,
     color: Colors.gray21,
   },
-  option: {
-    width: itemSize,
-    height: itemSize,
+  list: {
+    paddingBottom: ITEM_SPACING,
+  },
+  row: {
+    justifyContent: 'flex-start',
+    marginBottom: ITEM_SPACING,
+  },
+  item: {
+    width: ITEM_SIZE,
+    height: ITEM_SIZE,
     borderRadius: 8,
     overflow: 'hidden',
-    marginBottom: space,
-    marginLeft: space,
+    marginRight: ITEM_SPACING,
   },
   image: {
     width: '100%',
     height: '100%',
-    resizeMode: 'cover',
   },
 });

@@ -3,7 +3,7 @@ export interface Music {
   song: string;
   link: string;
   author: string;
-  coverImg: boolean;
+  coverImg: string;
   createdAt?: string;
   updatedAt?: string;
   isBookmarked?: boolean;

@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   Image,
   SafeAreaView,
@@ -13,6 +14,7 @@ import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {useState} from 'react';
 import {FlashList} from '@shopify/flash-list';
+import {ArrowLeft} from 'lucide-react-native';
 
 const NewMessage = () => {
   const navigation: any = useNavigation();
@@ -72,10 +74,7 @@ const NewMessage = () => {
         <TouchableOpacity
           style={styles.blockIcon}
           onPress={() => navigation.goBack()}>
-          <Image
-            style={[styles.icon, {tintColor: color.text}]}
-            source={require('../../../assets/icon/left.png')}
-          />
+          <ArrowLeft size={22} color={color.text} />
         </TouchableOpacity>
         <Text style={[styles.title, {color: color.text}]}>Tin nhắn mới</Text>
         <View style={styles.block}></View>
@@ -107,7 +106,7 @@ const NewMessage = () => {
               />
             </View>
 
-            <ItemNewMessage
+            {/* <ItemNewMessage
               roomId=""
               nameChat="Group Chat"
               img1={require('../../../assets/icon/group_chat.png')}
@@ -116,7 +115,7 @@ const NewMessage = () => {
               nameChat="AI Chat"
               img1={require('../../../assets/icon/ai.png')}
               roomId=""
-            />
+            /> */}
 
             <Text
               style={[

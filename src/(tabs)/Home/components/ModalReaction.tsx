@@ -15,6 +15,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../../services/store';
 import {Likers} from '../../../../services/likersRedux/likersSlice';
 import {handleFollowToggle} from '../util';
+import { Liker } from '@services/likersRedux/likersType';
 
 interface ModalReactionProps {
   postId: string;
@@ -30,7 +31,7 @@ const ModalReaction = forwardRef<Modalize, ModalReactionProps>(
     const dispatch = useDispatch<AppDispatch>();
     const {isLoading} = useSelector((state: RootState) => state.likers);
     const {refreshToken} = useSelector((state: RootState) => state.user);
-    const [users, setUsers] = useState<any[]>([]);
+    const [users, setUsers] = useState<Liker[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const user = useSelector((state: RootState) => state.user.user);
     const modalContentHeight = Dimensions.get('window').height * 0.7;
@@ -59,7 +60,7 @@ const ModalReaction = forwardRef<Modalize, ModalReactionProps>(
       setIsModalOpen(false);
     }, []);
 
-    const renderItem = ({item}: {item: any}) => (
+    const renderItem = ({item}: {item: Liker}) => (
       <View style={[styles.userItem, {backgroundColor: color.modal}]}>
         <Image source={{uri: item.profilePic}} style={styles.avatar} />
         <View style={[styles.userInfo, {backgroundColor: color.modal}]}>
@@ -81,7 +82,7 @@ const ModalReaction = forwardRef<Modalize, ModalReactionProps>(
             onPress={() => {
               handleFollowToggle({
                 userId: item?.userId,
-                follow: item.userFollowing,
+                follow: item.userFollowing ?? false,
                 senderId: user?._id,
                 handleName: user?.handleName,
                 dispatch,

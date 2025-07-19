@@ -8,7 +8,6 @@ import {
   FlatList,
   Image,
   SafeAreaView,
-  Alert,
 } from 'react-native';
 import {ChevronLeft, Check, CircleX} from 'lucide-react-native';
 import {useNavigation} from '@react-navigation/native';
@@ -22,6 +21,13 @@ import {
   switchBookmark,
 } from '../../../services/bookmarkRedux/bookmarkSlice';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+import {checkProfanityAndAlert} from '../../util/profanityFilter';
+import {
+  Media,
+  MediaR,
+  PlaylistItem,
+} from '@services/bookmarkRedux/bookmarkTypes';
+import {PlayCircle, ImageIcon} from 'lucide-react-native';
 
 export const AddCollectionScreen = () => {
   const {theme} = useTheme();
@@ -45,12 +51,15 @@ export const AddCollectionScreen = () => {
         if (!item?.media || item.media.length === 0) return false;
 
         const isVideo = item.itemType === 'reel';
-        const mediaItem: any = item.media[0];
+        const mediaItem = item.media[0];
 
         if (isVideo) {
-          return mediaItem?.videoUrl?.split('/')[3];
+          if ('videoUrl' in mediaItem) {
+            return mediaItem.videoUrl?.split('/')[3];
+          }
+          return false;
         } else {
-          return !!mediaItem?.imageUrl;
+          return 'imageUrl' in mediaItem && !!mediaItem.imageUrl;
         }
       });
   }, [itemsByPlaylist, playlists]);
@@ -66,13 +75,15 @@ export const AddCollectionScreen = () => {
   ///////////////redux
   const dispatch = useDispatch<AppDispatch>();
   const {refreshToken} = useSelector((state: RootState) => state.user);
-  const {isloading, messageError} = useSelector(
-    (state: RootState) => state.bookmark,
-  );
+  const {isloading} = useSelector((state: RootState) => state.bookmark);
 
   const handleSave = async () => {
     if (!name.trim()) {
       GlobalAlertManager.show('Lỗi', 'Vui lòng nhập tên bộ sưu tập');
+      return;
+    }
+
+    if (checkProfanityAndAlert(name)) {
       return;
     }
 
@@ -101,23 +112,23 @@ export const AddCollectionScreen = () => {
       ).unwrap();
 
       GlobalAlertManager.show('Thông báo', 'Tạo danh sách mới thành công.');
-      // 3. Quay lại màn hình trước
+
       navigation.goBack();
-    } catch (err: any) {
-      GlobalAlertManager.show('Lỗi', err.message || 'Không thể tạo bộ sưu tập');
+    } catch (err) {
+      GlobalAlertManager.show('Lỗi', 'Không thể tạo bộ sưu tập');
     }
   };
 
   const renderPostItem = useCallback(
-    ({item}: {item: any}) => {
+    ({item}: {item: PlaylistItem}) => {
       const isSelected = selectedPostIds.includes(item._id!);
       const isVideo = item.itemType === 'reel';
       if (!item?.media || item.media.length === 0) return null;
       const thumbnail = isVideo
         ? `https://videodelivery.net/${
-            item.media?.[0]?.videoUrl?.split('/')[3]
+            (item.media?.[0] as Media)?.videoUrl?.split('/')[3]
           }/thumbnails/thumbnail.jpg?time=2s`
-        : (item.media?.[0] as any)?.imageUrl;
+        : (item.media?.[0] as MediaR)?.imageUrl;
 
       if (!thumbnail) return null;
 
@@ -127,14 +138,11 @@ export const AddCollectionScreen = () => {
           style={styles.postItem}>
           <Image source={{uri: thumbnail}} style={styles.postImage} />
           <View style={styles.iconOverlay}>
-            <Image
-              style={styles.icon}
-              source={
-                isVideo
-                  ? require('../../../assets/icon/reels.png')
-                  : require('../../../assets/icon/gallery.png')
-              }
-            />
+            {isVideo ? (
+              <PlayCircle size={14} color="#fff" />
+            ) : (
+              <ImageIcon size={14} color="#fff" />
+            )}
           </View>
           {isSelected && (
             <View style={styles.overlayCheck}>

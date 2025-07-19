@@ -3,26 +3,29 @@ import {AppDispatch} from '../../../../services/store';
 
 export interface ItemHomeProps {
   _id: string;
-  type: string;
+  type: 'post' | 'reel' | 'story' | string;
   caption: string;
   share: number;
   createdAt: string;
   isLike: boolean;
-  media: Media[];
-  user: User;
-  currentVisible: boolean;
-  isFocused: boolean;
-  sheetRef: any;
+  isBookmarked?: boolean;
+  isFollow: boolean;
   likeCount: number;
   commentCount: number;
+  media: Media[];
+  user: User;
   music?: Music;
   musicInfo?: MusicInfo;
-  isFollow: boolean;
-  isBookmarked?: boolean;
-  setSelectedPostId?: any;
+  currentVisible: boolean;
+  isFocused: boolean;
+  isVisible?: boolean;
+  sheetRef: any;
+  setSelectedPostId?: (v: {postId: string; receiverId: string}) => void;
+  clickableHashtags?: boolean;
+  SelectedPostRef?: any;
 }
 
-interface User {
+export interface User {
   _id: string;
   handleName: string;
   profilePic: string;
@@ -47,4 +50,20 @@ export interface HandleBookmarkParams {
   refreshToken: string;
   setIsBookmarked: (v: boolean) => void;
   dispatch: AppDispatch;
+}
+
+export interface PostItem {
+  _id: string;
+  type: string;
+  caption: string;
+  createdAt: string;
+  media: Media[];
+  user: User;
+  isLike: boolean;
+  isBookmarked: boolean;
+  commentCount: number;
+  likeCount: number;
+  share: any;
+  music?: any;
+  isFollow?: boolean;
 }

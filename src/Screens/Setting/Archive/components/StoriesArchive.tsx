@@ -19,6 +19,7 @@ import StoriesTab from './StoriesTab';
 import HighlightsTab from './HighlightsTab';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../../../services/store';
+import {BookOpen, Star} from 'lucide-react-native';
 
 const TopTab = createMaterialTopTabNavigator();
 
@@ -50,9 +51,9 @@ const StoryArchive = () => {
         <Header
           pressableTitle="Kho lưu trữ tin"
           pressableTilFunc={openArchiveModal}
-          iconBack={require('../../../../../assets/icon/left.png')}
+          iconBack={true}
           func={goBack}
-          iconLeft={require('../../../../../assets/icon/add.png')}
+          showAddIcon={true}
           funcLeft={() => navigation.navigate('HighlightCreateScreen')}
           navigation={navigation}
         />
@@ -65,10 +66,6 @@ const StoryArchive = () => {
               {state.routes.map((route, index) => {
                 const {options} = descriptors[route.key];
                 const isFocused = state.index === index;
-                const icon =
-                  route.name === 'StoriesTab'
-                    ? require('../../../../../assets/icon/story.png')
-                    : require('../../../../../assets/icon/highlight.png');
 
                 const onPress = () => {
                   const event = navigation.emit({
@@ -93,14 +90,17 @@ const StoryArchive = () => {
                       borderBottomWidth: isFocused ? 3 : 0,
                       borderBottomColor: isFocused ? color.text : 'transparent',
                     }}>
-                    <Image
-                      source={icon}
-                      style={{
-                        width: 22,
-                        height: 22,
-                        tintColor: isFocused ? color.text : color.textSecondary,
-                      }}
-                    />
+                    {route.name === 'StoriesTab' ? (
+                      <BookOpen
+                        size={22}
+                        color={isFocused ? color.text : color.textSecondary}
+                      />
+                    ) : (
+                      <Star
+                        size={22}
+                        color={isFocused ? color.text : color.textSecondary}
+                      />
+                    )}
                   </TouchableOpacity>
                 );
               })}

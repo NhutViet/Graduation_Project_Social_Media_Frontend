@@ -4,7 +4,14 @@ import {useTheme} from '../../../../src/util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
 import {useNavigation} from '@react-navigation/native';
 
-const User = (props: any) => {
+interface UserProps {
+  id?: string;
+  name?: string;
+  image?: string;
+  handle?: string;
+}
+
+const User = (props: UserProps) => {
   const {id, name, image, handle} = props;
   const {theme} = useTheme();
   const colors = Colors[theme];

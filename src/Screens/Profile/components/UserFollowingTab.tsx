@@ -5,26 +5,32 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
-  ActivityIndicator,
 } from 'react-native';
-import {FlashList} from '@shopify/flash-list';
-import React, {useState, useEffect} from 'react';
+import {FlashList, ListRenderItem} from '@shopify/flash-list';
+import React, {useEffect} from 'react';
 import {Colors} from '@assets/color/Colors';
 import {useTheme} from '../../../util/ThemeContext';
 import {useNavigation} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../../services/store';
 import {
+  fetchViewedFollowing,
   fetchFollowing,
   relationAction,
   fetchRecommendations,
 } from '../../../../services/relationRedux/relationSlice';
 import {createRoom} from '../../../../services/roomRedux/roomSlice';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
+import {UserProfile} from '@services/relationRedux/relationTypes';
+import {selectDisplayViewedFollowing} from '@services/relationRedux/relationSelector';
+import {User, UserPlus} from 'lucide-react-native';
+import LoadingModal from '../../../../components/Global/LoadingModal';
 
 type Props = {
   userID: string;
 };
+
+type DisplayProfile = UserProfile & {isMeFollowing: boolean};
 
 const UserFollowingTab = ({userID}: Props) => {
   const navigation: any = useNavigation();
@@ -33,60 +39,24 @@ const UserFollowingTab = ({userID}: Props) => {
   const user = useSelector((state: RootState) => state.user?.user);
   const myUserId = useSelector((state: RootState) => state.user?.user?._id);
   const dispatch = useDispatch<AppDispatch>();
-  const {
-    following: reduxFollowing,
-    recommendations: reduxRecommendatinos,
-    loading,
-    error,
-  } = useSelector((state: RootState) => state.relation);
-
-  const [following, setFollowing] = useState(reduxFollowing);
-  const [recommendations, setRecommendations] = useState(reduxRecommendatinos);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isError, setIsError] = useState<string | null>(null);
+  const {recommendations, loading, error} = useSelector(
+    (state: RootState) => state.relation,
+  );
 
   useEffect(() => {
     if (!userID || !myUserId) return;
+    dispatch(fetchViewedFollowing({userId: userID}));
+    dispatch(fetchFollowing({userId: myUserId}));
+    dispatch(fetchRecommendations({limit: 10}));
+  }, [dispatch, userID, myUserId]);
 
-    setIsLoading(true);
-    setIsError(null);
+  const displayList = useSelector(selectDisplayViewedFollowing);
 
-    const fetchAndCombine = async () => {
-      try {
-        const viewingFollowing: typeof reduxFollowing = await dispatch(
-          fetchFollowing({userId: userID}),
-        ).unwrap();
-
-        const filtered = viewingFollowing.filter(f => f._id !== myUserId);
-
-        const myFollowing: typeof reduxFollowing = await dispatch(
-          fetchFollowing({userId: myUserId}),
-        ).unwrap();
-
-        const updatedFollowing = filtered.map(u => ({
-          ...u,
-          isMeFollowing: myFollowing.some(m => m._id === u._id),
-        }));
-
-        setFollowing(updatedFollowing);
-
-        const recData = await dispatch(
-          fetchRecommendations({limit: 10}),
-        ).unwrap();
-        setRecommendations(recData);
-      } catch (err: any) {
-        console.error('Error loading UserFollowingTab:', err);
-        setIsError(err.message || 'Tải dữ liệu thất bại');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchAndCombine();
-  }, [dispatch, userID]);
-
-  const handleActionButton = async (item: (typeof following)[0]) => {
-    if (item.isMeFollowing) {
+  const handleActionButton = async (
+    item: UserProfile & {isMeFollowing?: boolean},
+  ) => {
+    const mutual = item.isMeFollowing ?? false;
+    if (mutual) {
       try {
         const res = await dispatch(
           createRoom({
@@ -119,10 +89,6 @@ const UserFollowingTab = ({userID}: Props) => {
             handleName: user?.handleName,
           }),
         ).unwrap();
-
-        setFollowing(prev =>
-          prev.map(f => (f._id === item._id ? {...f, isMeFollowing: true} : f)),
-        );
       } catch (error) {
         GlobalAlertManager.show('Thất bại', 'Vui lòng thử lại sau');
         console.log(error);
@@ -130,25 +96,50 @@ const UserFollowingTab = ({userID}: Props) => {
     }
   };
 
-  const handleFollowPress = async (item: (typeof recommendations)[0]) => {
-    try {
-      await dispatch(
-        relationAction({
-          targetId: item._id,
-          action: 'follow',
-          senderId: user?._id,
-          handleName: user?.handleName,
-        }),
-      ).unwrap();
-
-      setRecommendations(curr => curr.filter(u => u._id !== item._id));
-    } catch (error) {
-      GlobalAlertManager.show('Thất bại', 'Vui lòng thử lại sau');
-      console.log(error);
-    }
+  const renderSortItem: ListRenderItem<DisplayProfile> = ({item}) => {
+    const isMe = item._id === myUserId;
+    return (
+      <View style={[styles.suggestedItem, {backgroundColor: color.background}]}>
+        <TouchableOpacity style={styles.touchableInfo}>
+          {item.profilePic ? (
+            <Image source={{uri: item.profilePic}} style={styles.profilePic} />
+          ) : (
+            <User size={40} color={color.text} style={{marginRight: 10}} />
+          )}
+          <View style={styles.suggestedInfo}>
+            <Text style={[styles.handle, {color: color.text}]}>
+              {item.handleName}
+            </Text>
+            <Text style={[styles.username, {color: color.textSecondary}]}>
+              {item.username}
+            </Text>
+          </View>
+        </TouchableOpacity>
+        {!isMe && (
+          <TouchableOpacity
+            style={[
+              styles.actionButton,
+              item.isMeFollowing
+                ? [styles.messageButton, {borderColor: color.text}]
+                : styles.followButton,
+            ]}
+            onPress={() => handleActionButton(item)}>
+            <Text
+              style={[
+                styles.buttonText,
+                item.isMeFollowing
+                  ? [styles.messageText, {color: color.text}]
+                  : styles.followText,
+              ]}>
+              {item.isMeFollowing ? 'Bạn bè' : 'Theo dõi'}
+            </Text>
+          </TouchableOpacity>
+        )}
+      </View>
+    );
   };
 
-  const renderSortItem = ({item}: {item: (typeof following)[0]}) => (
+  const renderRecommendItem: ListRenderItem<UserProfile> = ({item}) => (
     <View style={[styles.suggestedItem, {backgroundColor: color.background}]}>
       <TouchableOpacity style={styles.touchableInfo}>
         <Image source={{uri: item.profilePic}} style={styles.profilePic} />
@@ -162,55 +153,21 @@ const UserFollowingTab = ({userID}: Props) => {
         </View>
       </TouchableOpacity>
       <TouchableOpacity
-        style={[
-          styles.actionButton,
-          item.isMeFollowing
-            ? [styles.messageButton, {borderColor: color.text}]
-            : styles.followButton,
-        ]}
-        onPress={() => handleActionButton(item)}>
-        <Text
-          style={[
-            styles.buttonText,
-            item.isMeFollowing
-              ? [styles.messageText, {color: color.text}]
-              : styles.followText,
-          ]}>
-          {item.isMeFollowing ? 'Nhắn tin' : 'Theo dõi'}
-        </Text>
-      </TouchableOpacity>
-    </View>
-  );
-
-  const renderRecommendItem = ({item}: {item: (typeof recommendations)[0]}) => (
-    <View style={[styles.suggestedItem, {backgroundColor: color.background}]}>
-      <TouchableOpacity style={styles.touchableInfo}>
-        <Image source={{uri: item.profilePic}} style={styles.profilePic} />
-        <View style={styles.suggestedInfo}>
-          <Text style={[styles.handle, {color: color.text}]}>
-            {item.handleName}
-          </Text>
-          <Text style={[styles.username, {color: color.textSecondary}]}>
-            {item.username}
-          </Text>
-        </View>
-      </TouchableOpacity>
-      <TouchableOpacity
-        onPress={() => handleFollowPress(item)}
+        onPress={() => handleActionButton(item)}
         style={styles.followButton}>
         <Text style={styles.followText}>Theo dõi</Text>
       </TouchableOpacity>
     </View>
   );
 
-  if (isLoading) {
+  if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color={color.text} />
+        <LoadingModal />
       </View>
     );
   }
-  if (isError) {
+  if (error) {
     return (
       <View style={{padding: 20}}>
         <Text style={{color: color.text, textAlign: 'center'}}>{error}</Text>
@@ -220,7 +177,7 @@ const UserFollowingTab = ({userID}: Props) => {
 
   return (
     <ScrollView style={[styles.container, {backgroundColor: color.background}]}>
-      {!isLoading && following.length === 0 ? (
+      {!loading && displayList.length === 0 ? (
         <View
           style={{
             backgroundColor: color.background,
@@ -229,11 +186,7 @@ const UserFollowingTab = ({userID}: Props) => {
             justifyContent: 'center',
             padding: 20,
           }}>
-          <Image
-            source={require('../../../../assets/icon/invite.png')}
-            style={{width: 200, height: 200, marginBottom: 24}}
-            resizeMode="contain"
-          />
+          <UserPlus size={80} color={color.text} style={{marginBottom: 24}} />
           <Text
             style={{
               color: color.text,
@@ -246,11 +199,11 @@ const UserFollowingTab = ({userID}: Props) => {
         </View>
       ) : (
         <FlashList
-          data={following}
+          data={displayList}
           keyExtractor={item => item._id}
           renderItem={renderSortItem}
           showsVerticalScrollIndicator={false}
-          estimatedItemSize={10}
+          estimatedItemSize={60}
         />
       )}
       <FlashList

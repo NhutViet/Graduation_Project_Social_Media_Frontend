@@ -1,23 +1,32 @@
 import {Colors} from '@assets/color/Colors';
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {useTheme} from '../../../../src/util/ThemeContext';
+import {useNavigation} from '@react-navigation/native';
+import {EditUserDto} from '@services/userRedux/userTypes';
+import {ChevronRight} from 'lucide-react-native';
 
-const AccountCenterComponent = (props: any) => {
-  const {imageAccount, nameAccount} = props;
+interface Props {
+  user: EditUserDto;
+}
+
+const AccountCenterComponent = (props: Props) => {
+  const {user} = props;
   const {theme} = useTheme();
   const color = Colors[theme];
+  const navigation = useNavigation<any>();
 
   return (
-    <TouchableOpacity style={styles.container}>
-      <Image source={{uri: imageAccount}} style={styles.image} />
+    <TouchableOpacity
+      style={styles.container}
+      onPress={() => {
+        navigation.navigate('InfoAccountCenter', {user});
+      }}>
+      <Image source={{uri: user?.profilePic}} style={styles.image} />
       <View style={styles.body}>
-        <Text style={[styles.name, {color: color.text}]}>{nameAccount}</Text>
+        <Text style={[styles.name, {color: color.text}]}>{user?.username}</Text>
         <Text style={[styles.text, {color: color.text}]}>Cirla</Text>
       </View>
-      <Image
-        style={styles.icon}
-        source={require('../../../../assets/icon/right.png')}
-      />
+      <ChevronRight size={22} color={color.text} />
     </TouchableOpacity>
   );
 };
@@ -33,11 +42,6 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-  },
-  icon: {
-    width: 18,
-    height: 18,
-    resizeMode: 'contain',
   },
   body: {
     flex: 1,

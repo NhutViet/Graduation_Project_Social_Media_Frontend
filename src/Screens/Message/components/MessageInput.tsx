@@ -1,13 +1,22 @@
-import {Colors} from '../../../../assets/color/Colors';
+import {Colors} from '@assets/color/Colors';
 import React from 'react';
-import {View, TouchableOpacity, Image, TextInput} from 'react-native';
+import {
+  View,
+  TouchableOpacity,
+  TextInput,
+  StyleSheet,
+  Dimensions,
+} from 'react-native';
+import {Camera, Send, Mic, Image as ImageIcon, Plus} from 'lucide-react-native';
+import {useTheme} from '../../../../src/util/ThemeContext';
+
+const screenWidth = Dimensions.get('window').width - 20;
 
 interface MessageInputProps {
   message: string;
   setMessage: (msg: string) => void;
   sendMessage: () => void;
   pickImageAndSend: () => void;
-  styles: any;
   color: any;
 }
 
@@ -16,20 +25,19 @@ const MessageInput: React.FC<MessageInputProps> = ({
   setMessage,
   sendMessage,
   pickImageAndSend,
-  styles,
-  color,
+  // styles,
+  // color,
 }) => {
+  const {theme} = useTheme();
+  const color = Colors[theme];
   return (
     <View
       style={[
         styles.inputContainer,
-        {backgroundColor: 'rgba(255, 255, 255, 0.6)', zIndex: 20},
+        {backgroundColor: 'rgba(243, 244, 246, 0.6)', zIndex: 10},
       ]}>
       <TouchableOpacity style={styles.blockCamera}>
-        <Image
-          style={{tintColor: color.text, width: 20, height: 20}}
-          source={require('../../../../assets/icon/camera.png')}
-        />
+        <Camera size={22} color={color.black} />
       </TouchableOpacity>
 
       <TextInput
@@ -37,7 +45,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
         onChangeText={setMessage}
         placeholder="Soạn tin nhắn..."
         placeholderTextColor={Colors.black}
-        style={styles.input}
+        style={[styles.input, {color: color.black}]}
         multiline={true}
         returnKeyType="default"
         blurOnSubmit={false}
@@ -45,32 +53,18 @@ const MessageInput: React.FC<MessageInputProps> = ({
 
       {message.trim().length > 0 ? (
         <TouchableOpacity style={styles.blockCamera} onPress={sendMessage}>
-          <Image
-            style={{tintColor: color.text, width: 20, height: 20}}
-            source={require('../../../../assets/icon/share.png')}
-          />
+          <Send size={22} color={color.black} />
         </TouchableOpacity>
       ) : (
         <View style={styles.rowContainer}>
-          <TouchableOpacity style={styles.blockIcon1}>
-            <Image
-              style={styles.icon}
-              source={require('../../../../assets/icon/Microphone.png')}
-            />
+          <TouchableOpacity>
+            <Mic size={22} color={color.black} />
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.blockIcon1}
-            onPress={pickImageAndSend}>
-            <Image
-              style={styles.icon}
-              source={require('../../../../assets/icon/Picture.png')}
-            />
+          <TouchableOpacity onPress={pickImageAndSend}>
+            <ImageIcon size={22} color={color.black} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.blockIcon1}>
-            <Image
-              style={styles.icon}
-              source={require('../../../../assets/icon/another.png')}
-            />
+          <TouchableOpacity>
+            <Plus size={22} color={color.black} />
           </TouchableOpacity>
         </View>
       )}
@@ -79,3 +73,35 @@ const MessageInput: React.FC<MessageInputProps> = ({
 };
 
 export default MessageInput;
+
+const styles = StyleSheet.create({
+  inputContainer: {
+    width: screenWidth,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderRadius: 30,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    margin: 10,
+    position: 'relative',
+  },
+  input: {
+    flex: 1,
+    height: 46,
+    textAlignVertical: 'center',
+  },
+  blockCamera: {
+    padding: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 20,
+  },
+  rowContainer: {
+    width: '25%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginRight: 5,
+  },
+});

@@ -14,7 +14,7 @@ import TagMarker from './TagMarker';
 import Video from 'react-native-video';
 
 const {width: screenWidth} = Dimensions.get('window');
-const IMAGE_HEIGHT = 460;
+const IMAGE_HEIGHT = 520;
 
 const RenderImg = ({
   media,
@@ -82,7 +82,7 @@ const RenderImg = ({
                   source={{uri: item.node.image.uri}}
                   style={{width: '100%', height: '100%'}}
                   resizeMode={videoResizeMode}
-                  repeat
+                  repeat={false}
                   muted
                   paused={currentIndex !== index}
                   onLoad={meta => {

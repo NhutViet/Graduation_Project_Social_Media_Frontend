@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   FlatList,
   Pressable,
-  ActivityIndicator,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
@@ -18,8 +17,9 @@ import Video from 'react-native-video';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../../../services/store';
 import {fetchGetPostedSotry} from '../../../../../services/StoryRedux/StorySlice';
-import {History, CircleFadingArrowUp} from 'lucide-react-native';
+import {History, CircleFadingArrowUp, Play} from 'lucide-react-native';
 import {handleHighlightPress} from '../../../../(tabs)/Home/util/index';
+import { SearchSkeletonGrid } from '../../../../../components/SkeletonGrid';
 
 const formatMonthText = (dateString?: string): string => {
   if (!dateString) return '--\n--';
@@ -45,7 +45,7 @@ const formatMonthText = (dateString?: string): string => {
 };
 
 const {width} = Dimensions.get('window');
-const ITEM_SIZE = width / 3;
+const ITEM_SIZE = (width - 32) / 3; // Trừ đi padding và khoảng cách
 
 const StoriesTab = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -62,6 +62,8 @@ const StoriesTab = () => {
     dispatch(fetchGetPostedSotry());
     console.log('📦 myStories fetched:', myStories);
   }, []);
+
+  const [isPause, setIsPause] = useState<boolean>(true);
 
   const renderItem = ({item}: {item: any}) => {
     const handleOpenStory = (item: any) => {
@@ -91,18 +93,23 @@ const StoriesTab = () => {
         true,
       );
     };
-
     return (
       <View style={[styles.itemContainer, {backgroundColor: color.black}]}>
         <Pressable onPress={() => handleOpenStory(item)}>
           {item.mediaUrl ? (
-            item.mediaUrl.endsWith('.m3u8') ? (
-              <Video
-                source={{uri: item.mediaUrl}}
-                style={styles.media}
-                resizeMode="contain"
-                paused={true}
-              />
+            item.mediaUrl.endsWith('.mp4') ? (
+              <TouchableOpacity onPress={() => setIsPause(!isPause)}>
+                <Video
+                  source={{uri: item.mediaUrl}}
+                  style={styles.media}
+                  resizeMode="contain"
+                  repeat={false}
+                  paused={isPause}
+                />
+                {isPause && (
+                  <Play size={14} style={styles.playButtonOverlay} />
+                )}
+              </TouchableOpacity>
             ) : (
               <Image source={{uri: item.mediaUrl}} style={styles.media} />
             )
@@ -124,9 +131,7 @@ const StoriesTab = () => {
 
   if (loading) {
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#000" />
-      </View>
+      <SearchSkeletonGrid itemWidth={115} itemHeight={230}/>
     );
   }
 
@@ -142,7 +147,8 @@ const StoriesTab = () => {
           renderItem={renderItem}
           keyExtractor={item => item._id}
           numColumns={3}
-          contentContainerStyle={{paddingBottom: 16}}
+          contentContainerStyle={{paddingBottom: 16, paddingHorizontal: 8}}
+          columnWrapperStyle={{justifyContent: 'space-between'}}
           showsVerticalScrollIndicator={false}
         />
       ) : (
@@ -197,21 +203,32 @@ const styles = StyleSheet.create({
   itemContainer: {
     width: ITEM_SIZE,
     height: ITEM_SIZE * 2,
-    margin: 1,
+    marginBottom: 8,
     position: 'relative',
+    borderRadius: 8,
+    overflow: 'hidden',
   },
   media: {
     width: '100%',
     height: '100%',
+    borderRadius: 8,
   },
   dateBadge: {
     position: 'absolute',
     top: 8,
     left: 8,
-    backgroundColor: '#fff',
-    borderRadius: 4,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
   },
   dateText: {
     fontSize: 12,
@@ -224,9 +241,17 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 8,
     right: 8,
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
     borderRadius: 16,
     padding: 6,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
   },
   icon: {
     width: 16,
@@ -242,5 +267,17 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  playButtonOverlay: {
+    position: 'absolute',
+    left: '50%',
+    transform: [{ translateX: -25 }, { translateY: -25 }],
+    width: 50,
+    top: (Dimensions.get('window').height * 50 / 100 - 20),
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    borderRadius: 25,
   },
 });

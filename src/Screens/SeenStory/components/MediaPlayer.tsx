@@ -1,8 +1,9 @@
 import React, {forwardRef, useEffect, useRef} from 'react';
-import {ActivityIndicator, Image, Text, View} from 'react-native';
+import {Image, Text, View} from 'react-native';
 import Video from 'react-native-video';
 import Sound from 'react-native-sound';
 import {styles} from './styles';
+import LoadingModal from '../../../../components/Global/LoadingModal';
 
 interface MediaPlayerProps {
   item: {
@@ -19,6 +20,8 @@ interface MediaPlayerProps {
   paused?: boolean;
   muted?: boolean;
   isMediaLoading?: boolean;
+  onImageLoad?: () => void;
+  forceReset?: boolean;
 }
 
 export const MediaPlayer = forwardRef<any, MediaPlayerProps>(
@@ -33,19 +36,27 @@ export const MediaPlayer = forwardRef<any, MediaPlayerProps>(
       paused,
       muted,
       isMediaLoading,
+      onImageLoad,
+      forceReset = false,
     },
     ref,
   ) => {
     /* ---------- AUDIO ----------- */
     const soundRef = useRef<Sound | null>(null);
 
+    // ✅ Reset sound khi item thay đổi (kể cả khi music.link giống nhau)
     useEffect(() => {
       if (item?.uriVideo || !item?.music?.link) return;
 
       let isMounted = true;
 
-      soundRef.current?.stop(() => soundRef.current?.release());
-      soundRef.current = null;
+      // ✅ Luôn stop và release sound cũ trước khi tạo mới
+      if (soundRef.current) {
+        soundRef.current.stop(() => {
+          soundRef.current?.release();
+          soundRef.current = null;
+        });
+      }
 
       const sound = new Sound(item.music.link, undefined, error => {
         if (error) {
@@ -53,26 +64,42 @@ export const MediaPlayer = forwardRef<any, MediaPlayerProps>(
           return;
         }
 
+        // ✅ Kiểm tra component vẫn mounted
+        if (!isMounted) {
+          sound.release();
+          return;
+        }
+
         const total = sound.getDuration();
         onMusicLoad?.(total);
-        if (item.music?.time_start) sound.setCurrentTime(item.music.time_start);
+
+        // ✅ Reset time_start cho mỗi story mới
+        if (item.music?.time_start) {
+          sound.setCurrentTime(item.music.time_start);
+        }
+
         soundRef.current = sound;
 
         // Auto play nếu không pause
         if (!paused) {
           sound.setVolume(muted ? 0 : 1);
           sound.play(success => {
-            if (success) onMusicEnd?.();
+            if (success && isMounted) onMusicEnd?.();
           });
         }
       });
 
       return () => {
         isMounted = false;
-        soundRef.current?.stop(() => soundRef.current?.release());
-        soundRef.current = null;
+        if (soundRef.current) {
+          soundRef.current.stop(() => {
+            soundRef.current?.release();
+            soundRef.current = null;
+          });
+        }
       };
-    }, [item?.music?.link]);
+    }, [item?.music?.link, item?.music?.time_start, forceReset]); // ✅ Thêm forceReset vào dependencies
+
     // pause
     useEffect(() => {
       if (soundRef.current) {
@@ -128,6 +155,7 @@ export const MediaPlayer = forwardRef<any, MediaPlayerProps>(
             onError={e =>
               console.log('🖼️  Image load error:', e.nativeEvent.error)
             }
+            onLoad={onImageLoad}
           />
         ) : (
           <Text style={styles.errorText}>Không có media để hiển thị</Text>
@@ -145,7 +173,7 @@ export const MediaPlayer = forwardRef<any, MediaPlayerProps>(
               backgroundColor: 'rgba(0,0,0,0.2)',
               zIndex: 2,
             }}>
-            <ActivityIndicator size="large" color="#fff" />
+            <LoadingModal />
           </View>
         )}
       </View>

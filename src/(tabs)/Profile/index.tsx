@@ -1,23 +1,14 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {
-  TouchableOpacity,
-  View,
-  Text,
-  SafeAreaView,
-  Image,
-  ScrollView,
-} from 'react-native';
+import {TouchableOpacity, View, Text, SafeAreaView, Image, ScrollView} from 'react-native';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {HighlightItem} from '../../MockData/story.mock';
 import {
   PlusSquare,
   Menu,
   Grid,
   Lock,
   ChevronDown,
-  Share2,
   Moon,
   Video,
   SquareUserRound,
@@ -25,7 +16,7 @@ import {
 import {Styles} from '../../StyleSheet/Profile.Styles';
 import {SwitchAccount} from '../../../components/SwitchAccount';
 import {ViewMore} from '../../../components/ViewMore';
-import ModalCreate from './components/ModalCreate';
+import ModalCreate, {ModalCreateRef} from './components/ModalCreate';
 import {PostsView, ReelsView, TagsView} from './components/PostView.component';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '@services/store';
@@ -34,10 +25,13 @@ import {
   fetchFollowing,
 } from '../../../services/relationRedux/relationSlice';
 import {getPostsAndReelsOfUser} from '../../../services/postUserRedux/postUserSlice';
-import {fetchReels} from '@services/reelRedux/reelSlice';
 import ACNavigateModal, {
   ACNavigateRef,
 } from '../../../src/Screens/AccountCenter/components/ACNavigateModal';
+import {fetchTaggedPosts} from '@services/taggedPostRedux/taggedPostSlice';
+import {FlashList} from '@shopify/flash-list';
+import HighlightStoriesComponent from './components/HighlightStoriesComponent';
+import {TaggedPost} from '@services/taggedPostRedux/taggedPostTypes';
 
 const Profile = () => {
   const navigation: any = useNavigation();
@@ -51,14 +45,13 @@ const Profile = () => {
     (state: RootState) => state.relation,
   );
   const {refreshToken} = useSelector((state: RootState) => state.user);
-  const {items: PostsItem}: any | null = useSelector(
-    (state: RootState) => state.postUser.posts,
-  );
-  const {items: ReelsItem}: any | null = useSelector(
-    (state: RootState) => state.postUser.reels,
-  );
+  const postState = useSelector((state: RootState) => state.postUser.posts);
+  const PostsItem = postState && 'items' in postState ? postState.items : [];
+
+  const reelsState = useSelector((state: RootState) => state.postUser.reels);
+  const ReelsItem = reelsState && 'items' in reelsState ? reelsState.items : [];
   const {isSuccess} = useSelector((state: RootState) => state.postUser);
-  const [visibleModalCreate, setVisibleModalCreate] = useState(false);
+  const modalCreateRef = useRef<ModalCreateRef>(null);
   const [isSwitchAccountVisible, setSwitchAccountVisible] = useState(false);
   const handleUsernamePress = () => {
     setSwitchAccountVisible(true);
@@ -67,102 +60,17 @@ const Profile = () => {
 
   const [isViewMoreVisible, setViewMoreVisible] = useState(false);
 
-  const renderStories = ({item}: {item: HighlightItem}) => (
-    <TouchableOpacity
-      key={item.id}
-      style={styles.highlightItem}
-      onPress={() => handleUserPress(item)}>
-      <View style={styles.highlightImageContainer}>
-        <Image
-          source={
-            item?.thumbnail
-              ? {uri: item.thumbnail}
-              : {
-                  uri: 'https://i.pinimg.com/736x/6d/71/c3/6d71c3a702199277c03ea4be15200bb4.jpg',
-                }
-          }
-          style={styles.highlightImage}
-        />
-      </View>
-      <Text style={[styles.highlightText, {color: color.text}]}>
-        {item.title}
-      </Text>
-    </TouchableOpacity>
-  );
-
-  // data mẫu
-  const [dataUser, setDataUser] = useState([
-    {
-      id: 1,
-      name: 'user1',
-      image:
-        'https://i.pinimg.com/736x/b7/25/61/b72561fd1ec7018c0418c84a3c2d5a57.jpg',
-      status: 1,
-    },
-    {
-      id: 2,
-      name: 'user2',
-      image:
-        'https://i.pinimg.com/736x/c1/70/e8/c170e84663405785c80ba367cd5e3b85.jpg',
-      status: 1,
-    },
-    {
-      id: 3,
-      name: 'user3',
-      image:
-        'https://i.pinimg.com/736x/8b/ae/77/8bae77c63f046f5a307a864a9d230da2.jpg',
-      status: 0,
-    },
-    {
-      id: 4,
-      name: 'user4',
-      image:
-        'https://i.pinimg.com/736x/56/81/64/5681646985e7ddc1b2cd4b826763b541.jpg',
-      status: 0,
-    },
-  ]);
-
   useEffect(() => {
     if (userId) {
-      // gọi 2 api followers, following
       Promise.all([
         dispatch(fetchFollowers({userId: userId})),
         dispatch(fetchFollowing({userId: userId})),
+        dispatch(fetchTaggedPosts(userId)),
       ]).catch(error => {
         console.error('Error fetching relations:', error);
       });
     }
   }, [dispatch, userId]);
-
-  useEffect(() => {
-    const exists = dataUser.some(user => user.name === 'Tin của tôi');
-    if (!exists) {
-      const newUser = {
-        id: Date.now(),
-        name: 'Tin của tôi',
-        image:
-          'https://i.pinimg.com/736x/07/03/c7/0703c771ceecfd6142ce0ca726c056e7.jpg',
-        status: 1,
-      };
-      setDataUser([newUser, ...dataUser]);
-    }
-    if (userId) {
-      dispatch(fetchReels(userId as string));
-    }
-  }, [dataUser, dispatch, userId]);
-
-  const handleUserPress = (user: any) => {
-    // Cập nhật status của user được nhấn thành 0
-    setDataUser(prevData =>
-      prevData.map(item => (item.id === user.id ? {...item, status: 0} : item)),
-    );
-    // Điều hướng đến SeenStoryOwner
-    if (user.id === '1') {
-      navigation.navigate('EditHighlightStory');
-    } else {
-      navigation.navigate('SeenStoryOwner', {selectedItem: user});
-    }
-  };
 
   // These two State Functionals below is for handle the length of bio
   const [needsTruncation, setNeedsTruncation] = useState(false);
@@ -213,7 +121,7 @@ const Profile = () => {
         <View style={styles.headerRight}>
           <TouchableOpacity
             style={styles.iconButton}
-            onPress={() => setVisibleModalCreate(true)}>
+            onPress={() => modalCreateRef.current?.open()}>
             <PlusSquare color={color.text} size={24} />
           </TouchableOpacity>
           <TouchableOpacity
@@ -293,7 +201,7 @@ const Profile = () => {
             <Moon size={14} color={color.textSecondary} />
             <Text style={[styles.modeText, {color: color.textSecondary}]}>
               {' '}
-              {/* in quiet mode */} Ở chế độ im lặng
+              Ở chế độ im lặng
             </Text>
           </View>
           {handleLengthBio(user?.bio)}
@@ -320,35 +228,17 @@ const Profile = () => {
               Chia sẻ trang cá nhân
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.optionButton, {backgroundColor: color.gray}]}
-            onPress={() => navigation.navigate('Swipe')}>
-            <Share2 size={18} color={color.text} />
-          </TouchableOpacity>
         </View>
-        {/* Highlight stories */}
-        {/* <View style={styles.highlightsContainer}>
-          {loading ? (
-            <Text style={{color: color.text}}>Đang tải highlights...</Text>
-          ) : Array.isArray(highlightStories) && highlightStories.length > 0 ? (
-            <FlashList
-              horizontal
-              data={highlightStories}
-              renderItem={({item}) => renderStories({item})}
-              estimatedItemSize={90}
-              keyExtractor={item => item._id.toString()}
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{paddingVertical: 5}}
-            />
-          ) : (
-            <Text style={{color: color.text}}>
-              Không có highlight stories nào
-            </Text>
-          )}
-        </View> */}
+        {/* Highlight Stories Component */}
+        {userId && (
+          <HighlightStoriesComponent
+            key={userId}
+            userId={userId}
+            isOwnProfile={true}
+          />
+        )}
         <ModalCreate
-          visible={visibleModalCreate}
-          onClose={() => setVisibleModalCreate(false)}
+          ref={modalCreateRef}
           onSelect={(id: string) => {
             switch (id) {
               case 'reels':
@@ -362,6 +252,12 @@ const Profile = () => {
                 break;
               case 'highlight':
                 navigation.navigate('Archive');
+                break;
+              case 'live':
+                navigation.navigate('LiveStreamSetup');
+                break;
+              case 'ai':
+                navigation.navigate('CreateWithAI');
                 break;
               default:
                 break;
@@ -413,23 +309,25 @@ const Profile = () => {
     </View>
   );
 
+  const taggedPosts = useSelector((state: RootState) => state.taggedPosts.data);
+  
   const renderContent = () => {
     switch (activeTab) {
       case 'grid':
-        return isSuccess && PostsItem ? (
+        return isSuccess && PostsItem && PostsItem.length > 0 ? (
           <PostsView data={PostsItem} />
         ) : (
           <LoadingPlaceholder />
         );
       case 'reels':
-        return isSuccess && ReelsItem ? (
+        return isSuccess && ReelsItem && ReelsItem.length > 0 ? (
           <ReelsView data={ReelsItem} />
         ) : (
           <LoadingPlaceholder />
         );
       case 'tags':
-        return isSuccess && PostsItem ? (
-          <TagsView data={PostsItem} />
+        return isSuccess && taggedPosts && taggedPosts.length > 0 ? (
+          <TagsView data={taggedPosts as TaggedPost[]} />
         ) : (
           <LoadingPlaceholder />
         );
@@ -439,20 +337,32 @@ const Profile = () => {
   };
 
   const LoadingPlaceholder = () => (
-    <View style={[styles.content, styles.centerItem, {height: 50}]}>
-      <Text style={styles.textno}>Đang tải...</Text>
+    <View style={[styles.content, styles.centerItem, {height: 200}]}>
+      <Text style={[styles.textno, {color: color.text}]}>Đang tải...</Text>
     </View>
   );
 
   useFocusEffect(
     useCallback(() => {
-      dispatch(getPostsAndReelsOfUser({refreshToken, userId: userId}));
+      if (userId && refreshToken) {
+        dispatch(getPostsAndReelsOfUser({refreshToken, userId: userId}));
+      }
     }, [dispatch, refreshToken, userId]),
   );
 
+  const handleAddAccountPress = () => {
+    setSwitchAccountVisible(false);
+    requestAnimationFrame(() => {
+      acModalRef.current?.open();
+    });
+  };
+
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
-      <ScrollView>
+      <ScrollView
+        style={{flex: 1}}
+        showsVerticalScrollIndicator={false}
+        bounces={false}>
         {renderHeader()}
         {renderTabBar()}
         {renderContent()}
@@ -461,10 +371,7 @@ const Profile = () => {
         visible={isSwitchAccountVisible}
         onClose={() => setSwitchAccountVisible(false)}
         navigation={navigation}
-        onAddAccountPress={() => {
-          setSwitchAccountVisible(false);
-          setTimeout(() => acModalRef.current?.open(), 200);
-        }}
+        onAddAccountPress={handleAddAccountPress}
       />
       <ViewMore
         visible={isViewMoreVisible}

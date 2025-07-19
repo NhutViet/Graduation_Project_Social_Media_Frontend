@@ -1,15 +1,26 @@
-import messaging from '@react-native-firebase/messaging';
+import {
+  getMessaging,
+  onMessage,
+  getToken,
+  getInitialNotification,
+  onNotificationOpenedApp as onNotificationOpenedAppListener,
+  requestPermission,
+  AuthorizationStatus,
+} from '@react-native-firebase/messaging';
+import {getApp} from '@react-native-firebase/app';
 import notifee, {AndroidImportance} from '@notifee/react-native';
+
+const messaging = getMessaging(getApp());
 
 /**
  * Xin quyền nhận thông báo từ người dùng.
  * Trả về true nếu được cấp quyền.
  */
 export async function requestUserPermission(): Promise<boolean> {
-  const authStatus = await messaging().requestPermission();
+  const authStatus = await requestPermission(messaging);
   const enabled =
-    authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-    authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+    authStatus === AuthorizationStatus.AUTHORIZED ||
+    authStatus === AuthorizationStatus.PROVISIONAL;
 
   return enabled;
 }
@@ -22,7 +33,7 @@ export async function getFCMToken(): Promise<string | null> {
   if (!hasPermission) return null;
 
   try {
-    const token = await messaging().getToken();
+    const token = await getToken(messaging);
     return token;
   } catch (error) {
     console.error('[FCM] Error getting token:', error);
@@ -45,14 +56,14 @@ export async function createNotificationChannel() {
  * Lắng nghe thông báo khi app đang mở (foreground)
  */
 export function onMessageListener(callback: (message: any) => void) {
-  return messaging().onMessage(callback);
+  return onMessage(messaging, callback);
 }
 
 /**
  * Lắng nghe khi người dùng mở app từ background bằng cách bấm vào thông báo
  */
 export function onNotificationOpenedApp(callback: (message: any) => void) {
-  return messaging().onNotificationOpenedApp(callback);
+  return onNotificationOpenedAppListener(getMessaging(getApp()), callback);
 }
 
 /**
@@ -61,7 +72,7 @@ export function onNotificationOpenedApp(callback: (message: any) => void) {
 export async function checkInitialNotification(
   callback: (message: any) => void,
 ) {
-  const remoteMessage = await messaging().getInitialNotification();
+  const remoteMessage = await getInitialNotification(messaging);
   if (remoteMessage) {
     callback(remoteMessage);
   }

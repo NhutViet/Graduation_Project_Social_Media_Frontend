@@ -1,164 +1,257 @@
-import React from 'react';
+import React, {useCallback} from 'react';
 import {
   SafeAreaView,
-  StyleSheet,
-  ScrollView,
+  FlatList,
   View,
   Text,
   TouchableOpacity,
   Image,
 } from 'react-native';
-import NotificationSection from '../../../components/NotificationSection';
-import {useNotificationStyles} from '../../StyleSheet/NotificationStyles';
+import {useDispatch, useSelector} from 'react-redux';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {AppDispatch, RootState, store} from '@services/store';
+import {
+  getNotification,
+  markAsReadNoti,
+} from '@services/notificationRedux/notificationSlice';
+import {
+  markAllAsRead,
+  resetStatus,
+  setIsReadNoti,
+} from '@services/notificationRedux/notificationReducer';
+import {ItemNoti} from '@services/notificationRedux/notificationTypes';
+import {useNotificationStyles} from '../../../src/StyleSheet/NotificationStyles';
+import {useTheme} from '../../../src/util/ThemeContext';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import 'dayjs/locale/vi';
+import {ArrowLeft, User} from 'lucide-react-native';
+import {Colors} from '@assets/color/Colors';
+import {NotificationSkeleton} from '../../../components/SkeletonGrid';
 
-// Mock data for notifications
-const notificationData = {
-  thisMonth: [
-    {
-      id: '1',
-      imageIcon: 'account',
-      hasStoryRing: true,
-      content: 'John Doe started following you. You might know them.',
-      time: '2d',
-      actionType: 'follow',
-    },
-    {
-      id: '2',
-      imageIcon: 'post',
-      hasStoryRing: false,
-      content: 'Your post received 25 likes and 5 comments.',
-      time: '5d',
-      actionType: 'post',
-    },
-    {
-      id: '3',
-      imageIcon: 'video',
-      hasStoryRing: false,
-      content: 'Sarah Smith started a live video. Watch it before it ends!',
-      time: '1w',
-      actionType: 'friends',
-    },
-  ],
-  earlier: [
-    {
-      id: '4',
-      imageIcon: 'profile',
-      hasStoryRing: true,
-      content: 'Alex Johnson commented on your photo: "Amazing shot!"',
-      time: '2w',
-      actionType: 'post',
-    },
-    {
-      id: '5',
-      imageIcon: 'flag',
-      hasStoryRing: false,
-      content:
-        'Your report has been reviewed. Thank you for keeping our community safe.',
-      time: '3w',
-      actionType: 'flag',
-    },
-    {
-      id: '6',
-      imageIcon: 'profile',
-      hasStoryRing: true,
-      content: 'Emma Wilson and 15 others liked your photo.',
-      time: '3w',
-      actionType: 'post',
-    },
-  ],
-  suggested: [
-    {
-      id: '7',
-      imageIcon: 'profile',
-      hasStoryRing: true,
-      content: 'Mark Davis is on the platform. Do you know them?',
-      time: '1d',
-      actionType: 'others',
-    },
-    {
-      id: '8',
-      imageIcon: 'profile',
-      hasStoryRing: true,
-      content: 'Jessica White started following your friend. Follow them back?',
-      time: '3d',
-      actionType: 'follow',
-    },
-    {
-      id: '9',
-      imageIcon: 'profile',
-      hasStoryRing: true,
-      content: 'Based on your interests, you might like to follow Mike Brown.',
-      time: '1w',
-      actionType: 'follow',
-    },
-  ],
-};
+dayjs.extend(relativeTime);
+dayjs.locale('vi');
 
 const Header: React.FC<{onBackPress: () => void}> = ({onBackPress}) => {
   const styles = useNotificationStyles();
+  const {theme} = useTheme();
+  const color = Colors[theme];
   return (
     <View style={styles.header}>
       <TouchableOpacity style={styles.backButton} onPress={onBackPress}>
-        <Image
-          style={styles.backIcon}
-          source={require('../../../assets/icon/left.png')}
-        />
+        <ArrowLeft size={22} color={color.text} />
       </TouchableOpacity>
       <Text style={styles.headerTitle}>Thông báo</Text>
-      <View style={styles.backIcon}/>
-      <View style={styles.backIcon}/>
+      <View style={styles.backIcon} />
+      <View style={styles.backIcon} />
     </View>
   );
 };
 
-export const NotificationsScreen = ({navigation}: any) => {
-  const styles = useNotificationStyles();
-  const handleBackPress = () => navigation?.goBack();
+// Group theo ngày, flatten thành danh sách có header
+const formatNotisWithHeaders = (notifications: ItemNoti[]) => {
+  const today = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(today.getDate() - 1);
 
-  // Demo hasRequests flag
-  const username = 'ark';
-  const hasRequests = true;
+  const isSameDay = (a: Date, b: Date) =>
+    a.getDate() === b.getDate() &&
+    a.getMonth() === b.getMonth() &&
+    a.getFullYear() === b.getFullYear();
+
+  const result: Array<{type: 'header' | 'item'; data: ItemNoti | string}> = [];
+
+  const groups: {[key: string]: ItemNoti[]} = {};
+
+  notifications.forEach(noti => {
+    const createdAt = new Date(noti.createdAt);
+    let key = '';
+    if (isSameDay(createdAt, today)) key = 'Hôm nay';
+    else if (isSameDay(createdAt, yesterday)) key = 'Hôm qua';
+    else
+      key = `${createdAt.getDate().toString().padStart(2, '0')}/${(
+        createdAt.getMonth() + 1
+      )
+        .toString()
+        .padStart(2, '0')}/${createdAt.getFullYear()}`;
+
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(noti);
+  });
+
+  const sortedKeys = Object.keys(groups).sort((a, b) => {
+    if (a === 'Hôm nay') return -1;
+    if (b === 'Hôm nay') return 1;
+    if (a === 'Hôm qua') return -1;
+    if (b === 'Hôm qua') return 1;
+
+    const [d1, m1, y1] = a.split('/').map(Number);
+    const [d2, m2, y2] = b.split('/').map(Number);
+    return (
+      new Date(y2, m2 - 1, d2).getTime() - new Date(y1, m1 - 1, d1).getTime()
+    );
+  });
+
+  sortedKeys.forEach(key => {
+    result.push({type: 'header', data: key});
+    groups[key].forEach(item => result.push({type: 'item', data: item}));
+  });
+
+  return result;
+};
+
+export const NotificationsScreen = () => {
+  const styles = useNotificationStyles();
+  const {theme} = useTheme();
+  const navigation = useNavigation<any>();
+  const dispatch = useDispatch<AppDispatch>();
+
+  const {notifications, pagination, isLoadingMore, isSuccess} = useSelector(
+    (state: RootState) => state.notification,
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(getNotification({page: 1}));
+
+      return () => {
+        const state: any = store.getState();
+        const unreadNotis = state.notification.notifications.filter(
+          (n: ItemNoti) => !n.isRead,
+        );
+        unreadNotis.forEach((n: ItemNoti) => {
+          dispatch(markAsReadNoti({id: n._id}));
+        });
+        dispatch(markAllAsRead());
+        dispatch(setIsReadNoti(false));
+        dispatch(resetStatus());
+      };
+    }, [dispatch]),
+  );
+
+  const handleLoadMore = () => {
+    const currentPage = pagination?.page ?? 1;
+    const totalPages = pagination?.totalPages ?? 1;
+
+    if (currentPage < totalPages && !isLoadingMore) {
+      dispatch(getNotification({page: currentPage + 1}));
+    }
+  };
+
+  const handlePress = (noti: ItemNoti) => {
+    const type = noti.data?.type;
+    switch (type) {
+      case 'comment':
+        if (noti.data?.postId) {
+          navigation.navigate('PostDetailScreen', {
+            postId: noti.data?.postId,
+            commentId: noti.data?.commentId,
+          });
+        }
+        break;
+      case 'like':
+      case 'unlike':
+      case 'post':
+        if (noti.data?.postId) {
+          navigation.navigate('PostDetailScreen', {
+            postId: noti.data?.postId,
+          });
+        }
+        break;
+      case 'follow':
+        navigation.navigate('ProfileComp', {userID: noti.data?.userId});
+        break;
+      case 'message':
+        navigation.navigate('MessageScreen', {
+          room: noti.data?.roomId,
+          isWaiting: noti.data?.isWaiting,
+        });
+        break;
+    }
+  };
+
+  const renderItem = ({
+    item,
+  }: {
+    item: {type: 'header' | 'item'; data: ItemNoti | string};
+  }) => {
+    if (item.type === 'header') {
+      return <Text style={styles.sectionTitle}>{item.data as string}</Text>;
+    }
+
+    const noti: ItemNoti = item.data as ItemNoti;
+    const isRead = noti.isRead ?? false;
+
+    return (
+      <TouchableOpacity
+        key={noti._id}
+        style={[
+          styles.notificationItem,
+          !isRead && {
+            backgroundColor:
+              theme === 'light'
+                ? 'rgba(238, 246, 255, 1)'
+                : 'rgba(255, 255, 255, 0.1)',
+          },
+        ]}
+        onPress={() => handlePress(noti)}>
+        {noti.sender === null ? (
+          <View style={styles.avatar}>
+            <User size={28} color="#aaa" />
+          </View>
+        ) : (
+          <Image style={styles.avatar} source={{uri: noti.sender.profilePic}} />
+        )}
+        <View style={styles.textContainer}>
+          <Text
+            style={[styles.contentText, !isRead && {fontWeight: 'bold'}]}
+            numberOfLines={2}>
+            {noti.title}
+          </Text>
+          <Text style={styles.bodyText} numberOfLines={1}>
+            {noti.body}
+          </Text>
+          <Text style={styles.bodyText}>{dayjs(noti.createdAt).fromNow()}</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Header onBackPress={handleBackPress} />
+    <SafeAreaView style={[styles.container, { flex: 1 }]}>
+      <Header
+        onBackPress={() => {
+          navigation.goBack();
+          dispatch(resetStatus());
+        }}
+      />
 
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={{paddingBottom: 16}}>
-        <TouchableOpacity
-          style={styles.contentContainer}
-          onPress={() => navigation.navigate('FollowerRequests')}>
-          <View style={styles.iconContainer}>
-            <Text style={styles.iconText}>👤</Text>
-          </View>
-
-          <View style={styles.textContainer}>
-            <Text style={styles.contentText}>Yêu cầu theo dõi</Text>
-            <Text style={styles.timeText}>{username}</Text>
-          </View>
-
-          {hasRequests && <View style={styles.specialDot} />}
-
-          <Image
-            style={styles.backIcon}
-            source={require('../../../assets/icon/right.png')}
+      {!isSuccess ? (
+        <View style={{ flex: 1, paddingTop: 8 }}>
+          <NotificationSkeleton count={10} />
+        </View>
+      ) : notifications.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>Bạn không có thông báo nào</Text>
+        </View>
+      ) : (
+        <View style={styles.container}>
+          <FlatList
+            data={formatNotisWithHeaders(notifications)}
+            horizontal={false}
+            renderItem={renderItem}
+            keyExtractor={(item, index) =>
+              item.type === 'header'
+                ? `header-${item.data}`
+                : (item.data as ItemNoti)._id
+            }
+            onEndReached={handleLoadMore}
+            onEndReachedThreshold={0.5}
+            contentContainerStyle={{paddingBottom: 16}}
+            ListFooterComponent={isLoadingMore ? <NotificationSkeleton count={10} /> : null}
           />
-        </TouchableOpacity>
-
-        <NotificationSection
-          title="Trong tháng này"
-          notifications={notificationData.thisMonth}
-        />
-        <NotificationSection
-          title="Trước đó"
-          notifications={notificationData.earlier}
-        />
-        <NotificationSection
-          title="Đề xuất cho bạn"
-          notifications={notificationData.suggested}
-        />
-      </ScrollView>
+        </View>
+      )}
     </SafeAreaView>
   );
 };

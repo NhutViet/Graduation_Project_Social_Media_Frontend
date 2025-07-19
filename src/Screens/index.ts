@@ -1,7 +1,6 @@
 export * from './Addpost';
 export * from './EditStory';
 export * from './FollowerRequests';
-export * from './Login';
 export * from './NotificationsScreen';
 export * from './PostSetting';
 export * from './PostStory';
@@ -16,13 +15,12 @@ export * from './Register';
 export * from './EditProfile';
 export * from './PendingMessages';
 export * from './SeenStory';
-export * from './SeenStoryOwner';
+
 export * from './Message';
 export * from './UserInfo';
 export * from './MessageBox';
 export * from './Streaming';
 export * from './CameraScreen';
-export * from './Swipe';
 export * from './CreateGroupScreen';
 export * from './BlockUser';
 export * from './BlockedAccounts';
@@ -33,6 +31,7 @@ export * from './AddPeopleToGroupChat';
 export * from './BlockUser';
 export * from './QRScanner';
 export * from './InfoGroupChat';
+export * from './InfoGroupChat/GroupGallery.tsx';
 export * from './QRScanner';
 export * from './HorizontalScreen';
 export * from './Setting/ShowActivity.tsx';
@@ -44,10 +43,8 @@ export * from './AddCollectionScreen';
 export * from './LinkToGroup';
 export * from './MusicDetail';
 export * from './ChangePassword';
-export * from './ChangeBirthday';
 export * from './Setting/YourActivity';
 export * from './UserInfo/components/SearchMessages.tsx';
-export * from './UserInfo/components/EditNickname.tsx';
 export * from './Setting/YourActivity';
 export * from './ContactInfo';
 export * from './DissapearingMessage';
@@ -56,3 +53,13 @@ export * from './NewMessage';
 export * from './Profile/components/UserFollowScreen.tsx';
 export * from './TagSo';
 export * from './Setting/Archive/components/ScreenHighlightCreate.tsx';
+export {default as HighlightEditScreen} from './SeenStory/componentStoryOwner/HighlightEditScreen.tsx';
+export * from './Setting/HelpCenter';
+export * from './Setting/HelpCenter/FAQ.tsx';
+export * from './Setting/HelpCenter/Contact.tsx';
+export * from './Setting/HelpCenter/ReportProblem.tsx';
+export * from './Setting/HelpCenter/SupportRequest.tsx';
+export * from './MessageUndefined';
+export * from './ForgotPassword'
+export * from './ConfirmationCode'
+export * from './PrivacySafetyChat'

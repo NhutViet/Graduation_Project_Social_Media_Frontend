@@ -34,8 +34,13 @@ import {
   addToBookmark,
   removeFromBookmark,
 } from '../../../../services/musicRedux/musicReducer';
+import {
+  Search,
+  X,
+  ArrowLeft,
+  Bookmark as BookmarkIcon,
+} from 'lucide-react-native';
 
-const maxHeight = Dimensions.get('window').height;
 const height = Dimensions.get('window').height * 0.8;
 const width = Dimensions.get('window').width - 100;
 
@@ -45,8 +50,14 @@ export type BottomSheetRef = {
 };
 
 export type Props = {
-  onDoneSelect: any;
-  songUrl?: any;
+  onDoneSelect: (data: {
+    musicId: string;
+    timeStart: number;
+    timeEnd: number;
+    song: string;
+    songImage: string;
+  }) => void;
+  songUrl?: (value: string) => void;
 };
 
 const BottomSheet = forwardRef<BottomSheetRef, Props>(
@@ -225,17 +236,14 @@ const BottomSheet = forwardRef<BottomSheetRef, Props>(
               styles.searchContainer,
               {backgroundColor: color.backgroundSecondary},
             ]}>
-            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
               <View style={styles.blockIcon}>
-                <Image
-                  style={[styles.icon, {tintColor: color.text}]}
-                  source={require('../../../../assets/icon/search.png')}
-                />
+                <Search size={20} color={color.text} />
               </View>
               <TextInput
                 value={search}
                 onChangeText={setSearch}
-                placeholder="Search music"
+                placeholder="Tìm kiếm âm thanh"
                 placeholderTextColor={color.text}
                 style={[styles.input, {color: color.text}]}
               />
@@ -244,10 +252,7 @@ const BottomSheet = forwardRef<BottomSheetRef, Props>(
               <TouchableOpacity
                 style={[styles.blockIcon, {padding: 5}]}
                 onPress={() => setSearch('')}>
-                <Image
-                  style={styles.icon}
-                  source={require('../../../../assets/icon/closer.png')}
-                />
+                <X size={20} color={color.text} />
               </TouchableOpacity>
             ) : null}
           </View>
@@ -276,10 +281,7 @@ const BottomSheet = forwardRef<BottomSheetRef, Props>(
                 <TouchableOpacity
                   onPress={() => setShowSavedView(false)}
                   style={styles.blockIcon}>
-                  <Image
-                    style={[styles.icon, {tintColor: color.text}]}
-                    source={require('../../../../assets/icon/left.png')}
-                  />
+                  <ArrowLeft size={22} color={color.text} />
                 </TouchableOpacity>
                 <Text style={[styles.textNormal, {color: color.text}]}>
                   Đã lưu
@@ -316,10 +318,7 @@ const BottomSheet = forwardRef<BottomSheetRef, Props>(
                 ]}
                 onPress={() => setShowSavedView(true)}>
                 <View style={styles.blockIcon}>
-                  <Image
-                    style={[styles.icon, {tintColor: color.text}]}
-                    source={require('../../../../assets/icon/bookmark.png')}
-                  />
+                  <BookmarkIcon size={22} color={color.text} />
                 </View>
                 <Text
                   style={[
@@ -370,12 +369,12 @@ const BottomSheet = forwardRef<BottomSheetRef, Props>(
         <AudioTrimModal
           visible={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          audioUrl={music?.link}
+          audioUrl={music?.link ?? ''}
           songInfo={{
-            _id: music?._id,
-            image: music?.coverImg,
-            title: music?.song,
-            artist: music?.author,
+            _id: music?._id ?? '',
+            image: music?.coverImg ?? '',
+            title: music?.song ?? '',
+            artist: music?.author ?? '',
           }}
           onDoneSelect={onDoneSelect}
           songUrl={songUrl}
@@ -414,7 +413,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 10,
-    paddingVertical: 8,
+    paddingBottom: 10,
+    paddingTop: 6,
     marginHorizontal: 16,
     borderRadius: 7,
   },
@@ -436,6 +436,7 @@ const styles = StyleSheet.create({
   },
   textNormal: {
     fontSize: 14,
+    marginHorizontal: 10,
   },
   saveButton: {
     flexDirection: 'row',

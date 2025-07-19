@@ -38,12 +38,6 @@ export const useBookmarkStyles = () => {
           justifyContent: 'space-between',
           marginBottom: spacing.m,
         } as ViewStyle,
-        icon: {
-          width: 20,
-          height: 20,
-          tintColor: palette.text,
-          resizeMode: 'contain',
-        } as ImageStyle,
         headerTitle: {
           fontSize: typography.fontSizes.l,
           fontWeight: '600',
@@ -189,10 +183,13 @@ export const useBookmarkStyles = () => {
         postItem: {
           width: ITEM_WIDTH,
           height: ITEM_WIDTH,
-          borderRadius: 2,
-          margin: 3,
+          borderRadius: 8,
+          margin: spacing.xs,
           overflow: 'hidden',
-        } as ViewStyle,
+          backgroundColor: palette.backgroundSecondary,
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
         fullImage: {
           width: '100%',
           backgroundColor: Colors.border,
@@ -284,7 +281,7 @@ export const useBookmarkStyles = () => {
         optionText: {
           textAlign: 'center',
           fontSize: 16,
-          color: '#000',
+          color: palette.text,
         },
         cancelText: {
           textAlign: 'center',
@@ -347,7 +344,7 @@ export const useBookmarkStyles = () => {
           fontWeight: '500',
           color: palette.text,
         },
-        centerContainer:{
+        centerContainer: {
           flex: 1,
           justifyContent: 'center',
           alignItems: 'center',
@@ -355,6 +352,16 @@ export const useBookmarkStyles = () => {
         },
         coloText: {
           color: palette.text,
+        },
+        headerSlot: {
+          flex: 1,
+          alignItems: 'center',
+        },
+        headerSlotLeft: {
+          alignItems: 'flex-start',
+        },
+        headerSlotRight: {
+          alignItems: 'flex-end',
         },
       }),
     [palette, spacing, typography],

@@ -4,6 +4,7 @@ import {
   createRoom,
   fetchMyRooms,
   fetchMyWaitingRooms,
+  getRoomById,
   updateRoomName,
   updateRoomTheme,
 } from './roomSlice';
@@ -31,7 +32,17 @@ const initialState: RoomState = {
 const roomSlice = createSlice({
   name: 'rooms',
   initialState,
-  reducers: {},
+  reducers: {
+    registerRoom: state => {
+      state.rooms = [];
+      state.waitingRooms = [];
+      state.loading = false;
+      state.error = null;
+      state.createdRoom = null;
+      state.isExisted = false;
+      state.message = '';
+    },
+  },
   extraReducers: builder => {
     builder
       .addCase(fetchMyRooms.pending, state => {
@@ -92,8 +103,31 @@ const roomSlice = createSlice({
       .addCase(createRoom.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-      });
+      })
+
+      .addCase(getRoomById.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getRoomById.fulfilled, (state, action) => {
+        state.loading = false;
+
+        const exists = state.rooms.some(room => room._id === action.payload._id);
+        if (!exists) {
+          if(action.payload.type === 'accept'){
+            state.rooms.push(action.payload);
+          }else{
+            state.waitingRooms.push(action.payload);
+          }
+          
+        }
+      })
+      .addCase(getRoomById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.message || 'Lấy chi tiết phòng chat thất bại.';
+      })
   },
 });
 
+export const {registerRoom} = roomSlice.actions;
 export default roomSlice.reducer;

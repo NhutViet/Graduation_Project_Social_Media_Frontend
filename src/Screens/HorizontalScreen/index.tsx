@@ -3,7 +3,6 @@ import {
   Dimensions,
   PanResponder,
   StyleSheet,
-  Text,
   View,
 } from 'react-native';
 import React, {useRef, useState} from 'react';

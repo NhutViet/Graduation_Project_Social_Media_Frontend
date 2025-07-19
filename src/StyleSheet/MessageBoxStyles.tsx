@@ -15,18 +15,13 @@ const MessageBoxStyles = (theme: ThemeType) => {
       flexDirection: 'row',
       width: '100%',
       paddingVertical: Colors.spacing.m,
-      paddingHorizontal: 10,
+      paddingHorizontal: 16,
       alignItems: 'center',
       justifyContent: 'space-between',
     },
     headerBlock: {
       flexDirection: 'row',
       alignItems: 'center',
-    },
-    iconBlock: {
-      width: 20,
-      height: 20,
-      marginHorizontal: Colors.spacing.xs,
     },
     icon: {
       width: '100%',

@@ -1,11 +1,19 @@
-import React, {useMemo, useState} from 'react';
-import {View, Image, TouchableOpacity, Dimensions} from 'react-native';
+import React, {useCallback, useMemo, useState} from 'react';
+import {
+  View,
+  Image,
+  TouchableOpacity,
+  Dimensions,
+  StyleSheet,
+} from 'react-native';
 import Video from 'react-native-video';
 import {Colors} from '../../../../assets/color/Colors';
 import {ItemHomeStyles} from '../component_styles/ItemHomeStyles';
 import {Media} from '../../../../services/postRedux/postTypes';
 import TagMarker from './TagMarker';
 import {useNavigation} from '@react-navigation/native';
+import {Play, Volume2, VolumeX} from 'lucide-react-native';
+import {useVideoPause} from '../context/VideoPauseContext';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -31,72 +39,84 @@ export const RenderMediaItem = React.memo(
   ({item, currentVisible, isFocused, muted}: RenderMediaItemProps) => {
     const [videoSize, setVideoSize] = useState({width: 0, height: 0});
     const navigation = useNavigation<any>();
+    const {
+      isPaused: isVideoPausedByUser,
+      addPausedVideo,
+      removePausedVideo,
+    } = useVideoPause();
+
+    // Logic pause:
+    const videoId = item._id.toString();
+    const isUserPaused = isVideoPausedByUser(videoId);
+    const shouldPause = isUserPaused || !currentVisible || !isFocused;
+
     const videoResizeMode = useMemo(() => {
       if (videoSize.height > videoSize.width) return 'cover';
       return 'contain';
     }, [videoSize]);
 
-    if (item.videoUrl) {
-      return (
-        <Video
-          source={{uri: item.videoUrl}}
-          resizeMode={videoResizeMode}
-          style={{width: screenWidth, height: 600}}
-          repeat
-          paused={!currentVisible || !isFocused}
-          muted={muted}
-          maxBitRate={0}
-          progressUpdateInterval={500}
-          onLoad={({naturalSize}) => {
-            setVideoSize({
-              width: naturalSize.width,
-              height: naturalSize.height,
-            });
-          }}
-          useTextureView={false}
-        />
-      );
-    }
+    const handleTagPress = useCallback(
+      (userId: string) => {
+        navigation.navigate('ProfileComp', {userID: userId});
+      },
+      [navigation],
+    );
+    const handleVideoPress = useCallback(() => {
+      if (isUserPaused) {
+        removePausedVideo(videoId);
+      } else {
+        addPausedVideo(videoId);
+      }
+    }, [isUserPaused, videoId, addPausedVideo, removePausedVideo]);
 
     return (
       <View style={{width: screenWidth, height: item.videoUrl ? 600 : 520}}>
         {item.videoUrl ? (
-          <Video
-            source={{uri: item.videoUrl}}
-            resizeMode={videoResizeMode}
-            style={{width: screenWidth, height: 600}}
-            repeat
-            paused={!currentVisible || !isFocused}
-            muted={muted}
-            maxBitRate={0}
-            progressUpdateInterval={500}
-            onLoad={({naturalSize}) => {
-              setVideoSize({
-                width: naturalSize.width,
-                height: naturalSize.height,
-              });
-            }}
-          />
+          <TouchableOpacity onPress={handleVideoPress}>
+            <View style={{position: 'relative'}}>
+              <Video
+                source={{uri: item.videoUrl}}
+                resizeMode={videoResizeMode}
+                style={{width: screenWidth, height: 600}}
+                repeat
+                paused={shouldPause}
+                poster={item.videoUrl}
+                muted={muted}
+                playInBackground={false}
+                progressUpdateInterval={500}
+                onLoad={({naturalSize}) => {
+                  setVideoSize({
+                    width: naturalSize.width,
+                    height: naturalSize.height,
+                  });
+                }}
+              />
+              {shouldPause && (
+                <View style={style.playButtonOverlay}>
+                  <Play size={28} color={Colors.white} />
+                </View>
+              )}
+            </View>
+          </TouchableOpacity>
         ) : (
           <Image
             source={{uri: item.imageUrl ?? ''}}
-            style={{width: screenWidth, height: 520}}
+            style={[style.img, {width: screenWidth}]}
             resizeMode="cover"
           />
         )}
 
         {/* Hiển thị các tag (nếu có) */}
-        {item.tags?.map((tag, index) => (
-          <TagMarker
-            key={`${tag.userId}_${index}`}
-            tag={tag}
-            screenWidth={screenWidth}
-            imageHeight={item.videoUrl ? 600 : 460}
-            onPress={userId => {
-              navigation.navigate('ProfileComp', {userID: userId});
-            }}
-          />
-        ))}
+        {item.tags?.length > 0 &&
+          item.tags?.map((tag, index) => (
+            <TagMarker
+              key={`${tag.userId}_${index}`}
+              tag={tag}
+              screenWidth={screenWidth}
+              imageHeight={item.videoUrl ? 600 : 520}
+              onPress={userId => handleTagPress(userId)}
+            />
+          ))}
       </View>
     );
   },
@@ -132,15 +152,28 @@ export const RenderMuteButton = React.memo(
       <TouchableOpacity
         style={ItemHomeStyles.muteButton}
         onPress={() => setMuted(!muted)}>
-        <Image
-          source={
-            muted
-              ? require('../../../../assets/icon/mute.png')
-              : require('../../../../assets/icon/volume.png')
-          }
-          style={[{tintColor: Colors.dark.text}, ItemHomeStyles.icon]}
-        />
+        {muted ? (
+          <VolumeX size={22} color={Colors.dark.text} />
+        ) : (
+          <Volume2 size={22} color={Colors.dark.text} />
+        )}
       </TouchableOpacity>
     );
   },
 );
+
+const style = StyleSheet.create({
+  playButtonOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.3)',
+  },
+  img: {
+    height: 520,
+  },
+});

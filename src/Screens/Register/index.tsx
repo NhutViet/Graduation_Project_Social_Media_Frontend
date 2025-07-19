@@ -1,3 +1,4 @@
+import React, {useState} from 'react';
 import {
   Image,
   SafeAreaView,
@@ -6,25 +7,23 @@ import {
   TouchableOpacity,
   View,
   StyleSheet,
-  Modal,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import LoginStyles from '../../StyleSheet/LoginStyles';
-import {useState, useEffect} from 'react';
-import SwitchAccountStyles from '../../StyleSheet/SwitchAccountStyles';
+import {useDispatch, useSelector} from 'react-redux';
+import {Eye, EyeOff, ArrowLeft} from 'lucide-react-native';
 import {Colors} from '../../../assets/color/Colors';
 import {useTheme} from '../../util/ThemeContext';
-import {useDispatch, useSelector} from 'react-redux';
+import LoginStyles from '../../StyleSheet/LoginStyles';
+import SwitchAccountStyles from '../../StyleSheet/SwitchAccountStyles';
 import {fetchRegister} from '../../../services/userRedux/userSlice';
-import {AppDispatch, RootState} from '../../../services/store';
 import {resetStatus} from '../../../services/userRedux/userReducer';
-import {Eye, EyeOff, ChevronLeft} from 'lucide-react-native';
+import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+import {AppDispatch, RootState} from '../../../services/store';
 
 export const Register = ({navigation}: any) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rePassword, setRePassword] = useState('');
-  const [showModal, setShowModal] = useState(false);
   const [isPassWord, setIsPassWord] = useState(true);
   const [isRePassWord, setIsRePassWord] = useState(true);
   const [errorEmail, setErrorEmail] = useState('');
@@ -36,15 +35,12 @@ export const Register = ({navigation}: any) => {
   const SwitchStyles = SwitchAccountStyles(theme);
 
   const dispatch = useDispatch<AppDispatch>();
-  const {isLoading, isSuccess, isError, errorMessage} = useSelector(
-    (state: RootState) => state.user,
-  );
+  const {isLoading} = useSelector((state: RootState) => state.user);
 
   const handleRegister = async () => {
     setErrorEmail('');
     setErrorPassword('');
     setErrorRePassword('');
-
     let valid = true;
 
     if (!email) {
@@ -73,27 +69,28 @@ export const Register = ({navigation}: any) => {
       valid = false;
     }
 
-    if (!valid) {
-      return;
-    }
+    if (!valid) return;
 
-    await dispatch(fetchRegister({email, password}));
+    dispatch(resetStatus());
+    const res = await dispatch(fetchRegister({email, password}));
+
+    if (fetchRegister.fulfilled.match(res)) {
+      GlobalAlertManager.show(
+        'Thành công',
+        'Đăng ký tài khoản thành công',
+        () => {
+          navigation.navigate('SwitchAccount');
+        },
+      );
+    } else {
+      const msg = res.payload?.message || 'Đăng ký thất bại.';
+      GlobalAlertManager.show('Thất bại', msg);
+      dispatch(resetStatus());
+    }
   };
 
-  useEffect(() => {
-    if (isSuccess || isError) {
-      setShowModal(true);
-      const time = setTimeout(() => {
-        setShowModal(false);
-        dispatch(resetStatus());
-
-        if (isSuccess) {
-          navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
-        }
-      }, 2000);
-      return () => clearTimeout(time);
-    }
-  }, [isError, isSuccess]);
+  const renderError = (error: string) =>
+    error ? <Text style={styles.errorText}>{error}</Text> : null;
 
   return (
     <SafeAreaView style={styles.page}>
@@ -104,26 +101,22 @@ export const Register = ({navigation}: any) => {
         end={{x: 1, y: 0}}
         style={styles.linear}
       />
-      <TouchableOpacity onPress={() => navigation.goBack()}>
-        <Image style={styles.icon} source={require('@assets/icon/left.png')} />
+
+      <TouchableOpacity
+        onPress={() => navigation.goBack()}
+        style={{margin: 15}}>
+        <ArrowLeft size={22} color="#000" />
       </TouchableOpacity>
+
       <View style={styles.container}>
         <Image
-          style={RegisterStyle.logo}
+          style={registerStyles.logo}
           source={require('../../../assets/icon/logo.png')}
         />
+
         <View style={SwitchStyles.body}>
-          <View
-            style={[
-              SwitchStyles.input,
-              {
-                marginTop: 20,
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: 5,
-              },
-            ]}>
+          {/* Email Input */}
+          <View style={stylesInput.inputRow}>
             <TextInput
               value={email}
               onChangeText={text => {
@@ -132,38 +125,27 @@ export const Register = ({navigation}: any) => {
               }}
               placeholder="Email"
               placeholderTextColor={Colors.light.lightDark}
-              style={{width: '90%', color: Colors.black}}
+              style={stylesInput.inputText}
+              keyboardType="email-address"
+              autoCapitalize="none"
             />
           </View>
-          {!(errorEmail === '') && (
-            <Text style={styles.errorText}>{errorEmail}</Text>
-          )}
-          <View
-            style={[
-              SwitchStyles.input,
-              {
-                marginTop: 20,
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: 5,
-              },
-            ]}>
+          {renderError(errorEmail)}
+
+          {/* Password */}
+          <View style={stylesInput.inputRow}>
             <TextInput
               value={password}
               onChangeText={text => {
                 setPassword(text);
                 setErrorPassword('');
               }}
-              style={{width: '90%', color: Colors.black}}
               placeholder="Mật khẩu"
-              secureTextEntry={isPassWord}
               placeholderTextColor={Colors.light.lightDark}
+              style={stylesInput.inputText}
+              secureTextEntry={isPassWord}
             />
-            <TouchableOpacity
-              onPress={() =>
-                isPassWord ? setIsPassWord(false) : setIsPassWord(true)
-              }>
+            <TouchableOpacity onPress={() => setIsPassWord(p => !p)}>
               {isPassWord ? (
                 <EyeOff strokeWidth={1.5} size={20} color={'#000'} />
               ) : (
@@ -171,36 +153,22 @@ export const Register = ({navigation}: any) => {
               )}
             </TouchableOpacity>
           </View>
-          {!(errorPassword === '') && (
-            <Text style={styles.errorText}>{errorPassword}</Text>
-          )}
+          {renderError(errorPassword)}
 
-          <View
-            style={[
-              SwitchStyles.input,
-              {
-                marginTop: 20,
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: 5,
-              },
-            ]}>
+          {/* Re-enter Password */}
+          <View style={stylesInput.inputRow}>
             <TextInput
               value={rePassword}
               onChangeText={text => {
                 setRePassword(text);
                 setErrorRePassword('');
               }}
-              style={{width: '90%', color: Colors.black}}
               placeholder="Nhập lại mật khẩu"
-              secureTextEntry={isRePassWord}
               placeholderTextColor={Colors.light.lightDark}
+              style={stylesInput.inputText}
+              secureTextEntry={isRePassWord}
             />
-            <TouchableOpacity
-              onPress={() =>
-                isRePassWord ? setIsRePassWord(false) : setIsRePassWord(true)
-              }>
+            <TouchableOpacity onPress={() => setIsRePassWord(p => !p)}>
               {isRePassWord ? (
                 <EyeOff strokeWidth={1.5} size={20} color={'#000'} />
               ) : (
@@ -208,27 +176,17 @@ export const Register = ({navigation}: any) => {
               )}
             </TouchableOpacity>
           </View>
-          {!(errorRePassword === '') && (
-            <Text style={styles.errorText}>{errorRePassword}</Text>
-          )}
-          <TouchableOpacity style={styles.buttonLogin} onPress={handleRegister}>
-            <Text style={styles.textBtn}>Đăng ký</Text>
-          </TouchableOpacity>
+          {renderError(errorRePassword)}
 
-          <View style={{alignItems: 'center', marginTop: 15}}>
-            <TouchableOpacity
-              //   onPress={() => {
-              //     signInWithGoogle();
-              //   }}
-              style={{flexDirection: 'row', alignItems: 'center'}}>
-              <Image
-                style={SwitchStyles.icon}
-                source={require('../../../assets/icon/gg.png')}
-              />
-              <Text style={SwitchStyles.textGoogle}>Đăng nhập bằng Google</Text>
-            </TouchableOpacity>
-          </View>
+          {/* Register Button */}
+          <TouchableOpacity style={styles.buttonLogin} onPress={handleRegister}>
+            <Text style={styles.textBtn}>
+              {isLoading ? 'Đang xử lý...' : 'Đăng ký'}
+            </Text>
+          </TouchableOpacity>
         </View>
+
+        {/* Switch to login */}
         <View style={styles.textRow}>
           <Text style={styles.textGray}>Đã đăng ký tài khoản?</Text>
           <TouchableOpacity
@@ -237,26 +195,31 @@ export const Register = ({navigation}: any) => {
           </TouchableOpacity>
         </View>
       </View>
-      <Modal visible={showModal} transparent animationType="fade">
-        <View style={styles.modal}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.textNoti}>Thông báo</Text>
-            {isSuccess && (
-              <Text style={styles.textContent}>
-                Đăng ký tài khoản thành công!
-              </Text>
-            )}
-            {isError && <Text style={styles.textContent}>{errorMessage}</Text>}
-          </View>
-        </View>
-      </Modal>
     </SafeAreaView>
   );
 };
 
-const RegisterStyle = StyleSheet.create({
+const registerStyles = StyleSheet.create({
   logo: {
     width: 150,
     height: 150,
+  },
+});
+
+const stylesInput = StyleSheet.create({
+  inputRow: {
+    marginTop: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 5,
+    justifyContent: 'space-between',
+    paddingHorizontal: 10,
+    borderRadius: 6,
+    backgroundColor: '#fff',
+    height: 48,
+  },
+  inputText: {
+    width: '90%',
+    color: Colors.black,
   },
 });

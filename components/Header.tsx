@@ -1,18 +1,48 @@
 import React, {useState} from 'react';
 import {
-  Alert,
-  Image,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
+  Image,
+  ImageSourcePropType,
 } from 'react-native';
 import {Colors} from '../assets/color/Colors';
 import {useTheme} from '../src/util/ThemeContext';
 import {Menu, Divider, Provider} from 'react-native-paper';
 import {GlobalAlertManager} from './Global/AlertModal';
+import {useSelector} from 'react-redux';
+import {RootState} from '@services/store';
+import {getUnreadNotificationCount} from '@services/notificationRedux/notificationSlice';
 
-const Header = (props: any) => {
+import {
+  Heart,
+  MessageSquare,
+  ArrowLeft,
+  ScanLine,
+  MessageCirclePlus,
+  Plus,
+} from 'lucide-react-native';
+
+type HeaderProps = {
+  title?: string;
+  pressableTitle?: string;
+  icon?: ImageSourcePropType;
+  iconBack?: boolean;
+  iconQR?: boolean;
+  iconNotify?: boolean;
+  iconMessage?: boolean;
+  showAddIcon?: boolean;
+  iconNewChat?: boolean;
+  func?: () => void;
+  funcLeft?: () => void;
+  pressableTilFunc?: () => void;
+  navigation: {
+    navigate: (screen: string) => void;
+  };
+};
+
+const Header = (props: HeaderProps) => {
   const {
     title,
     icon,
@@ -20,7 +50,7 @@ const Header = (props: any) => {
     iconQR,
     iconNotify,
     iconMessage,
-    iconLeft,
+    showAddIcon,
     iconNewChat,
     func,
     funcLeft,
@@ -33,22 +63,27 @@ const Header = (props: any) => {
   const color = Colors[theme];
 
   const [visible, setVisible] = useState(false);
-
   const openMenu = () => setVisible(true);
   const closeMenu = () => setVisible(false);
+
+  const isReadNoti = useSelector(
+    (state: RootState) => state.notification.isReadNoti,
+  );
+  const unreadCount = useSelector((state: RootState) => {
+    const notifications = state.notification.notifications;
+    return getUnreadNotificationCount(notifications);
+  });
 
   return (
     <Provider>
       <View style={[styles.container, {backgroundColor: color.background}]}>
+        {/* Left Section */}
         <View style={styles.leftSection}>
           {icon && (
             <Menu
               visible={visible}
               onDismiss={closeMenu}
-              style={{
-                marginTop: 40,
-                marginLeft: 40,
-              }}
+              style={{marginTop: 40, marginLeft: 40}}
               anchor={
                 <TouchableOpacity onPress={openMenu}>
                   <Image source={icon} style={styles.logo} />
@@ -75,16 +110,15 @@ const Header = (props: any) => {
               <Divider />
             </Menu>
           )}
+
           {iconBack && (
             <TouchableOpacity style={styles.iconBox} onPress={func}>
-              <Image
-                source={iconBack}
-                style={[styles.icon, {tintColor: color.text}]}
-              />
+              <ArrowLeft size={22} color={color.text} />
             </TouchableOpacity>
           )}
         </View>
 
+        {/* Center Section */}
         <View style={styles.centerSection}>
           {title && (
             <Text style={[styles.title, {color: color.text}]}>{title}</Text>
@@ -104,55 +138,46 @@ const Header = (props: any) => {
           )}
         </View>
 
+        {/* Right Section */}
         <View style={styles.rightSection}>
           {iconQR && (
             <TouchableOpacity
               style={styles.iconBox}
               onPress={() => navigation.navigate('QRCode')}>
-              <Image
-                source={iconQR}
-                style={[styles.icon, {tintColor: color.text}]}
-              />
+              <ScanLine size={22} color={color.text} />
             </TouchableOpacity>
           )}
+
           {iconNotify && (
             <TouchableOpacity
               style={styles.iconBox}
-              onPress={() => {
-                navigation.navigate('NotificationsScreen');
-              }}>
-              <Image
-                source={iconNotify}
-                style={[styles.icon, {tintColor: color.text}]}
-              />
+              onPress={() => navigation.navigate('NotificationsScreen')}>
+              <Heart size={22} color={color.text} />
+              {(unreadCount > 0 || isReadNoti) && (
+                <View
+                  style={[styles.badge, {backgroundColor: color.primary}]}
+                />
+              )}
             </TouchableOpacity>
           )}
+
           {iconMessage && (
             <TouchableOpacity
               style={styles.iconBox}
-              onPress={() => {
-                navigation.navigate('MessageBox');
-              }}>
-              <Image
-                source={iconMessage}
-                style={[styles.icon, {tintColor: color.text}]}
-              />
+              onPress={() => navigation.navigate('MessageBox')}>
+              <MessageSquare size={22} color={color.text} />
             </TouchableOpacity>
           )}
-          {iconLeft && (
+
+          {showAddIcon && (
             <TouchableOpacity style={styles.iconBox} onPress={funcLeft}>
-              <Image
-                source={iconLeft}
-                style={[styles.icon, {tintColor: color.text}]}
-              />
+              <Plus size={22} color={color.text} />
             </TouchableOpacity>
           )}
+
           {iconNewChat && (
             <TouchableOpacity style={styles.iconBox} onPress={func}>
-              <Image
-                source={iconNewChat}
-                style={[styles.icon, {tintColor: color.text}]}
-              />
+              <MessageCirclePlus size={22} color={color.text} />
             </TouchableOpacity>
           )}
         </View>
@@ -195,11 +220,25 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     marginLeft: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   icon: {
     width: '100%',
     height: '100%',
     resizeMode: 'contain',
+  },
+  badge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    minWidth: 10,
+    height: 10,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 4,
+    zIndex: 1,
   },
 });
 

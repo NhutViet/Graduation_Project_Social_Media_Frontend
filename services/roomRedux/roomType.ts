@@ -3,7 +3,7 @@ import {MediaMessage} from '@services/messageRedux/messageType';
 export interface RoomUser {
   _id: string;
   handleName?: string;
-  profilePic?: string;
+  profilePic: string;
 }
 
 export interface LatestMessage {
@@ -48,4 +48,16 @@ export interface CreateRoomDto {
   name?: string;
   user_ids?: string[];
   type?: string;
+}
+
+export interface ResRoomUser {
+  count: number;
+  users: {
+    username: string;
+    handleName: string;
+    profilePic: string;
+    user_id?: string;
+    isFollow: boolean;
+    isCreated: boolean;
+  }[];
 }

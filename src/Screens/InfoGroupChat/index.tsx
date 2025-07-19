@@ -1,4 +1,4 @@
-import React, {useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useState, useCallback, memo} from 'react';
 import {
   View,
   Text,
@@ -11,16 +11,11 @@ import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {
   Bell,
-  Link as LinkIcon,
   Search,
   UserPlus,
-  Lock,
-  AlertTriangle,
-  Users,
-  UserCheck,
-  ChevronRight,
   PenLine,
   LogOut,
+  ArrowLeft,
 } from 'lucide-react-native';
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {RootStackParamList} from '../../Navigation/AppNavigation';
@@ -33,6 +28,12 @@ import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../services/store';
 import {ModalRenameRoom} from '../../../components/ModalRenameRoom';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+import {MenuSection} from './component/menuItem';
+import {MediaItem} from '@services/postRedux/postTypes';
+import {getAllMediaInRoom} from '../../util/msgImgList';
+import MessageSearchModal from '../../../components/MessageSearchModal';
+import {fetchMessages} from '../../../services/messageRedux/messageSlice';
+import {Message} from '../../../services/messageRedux/messageType';
 
 export const InforGroupChat = () => {
   const {theme} = useTheme();
@@ -45,21 +46,128 @@ export const InforGroupChat = () => {
   const img2 = route?.params?.img2;
   const [visibleThemeModal, setVisibleThemeModal] = useState(false);
   const [visibleRenameModal, setVisibleRenameModal] = useState(false);
+  const [searchModalVisible, setSearchModalVisible] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([]);
   const rooms = useSelector((state: RootState) => state.rooms.rooms);
   const room = useMemo(
     () => rooms.find(r => r._id === roomId),
     [rooms, roomId],
   );
 
+  // State to manage MessageMedia fetching data
+  const [media, setMedia] = useState<MediaItem[]>([]);
+  useEffect(() => {
+    const fetchInitialMedia = async () => {
+      if (!roomId) {
+        return;
+      }
+
+      try {
+        const res = await getAllMediaInRoom({roomId, page: 1});
+        if (res && res.media && res.media.length > 0) {
+          setMedia(res.media as MediaItem[]);
+        } else {
+          setMedia([]);
+        }
+      } catch (error) {
+        setMedia([]);
+      }
+    };
+
+    fetchInitialMedia();
+  }, [roomId]);
+
+  // Fetch messages for search functionality
+  useEffect(() => {
+    if (roomId) {
+      dispatch(fetchMessages({roomId}))
+        .unwrap()
+        .then(fetchedMessages => {
+          setMessages(fetchedMessages);
+        })
+        .catch(error => {
+          console.error('Failed to fetch messages:', error);
+          setMessages([]);
+        });
+    }
+  }, [roomId, dispatch]);
+
+  const handleSearchPress = useCallback(() => {
+    setSearchModalVisible(true);
+  }, []);
+
+  const handleMessageSelect = useCallback(
+    (messageId: string, index: number) => {
+      // Navigate back to the message screen with the selected message
+      navigation.navigate('MessageScreen', {
+        room: roomId,
+        highlightMessageId: messageId,
+        scrollToIndex: index,
+      });
+    },
+    [navigation, roomId],
+  );
+
+  const handleGoBack = useCallback(() => {
+    navigation.goBack();
+  }, [navigation]);
+
+  const handleAddPeople = useCallback(() => {
+    navigation.navigate('AddPeopleToGroupChat', {roomId: roomId});
+  }, [navigation]);
+
+  const handleCloseThemeModal = useCallback(() => {
+    setVisibleThemeModal(false);
+  }, []);
+
+  const handleThemeSelect = useCallback(
+    (selectedBackground: string) => {
+      dispatch(updateRoomTheme({roomId: roomId, theme: selectedBackground}))
+        .unwrap()
+        .then(() => {
+          GlobalAlertManager.show('Thành công', 'Đã cập nhật chủ đề');
+        })
+        .catch(() => {
+          GlobalAlertManager.show('Thất bại', 'Cập nhật chủ đề thất bại');
+        });
+      setVisibleThemeModal(false);
+    },
+    [dispatch, roomId],
+  );
+
+  const handleCloseRenameModal = useCallback(() => {
+    setVisibleRenameModal(false);
+  }, []);
+
+  const handleRenameSubmit = useCallback(
+    (newName: string) => {
+      dispatch(updateRoomName({roomId: roomId, name: newName}))
+        .unwrap()
+        .then(() => {
+          GlobalAlertManager.show('Thành công', 'Đã đổi tên nhóm');
+          setVisibleRenameModal(false);
+        })
+        .catch(() => {
+          GlobalAlertManager.show('Lỗi', 'Không thể đổi tên nhóm');
+        });
+    },
+    [dispatch, roomId],
+  );
+
+  const handleOpenRenameModal = useCallback(() => {
+    setVisibleRenameModal(true);
+  }, []);
+
+  const handleCloseSearchModal = useCallback(() => {
+    setSearchModalVisible(false);
+  }, []);
+
   return (
     <SafeAreaView
       style={[styles.container, {backgroundColor: color.background}]}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Image
-            source={require('../../../assets/icon/left.png')}
-            style={{width: 20, height: 20, tintColor: color.text}}
-          />
+        <TouchableOpacity onPress={handleGoBack}>
+          <ArrowLeft size={24} color={color.text} />
         </TouchableOpacity>
       </View>
 
@@ -90,13 +198,11 @@ export const InforGroupChat = () => {
       </View>
 
       <View style={styles.actionRow}>
-        <TouchableOpacity
-          style={styles.actionItem}
-          onPress={() => navigation.navigate('AddPeopleToGroupChat')}>
+        <TouchableOpacity style={styles.actionItem} onPress={handleAddPeople}>
           <UserPlus size={20} color={color.text} />
           <Text style={[styles.actionText, {color: color.text}]}>Thêm</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.actionItem}>
+        <TouchableOpacity style={styles.actionItem} onPress={handleSearchPress}>
           <Search size={20} color={color.text} />
           <Text style={[styles.actionText, {color: color.text}]}>Tìm kiếm</Text>
         </TouchableOpacity>
@@ -108,7 +214,7 @@ export const InforGroupChat = () => {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.actionItem}
-          onPress={() => setVisibleRenameModal(true)}>
+          onPress={handleOpenRenameModal}>
           <PenLine size={20} color={color.text} />
           <Text style={[styles.actionText, {color: color.text}]}>
             Đổi tên nhóm
@@ -120,160 +226,37 @@ export const InforGroupChat = () => {
         </TouchableOpacity>
       </View>
 
-      <View
-        style={{
-          flex: 1,
-          padding: 24,
-        }}>
-        <TouchableOpacity
-          style={styles.btn}
-          onPress={() => {
-            setVisibleThemeModal(true);
-          }}>
-          <View style={styles.menuItem}>
-            <View style={styles.menuIcon}>
-              <UserCheck size={24} color={color.text} />
-            </View>
-            <View style={styles.menuTextBlock}>
-              <Text style={[styles.menuTitle, {color: color.text}]}>
-                Chủ đề
-              </Text>
-              <Text style={styles.menuSubtitle}>Mặc định</Text>
-            </View>
-          </View>
-          <ChevronRight size={24} color={color.text} />
-        </TouchableOpacity>
+      <MenuSection
+        media={media}
+        color={color}
+        navigation={navigation}
+        setVisibleThemeModal={setVisibleThemeModal}
+        room={roomId}
+      />
 
-        <TouchableOpacity style={styles.btn}>
-          <View style={styles.menuItem}>
-            <View style={styles.menuIcon}>
-              <LinkIcon size={24} color={color.text} />
-            </View>
-            <View style={styles.menuTextBlock}>
-              <Text style={[styles.menuTitle, {color: color.text}]}>
-                Liên kết
-              </Text>
-              <Text style={styles.menuSubtitle}>Đang tắt</Text>
-            </View>
-          </View>
-          <ChevronRight size={24} color={color.text} />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.btn}
-          onPress={() => navigation.navigate('PeopleGroupChat')}>
-          <View style={styles.menuItem}>
-            <View style={styles.menuIcon}>
-              <Users size={24} color={color.text} />
-            </View>
-            <View style={styles.menuTextBlock}>
-              <Text style={[styles.menuTitle, {color: color.text}]}>
-                Mọi người
-              </Text>
-            </View>
-          </View>
-          <ChevronRight size={24} color={color.text} />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.btn}>
-          <View style={styles.menuItem}>
-            <View style={styles.menuIcon}>
-              <UserPlus size={24} color={color.text} />
-            </View>
-            <View style={styles.menuTextBlock}>
-              <Text style={[styles.menuTitle, {color: color.text}]}>
-                Biệt danh
-              </Text>
-            </View>
-          </View>
-          <ChevronRight size={24} color={color.text} />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.btn}>
-          <View style={styles.menuItem}>
-            <View style={styles.menuIcon}>
-              <Lock size={24} color={color.text} />
-            </View>
-            <View style={styles.menuTextBlock}>
-              <Text style={[styles.menuTitle, {color: color.text}]}>
-                Quyền riêng tư và an toàn
-              </Text>
-            </View>
-          </View>
-          <ChevronRight size={24} color={color.text} />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.btn}
-          onPress={() => {
-            navigation.navigate('CreateGroupScreen');
-          }}>
-          <View style={styles.menuItem}>
-            <View style={styles.menuIcon}>
-              <Users size={24} color={color.text} />
-            </View>
-            <View style={styles.menuTextBlock}>
-              <Text style={[styles.menuTitle, {color: color.text}]}>
-                Tạo nhóm mới
-              </Text>
-            </View>
-          </View>
-          <ChevronRight size={24} color={color.text} />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.btn}>
-          <View style={styles.menuItem}>
-            <View style={styles.menuIcon}>
-              <AlertTriangle size={24} color={color.text} />
-            </View>
-            <View style={styles.menuTextBlock}>
-              <Text style={[styles.menuTitle, {color: color.text}]}>
-                Đã xảy ra lỗi
-              </Text>
-            </View>
-          </View>
-          <ChevronRight size={24} color={color.text} />
-        </TouchableOpacity>
-      </View>
       <ModalTheme
         visible={visibleThemeModal}
-        onClose={() => {
-          setVisibleThemeModal(false);
-        }}
-        onSelect={selectedBackground => {
-          dispatch(updateRoomTheme({roomId: roomId, theme: selectedBackground}))
-            .unwrap()
-            .then(() => {
-              GlobalAlertManager.show('Thành công', 'Đã cập nhật chủ đề');
-            })
-            .catch(() => {
-              GlobalAlertManager.show('Thất bại', 'Cập nhật chủ đề thất bại');
-            });
-          setVisibleThemeModal(false);
-        }}
+        onClose={handleCloseThemeModal}
+        onSelect={handleThemeSelect}
       />
       <ModalRenameRoom
         visible={visibleRenameModal}
-        onClose={() => setVisibleRenameModal(false)}
+        onClose={handleCloseRenameModal}
         currentName={room?.name || ''}
         theme={theme}
-        onSubmit={(newName: string) => {
-          dispatch(updateRoomName({roomId: roomId, name: newName}))
-            .unwrap()
-            .then(() => {
-              GlobalAlertManager.show('Thành công', 'Đã đổi tên nhóm');
-              setVisibleRenameModal(false);
-            })
-            .catch(() => {
-              GlobalAlertManager.show('Lỗi', 'Không thể đổi tên nhóm');
-            });
-        }}
+        onSubmit={handleRenameSubmit}
+      />
+      <MessageSearchModal
+        visible={searchModalVisible}
+        onClose={handleCloseSearchModal}
+        messages={messages}
+        onMessageSelect={handleMessageSelect}
       />
     </SafeAreaView>
   );
 };
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
@@ -357,7 +340,7 @@ const styles = StyleSheet.create({
   iconF: {
     width: '85%',
     height: '85%',
-    resizeMode: 'contain',
+    resizeMode: 'cover',
     borderRadius: 40,
     zIndex: 1,
     bottom: 0,
@@ -368,6 +351,42 @@ const styles = StyleSheet.create({
   img: {
     width: '100%',
     height: '100%',
-    resizeMode: 'contain',
+    resizeMode: 'cover',
+  },
+  mediaContainer: {
+    height: 70,
+    marginHorizontal: 10,
+    marginBottom: 15,
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  mediaRow: {
+    flexDirection: 'row',
+    gap: 4,
+    padding: 4,
+  },
+  mediaItem: {
+    width: 60,
+    height: 60,
+    aspectRatio: 1,
+    margin: 1,
+  },
+  mediaImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 4,
+  },
+  placeholder: {
+    flex: 1,
+    aspectRatio: 1,
+    margin: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.1)',
+    borderRadius: 4,
+  },
+  placeholderText: {
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });

@@ -6,10 +6,9 @@ import {
   Dimensions,
   TouchableOpacity,
   FlatList,
-  ActivityIndicator,
   Image,
 } from 'react-native';
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {Colors} from '../../../../../assets/color/Colors';
 import {useTheme} from '../../../../util/ThemeContext';
@@ -20,6 +19,7 @@ import {createHighlightStory} from '@services/StoryRedux/StorySlice';
 import {uploadImageToR2} from '../../../../core/upload';
 import {GlobalAlertManager} from '../../../../../components/Global/AlertModal';
 import HighlightEditModal from './HighlightEditModal';
+import LoadingModal from '../../../../../components/Global/LoadingModal';
 
 const formatMonthText = (dateString?: string): string => {
   if (!dateString) return '--\n--';
@@ -136,7 +136,7 @@ export const HighlightCreateScreen = () => {
       </View>
       {loading ? (
         <View style={styles.centered}>
-          <ActivityIndicator size="large" color={color.text} />
+          <LoadingModal />
         </View>
       ) : myStories.length === 0 ? (
         <View style={styles.emptyContainer}>
@@ -212,7 +212,7 @@ export const HighlightCreateScreen = () => {
       />
       {isProcessing && (
         <View style={styles.processingOverlay}>
-          <ActivityIndicator size="large" color="#fff" />
+          <LoadingModal />
           <Text style={styles.processingText}>Đang xử lý...</Text>
         </View>
       )}

@@ -12,13 +12,20 @@ import React, {useEffect, useRef, useState} from 'react';
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
 import Video from 'react-native-video';
+import {Pause, Play} from 'lucide-react-native';
 
-const VideoModal = (props: any) => {
+type VideoModalProps = {
+  uri: string;
+  visible: boolean;
+  onClose: () => void;
+};
+
+const VideoModal = (props: VideoModalProps) => {
   const {uri, visible, onClose} = props;
   const {theme} = useTheme();
   const color = Colors[theme];
   const {height} = Dimensions.get('window');
-  const [isPause, setIsPause] = useState(false);
+  const [isPause, setIsPause] = useState(true);
 
   const [isVisible, setIsVisible] = useState(false);
 
@@ -79,20 +86,26 @@ const VideoModal = (props: any) => {
                 borderWidth: 1,
               }}>
               {uri ? (
-                <Video
-                  ref={playerRef}
-                  source={{uri: uri}}
-                  repeat
-                  resizeMode="contain"
-                  paused={isPause}
-                  onProgress={({currentTime}) => setCurrentTime(currentTime)}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    overflow: 'hidden',
-                    borderRadius: 15,
-                  }}
-                />
+                <TouchableOpacity onPress={() => setIsPause(!isPause)}>
+                  <Video
+                    ref={playerRef}
+                    source={{uri: uri}}
+                    repeat={false}
+                    poster={uri}
+                    resizeMode="contain"
+                    paused={isPause}
+                    onProgress={({currentTime}) => setCurrentTime(currentTime)}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      overflow: 'hidden',
+                      borderRadius: 15,
+                    }}
+                  />
+                  {isPause && (
+                    <Play size={14} style={styles.playButtonOverlay} />
+                  )}
+                </TouchableOpacity>
               ) : (
                 <Text style={{color: color.text, textAlign: 'center'}}>
                   Đang tải...
@@ -166,25 +179,9 @@ const VideoModal = (props: any) => {
                     }}
                     onPress={() => setIsPause(!isPause)}>
                     {isPause ? (
-                      <Image
-                        source={require('../../../../assets/icon/play.png')}
-                        style={{
-                          width: 15,
-                          height: 15,
-                          resizeMode: 'contain',
-                          tintColor: color.background,
-                        }}
-                      />
+                      <Play size={22} color={color.background} />
                     ) : (
-                      <Image
-                        source={require('../../../../assets/icon/pause.png')}
-                        style={{
-                          width: 15,
-                          height: 15,
-                          resizeMode: 'contain',
-                          tintColor: color.background,
-                        }}
-                      />
+                      <Pause size={22} color={color.background} />
                     )}
                   </TouchableOpacity>
                 )}
@@ -211,4 +208,17 @@ const VideoModal = (props: any) => {
 
 export default VideoModal;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  playButtonOverlay: {
+     position: 'absolute',
+    left: '50%',
+    transform: [{ translateX: -25 }, { translateY: -25 }],
+    width: 50,
+    top: (Dimensions.get('window').height * 50 / 100 - 20),
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    borderRadius: 25,
+  },
+});

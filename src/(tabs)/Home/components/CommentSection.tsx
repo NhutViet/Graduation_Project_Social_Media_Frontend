@@ -1,9 +1,9 @@
 import React, {
   forwardRef,
+  useEffect,
   useImperativeHandle,
   useRef,
   useState,
-  useEffect,
 } from 'react';
 import {
   View,
@@ -11,11 +11,9 @@ import {
   Image,
   TextInput,
   TouchableOpacity,
-  Keyboard,
-  KeyboardEvent,
   StyleSheet,
   Dimensions,
-  ActivityIndicator,
+  Keyboard,
 } from 'react-native';
 import {Modalize} from 'react-native-modalize';
 import {useTheme} from '../../../../src/util/ThemeContext';
@@ -31,6 +29,13 @@ import {
 import {Send} from 'lucide-react-native';
 import {Portal} from 'react-native-portalize';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
+import {checkProfanityAndAlert} from '../../../util/profanityFilter';
+import {incrementCommentCountByPostId} from '@services/postRedux/postReducer';
+import {useSharedValue} from 'react-native-reanimated';
+import {fetchFollowers} from '@services/relationRedux/relationSlice';
+import MentionSuggestion from '../../../../src/Screens/PostSetting/Components/MentionSuggestion';
+import {useNavigation} from '@react-navigation/native';
+import { CommentSkeleton } from '../../../../components/SkeletonGrid';
 
 export type BottomSheetCommentRef = {
   open: () => void;
@@ -38,14 +43,15 @@ export type BottomSheetCommentRef = {
 };
 
 interface Props {
-  postId: string;
-  receiverId?: string;
+  selectedPostRef: React.RefObject<{
+    postId: string;
+    receiverId: string;
+  }>;
 }
-
-const height = Dimensions.get('window').height * 0.85;
+const height = Dimensions.get('window').height * 0.9;
 
 const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
-  ({postId, receiverId}, ref) => {
+  ({selectedPostRef}, ref) => {
     const modalizeRef = useRef<Modalize>(null);
     const dispatch = useDispatch<AppDispatch>();
     const user = useSelector((state: RootState) => state.user.user);
@@ -54,44 +60,104 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
     );
     const {theme} = useTheme();
     const color = Colors[theme];
-
+    const [isSending, setIsSending] = useState(false);
     const [comment, setComment] = useState('');
     const [replyTo, setReplyTo] = useState<{
       id: string;
       handleName: string;
+      userId?: string;
     } | null>(null);
     const inputRef = useRef<TextInput>(null);
+    const scrollY = useSharedValue(0);
+    const [mentionQuery, setMentionQuery] = useState('');
+    const [showSuggestions, setShowSuggestions] = useState(false);
+    const inputLayoutY = useSharedValue(0);
+    const {followers} = useSelector((state: RootState) => state.relation);
+    const navigation = useNavigation<any>();
 
     useImperativeHandle(ref, () => ({
       open: () => {
         modalizeRef.current?.open();
+        if (user?._id) {
+          dispatch(fetchFollowers({userId: user._id}));
+        }
       },
       close: () => {
         modalizeRef.current?.close();
         setReplyTo(null);
         setComment('');
+        setShowSuggestions(false);
       },
     }));
 
     const handleSendComment = async () => {
-      if (!comment.trim()) return;
+      if (!comment.trim() || isSending) return;
+      if (checkProfanityAndAlert(comment)) {
+        return;
+      }
 
       const payload = {
-        postID: postId,
+        postID: selectedPostRef.current?.postId ?? '',
         content: comment.trim(),
         parentID: replyTo?.id || '',
         mediaUrl: null,
       };
 
+      setIsSending(true);
+      setComment('');
+      setReplyTo(null);
+
       try {
-        await dispatch(addComment({payload, handleName: user?.handleName, postId: postId, receiverId: receiverId})).unwrap();
-        setComment('');
-        setReplyTo(null);
-        dispatch(fetchCommentsByPost(postId));
+        const res = await dispatch(
+          addComment({
+            payload,
+            handleName: user?.handleName,
+            postId: selectedPostRef.current?.postId ?? '',
+            receiverId: selectedPostRef.current?.receiverId,
+            userId: user?._id,
+            parentUserId: payload.parentID.length > 0 ? replyTo?.userId : '',
+          }),
+        );
+
+        dispatch(
+          incrementCommentCountByPostId(selectedPostRef.current?.postId ?? ''),
+        );
       } catch (error) {
         GlobalAlertManager.show('Thất bại', 'Không thể bình luận');
+      } finally {
+        setIsSending(false);
       }
     };
+
+    useEffect(() => {
+      const showSub = Keyboard.addListener('keyboardDidShow', () => {
+        setTimeout(() => {
+          inputRef.current?.measureInWindow((_x, y) => {
+            inputLayoutY.value = y;
+          });
+        }, 100);
+      });
+
+      const hideSub = Keyboard.addListener('keyboardDidHide', () => {
+        setShowSuggestions(false);
+      });
+
+      return () => {
+        showSub.remove();
+        hideSub.remove();
+      };
+    }, []);
+
+    useEffect(() => {
+      const unsubscribe = navigation.addListener('blur', () => {
+        modalizeRef.current?.close();
+        setReplyTo(null);
+        setComment('');
+        setShowSuggestions(false);
+      });
+
+      return unsubscribe;
+    }, [navigation]);
 
     return (
       <Portal>
@@ -119,27 +185,33 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
           }}>
           <View style={{flex: 1, height: height, paddingTop: 40}}>
             {loading ? (
-              <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color={color.text} />
-              </View>
+                <CommentSkeleton itemCount={6} spacing={16} />
             ) : (
               <>
                 {comments.length > 0 ? (
                   <View style={{flex: 1, paddingHorizontal: 20}}>
                     <FlashList
                       data={comments}
+                      estimatedItemSize={50}
+                      keyExtractor={item => item._id}
                       renderItem={({item}) => (
                         <CommentComponent
-                          {...item}
-                          onReply={(id, handleName) => {
-                            setReplyTo({id, handleName});
-                            setTimeout(() => {
-                              inputRef.current?.focus();
-                            }, 200);
+                          postId={selectedPostRef.current?.postId ?? ''}
+                          _id={item._id}
+                          content={item.content}
+                          isDeleted={item.isDeleted}
+                          isLiked={item.isLiked}
+                          createdAt={item.createdAt}
+                          reply={item.reply}
+                          totalLikes={item.totalLikes}
+                          user={item.user}
+                          onReply={(id, handleName, userId) => {
+                            setReplyTo({id, handleName, userId});
+                            setTimeout(() => inputRef.current?.focus(), 200);
                           }}
+                          navigation={navigation}
                         />
                       )}
-                      estimatedItemSize={10}
                     />
                   </View>
                 ) : (
@@ -195,18 +267,52 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
                         },
                       ]}
                       value={comment}
-                      onChangeText={setComment}
+                      onLayout={() => {
+                        inputRef.current?.measureInWindow((_x, y) => {
+                          inputLayoutY.value = y;
+                        });
+                      }}
+                      onChangeText={text => {
+                        setComment(text);
+                        const lastAt = text.lastIndexOf('@');
+                        if (lastAt !== -1) {
+                          const textAfterAt = text.slice(lastAt + 1);
+                          const isValid = /^[a-zA-Z0-9_]*$/.test(textAfterAt);
+                          if (isValid) {
+                            setMentionQuery(textAfterAt);
+                            setShowSuggestions(true);
+                            return;
+                          }
+                        }
+                        setShowSuggestions(false);
+                        setMentionQuery('');
+                      }}
                       onSubmitEditing={() => handleSendComment()}
                     />
-                    {comment.length > 0 ? (
-                      <TouchableOpacity onPress={handleSendComment}>
-                        <Send size={24} color={color.text} />
-                      </TouchableOpacity>
-                    ) : (
-                      <TouchableOpacity style={styles.blockIcon}>
-                        <Image
-                          style={[styles.icon, {tintColor: color.text}]}
-                          source={require('../../../../assets/icon/sticker.png')}
+
+                    <MentionSuggestion
+                      visible={showSuggestions}
+                      query={mentionQuery}
+                      followers={followers}
+                      onSelect={handle => {
+                        const lastAt = comment.lastIndexOf('@');
+                        const newText =
+                          comment.slice(0, lastAt + 1) + handle + ' ';
+                        setComment(newText);
+                        setShowSuggestions(false);
+                      }}
+                      backgroundColor={color.background}
+                      scrollY={scrollY}
+                      positionY={inputLayoutY.value}
+                    />
+
+                    {comment.length > 0 && (
+                      <TouchableOpacity
+                        onPress={handleSendComment}
+                        disabled={isSending}>
+                        <Send
+                          size={24}
+                          color={isSending ? 'gray' : color.text}
                         />
                       </TouchableOpacity>
                     )}
@@ -222,11 +328,6 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
 );
 
 const styles = StyleSheet.create({
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   visibleReply: {
     flexDirection: 'row',
     alignItems: 'center',

@@ -1,5 +1,5 @@
 import {relationAction} from '../../../../services/relationRedux/relationSlice';
-import {AppDispatch, RootState} from '../../../../services/store';
+import {AppDispatch, store} from '../../../../services/store';
 import {
   removeBookmark,
   saveBookmark,
@@ -14,7 +14,8 @@ import {
   markStoryAsSeen,
 } from '../../../../services/storage/storage';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
-import { useSelector } from 'react-redux';
+import {Story, userFollow, UserMini} from '@services/StoryRedux/StoryType';
+import {User} from '@services/userRedux/userTypes';
 
 export const handleBookmark = async ({
   isBookmarked,
@@ -113,12 +114,14 @@ export const handleFollowToggle = async ({
 };
 
 export const handleUserPress = async (
-  item: any,
-  dispatch: any,
+  item: userFollow,
+  dispatch: AppDispatch,
   navigation: any,
-  storyDetails: any[],
-  user: any,
+  storyDetails: Story[],
+  user: User | null,
   followingUsers: any[],
+  setIsStoryLoading?: (val: boolean) => void,
+  getCachedStoryData?: (userId: string) => Story[] | null,
 ) => {
   const isCurrentUser =
     item._id === user?._id || item.handleName === user?.handleName;
@@ -129,103 +132,273 @@ export const handleUserPress = async (
   }
 
   try {
+    // ✅ Check cache first
+    const cachedData = getCachedStoryData?.(item._id);
+    let basicStoryData;
+
+    if (cachedData && cachedData.length > 0) {
+      // Use cached data if available
+      basicStoryData = cachedData;
+    } else {
+      // Fallback to existing stories or create skeleton
+      basicStoryData = item.stories.map((storyId: string) => {
+        const existingStory = storyDetails.find(s => s._id === storyId);
+        return existingStory || {_id: storyId, isLoading: true};
+      });
+    }
+
+    // ✅ Create initial storyGroups - giữ nguyên thứ tự gốc
+    const createInitialStoryGroups = () => {
+      const allUsersWithStories = [user, ...followingUsers].filter(
+        u => u.stories?.length > 0,
+      );
+
+      // ✅ Giữ nguyên original order từ followingUsers (như trên UI Home)
+      const originalOrder = [
+        // 1. Current user đầu tiên (như UI Home)
+        ...allUsersWithStories.filter(
+          u => u._id === user?._id || u.handleName === user?.handleName,
+        ),
+        // 2. Các users khác theo thứ tự trong followingUsers
+        ...allUsersWithStories.filter(
+          u => u._id !== user?._id && u.handleName !== user?.handleName,
+        ),
+      ];
+
+      // ✅ Không thay đổi thứ tự, giữ nguyên originalOrder
+      return originalOrder.map(u => ({
+        creator: {
+          username: u.handleName,
+          profilePic: u.profilePic,
+          _id: u._id,
+        },
+        stories: u.stories.map((storyId: string) => {
+          const existingStory = storyDetails.find(s => s._id === storyId);
+          return existingStory || {_id: storyId, isLoading: true};
+        }),
+      }));
+    };
+
+    const initialStoryGroups = createInitialStoryGroups();
+    const initialGroupIndex = initialStoryGroups.findIndex(
+      g => g.creator.username === item.handleName,
+    );
+
+    debugStoryGroups(
+      initialStoryGroups,
+      initialGroupIndex,
+      'Story Groups (Original Order)',
+    );
+
+    // ✅ Navigate immediately với complete storyGroups structure
+    const hasRealData = cachedData && cachedData.length > 0;
+
+    navigation.navigate('SeenStory', {
+      stories: basicStoryData,
+      creator: {
+        username: item.handleName,
+        profilePic: item.profilePic,
+        _id: item._id,
+      },
+      storyGroups: initialStoryGroups,
+      storyGroupIndex: Math.max(0, initialGroupIndex),
+      isLoading: !hasRealData, // Only show loading if no cached data
+    });
+
+    // ✅ If we already have cached data, still need to mark stories as seen and get updated data
+    if (hasRealData) {
+      // Mark stories as seen first
+      await Promise.all(
+        basicStoryData.map(
+          async (story: Story | {_id: string; isLoading: boolean}) => {
+            try {
+              await dispatch(seenStory({storyId: story._id}));
+              if ('createdAt' in story) {
+                const hasSeen = await checkStorySeenInStorage(
+                  story._id,
+                  story.createdAt,
+                );
+                if (!hasSeen) {
+                  await markStoryAsSeen(story._id, story.createdAt);
+                }
+              }
+            } catch (error) {
+              console.error('Error marking cached story as seen:', error);
+            }
+          },
+        ),
+      );
+
+      // Fetch updated story data to get latest viewedByUsers
+      try {
+        const storyIds = basicStoryData.map(
+          (story: Story | {_id: string; isLoading: boolean}) => story._id,
+        );
+        const updatedStoryDetails = await dispatch(
+          fetchStoryDetails({storyIds}),
+        ).unwrap();
+
+        // Update navigation params with fresh story data
+        navigation.setParams({
+          stories: updatedStoryDetails,
+          creator: {
+            username: item.handleName,
+            profilePic: item.profilePic,
+            _id: item._id,
+          },
+          storyGroups: initialStoryGroups.map(group =>
+            group.creator.username === item.handleName
+              ? {...group, stories: updatedStoryDetails}
+              : group,
+          ),
+          storyGroupIndex: Math.max(0, initialGroupIndex),
+          isLoading: false,
+        });
+      } catch (error) {
+        console.error('Error fetching updated story data:', error);
+      }
+
+      setIsStoryLoading?.(false);
+      return;
+    }
+
+    // ✅ Load real data trong background nếu chưa có cache, maintain original order
+    const loadRealStoryData = async (usersList: any[]) => {
+      const storyGroupsWithData = await Promise.all(
+        usersList.map(async u => {
+          const detailRes = await dispatch(
+            fetchStoryDetails({storyIds: u.stories}),
+          ).unwrap();
+
+          const stories = await Promise.all(
+            detailRes.map(async (story: Story) => {
+              try {
+                await dispatch(seenStory({storyId: story._id}));
+                const hasSeen = await checkStorySeenInStorage(
+                  story._id,
+                  story.createdAt,
+                );
+                if (!hasSeen) {
+                  await markStoryAsSeen(story._id, story.createdAt);
+                }
+
+                const populatedTags = (story.tags || []).map(
+                  (tag: {
+                    user: UserMini;
+                    position: {
+                      x: number;
+                      y: number;
+                    };
+                  }) => {
+                    // Giữ nguyên cấu trúc gốc, chỉ đảm bảo user field là string ID
+                    return {
+                      ...tag,
+                      // Đảm bảo user field vẫn là string ID như gốc
+                      user: typeof tag.user === 'string' ? tag.user : tag.user?._id || tag.user,
+                    };
+                  },
+                );
+
+                return {
+                  ...story,
+                  isSeen: true,
+                  tags: populatedTags,
+                  uriVideo: story.mediaUrl.endsWith('.mp4')
+                    ? story.mediaUrl
+                    : null,
+                  image:
+                    story.mediaUrl.endsWith('.jpg') ||
+                    story.mediaUrl.endsWith('.png')
+                      ? story.mediaUrl
+                      : null,
+                  isLoading: false,
+                };
+              } catch {
+                return null;
+              }
+            }),
+          );
+
+          const validStories = stories.filter(s => s);
+          return {
+            creator: {
+              username: u.handleName,
+              profilePic: u.profilePic,
+              _id: u._id,
+            },
+            stories: validStories,
+          };
+        }),
+      );
+
+      return storyGroupsWithData.filter(group => group.stories.length > 0);
+    };
+
+    // ✅ Maintain same ordering as initial groups - giữ nguyên thứ tự gốc
     const allUsersWithStories = [user, ...followingUsers].filter(
       u => u.stories?.length > 0,
     );
 
-    const storyGroups = await Promise.all(
-      allUsersWithStories.map(async u => {
-        const detailRes = await dispatch(
-          fetchStoryDetails({storyIds: u.stories}),
-        ).unwrap();
+    // ✅ Giữ nguyên original order, không thay đổi thứ tự
+    const sortedUsersWithStories = [
+      // 1. Current user đầu tiên (như UI Home)
+      ...allUsersWithStories.filter(
+        u => u._id === user?._id || u.handleName === user?.handleName,
+      ),
+      // 2. Các users khác theo thứ tự trong followingUsers
+      ...allUsersWithStories.filter(
+        u => u._id !== user?._id && u.handleName !== user?.handleName,
+      ),
+    ];
 
-        const stories = await Promise.all(
-          detailRes.map(async (story: any) => {
-            try {
-              await dispatch(seenStory({storyId: story._id}));
-              const hasSeen = await checkStorySeenInStorage(
-                story._id,
-                story.createdAt,
-              );
-              if (!hasSeen) {
-                await markStoryAsSeen(story._id, story.createdAt);
-              }
+    const finalStoryGroups = await loadRealStoryData(sortedUsersWithStories);
 
-              const populatedTags = (story.tags || []).map((tag: any) => {
-                const userDetail = tag.user;
-                if (typeof userDetail === 'string') {
-                  const foundUser =
-                    story.viewedByUsers?.find(
-                      (u: any) => u._id === userDetail,
-                    ) ||
-                    storyDetails
-                      .flatMap(s => s.viewedByUsers || [])
-                      .find((u: any) => u._id === userDetail);
-
-                  return {
-                    ...tag,
-                    user: foundUser || {
-                      _id: userDetail,
-                      handleName: 'unknown',
-                      username: 'unknown',
-                    },
-                  };
-                }
-                return tag;
-              });
-
-              return {
-                ...story,
-                isSeen: true,
-                tags: populatedTags,
-                uriVideo: story.mediaUrl.endsWith('.m3u8')
-                  ? story.mediaUrl
-                  : null,
-                image:
-                  story.mediaUrl.endsWith('.jpg') ||
-                  story.mediaUrl.endsWith('.png')
-                    ? story.mediaUrl
-                    : null,
-              };
-            } catch {
-              return null;
-            }
-          }),
-        );
-
-        const validStories = stories.filter(s => s);
-        return {
-          creator: {
-            username: u.handleName,
-            profilePic: u.profilePic,
-          },
-          stories: validStories,
-        };
-      }),
-    );
-
-    const validStoryGroups = storyGroups.filter(
-      group => group.stories.length > 0,
-    );
-
-    const currentGroupIndex = validStoryGroups.findIndex(
+    const finalGroupIndex = finalStoryGroups.findIndex(
       g => g.creator.username === item.handleName,
     );
 
-    if (currentGroupIndex === -1) {
+    if (finalGroupIndex === -1) {
       GlobalAlertManager.show('Lỗi', 'Không tìm thấy story để hiển thị');
       return;
     }
 
-    navigation.navigate(isCurrentUser ? 'SeenStoryOwner' : 'SeenStory', {
-      stories: validStoryGroups[currentGroupIndex].stories,
-      creator: validStoryGroups[currentGroupIndex].creator,
-      storyGroups: validStoryGroups,
-      storyGroupIndex: currentGroupIndex,
+    // ✅ Debug final story groups ordering
+    debugStoryGroups(
+      finalStoryGroups,
+      finalGroupIndex,
+      'Final Groups (Original Order + Real Data)',
+    );
+
+    // ✅ Update story screen với complete data, maintain ordering
+    navigation.setParams({
+      stories: finalStoryGroups[finalGroupIndex].stories,
+      creator: finalStoryGroups[finalGroupIndex].creator,
+      storyGroups: finalStoryGroups,
+      storyGroupIndex: finalGroupIndex,
+      isLoading: false,
     });
   } catch (error) {
     GlobalAlertManager.show('Lỗi', 'Lỗi khi tải story');
+    navigation.goBack();
+  } finally {
+    setIsStoryLoading?.(false);
   }
+};
+
+// ✅ Debug function để test story navigation flow
+export const debugStoryGroups = (
+  storyGroups: any[],
+  currentIndex: number,
+  title?: string,
+) => {
+  console.log(`📱 ${title || 'Story Groups Debug'}:`);
+  storyGroups.forEach((group, index) => {
+    const indicator = index === currentIndex ? '👉' : '  ';
+    console.log(
+      `${indicator} [${index}] ${group.creator.username} (${group.stories.length} stories)`,
+    );
+  });
+  console.log('---');
 };
 
 export const handleHighlightPress = async (
@@ -234,15 +407,47 @@ export const handleHighlightPress = async (
   navigation: any,
   viewerUser: any,
   isOwner: boolean,
+  highlightStories?: Story[],
 ) => {
   try {
-    const detailRes = await dispatch(
-      fetchStoryDetails({storyIds: story.storyIds}), // <- đúng key
-    ).unwrap();
+    // Validate input
+    if (!story || !story.storyIds || !Array.isArray(story.storyIds)) {
+      GlobalAlertManager.show('Lỗi', 'Dữ liệu highlight không hợp lệ');
+      return;
+    }
 
-    console.log('📦 story.storyId gửi lên:', story.storyId);
-    console.log('📥 detailRes nhận về:', detailRes);
-    console.log('📦 story.storyIds gửi lên:', story.storyIds);
+    // Lấy story details từ Redux state trước (đã được pre-load)
+    const state = store.getState();
+    const existingStoryDetails = state.stories.storyDetails || [];
+
+    // Tìm stories đã có trong state
+    const existingStories = (story.storyIds || [])
+      .map((storyId: string) =>
+        existingStoryDetails.find(s => s._id === storyId),
+      )
+      .filter(Boolean);
+
+    // Nếu chưa có đủ stories trong state, fetch thêm
+    let detailRes = existingStories;
+    if (existingStories.length < (story.storyIds || []).length) {
+      const missingStoryIds = (story.storyIds || []).filter(
+        (storyId: string) =>
+          !existingStories.find((s: any) => s._id === storyId),
+      );
+
+      if (missingStoryIds.length > 0) {
+        try {
+          const fetchedStories = await dispatch(
+            fetchStoryDetails({storyIds: missingStoryIds}),
+          ).unwrap();
+          detailRes = [...existingStories, ...fetchedStories];
+        } catch (error) {
+          console.error('Error fetching missing stories:', error);
+          // Continue with existing stories if fetch fails
+          detailRes = existingStories;
+        }
+      }
+    }
 
     const seenedStories = await Promise.all(
       detailRes.map(async (item: any) => {
@@ -257,14 +462,47 @@ export const handleHighlightPress = async (
             await markStoryAsSeen(item._id, item.createdAt);
           }
 
-          return {
+          // ✅ Giữ nguyên cấu trúc tags gốc để tránh lỗi navigation
+          const populatedTags = (item.tags || []).map((tag: any) => {
+            // Giữ nguyên cấu trúc gốc, chỉ thêm thông tin nếu cần
+            return {
+              ...tag,
+              // Đảm bảo user field vẫn là string ID như gốc
+              user: typeof tag.user === 'string' ? tag.user : tag.user?._id || tag.user,
+            };
+          });
+
+          const processedStory = {
             ...item,
-            uriVideo: item.mediaUrl?.endsWith('.m3u8') ? item.mediaUrl : null,
+            tags: populatedTags,
+            uriVideo: item.mediaUrl?.endsWith('.mp4') ? item.mediaUrl : null,
             image:
               item.mediaUrl?.endsWith('.jpg') || item.mediaUrl?.endsWith('.png')
                 ? item.mediaUrl
                 : null,
           };
+
+          // ✅ Đảm bảo data được lưu trữ trong Redux state
+          const state = store.getState();
+          const existingIndex = state.stories.storyDetails.findIndex(
+            s => s._id === item._id,
+          );
+
+          if (existingIndex !== -1) {
+            // Update existing story in Redux state
+            store.dispatch({
+              type: 'stories/fetchStoryDetails/fulfilled',
+              payload: [processedStory],
+            });
+          } else {
+            // Add new story to Redux state
+            store.dispatch({
+              type: 'stories/fetchStoryDetails/fulfilled',
+              payload: [processedStory],
+            });
+          }
+
+          return processedStory;
         } catch (err) {
           console.error('seenStory error', err);
           return null;
@@ -273,7 +511,6 @@ export const handleHighlightPress = async (
     );
 
     const validStories = seenedStories.filter(s => s);
-    console.log('📦 validStories:', validStories);
 
     if (!validStories.length) {
       GlobalAlertManager.show('Lỗi', 'Không có story hợp lệ để hiển thị');
@@ -283,28 +520,225 @@ export const handleHighlightPress = async (
     const creator = {
       username: viewerUser?.handleName,
       profilePic: viewerUser?.profilePic,
-      _id: viewerUser?._id, // Thêm _id để đồng bộ với SeenStoryOwner
+      _id: viewerUser?._id,
     };
 
-    // Tạo storyGroups cho SeenStoryOwner
-    const storyGroups = [
-      {
+    // ✅ Tạo story groups từ tất cả highlights (sắp xếp theo thứ tự mới nhất)
+    const storyGroups = (highlightStories ? [...highlightStories] : [])
+      .sort((a: any, b: any) => {
+        // Sắp xếp theo createdAt, mới nhất lên đầu (giống component)
+        const dateA = new Date(a.createdAt || a.updatedAt || 0).getTime();
+        const dateB = new Date(b.createdAt || b.updatedAt || 0).getTime();
+        return dateB - dateA;
+      })
+      .filter(
+        (highlight: any) => highlight.storyId && highlight.storyId.length > 0,
+      )
+      .map((highlight: any) => ({
+        creator,
+        stories: [], // Sẽ được load sau
+        highlightId: highlight._id,
+        collectionName: highlight.collectionName,
+        thumbnail: highlight.thumbnail,
+      }));
+
+    // Tìm index của highlight hiện tại
+    const currentHighlightIndex = storyGroups.findIndex(
+      (group: any) => group.highlightId === story._id,
+    );
+
+    if (currentHighlightIndex === -1) {
+      // ✅ Nếu không tìm thấy, chỉ hiển thị highlight hiện tại - sử dụng unified SeenStory
+      navigation.navigate('SeenStory', {
+        storyGroups: [
+          {
+            creator,
+            stories: validStories,
+          },
+        ],
+        storyGroupIndex: 0,
         creator,
         stories: validStories,
-      },
-    ];
+        timestamp: Date.now(),
+      });
+      return;
+    }
 
-    console.log('📦 storyGroups to navigate:', storyGroups);
+    // Load stories cho tất cả highlights
+    const allHighlightStories = await Promise.all(
+      storyGroups.map(async (group: any, index: number) => {
+        if (index === currentHighlightIndex) {
+          // Highlight hiện tại đã có stories
+          return {
+            ...group,
+            stories: validStories,
+          };
+        }
 
-    navigation.navigate(isOwner ? 'SeenStoryOwner' : 'SeenStory', {
-      storyGroups,
-      storyGroupIndex: 0,
+        // Load stories cho các highlight khác
+        try {
+          // Tìm highlight tương ứng để lấy storyId
+          const currentHighlight = highlightStories?.find(
+            (h: Story) => h._id === group.highlightId,
+          );
+          if (
+            !currentHighlight?.storyId ||
+            currentHighlight.storyId.length === 0
+          ) {
+            return {
+              ...group,
+              stories: [],
+            };
+          }
+
+          // Lấy story details từ Redux state trước (đã được pre-load)
+          const state = store.getState();
+          const existingStoryDetails = state.stories.storyDetails || [];
+
+          // Tìm stories đã có trong state
+          const existingStories = (currentHighlight.storyId || [])
+            .map((storyId: string) =>
+              existingStoryDetails.find((s: Story) => s._id === storyId),
+            )
+            .filter(Boolean);
+
+          // Nếu chưa có đủ stories trong state, fetch thêm
+          let highlightDetailRes = existingStories;
+          if (
+            existingStories.length < (currentHighlight.storyId || []).length
+          ) {
+            const missingStoryIds = (currentHighlight.storyId || []).filter(
+              (storyId: string) =>
+                !existingStories.find(s => s?._id === storyId),
+            );
+
+            if (missingStoryIds.length > 0) {
+              try {
+                const fetchedStories = await dispatch(
+                  fetchStoryDetails({storyIds: missingStoryIds}),
+                ).unwrap();
+                highlightDetailRes = [...existingStories, ...fetchedStories];
+              } catch (error) {
+                console.error('Error fetching highlight stories:', error);
+                // Continue with existing stories if fetch fails
+                highlightDetailRes = existingStories;
+              }
+            }
+          }
+
+          const loadedStories = await Promise.all(
+            highlightDetailRes.filter((item): item is Story => item !== undefined).map(async (item: Story) => {
+              try {
+                await dispatch(seenStory({storyId: item._id}));
+
+                // ✅ Giữ nguyên cấu trúc tags gốc cho các highlight khác
+                const populatedTags = (item.tags || []).map(
+                  (tag: {
+                    user: UserMini;
+                    position: {
+                      x: number;
+                      y: number;
+                    };
+                  }) => {
+                    // Giữ nguyên cấu trúc gốc, chỉ đảm bảo user field là string ID
+                    return {
+                      ...tag,
+                      // Đảm bảo user field vẫn là string ID như gốc
+                      user: typeof tag.user === 'string' ? tag.user : tag.user?._id || tag.user,
+                    };
+                  },
+                );
+
+                const processedStory = {
+                  ...item,
+                  tags: populatedTags,
+                  uriVideo: item.mediaUrl?.endsWith('.mp4')
+                    ? item.mediaUrl
+                    : null,
+                  image:
+                    item.mediaUrl?.endsWith('.jpg') ||
+                    item.mediaUrl?.endsWith('.png')
+                      ? item.mediaUrl
+                      : null,
+                };
+
+                // ✅ Đảm bảo data được lưu trữ trong Redux state cho các highlight khác
+                const state = store.getState();
+                const existingIndex = state.stories.storyDetails.findIndex(
+                  (s: Story) => s._id === item._id,
+                );
+
+                if (existingIndex !== -1) {
+                  // Update existing story in Redux state
+                  store.dispatch({
+                    type: 'stories/fetchStoryDetails/fulfilled',
+                    payload: [processedStory],
+                  });
+                } else {
+                  // Add new story to Redux state
+                  store.dispatch({
+                    type: 'stories/fetchStoryDetails/fulfilled',
+                    payload: [processedStory],
+                  });
+                }
+
+                return processedStory;
+              } catch (err) {
+                console.error('seenStory error', err);
+                return null;
+              }
+            }),
+          );
+
+          return {
+            ...group,
+            stories: loadedStories.filter(s => s),
+          };
+        } catch (error) {
+          console.error('Error loading highlight stories:', error);
+          return {
+            ...group,
+            stories: [],
+          };
+        }
+      }),
+    );
+
+    // Lọc ra các groups có stories
+    const validStoryGroups = allHighlightStories.filter(
+      (group) => group.stories.length > 0,
+    );
+
+    const currentGroupIndex = validStoryGroups.findIndex(
+      (group) => group.highlightId === story._id,
+    );
+
+    // ✅ Đảm bảo tất cả stories được lưu trữ trong Redux state trước khi navigate
+    const allStories = validStoryGroups.flatMap(group => group.stories);
+    allStories.forEach(story => {
+      const state = store.getState();
+      const existingIndex = state.stories.storyDetails.findIndex(
+        (s: Story) => s._id === story._id,
+      );
+
+      if (existingIndex === -1) {
+        // Add new story to Redux state
+        store.dispatch({
+          type: 'stories/fetchStoryDetails/fulfilled',
+          payload: [story],
+        });
+      }
+    });
+
+    // ✅ Sử dụng unified SeenStory component cho cả owner và viewer
+    navigation.navigate('SeenStory', {
+      storyGroups: validStoryGroups,
+      storyGroupIndex: currentGroupIndex >= 0 ? currentGroupIndex : 0,
       creator,
-      stories: validStories, // Giữ lại để tương thích với SeenStory
+      stories: validStories,
       timestamp: Date.now(),
     });
   } catch (error) {
-    console.error('handleHighlightPress error:', error);
     GlobalAlertManager.show('Thất bại', 'Lỗi khi tải highlight');
   }
 };

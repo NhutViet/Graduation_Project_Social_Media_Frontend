@@ -12,8 +12,31 @@ import {
 } from 'react-native';
 import Sound from 'react-native-sound';
 import {Colors} from '../../../../assets/color/Colors';
+import {Play, Pause} from 'lucide-react-native';
 
-const AudioTrimModal = (props: any) => {
+type SongInfo = {
+  _id: string;
+  title: string;
+  artist: string;
+  image: string;
+};
+
+type AudioTrimModalProps = {
+  visible: boolean;
+  onClose: () => void;
+  audioUrl: string;
+  songInfo: SongInfo;
+  onDoneSelect?: (data: {
+    musicId: string;
+    timeStart: number;
+    timeEnd: number;
+    song: string;
+    songImage: string;
+  }) => void;
+  songUrl?: (url: string) => void;
+};
+
+const AudioTrimModal = (props: AudioTrimModalProps) => {
   const {visible, onClose, audioUrl, songInfo, onDoneSelect, songUrl} = props;
   const [sound, setSound] = useState<Sound | null>(null);
   const [duration, setDuration] = useState(0);
@@ -142,14 +165,11 @@ const AudioTrimModal = (props: any) => {
               />
             </View>
             <TouchableOpacity onPress={playing ? handleStop : handlePlay}>
-              <Image
-                style={styles.playIcon}
-                source={
-                  playing
-                    ? require('../../../../assets/icon/pause.png')
-                    : require('../../../../assets/icon/play.png')
-                }
-              />
+              {playing ? (
+                <Pause size={22} color={Colors.white} />
+              ) : (
+                <Play size={22} color={Colors.white} />
+              )}
             </TouchableOpacity>
           </View>
 

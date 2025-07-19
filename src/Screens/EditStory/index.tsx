@@ -12,38 +12,44 @@ import {
   Modal,
   KeyboardAvoidingView,
   Platform,
-  Alert,
-  ActivityIndicator,
 } from 'react-native';
-import Video from 'react-native-video';
+import Video, {OnLoadData, OnProgressData, VideoRef} from 'react-native-video';
 import Draggable from 'react-native-draggable';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import Sound from 'react-native-sound';
-import {API, BASE_URL} from '../../../services/api';
+import {API} from '../../../services/api';
 import {useUploadProgress} from '../../../services/UploadProgressManager';
-import {useSelector} from 'react-redux';
-import {RootState} from '../../../services/store';
-import {uploadImageToR2, uploadToCloudflare} from '../../core/upload';
+import {useSelector, useDispatch} from 'react-redux';
+import {RootState, AppDispatch} from '../../../services/store';
+import {createStory} from '../../../services/StoryRedux/StorySlice';
+import {forceRefreshStories} from '../../../services/StoryRedux/StoryReducer';
+import {uploadImageToR2, uploadVideoToR2} from '../../core/upload';
 import axiosInstance from '../../../services/axiosInstance';
 import {Dimensions} from 'react-native';
-import {X, ChevronRight} from 'lucide-react-native';
+import {X, ChevronRight, Play} from 'lucide-react-native';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+import {userFollow} from '@services/StoryRedux/StoryType';
+import LoadingModal from '../../../components/Global/LoadingModal';
+import { Colors } from '@assets/color/Colors';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 
 export const EditStory = ({route, navigation}: any) => {
+  const dispatch = useDispatch<AppDispatch>();
   const {followingUsers} = useSelector((state: RootState) => state.stories);
   const {selectedItem, selectedMusic, songUrl} = route.params;
   const [videoDuration, setVideoDuration] = useState<number | null>(null);
   const [videoCurrentTime, setVideoCurrentTime] = useState(0);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [hasShownModal, setHasShownModal] = useState(false);
-  const [filteredSuggestions, setFilteredSuggestions] = useState([]);
+  const [filteredSuggestions, setFilteredSuggestions] = useState<userFollow[]>(
+    [],
+  );
   const [caption, setCaption] = useState('');
   const progressAnim = useRef(new Animated.Value(0)).current;
   const animationRef = useRef<Animated.CompositeAnimation | null>(null);
-  const videoRef = useRef<any>(null);
+  const videoRef = useRef<VideoRef>(null);
   const audioRef = useRef<Sound | null>(null); // ref cho âm thanh
   // Lấy tọa độ, đặt giá trị mặc định ở giữa nếu không kéo thả
   const positionRef = useRef({x: 50, y: 50}); // Mặc định ở giữa (50% x, 50% y)
@@ -93,12 +99,11 @@ export const EditStory = ({route, navigation}: any) => {
     });
   };
 
-  const onVideoLoad = (data: any) => {
-    console.log(`Video loaded, duration: ${data.duration}`);
+  const onVideoLoad = (data: OnLoadData) => {
     setVideoDuration(data.duration);
   };
 
-  const onVideoProgress = (data: any) => {
+  const onVideoProgress = (data: OnProgressData) => {
     if (selectedItem?.type.includes('video')) {
       const currentTime = data.currentTime;
       setVideoCurrentTime(currentTime);
@@ -169,12 +174,10 @@ export const EditStory = ({route, navigation}: any) => {
   }, [selectedItem]);
 
   const handleScreenTap = () => {
-    console.log('Screen tapped, opening modal');
     setIsModalVisible(true);
   };
 
   const handleDonePress = () => {
-    console.log('Done pressed, closing modal with caption:', caption);
     setIsModalVisible(false);
     setHasShownModal(true);
   };
@@ -194,7 +197,7 @@ export const EditStory = ({route, navigation}: any) => {
     }
   };
 
-  const handleSuggestionPress = (user: any) => {
+  const handleSuggestionPress = (user: userFollow) => {
     const updated = caption.replace(
       /@([a-zA-Z0-9._]*)$/,
       `@${user.handleName} `,
@@ -204,7 +207,6 @@ export const EditStory = ({route, navigation}: any) => {
   };
 
   const handleCloserPress = () => {
-    console.log('Closer pressed, navigating back');
     navigation.goBack();
   };
 
@@ -231,12 +233,37 @@ export const EditStory = ({route, navigation}: any) => {
     );
   };
 
+  // Function để parse @mentions từ text
+  const parseMentionsFromText = (text: string) => {
+    const mentionRegex = /@([a-zA-Z0-9._]+)/g;
+    const mentions: Array<{handleName: string; user: userFollow}> = [];
+    let match;
+
+    while ((match = mentionRegex.exec(text)) !== null) {
+      const handleName = match[1];
+
+      const user = followingUsers.find(
+        u => u.handleName.toLowerCase() === handleName.toLowerCase(),
+      );
+
+      if (user) {
+        mentions.push({handleName, user});
+      } else {
+        console.log('❌ User not found for handle:', handleName);
+      }
+    }
+
+    // Remove @mentions từ text để chỉ giữ content thuần
+    const cleanText = text.replace(mentionRegex, '').trim();
+
+    return {cleanText, mentions};
+  };
+
   const handleUploadStory = async () => {
     try {
       setIsUploading(true);
       setProgress(0);
       if (!selectedItem) {
-        console.error('Không có media để upload.');
         setIsUploading(false);
         return;
       }
@@ -244,12 +271,12 @@ export const EditStory = ({route, navigation}: any) => {
       let mediaUrl = '';
       try {
         if (selectedItem?.type.includes('video')) {
-          const videoKey = await uploadToCloudflare(selectedItem.uri, {
+          const videoUrl = await uploadVideoToR2(selectedItem.uri, {
             showUploadModal,
             hideUploadModal,
             setProgress,
           });
-          mediaUrl = `https://videodelivery.net/${videoKey}/manifest/video.m3u8`;
+          mediaUrl = videoUrl;
         } else {
           mediaUrl = await uploadImageToR2(selectedItem.uri, {
             showUploadModal,
@@ -272,7 +299,11 @@ export const EditStory = ({route, navigation}: any) => {
         typeof mediaUrl === 'string' && mediaUrl.trim() !== '';
       const isValidMusic =
         selectedMusic?.musicId && typeof selectedMusic.musicId === 'string';
-      const isValidContent = caption !== undefined && caption !== null;
+      const isValidContent =
+        caption !== undefined && caption !== null && caption.trim() !== '';
+
+      // Parse mentions từ caption
+      const {cleanText, mentions} = parseMentionsFromText(caption);
 
       const payload: any = {};
       if (!isValidMedia) {
@@ -288,28 +319,37 @@ export const EditStory = ({route, navigation}: any) => {
         };
       }
 
-      if (isValidContent) {
+      // Chỉ gửi content nếu có text sau khi remove mentions
+      if (isValidContent && cleanText.length > 0) {
         payload.content = {
-          text: caption,
-          x: Number(positionRef.current.x) || 50, // Mặc định 50% nếu không kéo thả
-          y: Number(positionRef.current.y) || 50, // Mặc định 50% nếu không kéo thả
+          text: cleanText,
+          x: Number(positionRef.current.x) || 50,
+          y: Number(positionRef.current.y) || 50,
         };
       }
 
-      const res = await axiosInstance.post(
-        `${BASE_URL}/stories/create`,
-        payload,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${refreshToken}`,
+      // Thêm tags nếu có mentions
+      if (mentions.length > 0) {
+        payload.tags = mentions.map(mention => ({
+          user: mention.user._id, // Chỉ gửi ID string thay vì object
+          position: {
+            x: 0.5, // Default position, có thể customize sau
+            y: 0.3,
           },
-        },
-      );
+        }));
+        console.log('📤 Final tags payload:', payload.tags);
+      }
 
-      if (res.data) {
+      // ✅ Sử dụng Redux action thay vì direct API call
+      const storyResult = await dispatch(createStory(payload)).unwrap();
+
+      if (storyResult) {
         GlobalAlertManager.show('Thông báo', 'Đăng story thành công.');
-        if (res.status >= 200 && res.status <= 300) {
+
+        dispatch(forceRefreshStories());
+
+        // ✅ Gửi notification
+        try {
           await axiosInstance.post(
             API.NOTIFICATION_API_FOLLOW,
             {
@@ -317,7 +357,7 @@ export const EditStory = ({route, navigation}: any) => {
               body: `Người dùng ${user?.handleName} vừa đăng một tin mới.`,
               data: {
                 type: 'story',
-                postId: res.data?._id,
+                postId: storyResult?._id,
               },
             },
             {
@@ -326,12 +366,30 @@ export const EditStory = ({route, navigation}: any) => {
               },
             },
           );
+        } catch (notificationError) {
+          console.log('Failed to send notification:', notificationError);
         }
       }
 
       hideUploadModal();
       setIsUploading(false);
-      navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
+
+      // ✅ Navigate về Home và trigger immediate refresh
+      navigation.reset({
+        index: 0,
+        routes: [
+          {
+            name: 'BottomTabs',
+            params: {
+              screen: 'Home',
+              params: {
+                shouldRefresh: true,
+                timestamp: Date.now(), // Force refresh với timestamp mới
+              },
+            },
+          },
+        ],
+      });
     } catch (error: any) {
       setIsUploading(false);
       GlobalAlertManager.show(
@@ -341,6 +399,7 @@ export const EditStory = ({route, navigation}: any) => {
       hideUploadModal();
     }
   };
+  const [isPause, setIsPause] = useState<boolean>(true);
 
   return (
     <GestureHandlerRootView style={styles.container}>
@@ -374,18 +433,24 @@ export const EditStory = ({route, navigation}: any) => {
               <View style={styles.mediaTouchArea}>
                 {selectedItem ? (
                   selectedItem.type.includes('video') ? (
-                    <Video
-                      ref={videoRef}
-                      source={{uri: selectedItem.uri}}
-                      style={styles.media}
-                      resizeMode="contain"
-                      repeat={false}
-                      onLoad={onVideoLoad}
-                      onProgress={onVideoProgress}
-                      onEnd={onVideoEnd}
-                      playInBackground={false}
-                      playWhenInactive={false}
-                    />
+                    <TouchableOpacity onPress={() => setIsPause(!isPause)}>
+                      <Video
+                        ref={videoRef}
+                        source={{uri: selectedItem.uri}}
+                        style={styles.media}
+                        resizeMode="contain"
+                        repeat={false}
+                        paused={isPause}
+                        onLoad={onVideoLoad}
+                        onProgress={onVideoProgress}
+                        onEnd={onVideoEnd}
+                        playInBackground={false}
+                        playWhenInactive={false}
+                      />
+                      {isPause && (
+                        <Play size={20} color={Colors.white} />
+                      )}
+                    </TouchableOpacity>
                   ) : (
                     <Image
                       source={{uri: selectedItem.uri}}
@@ -403,10 +468,8 @@ export const EditStory = ({route, navigation}: any) => {
                     x={!initialized ? positionRef.current.x : undefined}
                     y={!initialized ? positionRef.current.y : undefined}
                     onDragRelease={(event, gestureState) => {
-                      const mediaWidth =
-                        event.nativeEvent.layout?.width || screenWidth;
-                      const mediaHeight =
-                        event.nativeEvent.layout?.height || screenHeight;
+                      const mediaWidth = screenWidth;
+                      const mediaHeight = screenHeight;
 
                       const absoluteX = positionRef.current.x + gestureState.dx;
                       const absoluteY = positionRef.current.y + gestureState.dy;
@@ -428,7 +491,6 @@ export const EditStory = ({route, navigation}: any) => {
             transparent={true}
             animationType="fade"
             onRequestClose={() => {
-              console.log('Modal close requested, closing modal');
               setIsModalVisible(false);
             }}>
             <View style={styles.modalContainer}>
@@ -480,7 +542,7 @@ export const EditStory = ({route, navigation}: any) => {
                 justifyContent: 'center',
                 alignItems: 'center',
               }}>
-              <ActivityIndicator size="large" color="#fff" />
+              <LoadingModal />
               <Text style={{color: '#fff', marginTop: 10}}>
                 Đang đăng story...
               </Text>

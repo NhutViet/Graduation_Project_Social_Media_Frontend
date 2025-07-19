@@ -2,6 +2,7 @@ import {createAsyncThunk} from '@reduxjs/toolkit';
 import {
   CreateRoomDto,
   CreateRoomResponse,
+  ResRoomUser,
   Room,
   UpdateRoomNameArgs,
   UpdateRoomThemeArgs,
@@ -101,5 +102,95 @@ export const createRoom = createAsyncThunk<
     return response.data;
   } catch (err: any) {
     return rejectWithValue(err.response?.data || err.message);
+  }
+});
+
+export const getRoomById = createAsyncThunk<
+  Room,
+  string,
+  {rejectValue: {message: string}}
+>('rooms/getRoomById', async (roomId, {rejectWithValue}) => {
+  try {
+    const response = await axiosInstance.get<Room>(`${API.ROOM}/${roomId}`, {
+      headers: {
+        token: 'refresh',
+      },
+    });
+    return response.data;
+  } catch (err: any) {
+    return rejectWithValue({
+      message:
+        err.response?.data?.message || 'Lấy chi tiết phòng chat thất bại.',
+    });
+  }
+});
+
+export const getRoomUsers = createAsyncThunk<
+  ResRoomUser,
+  {roomId: string},
+  {rejectValue: {message: string}}
+>('rooms/users', async ({roomId}, {rejectWithValue}) => {
+  try {
+    const res = await axiosInstance.get(`${API.ROOM}/${roomId}/users`, {
+      headers: {
+        token: 'refresh',
+      },
+    });
+    return res.data;
+  } catch (error: any) {
+    return rejectWithValue({
+      message:
+        error?.response?.data?.message || 'Không thể lấy danh sách người dùng.',
+    });
+  }
+});
+
+export const getAvaibleFriends = createAsyncThunk<
+  {
+    username: string;
+    handleName: string;
+    profilePic: string;
+    user_id?: string;
+    isFollow: boolean;
+    isCreated: boolean;
+  }[],
+  {roomId: string},
+  {rejectValue: {message: string}}
+>('rooms/availbleFriends', async ({roomId}, {rejectWithValue}) => {
+  try {
+    const res = await axiosInstance.get(
+      `${API.ROOM}/${roomId}/available-friends`,
+      {
+        headers: {
+          token: 'refresh',
+        },
+      },
+    );
+    return res.data;
+  } catch (error: any) {
+    return rejectWithValue({
+      message:
+        error?.response?.data?.message || 'Không thể lấy danh sách người dùng.',
+    });
+  }
+});
+
+export const addPeopleToGroupChat = createAsyncThunk<
+  ResRoomUser,
+  {roomId: string, user_ids: string[]},
+  {rejectValue: {message: string}}
+>('rooms/users/batch', async ({roomId, user_ids}, {rejectWithValue}) => {
+  try {
+    const res = await axiosInstance.post(`${API.ROOM}/${roomId}/users/batch`, {user_ids},{
+      headers: {
+        token: 'refresh',
+      },
+    });
+    return res.data;
+  } catch (error: any) {
+    return rejectWithValue({
+      message:
+        error?.response?.data?.message || 'Không thể Thêm người dùng vào nhóm.',
+    });
   }
 });

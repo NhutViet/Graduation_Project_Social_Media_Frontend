@@ -1,3 +1,4 @@
+import React, {useState, useEffect, useMemo, useCallback, useRef} from 'react';
 import {
   StyleSheet,
   Text,
@@ -5,171 +6,151 @@ import {
   Image,
   TouchableOpacity,
   TextInput,
-  ActivityIndicator,
 } from 'react-native';
-import React, {useState, useEffect} from 'react';
-import {FlashList} from '@shopify/flash-list';
-import {Colors} from '../../../../assets/color/Colors';
-import {useTheme} from '../../../util/ThemeContext';
+import {FlashList, ListRenderItem} from '@shopify/flash-list';
 import {useNavigation} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
+import {Colors} from '../../../../assets/color/Colors';
+import {useTheme} from '../../../util/ThemeContext';
 import {AppDispatch, RootState} from '../../../../services/store';
 import {
   fetchFollowers,
+  fetchFollowing,
   relationAction,
 } from '../../../../services/relationRedux/relationSlice';
 import {createRoom} from '../../../../services/roomRedux/roomSlice';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
+import {UserProfile} from '@services/relationRedux/relationTypes';
+import {selectDisplayFollowers} from '@services/relationRedux/relationSelector';
+import {Search, User, UserX, X} from 'lucide-react-native';
+import LoadingModal from '../../../../components/Global/LoadingModal';
 
 const FollowersTab = () => {
   const navigation: any = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];
+  const dispatch = useDispatch<AppDispatch>();
+  const searchInputRef = useRef<TextInput>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+
   const userID = useSelector((state: RootState) => state.user?.user?._id);
   const user = useSelector((state: RootState) => state.user.user);
-  const dispatch = useDispatch<AppDispatch>();
-  const {
-    followers: reduxFollowers,
-    loading,
-    error,
-  } = useSelector((state: RootState) => state.relation);
-
-  const [followers, setFollowers] = useState(reduxFollowers);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isError, setIsError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!userID) return;
-
-    setIsLoading(true);
-    setIsError(null);
-
-    if (userID) {
-      dispatch(fetchFollowers({userId: userID}))
-        .unwrap()
-        .then(data => {
-          setFollowers(data);
-        })
-        .catch(err => {
-          console.error('Error fetching followers:', err);
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-    }
-  }, [dispatch, userID]);
-
-  const renderItem = ({item}: {item: (typeof followers)[0]}) => (
-    <View style={styles.userContainer}>
-      <TouchableOpacity style={styles.touchableInfo}>
-        {item.profilePic ? (
-          <Image source={{uri: item.profilePic}} style={styles.avatar} />
-        ) : (
-          <Image
-            source={require('../../../../assets/icon/user.png')}
-            style={styles.avatar}
-          />
-        )}
-        <View style={styles.userInfo}>
-          <Text style={[styles.handle, {color: color.text}]}>
-            {item.handleName}
-          </Text>
-          <Text style={[styles.username, {color: color.textSecondary}]}>
-            {item.username}
-          </Text>
-        </View>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={[
-          styles.actionButton,
-          item.isFollowing
-            ? [styles.messageButton, {borderColor: color.text}]
-            : styles.followBack,
-        ]}
-        onPress={() => handleActionButton(item)}>
-        <Text
-          style={[
-            styles.buttonText,
-            item.isFollowing
-              ? [styles.messageText, {color: color.text}]
-              : styles.followText,
-          ]}>
-          {item.isFollowing ? 'Nhắn tin' : 'Theo dõi'}
-        </Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.cancelButton}>
-        <View style={{width: 10, height: 10, overflow: 'hidden'}}>
-          <Image
-            source={require('../../../../assets/icon/closer.png')}
-            style={[styles.cancelImage, {tintColor: color.text}]}
-          />
-        </View>
-      </TouchableOpacity>
-    </View>
+  const {followers, following, loading, error} = useSelector(
+    (state: RootState) => state.relation,
   );
 
-  const handleActionButton = async (item: (typeof followers)[0]) => {
-    if (item.isFollowing) {
-      console.log(item.isFollowing);
-      try {
-        const res = await dispatch(
-          createRoom({
-            name: '',
-            user_ids: [item._id],
-            type: 'waiting',
-          }),
-        ).unwrap();
-
-        const {room} = res;
-
-        const otherUsers = room.user_ids.filter(user => user._id !== userID);
-        const img1 = otherUsers[0]?.profilePic;
-        const img2 = userID
-          ? room.user_ids.find(user => user._id === userID)?.profilePic
-          : undefined;
-
-        navigation.navigate('MessageScreen', {
-          room: room._id,
-          img1,
-          img2,
-        });
-      } catch (error) {
-        console.log('Tạo room thất bại:', error);
-      }
-    } else {
-      try {
-        await dispatch(
-          relationAction({
-            targetId: item._id,
-            action: 'follow',
-            senderId: user?._id,
-            handleName: user?.handleName,
-          }),
-        ).unwrap();
-
-        setFollowers(prevFollowers =>
-          prevFollowers.map(follower =>
-            follower._id === item._id
-              ? {...follower, isFollowing: true}
-              : follower,
-          ),
-        );
-      } catch (error) {
-        GlobalAlertManager.show('Thất bại', 'Vui lòng thử lại sau');
-        console.log(error);
-      }
+  useEffect(() => {
+    if (userID) {
+      dispatch(fetchFollowers({userId: userID}));
+      dispatch(fetchFollowing({userId: userID}));
     }
+  }, [userID]);
+
+  const followingIds = useMemo(
+    () => new Set(following.map(u => u._id)),
+    [following],
+  );
+
+  const followersList = useSelector(selectDisplayFollowers);
+
+  const displayList = followersList.filter(u =>
+    u.handleName.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
+
+  const handleActionButton = useCallback(
+    async (item: UserProfile) => {
+      if (followingIds.has(item._id)) {
+        try {
+          const res = await dispatch(
+            createRoom({
+              name: '',
+              user_ids: [item._id],
+              type: 'waiting',
+            }),
+          ).unwrap();
+
+          const room = res.room;
+          const otherUsers = room.user_ids.filter(u => u._id !== userID);
+          const img1 = otherUsers[0]?.profilePic;
+          const img2 = room.user_ids.find(u => u._id === userID)?.profilePic;
+
+          navigation.navigate('MessageScreen', {
+            room: room._id,
+            img1,
+            img2,
+          });
+        } catch (error) {
+          console.log('Tạo room thất bại:', error);
+        }
+      } else {
+        try {
+          await dispatch(
+            relationAction({
+              targetId: item._id,
+              action: 'follow',
+              senderId: user?._id,
+              handleName: user?.handleName,
+            }),
+          ).unwrap();
+        } catch (error) {
+          GlobalAlertManager.show('Thất bại', 'Vui lòng thử lại sau');
+        }
+      }
+    },
+    [dispatch, followingIds, userID, user],
+  );
+
+  const renderItem: ListRenderItem<UserProfile> = ({item}) => {
+    const isMutual = followingIds.has(item._id);
+    return (
+      <View style={styles.userContainer}>
+        <TouchableOpacity style={styles.touchableInfo}>
+          {item.profilePic ? (
+            <Image source={{uri: item.profilePic}} style={styles.avatar} />
+          ) : (
+            <User size={styles.avatar.width || 40} color={color.text} />
+          )}
+          <View style={styles.userInfo}>
+            <Text style={[styles.handle, {color: color.text}]}>
+              {item.handleName}
+            </Text>
+            <Text style={[styles.username, {color: color.textSecondary}]}>
+              {item.username}
+            </Text>
+          </View>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[
+            styles.actionButton,
+            isMutual
+              ? [styles.messageButton, {borderColor: color.text}]
+              : styles.followBack,
+          ]}
+          onPress={() => handleActionButton(item)}>
+          <Text
+            style={[
+              styles.buttonText,
+              isMutual
+                ? [styles.messageText, {color: color.text}]
+                : styles.followText,
+            ]}>
+            {isMutual ? 'Bạn bè' : 'Theo dõi'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    );
   };
 
-  if (isLoading) {
+  if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color={color.text} />
+        <LoadingModal />
       </View>
     );
   }
 
-  if (isError) {
+  if (error) {
     return (
       <View style={styles.center}>
         <Text style={[styles.errorText, {color: color.text}]}>{error}</Text>
@@ -177,15 +158,11 @@ const FollowersTab = () => {
     );
   }
 
-  if (!followers || followers.length === 0) {
+  if (!followersList.length) {
     return (
       <View
         style={[styles.emptyContainer, {backgroundColor: color.background}]}>
-        <Image
-          source={require('../../../../assets/icon/block-user.png')}
-          style={styles.emptyImage}
-          resizeMode="contain"
-        />
+        <UserX size={styles.emptyImage?.width || 60} color={color.text} />
         <Text style={[styles.emptyTitle, {color: color.text}]}>
           Bạn chưa có người theo dõi
         </Text>
@@ -198,38 +175,63 @@ const FollowersTab = () => {
 
   return (
     <View style={{flex: 1, backgroundColor: color.background}}>
-      <View
-        style={[
-          styles.searchBarArea,
-          {backgroundColor: color.background, borderBottomColor: color.border},
-        ]}>
+      {followersList.length > 0 && (
         <View
           style={[
-            styles.searchBarContainer,
+            styles.searchBarArea,
+            {
+              backgroundColor: color.background,
+              borderBottomColor: color.border,
+            },
           ]}>
-          <TextInput
-            style={[
-              styles.searchBar,
-              {color: color.text, backgroundColor: color.lessBlack},
-            ]}
-            placeholder="Tìm kiếm"
-            placeholderTextColor={color.text}
-          />
-          <Image
-            source={require('../../../../assets/icon/search.png')}
-            style={[styles.searchIcon, {tintColor: color.text}]}
-          />
+          <View style={styles.searchBarContainer}>
+            <TextInput
+              ref={searchInputRef}
+              style={[
+                styles.searchBar,
+                {color: color.text, backgroundColor: color.lessBlack},
+              ]}
+              placeholder="Tìm kiếm"
+              placeholderTextColor={color.text}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+            <Search size={22} color={color.text} />
+            {searchQuery.length > 0 && (
+              <TouchableOpacity
+                style={styles.clearButton}
+                onPress={() => setSearchQuery('')}>
+                <X size={20} color={color.text} />
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
+      )}
+
+      {displayList.length === 0 && searchQuery.length && (
+        <View
+          style={[
+            styles.emptyContainer,
+            {backgroundColor: color.background, flex: 2, paddingTop: 150},
+          ]}>
+          <UserX size={styles.emptyImage?.width || 60} color={color.text} />
+          <Text style={[styles.emptyTitle, {color: color.text}]}>
+            Không tìm thấy tên người dùng
+          </Text>
+        </View>
+      )}
+
+      <View style={{flex: 1}}>
+        <FlashList
+          data={displayList}
+          keyExtractor={item => item._id}
+          renderItem={renderItem}
+          estimatedItemSize={50}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listContent}
+          extraData={followingIds}
+        />
       </View>
-      {}
-      <FlashList
-        data={followers}
-        keyExtractor={item => item._id}
-        renderItem={renderItem}
-        estimatedItemSize={50}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContent}
-      />
     </View>
   );
 };
@@ -297,13 +299,6 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
   },
-  searchIcon: {
-    height: 15,
-    width: 15,
-    position: 'absolute',
-    left: 10,
-    resizeMode: 'contain',
-  },
   searchBar: {
     flex: 1,
     paddingRight: 10,
@@ -351,5 +346,13 @@ const styles = StyleSheet.create({
   emptySubtitle: {
     fontSize: 14,
     textAlign: 'center',
+  },
+  clearButton: {
+    position: 'absolute',
+    right: Colors.spacing.m,
+    width: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

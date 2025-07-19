@@ -2,7 +2,6 @@ import React, {useCallback, useRef, useState} from 'react';
 import {
   View,
   Text,
-  Image,
   TextInput,
   StyleSheet,
   TouchableOpacity,
@@ -18,6 +17,12 @@ import {Room} from '@services/roomRedux/roomType';
 import MessageBoxStyles from '../../../src/StyleSheet/MessageBoxStyles';
 import {useTheme} from '../../../src/util/ThemeContext';
 import {Colors} from '@assets/color/Colors';
+import {
+  ArrowLeft,
+  MessageSquarePlus,
+  Search,
+  XCircle,
+} from 'lucide-react-native';
 
 export const PendingMessages: React.FC = () => {
   const styles = useProfileEditingStyles();
@@ -46,24 +51,12 @@ export const PendingMessages: React.FC = () => {
       {/* Header */}
       <View style={styles.headerRow}>
         <TouchableOpacity onPress={() => nav.goBack()}>
-          <Image
-            source={require('../../../assets/icon/left.png')}
-            style={styles.headerIcon}
-          />
+          <ArrowLeft size={22} color={color.text} />
         </TouchableOpacity>
         <Text style={styles.headerUsername}>{user?.handleName}</Text>
-        <TouchableOpacity>
-          <Image
-            source={require('../../../assets/icon/down.png')}
-            style={styles.headerSmallIcon}
-          />
-        </TouchableOpacity>
         <View style={styles.headerRightIcons}>
           <TouchableOpacity>
-            <Image
-              source={require('../../../assets/icon/new_mess.png')}
-              style={styles.headerIcon}
-            />
+            <MessageSquarePlus size={22} color={color.text} />
           </TouchableOpacity>
         </View>
       </View>
@@ -71,12 +64,7 @@ export const PendingMessages: React.FC = () => {
       {/* Search Bar */}
       <View style={styles.searchContainer}>
         <View style={styles2.searchBlock}>
-          <View style={styles2.iconBlock}>
-            <Image
-              style={styles2.icon}
-              source={require('../../../assets/icon/search.png')}
-            />
-          </View>
+          <Search size={22} color={color.text} />
           <TextInput
             ref={searchInputRef}
             placeholder="Tìm kiếm đoạn hội thoại"
@@ -92,10 +80,7 @@ export const PendingMessages: React.FC = () => {
             <TouchableOpacity
               style={styles2.clearButton}
               onPress={() => setSearchQuery('')}>
-              <Image
-                style={styles2.clearIcon}
-                source={require('../../../assets/icon/closer.png')}
-              />
+              <XCircle size={20} color={color.textSecondary} />
             </TouchableOpacity>
           )}
         </View>
@@ -106,7 +91,6 @@ export const PendingMessages: React.FC = () => {
         data={room}
         renderItem={({item}) => {
           const filteredUsers = item.user_ids.filter(u => u._id !== user?._id);
-
           const user1 = filteredUsers[0];
           const user2 = filteredUsers[1];
 
@@ -122,6 +106,7 @@ export const PendingMessages: React.FC = () => {
               latestMessage={item.latestMessage}
               img1={user1?.profilePic || ''}
               img2={user2?.profilePic || ''}
+              type={item.type}
             />
           );
         }}
@@ -131,26 +116,5 @@ export const PendingMessages: React.FC = () => {
     </View>
   );
 };
-
-const localStyles = StyleSheet.create({
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: 16,
-    marginBottom: 12,
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderColor: '#ccc',
-  },
-  searchIcon: {
-    width: 20,
-    height: 20,
-    marginRight: 10,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 16,
-  },
-});
 
 export default PendingMessages;

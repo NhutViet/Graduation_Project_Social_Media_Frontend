@@ -7,10 +7,8 @@ import {
   TouchableOpacity,
   Image,
   Dimensions,
-  Alert,
-  Modal,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   CameraRoll,
   PhotoIdentifier,
@@ -22,6 +20,17 @@ import {getAddPostStyles} from '../../StyleSheet/AddPostStyles';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+import CustomPopupModal, {
+  CustomPopupModalRef,
+} from '../../../components/Global/CustomPopupModal';
+import {
+  X,
+  ChevronDown,
+  Check,
+  GalleryHorizontal,
+  ImageOff,
+  Video,
+} from 'lucide-react-native';
 
 const menu: string[] = ['Tất cả', 'Thước phim', 'Hình ảnh'];
 
@@ -37,18 +46,18 @@ export const AddPost = () => {
   const [selectedMedia, setSelectedMedia] = useState<PhotoIdentifier | null>(
     null,
   );
-  
+
   const route = useRoute();
   const {type}: any = route.params || {};
-
+  const popupFilterRef = useRef<CustomPopupModalRef>(null);
   const [selectedItems, setSelectedItems] = useState<PhotoIdentifier[]>([]);
   const [isMultiSelect, setIsMultiSelect] = useState(false);
 
   //phân loại ảnh và video
   const [filter, setFilter] = useState(() => {
     console.log('typoe', type);
-    if(type === 'video') return 'Thước phim';
-    if (type === 'image') return 'Photos';
+    if (type === 'video') return 'Thước phim';
+    if (type === 'image') return 'Hình ảnh';
     return 'Tất cả';
   });
   const [showModalFilter, setShowModalFilter] = useState(false);
@@ -175,7 +184,10 @@ export const AddPost = () => {
           setSelectedMedia(selectedItems[selectedItems.length - 2]);
         } else {
           if (selectedItems.length >= 10) {
-            Alert.alert('Thông báo', 'Chỉ được chọn tối đa 10 ảnh!');
+            GlobalAlertManager.show(
+              'Thông báo',
+              'Chỉ được chọn tối đa 10 ảnh!',
+            );
             return;
           }
 
@@ -226,7 +238,7 @@ export const AddPost = () => {
     });
   };
 
-  const handleFilter = (filter: any) => {
+  const handleFilter = (filter: string) => {
     setFilter(filter);
     setShowModalFilter(false);
   };
@@ -236,10 +248,7 @@ export const AddPost = () => {
       <View style={styles.container}>
         <View style={styles.rowSpace}>
           <TouchableOpacity onPress={() => navigation.navigate('BottomTabs')}>
-            <Image
-              source={require('../../../assets/icon/closer.png')}
-              style={styles.iconR}
-            />
+            <X size={22} color={color.text} />
           </TouchableOpacity>
           <Text style={styles.title}>Bài đăng mới</Text>
           <TouchableOpacity onPress={handleNext}>
@@ -270,12 +279,8 @@ export const AddPost = () => {
             ]}>
             <TouchableOpacity
               style={styles.row}
-              onPress={() => setShowModalFilter(true)}>
+              onPress={() => popupFilterRef.current?.open()}>
               <Text style={styles.textR}>{filter}</Text>
-              <Image
-                source={require('../../../assets/icon/right.png')}
-                style={styles.iconRR}
-              />
             </TouchableOpacity>
             <TouchableOpacity
               onPress={toggleSelectMode}
@@ -283,18 +288,12 @@ export const AddPost = () => {
                 styles.btnCir,
                 {backgroundColor: isMultiSelect ? color.gray : 'transparent'},
               ]}>
-              <Image
-                source={require('../../../assets/icon/gallery.png')}
-                style={[styles.icon]}
-              />
+              <GalleryHorizontal size={22} color={color.text} />
             </TouchableOpacity>
           </View>
           {medias.length === 0 ? (
             <View style={styles.emtyContainer}>
-              <Image
-                source={require('../../../assets/icon/no_photo.png')}
-                style={styles.iconEmty}
-              />
+              <ImageOff size={60} color={color.gray} />
               <Text style={[styles.notFound]}>Không tìm thấy 🙂‍↔️!</Text>
             </View>
           ) : (
@@ -365,18 +364,16 @@ export const AddPost = () => {
                     )}
                     {/* Icon video */}
                     {item.node.type.startsWith('video') && (
-                      <Image
-                        source={require('../../../assets/icon/reels.png')}
+                      <Video
+                        size={22}
+                        color={color.white}
                         style={{
                           position: 'absolute',
                           bottom: 5,
                           right: 5,
-                          width: 20,
-                          height: 20,
-                          tintColor: color.white,
                           backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                          resizeMode: 'contain',
                           borderRadius: 3,
+                          padding: 2,
                         }}
                       />
                     )}
@@ -391,33 +388,30 @@ export const AddPost = () => {
         </View>
       </View>
 
-      {/* modal filter ---------------------------------------*/}
-      <Modal visible={showModalFilter} animationType="fade" transparent>
-        <View style={styles.modal}>
-          <View style={styles.modalContainer}>
-            <FlashList
-              data={menu}
-              estimatedItemSize={200}
-              showsVerticalScrollIndicator={false}
-              renderItem={item => {
-                return (
-                  <TouchableOpacity
-                    style={styles.filterContainer}
-                    onPress={() => handleFilter(item.item)}>
-                    <Text style={styles.textR}>{item.item}</Text>
-                    {filter === item.item && (
-                      <Image
-                        source={require('../../../assets/icon/check.png')}
-                        style={styles.iconCheck}
-                      />
-                    )}
-                  </TouchableOpacity>
-                );
-              }}
-            />
-          </View>
-        </View>
-      </Modal>
+      <CustomPopupModal
+        ref={popupFilterRef}
+        backgroundColor={color.background}
+        cancelText="Huỷ"
+        cancelTextColor="#ff3b30">
+        <FlashList
+          data={menu}
+          estimatedItemSize={40}
+          showsVerticalScrollIndicator={false}
+          renderItem={item => (
+            <TouchableOpacity
+              style={styles.filterContainer}
+              onPress={() => {
+                setFilter(item.item);
+                popupFilterRef.current?.close();
+              }}>
+              <Text style={styles.textR}>{item.item}</Text>
+              {filter === item.item && (
+                <Check size={22} color={color.primary} />
+              )}
+            </TouchableOpacity>
+          )}
+        />
+      </CustomPopupModal>
     </SafeAreaView>
   );
 };

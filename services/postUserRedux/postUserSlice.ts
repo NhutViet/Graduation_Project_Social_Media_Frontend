@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { ReqGetPosts, ResGetPost, ResGetPostsAndReels, ResGetReels } from "./postUserType";
+import { ReqGetPosts, ResGetPost, ResGetPostsAndReels, ResGetReels, ReqGetLikedPosts, ResGetLikedPosts } from "./postUserType";
 import axiosInstance from "../axiosInstance";
 import { API } from "../api";
 
@@ -74,4 +74,25 @@ export const getPostsAndReelsOfUser = createAsyncThunk<
             return rejectWithValue({message: error?.response?.data?.message || 'Lấy bài viết và thước phim thất bại.'});
         }
     },
+);
+
+export const getLikedPosts = createAsyncThunk<
+  ResGetLikedPosts,
+  ReqGetLikedPosts,
+  { rejectValue: { message: string } }
+>(
+  'posts/user/getLikedPosts',
+  async ({ page = 1, limit = 20, timeRange, sortOrder, refreshToken }, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.get(API.GET_LIKED_POSTS, {
+        params: { page, limit, timeRange, sortOrder },
+        headers: { Authorization: `Bearer ${refreshToken}` },
+      });
+      return res.data as ResGetLikedPosts;
+    } catch (error: any) {
+      return rejectWithValue({
+        message: error?.response?.data?.message || 'Lấy bài đã thích thất bại',
+      });
+    }
+  }
 );

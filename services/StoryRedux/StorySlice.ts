@@ -148,6 +148,7 @@ export const fetchHighlightStory = createAsyncThunk<
   {rejectValue: string}
 >('stories/getHighlighrStory', async ({userId}, {rejectWithValue}) => {
   try {
+    console.log('🔍 Fetching highlight stories for userId:', userId);
     const response = await axiosInstance.get(
       `/stories/highlights/user/${userId}`,
       {
@@ -156,8 +157,17 @@ export const fetchHighlightStory = createAsyncThunk<
         },
       },
     );
+    console.log('🔍 API response:', {
+      status: response.status,
+      dataLength: response.data?.data?.length || 0,
+      data: response.data?.data?.map((h: Story) => ({
+        id: h._id,
+        name: h.collectionName,
+      })),
+    });
     return response.data.data;
   } catch (error: any) {
+    console.error('🔍 Error fetching highlight stories:', error);
     return rejectWithValue(
       error.response.data?.message || 'Lỗi không lấy được highlight story',
     );
@@ -183,6 +193,133 @@ export const deleteStory = createAsyncThunk<
   } catch (error: any) {
     return rejectWithValue(
       error.response?.data?.message || 'Không thể xoá story',
+    );
+  }
+});
+
+export const createStory = createAsyncThunk<
+  Story,
+  {
+    mediaUrl: string;
+    music?: {
+      _id: string;
+      time_start: number;
+      time_end: number;
+    };
+    content?: {
+      text: string;
+      x: number;
+      y: number;
+    };
+    tags?: {
+      user: string; // Chỉ là Mongo ID string
+      position: {
+        x: number;
+        y: number;
+      };
+    }[];
+  },
+  {rejectValue: string}
+>('stories/createStory', async (payload, {rejectWithValue}) => {
+  try {
+    const response = await axiosInstance.post('/stories/create', payload, {
+      headers: {
+        token: 'refresh',
+      },
+    });
+    return response.data.data;
+  } catch (error: any) {
+    return rejectWithValue(
+      error.response?.data?.message || 'Không thể tạo story',
+    );
+  }
+});
+
+export const shareStory = createAsyncThunk<
+  {shareTo: string[]; content: string},
+  {
+    roomIds: string[];
+    message?: string;
+    media: {
+      type: 'image' | 'video';
+      url: string;
+    };
+  },
+  {rejectValue: string}
+>('stories/shareStory', async (payload, {rejectWithValue}) => {
+  try {
+    const response = await axiosInstance.post(API.SHARE_STORY, payload, {
+      headers: {
+        token: 'refresh',
+      },
+    });
+    return response.data.data;
+  } catch (error: any) {
+    return rejectWithValue(
+      error.response?.data?.message || 'Không thể chia sẻ story',
+    );
+  }
+});
+
+export const deleteHighlightStory = createAsyncThunk<
+  {highlightId: string},
+  {highlightId: string},
+  {rejectValue: string}
+>('stories/deleteHighlightStory', async ({highlightId}, {rejectWithValue}) => {
+  try {
+    console.log('🔍 Deleting highlight with ID:', highlightId);
+    const response = await axiosInstance.patch(
+      API.DELETE_HIGHLIGHT_STORY,
+      {_id: highlightId},
+      {
+        headers: {
+          token: 'refresh',
+        },
+      },
+    );
+    console.log('🔍 Delete highlight response:', response.data);
+    return {highlightId};
+  } catch (error: any) {
+    console.error('🔍 Delete highlight error:', {
+      status: error.response?.status,
+      data: error.response?.data,
+      message: error.response?.data?.message,
+    });
+    return rejectWithValue(
+      error.response?.data?.message || 'Không thể xóa highlight story',
+    );
+  }
+});
+
+export const updateHighlightStory = createAsyncThunk<
+  Story,
+  {
+    highlightId: string;
+    collectionName?: string;
+    thumbnail?: string;
+    storyId?: string[];
+  },
+  {rejectValue: string}
+>('stories/updateHighlightStory', async (payload, {rejectWithValue}) => {
+  try {
+    const response = await axiosInstance.patch(
+      API.UPDATE_HIGHLIGHT_STORY,
+      {
+        _id: payload.highlightId, 
+        collectionName: payload.collectionName,
+        thumbnail: payload.thumbnail,
+        storyId: payload.storyId,
+      },
+      {
+        headers: {
+          token: 'refresh',
+        },
+      },
+    );
+    return response.data.data;
+  } catch (error: any) {
+    return rejectWithValue(
+      error.response?.data?.message || 'Không thể cập nhật highlight story',
     );
   }
 });

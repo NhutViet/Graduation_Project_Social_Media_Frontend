@@ -1,5 +1,5 @@
 import {createAsyncThunk} from '@reduxjs/toolkit';
-import {User, UserRes, PublicUserRes, EditUserDto} from './userTypes';
+import {UserRes, PublicUserRes, EditUserDto} from './userTypes';
 import axiosInstance from '../axiosInstance';
 import {API} from '../api';
 import {resetUser} from './userReducer';
@@ -31,7 +31,7 @@ export const fetchLogin = createAsyncThunk<
     };
   } catch (error: any) {
     return rejectWithValue({
-      message: error.response?.data?.message || 'Login failed',
+      message: error.response?.data?.message || 'Đăng nhập thất bại',
     });
   }
 });
@@ -55,7 +55,7 @@ export const fetchCheckRefreshToken = createAsyncThunk<
     return res.data;
   } catch (error: any) {
     return rejectWithValue({
-      message: error.response?.data?.message || 'Check refresh token failed',
+      message: error.response?.data?.message || 'Kiểm tra token thất bại',
     });
   }
 });
@@ -80,7 +80,7 @@ export const fetchLogout = createAsyncThunk<
 
     return;
   } catch (error: any) {
-    const message = error.response?.data?.message || 'Logout failed!!!';
+    const message = error.response?.data?.message || 'Đang xuất thất bại';
     return rejectWithValue({message});
   }
 });
@@ -111,7 +111,7 @@ export const fetchRegister = createAsyncThunk<
     };
   } catch (error: any) {
     return rejectWithValue({
-      message: error.response?.data?.message || 'Registration failed',
+      message: error.response?.data?.message || 'Đăng ký thất bại',
     });
   }
 });
@@ -127,7 +127,7 @@ export const fetchCheckEmail = createAsyncThunk<
     return res.data;
   } catch (error: any) {
     return rejectWithValue({
-      message: error.response?.data?.message || 'Check email failed',
+      message: error.response?.data?.message || 'Kiểm tra email thất bại',
     });
   }
 });
@@ -148,7 +148,7 @@ export const getAccessTokenFromRefresh = async (): Promise<string | null> => {
 
     return accessToken;
   } catch (error) {
-    console.error('Failed to refresh access token', error);
+    console.error('Thất bại khi lấy token', error);
     return null;
   }
 };
@@ -191,7 +191,107 @@ export const getPublicProfile = createAsyncThunk<
     return res.data;
   } catch (error: any) {
     return rejectWithValue({
-      message: error.response?.data?.message || 'Failed to get public profile',
+      message:
+        error.response?.data?.message || 'Lấy thông tin người dùng thất bại',
     });
   }
 });
+
+export const fetchUserIdByHandleName = createAsyncThunk<
+  {userId: string},
+  {handleName: string},
+  {rejectValue: {message: string}}
+>('users/fetchUserIdByHandleName', async ({handleName}, {rejectWithValue}) => {
+  try {
+    const res = await axiosInstance.get(
+      `${API.GET_USER_ID_BY_HANDLE}/${handleName}`,
+      {
+        headers: {
+          token: 'refresh',
+        },
+      },
+    );
+
+    return {userId: res.data.userId};
+  } catch (error: any) {
+    return rejectWithValue({
+      message: error.response?.data?.message || 'Lấy ID người dùng thất bại',
+    });
+  }
+});
+
+type InitForgotPasswordArgs =
+  | { email: string; newPassword: string; phone?: never }
+  | { phone: string; newPassword: string; email?: never }
+
+export const fetchInitForgotPassword = createAsyncThunk<
+  { token: string },
+  InitForgotPasswordArgs,
+  { rejectValue: { message: string } }
+>(
+  'auth/initForgotPassword',
+  async ({ email, phone, newPassword }, { rejectWithValue }) => {
+    // ensure exactly one of email/phone is provided
+    if ((!email && !phone) || (email && phone)) {
+      return rejectWithValue({
+        message: 'Vui lòng cung cấp email hoặc số điện thoại, không được cả hai.'
+      })
+    }
+
+    try {
+      // build payload with the correct field
+      const payload: Record<string, string> = { newPassword }
+      if (email) payload.email = email
+      else payload.phone = phone!
+
+      const res = await axiosInstance.post<{ token: string }>(
+        API.INIT_FORGOT_PASSWORD,
+        payload
+      )
+      return { token: res.data.token }
+    } catch (error: any) {
+      return rejectWithValue({
+        message:
+          error.response?.data?.message ||
+          'Gửi mã xác nhận không thành công.'
+      })
+    }
+  }
+)
+
+export const fetchConfirmNewPassword = createAsyncThunk<
+  { message: string; newPassword: string },
+  { token: string; code: string },
+  { rejectValue: { message: string } }
+>('auth/confirmNewPassword', async ({ token, code }, { rejectWithValue }) => {
+  try {
+    const res = await axiosInstance.post<{ message: string; newPassword: string }>(
+      API.CONFIRM_NEW_PASSWORD,
+      { token, code }
+    );
+    return { message: res.data.message, newPassword: res.data.newPassword };
+  } catch (error: any) {
+    return rejectWithValue({ message: error.response?.data?.message || 'Confirm new password failed' });
+  }
+});
+
+export const validateUserId = createAsyncThunk<
+  { message: string; success: boolean },
+  { userId: string },
+  { rejectValue: { message: string } }
+>('users/validate', async ({userId}, { rejectWithValue }) => {
+  try {
+    const res = await axiosInstance.get(`${API.VALIDATE_USER}/${userId}`, {
+      headers: {
+        token: 'refresh',
+      },
+    });
+
+    return res.data;
+  } catch (error: any){
+    return rejectWithValue({
+      message:
+        error.response?.data?.message || 'Lỗi khi xác thực người dùng',
+    });
+  }
+})

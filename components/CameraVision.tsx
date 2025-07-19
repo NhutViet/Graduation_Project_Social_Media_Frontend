@@ -1,8 +1,20 @@
-import React, { forwardRef, useImperativeHandle, useRef, useEffect, useState } from 'react';
-import { StyleSheet, View, ActivityIndicator, Platform } from 'react-native';
-import { Camera, useCameraDevices, PhotoFile, VideoFile } from 'react-native-vision-camera';
-import { PermissionsAndroid } from 'react-native';
-import { useCameraStyles } from '../src/StyleSheet/CameraStyles';
+import React, {
+  forwardRef,
+  useImperativeHandle,
+  useRef,
+  useEffect,
+  useState,
+} from 'react';
+import {StyleSheet, View, Platform} from 'react-native';
+import {
+  Camera,
+  useCameraDevices,
+  PhotoFile,
+  VideoFile,
+} from 'react-native-vision-camera';
+import {PermissionsAndroid} from 'react-native';
+import {useCameraStyles} from '../src/StyleSheet/CameraStyles';
+import LoadingModal from './Global/LoadingModal';
 
 type CameraVisionHandle = {
   takePhoto: () => Promise<PhotoFile>;
@@ -21,7 +33,7 @@ type CameraVisionProps = {
 };
 
 const CameraVision = forwardRef<CameraVisionHandle, CameraVisionProps>(
-  ({ style, isActive = true, frameProcessor }, ref) => {
+  ({style, isActive = true, frameProcessor}, ref) => {
     const cameraRef = useRef<Camera | null>(null);
     const devices = useCameraDevices();
     const styles = useCameraStyles();
@@ -31,16 +43,18 @@ const CameraVision = forwardRef<CameraVisionHandle, CameraVisionProps>(
     useImperativeHandle(ref, () => ({
       takePhoto: async () => {
         if (!cameraRef.current) throw new Error('Camera ref not available');
-        return cameraRef.current.takePhoto({ flash: 'off' });
+        return cameraRef.current.takePhoto({flash: 'off'});
       },
-      startRecording: (options = {
-        onRecordingError: function (error: Error): void {
-          throw new Error('Function not implemented.');
+      startRecording: (
+        options = {
+          onRecordingError: function (error: Error): void {
+            throw new Error('Function not implemented.');
+          },
+          onRecordingFinished: function (video: VideoFile): void {
+            throw new Error('Function not implemented.');
+          },
         },
-        onRecordingFinished: function (video: VideoFile): void {
-          throw new Error('Function not implemented.');
-        }
-      }) => {
+      ) => {
         cameraRef.current?.startRecording(options);
       },
       stopRecording: () => {
@@ -76,16 +90,16 @@ const CameraVision = forwardRef<CameraVisionHandle, CameraVisionProps>(
         try {
           // use the native permission API for Android
           const androidPermission = await requestCameraPermission();
-          
+
           // use the Camera API's methods without directly comparing status values
           let iosCameraPermission = true;
-          
+
           if (Platform.OS === 'ios') {
             // for iOS, request permission without comparing enum values
             await Camera.requestCameraPermission();
             // assume success if no error is thrown, thus avoids the type comparison issue
           }
-          
+
           setHasPermission(androidPermission && iosCameraPermission);
         } catch (error) {
           console.error('Error requesting camera permission:', error);
@@ -97,7 +111,7 @@ const CameraVision = forwardRef<CameraVisionHandle, CameraVisionProps>(
     if (!device || !hasPermission) {
       return (
         <View style={[styles.loaderContainer, style]}>
-          <ActivityIndicator size="large" color="#0000ff" />
+          <LoadingModal />
         </View>
       );
     }
@@ -116,8 +130,8 @@ const CameraVision = forwardRef<CameraVisionHandle, CameraVisionProps>(
         />
       </View>
     );
-  }
+  },
 );
 
-export type { CameraVisionHandle };
+export type {CameraVisionHandle};
 export default CameraVision;

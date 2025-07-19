@@ -1,12 +1,10 @@
 import React, {useState, useEffect} from 'react';
 import {
-  Image,
   SafeAreaView,
   Text,
   TextInput,
   TouchableOpacity,
   View,
-  ActivityIndicator,
 } from 'react-native';
 import {useNavigation, NavigationProp} from '@react-navigation/native';
 import {FlashList} from '@shopify/flash-list';
@@ -23,6 +21,9 @@ import {Modalize} from 'react-native-modalize';
 import ModalIsBlock from './Components/ModalIsBlock';
 import {Colors} from '../../../assets/color/Colors';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+import {UserProfile} from '@services/relationRedux/relationTypes';
+import {ArrowLeft, Search} from 'lucide-react-native';
+import LoadingModal from '../../../components/Global/LoadingModal';
 
 export const BlockUser = () => {
   const {theme} = useTheme();
@@ -37,7 +38,7 @@ export const BlockUser = () => {
   );
   const [listUser, setListUser] = useState(following);
   const [searchText, setSearchText] = useState('');
-  const [userBlock, setUserBlock] = useState<any | null>(null);
+  const [userBlock, setUserBlock] = useState<UserProfile | null>(null);
   const modalRef = React.useRef<Modalize>(null);
 
   // fetch on focus
@@ -90,15 +91,12 @@ export const BlockUser = () => {
     <SafeAreaView style={styles.container}>
       {loading && (
         <View style={styles.loaderOverlay}>
-          <ActivityIndicator size="large" />
+          <LoadingModal />
         </View>
       )}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Image
-            source={require('../../../assets/icon/left.png')}
-            style={styles.iconBack}
-          />
+          <ArrowLeft size={22} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.title}>Chặn tài khoản</Text>
         <View style={{width: 14}} />
@@ -111,10 +109,7 @@ export const BlockUser = () => {
           placeholderTextColor={colors.textSecondary}
           style={styles.inputBox}
         />
-        <Image
-          source={require('../../../assets/icon/search.png')}
-          style={styles.iconSearch}
-        />
+        <Search size={20} color={colors.text} style={styles.iconSearch} />
         {searchText !== '' && (
           <TouchableOpacity onPress={() => setSearchText('')}>
             <Text style={styles.cancel}>Hủy</Text>

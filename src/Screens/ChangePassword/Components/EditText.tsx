@@ -1,7 +1,6 @@
 import {
   Image,
   StyleSheet,
-  Text,
   TextInput,
   TouchableOpacity,
   View,
@@ -9,8 +8,16 @@ import {
 import React, {useState} from 'react';
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
+import {Eye, EyeOff} from 'lucide-react-native';
 
-const EditText = (props: any) => {
+interface EditTextProps {
+  placeholder?: string;
+  password?: boolean;
+  value: string;
+  valueChange: (text: string) => void;
+}
+
+const EditText = (props: EditTextProps) => {
   const {theme} = useTheme();
   const color = Colors[theme];
   const {placeholder, password, value, valueChange} = props;
@@ -34,17 +41,12 @@ const EditText = (props: any) => {
       {password && (
         <TouchableOpacity
           style={styles.icon}
-          onPress={() => {
-            setIsVibisblePass(!isVisiblePass);
-          }}>
-          <Image
-            source={
-              isVisiblePass
-                ? require('../../../../assets/icon/eye-filled.png')
-                : require('../../../../assets/icon/eye-invisible-filled.png')
-            }
-            style={{width: 20, height: 15, tintColor: color.textSecondary}}
-          />
+          onPress={() => setIsVibisblePass(!isVisiblePass)}>
+          {isVisiblePass ? (
+            <Eye size={20} color={color.textSecondary} />
+          ) : (
+            <EyeOff size={20} color={color.textSecondary} />
+          )}
         </TouchableOpacity>
       )}
     </View>

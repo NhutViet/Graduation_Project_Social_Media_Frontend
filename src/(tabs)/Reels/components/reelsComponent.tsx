@@ -1,276 +1,215 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Colors } from '../../../../assets/color/Colors';
-import { useNavigation } from '@react-navigation/native';
+import React, {memo, useCallback, useState} from 'react';
+import {
+  Dimensions,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
 import Video from 'react-native-video';
-import { Dimensions } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '../../../../services/store';
-import {
-  addLikedPost,
-  removeLikedPost,
-} from '../../../../services/reactionRedux/reactionReducer';
-import {
-  likePost,
-  unlikePost,
-} from '../../../../services/reactionRedux/reactionSlice';
-import { useTheme } from '../../../util/ThemeContext';
-import { relationAction } from '@services/relationRedux/relationSlice';
+import {Colors} from '../../../../assets/color/Colors';
+import HashtagText from '../../../../components/HashtagText';
+import {useTheme} from '../../../util/ThemeContext';
+import {formatNumber} from '../../../../src/(tabs)/Home/util';
 import TagMarker from './TagMarker';
+import {
+  Heart,
+  MessageCircle,
+  MoreVertical,
+  Music,
+  Share2,
+  UserCircle2,
+  Play,
+} from 'lucide-react-native';
 
-const width = Dimensions.get('window').width;
-const height = Dimensions.get('window').height - 60;
+const {width} = Dimensions.get('window');
 
 const MemoizedTagMarker = memo(TagMarker);
 const MemoizedImage = memo(Image);
 const MemoizedText = memo(Text);
 
-/**
- * Both useCallBack && useMemo uses in this file is just micro improvements
- * useCallBack: to avoid re-rendering the component when the function is called
- * useMemo: to avoid re-rendering the component when the value is changed
- * not much improvement than last time
- */
-
 const ReelsComponent = memo((props: any) => {
   const {
     _id,
     caption,
-    share,
     media,
     user,
-    muted,
+    likeCount,
+    commentCount,
+    isBookmarked,
+    isLiked,
+    isFollow,
+    isFollowing,
+    isCurrentUser,
+    share,
+    music,
     currentVisible,
     isFocused,
-    showBottomSheet,
-    likeCount,
-    isLike,
-    commentCount,
+    containerHeight,
+    muted = false,
+    onLike,
     openComment,
-    // openReactionModal,
-    isFollow,
+    onFollow,
+    onProfilePress,
+    onTagPress,
+    onMenu,
     openShareModal,
+    setSkipReload,
   } = props;
 
   const navigation = useNavigation<any>();
-  const dispatch = useDispatch<AppDispatch>();
-  const { theme } = useTheme();
+  const {theme} = useTheme();
   const color = Colors[theme];
+  const [paused, setPaused] = useState<boolean>(false);
 
-  // Selectors
-  const { likePosts } = useSelector((state: RootState) => state.reactions);
-  const currentUser = useSelector((state: RootState) => state.user.user);
-  const { refreshToken } = useSelector((state: RootState) => state.user);
-
-  // State
-  const isLikedFromRedux = useSelector((state: RootState) =>
-    state.reactions.likePosts.includes(_id),
-  );
-  const [isLiked, setIsLiked] = useState(isLikedFromRedux);
-  const [follow, setFollow] = useState(isFollow);
-  const mine = useSelector((state: RootState) => state.user.user);
-  const [numLike, setNumLike] = useState(likeCount);
-
-  const formatNumber = useCallback((num: number): string => {
-    if (num >= 1_000_000) {
-      return (num / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'm';
-    }
-    if (num >= 1_000) {
-      return (num / 1_000).toFixed(1).replace(/\.0$/, '') + 'k';
-    }
-    return num?.toString() || '0';
+  const handleTogglePause = useCallback(() => {
+    setPaused(prev => !prev);
   }, []);
 
-  useEffect(() => {
-    setIsLiked(isLikedFromRedux);
-  }, [isLikedFromRedux]);
+  const handleLike = useCallback(
+    () => onLike(_id, isLiked),
+    [_id, isLiked, onLike],
+  );
+  const handleFollow = useCallback(
+    () => onFollow(user._id, isFollowing),
+    [user._id, isFollowing, onFollow],
+  );
+  const handleProfilePress = useCallback(
+    () => onProfilePress(user._id),
+    [user._id, onProfilePress],
+  );
+  const handleTagPress = useCallback(
+    (userId: string) => onTagPress(userId),
+    [onTagPress],
+  );
 
-  useEffect(() => {
-    if (isLike) {
-      dispatch(addLikedPost(_id));
-    } else {
-      dispatch(removeLikedPost({ postId: _id }));
-    }
-  }, [_id, isLike, dispatch]);
+  const renderProfileImage = useCallback(
+    () =>
+      user.profilePic ? (
+        <MemoizedImage style={styles.img} source={{uri: user.profilePic}} />
+      ) : (
+        <UserCircle2 size={40} color={Colors.white} />
+      ),
+    [user.profilePic],
+  );
 
-  useEffect(() => {
-    setNumLike(likeCount);
-  }, [likeCount]);
+  const renderFollowButton = useCallback(
+    () =>
+      !isCurrentUser && (
+        <TouchableOpacity onPress={handleFollow} style={styles.btnFollow}>
+          <MemoizedText style={{fontSize: 14, color: Colors.white}}>
+            {isFollowing ? 'Đang theo dõi' : 'Theo dõi'}
+          </MemoizedText>
+        </TouchableOpacity>
+      ),
+    [isCurrentUser, isFollowing, handleFollow],
+  );
 
-  const handleLike = useCallback(async () => {
-    const action = isLiked ? unlikePost : likePost;
-    const newLikeCount = isLiked ? numLike - 1 : numLike + 1;
-
-    setIsLiked(!isLiked);
-    setNumLike(newLikeCount);
-
-    try {
-      await dispatch(action({
-        postId: _id,
-        refreshToken,
-        receiverId: user?._id,
-        handleName: currentUser?.handleName ?? '',
-      })).unwrap();
-
-      dispatch(isLiked ? removeLikedPost({ postId: _id }) : addLikedPost(_id));
-    } catch (error) {
-      setNumLike(likeCount);
-      setIsLiked(likePosts.includes(_id));
-    }
-  }, [isLiked, _id, currentUser, user, dispatch, likeCount, likePosts, refreshToken, numLike]);
-
-  const toggleFollow = useCallback(async () => {
-    const newFollowState = !follow;
-    setFollow(newFollowState);
-
-    try {
-      await dispatch(
-        relationAction({
-          targetId: user._id,
-          senderId: mine?._id,
-          handleName: mine?.handleName,
-          action: newFollowState ? 'follow' : 'unfollow',
-        })
-      ).unwrap();
-    } catch (error) {
-      setFollow(follow);
-    }
-  }, [follow, user._id, dispatch]);
-
-  const handleProfilePress = useCallback(() => {
-    navigation.navigate('ProfileComp', { userID: user._id });
-  }, [navigation, user._id]);
-
-  const handleTagPress = useCallback((userId: string) => {
-    navigation.navigate('ProfileComp', { userID: userId });
-  }, [navigation]);
-
-  // No need to view people Who likes this video anymore.
-  // const handleReactionModal = useCallback(() => {
-  //   openReactionModal(_id, isLiked);
-  // }, [_id, isLiked, openReactionModal]);
-
-  // Render functions for better readability
-  const renderProfileImage = useCallback(() => (
-    user.profilePic ? (
-      <MemoizedImage style={styles.img} source={{ uri: user.profilePic }} />
-    ) : (
-      <MemoizedImage
-        style={styles.img}
-        source={require('../../../../assets/icon/account.png')}
-      />
-    )
-  ), [user.profilePic]);
-
-  const renderFollowButton = useCallback(() => (
-    user._id !== currentUser?._id && (
-      <TouchableOpacity onPress={toggleFollow} style={styles.btnFollow}>
-        <MemoizedText style={{ fontSize: 14, color: Colors.white }}>
-          {follow ? 'Đang theo dõi' : 'Theo dõi'}
-        </MemoizedText>
-      </TouchableOpacity>
-    )
-  ), [user._id, currentUser?._id, follow, toggleFollow]);
-
-  const renderActionButton = useCallback((
-    iconSource: any,
-    count: number,
-    onPress: () => void,
-    tintColor?: string,
-  ) => (
-    <View style={[styles.sectionContainer, styles.topSection]}>
-      <TouchableOpacity style={styles.iconContainer} onPress={onPress}>
-        <MemoizedImage
-          style={[styles.icon, tintColor ? { tintColor } : {}]}
-          source={iconSource}
-        />
-      </TouchableOpacity>
-      <TouchableOpacity onPress={onPress}>
-        <MemoizedText style={styles.textNormal}>{formatNumber(count || 0)}</MemoizedText>
-      </TouchableOpacity>
-    </View>
-  ), [formatNumber]);
+  const renderActionButton = useCallback(
+    (
+      IconComponent: React.ElementType,
+      count: number,
+      onPress: () => void,
+      iconColor?: string,
+      filled?: boolean,
+    ) => (
+      <View style={[styles.sectionContainer, styles.topSection]}>
+        <TouchableOpacity style={styles.iconContainer} onPress={onPress}>
+          <IconComponent
+            size={26}
+            color={iconColor || Colors.white}
+            fill={filled ? iconColor || Colors.white : 'none'}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={onPress}>
+          <MemoizedText style={styles.textNormal}>
+            {formatNumber(count || 0)}
+          </MemoizedText>
+        </TouchableOpacity>
+      </View>
+    ),
+    [],
+  );
 
   return (
-    <View style={styles.container}>
-      <View style={styles.video}>
+    <View style={[styles.container, {height: containerHeight}]}>
+      <View style={[styles.videoWrapper, {height: containerHeight}]}>
         <Video
-          source={{ uri: media[0]?.videoUrl }}
+          source={{uri: media[0]?.videoUrl}}
           resizeMode="contain"
-          style={{ width: '100%', height: '100%' }}
+          style={StyleSheet.absoluteFill}
           repeat
-          paused={!currentVisible || !isFocused}
+          paused={!currentVisible || !isFocused || paused}
           muted={muted}
-          maxBitRate={200000}
-          progressUpdateInterval={500}
+          onError={e => console.warn(e)}
+          playInBackground={false}
+          playWhenInactive={false}
+          hideShutterView
         />
-        <View style={styles.tagOverlay}>
-          {media[0]?.tags?.map((tag: any) => (
-            <MemoizedTagMarker
-              key={tag._id}
-              tag={tag}
-              onPress={handleTagPress}
-            />
-          ))}
+        <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
+          <TouchableOpacity
+            activeOpacity={1}
+            style={[
+              StyleSheet.absoluteFill,
+              styles.centered,
+              {backgroundColor: paused ? 'rgba(0,0,0,0.25)' : 'transparent'},
+            ]}
+            onPress={handleTogglePause}>
+            {paused && <Play size={30} color={Colors.white} />}
+          </TouchableOpacity>
         </View>
       </View>
-      <View style={styles.bottomContainer}>
+
+      <View style={styles.tagOverlay}>
+        {media[0]?.tags?.map((tag: any) => (
+          <MemoizedTagMarker key={tag._id} tag={tag} onPress={handleTagPress} />
+        ))}
+      </View>
+
+      <View style={styles.bottomOverlay}>
         <View style={styles.block1}>
-          <View style={styles.rowContainer}>
+          <View style={[styles.rowContainer, {marginBottom: 10}]}>
             <TouchableOpacity
               style={styles.imgContainer}
-              onPress={handleProfilePress}
-            >
+              onPress={handleProfilePress}>
               {renderProfileImage()}
             </TouchableOpacity>
-            <MemoizedText style={styles.name}>{user.handleName}</MemoizedText>
+            <MemoizedText style={styles.name}>{user?.handleName}</MemoizedText>
             {renderFollowButton()}
           </View>
-          <MemoizedText style={styles.textNormal} numberOfLines={1}>
-            {caption}
-          </MemoizedText>
+          <HashtagText
+            text={caption}
+            clickable
+            baseStyle={styles.textNormal}
+            hashtagColor={Colors.hashtag}
+            hashtagStyle={{fontWeight: '600'}}
+            setSkipReload={setSkipReload}
+            navigation={navigation}
+          />
         </View>
 
         <View style={styles.block2}>
           {renderActionButton(
-            isLiked
-              ? require('../../../../assets/icon/heart_fill.png')
-              : require('../../../../assets/icon/heart.png'),
-            numLike,
+            Heart,
+            likeCount,
             handleLike,
-            isLiked ? color.error : '#fff'
+            isLiked ? color.error : '#fff',
+            isLiked,
           )}
-
-          {renderActionButton(
-            require('../../../../assets/icon/comment.png'),
-            commentCount,
-            openComment
-          )}
-
-          {renderActionButton(
-            require('../../../../assets/icon/share.png'),
-            share,
-            openShareModal
-          )}
-
+          {renderActionButton(MessageCircle, commentCount, openComment)}
+          {renderActionButton(Share2, share, openShareModal)}
           <View style={styles.sectionContainer}>
-            <TouchableOpacity style={styles.iconContainer} onPress={showBottomSheet}>
-              <MemoizedImage
-                style={styles.icon}
-                source={require('../../../../assets/icon/menu-dots-vertical.png')}
-              />
+            <TouchableOpacity style={styles.iconContainer} onPress={onMenu}>
+              <MoreVertical size={26} color={Colors.white} />
             </TouchableOpacity>
           </View>
-
           <View style={styles.sectionContainer}>
             <TouchableOpacity
               style={styles.iconMusicContainer}
-              onPress={() => navigation.navigate('SaveMusic')}
-            >
-              <MemoizedImage
-                style={styles.icon}
-                source={require('../../../../assets/icon/musical-note.png')}
-              />
+              onPress={() => navigation.navigate('SaveMusic')}>
+              <Music size={18} color={Colors.white} />
             </TouchableOpacity>
           </View>
         </View>
@@ -280,56 +219,58 @@ const ReelsComponent = memo((props: any) => {
 });
 
 const styles = StyleSheet.create({
-  btnFollow: {
-    paddingHorizontal: 12,
-    paddingVertical: 2,
+  container: {
+    width,
+    backgroundColor: Colors.black,
+    overflow: 'hidden',
+  },
+  videoPlayer: {
+    width,
+    backgroundColor: Colors.black,
+    position: 'absolute',
+  },
+  videoWrapper: {
+    width,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 5,
-    backgroundColor: Colors.transparent,
-    borderWidth: 1,
-    marginLeft: 10,
-    borderColor: Colors.white,
   },
-  textNormal: {
-    fontSize: 16,
-    color: Colors.white,
-    marginTop: 5,
-  },
-  container: {
-    position: 'relative',
-    width: width,
-    height: height,
-    backgroundColor: Colors.black,
-  },
-  rowContainer: {
-    flexDirection: 'row',
+  centered: {
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  iconContainer: {
-    width: 25,
-    height: 25,
-  },
-  icon: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'contain',
-    tintColor: Colors.white,
-  },
-  bottomContainer: {
+  tagOverlay: {
     position: 'absolute',
-    width: width,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  bottomOverlay: {
+    position: 'absolute',
+    width,
     bottom: 0,
     paddingBottom: 20,
     paddingHorizontal: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
-    backgroundColor: Colors.transparent,
-    zIndex: 1,
+    zIndex: 10,
   },
   block1: {
     width: '80%',
+  },
+  block2: {
+    flexDirection: 'column',
+  },
+  rowContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   imgContainer: {
     width: 40,
@@ -347,34 +288,43 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: Colors.white,
   },
-  block2: {
-    flexDirection: 'column',
+  btnFollow: {
+    paddingHorizontal: 12,
+    paddingVertical: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 5,
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    marginLeft: 10,
+    borderColor: Colors.white,
+  },
+  textNormal: {
+    fontSize: 16,
+    color: Colors.white,
+    marginTop: 5,
+  },
+  iconContainer: {
+    width: 25,
+    height: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   sectionContainer: {
-    marginTop: 20,
+    marginTop: 26,
   },
   topSection: {
     alignItems: 'center',
   },
   iconMusicContainer: {
-    width: 25,
-    height: 25,
-    padding: 5,
+    width: 26,
+    height: 26,
     borderRadius: 2,
     borderColor: Colors.white,
     borderWidth: 1,
-  },
-  video: {
-    flex: 1,
-  },
-  tagOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 
-export default ReelsComponent;
+export default memo(ReelsComponent);

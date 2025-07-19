@@ -1,75 +1,74 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
-  Image,
   Switch,
   ScrollView,
   SafeAreaView,
+  Alert,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { useTheme } from '../../../util/ThemeContext';
-import { useNotificationSettingsStyles } from '../../../StyleSheet/NotificationSetingsStyles';
+import {useNavigation} from '@react-navigation/native';
+import {useNotificationSettingsStyles} from '../../../StyleSheet/NotificationSetingsStyles';
+import {ArrowLeft, Bell, ChevronRight} from 'lucide-react-native';
+import {
+  getMessaging,
+  getToken,
+  deleteToken,
+} from '@react-native-firebase/messaging';
+import {getApp} from '@react-native-firebase/app';
+import {useSelector, useDispatch} from 'react-redux';
+import {AppDispatch, RootState} from '@services/store';
+import {fetchEditUser} from '@services/userRedux/userSlice';
+import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
+import { ActivityIndicator } from 'react-native-paper';
 
 export const Notifications = () => {
-  const { theme } = useTheme();
   const navigation: any = useNavigation();
   const styles = useNotificationSettingsStyles();
-  const [pauseAll, setPauseAll] = useState(false);
+  const user = useSelector((state: RootState) => state.user.user);
+  const dispatch = useDispatch<AppDispatch>();
 
-  // options that have detailed screens
-  const detailedOptions = [
-    'Người theo dõi và đang theo dõi',
-    'Cuộc gọi',
-    'Ngày sinh',
-  ];
+  const [loading, setLoading] = useState(false);
+  const [localNotified, setLocalNotified] = useState(
+    user?.wantNotified ?? false,
+  );
 
-  const simpleOptions = [
-    'Bài đăng, tin và bình luận',
-    'Tin nhắn',
-    'Sự kiện trực tiếp và reels',
-    'Từ hệ thống',
-  ];
+  useEffect(() => {
+    console.log('í noti: ', user?.wantNotified);
+    setLocalNotified(user?.wantNotified ?? false);
+  }, [user?.wantNotified]);
 
-  const handleOptionPress = (option: string) => {
-    if (detailedOptions.includes(option)) {
-      navigation.navigate('NotificationOption', {
-        optionKey: option,
-        title: option,
-      });
+  const handleToggleNotification = async (value: boolean) => {
+    setLoading(true);
+    setLocalNotified(value);
+
+    try {
+      if (!user) return;
+
+      const messaging = getMessaging(getApp());
+
+      if (value) {
+        const fcmToken = await getToken(messaging);
+        dispatch(fetchEditUser({fcmToken, wantNotified: true}))
+          .unwrap()
+          .then(res => console.log('xong r nè: ', res));
+        GlobalAlertManager.show('Thành công', 'Bật thông báo thành công.');
+      } else {
+        await deleteToken(messaging);
+        dispatch(fetchEditUser({fcmToken: '', wantNotified: false}))
+          .unwrap()
+          .then(res => console.log('xong r nè: ', res));
+        GlobalAlertManager.show('Thành công', 'Tắt thông báo thành công.');
+      }
+    } catch (error) {
+      setLocalNotified(prev => !prev);
+      GlobalAlertManager.show('Lỗi', 'Không thể thay đổi thông báo.', () =>
+        console.log('Lỗi khi thay đổi thông báo: ', error),
+      );
+    } finally {
+      setLoading(false);
     }
-  };
-
-  const renderNotificationOption = (title: string, subtitle?: string, hasSwitch?: boolean) => {
-    return (
-      <TouchableOpacity
-        key={title}
-        style={styles.optionRow}
-        disabled={hasSwitch}
-        onPress={hasSwitch ? undefined : () => handleOptionPress(title)}
-      >
-        <View style={styles.optionContent}>
-          <Text style={styles.optionTitle}>{title}</Text>
-          {subtitle && (
-            <Text style={styles.optionSubtitle}>{subtitle}</Text>
-          )}
-        </View>
-        {hasSwitch ? (
-          <Switch
-            value={pauseAll}
-            onValueChange={setPauseAll}
-            trackColor={{ false: styles.switchTrack.backgroundColor, true: styles.switchTrackActive.backgroundColor }}
-            thumbColor={pauseAll ? styles.switchThumbActive.backgroundColor : styles.switchThumb.backgroundColor}
-          />
-        ) : (
-          <Image
-            source={require('../../../../assets/icon/right.png')}
-            style={[styles.rightIcon, { resizeMode: 'contain' }]}
-          />
-        )}
-      </TouchableOpacity>
-    );
   };
 
   return (
@@ -79,12 +78,8 @@ export const Notifications = () => {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
-            <Image
-              source={require('../../../../assets/icon/left.png')}
-              style={[styles.backIcon, { resizeMode: 'contain' }]}
-            />
+            onPress={() => navigation.goBack()}>
+            <ArrowLeft size={22} color={styles.backIcon.tintColor} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Thông báo</Text>
           <View style={styles.headerSpacer} />
@@ -93,35 +88,49 @@ export const Notifications = () => {
         {/* Notification Banner */}
         <View style={styles.bannerContainer}>
           <View style={styles.bellIconContainer}>
-            <Image
-              source={require('../../../../assets/icon/bell.png')}
-              style={[styles.bellIcon, { resizeMode: 'contain' }]}
-            />
+            <Bell size={22} color={styles.bellIcon.tintColor} />
           </View>
           <View style={styles.bannerTextContainer}>
             <Text style={styles.bannerText}>
-              Bật thông báo từ cài đặt thiết bị của bạn để xem các cập nhật trên màn hình khóa.
+              Bật thông báo từ cài đặt thiết bị của bạn để xem các cập nhật trên
+              màn hình khóa.
             </Text>
             <Text style={styles.bannerLink}>Chuyển đến cài đặt thiết bị</Text>
           </View>
         </View>
 
-        {/* Push Notifications Section */}
+        {/* Chỉ một nút toggle duy nhất */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Nhận thông báo</Text>
-          
-          {renderNotificationOption(
-            'Tạm dừng tất cả',
-            'tạm thời dừng các thông báo',
-            true
-          )}
-          
-          {renderNotificationOption(
-            'Chế độ ngủ',
-            'Tự động tắt tiếng thông báo khi đã tối hoặc khi bạn cần tập trung.'
-          )}
-          
-          {[...detailedOptions, ...simpleOptions].map(option => renderNotificationOption(option))}
+
+          <View style={styles.optionRow}>
+            <View style={styles.optionContent}>
+              <Text style={styles.optionTitle}>Nhận thông báo</Text>
+              <Text style={styles.optionSubtitle}>
+                Bật hoặc tắt tất cả thông báo từ ứng dụng.
+              </Text>
+            </View>
+            {loading ? (
+              <ActivityIndicator
+                size="small"
+                color={styles.switchTrackActive.backgroundColor as string}
+              />
+            ) : (
+              <Switch
+                value={localNotified}
+                onValueChange={handleToggleNotification}
+                trackColor={{
+                  false: styles.switchTrack.backgroundColor,
+                  true: styles.switchTrackActive.backgroundColor,
+                }}
+                thumbColor={
+                  localNotified
+                    ? styles.switchThumbActive.backgroundColor
+                    : styles.switchThumb.backgroundColor
+                }
+              />
+            )}
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>

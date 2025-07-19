@@ -5,17 +5,11 @@ import React, {
   useMemo,
   useRef,
 } from 'react';
-import {
-  Dimensions,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-  Image,
-  Text,
-} from 'react-native';
-import {Modalize} from 'react-native-modalize';
+import {StyleSheet, TouchableOpacity, View, Text} from 'react-native';
+import CustomPopupModal, {
+  CustomPopupModalRef,
+} from '../../../../components/Global/CustomPopupModal';
 import {Colors} from '../../../../assets/color/Colors';
-import {Portal} from 'react-native-portalize';
 import {useTheme} from '../../../util/ThemeContext';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../../services/store';
@@ -27,8 +21,18 @@ import {
   removeBookmark,
   saveBookmark,
 } from '../../../../services/bookmarkRedux/bookmarkSlice';
-
-const height = Dimensions.get('window').height * 0.7;
+import {PostWithMedia} from '@services/postRedux/postTypes';
+import {
+  Bookmark,
+  BookmarkCheck,
+  Languages,
+  Subtitles,
+  Maximize,
+  QrCode,
+  Eye,
+  EyeOff,
+  Flag,
+} from 'lucide-react-native';
 
 export type BottomSheetReelsRef = {
   open: () => void;
@@ -37,17 +41,18 @@ export type BottomSheetReelsRef = {
 
 type BottomSheetReelsProps = {
   isBookmarked?: boolean;
-  selectedItem: any | null;
+  selectedItem?: PostWithMedia | null;
 };
 
 const BottomSheetReels = forwardRef<BottomSheetReelsRef, BottomSheetReelsProps>(
   ({isBookmarked, selectedItem}, ref) => {
-    const modalRef = useRef<Modalize>(null);
+    const popupRef = useRef<CustomPopupModalRef>(null);
     const {theme} = useTheme();
     const colors = Colors[theme];
     const dispatch = useDispatch<AppDispatch>();
     const {bookmark} = useSelector((state: RootState) => state.reelBookmark);
     const {refreshToken} = useSelector((state: RootState) => state.user);
+
     const isBookmark = useMemo(() => {
       return selectedItem?._id
         ? bookmark.some(item => item.postId === selectedItem._id)
@@ -57,14 +62,14 @@ const BottomSheetReels = forwardRef<BottomSheetReelsRef, BottomSheetReelsProps>(
     useEffect(() => {
       if (isBookmarked && selectedItem?._id) {
         dispatch(addBookmark({postId: selectedItem._id}));
-      }else if (selectedItem?._id){
+      } else if (selectedItem?._id) {
         dispatch(removeReelBookmark(selectedItem._id));
       }
     }, [isBookmarked, selectedItem]);
 
     useImperativeHandle(ref, () => ({
-      open: () => modalRef.current?.open(),
-      close: () => modalRef.current?.close(),
+      open: () => popupRef.current?.open(),
+      close: () => popupRef.current?.close(),
     }));
 
     const handleBookmarkAction = () => {
@@ -88,212 +93,71 @@ const BottomSheetReels = forwardRef<BottomSheetReelsRef, BottomSheetReelsProps>(
       }
     };
 
+    const quickOptions = [
+      {icon: Languages, label: 'Bản dịch'},
+      {icon: Subtitles, label: 'Phụ đề'},
+      {icon: Maximize, label: 'Xem toàn màn hình'},
+      {icon: QrCode, label: 'Mã QR'},
+    ];
+
     return (
-      <Portal>
-        <Modalize
-          ref={modalRef}
-          modalStyle={{
-            backgroundColor: Colors.white,
-            borderTopLeftRadius: 16,
-            borderTopRightRadius: 16,
-            paddingHorizontal: 16,
-          }}
-          handleStyle={{
-            backgroundColor: Colors.black,
-            height: 6,
-            width: 40,
-            marginBottom: 8,
-          }}
-          handlePosition="inside"
-          panGestureEnabled
-          scrollViewProps={{scrollEnabled: false}}
-          adjustToContentHeight>
-          <View style={{height: height, marginTop: 40}}>
-            <View style={styles.headerContainer}>
-              <TouchableOpacity
-                style={styles.headerBlock}
-                onPress={handleBookmarkAction}>
-                <View style={styles.blockIcon}>
-                  <Image
-                    style={[
-                      styles.icon,
-                      {tintColor: isBookmark ? '#F2C641' : colors.black},
-                    ]}
-                    source={
-                      isBookmark
-                        ? require('../../../../assets/icon/bookmark_fill.png')
-                        : require('../../../../assets/icon/bookmark.png')
-                    }
-                  />
-                </View>
-                <Text style={styles.textHeader}>
-                  {isBookmark ? 'Đã lưu' : 'Lưu'}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.headerBlock}>
-                <View style={styles.blockIcon}>
-                  <Image
-                    style={styles.icon}
-                    source={require('../../../../assets/icon/remix_reels.png')}
-                  />
-                </View>
-                <Text style={styles.textHeader}>Remix</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.headerBlock}>
-                <View style={styles.blockIcon}>
-                  <Image
-                    style={styles.icon}
-                    source={require('../../../../assets/icon/sequence.png')}
-                  />
-                </View>
-                <Text style={styles.textHeader}>Sequence</Text>
-              </TouchableOpacity>
-            </View>
+      <CustomPopupModal
+        ref={popupRef}
+        backgroundColor={colors.white}
+        cancelText="Huỷ"
+        cancelTextColor="#ff3b30">
+        <View style={{paddingTop: 8}}>
+          <TouchableOpacity
+            style={styles.rowItem}
+            onPress={handleBookmarkAction}>
+            {isBookmark ? (
+              <BookmarkCheck size={22} color="#F2C641" style={styles.icon} />
+            ) : (
+              <Bookmark size={22} color={colors.black} style={styles.icon} />
+            )}
+            <Text style={styles.textItem}>{isBookmark ? 'Đã lưu' : 'Lưu'}</Text>
+          </TouchableOpacity>
 
-            <TouchableOpacity style={styles.buttonFeature}>
-              <View style={styles.blockIcon}>
-                <Image
-                  style={styles.icon}
-                  source={require('../../../../assets/icon/translation.png')}
-                />
-              </View>
-              <Text style={styles.textNormal}>Bản dịch</Text>
+          {quickOptions.map(({icon: Icon, label}) => (
+            <TouchableOpacity key={label} style={styles.rowItem}>
+              <Icon size={22} color={colors.black} style={styles.icon} />
+              <Text style={styles.textItem}>{label}</Text>
             </TouchableOpacity>
+          ))}
 
-            <TouchableOpacity style={styles.buttonFeature}>
-              <View style={styles.blockIcon}>
-                <Image
-                  style={styles.icon}
-                  source={require('../../../../assets/icon/cc.png')}
-                />
-              </View>
-              <Text style={styles.textNormal}>Phụ đề</Text>
-            </TouchableOpacity>
+          <TouchableOpacity style={styles.rowItem}>
+            <Eye size={22} color={colors.black} style={styles.icon} />
+            <Text style={styles.textItem}>Quan tâm</Text>
+          </TouchableOpacity>
 
-            <TouchableOpacity style={styles.buttonFeature}>
-              <View style={styles.blockIcon}>
-                <Image
-                  style={styles.icon}
-                  source={require('../../../../assets/icon/full_screen.png')}
-                />
-              </View>
-              <Text style={styles.textNormal}>Xem toàn màn hình</Text>
-            </TouchableOpacity>
+          <TouchableOpacity style={styles.rowItem}>
+            <EyeOff size={22} color={colors.black} style={styles.icon} />
+            <Text style={styles.textItem}>Không quan tâm</Text>
+          </TouchableOpacity>
 
-            <TouchableOpacity style={styles.buttonFeature}>
-              <View style={styles.blockIcon}>
-                <Image
-                  style={styles.icon}
-                  source={require('../../../../assets/icon/qrlink.png')}
-                />
-              </View>
-              <Text style={styles.textNormal}>Mã QR</Text>
-            </TouchableOpacity>
-
-            <View style={styles.feelingContainer}>
-              <TouchableOpacity style={styles.buttonFeeling}>
-                <View style={styles.blockIcon}>
-                  <Image
-                    style={styles.icon}
-                    source={require('../../../../assets/icon/view.png')}
-                  />
-                </View>
-                <Text style={styles.textNormal}>Quan tâm</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.buttonFeeling}>
-                <View style={styles.blockIcon}>
-                  <Image
-                    style={styles.icon}
-                    source={require('../../../../assets/icon/hide.png')}
-                  />
-                </View>
-                <Text style={styles.textNormal}>Không quan tâm</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.buttonFeeling}>
-                <View style={styles.blockIcon}>
-                  <Image
-                    style={[styles.icon, {tintColor: 'red'}]}
-                    source={require('../../../../assets/icon/report.png')}
-                  />
-                </View>
-                <Text style={[styles.textNormal, {color: 'red'}]}>Báo cáo</Text>
-              </TouchableOpacity>
-            </View>
-
-            <TouchableOpacity style={styles.buttonFeature}>
-              <View style={styles.blockIcon}>
-                <Image
-                  style={styles.icon}
-                  source={require('../../../../assets/icon/equalizer.png')}
-                />
-              </View>
-              <Text style={styles.textNormal}>
-                Quản lý tùy chọn về nội dung
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </Modalize>
-      </Portal>
+          <TouchableOpacity style={styles.rowItem}>
+            <Flag size={22} color="red" style={styles.icon} />
+            <Text style={[styles.textItem, {color: 'red'}]}>Báo cáo</Text>
+          </TouchableOpacity>
+        </View>
+      </CustomPopupModal>
     );
   },
 );
 
 const styles = StyleSheet.create({
-  headerContainer: {
-    width: '100%',
+  rowItem: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  headerBlock: {
-    width: '31%',
-    paddingVertical: 12,
     alignItems: 'center',
-    borderRadius: 12,
-    backgroundColor: Colors.whiteSmoke,
-  },
-  blockIcon: {
-    width: 20,
-    height: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
   },
   icon: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'contain',
-    tintColor: Colors.black,
+    marginRight: 16,
   },
-  textHeader: {
-    fontSize: 14,
-    fontWeight: '500',
-    marginTop: 4,
-    color: Colors.black,
-  },
-  buttonFeature: {
-    width: '100%',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: Colors.whiteSmoke,
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 12,
-    marginTop: 10,
-  },
-  textNormal: {
+  textItem: {
     fontSize: 16,
-    marginLeft: 10,
     color: Colors.black,
-  },
-  feelingContainer: {
-    width: '100%',
-    backgroundColor: Colors.whiteSmoke,
-    borderRadius: 12,
-    marginTop: 10,
-  },
-  buttonFeeling: {
-    width: '100%',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
   },
 });
 

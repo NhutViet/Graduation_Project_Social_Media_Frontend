@@ -5,7 +5,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   FlatList,
-  Alert,
   SafeAreaView,
 } from 'react-native';
 import Header from '../../../components/Header';
@@ -73,7 +72,7 @@ export const DissapearingMessage = () => {
       <View style={{width: '100%', height: 60}}>
         <Header
           title="Dissapearing messages"
-          iconBack={require('../../../assets/icon/left.png')}
+          iconBack={true}
           func={() => navigation.goBack()}
           navigation={navigation}
         />

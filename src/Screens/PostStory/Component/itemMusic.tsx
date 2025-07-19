@@ -1,12 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {
-  Alert,
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View, Image} from 'react-native';
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
 import {useDispatch, useSelector} from 'react-redux';
@@ -20,8 +13,19 @@ import {
   removeFromBookmark,
 } from '../../../../services/musicRedux/musicReducer';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
+import {Bookmark, BookmarkCheck} from 'lucide-react-native';
 
-const ItemMusic = (props: any) => {
+type ItemMusicProps = {
+  _id: string;
+  coverImg: string;
+  song: string;
+  author: string;
+  countVideoUsed?: number;
+  onPress?: () => void;
+  isBookmarked?: boolean;
+};
+
+const ItemMusic = (props: ItemMusicProps) => {
   const {
     _id,
     coverImg,
@@ -103,14 +107,11 @@ const ItemMusic = (props: any) => {
       </View>
 
       <TouchableOpacity style={styles.playBlock} onPress={handleBookmark}>
-        <Image
-          style={[styles.play, {tintColor: isSave ? '#F2C641' : color.text}]}
-          source={
-            isSave
-              ? require('../../../../assets/icon/bookmark_fill.png')
-              : require('../../../../assets/icon/bookmark.png')
-          }
-        />
+        {isSave ? (
+          <BookmarkCheck size={22} color={'#F2C641'} fill='#F2C641' />
+        ) : (
+          <Bookmark size={22} color={color.text} />
+        )}
       </TouchableOpacity>
     </TouchableOpacity>
   );
@@ -143,14 +144,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   playBlock: {
-    width: 20,
-    height: 20,
-    borderRadius: 15,
-  },
-  play: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'contain',
+    width: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

@@ -37,14 +37,13 @@ export const SearchStyles = (theme: 'light' | 'dark') => {
       left: 10,
       resizeMode: 'contain',
     },
-    search: {
+    searchInputContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
       flex: 1,
-      paddingRight: 10,
-      paddingLeft: 40,
-      paddingVertical: 5,
-      backgroundColor: color.lessBlack,
-      color: color.text,
+      backgroundColor: color.backgroundSecondary, 
       borderRadius: 10,
+      paddingHorizontal: 12,
     },
     searchContainer: {
       marginVertical: 10,

@@ -17,6 +17,8 @@ import {AppDispatch, RootState} from '../services/store';
 import ItemHome from '../src/(tabs)/Home/components/ItemHome';
 import {useTheme} from '../src/util/ThemeContext';
 import {Colors} from '../assets/color/Colors';
+import {Item, Load} from '@services/postUserRedux/postUserType';
+import {ArrowLeft} from 'lucide-react-native';
 
 const AllPostOfUserScreen = () => {
   const route = useRoute();
@@ -28,15 +30,19 @@ const AllPostOfUserScreen = () => {
   const isFocused = useIsFocused();
 
   const {targetPostId} = route.params as {targetPostId: string};
-  const {items: PostsItem}: any = useSelector(
+  const postData = useSelector(
     (state: RootState) => state.postUser.posts,
-  );
+  ) as Load;
+  const PostsItem: Item[] = postData.items;
 
   const [currentVisible, setCurrentVisible] = useState<string | null>(null);
-  const [selectedPostId, setSelectedPostId] = useState<{postId: string, receiverId: string}>({postId: '', receiverId: ''});
+  const selectedPostRef = useRef<{postId: string; receiverId: string}>({
+    postId: '',
+    receiverId: '',
+  });
 
   const targetIndex = Array.isArray(PostsItem)
-    ? PostsItem.findIndex((post: any) => post._id === targetPostId)
+    ? PostsItem.findIndex((post: Item) => post._id === targetPostId)
     : -1;
 
   const onViewRef = useCallback(({viewableItems}: {viewableItems: any[]}) => {
@@ -44,15 +50,11 @@ const AllPostOfUserScreen = () => {
     if (id) setCurrentVisible(id);
   }, []);
 
-
   return (
     <SafeAreaView style={{flex: 1}}>
       <View style={[styles.header, {backgroundColor: colors.background}]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Image
-            source={require('../assets/icon/left.png')}
-            style={[styles.iconBack, {tintColor: colors.text}]}
-          />
+          <ArrowLeft size={22} color={colors.text} />
         </TouchableOpacity>
         <Text style={[styles.title, {color: colors.text}]}>
           Tất cả bài viết
@@ -88,7 +90,7 @@ const AllPostOfUserScreen = () => {
                 isFocused={isFocused}
                 sheetRef={sheetRef}
                 isFollow={item.isFollow}
-                setSelectedPostId={setSelectedPostId}
+                SelectedPostRef={selectedPostRef}
               />
             );
           }}
@@ -106,7 +108,7 @@ const AllPostOfUserScreen = () => {
             index,
           })}
         />
-        <BottomSheetComment ref={sheetRef} postId={selectedPostId.postId} receiverId={selectedPostId.receiverId}/>
+        <BottomSheetComment ref={sheetRef} selectedPostRef={selectedPostRef} />
       </View>
     </SafeAreaView>
   );

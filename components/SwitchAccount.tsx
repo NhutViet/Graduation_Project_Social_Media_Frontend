@@ -33,75 +33,50 @@ export const SwitchAccount: React.FC<SwitchAccountProps> = ({
     (state: RootState) => state.user.loggedInUsers,
   );
 
+  const renderAccounts = () =>
+    loggedInUsers.map(user => (
+      <AccountCenterComponent key={user._id} user={user} />
+    ));
+
+  const renderAddAccountButton = () => (
+    <TouchableOpacity
+      style={styles.addAccountButton}
+      onPress={onAddAccountPress}>
+      <View style={[styles.iconCircle, {backgroundColor: color.lightDark}]}>
+        <Plus size={24} color={color.text} />
+      </View>
+      <Text style={[styles.addAccountText, {color: color.text}]}>
+        Thêm tài khoản Cirla
+      </Text>
+    </TouchableOpacity>
+  );
+
+  const renderAccountCenterButton = () => (
+    <TouchableOpacity
+      style={[styles.accountCenterButton, {borderColor: '#aaa'}]}
+      onPress={() => navigation.navigate('AccountCenter')}>
+      <Text style={[styles.accountCenterText, {color: color.text}]}>
+        Đi đến trung tâm tài khoản
+      </Text>
+    </TouchableOpacity>
+  );
+
   return (
     <Modal
       animationType="slide"
       transparent
       visible={visible}
       onRequestClose={onClose}>
-      <Pressable
-        style={[styles.modalContainer, {backgroundColor: 'rgba(0,0,0,0.25)'}]}
-        onPress={onClose}>
+      <Pressable style={styles.backdrop} onPress={onClose}>
         <View
           style={[styles.modalContent, {backgroundColor: color.background}]}>
           <View style={styles.content}>
-            {/* Current Account */}
-            <View
-              style={{
-                borderWidth: 1,
-                borderRadius: 20,
-                marginBottom: 14,
-                borderColor: '#aaa',
-              }}>
-              {loggedInUsers.map(user => (
-                <AccountCenterComponent
-                  key={user._id}
-                  imageAccount={user.profilePic}
-                  nameAccount={user.username}
-                />
-              ))}
-
-              {/* Divider */}
-              <View
-                style={{
-                  height: 1,
-                  backgroundColor: '#aaa',
-                  marginHorizontal: 10,
-                }}
-              />
-
-              {/* Add Account Button */}
-              <TouchableOpacity
-                style={styles.addAccountButton}
-                onPress={() => {
-                  onAddAccountPress();
-                }}>
-                <View
-                  style={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: 22,
-                    backgroundColor: color.lightDark,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}>
-                  <Plus size={24} color={color.text} />
-                </View>
-                <Text style={[styles.addAccountText, {color: color.text}]}>
-                  Thêm tài khoản Cirla
-                </Text>
-              </TouchableOpacity>
+            <View style={styles.accountContainer}>
+              {renderAccounts()}
+              <View style={styles.divider} />
+              {renderAddAccountButton()}
             </View>
-            {/* Account Center Button */}
-            <TouchableOpacity
-              style={[styles.accountCenterButton, {marginBottom: 16}]}
-              onPress={() => {
-                navigation.navigate('AccountCenter');
-              }}>
-              <Text style={[styles.accountCenterText, {color: color.text}]}>
-                Đi đến trung tâm tài khoản
-              </Text>
-            </TouchableOpacity>
+            {renderAccountCenterButton()}
           </View>
         </View>
       </Pressable>
@@ -110,10 +85,11 @@ export const SwitchAccount: React.FC<SwitchAccountProps> = ({
 };
 
 const styles = StyleSheet.create({
-  modalContainer: {
+  backdrop: {
     flex: 1,
     justifyContent: 'flex-end',
     alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.25)',
   },
   modalContent: {
     width: '100%',
@@ -125,23 +101,17 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 16,
   },
-  accountItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
+  accountContainer: {
+    borderWidth: 1,
+    borderRadius: 20,
+    borderColor: '#aaa',
+    marginBottom: 14,
+    overflow: 'hidden',
   },
-  avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-  },
-  accountInfo: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  username: {
-    fontSize: 16,
-    fontWeight: '600',
+  divider: {
+    height: 1,
+    backgroundColor: '#aaa',
+    marginHorizontal: 10,
   },
   addAccountButton: {
     flexDirection: 'row',
@@ -149,17 +119,12 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 10,
   },
-  addIcon: {
+  iconCircle: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#EFEFEF',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  plusIcon: {
-    fontSize: 24,
-    fontWeight: '600',
   },
   addAccountText: {
     marginLeft: 12,
@@ -169,7 +134,6 @@ const styles = StyleSheet.create({
   accountCenterButton: {
     borderWidth: 1,
     borderRadius: 20,
-    borderColor: '#aaa',
     paddingVertical: 12,
     alignItems: 'center',
     padding: 15,

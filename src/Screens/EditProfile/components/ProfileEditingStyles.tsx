@@ -136,7 +136,7 @@ export const useProfileEditingStyles = () => {
           flexDirection: 'row',
           alignItems: 'center',
           height: 44,
-          paddingHorizontal: 10,
+          paddingHorizontal: 16,
           backgroundColor: palette.background,
         },
         headerIcon: {

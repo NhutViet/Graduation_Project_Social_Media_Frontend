@@ -1,5 +1,5 @@
 import {Dimensions, View} from 'react-native';
-import React, { useState} from 'react';
+import React, {useState} from 'react';
 import Header from '../../../../components/Header';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import FollowersTab from './FollowersTab';
@@ -7,7 +7,7 @@ import FollowingTab from './FollowingTab';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {Colors} from '../../../../assets/color/Colors';
 import {useTheme} from '../../../util/ThemeContext';
-import { useSelector} from 'react-redux';
+import {useSelector} from 'react-redux';
 import {RootState} from '../../../../services/store';
 import {SceneMap, TabBar, TabView} from 'react-native-tab-view';
 
@@ -39,7 +39,7 @@ const FollowersScreen = () => {
       <View style={{width: '100%', height: 60}}>
         <Header
           title={user?.username}
-          iconBack={require('../../../../assets/icon/left.png')}
+          iconBack={true}
           func={() => navigation.goBack()}
           navigation={navigation}
         />

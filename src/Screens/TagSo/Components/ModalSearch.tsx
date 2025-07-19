@@ -1,7 +1,6 @@
 import {
   Modal,
   SafeAreaView,
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -11,13 +10,13 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '@services/store';
 import {fetchFollowers} from '@services/relationRedux/relationSlice';
-import {ActivityIndicator} from 'react-native-paper';
 import {useTheme} from '../../../../src/util/ThemeContext';
 import {TagSoStyles} from '../../../../src/StyleSheet/TagSoStyles';
 import {FlashList} from '@shopify/flash-list';
 import User from './User';
 import {UserProfile} from '@services/relationRedux/relationTypes';
 import {useFocusEffect} from '@react-navigation/native';
+import LoadingModal from '../../../../components/Global/LoadingModal';
 
 type ModalSearchProps = {
   visible: boolean;
@@ -25,7 +24,7 @@ type ModalSearchProps = {
   onSelectUser: (user: UserProfile) => void;
 };
 
-const ModalSearch = (props: any) => {
+const ModalSearch = (props: ModalSearchProps) => {
   const {visible, setVisible, onSelectUser}: ModalSearchProps = props;
   const [searchText, setSearchText] = useState('');
   const [searchList, setSearchList] = useState<UserProfile[]>([]);
@@ -65,7 +64,7 @@ const ModalSearch = (props: any) => {
   if (loading) {
     return (
       <SafeAreaView style={styles.centerContainer}>
-        <ActivityIndicator size="large" color={'#0095F6'} />
+        <LoadingModal />
       </SafeAreaView>
     );
   } else {

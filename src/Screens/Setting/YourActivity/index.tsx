@@ -6,7 +6,6 @@ import {
   ScrollView,
   StyleSheet,
   SafeAreaView,
-  Alert,
 } from 'react-native';
 import React from 'react';
 import {
@@ -25,6 +24,8 @@ import {
   Link,
   Download,
   ArrowRightLeft,
+  ChevronRight,
+  ArrowLeft,
 } from 'lucide-react-native';
 import {Colors} from '../../../../assets/color/Colors';
 import {useTheme} from '../../../util/ThemeContext';
@@ -42,7 +43,6 @@ interface SectionProps {
 }
 
 const Section: React.FC<SectionProps> = ({title, items}) => {
-  const navigation: any = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];
   return (
@@ -60,10 +60,7 @@ const Section: React.FC<SectionProps> = ({title, items}) => {
               {item.label}
             </Text>
           </View>
-          <Image
-            source={require('../../../../assets/icon/right.png')}
-            style={{tintColor: color.textSecondary}}
-          />
+          <ChevronRight size={22} color={color.textSecondary} />
         </TouchableOpacity>
       ))}
     </View>
@@ -192,10 +189,7 @@ export const YourActivity = () => {
             style={styles.backButton}
             onPress={() => navigation.goBack()}
             activeOpacity={0.7}>
-            <Image
-              source={require('../../../../assets/icon/left.png')}
-              style={[styles.backIcon, {tintColor: color.text}]}
-            />
+            <ArrowLeft size={22} color={color.text} />
           </TouchableOpacity>
         </View>
 

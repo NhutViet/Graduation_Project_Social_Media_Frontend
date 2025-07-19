@@ -1,13 +1,22 @@
-import React, { useRef, useState } from 'react';
-import { View, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import CameraVision, { CameraVisionHandle } from '../../../components/CameraVision';
+import React, {useRef, useState} from 'react';
+import {View, Image, TouchableOpacity} from 'react-native';
+import CameraVision, {
+  CameraVisionHandle,
+} from '../../../components/CameraVision';
 import ActionBar from '../../../components/CameraActionBar';
 import ModeSelector from '../../../components/CameraModeSelector';
-import { useCameraStyles } from '../../../src/StyleSheet/CameraStyles';
+import {useCameraStyles} from '../../../src/StyleSheet/CameraStyles';
+import {ArrowLeft, Sun} from 'lucide-react-native';
 
 const modes = ['Bình thường', 'Chân dung', 'Video', 'Toàn cảnh'];
 
-export const CameraScreen = ({ navigation, onBack }: any) => {
+export const CameraScreen = ({
+  navigation,
+  onBack,
+}: {
+  navigation: any;
+  onBack: () => void;
+}) => {
   const cameraRef = useRef<CameraVisionHandle>(null);
   const [mode, setMode] = useState<string>('Bình thường');
   const [previewUri, setPreviewUri] = useState<string | null>(null);
@@ -46,25 +55,18 @@ export const CameraScreen = ({ navigation, onBack }: any) => {
       {!previewUri ? (
         <>
           <CameraVision ref={cameraRef} style={styles.preview} />
-            <View style={styles.topBar}>
+          <View style={styles.topBar}>
             <TouchableOpacity onPress={onBack}>
-              <Image
-                source={require('../../../assets/icon/left.png')}
-                style={styles.topIcon}
-              />
+              <ArrowLeft size={22} color="#fff" />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => {/* TODO: brightness control */}}>
-              <Image
-                source={require('../../../assets/icon/sun.png')}
-                style={styles.topIcon}
-              />
+            <TouchableOpacity
+              onPress={() => {
+                /* TODO: brightness control */
+              }}>
+              <Sun size={24} color="#fff" />
             </TouchableOpacity>
           </View>
-          <ModeSelector
-            modes={modes}
-            selected={mode}
-            onSelect={setMode}
-          />
+          <ModeSelector modes={modes} selected={mode} onSelect={setMode} />
           <ActionBar
             mode={mode}
             onCapture={handleCapture}
@@ -77,9 +79,13 @@ export const CameraScreen = ({ navigation, onBack }: any) => {
         </>
       ) : (
         <TouchableOpacity style={styles.preview} onPress={handleClosePreview}>
-          <Image source={{ uri: previewUri }} style={styles.preview} resizeMode="contain" />
+          <Image
+            source={{uri: previewUri}}
+            style={styles.preview}
+            resizeMode="contain"
+          />
         </TouchableOpacity>
       )}
     </View>
   );
-}
+};

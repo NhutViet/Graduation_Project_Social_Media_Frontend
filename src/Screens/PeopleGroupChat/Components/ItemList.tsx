@@ -2,26 +2,60 @@ import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import React from 'react';
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
+import {MoreVertical} from 'lucide-react-native';
+import { useNavigation } from '@react-navigation/native';
 
-const ItemList = (props: any) => {
-  const {uri, handle, name, onHandleMessage, isMine = false, isAdmin=false} = props;
+type ItemListProps = {
+  uri: string;
+  handle: string;
+  name: string;
+  onHandleMessage?: () => void;
+  isMine?: boolean;
+  isAdmin?: boolean;
+  id: string;
+  isFollow: boolean;
+};
+
+const ItemList = (props: ItemListProps) => {
+  const {
+    uri,
+    handle,
+    name,
+    id,
+    isFollow,
+    onHandleMessage,
+    isMine = false,
+    isAdmin = false,
+  } = props;
   const {theme} = useTheme();
   const colors = Colors[theme];
+  const navigate = useNavigation<any>();
   return (
-    <TouchableOpacity style={[styles.container]}>
+    <TouchableOpacity style={[styles.container]} onPress={() => {navigate.navigate('ProfileComp', {userID: id})}}>
       <Image source={{uri: uri}} style={styles.avatar} />
       <View style={styles.midContainer}>
-        <Text style={[styles.message, {color: colors.text}]} numberOfLines={1} ellipsizeMode='tail'>{name}</Text>
-        <Text style={[styles.textHandle, {color: colors.textSecondary}]} numberOfLines={1} ellipsizeMode='tail'>
-            {isAdmin && 'Admin . '}
+        <Text
+          style={[styles.message, {color: colors.text}]}
+          numberOfLines={1}
+          ellipsizeMode="tail">
+          {name}
+        </Text>
+        <Text
+          style={[styles.textHandle, {color: colors.textSecondary}]}
+          numberOfLines={1}
+          ellipsizeMode="tail">
+          {isAdmin && 'Admin . '}
           {handle}
         </Text>
       </View>
       {!isMine && (
         <View style={styles.row}>
-          <Image source={require('../../../../assets/icon/ellipsis.png')} style={styles.ellipses}/>
-          <TouchableOpacity style={[styles.btnContainer, {borderColor: colors.text}]}>
-            <Text style={[styles.message, {color: colors.text, fontSize: 14}]}>Tin nhắn</Text>
+          <TouchableOpacity
+            style={[styles.btnContainer, {borderColor: isFollow ? colors.text : 'transparent', backgroundColor: isFollow ? colors.transparent : colors.primary}]}
+            onPress={onHandleMessage}>
+            <Text style={[styles.message, {color: isFollow ? colors.text : colors.background, fontSize: 14}]}>
+              {isFollow ? 'Đã theo dõi' : 'Theo dõi'}
+            </Text>
           </TouchableOpacity>
         </View>
       )}

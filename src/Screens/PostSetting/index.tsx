@@ -1,12 +1,10 @@
 import {
-  Alert,
-  Image,
   SafeAreaView,
-  ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
   View,
+  Image,
 } from 'react-native';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {useTheme} from '../../util/ThemeContext';
@@ -22,16 +20,33 @@ import {
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../services/store';
 import {uploadPostWithMedia} from '../../../services/postRedux/postSlice';
-import Toast from 'react-native-toast-message';
 import VideoModal from './Components/VideoModal';
 import BottomSheet, {
   BottomSheetRef,
 } from '../PostStory/BottomSheet/BottomSheetMusic';
-import {uploadImageToR2, uploadToCloudflare} from '../../core/upload';
+import {uploadImageToR2, uploadVideoToR2} from '../../core/upload';
 import {useUploadProgress} from '../../../services/UploadProgressManager';
 import {PhotoIdentifier} from '@react-native-camera-roll/camera-roll';
 import {TaggedMedia} from '../TagSo';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+import {checkProfanityAndAlert} from '../../util/profanityFilter';
+import {fetchFollowers} from '@services/relationRedux/relationSlice';
+import MentionSuggestion from './Components/MentionSuggestion';
+import Animated, {
+  useAnimatedScrollHandler,
+  useSharedValue,
+} from 'react-native-reanimated';
+
+import {
+  ArrowLeft,
+  BarChart2,
+  Clapperboard,
+  UserPlus2,
+  MapPin,
+  Music2,
+  MoreHorizontal,
+  ChevronRight,
+} from 'lucide-react-native';
 
 type Params = {
   updated?: TaggedMedia[];
@@ -45,19 +60,43 @@ export const PostSetting = () => {
   const dispatch = useDispatch<AppDispatch>();
   const sheetRef = useRef<BottomSheetRef>(null);
   const user = useSelector((state: RootState) => state.user.user);
-  const [selectedMusic, setSelectedMusic] = useState<{
-    musicId: string;
-    timeStart: number;
-    timeEnd: number;
-    song: string;
-    songImage: string;
-  } | null>(null);
+  const [selectedMusic, setSelectedMusic] = useState<any>(null);
+  const {followers} = useSelector((state: RootState) => state.relation);
+  const [mentionQuery, setMentionQuery] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [captionLayoutY, setCaptionLayoutY] = useState(0);
+  const scrollY = useSharedValue(0);
 
-  //lâys dữ liệu
+  const scrollHandler = useAnimatedScrollHandler(event => {
+    scrollY.value = event.contentOffset.y;
+  });
+
   const route = useRoute();
   const {selectedMedia, updated} = route.params as {
     selectedMedia: PhotoIdentifier[];
     updated?: TaggedMedia[];
+  };
+
+  useEffect(() => {
+    if (user?._id) {
+      dispatch(fetchFollowers({userId: user._id}));
+    }
+  }, []);
+
+  const handleChangeText = (text: string) => {
+    setCaption(text);
+    const lastAt = text.lastIndexOf('@');
+    if (lastAt !== -1) {
+      const textAfterAt = text.slice(lastAt + 1);
+      const isValidQuery = /^[a-zA-Z0-9_]*$/.test(textAfterAt);
+      if (isValidQuery) {
+        setMentionQuery(textAfterAt);
+        setShowSuggestions(true);
+        return;
+      }
+    }
+    setShowSuggestions(false);
+    setMentionQuery('');
   };
 
   useFocusEffect(
@@ -73,88 +112,53 @@ export const PostSetting = () => {
   );
 
   const [caption, setCaption] = useState('');
-  //modal xem video
   const [isModal, setIsModal] = useState(false);
   const {showUploadModal, hideUploadModal, setProgress} = useUploadProgress();
 
   const handleUploadAll = async () => {
     if (!mediaWithTags || mediaWithTags.length === 0) {
-      Alert.alert(
+      GlobalAlertManager.show(
         'Chưa chọn phương tiện',
-        'Hãy chọn ít nhất một ảnh hoặc video',
+        'Hãy chọn ảnh hoặc video',
       );
       return;
     }
 
-    for (const media of mediaWithTags) {
-      if (!media.node.image.uri) {
-        Alert.alert('Lỗi', 'URI của media không hợp lệ');
-        return;
-      }
-    }
+    if (checkProfanityAndAlert(caption)) return;
 
     try {
-      const uploadedMedia: {
-        imageUrl?: string;
-        videoUrl?: string;
-        tags?: {
-          userId: string;
-          handleName: string;
-          positionX: number;
-          positionY: number;
-        }[];
-      }[] = [];
-
+      const uploadedMedia: any[] = [];
       for (const media of mediaWithTags) {
         const uri = media.node.image.uri;
         const isVideo = media.node.type.startsWith('video');
+        let uploadedItem: any = {};
 
-        let uploadedItem: {
-          imageUrl?: string;
-          videoUrl?: string;
-          tags?: {
-            userId: string;
-            handleName: string;
-            positionX: number;
-            positionY: number;
-          }[];
-        } = {};
-
-        try {
-          if (isVideo) {
-            const videoUrl = await uploadToCloudflare(uri, {
-              showUploadModal,
-              hideUploadModal,
-              setProgress,
-            });
-            uploadedItem.videoUrl = `https://videodelivery.net/${videoUrl}/manifest/video.m3u8`;
-          } else {
-            const imageUrl = await uploadImageToR2(uri, {
-              showUploadModal,
-              hideUploadModal,
-              setProgress,
-            });
-            uploadedItem.imageUrl = imageUrl;
-          }
-
-          //nếu có tags
-          if (media.tags && media.tags.length > 0) {
-            uploadedItem.tags = media.tags.map(tag => ({
-              userId: tag.user._id,
-              handleName: tag.user.handleName,
-              positionX: tag.position.x,
-              positionY: tag.position.y,
-            }));
-          }
-
-          uploadedMedia.push(uploadedItem);
-        } catch (err) {
-          GlobalAlertManager.show(
-            'Thất bại',
-            `Không thể upload ${isVideo ? 'video' : 'ảnh'}: ${uri}`,
-          );
-          return;
+        if (isVideo) {
+          const videoUrl = await uploadVideoToR2(uri, {
+            showUploadModal,
+            hideUploadModal,
+            setProgress,
+          });
+          uploadedItem.videoUrl = videoUrl;
+        } else {
+          const imageUrl = await uploadImageToR2(uri, {
+            showUploadModal,
+            hideUploadModal,
+            setProgress,
+          });
+          uploadedItem.imageUrl = imageUrl;
         }
+
+        if (media.tags?.length) {
+          uploadedItem.tags = media.tags.map(tag => ({
+            userId: tag.user._id,
+            handleName: tag.user.handleName,
+            positionX: tag.position.x,
+            positionY: tag.position.y,
+          }));
+        }
+
+        uploadedMedia.push(uploadedItem);
       }
 
       const postType =
@@ -177,51 +181,43 @@ export const PostSetting = () => {
             }
           : undefined,
       };
-      console.log('body: ', JSON.stringify(body, null, 2));
 
-      const resultAction = await dispatch(uploadPostWithMedia({payload: body, handleName: user?.handleName}));
+      const resultAction = await dispatch(
+        uploadPostWithMedia({payload: body, handleName: user?.handleName}),
+      );
 
       if (uploadPostWithMedia.fulfilled.match(resultAction)) {
-        Toast.show({
-          type: 'success',
-          text1: '🎉 Thành công',
-          text2: 'Bài viết của bạn đã được tải lên!',
-        });
+        GlobalAlertManager.show('🎉 Thành công', 'Bài viết đã được tải lên!');
         setMediaWithTags([]);
         navigation.reset({
           index: 0,
           routes: [{name: 'BottomTabs'}],
         });
       } else {
-        Toast.show({
-          type: 'error',
-          text1: 'Thất bại',
-          text2: 'Tải lên thất bại',
-        });
+        GlobalAlertManager.show('Thất bại', 'Tải lên thất bại');
       }
     } catch (error) {
-      GlobalAlertManager.show('Lỗi', 'Đã có lỗi xảy ra khi upload');
-      console.error(error);
+      GlobalAlertManager.show('Lỗi', 'Đã có lỗi khi upload');
     }
   };
 
-  const countAllTag = (media: TaggedMedia[]): number => {
-    return media.reduce((sum, item) => sum + (item.tags?.length ?? 0), 0);
-  };
+  const countAllTag = (media: TaggedMedia[]): number =>
+    media.reduce((sum, item) => sum + (item.tags?.length ?? 0), 0);
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.rowSpace}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Image
-            source={require('../../../assets/icon/left.png')}
-            style={styles.iconR}
-          />
+          <ArrowLeft size={22} color={color.text} />
         </TouchableOpacity>
         <Text style={styles.title}>Bài viết mới</Text>
         <View style={styles.iconR}></View>
       </View>
-      <ScrollView style={styles.container}>
+
+      <Animated.ScrollView
+        style={styles.container}
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}>
         <View
           style={[
             {
@@ -231,15 +227,15 @@ export const PostSetting = () => {
             },
             selectedMedia.length === 1 && {alignItems: 'center'},
           ]}>
-          {selectedMedia && selectedMedia.length > 1 ? (
+          {selectedMedia.length > 1 ? (
             <FlashList
               data={selectedMedia}
-              horizontal={true}
+              horizontal
               showsHorizontalScrollIndicator={false}
-              renderItem={({item}: any) => (
+              renderItem={({item}: {item: PhotoIdentifier}) => (
                 <Image
                   source={{uri: item.node.image.uri}}
-                  style={[styles.imgShow]}
+                  style={styles.imgShow}
                 />
               )}
               estimatedItemSize={200}
@@ -253,77 +249,103 @@ export const PostSetting = () => {
               }}>
               <Image
                 source={{uri: selectedMedia[0].node.image.uri}}
-                style={[styles.imgShow]}
+                style={styles.imgShow}
               />
               {selectedMedia[0].node.type.startsWith('video') && (
                 <View style={styles.reelsContainer}>
-                  <Image
-                    source={require('../../../assets/icon/clapperboard.png')}
-                    style={styles.iconReels}
-                  />
+                  <Clapperboard size={22} color="#fff" />
                 </View>
               )}
             </TouchableOpacity>
           )}
         </View>
+
+        <MentionSuggestion
+          visible={showSuggestions}
+          query={mentionQuery}
+          followers={followers}
+          onSelect={handle => {
+            const lastAt = caption.lastIndexOf('@');
+            const newText = caption.slice(0, lastAt + 1) + handle + ' ';
+            setCaption(newText);
+            setShowSuggestions(false);
+          }}
+          backgroundColor={color.background}
+          positionY={captionLayoutY}
+          scrollY={scrollY}
+        />
+
         <TextInput
           placeholder="Thêm chú thích"
-          placeholderTextColor={color.gray21}
+          placeholderTextColor={color.textSecondary}
           style={styles.textIn}
-          multiline={true}
+          multiline
           textAlignVertical="top"
           value={caption}
-          onChangeText={setCaption}
+          onChangeText={handleChangeText}
+          onLayout={e => {
+            e.target.measureInWindow((_x, y) => setCaptionLayoutY(y));
+          }}
         />
+
         <TouchableOpacity style={styles.btnTD}>
-          <Image
-            source={require('../../../assets/icon/Menu.png')}
-            style={styles.icon}
-          />
+          <BarChart2 size={22} color={color.text} style={styles.icon} />
           <Text style={[styles.textR, {fontWeight: 'normal'}]}>
             Thăm dò ý kiến
           </Text>
         </TouchableOpacity>
+
         <Section
-          title={'Gắn thẻ người khác'}
-          iconRight={require('../../../assets/icon/right.png')}
-          iconLeft={require('../../../assets/icon/tag.png')}
+          title="Gắn thẻ người khác"
+          iconLeft={<UserPlus2 size={22} color={color.text} />}
+          iconRight={<ChevronRight size={22} color={color.textSecondary} />}
           backData={countAllTag(mediaWithTags).toString()}
           func={() =>
-            navigation.navigate('TagSo', {
-              selectedMedia: mediaWithTags,
-            })
+            navigation.navigate('TagSo', {selectedMedia: mediaWithTags})
           }
         />
+
         <Section
-          title={'Thêm vị trí'}
-          iconRight={require('../../../assets/icon/right.png')}
-          iconLeft={require('../../../assets/icon/location.png')}
+          title="Thêm vị trí"
+          iconLeft={<MapPin size={22} color={color.text} />}
+          iconRight={<ChevronRight size={22} color={color.textSecondary} />}
         />
+
         <Section
-          title={selectedMusic?.song ? selectedMusic.song : 'Thêm nhạc'}
-          iconRight={require('../../../assets/icon/right.png')}
-          iconLeft={require('../../../assets/icon/add_song.png')}
+          title={selectedMusic?.song ?? 'Thêm nhạc'}
+          iconLeft={<Music2 size={22} color={color.text} />}
+          iconRight={<ChevronRight size={22} color={color.textSecondary} />}
           func={() => sheetRef.current?.open()}
         />
+
         <View style={styles.divi}></View>
+
         <Section
-          title={'Lựa chọn khác'}
-          iconRight={require('../../../assets/icon/right.png')}
-          iconLeft={require('../../../assets/icon/threedot.png')}
+          title="Lựa chọn khác"
+          iconLeft={<MoreHorizontal size={22} color={color.text} />}
+          iconRight={<ChevronRight size={22} color={color.textSecondary} />}
         />
-      </ScrollView>
+      </Animated.ScrollView>
+
       <TouchableOpacity style={styles.btnShare} onPress={handleUploadAll}>
         <Text style={styles.textBtn}>Chia sẻ</Text>
       </TouchableOpacity>
+
       <VideoModal
         uri={selectedMedia[0]?.node?.image?.uri}
         visible={isModal}
         onClose={() => setIsModal(false)}
       />
+
       <BottomSheet
         ref={sheetRef}
-        onDoneSelect={(musicInfo: any) => {
+        onDoneSelect={(musicInfo: {
+          musicId: string;
+          timeStart: number;
+          timeEnd: number;
+          song: string;
+          songImage: string;
+        }) => {
           setSelectedMusic(musicInfo);
         }}
       />

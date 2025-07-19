@@ -1,14 +1,37 @@
 import React from 'react';
-import {View, TextInput, TouchableOpacity, Image, Animated} from 'react-native';
+import {
+  View,
+  TextInput,
+  TouchableOpacity,
+  Image,
+  Animated,
+  Text,
+} from 'react-native';
 import {styles} from './styles';
-import {Heart, Send} from 'lucide-react-native';
-export const Footer = ({onLike, isLiked, scaleAnim, onPressSend}: any) => (
+import {Heart, Send, MessageCircle} from 'lucide-react-native';
+
+interface FooterProps {
+  onLike: () => void;
+  isLiked: boolean;
+  scaleAnim: any;
+  onPressSend: () => void;
+  onPressReply: () => void;
+}
+
+export const Footer = ({
+  onLike,
+  isLiked,
+  scaleAnim,
+  onPressSend,
+  onPressReply,
+}: FooterProps) => (
   <View style={styles.viewBottom}>
-    <TextInput
+    <TouchableOpacity
       style={styles.input}
-      placeholder="Gửi tin nhắn"
-      placeholderTextColor={'#fff'}
-    />
+      onPress={onPressReply}
+      activeOpacity={0.7}>
+      <Text style={{color: '#fff', opacity: 0.7}}>Gửi tin nhắn</Text>
+    </TouchableOpacity>
     <View style={styles.viewIcon}>
       <TouchableOpacity onPress={onLike}>
         <Animated.View style={{transform: [{scale: scaleAnim}]}}>

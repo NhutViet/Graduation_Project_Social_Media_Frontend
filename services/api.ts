@@ -1,8 +1,7 @@
 export const BASE_URL = 'http://cirla.io.vn';
-// export const BASE_URL = 'http://172.16.1.219:4001';
-export const CallAppID = 1540310098;
+export const CallAppID = 41521435;
 export const CallAppSign =
-  '3c3dfbc5dcb04d97848e4a1b9e91a7bc8c66db7cbbbe41f188f40101ee33e5f6';
+  '6c6785fccbe2469324a805ea64c58069dc7254723d60c056c925ab48d2aee6a4';
 export const LiveStreamAppID = 192295587;
 export const LiveStreamAppSign =
   '0baa6cfb9bb2efb6d8c859f6ef13dba0fa6eb2df520196e63b8ae8d44bd7663e';
@@ -15,8 +14,10 @@ export const API = {
   HIDDEN_POST: 'user-hidden-post/hide',
   GET_POST: 'posts/user/all',
   GET_TAGGING_POST: 'posts/tags',
+  GET_LIKED_POSTS: 'post-like/liked-posts',
 
   //// comment
+  COMMENT: 'comments',
   GET_COMMENT_POST: 'comments/post',
   ADD_COMMENT: 'comments/add',
 
@@ -24,6 +25,9 @@ export const API = {
   GET_STORY_BY_USERID: '/stories/following/',
   GET_USER_FOLLOW: 'stories/following',
   CREATE_HIGHLIGHT_STORY: '/stories/create/highlight',
+  UPDATE_HIGHLIGHT_STORY: '/stories/update/highlight',
+  DELETE_HIGHLIGHT_STORY: '/stories/delete',
+  SHARE_STORY: '/stories/send',
   //// music
   GET_ALL_MUSIC: 'music/find-all',
 
@@ -42,10 +46,17 @@ export const API = {
   GET_BLOCKING: '/relations/blocking',
   RELATION_ACTION: 'relations/relation-action',
   GET_RECOMMENDATIONS: 'relations/recommendations',
+  GET_RELATIONSHIP: 'relations',
   //// Register
   REGISTER: 'users/register',
   /// User
   GET_PUBLIC_PROFILE: '/users/public',
+  GET_USER_ID_BY_HANDLE: '/users/username-by-handle',
+  CHANGE_PASSWORD: '/users/password',
+  VALIDATE_USER: '/users/validate',
+  /// Forgot and reset password
+  INIT_FORGOT_PASSWORD: '/users/forgot-password',
+  CONFIRM_NEW_PASSWORD: '/users/forgot-password/confirm',
   ////bookmark
   POST_SAVE_BOOKMARK: 'bookmark-playlists/add-default',
   DELETE_BOOKMARK: 'bookmark-items/remove',
@@ -60,12 +71,14 @@ export const API = {
   GET_MY_ROOMS: 'rooms/my',
   GET_MY_WAITING_ROOMS: 'rooms/waiting/my',
   ROOM: 'rooms',
+  UPDATE_ROOM_STATUS: 'rooms',
 
   //// Auth
   GET_ACCESS_TOKEN: 'users/refresh-access-token',
 
   //// Message
   MESSAGES_URL: 'messages',
+  MESSAGES_MEDIA: 'messages/media',
 
   ////Search
   POST_SEARCH_POST: 'posts/search',
@@ -74,5 +87,5 @@ export const API = {
   ////Notification
   NOTIFICATION_API: 'notification/send',
   NOTIFICATION_API_FOLLOW: 'relations/followers/send-notification',
-  GET_NOTIFICATIONS: 'notification'
+  GET_NOTIFICATIONS: 'notification',
 };

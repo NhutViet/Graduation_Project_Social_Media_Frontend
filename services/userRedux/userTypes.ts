@@ -2,6 +2,7 @@ export interface User {
   deletedAt: boolean;
   _id: string;
   username: string;
+  password: string;
   email: string;
   phoneNumber: string;
   handleName: string;
@@ -14,6 +15,7 @@ export interface User {
   createdAt: string;
   updateAt: string;
   currentSessionId: string;
+  wantNotified?: boolean;
 }
 
 export interface UserRes {
@@ -30,6 +32,8 @@ export interface EditUserDto {
   dateOfBirth?: string;
   handleName?: string;
   profilePic?: string;
+  wantNotified?: boolean;
+  fcmToken?: string;
 }
 
 export interface PublicUserRes {
@@ -44,4 +48,3 @@ export interface PublicUserRes {
   userFollowing: boolean;
   userBlocked: boolean;
 }
-
