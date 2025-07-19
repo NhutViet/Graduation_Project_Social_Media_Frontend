@@ -14,13 +14,15 @@ import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '@services/store';
-import {fetchHighlightStory} from '@services/StoryRedux/StorySlice';
+import {fetchHighlightStory, deleteHighlightStory, updateHighlightStory} from '@services/StoryRedux/StorySlice';
 import {clearHighlightStories} from '@services/StoryRedux/StoryReducer';
 import {Plus} from 'lucide-react-native';
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import {handleHighlightPress} from '../../Home/util/index';
 import {useHighlightStoryPrefetch} from '../hooks/useHighlightStoryPrefetch';
 import LoadingModal from '../../../../components/Global/LoadingModal';
+import HighlightMenuModal from './HighlightMenuModal';
+import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 
 const ITEM_SIZE = 70;
 
@@ -41,6 +43,8 @@ const HighlightStoriesComponent: React.FC<HighlightStoriesComponentProps> = ({
   const [isLoadingModalVisible, setIsLoadingModalVisible] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [menuModalVisible, setMenuModalVisible] = useState(false);
+  const [selectedHighlight, setSelectedHighlight] = useState<any>(null);
 
   const {highlightStories, loading} = useSelector(
     (state: RootState) => state.stories,
@@ -109,6 +113,37 @@ const HighlightStoriesComponent: React.FC<HighlightStoriesComponentProps> = ({
     navigation.navigate('Archive');
   };
 
+  const handleLongPress = useCallback((highlight: any) => {
+    if (!isOwnProfile) return; // Chỉ cho phép nhấn giữ trên profile của mình
+    setSelectedHighlight(highlight);
+    setMenuModalVisible(true);
+  }, [isOwnProfile]);
+
+  const handleDeleteHighlight = useCallback(async () => {
+    if (!selectedHighlight?._id) return;
+
+    try {
+    
+      const result = await dispatch(deleteHighlightStory({highlightId: selectedHighlight._id})).unwrap();
+
+      GlobalAlertManager.show('Thành công', 'Highlight đã được xóa');
+      setSelectedHighlight(null);
+    } catch (error: any) {
+      console.error('🔍 Error deleting highlight:', error);
+      const errorMessage = error?.message || error?.toString() || 'Không thể xóa highlight';
+      GlobalAlertManager.show('Lỗi', errorMessage);
+    }
+  }, [dispatch, selectedHighlight]);
+
+  const handleEditHighlight = useCallback(() => {
+    if (!selectedHighlight) return;
+    // Navigate to edit screen with highlight data
+    navigation.navigate('HighlightEditScreen', {
+      highlight: selectedHighlight,
+    });
+    setSelectedHighlight(null);
+  }, [navigation, selectedHighlight]);
+
   const handleHighlightItemPress = useCallback(
     async (highlight: any) => {
       if (!user) return;
@@ -164,7 +199,9 @@ const HighlightStoriesComponent: React.FC<HighlightStoriesComponentProps> = ({
       return (
         <TouchableOpacity
           style={styles.highlightItem}
-          onPress={() => handleHighlightItemPress(item)}>
+          onPress={() => handleHighlightItemPress(item)}
+          onLongPress={() => handleLongPress(item)}
+          delayLongPress={500}>
           <View style={styles.highlightCircle}>
             {item.thumbnail || item.mediaUrl ? 
               <Image
@@ -188,7 +225,7 @@ const HighlightStoriesComponent: React.FC<HighlightStoriesComponentProps> = ({
         </TouchableOpacity>
       );
     },
-    [getCachedHighlightStoryData, handleHighlightItemPress, color],
+    [getCachedHighlightStoryData, handleHighlightItemPress, handleLongPress, color],
   );
 
   const renderSkeletonItem = () => (
@@ -276,6 +313,18 @@ const HighlightStoriesComponent: React.FC<HighlightStoriesComponentProps> = ({
           </View>
         </View>
       </Modal>
+
+      {/* Highlight Menu Modal */}
+      <HighlightMenuModal
+        visible={menuModalVisible}
+        onClose={() => {
+          setMenuModalVisible(false);
+          setSelectedHighlight(null);
+        }}
+        onDelete={handleDeleteHighlight}
+        onEdit={handleEditHighlight}
+        highlightName={selectedHighlight?.collectionName}
+      />
     </View>
   );
 };

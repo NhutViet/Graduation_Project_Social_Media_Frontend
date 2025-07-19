@@ -11,6 +11,8 @@ import {
   deleteStory,
   createStory,
   shareStory,
+  deleteHighlightStory,
+  updateHighlightStory,
 } from './StorySlice';
 
 interface StoryState {
@@ -386,6 +388,49 @@ const storySlice = createSlice({
       .addCase(shareStory.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Không thể chia sẻ story';
+      })
+      // ====== DELETE HIGHLIGHT STORY ======
+      .addCase(deleteHighlightStory.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(
+        deleteHighlightStory.fulfilled,
+        (state, action: PayloadAction<{highlightId: string}>) => {
+          const {highlightId} = action.payload;
+          state.highlightStories = state.highlightStories.filter(
+            highlight => highlight._id !== highlightId,
+          );
+          state.loading = false;
+          state.error = null;
+        },
+      )
+      .addCase(deleteHighlightStory.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Không thể xóa highlight story';
+      })
+      // ====== UPDATE HIGHLIGHT STORY ======
+      .addCase(updateHighlightStory.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(
+        updateHighlightStory.fulfilled,
+        (state, action: PayloadAction<Story>) => {
+          const updatedHighlight = action.payload;
+          const index = state.highlightStories.findIndex(
+            highlight => highlight._id === updatedHighlight._id,
+          );
+          if (index !== -1) {
+            state.highlightStories[index] = updatedHighlight;
+          }
+          state.loading = false;
+          state.error = null;
+        },
+      )
+      .addCase(updateHighlightStory.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Không thể cập nhật highlight story';
       });
   },
 });
