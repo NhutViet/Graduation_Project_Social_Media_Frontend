@@ -19,7 +19,6 @@ import {
   ScreenQRCode,
   MessageBox,
   Streaming,
-  CameraScreen,
   CreateGroupScreen,
   BlockedAccounts,
   BookmarkScreen,

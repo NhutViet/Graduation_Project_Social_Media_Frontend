@@ -4,7 +4,6 @@ import {
   Text,
   Image,
   TouchableOpacity,
-  Dimensions,
   StyleSheet,
   Modal,
   FlatList,
@@ -14,7 +13,10 @@ import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '@services/store';
-import {fetchHighlightStory, deleteHighlightStory, updateHighlightStory} from '@services/StoryRedux/StorySlice';
+import {
+  fetchHighlightStory,
+  deleteHighlightStory,
+} from '@services/StoryRedux/StorySlice';
 import {clearHighlightStories} from '@services/StoryRedux/StoryReducer';
 import {Plus} from 'lucide-react-native';
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
@@ -113,24 +115,29 @@ const HighlightStoriesComponent: React.FC<HighlightStoriesComponentProps> = ({
     navigation.navigate('Archive');
   };
 
-  const handleLongPress = useCallback((highlight: any) => {
-    if (!isOwnProfile) return; // Chỉ cho phép nhấn giữ trên profile của mình
-    setSelectedHighlight(highlight);
-    setMenuModalVisible(true);
-  }, [isOwnProfile]);
+  const handleLongPress = useCallback(
+    (highlight: any) => {
+      if (!isOwnProfile) return; // Chỉ cho phép nhấn giữ trên profile của mình
+      setSelectedHighlight(highlight);
+      setMenuModalVisible(true);
+    },
+    [isOwnProfile],
+  );
 
   const handleDeleteHighlight = useCallback(async () => {
     if (!selectedHighlight?._id) return;
 
     try {
-    
-      const result = await dispatch(deleteHighlightStory({highlightId: selectedHighlight._id})).unwrap();
+      const result = await dispatch(
+        deleteHighlightStory({highlightId: selectedHighlight._id}),
+      ).unwrap();
 
       GlobalAlertManager.show('Thành công', 'Highlight đã được xóa');
       setSelectedHighlight(null);
     } catch (error: any) {
       console.error('🔍 Error deleting highlight:', error);
-      const errorMessage = error?.message || error?.toString() || 'Không thể xóa highlight';
+      const errorMessage =
+        error?.message || error?.toString() || 'Không thể xóa highlight';
       GlobalAlertManager.show('Lỗi', errorMessage);
     }
   }, [dispatch, selectedHighlight]);
@@ -203,15 +210,18 @@ const HighlightStoriesComponent: React.FC<HighlightStoriesComponentProps> = ({
           onLongPress={() => handleLongPress(item)}
           delayLongPress={500}>
           <View style={styles.highlightCircle}>
-            {item.thumbnail || item.mediaUrl ? 
+            {item.thumbnail || item.mediaUrl ? (
               <Image
                 source={{uri: item.thumbnail || item.mediaUrl}}
                 style={styles.highlightImage}
-              />:
+              />
+            ) : (
               <View style={styles.placeholderView}>
-                <Text style={{color: color.textSecondary, fontSize: 50}}>-</Text>
+                <Text style={{color: color.textSecondary, fontSize: 50}}>
+                  -
+                </Text>
               </View>
-            }
+            )}
             {/* Hiển thị indicator nếu chưa pre-load xong */}
             {!isPreloaded && item.storyId?.length > 0 && (
               <View style={styles.preloadDot}>
@@ -225,7 +235,12 @@ const HighlightStoriesComponent: React.FC<HighlightStoriesComponentProps> = ({
         </TouchableOpacity>
       );
     },
-    [getCachedHighlightStoryData, handleHighlightItemPress, handleLongPress, color],
+    [
+      getCachedHighlightStoryData,
+      handleHighlightItemPress,
+      handleLongPress,
+      color,
+    ],
   );
 
   const renderSkeletonItem = () => (
@@ -427,7 +442,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#E0E0E0',
-  }
+  },
 });
 
 export default HighlightStoriesComponent;

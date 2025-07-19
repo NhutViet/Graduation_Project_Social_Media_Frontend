@@ -46,53 +46,13 @@ const UserFollowersTab = ({route}: any) => {
   }, [dispatch, userID, myUserId]);
 
   const followersList = useSelector(selectDisplayViewedFollowers);
-
-  const displayList = followersList.filter(u =>
-    u.handleName.toLowerCase().includes(searchQuery.toLowerCase()),
+  const displayList = useMemo(
+    () =>
+      followersList.filter(u =>
+        u.handleName.toLowerCase().includes(searchQuery.toLowerCase()),
+      ),
+    [followersList, searchQuery],
   );
-
-  const renderItem: ListRenderItem<DisplayProfile> = ({item}) => {
-    const isMe = item._id === myUserId;
-    return (
-      <View style={styles.userContainer}>
-        <TouchableOpacity style={styles.touchableInfo}>
-          {item.profilePic ? (
-            <Image source={{uri: item.profilePic}} style={styles.avatar} />
-          ) : (
-            <User size={22} color={color.text} />
-          )}
-          <View style={styles.userInfo}>
-            <Text style={[styles.handle, {color: color.text}]}>
-              {item.handleName}
-            </Text>
-            <Text style={[styles.username, {color: color.textSecondary}]}>
-              {item.username}
-            </Text>
-          </View>
-        </TouchableOpacity>
-        {!isMe && (
-          <TouchableOpacity
-            style={[
-              styles.actionButton,
-              item.isMeFollowing
-                ? [styles.messageButton, {borderColor: color.text}]
-                : styles.followBack,
-            ]}
-            onPress={() => handleActionButton(item)}>
-            <Text
-              style={[
-                styles.buttonText,
-                item.isMeFollowing
-                  ? [styles.messageText, {color: color.text}]
-                  : styles.followText,
-              ]}>
-              {item.isMeFollowing ? 'Bạn bè' : 'Theo dõi'}
-            </Text>
-          </TouchableOpacity>
-        )}
-      </View>
-    );
-  };
 
   const handleActionButton = useCallback(
     async (item: DisplayProfile) => {
@@ -105,24 +65,18 @@ const UserFollowersTab = ({route}: any) => {
               type: 'waiting',
             }),
           ).unwrap();
-
           const {room} = res;
-
-          const otherUsers = room.user_ids.filter(
-            user => user._id !== myUserId,
-          );
+          const otherUsers = room.user_ids.filter(u => u._id !== myUserId);
           const img1 = otherUsers[0]?.profilePic;
-          const img2 = myUserId
-            ? room.user_ids.find(user => user._id === myUserId)?.profilePic
-            : undefined;
-
+          const img2 = room.user_ids.find(u => u._id === myUserId)?.profilePic;
           navigation.navigate('MessageScreen', {
             room: room._id,
             img1,
             img2,
           });
-        } catch (error) {
-          console.log('Tạo room thất bại:', error);
+        } catch (err) {
+          GlobalAlertManager.show('Thất bại', 'Không thể tạo phòng chat.');
+          console.log(err);
         }
       } else {
         try {
@@ -134,13 +88,59 @@ const UserFollowersTab = ({route}: any) => {
               handleName: user?.handleName,
             }),
           ).unwrap();
-        } catch (error) {
+        } catch (err) {
           GlobalAlertManager.show('Thất bại', 'Vui lòng thử lại sau.');
-          console.log(error);
+          console.log(err);
         }
       }
     },
     [dispatch, navigation, myUserId, user],
+  );
+
+  const renderItem: ListRenderItem<DisplayProfile> = useCallback(
+    ({item}) => {
+      const isMe = item._id === myUserId;
+      return (
+        <View style={styles.userContainer}>
+          <TouchableOpacity style={styles.touchableInfo}>
+            {item.profilePic ? (
+              <Image source={{uri: item.profilePic}} style={styles.avatar} />
+            ) : (
+              <User size={40} color={color.text} />
+            )}
+            <View style={styles.userInfo}>
+              <Text style={[styles.handle, {color: color.text}]}>
+                {item.handleName}
+              </Text>
+              <Text style={[styles.username, {color: color.textSecondary}]}>
+                {item.username}
+              </Text>
+            </View>
+          </TouchableOpacity>
+          {!isMe && (
+            <TouchableOpacity
+              style={[
+                styles.actionButton,
+                item.isMeFollowing
+                  ? [styles.messageButton, {borderColor: color.text}]
+                  : styles.followBack,
+              ]}
+              onPress={() => handleActionButton(item)}>
+              <Text
+                style={[
+                  styles.buttonText,
+                  item.isMeFollowing
+                    ? [styles.messageText, {color: color.text}]
+                    : styles.followText,
+                ]}>
+                {item.isMeFollowing ? 'Bạn bè' : 'Theo dõi'}
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      );
+    },
+    [color, handleActionButton, myUserId],
   );
 
   if (loading) {
@@ -163,7 +163,7 @@ const UserFollowersTab = ({route}: any) => {
     return (
       <View
         style={[styles.emptyContainer, {backgroundColor: color.background}]}>
-        <UserX size={styles.emptyImage?.width || 60} color={color.text} />
+        <UserX size={60} color={color.text} />
         <Text style={[styles.emptyTitle, {color: color.text}]}>
           Người dùng hiện tại chưa có người theo dõi
         </Text>
@@ -185,53 +185,50 @@ const UserFollowersTab = ({route}: any) => {
               borderBottomColor: color.border,
             },
           ]}>
-          <View style={[styles.searchBarContainer]}>
-            <View style={styles.searchInputContainer}>
-              <Search size={22} color={color.text} style={styles.searchIcon} />
-              <TextInput
-                ref={searchInputRef}
-                style={[
-                  styles.searchBar,
-                  {color: color.text, backgroundColor: color.lessBlack},
-                ]}
-                placeholder="Tìm kiếm"
-                placeholderTextColor={color.text}
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-              />
-              {searchQuery.length > 0 && (
-                <TouchableOpacity
-                  style={styles.clearButton}
-                  onPress={() => setSearchQuery('')}>
-                  <X size={22} color={color.text} />
-                </TouchableOpacity>
-              )}
-            </View>
+          <View style={styles.searchBarContainer}>
+            <TextInput
+              ref={searchInputRef}
+              style={[
+                styles.searchBar,
+                {color: color.text, backgroundColor: color.lessBlack},
+              ]}
+              placeholder="Tìm kiếm"
+              placeholderTextColor={color.text}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+            <Search size={22} color={color.text} />
+            {searchQuery.length > 0 && (
+              <TouchableOpacity
+                style={styles.clearButton}
+                onPress={() => setSearchQuery('')}>
+                <X size={20} color={color.text} />
+              </TouchableOpacity>
+            )}
           </View>
         </View>
       )}
 
-      {displayList.length === 0 && searchQuery.length && (
+      {displayList.length === 0 && searchQuery.length > 0 ? (
         <View
-          style={[
-            styles.emptyContainer,
-            {backgroundColor: color.background, flex: 2, paddingTop: 150},
-          ]}>
-          <UserX size={styles.emptyImage?.width || 60} color={color.text} />
+          style={[styles.emptyContainer, {backgroundColor: color.background}]}>
+          <UserX size={60} color={color.text} />
           <Text style={[styles.emptyTitle, {color: color.text}]}>
             Không tìm thấy tên người dùng
           </Text>
         </View>
+      ) : (
+        <View style={{flex: 1}}>
+          <FlashList
+            data={displayList}
+            keyExtractor={item => item._id}
+            renderItem={renderItem}
+            estimatedItemSize={60}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.listContent}
+          />
+        </View>
       )}
-
-      <FlashList
-        data={displayList}
-        keyExtractor={item => item._id}
-        renderItem={renderItem}
-        estimatedItemSize={60}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContent}
-      />
     </View>
   );
 };
@@ -277,7 +274,6 @@ const styles = StyleSheet.create({
   },
   messageButton: {
     borderWidth: 1,
-    borderColor: '#ccc',
   },
   buttonText: {
     fontSize: 14,
@@ -286,42 +282,7 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   messageText: {
-    color: '#000',
-  },
-  cancelButton: {
-    marginLeft: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 10,
-    height: 10,
-  },
-  cancelImage: {
-    width: 10,
-    height: 10,
-  },
-  searchIcon: {
-    height: 15,
-    width: 15,
-    position: 'absolute',
-    resizeMode: 'contain',
-    left: 12,
-    zIndex: 1,
-  },
-  searchBar: {
-    flex: 1,
-    paddingRight: 45,
-    paddingLeft: 45,
-    paddingVertical: 10,
-    borderRadius: 10,
-  },
-  searchBarContainer: {
-    marginVertical: 3,
-  },
-
-  searchInputContainer: {
-    position: 'relative',
-    flexDirection: 'row',
-    alignItems: 'center',
+    // color được override inline
   },
   searchBarArea: {
     position: 'absolute',
@@ -334,43 +295,46 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0.5,
     marginBottom: 8,
   },
+  searchBarContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  searchBar: {
+    flex: 1,
+    paddingVertical: 5,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    marginRight: 10,
+  },
+  clearButton: {
+    position: 'absolute',
+    right: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   listContent: {
     paddingTop: 70,
   },
-  center: {flex: 1, justifyContent: 'center', alignItems: 'center'},
-  errorText: {fontSize: 16},
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorText: {
+    fontSize: 16,
+  },
   emptyContainer: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 0,
     padding: 20,
   },
-  emptyImage: {
-    width: 180,
-    height: 180,
-    marginBottom: 24,
-  },
   emptyTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 8,
+    fontSize: 18,
+    marginTop: 10,
   },
   emptySubtitle: {
     fontSize: 14,
     textAlign: 'center',
-  },
-  clearButton: {
-    position: 'absolute',
-    right: Colors.spacing.m,
-    width: 24,
-    height: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  clearIcon: {
-    width: 14,
-    height: 14,
   },
 });

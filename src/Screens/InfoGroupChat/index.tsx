@@ -274,6 +274,7 @@ export const styles = StyleSheet.create({
     marginBottom: 8,
   },
   name: {
+    marginTop: 8,
     fontSize: 18,
     fontWeight: 'bold',
   },

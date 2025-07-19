@@ -34,7 +34,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
     <View
       style={[
         styles.inputContainer,
-        {backgroundColor: 'rgba(243, 244, 246, 0.6)', zIndex: 10},
+        {backgroundColor: 'rgba(243, 244, 246, 0.7)', zIndex: 10},
       ]}>
       <TouchableOpacity style={styles.blockCamera}>
         <Camera size={22} color={color.black} />

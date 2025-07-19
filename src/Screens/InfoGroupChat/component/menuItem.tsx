@@ -7,13 +7,11 @@ import {
   LinkIcon,
   Lock,
   UserCheck,
-  UserPlus,
   Users,
 } from 'lucide-react-native';
 import React, {memo, useCallback} from 'react';
 import {TouchableOpacity, View, Text, Image} from 'react-native';
 import {styles} from '../index';
-import {FlashList} from '@shopify/flash-list';
 
 interface MenuItemProps {
   icon: React.ReactNode;
@@ -58,9 +56,9 @@ export const MenuSection = memo(
       setVisibleThemeModal(true);
     }, [setVisibleThemeModal]);
 
-  const handlePeoplePress = useCallback(() => {
-    navigation.navigate('PeopleGroupChat', {roomId: room});
-  }, [navigation]);
+    const handlePeoplePress = useCallback(() => {
+      navigation.navigate('PeopleGroupChat', {roomId: room});
+    }, [navigation]);
 
     const handleCreateGroupPress = useCallback(() => {
       navigation.navigate('CreateGroupScreen');

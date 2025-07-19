@@ -68,11 +68,6 @@ const LoadingModal: React.FC<{withBackdrop?: boolean}> = ({
     outputRange: ['0deg', '360deg'],
   });
 
-  const shimmerTranslate = shimmer.interpolate({
-    inputRange: [0, 1],
-    outputRange: [-SIZE * 0.55, SIZE * 0.7],
-  });
-
   return (
     <View style={[styles.container, withBackdrop && styles.backdrop]}>
       <Animated.View

@@ -16,7 +16,10 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 import {ArrowLeft, Link2, Search, X, CheckCircle2} from 'lucide-react-native';
 import {useDispatch} from 'react-redux';
-import {addPeopleToGroupChat, getAvaibleFriends} from '@services/roomRedux/roomSlice';
+import {
+  addPeopleToGroupChat,
+  getAvaibleFriends,
+} from '@services/roomRedux/roomSlice';
 import {AppDispatch} from '@services/store';
 
 type UserType = {
@@ -127,7 +130,11 @@ export const AddPeopleToGroupChat = () => {
       <View
         style={[
           styles.header,
-          {borderBottomWidth: 1, borderBottomColor: colors.gray, marginTop: 10},
+          {
+            borderBottomWidth: 1,
+            borderBottomColor: colors.gray,
+            marginVertical: 10,
+          },
         ]}>
         <TouchableOpacity
           style={styles.iconBack}

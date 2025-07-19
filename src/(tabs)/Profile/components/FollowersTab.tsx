@@ -208,30 +208,27 @@ const FollowersTab = () => {
         </View>
       )}
 
-      {displayList.length === 0 && searchQuery.length && (
+      {displayList.length === 0 && searchQuery.length ? (
         <View
-          style={[
-            styles.emptyContainer,
-            {backgroundColor: color.background, flex: 2, paddingTop: 150},
-          ]}>
-          <UserX size={styles.emptyImage?.width || 60} color={color.text} />
+          style={[styles.emptyContainer, {backgroundColor: color.background}]}>
+          <UserX size={40} color={color.text} />
           <Text style={[styles.emptyTitle, {color: color.text}]}>
-            Không tìm thấy tên người dùng
+            Không tìm thấy người dùng
           </Text>
         </View>
+      ) : (
+        <View style={{flex: 1}}>
+          <FlashList
+            data={displayList}
+            keyExtractor={item => item._id}
+            renderItem={renderItem}
+            estimatedItemSize={50}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.listContent}
+            extraData={followingIds}
+          />
+        </View>
       )}
-
-      <View style={{flex: 1}}>
-        <FlashList
-          data={displayList}
-          keyExtractor={item => item._id}
-          renderItem={renderItem}
-          estimatedItemSize={50}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.listContent}
-          extraData={followingIds}
-        />
-      </View>
     </View>
   );
 };
@@ -302,8 +299,9 @@ const styles = StyleSheet.create({
   searchBar: {
     flex: 1,
     paddingRight: 10,
-    paddingLeft: 40,
+    paddingLeft: 20,
     paddingVertical: 5,
+    marginRight: 10,
     borderRadius: 10,
   },
   searchBarContainer: {
@@ -325,8 +323,14 @@ const styles = StyleSheet.create({
   listContent: {
     paddingTop: 70,
   },
-  center: {flex: 1, justifyContent: 'center', alignItems: 'center'},
-  errorText: {fontSize: 16},
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorText: {
+    fontSize: 16,
+  },
   emptyContainer: {
     flex: 1,
     alignItems: 'center',
@@ -339,9 +343,8 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   emptyTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 8,
+    fontSize: 18,
+    marginTop: 10,
   },
   emptySubtitle: {
     fontSize: 14,
@@ -349,9 +352,7 @@ const styles = StyleSheet.create({
   },
   clearButton: {
     position: 'absolute',
-    right: Colors.spacing.m,
-    width: 24,
-    height: 24,
+    right: 40,
     justifyContent: 'center',
     alignItems: 'center',
   },
