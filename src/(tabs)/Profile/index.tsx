@@ -314,19 +314,19 @@ const Profile = () => {
   const renderContent = () => {
     switch (activeTab) {
       case 'grid':
-        return isSuccess && PostsItem && PostsItem.length > 0 ? (
+        return isSuccess && PostsItem ? (
           <PostsView data={PostsItem} />
         ) : (
           <LoadingPlaceholder />
         );
       case 'reels':
-        return isSuccess && ReelsItem && ReelsItem.length > 0 ? (
+        return isSuccess && ReelsItem ? (
           <ReelsView data={ReelsItem} />
         ) : (
           <LoadingPlaceholder />
         );
       case 'tags':
-        return isSuccess && taggedPosts && taggedPosts.length > 0 ? (
+        return isSuccess && taggedPosts ? (
           <TagsView data={taggedPosts as TaggedPost[]} />
         ) : (
           <LoadingPlaceholder />
