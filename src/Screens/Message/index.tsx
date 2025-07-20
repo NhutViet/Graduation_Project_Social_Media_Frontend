@@ -59,7 +59,6 @@ export const MessageScreen = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'MessageScreen'>>();
   const {
     room: roomId,
-    isWaiting = false,
     highlightMessageId,
     scrollToIndex,
   } = route?.params || {};
@@ -121,10 +120,10 @@ export const MessageScreen = () => {
 
   useEffect(() => {
     setChat([]);
-    if (rooms?._id) {
-      dispatch(fetchMessages({roomId: rooms._id}));
+    if (roomId) {
+      dispatch(fetchMessages({roomId: roomId}));
     }
-  }, [rooms?._id]);
+  }, [roomId]);
 
   useEffect(() => {
     setChat(messages);
@@ -322,8 +321,8 @@ export const MessageScreen = () => {
   // console.log(` 258 >>>>>>>>> ${isMeSender} <<<<<<<<<<<<< `);
   // console.log(` 259 >>>>>>>>> ${relationStatus} <<<<<<<<<<<<< `);
   const MessageRequestBanner = ({onAccept}: {onAccept: () => void}) => (
-    <View style={styles.requestBanner}>
-      <Text style={styles.requestBannerText}>
+    <View style={[styles.requestBanner, {backgroundColor: color.backgroundSecondary}]}>
+      <Text style={[styles.requestBannerText, {color: color.text}]}>
         {isMeSender
           ? `Đang chờ ${roomMember1?.handleName} chấp nhận để tiếp tục cuộc trò chuyện.`
           : `${roomMember1?.handleName} muốn nhắn tin cho bạn. Chấp nhận để tiếp tục cuộc trò chuyện.`}
@@ -335,7 +334,7 @@ export const MessageScreen = () => {
             {backgroundColor: color.background, shadowColor: color.text},
           ]}
           onPress={onAccept}>
-          <Text style={styles.callText}>Chấp nhận</Text>
+          <Text style={[styles.callText, {color: color.text}]}>Chấp nhận</Text>
         </TouchableOpacity>
       )}
     </View>

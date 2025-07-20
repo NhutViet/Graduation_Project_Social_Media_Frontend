@@ -25,7 +25,6 @@ import CustomPopupModal, {
 } from '../../../components/Global/CustomPopupModal';
 import {
   X,
-  ChevronDown,
   Check,
   GalleryHorizontal,
   ImageOff,
@@ -38,7 +37,7 @@ export const AddPost = () => {
   const {theme} = useTheme();
   const color = Colors[theme];
   const {width} = Dimensions.get('window');
-  const navigation: any = useNavigation();
+  const navigation = useNavigation<any>();
   const [medias, setMedias] = useState<PhotoIdentifier[]>([]);
   const [pageInfo, setPageInfo] = useState<
     PhotoIdentifiersPage['page_info'] | null
@@ -55,12 +54,10 @@ export const AddPost = () => {
 
   //phân loại ảnh và video
   const [filter, setFilter] = useState(() => {
-    console.log('typoe', type);
     if (type === 'video') return 'Thước phim';
     if (type === 'image') return 'Hình ảnh';
     return 'Tất cả';
   });
-  const [showModalFilter, setShowModalFilter] = useState(false);
 
   const styles = getAddPostStyles(theme);
 
@@ -102,11 +99,8 @@ export const AddPost = () => {
 
       setMedias(result.edges);
       setPageInfo(result.page_info);
-      if (result.edges.length > 0) {
-        setSelectedMedia(result.edges[0]); // tự động chọn ảnh đầu tiên
-      }
     } catch (error) {
-      console.log('AddPost line 26: ', error);
+      console.error('err: ', error);
     }
   };
 
@@ -116,7 +110,7 @@ export const AddPost = () => {
       if (hasPermission) {
         fetchMedia();
       } else {
-        console.log('AddPost line 63: Permission denied');
+        console.error('Permission denied to access media');
       }
     })();
   }, [filter]);
@@ -236,11 +230,6 @@ export const AddPost = () => {
       }
       return next;
     });
-  };
-
-  const handleFilter = (filter: string) => {
-    setFilter(filter);
-    setShowModalFilter(false);
   };
 
   return (

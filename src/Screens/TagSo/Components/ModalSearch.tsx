@@ -17,6 +17,7 @@ import User from './User';
 import {UserProfile} from '@services/relationRedux/relationTypes';
 import {useFocusEffect} from '@react-navigation/native';
 import LoadingModal from '../../../../components/Global/LoadingModal';
+import { Colors } from '@assets/color/Colors';
 
 type ModalSearchProps = {
   visible: boolean;
@@ -73,6 +74,8 @@ const ModalSearch = (props: ModalSearchProps) => {
         <View style={styles.container}>
           <View style={styles.RowSpace}>
             <TextInput
+              placeholder='Tìm kiếm'
+              placeholderTextColor={Colors.border}
               value={searchText}
               onChangeText={setSearchText}
               style={styles.search}

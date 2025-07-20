@@ -1,5 +1,4 @@
 import {
-  Image,
   StyleSheet,
   Text,
   View,
@@ -17,22 +16,17 @@ import {Modalize} from 'react-native-modalize';
 import {Portal} from 'react-native-portalize';
 import StoriesTab from './StoriesTab';
 import HighlightsTab from './HighlightsTab';
-import {useDispatch, useSelector} from 'react-redux';
-import {AppDispatch, RootState} from '../../../../../services/store';
 import {BookOpen, Star} from 'lucide-react-native';
 
 const TopTab = createMaterialTopTabNavigator();
 
 // Định nghĩa ITEM_SIZE trong StoryArchive
 const {width} = Dimensions.get('window');
-const ITEM_SIZE = width / 3;
 
 const StoryArchive = () => {
   const navigation: any = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];
-  const dispatch = useDispatch<AppDispatch>();
-  const {myStories, loading} = useSelector((state: RootState) => state.stories);
   const ModalArchiveRef = useRef<Modalize>(null);
 
   const openArchiveModal = useCallback((): void => {
@@ -62,7 +56,11 @@ const StoryArchive = () => {
         <TopTab.Navigator
           tabBar={({state, descriptors, navigation, position}) => (
             <View
-              style={{flexDirection: 'row', backgroundColor: color.background}}>
+              style={{
+                flexDirection: 'row',
+                backgroundColor: color.background,
+                marginBottom: 10,
+              }}>
               {state.routes.map((route, index) => {
                 const {options} = descriptors[route.key];
                 const isFocused = state.index === index;

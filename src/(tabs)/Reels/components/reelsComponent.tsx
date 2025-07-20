@@ -205,13 +205,6 @@ const ReelsComponent = memo((props: any) => {
               <MoreVertical size={26} color={Colors.white} />
             </TouchableOpacity>
           </View>
-          <View style={styles.sectionContainer}>
-            <TouchableOpacity
-              style={styles.iconMusicContainer}
-              onPress={() => navigation.navigate('SaveMusic')}>
-              <Music size={18} color={Colors.white} />
-            </TouchableOpacity>
-          </View>
         </View>
       </View>
     </View>

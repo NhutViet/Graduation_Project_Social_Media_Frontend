@@ -13,13 +13,14 @@ import {UploadProvider} from '../services/UploadProgressManager';
 import {Buffer} from 'buffer';
 import {TabLoadingProvider} from '../services/TabLoadingContext';
 import {SocketProvider} from '../services/SocketContext';
-import {KeyboardAvoidingView, Platform} from 'react-native';
-
 import {LogBox} from 'react-native';
 import AppContent from './AppContent';
+import {HeadAlertProvider} from '../components/Global/HeadAlertProvider';
 
 LogBox.ignoreLogs(['Warning: componentWillReceiveProps has been renamed']);
-LogBox.ignoreLogs(['This method is deprecated (as well as all React Native Firebase namespaced API)'])
+LogBox.ignoreLogs([
+  'This method is deprecated (as well as all React Native Firebase namespaced API)',
+]);
 global.Buffer = Buffer;
 
 if (__DEV__) {
@@ -37,19 +38,17 @@ const App = () => {
         <PersistGate loading={null} persistor={persistor}>
           <SocketProvider>
             <ThemeProvider>
-              <KeyboardAvoidingView
-                style={{flex: 1}}
-                behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-                <SafeAreaProvider>
-                  <Host>
-                    <UploadProvider>
+              <SafeAreaProvider>
+                <Host>
+                  <UploadProvider>
+                    <HeadAlertProvider>
                       <TabLoadingProvider>
                         <AppContent />
                       </TabLoadingProvider>
-                    </UploadProvider>
-                  </Host>
-                </SafeAreaProvider>
-              </KeyboardAvoidingView>
+                    </HeadAlertProvider>
+                  </UploadProvider>
+                </Host>
+              </SafeAreaProvider>
             </ThemeProvider>
           </SocketProvider>
         </PersistGate>

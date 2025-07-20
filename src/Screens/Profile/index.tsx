@@ -9,7 +9,6 @@ import {
 } from 'react-native';
 import {
   ChevronLeft,
-  Lock,
   Ellipsis,
   Grid,
   UserSquare2,
@@ -220,19 +219,6 @@ const ProfileComp = ({route}: any) => {
       dispatch(clearPostsAndReels());
     };
   }, []);
-  const renderPrivateContent = () => {
-    return (
-      <View style={styles.privateContainer}>
-        <View style={styles.lockIconContainer}>
-          <Lock size={50} color={Colors[theme].text} />
-        </View>
-        <Text style={styles.privateTitle}>Đây là tài khoản riêng tư</Text>
-        <Text style={styles.privateDescription}>
-          Theo dõi tài khoản này để thấy ảnh và video của họ.
-        </Text>
-      </View>
-    );
-  };
 
   const [activeTab, setActiveTab] = useState('grid');
 

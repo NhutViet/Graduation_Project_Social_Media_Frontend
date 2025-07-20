@@ -41,26 +41,6 @@ import ModalSeeMore from './componentStoryOwner/ModelSeeMore';
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 
-// ✅ Simple Loading Component as fallback
-const SimpleLoading = () => (
-  <View
-    style={{
-      flex: 1,
-      backgroundColor: '#000',
-      justifyContent: 'center',
-      alignItems: 'center',
-    }}>
-    <LoadingModal />
-    <Text
-      style={{
-        color: '#fff',
-        marginTop: 10,
-        fontSize: 16,
-      }}>
-      Đang tải story...
-    </Text>
-  </View>
-);
 
 export const SeenStory = ({route, navigation}: any) => {
   const {
@@ -108,7 +88,6 @@ export const SeenStory = ({route, navigation}: any) => {
   const [wasPausedByUser, setWasPausedByUser] = useState(false);
   const progressValues = useRef<number[]>(stories.map(() => 0)).current;
   const isNavigatingRef = useRef(false);
-  const currentIndexRef = useRef(0);
 
   // ✅ Check if current user is the story owner
   const isCurrentUserStory =
@@ -622,65 +601,6 @@ export const SeenStory = ({route, navigation}: any) => {
     );
   };
 
-  const renderTags = () => {
-    const tags = selectedItem?.tags || [];
-
-    return tags.map((tagData: any, index: number) => {
-      const {user: userId, position, handleName, username} = tagData;
-
-      if (!userId || !position || !handleName) {
-        return null;
-      }
-
-      const {x, y} = position;
-
-      // ✅ Use data directly from tag object (backend puts user info at tag level)
-      const finalUserData = {
-        _id: userId, // user field is the ID
-        handleName: handleName,
-        username: username,
-      };
-
-      const tagPosition = getCaptionPosition(x * 100, y * 100);
-      const handleTagPress = () => {
-        if (finalUserData._id) {
-          // ✅ Kiểm tra nếu là chính tài khoản hiện tại thì chuyển qua Account
-          if (finalUserData._id === yourUserId) {
-            navigation.navigate('Account');
-          } else {
-            navigation.navigate('ProfileComp', {
-              userID: finalUserData._id,
-            });
-          }
-        } else {
-          console.log('❌ No userID found');
-        }
-      };
-
-      return (
-        <TouchableOpacity
-          key={index}
-          onPress={handleTagPress}
-          activeOpacity={0.7}
-          style={{
-            position: 'absolute',
-            left: tagPosition.left,
-            top: tagPosition.top,
-            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-            paddingHorizontal: 12,
-            paddingVertical: 8,
-            borderRadius: 15,
-            zIndex: 999,
-            borderWidth: 1,
-            borderColor: 'rgba(255, 255, 255, 0.3)',
-          }}>
-          <Text style={{color: '#fff', fontSize: 14, fontWeight: '600'}}>
-            @{finalUserData.handleName}
-          </Text>
-        </TouchableOpacity>
-      );
-    });
-  };
 
   // logic khi nhấn vàp textInput thì dứng story
   useEffect(() => {

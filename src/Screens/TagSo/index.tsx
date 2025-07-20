@@ -147,7 +147,7 @@ export const TagSo = () => {
         <TouchableOpacity
           style={styles.btnAdd}
           onPress={() => setVisible(true)}>
-          <Text style={[styles.title, {fontSize: 14}]}>Mời bạn bè</Text>
+          <Text style={[styles.title, {fontSize: 14}]}>Gắn thẻ bạn bè</Text>
         </TouchableOpacity>
         <View
           style={[styles.container, {paddingHorizontal: 24, paddingTop: 20}]}>

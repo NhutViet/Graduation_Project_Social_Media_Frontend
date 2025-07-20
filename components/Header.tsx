@@ -16,7 +16,7 @@ import {RootState} from '@services/store';
 import {getUnreadNotificationCount} from '@services/notificationRedux/notificationSlice';
 
 import {
-  Heart,
+  Bell,
   MessageSquare,
   ArrowLeft,
   ScanLine,
@@ -152,7 +152,7 @@ const Header = (props: HeaderProps) => {
             <TouchableOpacity
               style={styles.iconBox}
               onPress={() => navigation.navigate('NotificationsScreen')}>
-              <Heart size={22} color={color.text} />
+              <Bell size={22} color={color.text} />
               {(unreadCount > 0 || isReadNoti) && (
                 <View
                   style={[styles.badge, {backgroundColor: color.primary}]}

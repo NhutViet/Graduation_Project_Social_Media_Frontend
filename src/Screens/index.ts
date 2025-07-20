@@ -15,7 +15,6 @@ export * from './Register';
 export * from './EditProfile';
 export * from './PendingMessages';
 export * from './SeenStory';
-
 export * from './Message';
 export * from './UserInfo';
 export * from './MessageBox';
@@ -33,15 +32,12 @@ export * from './QRScanner';
 export * from './InfoGroupChat';
 export * from './InfoGroupChat/GroupGallery.tsx';
 export * from './QRScanner';
-export * from './HorizontalScreen';
 export * from './Setting/ShowActivity.tsx';
-export * from './MusicDetail';
 export * from './LikedScreen';
 export * from './MusicSaved';
 export * from './Setting/Archive';
 export * from './AddCollectionScreen';
 export * from './LinkToGroup';
-export * from './MusicDetail';
 export * from './ChangePassword';
 export * from './Setting/YourActivity';
 export * from './UserInfo/components/SearchMessages.tsx';
@@ -58,8 +54,7 @@ export * from './Setting/HelpCenter';
 export * from './Setting/HelpCenter/FAQ.tsx';
 export * from './Setting/HelpCenter/Contact.tsx';
 export * from './Setting/HelpCenter/ReportProblem.tsx';
-export * from './Setting/HelpCenter/SupportRequest.tsx';
 export * from './MessageUndefined';
-export * from './ForgotPassword'
-export * from './ConfirmationCode'
-export * from './PrivacySafetyChat'
+export * from './ForgotPassword';
+export * from './ConfirmationCode';
+export * from './PrivacySafetyChat';

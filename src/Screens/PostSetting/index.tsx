@@ -36,21 +36,13 @@ import Animated, {
   useAnimatedScrollHandler,
   useSharedValue,
 } from 'react-native-reanimated';
-
 import {
   ArrowLeft,
-  BarChart2,
   Clapperboard,
   UserPlus2,
-  MapPin,
   Music2,
-  MoreHorizontal,
   ChevronRight,
 } from 'lucide-react-native';
-
-type Params = {
-  updated?: TaggedMedia[];
-};
 
 export const PostSetting = () => {
   const {theme} = useTheme();
@@ -85,9 +77,10 @@ export const PostSetting = () => {
 
   const handleChangeText = (text: string) => {
     setCaption(text);
-    const lastAt = text.lastIndexOf('@');
+    const trimmedText = text.trim();
+    const lastAt = trimmedText.lastIndexOf('@');
     if (lastAt !== -1) {
-      const textAfterAt = text.slice(lastAt + 1);
+      const textAfterAt = trimmedText.slice(lastAt + 1);
       const isValidQuery = /^[a-zA-Z0-9_]*$/.test(textAfterAt);
       if (isValidQuery) {
         setMentionQuery(textAfterAt);
@@ -189,20 +182,28 @@ export const PostSetting = () => {
       if (uploadPostWithMedia.fulfilled.match(resultAction)) {
         GlobalAlertManager.show('🎉 Thành công', 'Bài viết đã được tải lên!');
         setMediaWithTags([]);
-        navigation.reset({
-          index: 0,
-          routes: [{name: 'BottomTabs'}],
-        });
       } else {
         GlobalAlertManager.show('Thất bại', 'Tải lên thất bại');
+        setMediaWithTags([]);
       }
     } catch (error) {
       GlobalAlertManager.show('Lỗi', 'Đã có lỗi khi upload');
     }
   };
 
-  const countAllTag = (media: TaggedMedia[]): number =>
-    media.reduce((sum, item) => sum + (item.tags?.length ?? 0), 0);
+  const countAllTag = (media: TaggedMedia[]): number => {
+    const uniqueUserIds = new Set<string>();
+
+    media.forEach(item => {
+      item.tags?.forEach(tag => {
+        if (tag.user?._id) {
+          uniqueUserIds.add(tag.user._id);
+        }
+      });
+    });
+
+    return uniqueUserIds.size;
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -288,13 +289,6 @@ export const PostSetting = () => {
           }}
         />
 
-        <TouchableOpacity style={styles.btnTD}>
-          <BarChart2 size={22} color={color.text} style={styles.icon} />
-          <Text style={[styles.textR, {fontWeight: 'normal'}]}>
-            Thăm dò ý kiến
-          </Text>
-        </TouchableOpacity>
-
         <Section
           title="Gắn thẻ người khác"
           iconLeft={<UserPlus2 size={22} color={color.text} />}
@@ -306,29 +300,23 @@ export const PostSetting = () => {
         />
 
         <Section
-          title="Thêm vị trí"
-          iconLeft={<MapPin size={22} color={color.text} />}
-          iconRight={<ChevronRight size={22} color={color.textSecondary} />}
-        />
-
-        <Section
           title={selectedMusic?.song ?? 'Thêm nhạc'}
           iconLeft={<Music2 size={22} color={color.text} />}
           iconRight={<ChevronRight size={22} color={color.textSecondary} />}
           func={() => sheetRef.current?.open()}
         />
-
-        <View style={styles.divi}></View>
-
-        <Section
-          title="Lựa chọn khác"
-          iconLeft={<MoreHorizontal size={22} color={color.text} />}
-          iconRight={<ChevronRight size={22} color={color.textSecondary} />}
-        />
       </Animated.ScrollView>
 
-      <TouchableOpacity style={styles.btnShare} onPress={handleUploadAll}>
-        <Text style={styles.textBtn}>Chia sẻ</Text>
+      <TouchableOpacity
+        style={styles.btnShare}
+        onPress={() => {
+          handleUploadAll();
+          navigation.reset({
+            index: 0,
+            routes: [{name: 'BottomTabs'}],
+          });
+        }}>
+        <Text style={styles.textBtn}>Đăng bài</Text>
       </TouchableOpacity>
 
       <VideoModal

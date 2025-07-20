@@ -60,10 +60,6 @@ export const MenuSection = memo(
       navigation.navigate('PeopleGroupChat', {roomId: room});
     }, [navigation]);
 
-    const handleCreateGroupPress = useCallback(() => {
-      navigation.navigate('CreateGroupScreen');
-    }, [navigation]);
-
     const handleMoveToGalleryPress = useCallback(() => {
       navigation.navigate('GroupGallery', {roomId: room});
     }, [navigation, room]);
@@ -167,13 +163,6 @@ export const MenuSection = memo(
           icon={<Lock size={22} color={color.text} />}
           title="Quyền riêng tư và bảo mật"
           onPress={() => navigation.navigate('PrivacySafetyChat')}
-          textColor={color.text}
-        />
-
-        <MenuItem
-          icon={<Users size={22} color={color.text} />}
-          title="Tạo nhóm mới"
-          onPress={handleCreateGroupPress}
           textColor={color.text}
         />
 

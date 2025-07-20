@@ -145,15 +145,7 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[
-              styles.imgContainer,
-              {
-                overflow:
-                  user1?.profilePic && !user2?.profilePic
-                    ? 'hidden'
-                    : undefined,
-              },
-            ]}
+            style={[{width: '100%', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, gap: 10}]}
             onPress={() => {
               if (user1?.profilePic && user2?.profilePic) {
                 navigation.navigate('InforGroupChat', {
@@ -166,35 +158,47 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
                   roomId: room?._id,
                   img1: user1?.profilePic,
                   nameChat: user1?.handleName,
+                  userId: user1?._id
                 });
               }
             }}>
-            {user2?.profilePic && (
-              <>
-                <Image
-                  style={[styles.iconW, {width: 30, height: 30}]}
-                  source={{uri: user1?.profilePic}}
-                />
-                <Image
-                  style={[
-                    styles.iconF,
-                    {
-                      borderColor: Colors.white,
-                      backgroundColor: color.backgroundSecondary,
-                    },
-                  ]}
-                  source={{uri: user2?.profilePic}}
-                />
-              </>
-            )}
-            {!user2?.profilePic && user1?.profilePic && (
-              <Image style={styles.img} source={{uri: user1?.profilePic}} />
-            )}
-          </TouchableOpacity>
+            <View
+              style={[
+                styles.imgContainer,
+                {
+                  overflow:
+                    user1?.profilePic && !user2?.profilePic
+                      ? 'hidden'
+                      : undefined,
+                },
+              ]}>
+              {user2?.profilePic && (
+                <>
+                  <Image
+                    style={[styles.iconW, {width: 30, height: 30}]}
+                    source={{uri: user1?.profilePic}}
+                  />
+                  <Image
+                    style={[
+                      styles.iconF,
+                      {
+                        borderColor: Colors.white,
+                        backgroundColor: color.backgroundSecondary,
+                      },
+                    ]}
+                    source={{uri: user2?.profilePic}}
+                  />
+                </>
+              )}
+              {!user2?.profilePic && user1?.profilePic && (
+                <Image style={styles.img} source={{uri: user1?.profilePic}} />
+              )}
+            </View>
 
-          <Text style={{color: color.text, fontSize: 16}} numberOfLines={1}>
-            {room?.name?.trim() || user1?.handleName || 'No name'}
-          </Text>
+            <Text style={{color: color.text, fontSize: 16}} numberOfLines={1}>
+              {room?.name?.trim() || user1?.handleName || 'No name'}
+            </Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.rowContainer1}>
@@ -275,7 +279,6 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 23,
-    marginHorizontal: 10,
     alignItems: 'center',
     justifyContent: 'center',
   },

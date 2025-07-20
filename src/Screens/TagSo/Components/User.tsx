@@ -24,6 +24,7 @@ const User = (props: UserProps) => {
         gap: 10,
         marginVertical: 10,
       }}
+      disabled={isDelete}
       onPress={() => {
         if (!isDelete) {
           func();

@@ -34,21 +34,20 @@ export const Header = ({
   isOwner = false,
 }: HeaderProps) => {
   const [timeAgo, setTimeAgo] = useState('');
-  
+
   useEffect(() => {
     if (!createdAt) return;
 
     const updateTimeAgo = () => {
       const now = new Date();
-      const created = new Date(createdAt);
+      const created = new Date(createdAt); // ĐÃ tự động xử lý timezone
 
-      // Lấy offset múi giờ hiện tại (ví dụ: -420 phút = GMT+7)
-      const timezoneOffset = now.getTimezoneOffset(); // đơn vị: phút
-      const localCreated = new Date(
-        created.getTime() - timezoneOffset * 60 * 1000,
-      );
+      const diffMs = now.getTime() - created.getTime();
 
-      const diffMs = now.getTime() - localCreated.getTime();
+      if (diffMs < 0) {
+        setTimeAgo('Vừa đăng');
+        return;
+      }
 
       if (diffMs >= 24 * 60 * 60 * 1000) {
         setTimeAgo('');
@@ -64,7 +63,7 @@ export const Header = ({
       } else if (minutes > 0) {
         setTimeAgo(`${minutes} phút trước`);
       } else {
-        setTimeAgo(`${seconds} giây trước`);
+        setTimeAgo('Vừa đăng');
       }
     };
 
