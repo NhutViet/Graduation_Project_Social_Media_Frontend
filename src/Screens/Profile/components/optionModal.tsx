@@ -18,12 +18,13 @@ interface OptionModalProps {
   userID: string;
   isBlock: boolean;
   onBlockChange: (newState: boolean) => void;
+  onReportPress: () => void;
 }
 
 const modalContentHeight = Dimensions.get('window').height * 0.4;
 
 const optionModal = forwardRef<Modalize, OptionModalProps>(
-  ({userID, isBlock: initialIsBlock, onBlockChange}, ref) => {
+  ({userID, isBlock: initialIsBlock, onBlockChange, onReportPress}, ref) => {
     const {theme} = useTheme();
     const color = Colors[theme];
     const dispatch = useDispatch<AppDispatch>();
@@ -71,7 +72,7 @@ const optionModal = forwardRef<Modalize, OptionModalProps>(
               {isBlock ? 'Bỏ chặn' : 'Chặn'}
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.option}>
+          <TouchableOpacity style={styles.option} onPress={onReportPress}>
             <Text style={styles.optionText}>Báo cáo</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.option}>
@@ -81,6 +82,8 @@ const optionModal = forwardRef<Modalize, OptionModalProps>(
           </TouchableOpacity>
         </View>
       </Modalize>
+
+      
     );
   },
 );

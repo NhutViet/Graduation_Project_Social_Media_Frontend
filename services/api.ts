@@ -86,4 +86,7 @@ export const API = {
   NOTIFICATION_API: 'notification/send',
   NOTIFICATION_API_FOLLOW: 'relations/followers/send-notification',
   GET_NOTIFICATIONS: 'notification',
+
+  ////Report user
+  REPORT_USER: '/report-users/report'
 };
