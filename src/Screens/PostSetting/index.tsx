@@ -201,9 +201,20 @@ export const PostSetting = () => {
     }
   };
 
-  const countAllTag = (media: TaggedMedia[]): number =>
-    media.reduce((sum, item) => sum + (item.tags?.length ?? 0), 0);
+  const countAllTag = (media: TaggedMedia[]): number => {
+    const uniqueUserIds = new Set<string>();
 
+    media.forEach(item => {
+      item.tags?.forEach(tag => {
+        if (tag.user?._id) {
+          uniqueUserIds.add(tag.user._id);
+        }
+      });
+    });
+
+    return uniqueUserIds.size;
+  };
+  
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.rowSpace}>
