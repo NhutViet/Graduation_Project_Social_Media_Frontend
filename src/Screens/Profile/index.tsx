@@ -22,6 +22,7 @@ import UserInfo from './components/userInfo.component';
 import {Modalize} from 'react-native-modalize';
 import {Portal} from 'react-native-portalize';
 import OptionModal from './components/optionModal';
+import ReportUserModal, {ReportUserModalHandle} from './components/reportUserModal';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../services/store';
 import {
@@ -44,6 +45,7 @@ import {fetchTaggedPosts} from '@services/taggedPostRedux/taggedPostSlice';
 import HighlightStoriesComponent from '../../(tabs)/Profile/components/HighlightStoriesComponent';
 import {ProfileSkeleton} from '../../../components/SkeletonGrid';
 import {Item} from '@services/postUserRedux/postUserType';
+import { clearReportedUser } from '@services/reportUserRedux/reportUserReducer';
 
 const ProfileComp = ({route}: any) => {
   const navigation: any = useNavigation();
@@ -51,8 +53,12 @@ const ProfileComp = ({route}: any) => {
   const styles = createStyles(theme);
   const userID: string = route.params?.userID;
   const modalOptionRef = useRef<Modalize>(null);
+  const modalReportRef = useRef<ReportUserModalHandle>(null);
   const myUserId = useSelector((state: RootState) => state.user.user?._id);
   const user = useSelector((state: RootState) => state.user.user);
+  const isHidden = useSelector((state: RootState) =>
+    state.reportUser.reportedUsers.includes(userID)
+  );
 
   const [isInitializing, setIsInitializing] = useState(true);
   const prevUserRef = useRef<string | null>(null);
@@ -100,6 +106,13 @@ const ProfileComp = ({route}: any) => {
   const closeOptionModal = () => {
     modalOptionRef.current?.close();
   };
+
+  const openReportModal = () => {
+    modalOptionRef.current?.close();
+    setTimeout(() => {
+      modalReportRef.current?.open(userID);
+    }, 250);
+  }
 
   const [isFollowing, setIsFollowing] = useState(false);
   const [isBlock, setIsBlock] = useState(false);
@@ -220,6 +233,10 @@ const ProfileComp = ({route}: any) => {
     };
   }, []);
 
+  const onShowProfile = () => {
+    dispatch(clearReportedUser({ userId: userID }));
+  };
+
   const [activeTab, setActiveTab] = useState('grid');
 
   const renderTabContent = () => {
@@ -292,6 +309,32 @@ const ProfileComp = ({route}: any) => {
               dispatch(getPublicProfile({userId: userID}));
             }}>
             <Text style={styles.retryButtonText}>Thử lại</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (isHidden) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.Header}>
+            <TouchableOpacity
+              style={{alignItems: 'center', paddingRight: 12}}
+              onPress={() => navigation.goBack()}>
+              <ChevronLeft size={28} color={Colors[theme].text} />
+            </TouchableOpacity>
+            <Text style={styles.headTitle}>{publicProfile.handleName}</Text>
+          </View>
+        <View style={styles.hiddenContainer}>
+          <Text style={styles.hiddenTitle}>
+            Cảm ơn bạn đã báo cáo trang cá nhân này
+          </Text>
+          <Text style={styles.hiddenSubtitle}>
+            Ý kiến của bạn rất quan trọng để giúp chúng tôi bảo vệ cộng đồng.
+          </Text>
+          <TouchableOpacity style={styles.showBtn} onPress={onShowProfile}>
+            <Text style={styles.showBtnText}>Hiển thị trang cá nhân</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -413,6 +456,13 @@ const ProfileComp = ({route}: any) => {
               userID={userID}
               isBlock={isBlock}
               onBlockChange={newState => setIsBlock(newState)}
+              onReportPress={openReportModal}
+            />
+          </Portal>
+
+          <Portal>
+            <ReportUserModal
+              ref={modalReportRef}
             />
           </Portal>
         </View>
@@ -629,6 +679,37 @@ export const createStyles = (theme: 'light' | 'dark') => {
       fontSize: 18,
       fontWeight: '500',
       color: Colors.textSecondary,
+    },
+    hiddenContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: 16,
+      backgroundColor: color.background
+    },
+    hiddenTitle: {
+      fontSize: 17,
+      fontWeight: '600',
+      textAlign: 'center',
+      marginBottom: 12,
+      color: color.text
+    },
+    hiddenSubtitle: {
+      fontSize: 14,
+      color: Colors.textSecondary,
+      textAlign: 'center',
+      marginBottom: 24,
+    },
+    showBtn: {
+      paddingHorizontal: 20,
+      paddingVertical: 12,
+      backgroundColor: Colors.primary,
+      borderRadius: 8,
+    },
+    showBtnText: {
+      color: color.white,
+      fontSize: 16,
+      fontWeight: '500',
     },
   });
 };

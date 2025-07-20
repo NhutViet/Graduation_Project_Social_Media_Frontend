@@ -25,10 +25,11 @@ interface OptionModalProps {
   userID: string;
   isBlock: boolean;
   onBlockChange: (newState: boolean) => void;
+  onReportPress: () => void;
 }
 
 const OptionModal = forwardRef<CustomPopupModalRef, OptionModalProps>(
-  ({userID, isBlock: initialIsBlock, onBlockChange}, ref) => {
+  ({userID, isBlock: initialIsBlock, onBlockChange, onReportPress}, ref) => {
     const {theme} = useTheme();
     const color = Colors[theme];
     const dispatch = useDispatch<AppDispatch>();
@@ -84,8 +85,7 @@ const OptionModal = forwardRef<CustomPopupModalRef, OptionModalProps>(
               {isBlock ? 'Bỏ chặn' : 'Chặn'}
             </Text>
           </TouchableOpacity>
-
-          <TouchableOpacity style={styles.option}>
+          <TouchableOpacity style={styles.option} onPress={onReportPress}>
             <Text style={styles.optionText}>Báo cáo</Text>
           </TouchableOpacity>
 
