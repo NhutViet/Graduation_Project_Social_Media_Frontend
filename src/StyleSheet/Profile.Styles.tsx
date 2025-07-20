@@ -125,19 +125,6 @@ export const Styles = {
       fontSize: 14,
       fontWeight: '600',
     },
-    modeContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginTop: 5,
-      backgroundColor: '#F2F2F2',
-      paddingHorizontal: 8,
-      paddingVertical: 4,
-      borderRadius: 12,
-      alignSelf: 'flex-start',
-    },
-    modeText: {
-      fontSize: 13,
-    },
     bioText: {
       fontSize: 14,
       marginTop: 5,
@@ -151,6 +138,7 @@ export const Styles = {
     actionButtons: {
       flexDirection: 'row',
       paddingHorizontal: 16,
+      marginTop: 10,
       gap: 8,
     },
     headerButton: {

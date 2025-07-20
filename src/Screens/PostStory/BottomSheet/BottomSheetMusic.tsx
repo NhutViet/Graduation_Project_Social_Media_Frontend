@@ -10,7 +10,6 @@ import {
   StyleSheet,
   View,
   TouchableWithoutFeedback,
-  Image,
   TextInput,
   TouchableOpacity,
   Text,
@@ -236,7 +235,12 @@ const BottomSheet = forwardRef<BottomSheetRef, Props>(
               styles.searchContainer,
               {backgroundColor: color.backgroundSecondary},
             ]}>
-            <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}>
               <View style={styles.blockIcon}>
                 <Search size={20} color={color.text} />
               </View>
@@ -376,7 +380,11 @@ const BottomSheet = forwardRef<BottomSheetRef, Props>(
             title: music?.song ?? '',
             artist: music?.author ?? '',
           }}
-          onDoneSelect={onDoneSelect}
+          onDoneSelect={data => {
+            onDoneSelect(data);
+            setIsModalOpen(false);
+            close();
+          }}
           songUrl={songUrl}
         />
       </Modal>

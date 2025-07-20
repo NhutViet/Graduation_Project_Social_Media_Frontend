@@ -72,11 +72,9 @@ const commentReducer = createSlice({
         state.error = action.payload || 'Failed to load comments';
       })
       .addCase(addComment.pending, state => {
-        state.loading = true;
         state.error = null;
       })
       .addCase(addComment.fulfilled, (state, action) => {
-        state.loading = false;
         const newComment = action.payload;
         if (!newComment.parentID) {
           state.comments.push(newComment);
@@ -95,7 +93,6 @@ const commentReducer = createSlice({
         }
       })
       .addCase(addComment.rejected, (state, action) => {
-        state.loading = false;
         state.error = action.payload || 'Thất  bại khi gửi bình luận.';
       });
   },

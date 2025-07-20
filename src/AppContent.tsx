@@ -29,7 +29,6 @@ const AppContent = () => {
         }
         break;
       case 'like':
-      case 'unlike':
       case 'post':
         if (data?.postId) {
           navigationRef.navigate('PostDetailScreen', {
@@ -91,7 +90,6 @@ const AppContent = () => {
                   }
                   break;
                 case 'like':
-                case 'unlike':
                 case 'post':
                   if (modalData.data?.postId) {
                     navigationRef.navigate('PostDetailScreen', {
@@ -115,7 +113,8 @@ const AppContent = () => {
                   break;
                 case 'message':
                   navigationRef.navigate('MessageScreen', {
-                    roomId: modalData.data.roomId,
+                    room: modalData.data.roomId,
+                    isWaiting: modalData.data?.isWaiting,
                   });
                   break;
                 default:

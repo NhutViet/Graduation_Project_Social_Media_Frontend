@@ -1,11 +1,4 @@
-import {
-  Image,
-  StyleSheet,
-  Text,
-  View,
-  Dimensions,
-  TouchableOpacity,
-} from 'react-native';
+import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 import React, {useCallback} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {Colors} from '../../../../assets/color/Colors';
@@ -43,11 +36,6 @@ export const HelpCenter = () => {
       id: 'report',
       title: 'Báo lỗi',
       onPress: () => navigation.navigate('ReportProblemScreen'),
-    },
-    {
-      id: 'support',
-      title: 'Hỗ trợ',
-      onPress: () => navigation.navigate('SupportRequestsScreen'),
     },
   ];
 

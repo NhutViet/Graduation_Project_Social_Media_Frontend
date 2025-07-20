@@ -81,9 +81,9 @@ export const getAddPostStyles = (theme: 'light' | 'dark') => {
     },
     textIn: {
       borderColor: color.transparent,
-      height: 100,
+      height: 150,
       color: color.text,
-      marginHorizontal: 20,
+      margin: 20,
     },
     btnTD: {
       backgroundColor: color.gray,
@@ -110,11 +110,6 @@ export const getAddPostStyles = (theme: 'light' | 'dark') => {
       color: color.background,
       fontSize: 16,
       fontWeight: '700',
-    },
-    divi: {
-      backgroundColor: color.gray,
-      width: '100%',
-      height: 3,
     },
     modal: {
       flex: 1,

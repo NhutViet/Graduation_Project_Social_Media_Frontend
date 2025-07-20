@@ -203,13 +203,6 @@ const Profile = () => {
           <Text style={[styles.displayName, {color: color.text}]}>
             {user?.username}
           </Text>
-          <View style={styles.modeContainer}>
-            <Moon size={14} color={color.textSecondary} />
-            <Text style={[styles.modeText, {color: color.textSecondary}]}>
-              {' '}
-              Ở chế độ im lặng
-            </Text>
-          </View>
           {handleLengthBio(user?.bio)}
         </View>
 
@@ -258,12 +251,6 @@ const Profile = () => {
                 break;
               case 'highlight':
                 navigation.navigate('Archive');
-                break;
-              case 'live':
-                navigation.navigate('LiveStreamSetup');
-                break;
-              case 'ai':
-                navigation.navigate('CreateWithAI');
                 break;
               default:
                 break;

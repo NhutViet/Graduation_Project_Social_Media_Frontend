@@ -28,8 +28,6 @@ const options = [
   {id: 'post', label: 'Bài viết', icon: FileText},
   {id: 'story', label: 'Tin', icon: ImageIcon},
   {id: 'highlight', label: 'Tin nổi bật', icon: CircleFadingArrowUp},
-  {id: 'live', label: 'Video trực tiếp', icon: Camera},
-  {id: 'ai', label: 'AI', icon: Sparkles},
 ];
 
 const ModalCreate = forwardRef<ModalCreateRef, ModalCreateProps>(

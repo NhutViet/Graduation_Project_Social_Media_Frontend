@@ -22,17 +22,7 @@ import {
   saveBookmark,
 } from '../../../../services/bookmarkRedux/bookmarkSlice';
 import {PostWithMedia} from '@services/postRedux/postTypes';
-import {
-  Bookmark,
-  BookmarkCheck,
-  Languages,
-  Subtitles,
-  Maximize,
-  QrCode,
-  Eye,
-  EyeOff,
-  Flag,
-} from 'lucide-react-native';
+import {Bookmark, EyeOff, Flag} from 'lucide-react-native';
 
 export type BottomSheetReelsRef = {
   open: () => void;
@@ -93,13 +83,6 @@ const BottomSheetReels = forwardRef<BottomSheetReelsRef, BottomSheetReelsProps>(
       }
     };
 
-    const quickOptions = [
-      {icon: Languages, label: 'Bản dịch'},
-      {icon: Subtitles, label: 'Phụ đề'},
-      {icon: Maximize, label: 'Xem toàn màn hình'},
-      {icon: QrCode, label: 'Mã QR'},
-    ];
-
     return (
       <CustomPopupModal
         ref={popupRef}
@@ -110,24 +93,13 @@ const BottomSheetReels = forwardRef<BottomSheetReelsRef, BottomSheetReelsProps>(
           <TouchableOpacity
             style={styles.rowItem}
             onPress={handleBookmarkAction}>
-            {isBookmark ? (
-              <BookmarkCheck size={22} color="#F2C641" style={styles.icon} />
-            ) : (
-              <Bookmark size={22} color={colors.black} style={styles.icon} />
-            )}
+            <Bookmark
+              size={22}
+              color={isBookmark ? '#F2C641' : colors.black}
+              fill={isBookmark ? '#F2C641' : Colors.transparent}
+              style={styles.icon}
+            />
             <Text style={styles.textItem}>{isBookmark ? 'Đã lưu' : 'Lưu'}</Text>
-          </TouchableOpacity>
-
-          {quickOptions.map(({icon: Icon, label}) => (
-            <TouchableOpacity key={label} style={styles.rowItem}>
-              <Icon size={22} color={colors.black} style={styles.icon} />
-              <Text style={styles.textItem}>{label}</Text>
-            </TouchableOpacity>
-          ))}
-
-          <TouchableOpacity style={styles.rowItem}>
-            <Eye size={22} color={colors.black} style={styles.icon} />
-            <Text style={styles.textItem}>Quan tâm</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.rowItem}>

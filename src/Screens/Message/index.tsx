@@ -120,10 +120,10 @@ export const MessageScreen = () => {
 
   useEffect(() => {
     setChat([]);
-    if (rooms?._id) {
-      dispatch(fetchMessages({roomId: rooms._id}));
+    if (roomId) {
+      dispatch(fetchMessages({roomId: roomId}));
     }
-  }, [rooms?._id]);
+  }, [roomId]);
 
   useEffect(() => {
     setChat(messages);

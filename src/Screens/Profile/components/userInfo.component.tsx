@@ -29,7 +29,6 @@ const UserInfo: React.FC<UserInfoProps> = ({
   onFollowersPress,
   onFollowingPress,
 }) => {
-  const navigation: any = useNavigation();
   const color = Colors[theme];
   const formatFollowers = (num: number): string => {
     if (num >= 1000000) {

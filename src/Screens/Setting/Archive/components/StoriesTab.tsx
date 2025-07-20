@@ -19,7 +19,7 @@ import {AppDispatch, RootState} from '../../../../../services/store';
 import {fetchGetPostedSotry} from '../../../../../services/StoryRedux/StorySlice';
 import {History, CircleFadingArrowUp, Play} from 'lucide-react-native';
 import {handleHighlightPress} from '../../../../(tabs)/Home/util/index';
-import { SearchSkeletonGrid } from '../../../../../components/SkeletonGrid';
+import {SearchSkeletonGrid} from '../../../../../components/SkeletonGrid';
 
 const formatMonthText = (dateString?: string): string => {
   if (!dateString) return '--\n--';
@@ -54,9 +54,6 @@ const StoriesTab = () => {
   const {theme} = useTheme();
   const color = Colors[theme];
   const user = useSelector((state: RootState) => state.user.user);
-  const storyDetails = useSelector(
-    (state: RootState) => state.stories.storyDetails,
-  );
 
   useEffect(() => {
     dispatch(fetchGetPostedSotry());
@@ -106,9 +103,7 @@ const StoriesTab = () => {
                   repeat={false}
                   paused={isPause}
                 />
-                {isPause && (
-                  <Play size={14} style={styles.playButtonOverlay} />
-                )}
+                {isPause && <Play size={14} style={styles.playButtonOverlay} />}
               </TouchableOpacity>
             ) : (
               <Image source={{uri: item.mediaUrl}} style={styles.media} />
@@ -130,9 +125,7 @@ const StoriesTab = () => {
   };
 
   if (loading) {
-    return (
-      <SearchSkeletonGrid itemWidth={115} itemHeight={230}/>
-    );
+    return <SearchSkeletonGrid itemWidth={115} itemHeight={230} />;
   }
 
   return (
@@ -148,7 +141,7 @@ const StoriesTab = () => {
           keyExtractor={item => item._id}
           numColumns={3}
           contentContainerStyle={{paddingBottom: 16, paddingHorizontal: 8}}
-          columnWrapperStyle={{justifyContent: 'space-between'}}
+          columnWrapperStyle={{justifyContent: 'flex-start', gap: 8}}
           showsVerticalScrollIndicator={false}
         />
       ) : (
@@ -271,9 +264,9 @@ const styles = StyleSheet.create({
   playButtonOverlay: {
     position: 'absolute',
     left: '50%',
-    transform: [{ translateX: -25 }, { translateY: -25 }],
+    transform: [{translateX: -25}, {translateY: -25}],
     width: 50,
-    top: (Dimensions.get('window').height * 50 / 100 - 20),
+    top: (Dimensions.get('window').height * 50) / 100 - 20,
     height: 50,
     justifyContent: 'center',
     alignItems: 'center',

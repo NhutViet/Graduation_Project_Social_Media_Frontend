@@ -1,21 +1,16 @@
-import React, {
-  forwardRef,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-  useState,
-} from 'react';
+import React, {forwardRef, useImperativeHandle, useRef, useState} from 'react';
 import {
   View,
   Text,
   Image,
   TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   StyleSheet,
   Dimensions,
-  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
-import {Modalize} from 'react-native-modalize';
 import {useTheme} from '../../../../src/util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
 import {FlashList} from '@shopify/flash-list';
@@ -28,304 +23,292 @@ import {Portal} from 'react-native-portalize';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 import {checkProfanityAndAlert} from '../../../util/profanityFilter';
 import {incrementCommentCountByPostId} from '@services/postRedux/postReducer';
-import {useSharedValue} from 'react-native-reanimated';
 import {fetchFollowers} from '@services/relationRedux/relationSlice';
-import MentionSuggestion from '../../../../src/Screens/PostSetting/Components/MentionSuggestion';
 import {useNavigation} from '@react-navigation/native';
 import {CommentSkeleton} from '../../../../components/SkeletonGrid';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  runOnJS,
+} from 'react-native-reanimated';
 
-export type BottomSheetCommentRef = {
-  open: () => void;
-  close: () => void;
-};
+export type BottomSheetCommentRef = {open: () => void; close: () => void};
 
 interface Props {
-  selectedPostRef: React.RefObject<{
-    postId: string;
-    receiverId: string;
-  }>;
+  selectedPostRef: React.RefObject<{postId: string; receiverId: string}>;
 }
-const height = Dimensions.get('window').height * 0.9;
+
+interface ReplyTo {
+  id: string;
+  handleName: string;
+  userId?: string;
+}
+
+const SCREEN_HEIGHT = Dimensions.get('window').height;
+const SHEET_HEIGHT = SCREEN_HEIGHT * 0.9;
 
 const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
   ({selectedPostRef}, ref) => {
-    const modalizeRef = useRef<Modalize>(null);
     const dispatch = useDispatch<AppDispatch>();
+    const navigation = useNavigation<any>();
+    const {theme} = useTheme();
+    const color = Colors[theme];
+
     const user = useSelector((state: RootState) => state.user.user);
     const {comments, loading} = useSelector(
       (state: RootState) => state.comment,
     );
-    const {theme} = useTheme();
-    const color = Colors[theme];
-    const [isSending, setIsSending] = useState(false);
-    const [comment, setComment] = useState('');
-    const [replyTo, setReplyTo] = useState<{
-      id: string;
-      handleName: string;
-      userId?: string;
-    } | null>(null);
-    const inputRef = useRef<TextInput>(null);
-    const scrollY = useSharedValue(0);
-    const [mentionQuery, setMentionQuery] = useState('');
-    const [showSuggestions, setShowSuggestions] = useState(false);
-    const inputLayoutY = useSharedValue(0);
-    const {followers} = useSelector((state: RootState) => state.relation);
-    const navigation = useNavigation<any>();
 
-    useImperativeHandle(ref, () => ({
-      open: () => {
-        modalizeRef.current?.open();
-        if (user?._id) {
-          dispatch(fetchFollowers({userId: user._id}));
-        }
-      },
-      close: () => {
-        modalizeRef.current?.close();
-        setReplyTo(null);
-        setComment('');
-        setShowSuggestions(false);
-      },
+    const [visible, setVisible] = useState(false);
+    const [comment, setComment] = useState('');
+    const [replyTo, setReplyTo] = useState<ReplyTo | null>(null);
+    const [isSending, setIsSending] = useState(false);
+
+    const inputRef = useRef<TextInput>(null);
+    const translateY = useSharedValue(SHEET_HEIGHT);
+    const backdropOpacity = useSharedValue(0);
+    const scrollY = useSharedValue(0);
+    const inputLayoutY = useSharedValue(0);
+
+    const onCloseComplete = () => {
+      setVisible(false);
+      setReplyTo(null);
+      setComment('');
+    };
+
+    const open = () => {
+      setVisible(true);
+      if (user?._id) dispatch(fetchFollowers({userId: user._id}));
+      translateY.value = withTiming(0, {duration: 300});
+      backdropOpacity.value = withTiming(1, {duration: 300});
+    };
+
+    const close = () => {
+      translateY.value = withTiming(
+        SHEET_HEIGHT,
+        {duration: 300},
+        finished => finished && runOnJS(onCloseComplete)(),
+      );
+      backdropOpacity.value = withTiming(0, {duration: 300});
+    };
+
+    useImperativeHandle(ref, () => ({open, close}));
+
+    const sheetStyle = useAnimatedStyle(() => ({
+      transform: [{translateY: translateY.value}],
+    }));
+    const backdropStyle = useAnimatedStyle(() => ({
+      opacity: backdropOpacity.value,
     }));
 
     const handleSendComment = async () => {
       if (!comment.trim() || isSending) return;
-      if (checkProfanityAndAlert(comment)) {
-        return;
-      }
-
+      if (checkProfanityAndAlert(comment)) return;
       const payload = {
         postID: selectedPostRef.current?.postId ?? '',
         content: comment.trim(),
         parentID: replyTo?.id || '',
         mediaUrl: null,
       };
-
       setIsSending(true);
       setComment('');
       setReplyTo(null);
-
       try {
-        const res = await dispatch(
+        await dispatch(
           addComment({
             payload,
             handleName: user?.handleName,
-            postId: selectedPostRef.current?.postId ?? '',
+            postId: payload.postID,
             receiverId: selectedPostRef.current?.receiverId,
             userId: user?._id,
-            parentUserId: payload.parentID.length > 0 ? replyTo?.userId : '',
+            parentUserId: replyTo?.userId,
           }),
         );
-
-        dispatch(
-          incrementCommentCountByPostId(selectedPostRef.current?.postId ?? ''),
-        );
-      } catch (error) {
+        dispatch(incrementCommentCountByPostId(payload.postID));
+      } catch {
         GlobalAlertManager.show('Thất bại', 'Không thể bình luận');
       } finally {
         setIsSending(false);
       }
     };
 
-    useEffect(() => {
-      const showSub = Keyboard.addListener('keyboardDidShow', () => {
-        setTimeout(() => {
-          inputRef.current?.measureInWindow((_x, y) => {
-            inputLayoutY.value = y;
-          });
-        }, 100);
-      });
-
-      const hideSub = Keyboard.addListener('keyboardDidHide', () => {
-        setShowSuggestions(false);
-      });
-
-      return () => {
-        showSub.remove();
-        hideSub.remove();
-      };
-    }, []);
-
-    useEffect(() => {
-      const unsubscribe = navigation.addListener('blur', () => {
-        modalizeRef.current?.close();
-        setReplyTo(null);
-        setComment('');
-        setShowSuggestions(false);
-      });
-
-      return unsubscribe;
-    }, [navigation]);
-
     return (
       <Portal>
-        <Modalize
-          ref={modalizeRef}
-          modalStyle={{
-            backgroundColor: color.background,
-            borderTopLeftRadius: 16,
-            borderTopRightRadius: 16,
-          }}
-          handleStyle={{
-            backgroundColor: color.text,
-            height: 6,
-            width: 40,
-            marginBottom: 8,
-          }}
-          handlePosition="inside"
-          panGestureEnabled
-          scrollViewProps={{scrollEnabled: false}}
-          adjustToContentHeight
-          keyboardAvoidingBehavior="padding"
-          onClosed={() => {
-            setReplyTo(null);
-            setComment('');
-          }}>
-          <View style={{flex: 1, height: height, paddingTop: 40}}>
-            {loading ? (
-              <CommentSkeleton itemCount={6} spacing={16} />
-            ) : (
-              <>
-                {comments.length > 0 ? (
-                  <View style={{flex: 1, paddingHorizontal: 20}}>
-                    <FlashList
-                      data={comments}
-                      estimatedItemSize={50}
-                      keyExtractor={item => item._id}
-                      renderItem={({item}) => (
-                        <CommentComponent
-                          postId={selectedPostRef.current?.postId ?? ''}
-                          _id={item._id}
-                          content={item.content}
-                          isDeleted={item.isDeleted}
-                          isLiked={item.isLiked}
-                          createdAt={item.createdAt}
-                          reply={item.reply}
-                          totalLikes={item.totalLikes}
-                          user={item.user}
-                          onReply={(id, handleName, userId) => {
-                            setReplyTo({id, handleName, userId});
-                            setTimeout(() => inputRef.current?.focus(), 200);
-                          }}
-                          navigation={navigation}
+        {visible && (
+          <>
+            <TouchableWithoutFeedback onPress={close}>
+              <Animated.View
+                style={[
+                  styles.backdrop,
+                  {backgroundColor: "'rgba(0,0,0,0.5)"},
+                  backdropStyle,
+                ]}
+              />
+            </TouchableWithoutFeedback>
+
+            <KeyboardAvoidingView
+              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+              style={styles.keyboardAvoid}>
+              <Animated.View
+                style={[
+                  styles.sheet,
+                  {backgroundColor: color.background},
+                  sheetStyle,
+                ]}>
+                <View style={[styles.handle, {backgroundColor: color.text}]} />
+                <View style={styles.content}>
+                  {loading ? (
+                    <CommentSkeleton itemCount={6} spacing={16} />
+                  ) : (
+                    <>
+                      {comments.length ? (
+                        <FlashList
+                          data={comments}
+                          estimatedItemSize={50}
+                          keyExtractor={(item, index) => `${item._id}-${index}`}
+                          onScroll={({nativeEvent}) =>
+                            (scrollY.value = nativeEvent.contentOffset.y)
+                          }
+                          contentContainerStyle={styles.listContainer}
+                          renderItem={({item}) => (
+                            <CommentComponent
+                              postId={selectedPostRef.current?.postId ?? ''}
+                              _id={item._id}
+                              navigation={navigation}
+                              content={item.content}
+                              isDeleted={item.isDeleted}
+                              isLiked={item.isLiked}
+                              createdAt={item.createdAt}
+                              reply={item.reply}
+                              totalLikes={item.totalLikes}
+                              user={item.user}
+                              onReply={(id, handleName, userId) => {
+                                setReplyTo({id, handleName, userId});
+                                setTimeout(
+                                  () => inputRef.current?.focus(),
+                                  200,
+                                );
+                              }}
+                            />
+                          )}
                         />
+                      ) : (
+                        <View style={styles.empty}>
+                          <Text style={{color: color.text}}>
+                            Bạn hãy là người đầu tiên bình luận
+                          </Text>
+                        </View>
                       )}
-                    />
-                  </View>
-                ) : (
-                  <View
-                    style={{
-                      flex: 1,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}>
-                    <Text style={{color: color.text}}>
-                      Bạn hãy là người đầu tiên bình luận
-                    </Text>
-                  </View>
-                )}
-
-                {replyTo && (
-                  <View
-                    style={[
-                      styles.visibleReply,
-                      {backgroundColor: color.backgroundSecondary},
-                    ]}>
-                    <Text style={[styles.txtReply, {color: color.text}]}>
-                      Đang trả lời{' '}
-                      <Text style={[styles.replyName, {color: color.text}]}>
-                        {replyTo.handleName}
-                      </Text>
-                    </Text>
-                    <TouchableOpacity onPress={() => setReplyTo(null)}>
-                      <Text style={styles.cancelReply}>Hủy</Text>
-                    </TouchableOpacity>
-                  </View>
-                )}
-
-                <View style={[styles.inputContainer]}>
-                  <View style={styles.inputRow}>
-                    <View style={styles.blockImg}>
-                      <Image
-                        style={styles.img}
-                        source={{uri: user?.profilePic}}
-                      />
-                    </View>
+                      {replyTo && (
+                        <View
+                          style={[
+                            styles.replyBanner,
+                            {backgroundColor: color.backgroundSecondary},
+                          ]}>
+                          <Text style={[styles.replyText, {color: color.text}]}>
+                            Đang trả lời{' '}
+                            <Text
+                              style={[styles.replyName, {color: color.text}]}>
+                              {replyTo.handleName}
+                            </Text>
+                          </Text>
+                          <TouchableOpacity onPress={() => setReplyTo(null)}>
+                            <Text style={styles.cancel}>Hủy</Text>
+                          </TouchableOpacity>
+                        </View>
+                      )}
+                    </>
+                  )}
+                </View>
+                <View
+                  style={[
+                    styles.inputWrapper,
+                    {backgroundColor: color.background},
+                  ]}>
+                  <Image
+                    source={{uri: user?.profilePic}}
+                    style={styles.avatar}
+                  />
+                  <View style={styles.inputArea}>
                     <TextInput
                       ref={inputRef}
+                      value={comment}
+                      onChangeText={setComment}
                       placeholder={
                         replyTo ? `Trả lời ${replyTo.handleName}` : 'Bình luận'
                       }
                       placeholderTextColor={color.text}
                       style={[
-                        styles.input,
+                        styles.textInput,
                         {
                           color: color.text,
                           backgroundColor: color.backgroundSecondary,
                         },
                       ]}
-                      value={comment}
-                      onLayout={() => {
-                        inputRef.current?.measureInWindow((_x, y) => {
-                          inputLayoutY.value = y;
-                        });
-                      }}
-                      onChangeText={text => {
-                        setComment(text);
-                        const lastAt = text.lastIndexOf('@');
-                        if (lastAt !== -1) {
-                          const textAfterAt = text.slice(lastAt + 1);
-                          const isValid = /^[a-zA-Z0-9_]*$/.test(textAfterAt);
-                          if (isValid) {
-                            setMentionQuery(textAfterAt);
-                            setShowSuggestions(true);
-                            return;
-                          }
-                        }
-                        setShowSuggestions(false);
-                        setMentionQuery('');
-                      }}
-                      onSubmitEditing={() => handleSendComment()}
+                      onLayout={({nativeEvent}) =>
+                        (inputLayoutY.value = nativeEvent.layout.y)
+                      }
+                      onSubmitEditing={handleSendComment}
                     />
-
-                    <MentionSuggestion
-                      visible={showSuggestions}
-                      query={mentionQuery}
-                      followers={followers}
-                      onSelect={handle => {
-                        const lastAt = comment.lastIndexOf('@');
-                        const newText =
-                          comment.slice(0, lastAt + 1) + handle + ' ';
-                        setComment(newText);
-                        setShowSuggestions(false);
-                      }}
-                      backgroundColor={color.background}
-                      scrollY={scrollY}
-                      positionY={inputLayoutY.value}
-                    />
-
-                    {comment.length > 0 && (
-                      <TouchableOpacity
-                        onPress={handleSendComment}
-                        disabled={isSending}>
-                        <Send
-                          size={24}
-                          color={isSending ? 'gray' : color.text}
-                        />
-                      </TouchableOpacity>
-                    )}
                   </View>
+                  {comment ? (
+                    <TouchableOpacity
+                      onPress={handleSendComment}
+                      disabled={isSending}>
+                      <Send size={24} color={isSending ? 'gray' : color.text} />
+                    </TouchableOpacity>
+                  ) : null}
                 </View>
-              </>
-            )}
-          </View>
-        </Modalize>
+              </Animated.View>
+            </KeyboardAvoidingView>
+          </>
+        )}
       </Portal>
     );
   },
 );
 
 const styles = StyleSheet.create({
-  visibleReply: {
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  keyboardAvoid: {
+    position: 'absolute',
+    top: SCREEN_HEIGHT - SHEET_HEIGHT,
+    left: 0,
+    right: 0,
+    height: SHEET_HEIGHT,
+  },
+  sheet: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+  },
+  handle: {
+    alignSelf: 'center',
+    width: 40,
+    height: 6,
+    borderRadius: 3,
+    marginVertical: 8,
+  },
+  content: {
+    flex: 1,
+    paddingTop: 20,
+  },
+  listContainer: {
+    paddingHorizontal: 20,
+  },
+  empty: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  replyBanner: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -333,55 +316,41 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     marginTop: 8,
   },
-  txtReply: {
+  replyText: {
     fontSize: 14,
   },
   replyName: {
     fontWeight: 'bold',
   },
-  cancelReply: {
+  cancel: {
     fontSize: 14,
     fontWeight: '500',
     color: 'red',
   },
-  inputContainer: {
-    width: '100%',
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: 20,
-    paddingVertical: 10,
-    gap: 10,
+    paddingTop: 10,
+    paddingBottom: 40,
     borderTopWidth: 0.5,
     borderColor: '#ccc',
   },
-  inputRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  blockImg: {
+  avatar: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    overflow: 'hidden',
+    marginRight: 10,
   },
-  img: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
-  },
-  icon: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'contain',
-  },
-  blockIcon: {
-    width: 20,
-    height: 20,
-  },
-  input: {
+  inputArea: {
     flex: 1,
-    paddingHorizontal: 20,
-    borderRadius: 15,
+    position: 'relative',
+    marginRight: 10,
+  },
+  textInput: {
     height: 40,
-    marginHorizontal: 10,
+    borderRadius: 15,
+    paddingHorizontal: 20,
   },
 });
 
