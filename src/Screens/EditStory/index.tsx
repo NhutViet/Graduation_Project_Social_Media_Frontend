@@ -30,7 +30,7 @@ import {X, ChevronRight, Play} from 'lucide-react-native';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 import {userFollow} from '@services/StoryRedux/StoryType';
 import LoadingModal from '../../../components/Global/LoadingModal';
-import { Colors } from '@assets/color/Colors';
+import {Colors} from '@assets/color/Colors';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -345,30 +345,7 @@ export const EditStory = ({route, navigation}: any) => {
 
       if (storyResult) {
         GlobalAlertManager.show('Thông báo', 'Đăng story thành công.');
-
         dispatch(forceRefreshStories());
-
-        // ✅ Gửi notification
-        try {
-          await axiosInstance.post(
-            API.NOTIFICATION_API_FOLLOW,
-            {
-              title: `Có tin mới.`,
-              body: `Người dùng ${user?.handleName} vừa đăng một tin mới.`,
-              data: {
-                type: 'story',
-                postId: storyResult?._id,
-              },
-            },
-            {
-              headers: {
-                token: 'refresh',
-              },
-            },
-          );
-        } catch (notificationError) {
-          console.log('Failed to send notification:', notificationError);
-        }
       }
 
       hideUploadModal();
@@ -447,9 +424,7 @@ export const EditStory = ({route, navigation}: any) => {
                         playInBackground={false}
                         playWhenInactive={false}
                       />
-                      {isPause && (
-                        <Play size={20} color={Colors.white} />
-                      )}
+                      {isPause && <Play size={20} color={Colors.white} />}
                     </TouchableOpacity>
                   ) : (
                     <Image

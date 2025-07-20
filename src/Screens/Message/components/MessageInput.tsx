@@ -57,14 +57,8 @@ const MessageInput: React.FC<MessageInputProps> = ({
         </TouchableOpacity>
       ) : (
         <View style={styles.rowContainer}>
-          <TouchableOpacity>
-            <Mic size={22} color={color.black} />
-          </TouchableOpacity>
           <TouchableOpacity onPress={pickImageAndSend}>
             <ImageIcon size={22} color={color.black} />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Plus size={22} color={color.black} />
           </TouchableOpacity>
         </View>
       )}
@@ -98,7 +92,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   rowContainer: {
-    width: '25%',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',

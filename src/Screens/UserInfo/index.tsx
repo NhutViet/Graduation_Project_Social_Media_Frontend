@@ -35,27 +35,25 @@ import {
   User,
   Search,
   Bell,
-  MoreHorizontal,
   Palette,
   Shield,
-  Users,
   ChevronRight,
   Repeat,
   Image as ImageIcon,
   LucideProps,
+  Ban
 } from 'lucide-react-native';
 
 const screenWidth = Dimensions.get('window').width - 8;
 const initialLayout = { width: Dimensions.get('window').width };
-const createFeatureItems = (navigation: any, openNotifications: () => void, handleSearchPress: () => void) => [
-  { icon: User, text: 'Trang tài khoản', onPress: () => { } },
+const createFeatureItems = (navigation: any, openNotifications: () => void, handleSearchPress: () => void, handleProfile: () => void) => [
+  { icon: User, text: 'Trang tài khoản', onPress: handleProfile},
   {
     icon: Search,
     text: 'Tìm kiếm tin nhắn',
     onPress: handleSearchPress,
   },
   { icon: Bell, text: 'Tắt thông báo', onPress: openNotifications },
-  { icon: MoreHorizontal, text: 'Thêm tùy chọn', onPress: () => { } },
 ];
 const createSettingItems = (
   navigation: any,
@@ -64,9 +62,9 @@ const createSettingItems = (
     { icon: Palette, text: 'Chủ đề', onPress: () => setVisibleThemeModal(true) },
     { icon: Shield, text: 'Quyền riêng tư và an toàn', onPress: () => { } },
     {
-      icon: Users,
-      text: 'Tạo nhóm trò chuyện',
-      onPress: () => navigation.navigate('CreateGroupScreen'),
+      icon: Ban,
+      text: 'Chặn người dùng',
+      onPress: () => {},
     },
   ];
 
@@ -75,7 +73,7 @@ export const UserInfo = () => {
   const { theme } = useTheme();
   const navigation = useNavigation<any>();
   const route = useRoute<RouteProp<RootStackParamList, 'InfoUser'>>();
-  const { roomId, img1, nameChat } = route.params || {};
+  const { roomId, img1, nameChat, userId } = route.params || {};
   const dispatch = useDispatch<AppDispatch>();
   const animatedLeftValue = useRef(new Animated.Value(0)).current;
   const [visibleThemeModal, setVisibleThemeModal] = useState(false);
@@ -138,6 +136,11 @@ export const UserInfo = () => {
   const handleSearchPress = useCallback(() => {
     setSearchModalVisible(true);
   }, []);
+
+  const handleProfile = useCallback(() => {
+    console.log('nhấn nè: ', userId);
+    navigation.navigate('ProfileComp', {userID: userId});
+  }, [userId]);
 
   const handleMessageSelect = useCallback((messageId: string, index: number) => {
     // Navigate back to the message screen with the selected message
@@ -249,7 +252,7 @@ export const UserInfo = () => {
   ]);
 
   const Header = memo(() => {
-    const featureItems = createFeatureItems(navigation, openNotifications, handleSearchPress);
+    const featureItems = createFeatureItems(navigation, openNotifications, handleSearchPress, handleProfile);
     const settingItems = createSettingItems(navigation, setVisibleThemeModal);
 
     const renderIcon = (
@@ -261,7 +264,7 @@ export const UserInfo = () => {
         <TouchableOpacity onPress={onPress}>
           <Icon size={22} color={color.text} />
         </TouchableOpacity>
-        <Text style={styles.text}>{text}</Text>
+        <Text style={styles.text} numberOfLines={2} ellipsizeMode='tail'>{text}</Text>
       </View>
     );
 

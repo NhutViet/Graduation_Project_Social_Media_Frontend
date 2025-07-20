@@ -19,6 +19,7 @@ import ChatRoomAvatar from '../../../../components/ChatRoomAvatar';
 import {RootState, AppDispatch} from '../../../../services/store';
 import {Search, UserPlus, X, CheckCircle, Link2} from 'lucide-react-native';
 import LoadingModal from '../../../../components/Global/LoadingModal';
+import Clipboard from '@react-native-clipboard/clipboard';
 
 export interface CombinedItem {
   kind: 'room' | 'friend';
@@ -316,7 +317,12 @@ const ModalShare = forwardRef<ModalShareHandle, ModalShareProps>(
                   </TouchableOpacity>
                 )}
               </View>
-              <TouchableOpacity style={styles.actionItem}>
+              <TouchableOpacity
+                style={styles.actionItem}
+                onPress={() => {
+                  const shareLink = `https://yourapp.com/user/${userID}`;
+                  Clipboard.setString?.(shareLink);
+                }}>
                 <Link2 size={22} color={color.text} />
               </TouchableOpacity>
             </View>

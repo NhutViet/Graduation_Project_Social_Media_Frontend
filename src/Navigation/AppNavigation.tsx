@@ -93,6 +93,7 @@ export type RootStackParamList = {
     roomId: string;
     img1?: string;
     nameChat: string;
+    userId?: string;
   };
   ZegoCallScreen: {
     userID: string;
