@@ -151,24 +151,7 @@ export const PeopleGroupChat = () => {
       </View>
 
       <ScrollView style={styles.container}>
-        {admin && admin.user_id === mine && (
-          <View style={styles.rowSpace}>
-            <Text style={[styles.title, {fontWeight: '400'}]}>
-              Cần phải được phê duyệt để tham gia
-            </Text>
-            <Switch
-              value={isReqired}
-              onValueChange={setIsReqired}
-              trackColor={{
-                false: colors.border,
-                true: colors.primary,
-              }}
-              thumbColor={colors.white}
-            />
-          </View>
-        )}
-
-        {admin && <Text style={styles.titleS}>Quản lý</Text>}
+        {admin && <Text style={styles.titleS}>Trưởng nhóm</Text>}
 
         {admin && (
           <View style={{marginHorizontal: 24}}>
