@@ -204,7 +204,7 @@ export const PostSetting = () => {
 
     return uniqueUserIds.size;
   };
-  
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.rowSpace}>
@@ -310,7 +310,7 @@ export const PostSetting = () => {
       <TouchableOpacity
         style={styles.btnShare}
         onPress={() => {
-          handleUploadAll;
+          handleUploadAll();
           navigation.reset({
             index: 0,
             routes: [{name: 'BottomTabs'}],
