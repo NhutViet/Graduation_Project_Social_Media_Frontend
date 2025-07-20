@@ -61,11 +61,12 @@ const ModalShare = forwardRef<ModalShareHandle, ModalShareProps>(
       open: () => {
         loadData();
         modalizeRef.current?.open();
+        setSelectedFriendIds([]);
+        setMessage('');
+        setSearchQuery('');
       },
       close: () => {
         modalizeRef.current?.close();
-        setSelectedFriendIds([]);
-        setMessage('');
       },
     }));
 
@@ -73,11 +74,8 @@ const ModalShare = forwardRef<ModalShareHandle, ModalShareProps>(
       if (!userID) return;
       setLoading(true);
       try {
-        //, followers, following
         const [roomsRes] = await Promise.all([
           dispatch(fetchMyRooms()).unwrap(),
-          // dispatch(fetchFollowers({ userId: userID })).unwrap(),
-          // dispatch(fetchFollowing({ userId: userID })).unwrap(),
         ]);
         const roomItems: CombinedItem[] = roomsRes.map(r => {
           const otherUsers = r.user_ids.filter(u => u._id !== userID);
@@ -89,18 +87,6 @@ const ModalShare = forwardRef<ModalShareHandle, ModalShareProps>(
             .filter(pic => pic.length > 0);
           return {kind: 'room', _id: r._id, name, avatars};
         });
-
-        // const allFriends = [...followers, ...following];
-        // const seen = new Set<string>();
-        // const friendItems: CombinedItem[] = allFriends.reduce((acc, u) => {
-        //   if (!seen.has(u._id) && u._id !== userID) {
-        //     seen.add(u._id);
-        //     acc.push({ kind: 'friend', _id: u._id, name: u.username, avatar: u.profilePic });
-        //   }
-        //   return acc;
-        // }, [] as CombinedItem[]);
-
-        //, ...friendItems
         setItems([...roomItems]);
       } catch (e) {
         console.warn(e);
@@ -141,13 +127,6 @@ const ModalShare = forwardRef<ModalShareHandle, ModalShareProps>(
         backgroundColor: color.textSecondary,
         marginBottom: Colors.spacing.s,
       },
-      description: {
-        color: color.textSecondary,
-        fontSize: Colors.typography.fontSizes.s,
-        textAlign: 'center',
-        paddingHorizontal: Colors.spacing.s,
-        marginBottom: Colors.spacing.s,
-      },
       learnMoreText: {
         color: Colors.primary,
       },
@@ -157,7 +136,6 @@ const ModalShare = forwardRef<ModalShareHandle, ModalShareProps>(
         borderRadius: Colors.radius.s,
         paddingHorizontal: Colors.spacing.s,
         height: 40,
-        marginBottom: Colors.spacing.m,
       },
       searchInput: {
         flex: 1,
@@ -205,11 +183,7 @@ const ModalShare = forwardRef<ModalShareHandle, ModalShareProps>(
         marginTop: Colors.spacing.m,
       },
       actionItem: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: 72,
-        height: 72,
-        marginBottom: Colors.spacing.s,
+        paddingVertical: 12,
       },
       actionLabel: {
         color: color.text,
@@ -218,19 +192,18 @@ const ModalShare = forwardRef<ModalShareHandle, ModalShareProps>(
         marginTop: Colors.spacing.xs,
       },
       messageInput: {
-        backgroundColor: color.backgroundSecondary,
         borderRadius: Colors.radius.s,
         color: color.text,
         paddingHorizontal: Colors.spacing.m,
         paddingVertical: Colors.spacing.s,
         marginTop: Colors.spacing.m,
         fontSize: Colors.typography.fontSizes.m,
-        borderWidth: 1,
+        borderBottomWidth: 1,
         borderColor: color.border,
       },
       sendButton: {
         backgroundColor: Colors.primary,
-        paddingVertical: Colors.spacing.m,
+        paddingVertical: Colors.spacing.s,
         borderRadius: Colors.radius.s,
         marginTop: Colors.spacing.m,
       },
@@ -245,7 +218,6 @@ const ModalShare = forwardRef<ModalShareHandle, ModalShareProps>(
         textAlign: 'center',
         fontSize: Colors.typography.fontSizes.xl,
         margin: 30,
-        color: color.textSecondary,
         fontWeight: Colors.typography.fontWeights.regular,
         verticalAlign: 'middle',
       },
@@ -309,43 +281,52 @@ const ModalShare = forwardRef<ModalShareHandle, ModalShareProps>(
         <View style={{height: contentHeight}}>
           {/* Header */}
           <View style={{marginTop: 10}}>
-            <Text style={[styles.description, {color: color.text}]}>
-              Liên kết mà bạn chia sẻ là dành riêng cho bạn và có thể được dùng
-              để cải thiện gợi ý cũng như quảng cáo bạn nhìn thấy.{' '}
-              <Text style={{color: '#0095f6'}}>Tìm hiểu thêm</Text>
-            </Text>
             <View
               style={[
                 styles.searchBox,
-                {backgroundColor: color.backgroundSecondary},
+                {
+                  alignItems: 'center',
+                  gap: 10,
+                  justifyContent: 'space-between',
+                  marginVertical: Colors.spacing.m,
+                },
               ]}>
-              <Search size={20} color="#aaa" />
-              <TextInput
-                ref={searchInputRef}
-                placeholder="Tìm kiếm"
+              <View
                 style={[
-                  styles.searchInput,
-                  {backgroundColor: color.backgroundSecondary},
-                ]}
-                placeholderTextColor={color.textSecondary}
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-              />
-              {searchQuery.length > 0 ? (
-                <TouchableOpacity
-                  style={styles.clearButton}
-                  onPress={() => setSearchQuery('')}>
-                  <X size={18} color={color.text} />
-                </TouchableOpacity>
-              ) : (
-                <UserPlus size={22} color="#aaa" />
-              )}
+                  styles.searchBox,
+                  {backgroundColor: color.backgroundSecondary, flex: 1},
+                ]}>
+                <Search size={20} color="#aaa" />
+                <TextInput
+                  ref={searchInputRef}
+                  placeholder="Tìm kiếm"
+                  style={[
+                    styles.searchInput,
+                    {backgroundColor: color.backgroundSecondary},
+                  ]}
+                  placeholderTextColor={color.textSecondary}
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                />
+                {searchQuery.length > 0 && (
+                  <TouchableOpacity
+                    style={styles.clearButton}
+                    onPress={() => setSearchQuery('')}>
+                    <X size={18} color={color.text} />
+                  </TouchableOpacity>
+                )}
+              </View>
+              <TouchableOpacity style={styles.actionItem}>
+                <Link2 size={22} color={color.text} />
+              </TouchableOpacity>
             </View>
           </View>
 
           {/* Content */}
           {loading ? (
-            <LoadingModal />
+            <View style={styles.emptyContainer}>
+              <LoadingModal />
+            </View>
           ) : items.length === 0 ? (
             <View style={styles.emptyContainer}>
               <Text
@@ -403,32 +384,21 @@ const ModalShare = forwardRef<ModalShareHandle, ModalShareProps>(
           )}
 
           {/* Footer */}
-          {!loading &&
-            (selectedFriendIds.length > 0 ? (
-              <View>
-                <TextInput
-                  placeholder="Soạn tin nhắn..."
-                  placeholderTextColor={color.textSecondary}
-                  style={[
-                    styles.messageInput,
-                    {backgroundColor: color.backgroundSecondary},
-                  ]}
-                  value={message}
-                  onChangeText={setMessage}
-                  multiline
-                />
-                <TouchableOpacity style={styles.sendButton}>
-                  <Text style={styles.sendButtonText}>Gửi</Text>
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <View style={styles.shareActions}>
-                <TouchableOpacity style={styles.actionItem}>
-                  <Link2 size={22} color={color.text} />
-                  <Text style={styles.actionLabel}>Sao chép liên kết</Text>
-                </TouchableOpacity>
-              </View>
-            ))}
+          {!loading && selectedFriendIds.length > 0 && (
+            <View style={{paddingBottom: 10}}>
+              <TextInput
+                placeholder="Soạn tin nhắn..."
+                placeholderTextColor={color.textSecondary}
+                style={styles.messageInput}
+                value={message}
+                onChangeText={setMessage}
+                multiline
+              />
+              <TouchableOpacity style={styles.sendButton}>
+                <Text style={styles.sendButtonText}>Gửi</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
       </Modalize>
     );
