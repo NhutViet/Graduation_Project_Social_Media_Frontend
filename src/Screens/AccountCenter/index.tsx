@@ -1,5 +1,5 @@
 import {Colors} from '@assets/color/Colors';
-import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {useTheme} from '../../../src/util/ThemeContext';
 import {useNavigation} from '@react-navigation/native';
 import {useSelector} from 'react-redux';

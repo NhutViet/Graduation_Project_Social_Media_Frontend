@@ -1,9 +1,8 @@
-import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import React, { useState } from 'react';
+import {Image, StyleSheet, TouchableOpacity, View} from 'react-native';
+import React, {useState} from 'react';
 import Video from 'react-native-video';
 import {useTheme} from '../../../util/ThemeContext';
 import {SearchStyles} from '../../../StyleSheet/SearchStyles';
-import { MediaItem } from '@services/postRedux/postTypes';
 
 interface GridMediaProps {
   images: any[];
@@ -16,7 +15,15 @@ interface GridMediaProps {
 }
 
 const GridMedia = (props: GridMediaProps) => {
-  const {images, index, currentVisibleIndex, isFocused, func, isFocusedPage, isPause} = props;
+  const {
+    images,
+    index,
+    currentVisibleIndex,
+    isFocused,
+    func,
+    isFocusedPage,
+    isPause,
+  } = props;
 
   const theme = useTheme();
   const styles = SearchStyles(theme.theme);
@@ -26,7 +33,9 @@ const GridMedia = (props: GridMediaProps) => {
   const smallImage2 = images[index * 5 + 2];
   const smallImage3 = images[index * 5 + 3];
   const smallImage4 = images[index * 5 + 4];
-  const [isPlaying, setIsPlaying] = useState<boolean>(currentVisibleIndex === index);
+  const [isPlaying, setIsPlaying] = useState<boolean>(
+    currentVisibleIndex === index,
+  );
 
   if (!bigImage) return null;
 
@@ -40,7 +49,9 @@ const GridMedia = (props: GridMediaProps) => {
         marginBottom: 2,
       }}>
       {bigImage && (
-        <TouchableOpacity style={{flex: 1}} onPress={() => setIsPlaying(!isPlaying)}>
+        <TouchableOpacity
+          style={{flex: 1}}
+          onPress={() => setIsPlaying(!isPlaying)}>
           <Video
             source={{
               uri: 'https://res.cloudinary.com/dsvcoywkc/video/upload/v1746718746/my_video/ncd28sjnze0wfaqti2hm.mp4',

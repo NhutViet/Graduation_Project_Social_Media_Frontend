@@ -19,7 +19,6 @@ import {
   ScreenQRCode,
   MessageBox,
   Streaming,
-  CameraScreen,
   CreateGroupScreen,
   BlockedAccounts,
   BookmarkScreen,
@@ -52,6 +51,7 @@ import {
   ConfirmationCode,
   TagSo,
   HighlightCreateScreen,
+  HighlightEditScreen,
   HelpCenter,
   FAQScreen,
   ContactScreen,
@@ -204,6 +204,10 @@ const AppNavigator = () => {
         <Stack.Screen
           name="HighlightCreateScreen"
           component={HighlightCreateScreen}
+        />
+        <Stack.Screen
+          name="HighlightEditScreen"
+          component={HighlightEditScreen}
         />
         <Stack.Screen name="HelpCenter" component={HelpCenter} />
         <Stack.Screen name="FAQScreen" component={FAQScreen} />

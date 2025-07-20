@@ -301,6 +301,7 @@ export const MessageScreen = () => {
         linkPreviews={linkPreviews}
         onLongPress={handleLongPress}
         isHighlighted={highlightedMessageId === item._id}
+        userC={userC}
       />
     ),
     [

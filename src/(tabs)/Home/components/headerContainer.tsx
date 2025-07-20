@@ -2,7 +2,6 @@ import React, {useCallback, useMemo} from 'react';
 import {View, Text} from 'react-native';
 import {FlashList} from '@shopify/flash-list';
 import Story from './Story';
-import LoadingModal from '../../../../components/Global/LoadingModal';
 
 interface StoryListHeaderProps {
   visibleStories: any[];
@@ -30,8 +29,22 @@ const StoryListHeader = React.memo<StoryListHeaderProps>(
     onStoryPress,
     onStoryScroll,
   }) => {
-    const storyData = useMemo(() => {
-      const stories = visibleStories.map(item => {
+    type StoryItem = {
+      id: any;
+      item?: any;
+      name?: any;
+      image?: any;
+      status?: number;
+      hasStory?: boolean;
+      isSeen?: boolean;
+      isCurrentUser?: boolean;
+      isLoading?: boolean;
+      isLoadMore?: boolean;
+      remainingCount?: number;
+    };
+
+    const storyData = useMemo<StoryItem[]>(() => {
+      const stories: StoryItem[] = visibleStories.map(item => {
         const isCurrentUser =
           item._id === user?._id || item.handleName === user?.handleName;
         const story = storyDetails.find(s => s._id === item.stories?.[0]);
@@ -87,27 +100,6 @@ const StoryListHeader = React.memo<StoryListHeaderProps>(
 
     const renderStoryItem = useCallback(
       ({item}: {item: any}) => {
-        if (item.isLoading) {
-          return (
-            <View
-              style={{
-                width: 70,
-                height: 70,
-                marginHorizontal: 8,
-                borderRadius: 35,
-                backgroundColor: color.background,
-                borderWidth: 2,
-                borderColor: color.border,
-                justifyContent: 'center',
-                alignItems: 'center',
-                alignSelf: 'center',
-                marginTop: 18,
-              }}>
-              <LoadingModal />
-            </View>
-          );
-        }
-
         // Render load more indicator
         if (item.isLoadMore) {
           return (

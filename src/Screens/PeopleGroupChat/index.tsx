@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -10,40 +10,130 @@ import {
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import ItemList from './Components/ItemList';
-import {Peoples as list} from './Data';
 import {FlashList} from '@shopify/flash-list';
 import {PeopleGroupChatStyles} from '../../StyleSheet/PeopleGroupChatStyles';
-import {useNavigation} from '@react-navigation/native';
-import {ArrowLeft, UserPlus} from 'lucide-react-native'; // 👈 vector icons
+import {useFocusEffect, useNavigation, useRoute} from '@react-navigation/native';
+import {ArrowLeft, UserPlus} from 'lucide-react-native';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '@services/store';
+import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+import {getRoomUsers} from '@services/roomRedux/roomSlice';
+import {ActivityIndicator} from 'react-native-paper';
+import {relationAction} from '@services/relationRedux/relationSlice';
 
 export const PeopleGroupChat = () => {
   const {theme} = useTheme();
   const colors = Colors[theme];
   const [isReqired, setIsReqired] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [user, setUser] = useState<
     {
-      id: number;
-      name: string;
-      handle: string;
-      uri: string;
+      username: string;
+      handleName: string;
+      profilePic: string;
+      user_id?: string;
+      isFollow: boolean;
+      isCreated: boolean;
     }[]
-  >(list);
+  >([]);
   const [admin, setAdmin] = useState<{
-    id: number;
-    name: string;
-    handle: string;
-    uri: string;
+    username: string;
+    handleName: string;
+    profilePic: string;
+    user_id?: string;
+    isFollow: boolean;
+    isCreated: boolean;
   } | null>(null);
-  const mine = 1;
+  const mine = useSelector((state: RootState) => state.user.user?._id);
+  const handleN = useSelector(
+    (state: RootState) => state.user.user?.handleName,
+  );
+  const route = useRoute();
+  const roomId = (route.params as {roomId: string})?.roomId;
+  const dispatch = useDispatch<AppDispatch>();
+
   const styles = PeopleGroupChatStyles(theme);
   const navigation = useNavigation<any>();
 
-  useEffect(() => {
-    const ad = list.find(prev => prev.id == 2) ?? null;
-    const following = list.filter(prev => prev.id !== 2);
-    setAdmin(ad);
-    setUser(following);
-  }, []);
+  const handleFollowToggle = async (
+    userId: string,
+    follow: boolean,
+    handleName: string,
+  ) => {
+    const actionType = follow ? 'unfollow' : 'follow';
+
+    const prevUsers = [...user];
+
+    setUser(prev =>
+      prev.map(u => (u.user_id === userId ? {...u, isFollow: !follow} : u)),
+    );
+    if (admin?.user_id === userId) {
+      setAdmin({...admin, isFollow: !follow});
+    }
+
+    try {
+      await dispatch(
+        relationAction({
+          targetId: userId,
+          action: actionType,
+          senderId: mine,
+          handleName,
+        }),
+      ).unwrap();
+    } catch (error) {
+      // Rollback UI nếu thất bại
+      setUser(prevUsers);
+      if (admin?.user_id === userId) {
+        setAdmin({
+          username: admin.username ?? '',
+          handleName: admin.handleName ?? '',
+          profilePic: admin.profilePic ?? '',
+          user_id: admin.user_id,
+          isFollow: !follow,
+          isCreated: admin.isCreated ?? false,
+        });
+      }
+
+      console.error('[ERROR] handleFollowToggle failed:', error);
+      GlobalAlertManager.show(
+        'Thất bại',
+        `${actionType === 'follow' ? 'Theo dõi' : 'Bỏ theo dõi'} thất bại`,
+      );
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      setIsLoading(true);
+      const fetchRoomUsers = async () => {
+        try {
+          const res = await dispatch(getRoomUsers({roomId})).unwrap();
+          if (res && res.users.length > 0) {
+            const ad = res.users.find(u => u.isCreated === true) ?? null;
+            const following = res.users.filter(u => u.isCreated !== true);
+            setAdmin(ad);
+            setUser(following);
+          }
+        } catch (error: any) {
+          GlobalAlertManager.show(
+            'Thông báo',
+            error?.response?.data?.message ||
+              'Lấy danh sách người dùng thất bại.',
+          );
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      fetchRoomUsers();
+    }, [roomId]),
+  );
+
+  if (isLoading) {
+    <View style={styles.container}>
+      <ActivityIndicator size="large" color={Colors.primary} />
+    </View>;
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -53,41 +143,55 @@ export const PeopleGroupChat = () => {
         </TouchableOpacity>
         <Text style={styles.title}>Mọi người</Text>
         <TouchableOpacity
-          onPress={() => navigation.navigate('AddPeopleToGroupChat')}>
+          onPress={() =>
+            navigation.navigate('AddPeopleToGroupChat', {roomId: roomId})
+          }>
           <UserPlus size={24} color={colors.text} />
         </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.container}>
-        <View style={styles.rowSpace}>
-          <Text style={[styles.title, {fontWeight: '400'}]}>
-            Cần phải được phê duyệt để tham gia
-          </Text>
-          <Switch
-            value={isReqired}
-            onValueChange={setIsReqired}
-            trackColor={{
-              false: colors.border,
-              true: colors.primary,
-            }}
-            thumbColor={colors.white}
-          />
-        </View>
-
-        <Text style={styles.titleS}>Quản lý</Text>
-        {admin && (
-          <View style={{marginHorizontal: 24}}>
-            <ItemList
-              uri={admin.uri}
-              name={admin.name}
-              handle={admin.handle}
-              isMine={admin.id === mine}
-              isAdmin={true}
+        {admin && admin.user_id === mine && (
+          <View style={styles.rowSpace}>
+            <Text style={[styles.title, {fontWeight: '400'}]}>
+              Cần phải được phê duyệt để tham gia
+            </Text>
+            <Switch
+              value={isReqired}
+              onValueChange={setIsReqired}
+              trackColor={{
+                false: colors.border,
+                true: colors.primary,
+              }}
+              thumbColor={colors.white}
             />
           </View>
         )}
 
-        <Text style={styles.titleS}>Đang theo dõi</Text>
+        {admin && <Text style={styles.titleS}>Quản lý</Text>}
+
+        {admin && (
+          <View style={{marginHorizontal: 24}}>
+            <ItemList
+              isFollow={admin.isFollow}
+              id={admin.user_id ?? ''}
+              uri={admin.profilePic}
+              name={admin.username}
+              handle={admin.handleName}
+              isMine={admin.user_id === mine}
+              isAdmin={true}
+              onHandleMessage={() => {
+                handleFollowToggle(
+                  admin.user_id ?? '',
+                  admin.isFollow,
+                  handleN ?? '',
+                );
+              }}
+            />
+          </View>
+        )}
+
+        <Text style={styles.titleS}>Thành viên</Text>
         <View style={[styles.container, {marginHorizontal: 24}]}>
           <FlashList
             data={user}
@@ -95,10 +199,19 @@ export const PeopleGroupChat = () => {
             showsVerticalScrollIndicator={false}
             renderItem={({item}) => (
               <ItemList
-                uri={item.uri}
-                name={item.name}
-                handle={item.handle}
-                isMine={item.id === mine}
+                isFollow={item.isFollow}
+                id={item.user_id ?? ''}
+                uri={item.profilePic}
+                name={item.username}
+                handle={item.handleName}
+                isMine={item.user_id === mine}
+                onHandleMessage={() => {
+                  handleFollowToggle(
+                    item.user_id ?? '',
+                    item.isFollow,
+                    handleN ?? '',
+                  );
+                }}
               />
             )}
           />

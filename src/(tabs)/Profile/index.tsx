@@ -1,5 +1,12 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {TouchableOpacity, View, Text, SafeAreaView, Image, ScrollView} from 'react-native';
+import {
+  TouchableOpacity,
+  View,
+  Text,
+  SafeAreaView,
+  Image,
+  ScrollView,
+} from 'react-native';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
@@ -29,7 +36,6 @@ import ACNavigateModal, {
   ACNavigateRef,
 } from '../../../src/Screens/AccountCenter/components/ACNavigateModal';
 import {fetchTaggedPosts} from '@services/taggedPostRedux/taggedPostSlice';
-import {FlashList} from '@shopify/flash-list';
 import HighlightStoriesComponent from './components/HighlightStoriesComponent';
 import {TaggedPost} from '@services/taggedPostRedux/taggedPostTypes';
 
@@ -310,23 +316,23 @@ const Profile = () => {
   );
 
   const taggedPosts = useSelector((state: RootState) => state.taggedPosts.data);
-  
+
   const renderContent = () => {
     switch (activeTab) {
       case 'grid':
-        return isSuccess && PostsItem && PostsItem.length > 0 ? (
+        return isSuccess && PostsItem ? (
           <PostsView data={PostsItem} />
         ) : (
           <LoadingPlaceholder />
         );
       case 'reels':
-        return isSuccess && ReelsItem && ReelsItem.length > 0 ? (
+        return isSuccess && ReelsItem ? (
           <ReelsView data={ReelsItem} />
         ) : (
           <LoadingPlaceholder />
         );
       case 'tags':
-        return isSuccess && taggedPosts && taggedPosts.length > 0 ? (
+        return isSuccess && taggedPosts ? (
           <TagsView data={taggedPosts as TaggedPost[]} />
         ) : (
           <LoadingPlaceholder />
@@ -359,10 +365,7 @@ const Profile = () => {
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
-      <ScrollView
-        style={{flex: 1}}
-        showsVerticalScrollIndicator={false}
-        bounces={false}>
+      <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
         {renderHeader()}
         {renderTabBar()}
         {renderContent()}

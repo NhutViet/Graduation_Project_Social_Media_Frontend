@@ -1,11 +1,5 @@
 import React, {useCallback, useRef, useState} from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  TouchableOpacity,
-} from 'react-native';
+import {View, Text, TextInput, TouchableOpacity} from 'react-native';
 import {FlashList} from '@shopify/flash-list';
 import {useProfileEditingStyles} from '../EditProfile/components/ProfileEditingStyles';
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
@@ -17,12 +11,7 @@ import {Room} from '@services/roomRedux/roomType';
 import MessageBoxStyles from '../../../src/StyleSheet/MessageBoxStyles';
 import {useTheme} from '../../../src/util/ThemeContext';
 import {Colors} from '@assets/color/Colors';
-import {
-  ArrowLeft,
-  MessageSquarePlus,
-  Search,
-  XCircle,
-} from 'lucide-react-native';
+import {ArrowLeft, Search, X} from 'lucide-react-native';
 
 export const PendingMessages: React.FC = () => {
   const styles = useProfileEditingStyles();
@@ -54,11 +43,6 @@ export const PendingMessages: React.FC = () => {
           <ArrowLeft size={22} color={color.text} />
         </TouchableOpacity>
         <Text style={styles.headerUsername}>{user?.handleName}</Text>
-        <View style={styles.headerRightIcons}>
-          <TouchableOpacity>
-            <MessageSquarePlus size={22} color={color.text} />
-          </TouchableOpacity>
-        </View>
       </View>
 
       {/* Search Bar */}
@@ -80,7 +64,7 @@ export const PendingMessages: React.FC = () => {
             <TouchableOpacity
               style={styles2.clearButton}
               onPress={() => setSearchQuery('')}>
-              <XCircle size={20} color={color.textSecondary} />
+              <X size={20} color={color.text} />
             </TouchableOpacity>
           )}
         </View>

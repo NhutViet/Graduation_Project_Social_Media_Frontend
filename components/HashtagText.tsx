@@ -94,7 +94,7 @@ const HashtagText: React.FC<HashtagTextProps> = ({
 
         if (fetchUserIdByHandleName.fulfilled.match(result)) {
           const mentionedUserId = result.payload.userId;
-          
+
           // Check if mentioned user is the current user
           if (mentionedUserId === userId) {
             navigation.navigate('Account');
@@ -112,7 +112,7 @@ const HashtagText: React.FC<HashtagTextProps> = ({
   );
 
   return (
-    <Text style={baseStyle}>
+    <Text style={baseStyle} numberOfLines={4}>
       {tokens.map((tok, i) => {
         if (tok.type === 'hashtag') {
           return (

@@ -1,4 +1,4 @@
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import {FlashList} from '@shopify/flash-list';
 import {
   NativeScrollEvent,
@@ -26,12 +26,7 @@ import {
   clearExpiredSeenStories,
 } from '../../../services/storage/storage';
 import {useStoryPrefetch} from '../../(tabs)/Home/hook/useStoryPrefetch';
-import {
-  ArrowLeft,
-  MessageSquarePlus,
-  Search,
-  XCircle,
-} from 'lucide-react-native';
+import {ArrowLeft, MessageSquarePlus, Search, X} from 'lucide-react-native';
 import {ChatSkeleton} from '../../../components/SkeletonGrid';
 import LoadingModal from '../../../components/Global/LoadingModal';
 export const MessageBox = (props: any) => {
@@ -207,7 +202,10 @@ export const MessageBox = (props: any) => {
           <Text style={styles.name}>{user?.handleName}</Text>
         </View>
         <View style={styles.headerBlock}>
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('CreateGroupScreen');
+            }}>
             <MessageSquarePlus size={22} color={color.text} />
           </TouchableOpacity>
         </View>
@@ -233,7 +231,7 @@ export const MessageBox = (props: any) => {
             <TouchableOpacity
               style={styles.clearButton}
               onPress={() => setSearchQuery('')}>
-              <XCircle size={20} color={color.textSecondary} />
+              <X size={20} color={color.text} />
             </TouchableOpacity>
           )}
         </View>
@@ -292,24 +290,6 @@ export const MessageBox = (props: any) => {
           }}
           ListFooterComponent={() => (
             <>
-              {isLoadingMoreStories &&
-                visibleStoryCount < processedStories.length && (
-                  <View
-                    style={{
-                      width: 70,
-                      height: 70,
-                      marginHorizontal: 8,
-                      borderRadius: 35,
-                      backgroundColor: color.background,
-                      borderWidth: 2,
-                      borderColor: color.border,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      marginTop: 18,
-                    }}>
-                    <LoadingModal />
-                  </View>
-                )}
               {!isLoadingMoreStories &&
                 visibleStoryCount < processedStories.length &&
                 visibleStories.length > 0 && (

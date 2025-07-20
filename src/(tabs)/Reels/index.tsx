@@ -20,7 +20,6 @@ import { ReelsSkeletonList } from '../../../components/SkeletonGrid';
 const { height: screenHeight } = Dimensions.get('window');
 
 const Reels = forwardRef((props, ref) => {
-  const [debugLoading, setDebugLoading] = useState(true);
   const isFocused = useIsFocused();
   const dispatch = useDispatch<AppDispatch>();
 

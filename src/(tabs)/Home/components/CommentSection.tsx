@@ -22,10 +22,7 @@ import {FlashList} from '@shopify/flash-list';
 import CommentComponent from './commentComponent';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../../services/store';
-import {
-  addComment,
-  fetchCommentsByPost,
-} from '../../../../services/commentRedux/commentSlice';
+import {addComment} from '../../../../services/commentRedux/commentSlice';
 import {Send} from 'lucide-react-native';
 import {Portal} from 'react-native-portalize';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
@@ -35,7 +32,7 @@ import {useSharedValue} from 'react-native-reanimated';
 import {fetchFollowers} from '@services/relationRedux/relationSlice';
 import MentionSuggestion from '../../../../src/Screens/PostSetting/Components/MentionSuggestion';
 import {useNavigation} from '@react-navigation/native';
-import { CommentSkeleton } from '../../../../components/SkeletonGrid';
+import {CommentSkeleton} from '../../../../components/SkeletonGrid';
 
 export type BottomSheetCommentRef = {
   open: () => void;
@@ -185,7 +182,7 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
           }}>
           <View style={{flex: 1, height: height, paddingTop: 40}}>
             {loading ? (
-                <CommentSkeleton itemCount={6} spacing={16} />
+              <CommentSkeleton itemCount={6} spacing={16} />
             ) : (
               <>
                 {comments.length > 0 ? (

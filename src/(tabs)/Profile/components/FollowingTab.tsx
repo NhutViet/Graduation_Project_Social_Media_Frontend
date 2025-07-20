@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useMemo, useRef} from 'react';
+import React, {useEffect, useMemo, useRef} from 'react';
 import {
   StyleSheet,
   Text,
@@ -40,7 +40,6 @@ const FollowingTab = () => {
   } = useSelector((state: RootState) => state.relation);
 
   const popupRef = useRef<MoreActionPopupRef>(null);
-  const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
 
   useEffect(() => {
     if (!userID) return;

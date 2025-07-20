@@ -8,6 +8,7 @@ import React, {
   useState,
 } from 'react';
 import {SafeAreaView, ScrollView, View} from 'react-native';
+import {VideoPauseProvider} from './context/VideoPauseContext';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {RouteProp, useIsFocused, useNavigation} from '@react-navigation/native';
@@ -18,7 +19,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import {AppDispatch, RootState} from '../../../services/store';
+import {AppDispatch} from '../../../services/store';
 import {fetchPostsWithMedia} from '../../../services/postRedux/postSlice';
 import {fetchFollowingStories} from '../../../services/StoryRedux/StorySlice';
 import {forceRefreshStories} from '../../../services/StoryRedux/StoryReducer';
@@ -41,7 +42,7 @@ import messaging from '@react-native-firebase/messaging';
 import {fetchEditUser} from '@services/userRedux/userSlice';
 import LoadingModal from '../../../components/Global/LoadingModal';
 import {selectHomeData} from './selectors/homeSelectors';
-import { HomeSkeleton } from '../../../components/SkeletonGrid';
+import {HomeSkeleton} from '../../../components/SkeletonGrid';
 
 const HEADER_HEIGHT = 100;
 const AnimatedFlatList = Animated.createAnimatedComponent(Animated.FlatList);
@@ -490,15 +491,46 @@ export const Home = forwardRef(({onReload, route}: HomeProps, ref) => {
   );
 
   if (loading && posts.length === 0) {
-        return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: color.background }}>
-        {/* keep your animated header in place */}
+    return (
+      <VideoPauseProvider currentUserId={user?._id}>
+        <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
+          {/* keep your animated header in place */}
+          <Animated.View
+            style={[
+              {position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10},
+              animatedHeaderStyle,
+            ]}>
+            <Header
+              icon={require('../../../assets/icon/logo_row.png')}
+              iconQR={true}
+              iconNotify={true}
+              iconMessage={true}
+              navigation={navigation}
+            />
+          </Animated.View>
+
+          {/* scrollable skeleton content below header */}
+          <ScrollView
+            contentContainerStyle={{
+              paddingTop: HEADER_HEIGHT - 35,
+              paddingBottom: 16,
+            }}
+            showsVerticalScrollIndicator={false}>
+            <HomeSkeleton postCount={5} storyCount={8} />
+          </ScrollView>
+        </SafeAreaView>
+      </VideoPauseProvider>
+    );
+  }
+
+  return (
+    <VideoPauseProvider currentUserId={user?._id}>
+      <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
         <Animated.View
           style={[
-            { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10 },
+            {position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10},
             animatedHeaderStyle,
-          ]}
-        >
+          ]}>
           <Header
             icon={require('../../../assets/icon/logo_row.png')}
             iconQR={true}
@@ -507,59 +539,30 @@ export const Home = forwardRef(({onReload, route}: HomeProps, ref) => {
             navigation={navigation}
           />
         </Animated.View>
-
-        {/* scrollable skeleton content below header */}
-        <ScrollView
-          contentContainerStyle={{
-            paddingTop: HEADER_HEIGHT - 35,
-            paddingBottom: 16,
-          }}
+        <AnimatedFlatList
+          data={posts}
+          keyExtractor={item => item._id}
+          renderItem={renderItem}
+          removeClippedSubviews={true}
+          initialNumToRender={5}
+          maxToRenderPerBatch={2}
+          windowSize={3}
+          updateCellsBatchingPeriod={50}
+          onViewableItemsChanged={onViewRef}
+          viewabilityConfig={{itemVisiblePercentThreshold: 80}}
+          scrollEventThrottle={16}
+          onScroll={scrollHandler}
           showsVerticalScrollIndicator={false}
-        >
-          <HomeSkeleton postCount={5} storyCount={8} />
-        </ScrollView>
-      </SafeAreaView>
-    );
-  }
-
-  return (
-    <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
-      <Animated.View
-        style={[
-          {position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10},
-          animatedHeaderStyle,
-        ]}>
-        <Header
-          icon={require('../../../assets/icon/logo_row.png')}
-          iconQR={true}
-          iconNotify={true}
-          iconMessage={true}
-          navigation={navigation}
+          nestedScrollEnabled
+          onEndReached={loadMore}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={renderFooter}
+          ListHeaderComponent={storyListHeader}
         />
-      </Animated.View>
-      <AnimatedFlatList
-        data={posts}
-        keyExtractor={item => item._id}
-        renderItem={renderItem}
-        removeClippedSubviews={true}
-        initialNumToRender={5}
-        maxToRenderPerBatch={2}
-        windowSize={3}
-        updateCellsBatchingPeriod={50}
-        onViewableItemsChanged={onViewRef}
-        viewabilityConfig={{itemVisiblePercentThreshold: 80}}
-        scrollEventThrottle={16}
-        onScroll={scrollHandler}
-        showsVerticalScrollIndicator={false}
-        nestedScrollEnabled
-        onEndReached={loadMore}
-        onEndReachedThreshold={0.5}
-        ListFooterComponent={renderFooter}
-        ListHeaderComponent={storyListHeader}
-      />
-      <BottomSheetComment ref={sheetRef} selectedPostRef={selectedPostRef} />
-      <ModalLoading visible={isStoryLoading} />
-    </SafeAreaView>
+        <BottomSheetComment ref={sheetRef} selectedPostRef={selectedPostRef} />
+        <ModalLoading visible={isStoryLoading} />
+      </SafeAreaView>
+    </VideoPauseProvider>
   );
 });
 
