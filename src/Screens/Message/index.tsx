@@ -28,15 +28,14 @@ import { useSocket } from '../../../services/SocketContext';
 import ActionModalMessage from './components/ActionModalMessage';
 import MessageInput from './components/MessageInput';
 import MessageHeader from './components/MessageHeader';
-
 import { getRoomById } from '../../../services/roomRedux/roomSlice';
 import { Room } from '../../../services/roomRedux/roomType';
 import {
+  getRelationShip as fetchRelation,
   updatedRoomStatus,
 } from './utils/helpers';
 import { fetchMyRooms, fetchMyWaitingRooms } from '@services/roomRedux/roomSlice';
 import LoadingModal from '../../../components/Global/LoadingModal';
-import { determineRelationshipStatus, isBothFollowing } from './utils/helpers';
 
 export const MessageScreen = () => {
   const navigation: any = useNavigation();
@@ -50,9 +49,6 @@ export const MessageScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [content, setContent] = useState<Message>();
   const [relationStatus, setRelationStatus] = useState<boolean>(false);
-  const [showCallFeatures, setShowCallFeatures] = useState<boolean>(false);
-  const [hasBothFollowing, setHasBothFollowing] = useState<boolean>(false);
-  const [hasMoreThanTwoMessages, setHasMoreThanTwoMessages] = useState<boolean>(false);
   const [highlightedMessageId, setHighlightedMessageId] = useState<
     string | null
   >(null);
@@ -62,6 +58,7 @@ export const MessageScreen = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'MessageScreen'>>();
   const {
     room: roomId,
+    isWaiting = false,
     highlightMessageId,
     scrollToIndex,
   } = route?.params || {};
@@ -105,63 +102,28 @@ export const MessageScreen = () => {
   const { showUploadModal, hideUploadModal, setProgress } = useUploadProgress();
   const { socket, connectToSocket, disconnectSocket } = useSocket();
 
-  // Check relationship status and call features availability
   useEffect(() => {
-    const checkRelationshipAndCallFeatures = async () => {
+    const checkRelation = async () => {
+      if (!userC || !roomMember1) return;
       try {
-        const relationshipStatus = await determineRelationshipStatus(
-          userC,
-          roomMember1,
-          chat.length,
-          rooms?.type
-        );
-
-        setRelationStatus(relationshipStatus);
-
-        // Check if call features should be enabled based on following status OR message count
-        if (userC && roomMember1) {
-          const bothFollowing = await isBothFollowing(userC._id, roomMember1._id);
-          const moreThanTwoMessages = chat.length > 2;
-
-          // Call features are enabled when both users follow each other OR messages > 2
-          const shouldEnableCallFeatures = Boolean(bothFollowing) || moreThanTwoMessages;
-
-          // Update states
-          setHasBothFollowing(Boolean(bothFollowing));
-          setHasMoreThanTwoMessages(moreThanTwoMessages);
-          setShowCallFeatures(shouldEnableCallFeatures);
-
-          // Log status for debugging
-          console.log('📞 1-1 Chat Call Features:', {
-            userC_id: userC?._id,
-            roomMember1_id: roomMember1?._id,
-            bothFollowing,
-            moreThanTwoMessages,
-            messageCount: chat.length,
-            callFeaturesEnabled: shouldEnableCallFeatures,
-            roomType: rooms?.type
-          });
-        } else {
-          setHasBothFollowing(false);
-          setHasMoreThanTwoMessages(false);
-          setShowCallFeatures(false);
-        }
-      } catch (error) {
-        console.error('❌ Error checking relationship:', error);
-        setRelationStatus(false);
-        setShowCallFeatures(false);
+        const res = await fetchRelation({
+          fromUserId: userC._id,
+          toUserId: roomMember1._id,
+        });
+        setRelationStatus(Boolean(res));
+      } catch (e) {
+        console.error('❌ Kiểm tra mối quan hệ thất bại:', e);
       }
     };
-
-    checkRelationshipAndCallFeatures();
-  }, [roomMember1, userC, chat.length, rooms?.type]);
+    checkRelation();
+  }, [roomMember1, userC]);
 
   useEffect(() => {
     setChat([]);
-    if (roomId) {
-      dispatch(fetchMessages({ roomId: roomId }));
+    if (rooms?._id) {
+      dispatch(fetchMessages({ roomId: rooms._id }));
     }
-  }, [roomId]);
+  }, [rooms?._id]);
 
   useEffect(() => {
     setChat(messages);
@@ -177,6 +139,11 @@ export const MessageScreen = () => {
 
     const onMessage = (data: Message) => {
       setChat(prev => [...prev, data]);
+      setHighlightedMessageId(null);
+      navigation.setParams({
+        highlightMessageId: null,
+        scrollToIndex: null,
+      });
     };
 
     const onReactionUpdated = ({
@@ -229,15 +196,20 @@ export const MessageScreen = () => {
             animated: true,
             viewPosition: 0.5, // Center the message in the view
           });
-        }, 1500); // Wait a bit for messages to load
+        }, 1000); // Wait a bit for messages to load
       }
-
-      // Clear highlight after 1.5 seconds
-      setTimeout(() => {
-        setHighlightedMessageId(null);
-      }, 1500);
     }
-  }, [highlightMessageId, scrollToIndex, chat]);
+
+    // Clear highlight after 1 seconds
+    setTimeout(() => {
+      setHighlightedMessageId(null);
+    }, 1000);
+    // Clear the navigation parameters to prevent re-highlighting
+    navigation.setParams({
+      highlightMessageId: null,
+      scrollToIndex: null,
+    });
+  }, [highlightMessageId, scrollToIndex, chat, navigation]);
 
   const sendMessage = useCallback(() => {
     const trimmedMessage = message.trim();
@@ -248,6 +220,12 @@ export const MessageScreen = () => {
         senderId: userC?._id,
       });
       setMessage('');
+      // Clear highlight and navigation parameters when user sends a message
+      setHighlightedMessageId(null);
+      navigation.setParams({
+        highlightMessageId: undefined,
+        scrollToIndex: undefined,
+      });
     }
   }, [message, socket, roomId, userC?._id]);
 
@@ -277,6 +255,12 @@ export const MessageScreen = () => {
               url: imageUrl,
             },
           });
+          // Clear highlight and navigation parameters when user sends an image
+          setHighlightedMessageId(null);
+          navigation.setParams({
+            highlightMessageId: undefined,
+            scrollToIndex: undefined,
+          });
         } catch (err) {
           console.error('❌ Upload/send image error:', err);
         }
@@ -294,36 +278,14 @@ export const MessageScreen = () => {
   const handleAcceptRequest = useCallback(async () => {
     try {
       await updatedRoomStatus({ roomId: rooms!._id });
-
-      // After accepting, set relation status to true immediately
-      // since accepting a message request establishes a connection
+      await updatedRoomStatus({ roomId: rooms!._id });
       setRelationStatus(true);
-      console.log('✅ Message request accepted - relation status set to TRUE');
-
-      // Re-check call features after accepting request
-      if (userC && roomMember1) {
-        const bothFollowing = await isBothFollowing(userC._id, roomMember1._id);
-        const moreThanTwoMessages = chat.length > 2;
-        const shouldEnableCallFeatures = Boolean(bothFollowing) || moreThanTwoMessages;
-
-        setHasBothFollowing(Boolean(bothFollowing));
-        setHasMoreThanTwoMessages(moreThanTwoMessages);
-        setShowCallFeatures(shouldEnableCallFeatures);
-        console.log('📞 Call features after accept:', {
-          bothFollowing,
-          moreThanTwoMessages,
-          messageCount: chat.length,
-          callFeaturesEnabled: shouldEnableCallFeatures
-        });
-      }
-
-      // Refresh room lists
       dispatch(fetchMyRooms());
       dispatch(fetchMyWaitingRooms());
     } catch (error) {
-      console.error('❌ Error accepting request:', error);
+      console.error('Error accepting request:', error);
     }
-  }, [rooms, dispatch, userC, roomMember1, chat.length]);
+  }, [rooms, dispatch]);
 
   const handleGoBack = useCallback(() => {
     disconnectSocket();
@@ -376,30 +338,14 @@ export const MessageScreen = () => {
 
   const keyExtractor = useCallback((item: Message) => item._id, []);
 
-  // Determine if this is a message request scenario
-  // Skip message request if:
-  // 1. Both users are following each other (hasBothFollowing = true)
-  // 2. OR there are more than 2 messages in the room (hasMoreThanTwoMessages = true)
-  const shouldSkipMessageRequest = hasBothFollowing || hasMoreThanTwoMessages;
-  const isMessageRequest = !relationStatus && !shouldSkipMessageRequest && chat.length > 0;
-  const isCurrentUserSender = isMessageRequest && roomMember1?._id === userC?._id;
-
-  // Debug logging for message request logic
-  console.log('💬 Message Request Logic:', {
-    relationStatus,
-    hasBothFollowing,
-    hasMoreThanTwoMessages,
-    shouldSkipMessageRequest,
-    isMessageRequest,
-    isCurrentUserSender,
-    roomType: rooms?.type,
-    messageCount: chat.length
-  });
+  const isMessageRequest = !relationStatus && chat.length > 0;
+  const isCurrentUserSender =
+    isMessageRequest && roomMember1?._id === userC?._id;
   // console.log(` 258 >>>>>>>>> ${isMeSender} <<<<<<<<<<<<< `);
   // console.log(` 259 >>>>>>>>> ${relationStatus} <<<<<<<<<<<<< `);
   const MessageRequestBanner = ({ onAccept }: { onAccept: () => void }) => (
-    <View style={[styles.requestBanner, { backgroundColor: color.backgroundSecondary }]}>
-      <Text style={[styles.requestBannerText, { color: color.text }]}>
+    <View style={styles.requestBanner}>
+      <Text style={styles.requestBannerText}>
         {isMeSender
           ? `Đang chờ ${roomMember1?.handleName} chấp nhận để tiếp tục cuộc trò chuyện.`
           : `${roomMember1?.handleName} muốn nhắn tin cho bạn. Chấp nhận để tiếp tục cuộc trò chuyện.`}
@@ -409,9 +355,10 @@ export const MessageScreen = () => {
           style={[
             styles.acceptButton,
             { backgroundColor: color.background, shadowColor: color.text },
+            { backgroundColor: color.background, shadowColor: color.text },
           ]}
           onPress={onAccept}>
-          <Text style={[styles.callText, { color: color.text }]}>Chấp nhận</Text>
+          <Text style={styles.callText}>Chấp nhận</Text>
         </TouchableOpacity>
       )}
     </View>
@@ -445,57 +392,59 @@ export const MessageScreen = () => {
           },
         ]}>
         <View style={{ flex: 1 }}>
-          <MessageHeader
-            user1={roomMember1}
-            user2={roomMember2}
-            room={rooms}
-            navigation={navigation}
-            handleGoBack={handleGoBack}
-            userC={userC}
-            showCallFeatures={showCallFeatures}
-          />
-          <FlatList
-            ref={flatListRef}
-            data={chat}
-            renderItem={renderItem}
-            keyExtractor={keyExtractor}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{
-              paddingTop: 10,
-              paddingBottom: 20,
-              paddingHorizontal: 10,
-              flexGrow: 1,
-            }}
-            onContentSizeChange={() =>
-              flatListRef.current?.scrollToEnd({ animated: true })
-            }
-          />
-          {isMessageRequest &&
-            !isCurrentUserSender &&
-            rooms?.type === 'waiting' ? (
-            <MessageRequestBanner onAccept={handleAcceptRequest} />
-          ) : (
-            <MessageInput
-              message={message}
-              setMessage={setMessage}
-              sendMessage={sendMessage}
-              pickImageAndSend={pickImageAndSend}
-              color={color}
+          <View style={{ flex: 1 }}>
+            <MessageHeader
+              user1={roomMember1}
+              user2={roomMember2}
+              room={rooms}
+              navigation={navigation}
+              handleGoBack={handleGoBack}
+              userC={userC}
             />
-          )}
+            <FlatList
+              ref={flatListRef}
+              data={chat}
+              renderItem={renderItem}
+              keyExtractor={keyExtractor}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{
+                paddingTop: 10,
+                paddingBottom: 20,
+                paddingHorizontal: 10,
+                flexGrow: 1,
+              }}
+              onContentSizeChange={() =>
+                flatListRef.current?.scrollToEnd({ animated: true })
+              }
+            />
+            {isMessageRequest &&
+              !isCurrentUserSender &&
+              rooms?.type === 'waiting' ? (
+              <MessageRequestBanner onAccept={handleAcceptRequest} />
+            ) : (
+              <MessageInput
+                message={message}
+                setMessage={setMessage}
+                sendMessage={sendMessage}
+                pickImageAndSend={pickImageAndSend}
+                color={color}
+              />
+            )
+            }
+          </View>
         </View>
+        <ImagePreviewModal
+          visible={!!selectedImageUri}
+          imageUri={selectedImageUri}
+          onClose={handleCloseImagePreview}
+        />
+        <ActionModalMessage
+          visible={modalVisible}
+          onClose={handleCloseActionModal}
+          content={content}
+          setChat={setChat}
+        />
       </View>
-      <ImagePreviewModal
-        visible={!!selectedImageUri}
-        imageUri={selectedImageUri}
-        onClose={handleCloseImagePreview}
-      />
-      <ActionModalMessage
-        visible={modalVisible}
-        onClose={handleCloseActionModal}
-        content={content}
-        setChat={setChat}
-      />
     </SafeAreaView>
   );
 };
