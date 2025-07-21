@@ -39,7 +39,6 @@ const ItemNewMessage: React.FC<ItemNewMessageProps> = ({
           } else {
             navigation.navigate('MessageScreen', {
               room: roomId,
-              isWaiting: type === 'waiting',
             });
           }
         }}>

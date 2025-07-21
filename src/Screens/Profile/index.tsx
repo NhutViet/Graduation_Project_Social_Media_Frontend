@@ -73,13 +73,27 @@ const ProfileComp = ({ route }: any) => {
   };
 
   const [hasBothFollow, setHasBothFollow] = useState<boolean>(false);
+
   const handleMessagePress = async () => {
     try {
+      // Check if both users follow each other in real-time
+      const bothFollowing = await fetchingBothFollowing(myUserId as string, userID);
+
+      // Determine room type based on following status
+      const roomType = bothFollowing ? 'accept' : 'waiting';
+
+      console.log('💬 Creating room with following status:', {
+        myUserId,
+        targetUserId: userID,
+        bothFollowing,
+        roomType
+      });
+
       const res = await dispatch(
         createRoom({
           name: '',
           user_ids: [userID],
-          type: hasBothFollow ? 'accept' : 'waiting',
+          type: roomType,
         }),
       ).unwrap();
 
@@ -91,13 +105,19 @@ const ProfileComp = ({ route }: any) => {
         ? room.user_ids.find(user => user._id === myUserId)?.profilePic
         : undefined;
 
+      console.log('✅ Room created successfully:', {
+        roomId: room._id,
+        roomType: room.type,
+        bothFollowing
+      });
+
       navigation.navigate('MessageScreen', {
         room: room._id,
         img1,
         img2,
       });
     } catch (error) {
-      console.log('Tạo room thất bại:', error);
+      console.error('❌ Tạo room thất bại:', error);
     }
   };
 
@@ -135,11 +155,21 @@ const ProfileComp = ({ route }: any) => {
           handleName: user?.handleName,
         }),
       ).unwrap();
+
+      // Re-check both following status after follow/unfollow action
+      const updatedBothFollowing = await fetchingBothFollowing(myUserId as string, userID);
+      setHasBothFollow(Boolean(updatedBothFollowing));
+
+      console.log('🔄 Following status updated:', {
+        action: actionType,
+        newFollowingStatus: !isFollowing,
+        bothFollowing: updatedBothFollowing
+      });
     } catch (error) {
       GlobalAlertManager.show('Thất bại', 'Vui lòng thử lại sau.');
       setIsFollowing(isFollowing);
     }
-  }, [isFollowing]);
+  }, [isFollowing, myUserId, userID]);
 
   const toggleUnblock = useCallback(async () => {
     setIsBlock(false);
@@ -186,12 +216,15 @@ const ProfileComp = ({ route }: any) => {
       return;
     }
 
-    const isBothFollowing = await fetchingBothFollowing(userID, myUserId as string);
-    if (isBothFollowing) {
-      setHasBothFollow(true);
-    } else {
-      setHasBothFollow(false);
-    }
+    // Check if both users follow each other
+    const isBothFollowing = await fetchingBothFollowing(myUserId as string, userID);
+    setHasBothFollow(Boolean(isBothFollowing));
+
+    console.log('👥 Profile following status:', {
+      myUserId,
+      targetUserId: userID,
+      bothFollowing: isBothFollowing
+    });
     setIsInitializing(true);
 
     try {

@@ -8,48 +8,51 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
-import {useTheme} from '../../util/ThemeContext';
-import {Colors} from '../../../assets/color/Colors';
-import {useEffect, useRef, useState, useCallback} from 'react';
-import {RootStackParamList} from '../../Navigation/AppNavigation';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { useTheme } from '../../util/ThemeContext';
+import { Colors } from '../../../assets/color/Colors';
+import { useEffect, useRef, useState, useCallback } from 'react';
+import { RootStackParamList } from '../../Navigation/AppNavigation';
 import LinkPreview from 'react-native-link-preview';
-import {useDispatch, useSelector} from 'react-redux';
-import {AppDispatch, RootState} from '../../../services/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../../services/store';
 import MessageItemComponent from './components/MessageItemComponent';
-import {fetchMessages} from '../../../services/messageRedux/messageSlice';
-import {Message} from '../../../services/messageRedux/messageType';
-import {launchImageLibrary} from 'react-native-image-picker';
-import {uploadImageToR2} from '../../core/upload';
-import {useUploadProgress} from '../../../services/UploadProgressManager';
-import {clearMessages} from '../../../services/messageRedux/messageReducer';
+import { fetchMessages } from '../../../services/messageRedux/messageSlice';
+import { Message } from '../../../services/messageRedux/messageType';
+import { launchImageLibrary } from 'react-native-image-picker';
+import { uploadImageToR2 } from '../../core/upload';
+import { useUploadProgress } from '../../../services/UploadProgressManager';
+import { clearMessages } from '../../../services/messageRedux/messageReducer';
 import ImagePreviewModal from './components/ImagePreviewModal';
-import {useSocket} from '../../../services/SocketContext';
+import { useSocket } from '../../../services/SocketContext';
 import ActionModalMessage from './components/ActionModalMessage';
 import MessageInput from './components/MessageInput';
 import MessageHeader from './components/MessageHeader';
 
-import {getRoomById} from '../../../services/roomRedux/roomSlice';
-import {Room} from '../../../services/roomRedux/roomType';
+import { getRoomById } from '../../../services/roomRedux/roomSlice';
+import { Room } from '../../../services/roomRedux/roomType';
 import {
-  getRelationShip as fetchRelation,
   updatedRoomStatus,
 } from './utils/helpers';
-import {fetchMyRooms, fetchMyWaitingRooms} from '@services/roomRedux/roomSlice';
+import { fetchMyRooms, fetchMyWaitingRooms } from '@services/roomRedux/roomSlice';
 import LoadingModal from '../../../components/Global/LoadingModal';
+import { determineRelationshipStatus, isBothFollowing } from './utils/helpers';
 
 export const MessageScreen = () => {
   const navigation: any = useNavigation();
-  const {theme} = useTheme();
+  const { theme } = useTheme();
   const color = Colors[theme];
   const dispatch = useDispatch<AppDispatch>();
   const [message, setMessage] = useState('');
   const [chat, setChat] = useState<Message[]>([]);
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
-  const [linkPreviews, setLinkPreviews] = useState<{[key: number]: any}>({});
+  const [linkPreviews, setLinkPreviews] = useState<{ [key: number]: any }>({});
   const [modalVisible, setModalVisible] = useState(false);
   const [content, setContent] = useState<Message>();
   const [relationStatus, setRelationStatus] = useState<boolean>(false);
+  const [showCallFeatures, setShowCallFeatures] = useState<boolean>(false);
+  const [hasBothFollowing, setHasBothFollowing] = useState<boolean>(false);
+  const [hasMoreThanTwoMessages, setHasMoreThanTwoMessages] = useState<boolean>(false);
   const [highlightedMessageId, setHighlightedMessageId] = useState<
     string | null
   >(null);
@@ -63,7 +66,7 @@ export const MessageScreen = () => {
     scrollToIndex,
   } = route?.params || {};
   const userC = useSelector((state: RootState) => state.user.user);
-  const {messages, loading} = useSelector((state: RootState) => state.messages);
+  const { messages, loading } = useSelector((state: RootState) => state.messages);
   const acceptedRooms = useSelector((state: RootState) => state.rooms.rooms);
   const waitingRooms = useSelector(
     (state: RootState) => state.rooms.waitingRooms,
@@ -99,29 +102,64 @@ export const MessageScreen = () => {
   const roomMember2 = filteredUsers?.[1];
   const isMeSender = rooms?.created_by === userC?._id;
 
-  const {showUploadModal, hideUploadModal, setProgress} = useUploadProgress();
-  const {socket, connectToSocket, disconnectSocket} = useSocket();
+  const { showUploadModal, hideUploadModal, setProgress } = useUploadProgress();
+  const { socket, connectToSocket, disconnectSocket } = useSocket();
 
+  // Check relationship status and call features availability
   useEffect(() => {
-    const checkRelation = async () => {
-      if (!userC || !roomMember1) return;
+    const checkRelationshipAndCallFeatures = async () => {
       try {
-        const res = await fetchRelation({
-          fromUserId: userC._id,
-          toUserId: roomMember1._id,
-        });
-        setRelationStatus(Boolean(res));
-      } catch (e) {
-        console.error('❌ Kiểm tra mối quan hệ thất bại:', e);
+        const relationshipStatus = await determineRelationshipStatus(
+          userC,
+          roomMember1,
+          chat.length,
+          rooms?.type
+        );
+
+        setRelationStatus(relationshipStatus);
+
+        // Check if call features should be enabled based on following status OR message count
+        if (userC && roomMember1) {
+          const bothFollowing = await isBothFollowing(userC._id, roomMember1._id);
+          const moreThanTwoMessages = chat.length > 2;
+
+          // Call features are enabled when both users follow each other OR messages > 2
+          const shouldEnableCallFeatures = Boolean(bothFollowing) || moreThanTwoMessages;
+
+          // Update states
+          setHasBothFollowing(Boolean(bothFollowing));
+          setHasMoreThanTwoMessages(moreThanTwoMessages);
+          setShowCallFeatures(shouldEnableCallFeatures);
+
+          // Log status for debugging
+          console.log('📞 1-1 Chat Call Features:', {
+            userC_id: userC?._id,
+            roomMember1_id: roomMember1?._id,
+            bothFollowing,
+            moreThanTwoMessages,
+            messageCount: chat.length,
+            callFeaturesEnabled: shouldEnableCallFeatures,
+            roomType: rooms?.type
+          });
+        } else {
+          setHasBothFollowing(false);
+          setHasMoreThanTwoMessages(false);
+          setShowCallFeatures(false);
+        }
+      } catch (error) {
+        console.error('❌ Error checking relationship:', error);
+        setRelationStatus(false);
+        setShowCallFeatures(false);
       }
     };
-    checkRelation();
-  }, [roomMember1, userC]);
+
+    checkRelationshipAndCallFeatures();
+  }, [roomMember1, userC, chat.length, rooms?.type]);
 
   useEffect(() => {
     setChat([]);
     if (roomId) {
-      dispatch(fetchMessages({roomId: roomId}));
+      dispatch(fetchMessages({ roomId: roomId }));
     }
   }, [roomId]);
 
@@ -149,7 +187,7 @@ export const MessageScreen = () => {
       reactions: Message['reactions'];
     }) => {
       setChat(prev =>
-        prev.map(msg => (msg._id === messageId ? {...msg, reactions} : msg)),
+        prev.map(msg => (msg._id === messageId ? { ...msg, reactions } : msg)),
       );
     };
 
@@ -166,7 +204,7 @@ export const MessageScreen = () => {
     chat.forEach((item, index) => {
       if (!linkPreviews[index] && item.content.match(/https?:\/\/\S+/)) {
         LinkPreview.getPreview(item.content).then(data => {
-          setLinkPreviews(prev => ({...prev, [index]: data}));
+          setLinkPreviews(prev => ({ ...prev, [index]: data }));
         });
       }
     });
@@ -174,7 +212,7 @@ export const MessageScreen = () => {
 
   useEffect(() => {
     if (chat.length > 0) {
-      flatListRef.current?.scrollToEnd({animated: true});
+      flatListRef.current?.scrollToEnd({ animated: true });
     }
   }, [chat]);
 
@@ -255,14 +293,37 @@ export const MessageScreen = () => {
 
   const handleAcceptRequest = useCallback(async () => {
     try {
-      await updatedRoomStatus({roomId: rooms!._id});
+      await updatedRoomStatus({ roomId: rooms!._id });
+
+      // After accepting, set relation status to true immediately
+      // since accepting a message request establishes a connection
       setRelationStatus(true);
+      console.log('✅ Message request accepted - relation status set to TRUE');
+
+      // Re-check call features after accepting request
+      if (userC && roomMember1) {
+        const bothFollowing = await isBothFollowing(userC._id, roomMember1._id);
+        const moreThanTwoMessages = chat.length > 2;
+        const shouldEnableCallFeatures = Boolean(bothFollowing) || moreThanTwoMessages;
+
+        setHasBothFollowing(Boolean(bothFollowing));
+        setHasMoreThanTwoMessages(moreThanTwoMessages);
+        setShowCallFeatures(shouldEnableCallFeatures);
+        console.log('📞 Call features after accept:', {
+          bothFollowing,
+          moreThanTwoMessages,
+          messageCount: chat.length,
+          callFeaturesEnabled: shouldEnableCallFeatures
+        });
+      }
+
+      // Refresh room lists
       dispatch(fetchMyRooms());
       dispatch(fetchMyWaitingRooms());
     } catch (error) {
-      console.error('Error accepting request:', error);
+      console.error('❌ Error accepting request:', error);
     }
-  }, [rooms, dispatch]);
+  }, [rooms, dispatch, userC, roomMember1, chat.length]);
 
   const handleGoBack = useCallback(() => {
     disconnectSocket();
@@ -289,7 +350,7 @@ export const MessageScreen = () => {
   }, []);
 
   const renderItem = useCallback(
-    ({item, index}: {item: Message; index: number}) => (
+    ({ item, index }: { item: Message; index: number }) => (
       <MessageItemComponent
         roomId={roomId}
         item={item}
@@ -315,14 +376,30 @@ export const MessageScreen = () => {
 
   const keyExtractor = useCallback((item: Message) => item._id, []);
 
-  const isMessageRequest = !relationStatus && chat.length > 0;
-  const isCurrentUserSender =
-    isMessageRequest && roomMember1?._id === userC?._id;
+  // Determine if this is a message request scenario
+  // Skip message request if:
+  // 1. Both users are following each other (hasBothFollowing = true)
+  // 2. OR there are more than 2 messages in the room (hasMoreThanTwoMessages = true)
+  const shouldSkipMessageRequest = hasBothFollowing || hasMoreThanTwoMessages;
+  const isMessageRequest = !relationStatus && !shouldSkipMessageRequest && chat.length > 0;
+  const isCurrentUserSender = isMessageRequest && roomMember1?._id === userC?._id;
+
+  // Debug logging for message request logic
+  console.log('💬 Message Request Logic:', {
+    relationStatus,
+    hasBothFollowing,
+    hasMoreThanTwoMessages,
+    shouldSkipMessageRequest,
+    isMessageRequest,
+    isCurrentUserSender,
+    roomType: rooms?.type,
+    messageCount: chat.length
+  });
   // console.log(` 258 >>>>>>>>> ${isMeSender} <<<<<<<<<<<<< `);
   // console.log(` 259 >>>>>>>>> ${relationStatus} <<<<<<<<<<<<< `);
-  const MessageRequestBanner = ({onAccept}: {onAccept: () => void}) => (
-    <View style={[styles.requestBanner, {backgroundColor: color.backgroundSecondary}]}>
-      <Text style={[styles.requestBannerText, {color: color.text}]}>
+  const MessageRequestBanner = ({ onAccept }: { onAccept: () => void }) => (
+    <View style={[styles.requestBanner, { backgroundColor: color.backgroundSecondary }]}>
+      <Text style={[styles.requestBannerText, { color: color.text }]}>
         {isMeSender
           ? `Đang chờ ${roomMember1?.handleName} chấp nhận để tiếp tục cuộc trò chuyện.`
           : `${roomMember1?.handleName} muốn nhắn tin cho bạn. Chấp nhận để tiếp tục cuộc trò chuyện.`}
@@ -331,10 +408,10 @@ export const MessageScreen = () => {
         <TouchableOpacity
           style={[
             styles.acceptButton,
-            {backgroundColor: color.background, shadowColor: color.text},
+            { backgroundColor: color.background, shadowColor: color.text },
           ]}
           onPress={onAccept}>
-          <Text style={[styles.callText, {color: color.text}]}>Chấp nhận</Text>
+          <Text style={[styles.callText, { color: color.text }]}>Chấp nhận</Text>
         </TouchableOpacity>
       )}
     </View>
@@ -343,7 +420,7 @@ export const MessageScreen = () => {
   if (loading || !rooms) {
     return (
       <SafeAreaView
-        style={[styles.loading, {backgroundColor: color.background}]}>
+        style={[styles.loading, { backgroundColor: color.background }]}>
         <LoadingModal />
       </SafeAreaView>
     );
@@ -353,7 +430,7 @@ export const MessageScreen = () => {
     <SafeAreaView style={styles.container}>
       {rooms?.theme && (
         <ImageBackground
-          source={{uri: rooms.theme}}
+          source={{ uri: rooms.theme }}
           style={styles.bg}
           resizeMode="cover"
         />
@@ -367,7 +444,7 @@ export const MessageScreen = () => {
               : color.background,
           },
         ]}>
-        <View style={{flex: 1}}>
+        <View style={{ flex: 1 }}>
           <MessageHeader
             user1={roomMember1}
             user2={roomMember2}
@@ -375,6 +452,7 @@ export const MessageScreen = () => {
             navigation={navigation}
             handleGoBack={handleGoBack}
             userC={userC}
+            showCallFeatures={showCallFeatures}
           />
           <FlatList
             ref={flatListRef}
@@ -389,12 +467,12 @@ export const MessageScreen = () => {
               flexGrow: 1,
             }}
             onContentSizeChange={() =>
-              flatListRef.current?.scrollToEnd({animated: true})
+              flatListRef.current?.scrollToEnd({ animated: true })
             }
           />
           {isMessageRequest &&
-          !isCurrentUserSender &&
-          rooms?.type === 'waiting' ? (
+            !isCurrentUserSender &&
+            rooms?.type === 'waiting' ? (
             <MessageRequestBanner onAccept={handleAcceptRequest} />
           ) : (
             <MessageInput
@@ -449,7 +527,7 @@ const styles = StyleSheet.create({
   },
   acceptButton: {
     elevation: 2,
-    shadowOffset: {width: 0, height: 1},
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
     alignItems: 'center',

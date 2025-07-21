@@ -1,12 +1,12 @@
-import React, {useEffect, useRef, useState} from 'react';
-import {View, TouchableOpacity, Image, Text, StyleSheet} from 'react-native';
-import {Colors} from '@assets/color/Colors';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, TouchableOpacity, Image, Text, StyleSheet } from 'react-native';
+import { Colors } from '@assets/color/Colors';
 import IncomingCallModal from '../../../../components/IncomingCallModal';
-import {useSocket} from '@services/SocketContext';
-import {ArrowLeft, Phone, Video, AlertCircle} from 'lucide-react-native';
-import {Room, RoomUser} from '@services/roomRedux/roomType';
-import {User} from '@services/userRedux/userTypes';
-import {useTheme} from '../../../../src/util/ThemeContext';
+import { useSocket } from '@services/SocketContext';
+import { ArrowLeft, Phone, Video, AlertCircle } from 'lucide-react-native';
+import { Room, RoomUser } from '@services/roomRedux/roomType';
+import { User } from '@services/userRedux/userTypes';
+import { useTheme } from '../../../../src/util/ThemeContext';
 import CustomPopupModal, {
   CustomPopupModalRef,
 } from '../../../../components/Global/CustomPopupModal';
@@ -18,6 +18,7 @@ interface MessageHeaderProps {
   navigation: any;
   handleGoBack: () => void;
   userC: User | null;
+  showCallFeatures?: boolean;
 }
 
 const MessageHeader: React.FC<MessageHeaderProps> = ({
@@ -27,10 +28,11 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
   navigation,
   handleGoBack,
   userC,
+  showCallFeatures = false,
 }) => {
-  const {theme} = useTheme();
+  const { theme } = useTheme();
   const color = Colors[theme];
-  const {socket} = useSocket();
+  const { socket } = useSocket();
   const modalRef = useRef<CustomPopupModalRef>(null);
   const [incomingCall, setIncomingCall] = useState({
     visible: false,
@@ -102,7 +104,7 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
 
   const handleAcceptCall = () => {
     if (rejectTimeoutRef.current) clearTimeout(rejectTimeoutRef.current);
-    setIncomingCall(prev => ({...prev, visible: false}));
+    setIncomingCall(prev => ({ ...prev, visible: false }));
 
     navigation.navigate('ZegoCallScreen', {
       userID: userC?._id,
@@ -120,7 +122,7 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
         senderId: userC?._id,
       });
     }
-    setIncomingCall(prev => ({...prev, visible: false}));
+    setIncomingCall(prev => ({ ...prev, visible: false }));
   };
 
   useEffect(() => {
@@ -136,6 +138,15 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
   }, [incomingCall.visible]);
 
   const isWaitingRoom = (room as Room).type === 'waiting';
+
+  // Debug logging for call features
+  console.log('🔍 MessageHeader Debug:', {
+    showCallFeatures,
+    isWaitingRoom,
+    roomType: room?.type,
+    shouldShowCallIcons: showCallFeatures
+  });
+
   return (
     <>
       <View style={styles.header}>
@@ -145,7 +156,7 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[{width: '100%', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, gap: 10}]}
+            style={[{ width: '100%', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, gap: 10 }]}
             onPress={() => {
               if (user1?.profilePic && user2?.profilePic) {
                 navigation.navigate('InforGroupChat', {
@@ -175,8 +186,8 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
               {user2?.profilePic && (
                 <>
                   <Image
-                    style={[styles.iconW, {width: 30, height: 30}]}
-                    source={{uri: user1?.profilePic}}
+                    style={[styles.iconW, { width: 30, height: 30 }]}
+                    source={{ uri: user1?.profilePic }}
                   />
                   <Image
                     style={[
@@ -186,23 +197,24 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
                         backgroundColor: color.backgroundSecondary,
                       },
                     ]}
-                    source={{uri: user2?.profilePic}}
+                    source={{ uri: user2?.profilePic }}
                   />
                 </>
               )}
               {!user2?.profilePic && user1?.profilePic && (
-                <Image style={styles.img} source={{uri: user1?.profilePic}} />
+                <Image style={styles.img} source={{ uri: user1?.profilePic }} />
               )}
             </View>
 
-            <Text style={{color: color.text, fontSize: 16}} numberOfLines={1}>
+            <Text style={{ color: color.text, fontSize: 16 }} numberOfLines={1}>
               {room?.name?.trim() || user1?.handleName || 'No name'}
             </Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.rowContainer1}>
-          {!isWaitingRoom && (
+          {/* Show call icons when both users follow each other OR messages > 2 */}
+          {showCallFeatures && (
             <>
               <TouchableOpacity onPress={handleVoiceCall}>
                 <Phone size={22} color={color.text} />
@@ -239,7 +251,7 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
             modalRef.current?.close();
             console.log('Báo cáo');
           }}>
-          <Text style={[styles.destructiveText, {color: '#007AFF'}]}>
+          <Text style={[styles.destructiveText, { color: '#007AFF' }]}>
             Ẩn đoạn chat
           </Text>
         </TouchableOpacity>
@@ -249,7 +261,7 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
             modalRef.current?.close();
             console.log('Báo cáo');
           }}>
-          <Text style={[styles.destructiveText, {color: '#FF3B30'}]}>
+          <Text style={[styles.destructiveText, { color: '#FF3B30' }]}>
             Báo cáo đoạn chat
           </Text>
         </TouchableOpacity>
