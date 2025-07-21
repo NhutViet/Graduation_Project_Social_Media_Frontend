@@ -1,18 +1,76 @@
-import React, {useRef, useState} from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import React, {useRef} from 'react';
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Share,
+  PermissionsAndroid,
+  Platform,
+} from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import LinearGradient from 'react-native-linear-gradient';
-import {X, ScanLine, Share2, Link2, Download} from 'lucide-react-native';;
-import { useSelector } from 'react-redux';
-import { RootState } from '@services/store';
+import {X, ScanLine, Share2, Link2, Download} from 'lucide-react-native';
+import {useSelector} from 'react-redux';
+import RNFS from 'react-native-fs';
+import CameraRoll from '@react-native-community/cameraroll';
+import Clipboard from '@react-native-clipboard/clipboard';
+import {RootState} from '@services/store';
+import {useHeadAlert} from '../../../components/Global/HeadAlertProvider';
 
 export const ScreenQRCode = ({navigation}: any) => {
   const qrCodeRef = useRef<any>(null);
-  const myUserId = useSelector((state: RootState) => {
-    return state.user?.user?._id;
-  });
-  const hanldeDownloadQRCode = async () => {
-    console.log('download');
+  const {showAlert} = useHeadAlert();
+  const myUserId = useSelector((state: RootState) => state.user.user?._id);
+  const url = `https://cirla.io.vn/profile/${myUserId}`;
+
+  const requestSavePermission = async (): Promise<boolean> => {
+    if (Platform.OS === 'android' && Platform.Version < 33) {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+      );
+      return granted === PermissionsAndroid.RESULTS.GRANTED;
+    }
+    return true;
+  };
+
+  const handleShare = async () => {
+    try {
+      await Share.share({message: url});
+      showAlert('Chia sẻ', 'Link đã sẵn sàng để chia sẻ.');
+    } catch {
+      showAlert('Lỗi', 'Không thể chia sẻ link.');
+    }
+  };
+
+  const handleCopy = () => {
+    Clipboard.setString(url);
+    showAlert('Sao chép', 'Đã sao chép link vào clipboard.');
+  };
+
+  const handleDownloadQRCode = async () => {
+    if (!qrCodeRef.current?.toDataURL) return;
+    const hasPerm = await requestSavePermission();
+    if (!hasPerm) {
+      showAlert('Lỗi', 'Không có quyền lưu hình.');
+      return;
+    }
+
+    qrCodeRef.current.toDataURL(async (dataURL: string) => {
+      try {
+        const base64 = dataURL.replace(/^data:image\/png;base64,/, '');
+        const filePath = `${RNFS.CachesDirectoryPath}/qr_${Date.now()}.png`;
+
+        await RNFS.writeFile(filePath, base64, 'base64');
+
+        await CameraRoll.save(`file://${filePath}`, {type: 'photo'});
+
+        showAlert('Thành công', 'Đã lưu QR code vào thư viện.');
+      } catch (e) {
+        console.error('Save QR error', e);
+        showAlert('Lỗi', 'Lưu QR code thất bại.');
+      }
+    });
   };
 
   return (
@@ -25,13 +83,13 @@ export const ScreenQRCode = ({navigation}: any) => {
         style={styles.linear}>
         <View style={styles.Header}>
           <TouchableOpacity
-            style={styles.btn}
-            onPress={() => navigation.navigate('BottomTabs')}>
+            onPress={() => navigation.goBack()}
+            style={styles.btn}>
             <X size={22} color="#fff" />
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.btn}
-            onPress={() => navigation.navigate('QRScanner')}>
+            onPress={() => navigation.navigate('QRScanner')}
+            style={styles.btn}>
             <ScanLine size={22} color="#fff" />
           </TouchableOpacity>
         </View>
@@ -39,7 +97,8 @@ export const ScreenQRCode = ({navigation}: any) => {
         <View style={styles.content}>
           <View style={styles.ViewQR}>
             <QRCode
-              value={myUserId}
+              getRef={c => (qrCodeRef.current = c)}
+              value={url}
               size={200}
               quietZone={10}
               logo={require('../../../assets/icon/logo.png')}
@@ -47,22 +106,23 @@ export const ScreenQRCode = ({navigation}: any) => {
               logoMargin={2}
               logoBackgroundColor="white"
               linearGradient={['#4F8EF7', '#B84592']}
-              enableLinearGradient={true}
+              enableLinearGradient
               backgroundColor="transparent"
             />
           </View>
+
           <View style={styles.footer}>
-            <TouchableOpacity style={styles.btnBottom}>
+            <TouchableOpacity style={styles.btnBottom} onPress={handleShare}>
               <Share2 size={22} color="#000" />
               <Text style={styles.txtBottom}>Chia sẻ</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.btnBottom}>
+            <TouchableOpacity style={styles.btnBottom} onPress={handleCopy}>
               <Link2 size={22} color="#000" />
               <Text style={styles.txtBottom}>Sao chép</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.btnBottom}
-              onPress={hanldeDownloadQRCode}>
+              onPress={handleDownloadQRCode}>
               <Download size={22} color="#000" />
               <Text style={styles.txtBottom}>Tải xuống</Text>
             </TouchableOpacity>
@@ -74,28 +134,9 @@ export const ScreenQRCode = ({navigation}: any) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    position: 'relative',
-  },
-  linear: {
-    flex: 1,
-  },
-  btn: {
-    width: 20,
-    height: 20,
-  },
-  iconClose: {
-    width: '100%',
-    height: '100%',
-    tintColor: '#fff',
-    resizeMode: 'contain',
-  },
-  icon: {
-    width: 20,
-    height: 20,
-    tintColor: '#000',
-  },
+  container: {flex: 1, position: 'relative'},
+  linear: {flex: 1},
+  btn: {width: 24, height: 24, justifyContent: 'center', alignItems: 'center'},
   content: {
     flex: 1,
     justifyContent: 'center',
@@ -110,33 +151,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 15,
   },
+  footer: {
+    width: '100%',
+    marginTop: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
   btnBottom: {
     width: '32%',
     backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 20,
-    borderRadius: 15,
+    paddingVertical: 16,
+    borderRadius: 12,
   },
-  footer: {
-    width: '100%',
-    marginTop: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  txtBottom: {
-    color: '#000',
-    fontSize: 15,
-    fontWeight: '500',
-    marginTop: 5,
-  },
+  txtBottom: {color: '#000', fontSize: 14, marginTop: 6},
   Header: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    width: '100%',
-    paddingHorizontal: 20,
-    paddingTop: 20,
+    padding: 16,
   },
 });

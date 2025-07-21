@@ -26,7 +26,7 @@ import BottomSheet, {
 } from '../PostStory/BottomSheet/BottomSheetMusic';
 import {uploadImageToR2, uploadVideoToR2} from '../../core/upload';
 import {useUploadProgress} from '../../../services/UploadProgressManager';
-import {PhotoIdentifier} from '@react-native-camera-roll/camera-roll';
+import {PhotoIdentifier} from '@react-native-community/cameraroll';
 import {TaggedMedia} from '../TagSo';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 import {checkProfanityAndAlert} from '../../util/profanityFilter';

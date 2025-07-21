@@ -9,11 +9,10 @@ import {
   Dimensions,
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
-import {
-  CameraRoll,
+import CameraRoll, {
   PhotoIdentifier,
-  PhotoIdentifiersPage,
-} from '@react-native-camera-roll/camera-roll';
+  PhotoIdentifiersPage
+} from '@react-native-community/cameraroll';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {FlashList} from '@shopify/flash-list';
 import {getAddPostStyles} from '../../StyleSheet/AddPostStyles';
