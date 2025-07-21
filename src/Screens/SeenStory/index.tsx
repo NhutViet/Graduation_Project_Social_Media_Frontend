@@ -12,6 +12,7 @@ import {AppDispatch, RootState} from '../../../services/store';
 import {
   toggleLikeStory,
   deleteStory,
+  fetchFollowingStories,
 } from '../../../services/StoryRedux/StorySlice';
 import {styles} from './components/styles';
 import {Header} from './components/Header';
@@ -40,7 +41,6 @@ import ModalSeeMore from './componentStoryOwner/ModelSeeMore';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
-
 
 export const SeenStory = ({route, navigation}: any) => {
   const {
@@ -79,7 +79,9 @@ export const SeenStory = ({route, navigation}: any) => {
   const yourUserId = useSelector((state: RootState) => state.user.user?._id);
 
   // ✅ Get story details from Redux store
-  const {storyDetails} = useSelector((state: RootState) => state.stories);
+  const {storyDetails, followingUsers} = useSelector(
+    (state: RootState) => state.stories,
+  );
 
   // ✅ Owner-specific states
   const [visible, setVisible] = useState(false);
@@ -91,12 +93,25 @@ export const SeenStory = ({route, navigation}: any) => {
 
   // ✅ Check if current user is the story owner
   const isCurrentUserStory =
-    currentCreator?.username === user?.handleName ||
+    currentCreator?.handleName === user?.handleName ||
     currentCreator?._id === user?._id;
 
-  // ✅ Sync stories with Redux store data
+  // ✅ Sync stories with Redux store data and filter out deleted stories
   const syncedStories = useMemo(() => {
-    return stories.map((story: Story) => {
+    // ✅ Get current user's stories from Redux store to check for deletions
+    const currentUserInRedux = followingUsers.find(
+      u =>
+        u._id === currentCreator?._id ||
+        u.handleName === currentCreator?.handleName,
+    );
+
+    // ✅ Filter out stories that have been deleted from Redux store
+    const validStoryIds = currentUserInRedux?.stories || [];
+    const filteredStories = stories.filter((story: Story) =>
+      validStoryIds.includes(story._id),
+    );
+
+    return filteredStories.map((story: Story) => {
       // Find updated story data from Redux store
       const updatedStory = storyDetails.find(s => s._id === story._id);
       if (updatedStory) {
@@ -111,7 +126,53 @@ export const SeenStory = ({route, navigation}: any) => {
       }
       return story;
     });
-  }, [stories, storyDetails]);
+  }, [stories, storyDetails, followingUsers, currentCreator]);
+
+  // ✅ Update local state when syncedStories changes (due to deletions)
+  useEffect(() => {
+    if (syncedStories.length !== stories.length) {
+      setStories(syncedStories);
+
+      // ✅ Update storyGroups to reflect deletions
+      const updatedStoryGroups = [...currentStoryGroups];
+      updatedStoryGroups[storyGroupIndex] = {
+        ...currentStoryGroups[storyGroupIndex],
+        stories: syncedStories,
+      };
+      setCurrentStoryGroups(updatedStoryGroups);
+
+      // ✅ Stop current animation before adjusting index
+      stopCurrentAnimation();
+
+      // ✅ Adjust currentIndex if needed
+      if (currentIndex >= syncedStories.length && syncedStories.length > 0) {
+        setCurrentIndex(syncedStories.length - 1);
+      }
+
+      // ✅ Reset progress animations for remaining stories
+      progressAnims.forEach((anim, index) => {
+        if (index < currentIndex) {
+          anim.setValue(1); // Completed stories
+        } else {
+          anim.setValue(0); // Future stories
+        }
+      });
+
+      // ✅ If no stories left, go back
+      if (syncedStories.length === 0) {
+        setTimeout(() => {
+          navigation.goBack();
+        }, 1000);
+      }
+    }
+  }, [
+    syncedStories.length,
+    stories.length,
+    currentIndex,
+    storyGroupIndex,
+    currentStoryGroups,
+    navigation,
+  ]);
 
   // ✅ Listen for parameter updates and navigation focus
   useEffect(() => {
@@ -131,6 +192,11 @@ export const SeenStory = ({route, navigation}: any) => {
       if (isPaused) {
         setIsPaused(false);
       }
+
+      // ✅ Force refresh following stories to get latest data (including deletions)
+      if (isCurrentUserStory) {
+        dispatch(fetchFollowingStories({page: 1}));
+      }
     });
 
     // ✅ Listen for blur event (khi navigate away)
@@ -148,7 +214,7 @@ export const SeenStory = ({route, navigation}: any) => {
       unsubscribe();
       blurUnsubscribe();
     };
-  }, [navigation, route.params, isPaused]);
+  }, [navigation, route.params, isPaused, isCurrentUserStory, dispatch]);
 
   // ✅ Reset video và music khi navigate away và quay lại (owner mode)
   useEffect(() => {
@@ -163,17 +229,33 @@ export const SeenStory = ({route, navigation}: any) => {
     }
   }, [isNavigatedAway, wasPausedByUser, isCurrentUserStory]);
 
-  // ✅ Update progress anims when stories change
+  // ✅ Update progress anims when syncedStories change (including deletions)
   useEffect(() => {
-    if (stories.length !== progressAnims.length) {
+    if (syncedStories.length !== progressAnims.length) {
       progressAnims.splice(0, progressAnims.length);
-      progressAnims.push(...stories.map(() => new Animated.Value(0)));
+      progressAnims.push(...syncedStories.map(() => new Animated.Value(0)));
       if (isCurrentUserStory) {
         progressValues.splice(0, progressValues.length);
-        progressValues.push(...stories.map(() => 0));
+        progressValues.push(...syncedStories.map(() => 0));
       }
     }
-  }, [stories.length, isCurrentUserStory]);
+  }, [syncedStories.length, isCurrentUserStory]);
+
+  // ✅ Reset progress bar when currentIndex changes (due to story deletion)
+  useEffect(() => {
+    // ✅ Ensure progressAnims length matches syncedStories length
+    if (progressAnims.length !== syncedStories.length) {
+      return; // Let the other useEffect handle this
+    }
+
+    progressAnims.forEach((anim, index) => {
+      if (index < currentIndex && index < syncedStories.length) {
+        anim.setValue(1); // Completed stories
+      } else if (index > currentIndex) {
+        anim.setValue(0); // Future stories
+      }
+    });
+  }, [currentIndex, syncedStories.length, progressAnims.length]);
 
   const selectedItem = useMemo(
     () => syncedStories[currentIndex] || {},
@@ -231,33 +313,8 @@ export const SeenStory = ({route, navigation}: any) => {
 
       GlobalAlertManager.show('Thành công', 'Tin của bạn đã được xoá');
 
-      // ✅ Cập nhật state local ngay lập tức để UI responsive
-      const updatedStories = syncedStories.filter(
-        (_: any, index: number) => index !== currentIndex,
-      );
-
-      if (updatedStories.length === 0) {
-        // Không còn story nào, quay lại
-        setTimeout(() => {
-          navigation.goBack();
-        }, 1000);
-      } else {
-        // ✅ Cập nhật local state để không bị lag UI
-        const updatedStoryGroups = [...currentStoryGroups];
-        updatedStoryGroups[storyGroupIndex] = {
-          ...currentStoryGroups[storyGroupIndex],
-          stories: updatedStories,
-        };
-        setCurrentStoryGroups(updatedStoryGroups);
-        setStories(updatedStories);
-
-        // Điều chỉnh currentIndex nếu cần
-        const newIndex =
-          currentIndex >= updatedStories.length
-            ? updatedStories.length - 1
-            : currentIndex;
-        setCurrentIndex(newIndex);
-      }
+      // ✅ Không cần cập nhật local state nữa vì đã có cơ chế đồng bộ tự động
+      // syncedStories sẽ tự động cập nhật và useEffect sẽ xử lý việc điều chỉnh UI
     } catch (error) {
       GlobalAlertManager.show('Thất bại', 'Không thể xoá story');
       // ✅ Đóng modal nếu có lỗi
@@ -366,27 +423,43 @@ export const SeenStory = ({route, navigation}: any) => {
 
         // ✅ Check if next group belongs to current user
         const isOwner =
-          nextGroup.creator?.username === user?.handleName ||
+          nextGroup.creator?.handleName === user?.handleName ||
           nextGroup.creator?._id === user?._id;
         const routeName = isOwner ? 'SeenStory' : 'SeenStory'; // Use unified component
 
-        // ✅ Use synced stories data for navigation
-        const syncedNextGroupStories = nextGroup.stories.map((story: Story) => {
-          const updatedStory = storyDetails.find(s => s._id === story._id);
-          if (updatedStory) {
-            return {
-              ...story,
-              likedByUsers:
-                updatedStory.likedByUsers || story.likedByUsers || [],
-              viewedByUsers:
-                updatedStory.viewedByUsers || story.viewedByUsers || [],
-            };
-          }
-          return story;
-        });
+        // ✅ Sync next group stories with Redux store
+        const nextUserInRedux = followingUsers.find(
+          u =>
+            u._id === nextGroup.creator?._id ||
+            u.handleName === nextGroup.creator?.handleName,
+        );
+
+        const validNextStoryIds = nextUserInRedux?.stories || [];
+        const syncedNextGroupStories = nextGroup.stories
+          .filter((story: Story) => validNextStoryIds.includes(story._id))
+          .map((story: Story) => {
+            const updatedStory = storyDetails.find(s => s._id === story._id);
+            if (updatedStory) {
+              return {
+                ...story,
+                likedByUsers:
+                  updatedStory.likedByUsers || story.likedByUsers || [],
+                viewedByUsers:
+                  updatedStory.viewedByUsers || story.viewedByUsers || [],
+              };
+            }
+            return story;
+          });
+
+        // ✅ Update storyGroups with synced data
+        const updatedStoryGroups = [...currentStoryGroups];
+        updatedStoryGroups[nextGroupIndex] = {
+          ...nextGroup,
+          stories: syncedNextGroupStories,
+        };
 
         navigation.replace(routeName, {
-          storyGroups: currentStoryGroups,
+          storyGroups: updatedStoryGroups,
           storyGroupIndex: nextGroupIndex,
           creator: nextGroup.creator,
           stories: syncedNextGroupStories,
@@ -431,13 +504,21 @@ export const SeenStory = ({route, navigation}: any) => {
 
           // ✅ Check ownership properly
           const isOwner =
-            prevGroup.creator?.username === user?.handleName ||
+            prevGroup.creator?.handleName === user?.handleName ||
             prevGroup.creator?._id === user?._id;
           const routeName = isOwner ? 'SeenStory' : 'SeenStory'; // Use unified component
 
-          // ✅ Use synced stories data for navigation
-          const syncedPrevGroupStories = prevGroup.stories.map(
-            (story: Story) => {
+          // ✅ Sync previous group stories with Redux store
+          const prevUserInRedux = followingUsers.find(
+            u =>
+              u._id === prevGroup.creator?._id ||
+              u.handleName === prevGroup.creator?.handleName,
+          );
+
+          const validPrevStoryIds = prevUserInRedux?.stories || [];
+          const syncedPrevGroupStories = prevGroup.stories
+            .filter((story: Story) => validPrevStoryIds.includes(story._id))
+            .map((story: Story) => {
               const updatedStory = storyDetails.find(s => s._id === story._id);
               if (updatedStory) {
                 return {
@@ -449,15 +530,21 @@ export const SeenStory = ({route, navigation}: any) => {
                 };
               }
               return story;
-            },
-          );
+            });
+
+          // ✅ Update storyGroups with synced data
+          const updatedStoryGroups = [...currentStoryGroups];
+          updatedStoryGroups[prevGroupIndex] = {
+            ...prevGroup,
+            stories: syncedPrevGroupStories,
+          };
 
           navigation.replace(routeName, {
-            storyGroups: currentStoryGroups,
+            storyGroups: updatedStoryGroups,
             storyGroupIndex: prevGroupIndex,
             creator: prevGroup.creator,
             stories: syncedPrevGroupStories,
-            initialIndex: (prevGroup.stories.length || 1) - 1,
+            initialIndex: (syncedPrevGroupStories.length || 1) - 1,
             timestamp: Date.now(),
           });
 
@@ -601,7 +688,6 @@ export const SeenStory = ({route, navigation}: any) => {
     );
   };
 
-
   // logic khi nhấn vàp textInput thì dứng story
   useEffect(() => {
     const keyboardDidShow = Keyboard.addListener('keyboardDidShow', () => {
@@ -638,9 +724,14 @@ export const SeenStory = ({route, navigation}: any) => {
     setIsVideoLoaded(false);
     setIsMusicLoaded(false);
     setIsMediaLoading(true);
+
+    // ✅ Reset progress bar based on current index and syncedStories length
     progressAnims.forEach((anim, i) => {
-      if (i < currentIndex) anim.setValue(1);
-      else anim.setValue(0);
+      if (i < currentIndex && i < syncedStories.length) {
+        anim.setValue(1); // Completed stories
+      } else {
+        anim.setValue(0); // Current and future stories
+      }
     });
 
     // ✅ Reset video ref để đảm bảo video mới được load
@@ -655,7 +746,7 @@ export const SeenStory = ({route, navigation}: any) => {
     if (!hasVideo && !hasMusic) {
       startProgressAnimation();
     }
-  }, [currentIndex]);
+  }, [currentIndex, syncedStories.length]);
 
   useEffect(() => {
     if (!isPaused) {
@@ -708,7 +799,8 @@ export const SeenStory = ({route, navigation}: any) => {
         {/* Unified Header for both owner and viewer */}
         <Header
           onClose={() => navigation.goBack()}
-          username={currentCreator?.username}
+          username={currentCreator?.username} // ✅ Hiển thị username thực sự
+          handleName={currentCreator?.handleName} // ✅ Truyền handleName để xử lý logic
           profilePic={currentCreator?.profilePic}
           pause={isPaused}
           onTogglePause={togglePause}

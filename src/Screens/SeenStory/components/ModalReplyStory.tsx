@@ -138,8 +138,6 @@ const ModalReplyStory = forwardRef<ModalReplyHandle, ModalReplyStoryProps>(
 
         await dispatch(shareStory(payload)).unwrap();
 
-        GlobalAlertManager.show('Thành công', 'Đã gửi reply story thành công');
-
         // Close modal and reset
         setVisible(false);
         setMessage('');
@@ -269,33 +267,6 @@ const ModalReplyStory = forwardRef<ModalReplyHandle, ModalReplyStoryProps>(
                     )}
                   </TouchableOpacity>
                 </View>
-
-                {/* Preview */}
-                {storyData && (
-                  <View
-                    style={{
-                      marginTop: 15,
-                      padding: 15,
-                      backgroundColor: color.backgroundSecondary,
-                      borderRadius: 10,
-                    }}>
-                    <Text
-                      style={{
-                        fontSize: 14,
-                        color: color.textSecondary,
-                        marginBottom: 5,
-                      }}>
-                      Đang reply story:
-                    </Text>
-                    <Text
-                      style={{
-                        fontSize: 12,
-                        color: color.textSecondary,
-                      }}>
-                      {storyData.type === 'video' ? 'Video' : 'Ảnh'}
-                    </Text>
-                  </View>
-                )}
               </View>
             </View>
           </View>

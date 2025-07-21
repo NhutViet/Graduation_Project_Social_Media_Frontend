@@ -257,7 +257,7 @@ export const MessageBox = (props: any) => {
             return (
               <Story
                 key={item._id}
-                name={isCurrentUser ? 'Tin của tôi' : item.handleName}
+                name={isCurrentUser ? 'Tin của tôi' : item.username}
                 image={item?.profilePic}
                 hasStory={hasStory}
                 isSeen={isSeen}

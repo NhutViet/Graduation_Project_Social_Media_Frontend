@@ -46,7 +46,7 @@ const StoryListHeader = React.memo<StoryListHeaderProps>(
     const storyData = useMemo<StoryItem[]>(() => {
       const stories: StoryItem[] = visibleStories.map(item => {
         const isCurrentUser =
-          item._id === user?._id || item.handleName === user?.handleName;
+          item._id === user?._id || item.username === user?.username;
         const story = storyDetails.find(s => s._id === item.stories?.[0]);
         const isSeen = story
           ? story.isSeen === true || seenMap[story._id] === true
@@ -56,7 +56,7 @@ const StoryListHeader = React.memo<StoryListHeaderProps>(
         return {
           id: item._id,
           item,
-          name: isCurrentUser ? 'Tin của tôi' : item.handleName,
+          name: isCurrentUser ? 'Tin của tôi' : item.username,
           image: item?.profilePic,
           status: hasStory ? 1 : 0,
           hasStory,

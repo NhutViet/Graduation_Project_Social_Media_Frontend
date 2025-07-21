@@ -6,6 +6,7 @@ import {Pause, Play, VolumeX, Volume2, X} from 'lucide-react-native';
 interface HeaderProps {
   onClose: () => void;
   username?: string;
+  handleName?: string; 
   profilePic?: string;
   pause: boolean;
   onTogglePause: () => void;
@@ -15,13 +16,13 @@ interface HeaderProps {
   navigation?: any;
   creatorId?: string;
   yourUserId?: string;
-  // ✅ New prop to distinguish between owner and viewer mode
   isOwner?: boolean;
 }
 
 export const Header = ({
   onClose,
   username,
+  handleName,
   profilePic,
   pause,
   onTogglePause,
