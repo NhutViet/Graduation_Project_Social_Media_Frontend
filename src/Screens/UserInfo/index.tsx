@@ -30,6 +30,7 @@ import { MediaItem } from '../../util/msgImgList';
 import MessageSearchModal from '../../../components/MessageSearchModal';
 import { fetchMessages } from '../../../services/messageRedux/messageSlice';
 import { Message } from '../../../services/messageRedux/messageType';
+import ImagePreviewModal from '../Message/components/ImagePreviewModal';
 import {
   ArrowLeft,
   User,
@@ -88,6 +89,18 @@ export const UserInfo = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
   const [hasNextPage, setHasNextPage] = useState<boolean>(true);
+  const [previewVisible, setPreviewVisible] = useState(false);
+  const [previewUri, setPreviewUri] = useState<string | null>(null);
+
+  const openPreview = useCallback((uri: string) => {
+    setPreviewUri(uri);
+    setPreviewVisible(true);
+  }, []);
+
+  const closePreview = useCallback(() => {
+    setPreviewVisible(false);
+    setPreviewUri(null);
+  }, []);
 
   // Simplified useEffect()
   useEffect(() => {
@@ -319,7 +332,7 @@ export const UserInfo = () => {
       );
     }
     return (
-      <TabVi medi={media} isLoading={isLoading} onEndReached={handleLoadMore} />
+      <TabVi medi={media} isLoading={isLoading} onEndReached={handleLoadMore} onImagePress={openPreview} />
     );
   }, [media, isLoading, handleLoadMore]);
 
@@ -402,6 +415,11 @@ export const UserInfo = () => {
         onClose={handleCloseSearchModal}
         messages={messages}
         onMessageSelect={handleMessageSelect}
+      />
+      <ImagePreviewModal
+        visible={previewVisible}
+        imageUri={previewUri}
+        onClose={closePreview}
       />
     </SafeAreaView>
   );
