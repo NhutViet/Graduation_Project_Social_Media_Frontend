@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, {memo, useCallback} from 'react';
 import {
   Image,
   Text,
@@ -6,38 +6,52 @@ import {
   StyleSheet,
   useWindowDimensions,
   TouchableOpacity,
-  Modal,
-  SafeAreaView,
-  Dimensions,
 } from 'react-native';
-import { MediaItem } from '../../../util/msgImgList';
-import { FlashList } from '@shopify/flash-list';
+import {MediaItem} from '../../../util/msgImgList';
+import {FlashList} from '@shopify/flash-list';
 import LoadingModal from '../../../../components/Global/LoadingModal';
-import { X } from 'lucide-react-native';
 
 interface TabViProps {
   medi: MediaItem[] | undefined;
   isLoading: boolean;
   onEndReached?: () => void;
+  onImagePress?: (uri: string) => void;
 }
 
 const ITEM_HEIGHT = (width: number) => width / 3;
-export const TabVi = memo(({ medi, isLoading, onEndReached }: TabViProps) => {
-  const { height, width: screenWidth } = useWindowDimensions();
+
+export const TabVi = memo(({medi, isLoading, onEndReached, onImagePress}: TabViProps) => {
+  const {height, width: screenWidth} = useWindowDimensions();
   const itemSize = ITEM_HEIGHT(screenWidth);
-  const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
-
-  const openPreview = useCallback((imageUrl: string) => {
-    setSelectedImageUrl(imageUrl);
-  }, []);
-
-  const closePreview = useCallback(() => {
-    setSelectedImageUrl(null);
-  }, []);
 
   const renderItem = useCallback(
-    ({ item }: { item: MediaItem }) => {
+    ({item}: {item: MediaItem}) => {
       const isValidUrl = item.media.url && item.media.url.trim() !== '';
+      
+      const imageContent = isValidUrl ? (
+        <Image
+          source={{uri: item.media.url}}
+          style={styles.image}
+          resizeMode="cover"
+        />
+      ) : (
+        <View style={styles.placeholder} />
+      );
+
+      if (onImagePress && isValidUrl) {
+        return (
+          <TouchableOpacity
+            style={{
+              width: itemSize - 1,
+              height: itemSize,
+              backgroundColor: '#f0f0f0',
+            }}
+            activeOpacity={0.8}
+            onPress={() => onImagePress(item.media.url)}>
+            {imageContent}
+          </TouchableOpacity>
+        );
+      }
 
       return (
         <View
@@ -46,28 +60,11 @@ export const TabVi = memo(({ medi, isLoading, onEndReached }: TabViProps) => {
             height: itemSize,
             backgroundColor: '#f0f0f0',
           }}>
-          {isValidUrl ? (
-            <TouchableOpacity
-              style={{
-                width: itemSize - 1,
-                height: itemSize,
-                padding: 1,
-              }}
-              activeOpacity={0.8}
-              onPress={() => openPreview(item.media.url)}>
-              <Image
-                source={{ uri: item.media.url }}
-                style={styles.image}
-                resizeMode="cover"
-              />
-            </TouchableOpacity>
-          ) : (
-            <View style={styles.placeholder} />
-          )}
+          {imageContent}
         </View>
       );
     },
-    [itemSize, openPreview],
+    [itemSize, onImagePress],
   );
 
   const keyExtractor = useCallback((item: MediaItem) => item._id, []);
@@ -89,49 +86,21 @@ export const TabVi = memo(({ medi, isLoading, onEndReached }: TabViProps) => {
   }
 
   return (
-    <>
-      <FlashList
-        data={medi}
-        renderItem={renderItem}
-        keyExtractor={keyExtractor}
-        numColumns={3}
-        estimatedItemSize={itemSize}
-        onEndReached={onEndReached}
-        onEndReachedThreshold={0.5}
-        contentContainerStyle={styles.listContainer}
-        showsVerticalScrollIndicator={false}
-        estimatedListSize={{
-          height: height,
-          width: screenWidth,
-        }}
-      />
-
-      {/* Full Screen Image Preview Modal */}
-      <Modal
-        visible={!!selectedImageUrl}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={closePreview}>
-        <SafeAreaView style={styles.modalContainer}>
-          <TouchableOpacity
-            onPress={closePreview}
-            activeOpacity={0.8}>
-          </TouchableOpacity>
-          {selectedImageUrl && (
-            <TouchableOpacity
-              style={styles.imageContainer}
-              activeOpacity={1}
-              onPress={closePreview}>
-              <Image
-                source={{ uri: selectedImageUrl }}
-                style={styles.fullScreenImage}
-                resizeMode="contain"
-              />
-            </TouchableOpacity>
-          )}
-        </SafeAreaView>
-      </Modal>
-    </>
+    <FlashList
+      data={medi}
+      renderItem={renderItem}
+      keyExtractor={keyExtractor}
+      numColumns={3}
+      estimatedItemSize={itemSize}
+      onEndReached={onEndReached}
+      onEndReachedThreshold={0.5}
+      contentContainerStyle={styles.listContainer}
+      showsVerticalScrollIndicator={false}
+      estimatedListSize={{
+        height: height,
+        width: screenWidth,
+      }}
+    />
   );
 });
 
@@ -159,22 +128,5 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     padding: 0.5,
-  },
-  modalContainer: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  imageContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-    padding: 20,
-  },
-  fullScreenImage: {
-    width: '100%',
-    height: '100%',
   },
 });
