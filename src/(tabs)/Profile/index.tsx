@@ -140,7 +140,11 @@ const Profile = () => {
 
       <View style={{flex: 1}}>
         <View style={styles.profileInfo}>
-          <View style={styles.avatarContainer}>
+          <TouchableOpacity
+            style={styles.avatarContainer}
+            onPress={() => {
+              navigation.navigate('UpStory');
+            }}>
             <Image
               source={
                 user?.profilePic
@@ -151,14 +155,10 @@ const Profile = () => {
               }
               style={styles.avatar}
             />
-            <TouchableOpacity
-              style={styles.addStoryButton}
-              onPress={() => {
-                navigation.navigate('UpStory');
-              }}>
+            <View style={styles.addStoryButton}>
               <Text style={styles.addStoryIcon}>+</Text>
-            </TouchableOpacity>
-          </View>
+            </View>
+          </TouchableOpacity>
           <View style={styles.statsContainer}>
             <View style={styles.statItem}>
               <Text style={[styles.statNumber, {color: color.text}]}>

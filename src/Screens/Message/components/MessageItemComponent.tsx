@@ -102,22 +102,46 @@ const MessageItemComponent: React.FC<MessageItemProps> = memo(
 
     const renderContent = useCallback(() => {
       if (item.media?.type === 'image') {
+        const filteredText = item.content
+          .split(/(\s+)/)
+          .filter(part => !/^https?:\/\/\S+$/i.test(part))
+          .join('');
+
         return (
-          <Pressable onPress={handleImagePress} onLongPress={handleLongPress}>
-            <View
-              style={{
-                width: 150,
-                height: 200,
-                borderRadius: 10,
-                overflow: 'hidden',
-              }}>
-              <Image
-                source={{uri: item.media.url}}
-                style={{width: '100%', height: '100%'}}
-                resizeMode="cover"
-              />
-            </View>
-          </Pressable>
+          <>
+            <Pressable onPress={handleImagePress} onLongPress={handleLongPress}>
+              <View
+                style={{
+                  width: 150,
+                  height: 200,
+                  borderRadius: 10,
+                  overflow: 'hidden',
+                }}>
+                <Image
+                  source={{uri: item.media.url}}
+                  style={{width: '100%', height: '100%'}}
+                  resizeMode="cover"
+                />
+              </View>
+            </Pressable>
+            {filteredText !== '' && (
+              <Text
+                style={{
+                  color: color.text,
+                  fontSize: 14,
+                  marginBottom: 8,
+                  lineHeight: 20,
+                  fontWeight: '400',
+                  paddingHorizontal: 12,
+                  paddingVertical: 8,
+                  backgroundColor: color.primary,
+                  borderRadius: 8,
+                  marginTop: 2,
+                }}>
+                {filteredText}
+              </Text>
+            )}
+          </>
         );
       }
 
@@ -166,6 +190,43 @@ const MessageItemComponent: React.FC<MessageItemProps> = memo(
               </Text>
             </TouchableOpacity>
           </View>
+        );
+      }
+
+      if (item.media?.type === 'video') {
+        const filteredText = item.content
+          .split(/(\s+)/)
+          .filter(part => !/^https?:\/\/\S+$/i.test(part))
+          .join('');
+
+        return (
+          <>
+            <Pressable onPress={handleImagePress} onLongPress={handleLongPress}>
+              <View
+                style={{
+                  width: 150,
+                  height: 200,
+                  borderRadius: 10,
+                  overflow: 'hidden',
+                }}>
+                <Image
+                  source={{uri: item.media.url}}
+                  style={{width: '100%', height: '100%'}}
+                  resizeMode="cover"
+                />
+              </View>
+            </Pressable>
+            {filteredText !== '' && (
+              <Text
+                style={{
+                  color: color.text,
+                  fontSize: 14,
+                  marginBottom: 8,
+                }}>
+                {filteredText}
+              </Text>
+            )}
+          </>
         );
       }
 

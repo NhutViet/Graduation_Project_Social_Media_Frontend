@@ -168,7 +168,8 @@ export const handleUserPress = async (
       // ✅ Không thay đổi thứ tự, giữ nguyên originalOrder
       return originalOrder.map(u => ({
         creator: {
-          username: u.handleName,
+          username: u.username, // ✅ Hiển thị username thực sự
+          handleName: u.handleName, // ✅ Giữ handleName để xử lý logic
           profilePic: u.profilePic,
           _id: u._id,
         },
@@ -181,7 +182,7 @@ export const handleUserPress = async (
 
     const initialStoryGroups = createInitialStoryGroups();
     const initialGroupIndex = initialStoryGroups.findIndex(
-      g => g.creator.username === item.handleName,
+      g => g.creator.handleName === item.handleName, // ✅ Sử dụng handleName cho logic so sánh
     );
 
     debugStoryGroups(
@@ -196,7 +197,8 @@ export const handleUserPress = async (
     navigation.navigate('SeenStory', {
       stories: basicStoryData,
       creator: {
-        username: item.handleName,
+        username: item.username, // ✅ Hiển thị username thực sự
+        handleName: item.handleName, // ✅ Giữ handleName để xử lý logic
         profilePic: item.profilePic,
         _id: item._id,
       },
@@ -322,7 +324,8 @@ export const handleUserPress = async (
           const validStories = stories.filter(s => s);
           return {
             creator: {
-              username: u.handleName,
+              username: u.username, // ✅ Hiển thị username thực sự
+              handleName: u.handleName, // ✅ Giữ handleName để xử lý logic
               profilePic: u.profilePic,
               _id: u._id,
             },
@@ -354,7 +357,7 @@ export const handleUserPress = async (
     const finalStoryGroups = await loadRealStoryData(sortedUsersWithStories);
 
     const finalGroupIndex = finalStoryGroups.findIndex(
-      g => g.creator.username === item.handleName,
+      g => g.creator.handleName === item.handleName, // ✅ Sử dụng handleName cho logic so sánh
     );
 
     if (finalGroupIndex === -1) {

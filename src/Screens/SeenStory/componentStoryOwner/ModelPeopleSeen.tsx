@@ -19,23 +19,24 @@ const ModalPeopleSeen = ({
 }: {
   visible: boolean;
   onClose: () => void;
-  users: {_id: string; handleName: string; profilePic: string}[];
+  users: {_id: string; handleName: string; profilePic: string; username: string}[];
   onUserPress: (user: {
     _id: string;
     handleName: string;
     profilePic: string;
+    username: string;
   }) => void;
 }) => {
   console.log('ModalPeopleSeen users:', JSON.stringify(users, null, 2));
   const RenderItem = ({
     item,
   }: {
-    item: {_id: string; handleName: string; profilePic: string};
+    item: {_id: string; handleName: string; profilePic: string; username: string};
   }) => (
     <TouchableOpacity onPress={() => onUserPress(item)}>
       <View style={styles.itemContainer}>
         <Image style={styles.itemIcon} source={{uri: item.profilePic}} />
-        <Text style={styles.itemName}>{item.handleName}</Text>
+        <Text style={styles.itemName}>{item.username}</Text> 
       </View>
     </TouchableOpacity>
   );
