@@ -311,6 +311,7 @@ const HighlightStoriesComponent: React.FC<HighlightStoriesComponentProps> = ({
         data={data}
         renderItem={renderItem}
         horizontal
+        scrollEnabled={data.length > 4}
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.listContainer}
       />
@@ -347,7 +348,6 @@ const HighlightStoriesComponent: React.FC<HighlightStoriesComponentProps> = ({
 const styles = StyleSheet.create({
   container: {
     marginVertical: 10,
-
     flexShrink: 0,
   },
   listContainer: {

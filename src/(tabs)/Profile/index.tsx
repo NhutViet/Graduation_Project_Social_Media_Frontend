@@ -16,9 +16,9 @@ import {
   Grid,
   Lock,
   ChevronDown,
-  Moon,
   Video,
   SquareUserRound,
+  Bookmark,
 } from 'lucide-react-native';
 import {Styles} from '../../StyleSheet/Profile.Styles';
 import {SwitchAccount} from '../../../components/SwitchAccount';
@@ -38,6 +38,7 @@ import ACNavigateModal, {
 import {fetchTaggedPosts} from '@services/taggedPostRedux/taggedPostSlice';
 import HighlightStoriesComponent from './components/HighlightStoriesComponent';
 import {TaggedPost} from '@services/taggedPostRedux/taggedPostTypes';
+import { getAllBookmark } from '@services/bookmarkRedux/bookmarkSlice';
 
 const Profile = () => {
   const navigation: any = useNavigation();
@@ -53,7 +54,12 @@ const Profile = () => {
   const {refreshToken} = useSelector((state: RootState) => state.user);
   const postState = useSelector((state: RootState) => state.postUser.posts);
   const PostsItem = postState && 'items' in postState ? postState.items : [];
-
+  const BookmarkItems = useSelector(
+    (state: RootState) => state.bookmark.allItems,
+  );
+  const isBookmarkLoading = useSelector(
+    (state: RootState) => state.bookmark.isloading,
+  );
   const reelsState = useSelector((state: RootState) => state.postUser.reels);
   const ReelsItem = reelsState && 'items' in reelsState ? reelsState.items : [];
   const {isSuccess} = useSelector((state: RootState) => state.postUser);
@@ -72,12 +78,13 @@ const Profile = () => {
         dispatch(fetchFollowers({userId: userId})),
         dispatch(fetchFollowing({userId: userId})),
         dispatch(fetchTaggedPosts(userId)),
+        dispatch(getAllBookmark({})),
       ]).catch(error => {
         console.error('Error fetching relations:', error);
       });
     }
   }, [dispatch, userId]);
-
+  
   // These two State Functionals below is for handle the length of bio
   const [needsTruncation, setNeedsTruncation] = useState(false);
   const [viewMoreBio, setViewMoreBio] = useState<Boolean>(false);
@@ -299,6 +306,18 @@ const Profile = () => {
           size={24}
         />
       </TouchableOpacity>
+      <TouchableOpacity
+        style={[
+          styles.tab,
+          activeTab === 'bookmark' && styles.activeTab,
+          {borderBottomColor: color.text},
+        ]}
+        onPress={() => setActiveTab('bookmark')}>
+        <Bookmark
+          color={activeTab === 'bookmark' ? color.text : color.textSecondary}
+          size={24}
+        />
+      </TouchableOpacity>
     </View>
   );
 
@@ -321,6 +340,12 @@ const Profile = () => {
       case 'tags':
         return isSuccess && taggedPosts ? (
           <TagsView data={taggedPosts as TaggedPost[]} />
+        ) : (
+          <LoadingPlaceholder />
+        );
+      case 'bookmark':
+        return !isBookmarkLoading && BookmarkItems ? (
+          <PostsView data={BookmarkItems} />
         ) : (
           <LoadingPlaceholder />
         );

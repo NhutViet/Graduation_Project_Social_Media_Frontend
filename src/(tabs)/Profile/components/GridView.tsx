@@ -29,7 +29,7 @@ export const GridView: React.FC<GridViewProps> = ({data, onPressItem}) => {
     return (
       <View style={[Styles.styles.centerItem, {flex: 1, marginTop: 60}]}>
         <ImageOff size={64} color="#ccc" style={{marginBottom: 16}} />
-        <Text style={Styles.styles.textno}>Chưa đăng nội dung nào.</Text>
+        <Text style={Styles.styles.textno}>Không có nội dung nào.</Text>
       </View>
     );
   }

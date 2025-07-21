@@ -188,10 +188,10 @@ export const MusicSavedScreen = () => {
   return (
     <SafeAreaView style={[styles.container, {backgroundColor: colors.background}]}>
       <View style={styles.header}>
+        <Text style={[styles.headerTitle, {color: colors.text, position: 'absolute', textAlign: 'center', width: '110%'}]}>{title}</Text>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <ChevronLeft size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, {color: colors.text}]}>{title}</Text>
       </View>
 
       { mappedMusicData.length === 0 ? (

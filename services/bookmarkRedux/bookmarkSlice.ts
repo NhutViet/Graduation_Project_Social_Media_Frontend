@@ -119,7 +119,6 @@ export const getAllPlaylists = createAsyncThunk<
   }
 });
 
-
 export const getItemsOfPlaylist = createAsyncThunk<
   ResGetItemPlaylist,
   ReqGetItemPlaylist,
@@ -153,10 +152,9 @@ export const getItemsOfPlaylist = createAsyncThunk<
   },
 );
 
-
 export const switchBookmark = createAsyncThunk<
   ResSwitchBookmark,
-  {postIds: string[], playlistId: string, refreshToken: string},
+  {postIds: string[]; playlistId: string; refreshToken: string},
   {rejectValue: {message: string}}
 >(
   'bookmark-playlists/switch',
@@ -166,7 +164,7 @@ export const switchBookmark = createAsyncThunk<
         API.POST_SWITCH_PLAYLIST,
         {
           postIds,
-          playlistId
+          playlistId,
         },
         {
           headers: {
@@ -185,30 +183,36 @@ export const switchBookmark = createAsyncThunk<
 
 export const addMusicToPlaylist = createAsyncThunk<
   ResAddMusic,
-  {musicId: string, refreshToken: string},
+  {musicId: string; refreshToken: string},
   {rejectValue: {message: string}}
 >(
   'bookmark-playlists/music/add',
   async ({musicId, refreshToken}, {rejectWithValue}) => {
     try {
-      const res = await axiosInstance.post(API.POST_ADD_MUSIC, {
-        musicId
-      }, {
-        headers: {
-          Authorization: `Bearer ${refreshToken}`
+      const res = await axiosInstance.post(
+        API.POST_ADD_MUSIC,
+        {
+          musicId,
         },
-      });
+        {
+          headers: {
+            Authorization: `Bearer ${refreshToken}`,
+          },
+        },
+      );
 
       return res.data;
     } catch (error: any) {
-      return rejectWithValue({message: error?.response?.data?.message || 'Lưu âm thanh thất bại.'});
+      return rejectWithValue({
+        message: error?.response?.data?.message || 'Lưu âm thanh thất bại.',
+      });
     }
   },
 );
 
 export const removeMusicFromPlaylist = createAsyncThunk<
   {removedCount: number},
-  {musicId: string, refreshToken: string},
+  {musicId: string; refreshToken: string},
   {rejectValue: {message: string}}
 >(
   'bookmark-playlists/music/remove',
@@ -217,13 +221,76 @@ export const removeMusicFromPlaylist = createAsyncThunk<
       const res = await axiosInstance.delete(API.DELETE_MUSIC_BOOKMARK, {
         data: {musicId},
         headers: {
-          Authorization: `Bearer ${refreshToken}`
+          Authorization: `Bearer ${refreshToken}`,
         },
       });
 
       return res.data;
     } catch (error: any) {
-      return rejectWithValue({message: error?.response?.data?.message || 'Bỏ lưu âm thanh thất bại.'});
+      return rejectWithValue({
+        message: error?.response?.data?.message || 'Bỏ lưu âm thanh thất bại.',
+      });
+    }
+  },
+);
+
+export const getAllBookmark = createAsyncThunk<
+  ResGetItemPlaylist,
+  {},
+  {rejectValue: {message: string}}
+>('bookmark-items/all-items', async (_, {rejectWithValue}) => {
+  try {
+    const res = await axiosInstance.get(API.GET_ALL_ITEMS, {
+      headers: {
+        token: 'refresh',
+      },
+    });
+    return res.data;
+  } catch (error: any) {
+    return rejectWithValue({
+      message:
+        error?.response?.data?.message ||
+        'Lấy danh sách bài viết đã lưu thất bại.',
+    });
+  }
+});
+
+export const reNamePalylistBookmark = createAsyncThunk<
+  Playlist,
+  {id: string; playlistName: string},
+  {rejectValue: {message: string}}
+>(
+  'bookmark-playlists/rename',
+  async ({id, playlistName}, {rejectWithValue}) => {
+    try {
+      const res = await axiosInstance.post(API.POST_RENAME_PLAYLIST, {id, playlistName}, {
+        headers: {
+          token: 'refresh',
+        }
+      });
+      return {...res.data, thumbnails: []};
+    } catch (error: any) {
+      return rejectWithValue({message: error?.response?.data?.message || 'Đổi tên danh sách thất bại.'});
+    }
+  },
+);
+
+export const deletePlaylist = createAsyncThunk<
+  {message: string; playlistDeleted: boolean; itemsDeletedCount: number},
+  {id: string},
+  {rejectValue: {message: string}}
+>(
+  'bookmark-playlists/delete',
+  async ({id}, {rejectWithValue}) => {
+    try {
+      const res = await axiosInstance.delete(`${API.DELETE_PLAYLIST}/${id}`, {
+        headers: {
+          token: 'refresh',
+        }
+      });
+      return res.data;
+    } catch (error: any) {
+      return rejectWithValue({message: error?.response?.data?.message || 'Xóa danh sách thất bại.'});
     }
   },
 );

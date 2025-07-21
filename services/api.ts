@@ -63,9 +63,12 @@ export const API = {
   POST_CREATE_PLAYLIST: 'bookmark-playlists/add',
   GET_ALL_PLAYLIST: 'bookmark-playlists/all',
   GET_ITEM_PLAYLIST: 'bookmark-items/all',
+  GET_ALL_ITEMS: 'bookmark-items/all-items',
   POST_SWITCH_PLAYLIST: 'bookmark-playlists/switch',
   POST_ADD_MUSIC: 'bookmark-playlists/music/add',
   DELETE_MUSIC_BOOKMARK: 'bookmark-playlists/music/remove',
+  POST_RENAME_PLAYLIST: 'bookmark-playlists/rename',
+  DELETE_PLAYLIST: 'bookmark-playlists/delete',
 
   //// Room
   GET_MY_ROOMS: 'rooms/my',
