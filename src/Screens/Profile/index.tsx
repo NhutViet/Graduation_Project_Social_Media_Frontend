@@ -46,6 +46,7 @@ import HighlightStoriesComponent from '../../(tabs)/Profile/components/Highlight
 import {ProfileSkeleton} from '../../../components/SkeletonGrid';
 import {Item} from '@services/postUserRedux/postUserType';
 import { clearReportedUser } from '@services/reportUserRedux/reportUserReducer';
+import { isBothFollowing as fetchingBothFollowing } from '../Message/utils/helpers';
 
 const ProfileComp = ({route}: any) => {
   const navigation: any = useNavigation();
@@ -71,13 +72,14 @@ const ProfileComp = ({route}: any) => {
     });
   };
 
+  const [hasBothFollow, setHasBothFollow] = useState<boolean>(false);
   const handleMessagePress = async () => {
     try {
       const res = await dispatch(
         createRoom({
           name: '',
           user_ids: [userID],
-          type: 'waiting',
+          type: hasBothFollow ? 'accept' : 'waiting',
         }),
       ).unwrap();
 
@@ -186,6 +188,12 @@ const ProfileComp = ({route}: any) => {
       return;
     }
 
+    const isBothFollowing = await fetchingBothFollowing(userID, myUserId as string);
+    if (isBothFollowing) {
+      setHasBothFollow(true);
+    } else {
+      setHasBothFollow(false);
+    }
     setIsInitializing(true);
 
     try {
