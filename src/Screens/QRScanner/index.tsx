@@ -6,7 +6,7 @@ import {
   PermissionsAndroid,
   Dimensions,
   TouchableOpacity,
-  Image,
+  Linking,
 } from 'react-native';
 import {
   Camera,
@@ -19,42 +19,29 @@ import LinearGradient from 'react-native-linear-gradient';
 import {useNavigation, useIsFocused} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../services/store';
-import { unwrapResult } from '@reduxjs/toolkit';
-import { validateUserId } from '@services/userRedux/userSlice';
-import { GlobalAlertManager } from '../../../components/Global/AlertModal';
+import {unwrapResult} from '@reduxjs/toolkit';
+import {validateUserId} from '@services/userRedux/userSlice';
+import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 import {ArrowLeft} from 'lucide-react-native';
 
 const {width, height} = Dimensions.get('window');
 const SCAN_AREA_SIZE = width * 0.7;
 const COOLDOWN_TIME = 10000;
 
-interface ScanAreaType {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
-interface CodeBounds {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
 export const QRScanner = () => {
-  const [hasPermission, setHasPermission] = useState<Boolean>(false);
-  const [canScan, setCanScan] = useState<boolean>(true);
+  const [hasPermission, setHasPermission] = useState(false);
+  const [canScan, setCanScan] = useState(true);
   const cooldownTimer = useRef<NodeJS.Timeout | null>(null);
   const devices = useCameraDevices();
   const device = getCameraDevice(devices, 'back');
-  const navigation: any = useNavigation();
+  const navigation = useNavigation<any>();
   const dispatch = useDispatch<AppDispatch>();
-  const myUserId = useSelector((state: RootState) => state.user?.user?._id);
+  const myUserId = useSelector((s: RootState) => s.user.user?._id);
   const isFocused = useIsFocused();
   const didHandleScanRef = useRef(false);
 
-  const scanArea: ScanAreaType = {
+  // Vùng quét
+  const scanArea = {
     x: (width - SCAN_AREA_SIZE) / 2,
     y: (height - SCAN_AREA_SIZE) / 2,
     width: SCAN_AREA_SIZE,
@@ -63,16 +50,10 @@ export const QRScanner = () => {
 
   const startCooldown = () => {
     setCanScan(false);
-    cooldownTimer.current = setTimeout(() => {
-      setCanScan(true);
-    }, COOLDOWN_TIME);
+    cooldownTimer.current = setTimeout(() => setCanScan(true), COOLDOWN_TIME);
   };
-
   const resetCooldown = () => {
-    if (cooldownTimer.current) {
-      clearTimeout(cooldownTimer.current);
-      cooldownTimer.current = null;
-    }
+    cooldownTimer.current && clearTimeout(cooldownTimer.current);
     setCanScan(true);
   };
 
@@ -80,123 +61,113 @@ export const QRScanner = () => {
     return () => {
       if (cooldownTimer.current) {
         clearTimeout(cooldownTimer.current);
+        cooldownTimer.current = null;
       }
     };
   }, []);
 
   useEffect(() => {
-    if (isFocused) {
-      didHandleScanRef.current = false;
-    }
+    if (isFocused) didHandleScanRef.current = false;
   }, [isFocused]);
 
-  const isCodeInScanArea = (bounds: CodeBounds | undefined): boolean => {
+  const isInArea = (bounds: Code['frame'] | undefined) => {
     if (!bounds) return false;
-
-    const codeCenter = {
-      x: bounds.x + bounds.width / 2,
-      y: bounds.y + bounds.height / 2,
-    };
-
+    const cx = bounds.x + bounds.width / 2;
+    const cy = bounds.y + bounds.height / 2;
     return (
-      codeCenter.x >= scanArea.x &&
-      codeCenter.x <= scanArea.x + scanArea.width &&
-      codeCenter.y >= scanArea.y &&
-      codeCenter.y <= scanArea.y + scanArea.height
+      cx >= scanArea.x &&
+      cx <= scanArea.x + scanArea.width &&
+      cy >= scanArea.y &&
+      cy <= scanArea.y + scanArea.height
     );
   };
 
-  async function requestCameraPermission() {
-    if (Platform.OS === 'android') {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.CAMERA,
-        {
-          title: 'Camera Access Required',
-          message: 'This app needs to access your camera to take photos.',
-          buttonNeutral: 'Ask Me Later',
-          buttonNegative: 'Cancel',
-          buttonPositive: 'OK',
-        },
-      );
-      return granted === PermissionsAndroid.RESULTS.GRANTED;
-    }
-    return true;
-  }
-
   useEffect(() => {
     (async () => {
-      try {
-        const androidPermission = await requestCameraPermission();
+      let granted = false;
 
-        let iosCameraPermission = true;
+      if (Platform.OS === 'android') {
+        const androidRes = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.CAMERA,
+        );
+        granted = androidRes === PermissionsAndroid.RESULTS.GRANTED;
+      } else {
+        // iOS: get current status
+        const status0 = await Camera.getCameraPermissionStatus();
+        let status: any = status0;
 
-        if (Platform.OS === 'ios') {
-          await Camera.requestCameraPermission();
+        if (status === 'not-determined') {
+          status = (await Camera.requestCameraPermission()) as
+            | 'not-determined'
+            | 'denied'
+            | 'authorized';
         }
 
-        setHasPermission(androidPermission && iosCameraPermission);
-      } catch (error) {
-        console.error('Error requesting camera permission:', error);
-        setHasPermission(false);
+        granted = status === 'authorized';
       }
+
+      setHasPermission(granted);
     })();
   }, []);
 
-  const codeScanner = useCodeScanner({
-    onCodeScanned: (codes: Code[]) => {
-      if (!canScan || codes.length === 0) return;
+  const onCodeScanned = (codes: Code[]) => {
+    if (!canScan || !codes.length || didHandleScanRef.current) return;
 
-      const qrCode = codes[0];
-      const codeValue = qrCode.value;
-      const codeBounds = qrCode.frame;
+    const {value, frame} = codes[0];
+    if (!value || !isInArea(frame)) return;
 
-      if (codeValue && isCodeInScanArea(codeBounds)) {
-        startCooldown();
+    didHandleScanRef.current = true;
+    startCooldown();
 
-        if (codeValue === myUserId) {
+    // 1) Nếu là URL, mở link
+    if (/^https?:\/\//i.test(value)) {
+      Linking.openURL(value).catch(() =>
+        GlobalAlertManager.show(
+          'Lỗi',
+          'Không mở được liên kết.',
+          resetCooldown,
+        ),
+      );
+      return;
+    }
+
+    // 2) Nếu quét chính mình
+    if (value === myUserId) {
+      GlobalAlertManager.show(
+        'Lỗi',
+        'Bạn không thể quét mã QR của chính mình',
+        resetCooldown,
+      );
+      return;
+    }
+
+    // 3) Còn lại coi như userId
+    dispatch(validateUserId({userId: value}))
+      .then(unwrapResult)
+      .then(payload => {
+        if (payload.success) {
           GlobalAlertManager.show(
-            'Lỗi',
-            'Bạn không thể quét mã QR của chính mình',
+            'Tìm thấy người dùng',
+            payload.message,
             () => {
+              navigation.navigate('ProfileComp', {userID: value});
               resetCooldown();
-            }
+            },
           );
-          return;
+        } else {
+          resetCooldown();
         }
+      })
+      .catch(err => {
+        const msg =
+          err.payload?.message || err.message || 'Lỗi xác thực người dùng';
+        GlobalAlertManager.show('Lỗi', msg, resetCooldown);
+      });
+  };
 
-        dispatch(validateUserId({ userId: codeValue }))
-          .then(unwrapResult)
-          .then((payload) => {
-            if (payload.success) {
-              GlobalAlertManager.show(
-                'Đã tìm thấy người dùng',
-                payload.message,
-                () => {
-                  navigation.navigate('ProfileComp', { userID: codeValue });
-                  resetCooldown();
-                }
-              );
-            }
-          })
-          .catch((err: any) => {
-            const message =
-              err.payload?.message ||
-              err.message ||
-              'Đã xảy ra lỗi khi xác thực người dùng';
-            GlobalAlertManager.show(
-              'Lỗi',
-              message,
-              resetCooldown
-            );
-          });
-      }
-    },
-    codeTypes: ['qr'],
-  });
+  const codeScanner = useCodeScanner({onCodeScanned, codeTypes: ['qr']});
 
-  if (!device || !hasPermission) {
-    return <View style={styles.container} />;
-  }
+  if (!device || !hasPermission) return <View style={styles.container} />;
 
   return (
     <View style={styles.container}>
@@ -206,18 +177,12 @@ export const QRScanner = () => {
         isActive={isFocused}
         codeScanner={codeScanner}
       />
+
+      {/* Overlay và scan area */}
       <LinearGradient
-        colors={['rgba(14,129,255,0.6)', 'rgba(203,218,255, 0.6)']}
+        colors={['rgba(0,0,0,0.6)', 'rgba(0,0,0,0.2)']}
         style={StyleSheet.absoluteFill}
-        start={{x: 0, y: 0}}
-        end={{x: 1, y: 1}}
       />
-      <TouchableOpacity
-        style={styles.backButton}
-        onPress={() => navigation.goBack()}>
-        <ArrowLeft size={24} color="#fff" />
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.libraryButton}></TouchableOpacity>
       <View style={styles.overlay}>
         <View
           style={[
@@ -230,29 +195,26 @@ export const QRScanner = () => {
           <View style={[styles.corner, styles.bottomRight]} />
         </View>
       </View>
+
+      {/* Nút back */}
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => navigation.goBack()}>
+        <ArrowLeft size={24} color="#fff" />
+      </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#000',
-  },
+  container: {flex: 1, backgroundColor: '#000'},
   overlay: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  scanArea: {
-    position: 'relative',
-  },
-  corner: {
-    position: 'absolute',
-    width: 30,
-    height: 30,
-    borderColor: '#fff',
-  },
+  scanArea: {position: 'relative'},
+  corner: {position: 'absolute', width: 30, height: 30, borderColor: '#fff'},
   topLeft: {
     top: -2,
     left: -2,
@@ -283,23 +245,8 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: 'absolute',
-    top: 50,
+    top: Platform.OS === 'ios' ? 50 : 20,
     left: 20,
-    width: 30,
-    height: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 20,
-  },
-  libraryButton: {
-    position: 'absolute',
-    top: 50,
-    right: 20,
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
-    borderRadius: 10,
+    zIndex: 10,
   },
 });

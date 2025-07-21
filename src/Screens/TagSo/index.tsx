@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 import React, {useState} from 'react';
 import {useNavigation, useRoute} from '@react-navigation/native';
-import {PhotoIdentifier} from '@react-native-camera-roll/camera-roll';
+import {PhotoIdentifier} from '@react-native-community/cameraroll';
 import RenderImg from './Components/RenderImg';
 import {useTheme} from '../../../src/util/ThemeContext';
 import {TagSoStyles} from '../../../src/StyleSheet/TagSoStyles';

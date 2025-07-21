@@ -97,8 +97,12 @@ export const HeadAlertProvider: React.FC<Props> = ({children}) => {
           {...panResponder.panHandlers}>
           <TouchableWithoutFeedback onPress={hide}>
             <View style={styles.content}>
-              <Text style={styles.title}>{title}</Text>
-              <Text style={styles.message}>{message}</Text>
+              <Text style={styles.title} numberOfLines={1}>
+                {title}
+              </Text>
+              <Text style={styles.message} numberOfLines={2}>
+                {message}
+              </Text>
             </View>
           </TouchableWithoutFeedback>
         </Animated.View>
@@ -110,11 +114,12 @@ export const HeadAlertProvider: React.FC<Props> = ({children}) => {
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    top: 0,
-    width: Dimensions.get('window').width,
-    height: 80,
+    top: 10,
+    left: 10,
+    right: 10,
+    height: 60,
     zIndex: 1000,
-    elevation: 1000,
+    elevation: 4,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.3,
@@ -125,15 +130,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     paddingHorizontal: 16,
-    paddingTop: 24,
-    borderBottomLeftRadius: 12,
-    borderBottomRightRadius: 12,
+    borderRadius: 12,
     justifyContent: 'center',
   },
   title: {
     fontWeight: '600',
     fontSize: 16,
     marginBottom: 4,
+    color: '#555',
   },
   message: {
     fontSize: 14,

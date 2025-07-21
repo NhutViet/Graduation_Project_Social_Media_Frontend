@@ -1,5 +1,5 @@
 import React from 'react';
-import {NavigationContainer} from '@react-navigation/native';
+import {LinkingOptions, NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 
 import {
@@ -75,6 +75,62 @@ import PostDetailScreen from '../../components/PostDetailScreen';
 import AllTaggedPostOfUserScreen from '../../components/AllTaggedPostOfUserScreen';
 
 export type RootStackParamList = {
+  Splash: undefined;
+  BottomTabs: undefined;
+
+  AllPostOfCollection: undefined;
+  AllPostOfUserScreen: undefined;
+  AllTaggedPostOfUserScreen: undefined;
+  AllReels: undefined;
+  TagSo: undefined;
+  LikedScreen: undefined;
+  MusicSavedScreen: undefined;
+  BookmarkScreen: undefined;
+  PlaylistsScreen: undefined;
+  Archive: undefined;
+  YourActivity: undefined;
+  ShowActivity: undefined;
+  AddCollection: undefined;
+  SearchMessages: undefined;
+  GroupGallery: undefined;
+  LinkToGroup: undefined;
+  FollowerRequests: undefined;
+  NotificationsScreen: undefined;
+  Notifications: undefined;
+  NotificationOption: undefined;
+  PendingMessages: undefined;
+  MessageBox: undefined;
+  PostSetting: undefined;
+  AddPost: undefined;
+  UpStory: undefined; // tương ứng PostStory
+  EditStory: undefined;
+  SeenStory: undefined;
+  EditProfile: undefined;
+  SwitchAccount: undefined;
+  Setting: undefined;
+  Register: undefined;
+  ForgotPassword: undefined;
+  ConfirmationCode: undefined;
+  BlockedAccounts: undefined;
+  BlockUser: undefined;
+  Privacy: undefined;
+  PrivacyAndSafety: undefined;
+  PrivacySafetyChat: undefined;
+  PeopleGroupChat: undefined;
+  AddPeopleToGroupChat: undefined;
+  QRScanner: undefined;
+  ChangePassword: undefined;
+  ContactInfo: undefined;
+  DissapearingMessage: undefined;
+  HelpCenter: undefined;
+  FAQScreen: undefined;
+  ContactScreen: undefined;
+  ReportProblemScreen: undefined;
+  AccountCenter: undefined;
+  NewMessage: undefined;
+  PostDetailScreen: {id: string};
+  Profile: undefined;
+
   MessageScreen: {
     room: string;
     isWaiting?: boolean;
@@ -102,21 +158,36 @@ export type RootStackParamList = {
   };
   ProfileComp: {userID: string};
   InfoAccountCenter: {user: User};
-  ZegoCallScreens: {
-    userID: string;
-    userName: string;
-    callID: string;
-    image: string;
-    isCaller: boolean;
-    callType: 'video' | 'voice';
-  };
+  UserFollowScreen: undefined;
+  HighlightEditScreen: undefined;
+  QRCode: undefined;
+  Streaming: undefined;
+  MessageUndefined: undefined;
+  CreateGroupScreen: undefined;
+  HighlightCreateScreen: undefined;
 };
 
-const Stack = createStackNavigator();
+const Stack = createStackNavigator<RootStackParamList>();
+
+const linking: LinkingOptions<RootStackParamList> = {
+  prefixes: ['cirla://', 'https://cirla.io.vn'],
+  config: {
+    screens: {
+      Splash: 'splash',
+      BottomTabs: 'home',
+      ProfileComp: 'profile/:userID',
+      MessageScreen: 'chat/:room',
+      InfoAccountCenter: 'account-center',
+      ZegoCallScreen: 'call/:callID',
+      AllPostOfUserScreen: 'posts/user',
+      AllReels: 'reels/all',
+    },
+  },
+};
 
 const AppNavigator = () => {
   return (
-    <NavigationContainer ref={navigationRef}>
+    <NavigationContainer ref={navigationRef} linking={linking}>
       <Stack.Navigator
         initialRouteName="Splash"
         screenOptions={{headerShown: false}}>
@@ -146,7 +217,7 @@ const AppNavigator = () => {
           component={AddPeopleToGroupChat}
         />
         <Stack.Screen name="NewMessage" component={NewMessage} />
-        <Stack.Screen name="MusicSaved" component={MusicSavedScreen} />
+        <Stack.Screen name="MusicSavedScreen" component={MusicSavedScreen} />
         <Stack.Screen name="ProfileComp" component={ProfileComp} />
         <Stack.Screen name="PeopleGroupChat" component={PeopleGroupChat} />
         <Stack.Screen name="BlockUser" component={BlockUser} />

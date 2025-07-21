@@ -11,7 +11,7 @@ import {
   Dimensions,
 } from 'react-native';
 import {FlashList} from '@shopify/flash-list';
-import {CameraRoll} from '@react-native-camera-roll/camera-roll';
+import CameraRoll from '@react-native-community/cameraroll';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {useNavigation} from '@react-navigation/native';
