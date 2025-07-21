@@ -5,6 +5,7 @@ import {
   View,
   StyleSheet,
   useWindowDimensions,
+  TouchableOpacity,
 } from 'react-native';
 import {MediaItem} from '../../../util/msgImgList';
 import {FlashList} from '@shopify/flash-list';
@@ -14,16 +15,43 @@ interface TabViProps {
   medi: MediaItem[] | undefined;
   isLoading: boolean;
   onEndReached?: () => void;
+  onImagePress?: (uri: string) => void;
 }
 
 const ITEM_HEIGHT = (width: number) => width / 3;
-export const TabVi = memo(({medi, isLoading, onEndReached}: TabViProps) => {
+
+export const TabVi = memo(({medi, isLoading, onEndReached, onImagePress}: TabViProps) => {
   const {height, width: screenWidth} = useWindowDimensions();
   const itemSize = ITEM_HEIGHT(screenWidth);
 
   const renderItem = useCallback(
     ({item}: {item: MediaItem}) => {
       const isValidUrl = item.media.url && item.media.url.trim() !== '';
+      
+      const imageContent = isValidUrl ? (
+        <Image
+          source={{uri: item.media.url}}
+          style={styles.image}
+          resizeMode="cover"
+        />
+      ) : (
+        <View style={styles.placeholder} />
+      );
+
+      if (onImagePress && isValidUrl) {
+        return (
+          <TouchableOpacity
+            style={{
+              width: itemSize - 1,
+              height: itemSize,
+              backgroundColor: '#f0f0f0',
+            }}
+            activeOpacity={0.8}
+            onPress={() => onImagePress(item.media.url)}>
+            {imageContent}
+          </TouchableOpacity>
+        );
+      }
 
       return (
         <View
@@ -32,19 +60,11 @@ export const TabVi = memo(({medi, isLoading, onEndReached}: TabViProps) => {
             height: itemSize,
             backgroundColor: '#f0f0f0',
           }}>
-          {isValidUrl ? (
-            <Image
-              source={{uri: item.media.url}}
-              style={styles.image}
-              resizeMode="cover"
-            />
-          ) : (
-            <View style={styles.placeholder} />
-          )}
+          {imageContent}
         </View>
       );
     },
-    [itemSize],
+    [itemSize, onImagePress],
   );
 
   const keyExtractor = useCallback((item: MediaItem) => item._id, []);
