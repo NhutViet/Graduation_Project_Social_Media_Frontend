@@ -32,6 +32,8 @@ import { handleUserPress } from './util';
 import {
   checkStorySeenInStorage,
   clearExpiredSeenStories,
+  isStoryVisible,
+  getStoryAge,
 } from '../../../services/storage/storage';
 import { ModalLoading } from './components/loading';
 import { useStoryPrefetch } from './hook/useStoryPrefetch';
@@ -55,11 +57,10 @@ type HomeStackParamList = {
 };
 
 type HomeProps = {
-  onReload?: () => void;
   route?: RouteProp<HomeStackParamList, 'Home'>;
 };
 
-export const Home = forwardRef(({ onReload, route }: HomeProps, ref) => {
+export const Home = forwardRef(({ route }: HomeProps, ref) => {
   const navigation = useNavigation<any>();
   const { theme } = useTheme();
   const color = Colors[theme];
@@ -103,7 +104,6 @@ export const Home = forwardRef(({ onReload, route }: HomeProps, ref) => {
     clearExpiredSeenStories();
     clearExpiredCache();
     setHasCalledLoadMore(false);
-    // ✅ Reset visible story count on reload
     setVisibleStoryCount(5);
   }, [dispatch, clearExpiredCache]);
 
@@ -149,14 +149,7 @@ export const Home = forwardRef(({ onReload, route }: HomeProps, ref) => {
   }, [isFocused, dispatch]);
 
   useImperativeHandle(ref, () => ({
-    reload: () => {
-      dispatch(fetchPostsWithMedia({ page: 1 }));
-      dispatch(fetchFollowingStories({ page: 1 }));
-      clearExpiredSeenStories();
-      clearExpiredCache && clearExpiredCache();
-      setHasCalledLoadMore(false);
-      setVisibleStoryCount(5);
-    },
+    reload: reloadAllData,
   }));
 
   useEffect(() => {
@@ -168,38 +161,67 @@ export const Home = forwardRef(({ onReload, route }: HomeProps, ref) => {
     setVisibleStoryCount(5);
   }, [dispatch]);
 
-  // // ✅ Process and sort stories data
+  // // ✅ Process and sort stories data with 24-hour filtering
   const processedStories = React.useMemo(() => {
-    return [
-      // 1. "Tin của tôi" (current user) - luôn đầu tiên
-      ...followingUsers.filter(
+    const filterValidStories = (users: any[]) => {
+      return users.map(user => {
+        // Filter stories to only include those within 24 hours
+        const validStories = user.stories?.filter((storyId: string) => {
+          const story = storyDetails.find(s => s._id === storyId);
+          if (!story || !story.createdAt) return false;
+
+          const isVisible = isStoryVisible(story.createdAt);
+          if (!isVisible) {
+            const age = getStoryAge(story.createdAt);
+            console.log(`Story ${storyId} expired: ${age.hours}h ${age.minutes}m old`);
+          }
+          return isVisible;
+        }) || [];
+
+        return {
+          ...user,
+          stories: validStories,
+        };
+      }).filter(user => {
+        // Keep current user even if no stories, filter others only if they have valid stories
+        const isCurrentUser = user._id === user?._id || user.handleName === user?.handleName;
+        return isCurrentUser || user.stories?.length > 0;
+      });
+    };
+
+    const currentUserStories = filterValidStories(
+      followingUsers.filter(
         item => item._id === user?._id || item.handleName === user?.handleName,
-      ),
-      // 2. Những người khác - sắp xếp: có story lên trước
-      ...followingUsers
-        .filter(
-          item =>
-            item._id !== user?._id && item.handleName !== user?.handleName,
-        )
-        .sort(
-          (a, b) =>
-            (b.stories?.length > 0 ? 1 : 0) - (a.stories?.length > 0 ? 1 : 0),
-        ),
+      )
+    );
+
+    const otherUsersStories = filterValidStories(
+      followingUsers.filter(
+        item => item._id !== user?._id && item.handleName !== user?.handleName,
+      )
+    ).sort(
+      (a, b) =>
+        (b.stories?.length > 0 ? 1 : 0) - (a.stories?.length > 0 ? 1 : 0),
+    );
+
+    return [
+      ...currentUserStories,
+      ...otherUsersStories,
     ];
-  }, [followingUsers, user?._id, user?.handleName]);
+  }, [followingUsers, user?._id, user?.handleName, storyDetails]);
 
   // // ✅ Get visible stories based on current count
   const visibleStories = React.useMemo(() => {
     return processedStories.slice(0, visibleStoryCount);
   }, [processedStories, visibleStoryCount]);
 
-  // // ✅ Handler for loading more stories when scrolling
+  // Handler for loading more stories when scrolling
   const handleStoryScroll = useCallback(
     (event: any) => {
-      const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent;
+      const { contentOffset } = event.nativeEvent;
       const currentIndex = Math.floor(contentOffset.x / 70); // Assuming each story item is ~70px wide
 
-      //     // ✅ Load more when user reaches 3rd item from the end of visible stories
+      // Load more when user reaches 3rd item from the end of visible stories
       const triggerPoint = Math.max(0, visibleStoryCount - 3);
 
       if (

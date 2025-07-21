@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { View, Text, FlatList, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useDispatch, useSelector, shallowEqual } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Portal } from 'react-native-portalize';
 import Sound from 'react-native-sound';
 import { ItemHomeStyles } from '../component_styles/ItemHomeStyles';
