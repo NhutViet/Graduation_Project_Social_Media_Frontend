@@ -2,14 +2,22 @@ import {createSlice} from '@reduxjs/toolkit';
 import {
   addMusicToPlaylist,
   createPlaylist,
+  deletePlaylist,
+  getAllBookmark,
   getAllPlaylists,
   getItemsOfPlaylist,
   removeBookmark,
   removeMusicFromPlaylist,
+  reNamePalylistBookmark,
   saveBookmark,
   switchBookmark,
 } from './bookmarkSlice';
-import {Pagination, Playlist, PlaylistItem, ResCreatePlaylist} from './bookmarkTypes';
+import {
+  Pagination,
+  Playlist,
+  PlaylistItem,
+  ResCreatePlaylist,
+} from './bookmarkTypes';
 
 interface BookmarkState {
   playlists: Playlist[];
@@ -19,6 +27,8 @@ interface BookmarkState {
   paginationByPlaylist: {
     [playlistId: string]: Pagination;
   };
+  allItems: PlaylistItem[];
+  allPagination: Pagination | {};
   isloading: boolean;
   isError: boolean;
   messageError: string;
@@ -29,6 +39,8 @@ const initialState: BookmarkState = {
   playlists: [], // mỗi playlist có thể chứa nhiều item
   itemsByPlaylist: {},
   paginationByPlaylist: {},
+  allItems: [],
+  allPagination: {},
   isloading: false,
   isError: false,
   messageError: '',
@@ -127,7 +139,7 @@ const bookmarkReducer = createSlice({
       .addCase(getAllPlaylists.fulfilled, (state, action) => {
         state.isloading = false;
         state.isSuccess = true;
-        state.playlists = action.payload
+        state.playlists = action.payload;
       })
       .addCase(getAllPlaylists.rejected, (state, action) => {
         state.isloading = false;
@@ -188,7 +200,8 @@ const bookmarkReducer = createSlice({
       .addCase(addMusicToPlaylist.rejected, (state, action) => {
         state.isloading = false;
         state.isError = true;
-        state.messageError = action.payload?.message || 'Lưu âm thanh thất bại.';
+        state.messageError =
+          action.payload?.message || 'Lưu âm thanh thất bại.';
       })
       //// bỏ lưu âm thanh
       .addCase(removeMusicFromPlaylist.pending, state => {
@@ -204,7 +217,73 @@ const bookmarkReducer = createSlice({
       .addCase(removeMusicFromPlaylist.rejected, (state, action) => {
         state.isloading = false;
         state.isError = true;
-        state.messageError = action.payload?.message || 'Bỏ lưu âm thanh thất bại.';
+        state.messageError =
+          action.payload?.message || 'Bỏ lưu âm thanh thất bại.';
+      })
+      ///lấy tất cả item
+      .addCase(getAllBookmark.pending, state => {
+        state.isloading = true;
+        state.isError = false;
+        state.messageError = '';
+        state.isSuccess = false;
+      })
+      .addCase(getAllBookmark.fulfilled, (state, action) => {
+        state.isloading = false;
+        state.isSuccess = true;
+        state.allItems = action.payload.data || [];
+        state.allPagination = action.payload.pagination || {};
+      })
+      .addCase(getAllBookmark.rejected, (state, action) => {
+        state.isloading = false;
+        state.isError = true;
+        state.messageError =
+          action.payload?.message || 'Lấy danh sách bài viết đã lưu thất bại';
+      })
+      // đổi tên playlist
+      .addCase(reNamePalylistBookmark.pending, state => {
+        state.isloading = true;
+        state.isError = false;
+        state.messageError = '';
+        state.isSuccess = false;
+      })
+      .addCase(reNamePalylistBookmark.fulfilled, (state, action) => {
+        state.isloading = false;
+        state.isSuccess = true;
+
+        const updated = action.payload;
+        const index = state.playlists.findIndex(p => p._id === updated._id);
+        if (index !== -1) {
+          state.playlists[index].playlistName = updated.playlistName;
+        }
+      })
+      .addCase(reNamePalylistBookmark.rejected, (state, action) => {
+        state.isloading = false;
+        state.isError = true;
+        state.messageError = action.payload?.message || 'Đổi tên playlist thất bại';
+      })
+      // xóa playlist
+      .addCase(deletePlaylist.pending, state => {
+        state.isloading = true;
+        state.isError = false;
+        state.messageError = '';
+        state.isSuccess = false;
+      })
+      .addCase(deletePlaylist.fulfilled, (state, action) => {
+        state.isloading = false;
+        state.isSuccess = true;
+
+        const deletedPlaylistId = action.meta.arg.id;
+
+        state.playlists = state.playlists.filter(p => p._id !== deletedPlaylistId);
+
+        delete state.itemsByPlaylist[deletedPlaylistId];
+        delete state.paginationByPlaylist[deletedPlaylistId];
+      })
+      .addCase(deletePlaylist.rejected, (state, action) => {
+        state.isloading = false;
+        state.isError = true;
+        state.messageError =
+          action.payload?.message || 'Xóa danh sách thất bại';
       })
   },
 });

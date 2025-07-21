@@ -75,12 +75,14 @@ export interface Media {
   _id: string;
   postID: string;
   videoUrl: string;
+  tags?: any;
 }
 
 export interface MediaR {
   _id: string;
   postID: string;
   imageUrl: string;
+  tags?: any;
 }
 
 export interface PlaylistItem {
