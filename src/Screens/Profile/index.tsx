@@ -1,4 +1,4 @@
-import React, {useState, useCallback, useEffect, useRef} from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import {
   StyleSheet,
   Text,
@@ -14,42 +14,43 @@ import {
   UserSquare2,
   Video,
 } from 'lucide-react-native';
-import {useNavigation} from '@react-navigation/native';
-import {useTheme} from '../../util/ThemeContext';
-import {Colors} from '../../../assets/color/Colors';
+import { useNavigation } from '@react-navigation/native';
+import { useTheme } from '../../util/ThemeContext';
+import { Colors } from '../../../assets/color/Colors';
 import ActionButtons from './components/actionButton.component';
 import UserInfo from './components/userInfo.component';
-import {Modalize} from 'react-native-modalize';
-import {Portal} from 'react-native-portalize';
+import { Modalize } from 'react-native-modalize';
+import { Portal } from 'react-native-portalize';
 import OptionModal from './components/optionModal';
-import ReportUserModal, {ReportUserModalHandle} from './components/reportUserModal';
-import {useDispatch, useSelector} from 'react-redux';
-import {AppDispatch, RootState} from '../../../services/store';
+import ReportUserModal, { ReportUserModalHandle } from './components/reportUserModal';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../../services/store';
 import {
   fetchFollowers,
   fetchFollowing,
   relationAction,
 } from '../../../services/relationRedux/relationSlice';
-import {getPublicProfile} from '../../../services/userRedux/userSlice';
-import {clearPublicProfile} from '../../../services/userRedux/userReducer';
-import {createRoom} from '../../../services/roomRedux/roomSlice';
+import { getPublicProfile } from '../../../services/userRedux/userSlice';
+import { clearPublicProfile } from '../../../services/userRedux/userReducer';
+import { createRoom } from '../../../services/roomRedux/roomSlice';
 import {
   PostsView,
   ReelsView,
   TagsView,
 } from '../../(tabs)/Profile/components/PostView.component';
-import {getPostsAndReelsOfUser} from '../../../services/postUserRedux/postUserSlice';
-import {clearPostsAndReels} from '../../../services/postUserRedux/postUserReducer';
-import {GlobalAlertManager} from '../../../components/Global/AlertModal';
-import {fetchTaggedPosts} from '@services/taggedPostRedux/taggedPostSlice';
+import { getPostsAndReelsOfUser } from '../../../services/postUserRedux/postUserSlice';
+import { clearPostsAndReels } from '../../../services/postUserRedux/postUserReducer';
+import { GlobalAlertManager } from '../../../components/Global/AlertModal';
+import { fetchTaggedPosts } from '@services/taggedPostRedux/taggedPostSlice';
 import HighlightStoriesComponent from '../../(tabs)/Profile/components/HighlightStoriesComponent';
-import {ProfileSkeleton} from '../../../components/SkeletonGrid';
-import {Item} from '@services/postUserRedux/postUserType';
+import { ProfileSkeleton } from '../../../components/SkeletonGrid';
+import { Item } from '@services/postUserRedux/postUserType';
 import { clearReportedUser } from '@services/reportUserRedux/reportUserReducer';
+import { isBothFollowing as fetchingBothFollowing } from '../Message/utils/helpers';
 
-const ProfileComp = ({route}: any) => {
+const ProfileComp = ({ route }: any) => {
   const navigation: any = useNavigation();
-  const {theme} = useTheme();
+  const { theme } = useTheme();
   const styles = createStyles(theme);
   const userID: string = route.params?.userID;
   const modalOptionRef = useRef<Modalize>(null);
@@ -71,17 +72,32 @@ const ProfileComp = ({route}: any) => {
     });
   };
 
+  const [hasBothFollow, setHasBothFollow] = useState<boolean>(false);
+
   const handleMessagePress = async () => {
     try {
+      // Check if both users follow each other in real-time
+      const bothFollowing = await fetchingBothFollowing(myUserId as string, userID);
+
+      // Determine room type based on following status
+      const roomType = bothFollowing ? 'accept' : 'waiting';
+
+      console.log('💬 Creating room with following status:', {
+        myUserId,
+        targetUserId: userID,
+        bothFollowing,
+        roomType
+      });
+
       const res = await dispatch(
         createRoom({
           name: '',
           user_ids: [userID],
-          type: 'waiting',
+          type: roomType,
         }),
       ).unwrap();
 
-      const {room} = res;
+      const { room } = res;
 
       const otherUsers = room.user_ids.filter(user => user._id !== myUserId);
       const img1 = otherUsers[0]?.profilePic;
@@ -89,13 +105,19 @@ const ProfileComp = ({route}: any) => {
         ? room.user_ids.find(user => user._id === myUserId)?.profilePic
         : undefined;
 
+      console.log('✅ Room created successfully:', {
+        roomId: room._id,
+        roomType: room.type,
+        bothFollowing
+      });
+
       navigation.navigate('MessageScreen', {
         room: room._id,
         img1,
         img2,
       });
     } catch (error) {
-      console.log('Tạo room thất bại:', error);
+      console.error('❌ Tạo room thất bại:', error);
     }
   };
 
@@ -103,9 +125,7 @@ const ProfileComp = ({route}: any) => {
     modalOptionRef.current?.open();
   };
 
-  const closeOptionModal = () => {
-    modalOptionRef.current?.close();
-  };
+
 
   const openReportModal = () => {
     modalOptionRef.current?.close();
@@ -135,11 +155,21 @@ const ProfileComp = ({route}: any) => {
           handleName: user?.handleName,
         }),
       ).unwrap();
+
+      // Re-check both following status after follow/unfollow action
+      const updatedBothFollowing = await fetchingBothFollowing(myUserId as string, userID);
+      setHasBothFollow(Boolean(updatedBothFollowing));
+
+      console.log('🔄 Following status updated:', {
+        action: actionType,
+        newFollowingStatus: !isFollowing,
+        bothFollowing: updatedBothFollowing
+      });
     } catch (error) {
       GlobalAlertManager.show('Thất bại', 'Vui lòng thử lại sau.');
       setIsFollowing(isFollowing);
     }
-  }, [isFollowing]);
+  }, [isFollowing, myUserId, userID]);
 
   const toggleUnblock = useCallback(async () => {
     setIsBlock(false);
@@ -175,8 +205,8 @@ const ProfileComp = ({route}: any) => {
   const reelState = useSelector((state: RootState) => state.postUser.reels);
   const ReelsItem: Item[] | null = 'items' in reelState ? reelState.items : [];
 
-  const {isSuccess} = useSelector((state: RootState) => state.postUser);
-  const {refreshToken} = useSelector((state: RootState) => state.user);
+  const { isSuccess } = useSelector((state: RootState) => state.postUser);
+  const { refreshToken } = useSelector((state: RootState) => state.user);
   const profileTaggedPosts = useSelector(
     (state: RootState) => state.taggedPosts.data,
   );
@@ -186,6 +216,15 @@ const ProfileComp = ({route}: any) => {
       return;
     }
 
+    // Check if both users follow each other
+    const isBothFollowing = await fetchingBothFollowing(myUserId as string, userID);
+    setHasBothFollow(Boolean(isBothFollowing));
+
+    console.log('👥 Profile following status:', {
+      myUserId,
+      targetUserId: userID,
+      bothFollowing: isBothFollowing
+    });
     setIsInitializing(true);
 
     try {
@@ -196,12 +235,12 @@ const ProfileComp = ({route}: any) => {
       }
 
       // Fetch parallel
-      const [profile, followersData, followingData, postData] =
+      const [profile, followersData, followingData] =
         await Promise.all([
-          dispatch(getPublicProfile({userId: userID})).unwrap(),
-          dispatch(fetchFollowers({userId: userID})).unwrap(),
-          dispatch(fetchFollowing({userId: userID})).unwrap(),
-          dispatch(getPostsAndReelsOfUser({refreshToken, userId: userID})),
+          dispatch(getPublicProfile({ userId: userID })).unwrap(),
+          dispatch(fetchFollowers({ userId: userID })).unwrap(),
+          dispatch(fetchFollowing({ userId: userID })).unwrap(),
+          dispatch(getPostsAndReelsOfUser({ refreshToken, userId: userID })),
           dispatch(fetchTaggedPosts(userID)),
         ]);
 
@@ -265,7 +304,7 @@ const ProfileComp = ({route}: any) => {
   };
 
   const LoadingPlaceholder = () => (
-    <View style={[styles.content, styles.centerItem, {height: 50}]}>
+    <View style={[styles.content, styles.centerItem, { height: 50 }]}>
       <Text style={styles.textno}>Đang tải...</Text>
     </View>
   );
@@ -273,7 +312,7 @@ const ProfileComp = ({route}: any) => {
   // Show loading indicator while fetching profile
   if (isInitializing || isLoadingPublicProfile || !publicProfile) {
     return (
-      <View style={[{backgroundColor: Colors[theme].background}]}>
+      <View style={[{ backgroundColor: Colors[theme].background }]}>
         <ProfileSkeleton />
       </View>
     );
@@ -285,7 +324,7 @@ const ProfileComp = ({route}: any) => {
       <SafeAreaView style={styles.container}>
         <View style={styles.Header}>
           <TouchableOpacity
-            style={{alignItems: 'center', paddingRight: 12}}
+            style={{ alignItems: 'center', paddingRight: 12 }}
             onPress={() => navigation.goBack()}>
             <ChevronLeft size={28} color={Colors[theme].text} />
           </TouchableOpacity>
@@ -306,7 +345,7 @@ const ProfileComp = ({route}: any) => {
             style={styles.retryButton}
             onPress={() => {
               dispatch(clearPublicProfile());
-              dispatch(getPublicProfile({userId: userID}));
+              dispatch(getPublicProfile({ userId: userID }));
             }}>
             <Text style={styles.retryButtonText}>Thử lại</Text>
           </TouchableOpacity>
@@ -319,13 +358,13 @@ const ProfileComp = ({route}: any) => {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.Header}>
-            <TouchableOpacity
-              style={{alignItems: 'center', paddingRight: 12}}
-              onPress={() => navigation.goBack()}>
-              <ChevronLeft size={28} color={Colors[theme].text} />
-            </TouchableOpacity>
-            <Text style={styles.headTitle}>{publicProfile.handleName}</Text>
-          </View>
+          <TouchableOpacity
+            style={{ alignItems: 'center', paddingRight: 12 }}
+            onPress={() => navigation.goBack()}>
+            <ChevronLeft size={28} color={Colors[theme].text} />
+          </TouchableOpacity>
+          <Text style={styles.headTitle}>{publicProfile.handleName}</Text>
+        </View>
         <View style={styles.hiddenContainer}>
           <Text style={styles.hiddenTitle}>
             Cảm ơn bạn đã báo cáo trang cá nhân này
@@ -344,10 +383,10 @@ const ProfileComp = ({route}: any) => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.container}>
-        <View style={{flex: 1}}>
+        <View style={{ flex: 1 }}>
           <View style={styles.Header}>
             <TouchableOpacity
-              style={{alignItems: 'center', paddingRight: 12}}
+              style={{ alignItems: 'center', paddingRight: 12 }}
               onPress={() => navigation.goBack()}>
               <ChevronLeft size={28} color={Colors[theme].text} />
             </TouchableOpacity>
@@ -383,7 +422,7 @@ const ProfileComp = ({route}: any) => {
           />
           {/* Story Highlights */}
           {!isBlock && (
-            <View style={{flexShrink: 0, flex: 1}}>
+            <View style={{ flexShrink: 0, flex: 1 }}>
               <HighlightStoriesComponent
                 key={userID}
                 userId={userID}
@@ -394,7 +433,7 @@ const ProfileComp = ({route}: any) => {
           {/* Posts Grid/Video Tabs */}
           {!isBlock && (
             <>
-              <View style={{flexDirection: 'row'}}>
+              <View style={{ flexDirection: 'row' }}>
                 <TouchableOpacity
                   onPress={() => {
                     setActiveTab('grid');

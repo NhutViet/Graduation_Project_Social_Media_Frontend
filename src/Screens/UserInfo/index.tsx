@@ -27,7 +27,7 @@ import { GlobalAlertManager } from '../../../components/Global/AlertModal';
 import { getAllMediaInRoom } from '../../util/msgImgList';
 import { TabVi } from './components/mediaComponent';
 import { MediaItem } from '../../util/msgImgList';
-import MessageSearchModal from '../../../components/MessageSearchModal';
+import { MessageSearchModal } from '../../../components/MessageSearchModal';
 import { fetchMessages } from '../../../services/messageRedux/messageSlice';
 import { Message } from '../../../services/messageRedux/messageType';
 import ImagePreviewModal from '../Message/components/ImagePreviewModal';
@@ -36,25 +36,27 @@ import {
   User,
   Search,
   Bell,
+  MoreHorizontal,
   Palette,
   Shield,
+  Users,
   ChevronRight,
   Repeat,
   Image as ImageIcon,
   LucideProps,
-  Ban
 } from 'lucide-react-native';
 
 const screenWidth = Dimensions.get('window').width - 8;
 const initialLayout = { width: Dimensions.get('window').width };
-const createFeatureItems = (navigation: any, openNotifications: () => void, handleSearchPress: () => void, handleProfile: () => void) => [
-  { icon: User, text: 'Trang tài khoản', onPress: handleProfile},
+const createFeatureItems = (navigation: any, openNotifications: () => void, handleSearchPress: () => void) => [
+  { icon: User, text: 'Trang tài khoản', onPress: () => { } },
   {
     icon: Search,
     text: 'Tìm kiếm tin nhắn',
     onPress: handleSearchPress,
   },
   { icon: Bell, text: 'Tắt thông báo', onPress: openNotifications },
+  { icon: MoreHorizontal, text: 'Thêm tùy chọn', onPress: () => { } },
 ];
 const createSettingItems = (
   navigation: any,
@@ -63,9 +65,9 @@ const createSettingItems = (
     { icon: Palette, text: 'Chủ đề', onPress: () => setVisibleThemeModal(true) },
     { icon: Shield, text: 'Quyền riêng tư và an toàn', onPress: () => { } },
     {
-      icon: Ban,
-      text: 'Chặn người dùng',
-      onPress: () => {},
+      icon: Users,
+      text: 'Tạo nhóm trò chuyện',
+      onPress: () => navigation.navigate('CreateGroupScreen'),
     },
   ];
 
@@ -74,12 +76,13 @@ export const UserInfo = () => {
   const { theme } = useTheme();
   const navigation = useNavigation<any>();
   const route = useRoute<RouteProp<RootStackParamList, 'InfoUser'>>();
-  const { roomId, img1, nameChat, userId } = route.params || {};
+  const { roomId, img1, nameChat } = route.params || {};
   const dispatch = useDispatch<AppDispatch>();
   const animatedLeftValue = useRef(new Animated.Value(0)).current;
   const [visibleThemeModal, setVisibleThemeModal] = useState(false);
   const [searchModalVisible, setSearchModalVisible] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [highlightedMessageId, setHighlightedMessageId] = useState<string | null>(null);
   const styles = UserInfoStyles(theme);
   const color = Colors[theme];
 
@@ -150,19 +153,18 @@ export const UserInfo = () => {
     setSearchModalVisible(true);
   }, []);
 
-  const handleProfile = useCallback(() => {
-    console.log('nhấn nè: ', userId);
-    navigation.navigate('ProfileComp', {userID: userId});
-  }, [userId]);
-
   const handleMessageSelect = useCallback((messageId: string, index: number) => {
-    // Navigate back to the message screen with the selected message
+    setHighlightedMessageId(messageId);
     navigation.navigate('MessageScreen', {
       room: roomId,
       highlightMessageId: messageId,
       scrollToIndex: index,
     });
   }, [navigation, roomId]);
+
+  const handleHighlightClear = useCallback((messageId: string) => {
+    setHighlightedMessageId(null);
+  }, []);
 
   const handleCloseSearchModal = useCallback(() => {
     setSearchModalVisible(false);
@@ -265,7 +267,7 @@ export const UserInfo = () => {
   ]);
 
   const Header = memo(() => {
-    const featureItems = createFeatureItems(navigation, openNotifications, handleSearchPress, handleProfile);
+    const featureItems = createFeatureItems(navigation, openNotifications, handleSearchPress);
     const settingItems = createSettingItems(navigation, setVisibleThemeModal);
 
     const renderIcon = (
@@ -277,7 +279,7 @@ export const UserInfo = () => {
         <TouchableOpacity onPress={onPress}>
           <Icon size={22} color={color.text} />
         </TouchableOpacity>
-        <Text style={styles.text} numberOfLines={2} ellipsizeMode='tail'>{text}</Text>
+        <Text style={styles.text}>{text}</Text>
       </View>
     );
 
@@ -415,6 +417,7 @@ export const UserInfo = () => {
         onClose={handleCloseSearchModal}
         messages={messages}
         onMessageSelect={handleMessageSelect}
+        onHighlightClear={handleHighlightClear}
       />
       <ImagePreviewModal
         visible={previewVisible}

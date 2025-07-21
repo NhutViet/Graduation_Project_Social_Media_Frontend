@@ -20,7 +20,6 @@ import { Colors } from '../assets/color/Colors';
 import { AppDispatch, RootState } from '../services/store';
 import { PostWithMedia } from '@services/postRedux/postTypes';
 import { ArrowLeft } from 'lucide-react-native';
-import { VideoPauseProvider } from '../src/(tabs)/Home/context/VideoPauseContext';
 
 interface RouteParams {
   posts: PostWithMedia[];
@@ -134,17 +133,7 @@ const AllPostOfCollectionContent = () => {
   );
 };
 
-const AllPostOfCollection = () => {
-  const { user } = useSelector((state: RootState) => state.user);
-
-  return (
-    <VideoPauseProvider currentUserId={user?._id}>
-      <AllPostOfCollectionContent />
-    </VideoPauseProvider>
-  );
-};
-
-export default AllPostOfCollection;
+export default AllPostOfCollectionContent;
 
 const styles = StyleSheet.create({
   header: {

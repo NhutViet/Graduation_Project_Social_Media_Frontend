@@ -38,3 +38,34 @@ export const isBothFollowing = async (currentUser: string, targetUser: string) =
   ]);
   return isCurrentFollowTarget && isTargetFollowCurrent;
 };
+
+
+export const determineRelationshipStatus = async (
+  userC: any,
+  roomMember1: any,
+  chatLength: number,
+  roomType: string | undefined
+): Promise<boolean> => {
+  if (!userC || !roomMember1) {
+    return false;
+  }
+
+  // If room is already accepted, relation is established
+  if (roomType === 'accept') {
+    return true;
+  }
+
+  try {
+    // Check if both users are following each other
+    const hasBothFollowing = await isBothFollowing(userC._id, roomMember1._id);
+
+    // Check if there are more than 2 messages in the room
+    const hasMoreThanTwoMessages = chatLength > 2;
+
+    // Return true if either condition is met
+    return (hasBothFollowing || hasMoreThanTwoMessages) as boolean;
+  } catch (error) {
+    console.error('❌ Error checking relationship:', error);
+    return false;
+  }
+};

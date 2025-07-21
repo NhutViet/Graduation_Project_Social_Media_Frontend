@@ -28,7 +28,7 @@ interface SearchResult {
   highlightedContent: string;
 }
 
-const MessageSearchModal: React.FC<MessageSearchModalProps> = memo(({
+export const MessageSearchModal: React.FC<MessageSearchModalProps> = memo(({
   visible,
   onClose,
   messages,
@@ -63,7 +63,11 @@ const MessageSearchModal: React.FC<MessageSearchModalProps> = memo(({
     const lowercaseQuery = query.toLowerCase();
 
     messages.forEach((message, index) => {
-      if (message.content && message.content.toLowerCase().includes(lowercaseQuery)) {
+      const isTextMessage = message.content &&
+        !message.media &&
+        message.content.trim() !== '';
+
+      if (isTextMessage && message.content.toLowerCase().includes(lowercaseQuery)) {
         const highlightedContent = highlightSearchTerm(message.content, query);
         results.push({
           message,
@@ -73,7 +77,7 @@ const MessageSearchModal: React.FC<MessageSearchModalProps> = memo(({
       }
     });
 
-    setSearchResults(results.reverse()); // Reverse to show newest first
+    setSearchResults(results.reverse());
     setCurrentResultIndex(0);
   }, [messages, highlightSearchTerm]);
 
@@ -378,5 +382,3 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
-
-export default MessageSearchModal;
