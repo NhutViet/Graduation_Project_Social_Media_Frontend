@@ -7,13 +7,14 @@ import {
   TouchableOpacity,
   Image,
   Dimensions,
+  BackHandler,
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import CameraRoll, {
   PhotoIdentifier,
   PhotoIdentifiersPage
 } from '@react-native-community/cameraroll';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import {useFocusEffect, useNavigation, useRoute} from '@react-navigation/native';
 import {FlashList} from '@shopify/flash-list';
 import {getAddPostStyles} from '../../StyleSheet/AddPostStyles';
 import {useTheme} from '../../util/ThemeContext';
@@ -57,6 +58,21 @@ export const AddPost = () => {
     if (type === 'image') return 'Hình ảnh';
     return 'Tất cả';
   });
+  
+  // Navigate to BottomTabs instead of exiting app
+  useFocusEffect(
+    React.useCallback(() => {
+      const onBackPress = () => {
+        navigation.navigate('BottomTabs');
+        return true;
+      };
+
+      BackHandler.addEventListener('hardwareBackPress', onBackPress);
+      return () => {
+        BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+      };
+    }, [navigation])
+  );
 
   const styles = getAddPostStyles(theme);
 

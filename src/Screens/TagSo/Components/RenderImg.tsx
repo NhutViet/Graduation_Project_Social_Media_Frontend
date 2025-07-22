@@ -65,7 +65,7 @@ const RenderImg = ({
         pagingEnabled
         scrollEnabled={!isDragging}
         showsHorizontalScrollIndicator={false}
-        keyExtractor={item => item.node.id.toString()}
+        keyExtractor={(_item, index) => index.toString()}
         renderItem={({item, index}) => {
           const isVideo = item.node.type.startsWith('video');
           return (
