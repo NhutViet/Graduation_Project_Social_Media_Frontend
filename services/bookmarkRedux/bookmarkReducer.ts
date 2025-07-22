@@ -9,7 +9,12 @@ import {
   saveBookmark,
   switchBookmark,
 } from './bookmarkSlice';
-import {Pagination, Playlist, PlaylistItem, ResCreatePlaylist} from './bookmarkTypes';
+import {
+  Pagination,
+  Playlist,
+  PlaylistItem,
+  ResCreatePlaylist,
+} from './bookmarkTypes';
 
 interface BookmarkState {
   playlists: Playlist[];
@@ -40,6 +45,33 @@ const bookmarkReducer = createSlice({
   initialState,
   reducers: {
     resetBookmarkState: () => initialState,
+    updateFollowStatusForUser: (
+      state,
+      action: {
+        payload: {userId: string; isFollow: boolean};
+      },
+    ) => {
+      const {userId, isFollow} = action.payload;
+
+      Object.keys(state.itemsByPlaylist).forEach(playlistId => {
+        const items = state.itemsByPlaylist[playlistId];
+
+        if (items && items.length > 0) {
+          state.itemsByPlaylist[playlistId] = items.map(item => {
+            if (item.user?._id === userId) {
+              return {
+                ...item,
+                user: {
+                  ...item.user,
+                  isFollow,
+                },
+              };
+            }
+            return item;
+          });
+        }
+      });
+    },
   },
   extraReducers: builder => {
     builder
@@ -127,7 +159,7 @@ const bookmarkReducer = createSlice({
       .addCase(getAllPlaylists.fulfilled, (state, action) => {
         state.isloading = false;
         state.isSuccess = true;
-        state.playlists = action.payload
+        state.playlists = action.payload;
       })
       .addCase(getAllPlaylists.rejected, (state, action) => {
         state.isloading = false;
@@ -188,7 +220,8 @@ const bookmarkReducer = createSlice({
       .addCase(addMusicToPlaylist.rejected, (state, action) => {
         state.isloading = false;
         state.isError = true;
-        state.messageError = action.payload?.message || 'Lưu âm thanh thất bại.';
+        state.messageError =
+          action.payload?.message || 'Lưu âm thanh thất bại.';
       })
       //// bỏ lưu âm thanh
       .addCase(removeMusicFromPlaylist.pending, state => {
@@ -204,10 +237,11 @@ const bookmarkReducer = createSlice({
       .addCase(removeMusicFromPlaylist.rejected, (state, action) => {
         state.isloading = false;
         state.isError = true;
-        state.messageError = action.payload?.message || 'Bỏ lưu âm thanh thất bại.';
-      })
+        state.messageError =
+          action.payload?.message || 'Bỏ lưu âm thanh thất bại.';
+      });
   },
 });
 
-export const {resetBookmarkState} = bookmarkReducer.actions;
+export const {resetBookmarkState, updateFollowStatusForUser} = bookmarkReducer.actions;
 export default bookmarkReducer.reducer;

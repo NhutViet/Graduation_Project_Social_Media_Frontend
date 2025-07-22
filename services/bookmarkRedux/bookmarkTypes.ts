@@ -109,6 +109,7 @@ export interface PlaylistItem {
   user?: User;
   commentCount?: number;
   isBookmarked?: boolean;
+  isFollow?: boolean;
 
   // Các trường đặc biệt cho loại âm thanh (music)
   song?: string;
