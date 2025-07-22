@@ -34,10 +34,10 @@ const AllTaggedPostOfUserScreen = () => {
   const taggedPosts = useSelector((state: RootState) => state.taggedPosts.data);
 
   const [currentVisible, setCurrentVisible] = useState<string | null>(null);
-  const [selectedPostId, setSelectedPostId] = useState<{
-    postId: string;
-    receiverId: string;
-  }>({postId: '', receiverId: ''});
+  const selectedPostRef = useRef<{ postId: string; receiverId: string }>({
+    postId: '',
+    receiverId: '',
+  });
 
   const targetIndex = Array.isArray(taggedPosts)
     ? taggedPosts.findIndex((post: TaggedPost) => post._id === targetPostId)
@@ -70,6 +70,7 @@ const AllTaggedPostOfUserScreen = () => {
           viewabilityConfig={{itemVisiblePercentThreshold: 100}}
           renderItem={({item}) => {
             const shouldPlay = item._id === currentVisible;
+            console.log('ìL: ', item.isFollow);
             return (
               <ItemHome
                 _id={item._id}
@@ -88,7 +89,7 @@ const AllTaggedPostOfUserScreen = () => {
                 isFocused={isFocused}
                 sheetRef={sheetRef}
                 isFollow={item.isFollow}
-                setSelectedPostId={setSelectedPostId}
+                SelectedPostRef={selectedPostRef}
               />
             );
           }}
@@ -106,11 +107,7 @@ const AllTaggedPostOfUserScreen = () => {
             index,
           })}
         />
-        <BottomSheetComment
-          ref={sheetRef}
-          postId={selectedPostId.postId}
-          receiverId={selectedPostId.receiverId}
-        />
+        <BottomSheetComment ref={sheetRef} selectedPostRef={selectedPostRef} />
       </View>
     </SafeAreaView>
   );

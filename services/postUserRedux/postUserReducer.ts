@@ -1,10 +1,10 @@
 import {createSlice} from '@reduxjs/toolkit';
-import {Load, Pagination, LoadLiked} from './postUserType';
+import {Load, Pagination, LoadLiked, Item} from './postUserType';
 import {
   getPostsAndReelsOfUser,
   getPostsOfUser,
   getReelsOfUser,
-  getLikedPosts
+  getLikedPosts,
 } from './postUserSlice';
 
 const emptyPagination: Pagination = {
@@ -52,6 +52,31 @@ const PostUserReducer = createSlice({
     clearLikedPosts(state) {
       state.likedPosts.items = [];
       state.likedPosts.pagination = initialLiked.pagination;
+    },
+    updateIsFollowPostUser(state, action) {
+      const {userId, isFollow} = action.payload;
+
+      const updateList = (items: Item[] | undefined) => {
+        if (!items) return;
+        items.forEach(item => {
+          if (item.user?._id === userId) {
+            item.isFollow = isFollow;
+          }
+        });
+      };
+
+      // Cập nhật posts
+      if ('items' in state.posts) {
+        updateList(state.posts.items as Item[]);
+      }
+
+      // Cập nhật reels
+      if ('items' in state.reels) {
+        updateList(state.reels.items as Item[]);
+      }
+
+      // Cập nhật likedPosts
+      updateList(state.likedPosts.items as Item[]);
     },
   },
   extraReducers: builder => {
@@ -124,7 +149,7 @@ const PostUserReducer = createSlice({
       })
       .addCase(getLikedPosts.fulfilled, (state, action) => {
         state.isLoading = false;
-        const { page } = action.meta.arg;
+        const {page} = action.meta.arg;
         if (page && page > 1) {
           state.likedPosts.items.push(...action.payload.data);
         } else {
@@ -139,9 +164,8 @@ const PostUserReducer = createSlice({
           action.payload?.message || 'Lấy bài đã thích thất bại.';
         state.likedPosts = initialLiked;
       });
-
   },
 });
 
-export const {clearPostsAndReels, clearLikedPosts} = PostUserReducer.actions;
+export const {clearPostsAndReels, clearLikedPosts, updateIsFollowPostUser} = PostUserReducer.actions;
 export default PostUserReducer.reducer;
