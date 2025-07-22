@@ -12,19 +12,23 @@ import {Colors} from '../../../assets/color/Colors';
 import ItemList from './Components/ItemList';
 import {FlashList} from '@shopify/flash-list';
 import {PeopleGroupChatStyles} from '../../StyleSheet/PeopleGroupChatStyles';
-import {useFocusEffect, useNavigation, useRoute} from '@react-navigation/native';
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
 import {ArrowLeft, UserPlus} from 'lucide-react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '@services/store';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
-import {getRoomUsers} from '@services/roomRedux/roomSlice';
+import {getRoomUsers, kickMemberFromGroup} from '@services/roomRedux/roomSlice';
 import {ActivityIndicator} from 'react-native-paper';
 import {relationAction} from '@services/relationRedux/relationSlice';
 
 export const PeopleGroupChat = () => {
   const {theme} = useTheme();
   const colors = Colors[theme];
-  const [isReqired, setIsReqired] = useState(false);
+  const [isLeader, setIsLeader] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [user, setUser] = useState<
     {
@@ -112,6 +116,7 @@ export const PeopleGroupChat = () => {
             const ad = res.users.find(u => u.isCreated === true) ?? null;
             const following = res.users.filter(u => u.isCreated !== true);
             setAdmin(ad);
+            setIsLeader(ad?.user_id === mine);
             setUser(following);
           }
         } catch (error: any) {
@@ -134,6 +139,22 @@ export const PeopleGroupChat = () => {
       <ActivityIndicator size="large" color={Colors.primary} />
     </View>;
   }
+
+  const handleKickMember = async (userId: string) => {
+    try {
+      await dispatch(kickMemberFromGroup({roomId, memberId: userId})).unwrap();
+
+      setUser(prev => prev.filter(u => u.user_id !== userId));
+
+      GlobalAlertManager.show('Thành công', 'Đã xóa thành viên khỏi nhóm.');
+    } catch (error: any) {
+      console.error('[ERROR] handleKickMember:', error);
+      GlobalAlertManager.show(
+        'Thất bại',
+        error?.response?.data?.message || 'Không thể xóa thành viên.',
+      );
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -170,6 +191,7 @@ export const PeopleGroupChat = () => {
                   handleN ?? '',
                 );
               }}
+              isLeader={false}
             />
           </View>
         )}
@@ -195,6 +217,8 @@ export const PeopleGroupChat = () => {
                     handleN ?? '',
                   );
                 }}
+                isLeader={isLeader}
+                onHandleDeleteMember={() => {handleKickMember(item.user_id ?? '')}}
               />
             )}
           />

@@ -213,7 +213,7 @@ export const CreateGroupScreen = () => {
               <TouchableOpacity
                 style={styles.confirmButton}
                 onPress={handleCreateRoom}>
-                <Text style={{color: color.text}}>Tạo nhóm</Text>
+                <Text style={{color: color.background, fontWeight: '500'}}>Tạo nhóm</Text>
               </TouchableOpacity>
             </View>
           </View>
