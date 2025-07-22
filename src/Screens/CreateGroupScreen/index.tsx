@@ -30,6 +30,8 @@ export const CreateGroupScreen = () => {
   const [searchText, setSearchText] = useState('');
   const userId = useSelector((state: RootState) => state.user.user?._id);
   const followers = useSelector((state: RootState) => state.relation.followers);
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [groupName, setGroupName] = useState('');
 
   useEffect(() => {
     if (userId) {
@@ -66,16 +68,16 @@ export const CreateGroupScreen = () => {
         createRoom({
           user_ids,
           type: 'accept',
-          name: '',
+          name: groupName.trim(),
         }),
       ).unwrap();
 
       if (res.isExisted) {
-        GlobalAlertManager.show('Thông báo', 'Đoạn chat đã tồn tại!');
+        GlobalAlertManager.show('Thông báo', 'Nhóm tin nhắn đã tồn tại!');
       } else {
         GlobalAlertManager.show(
           'Thành công',
-          'Tạo đoạn chat thành công!',
+          'Tạo nhóm nhắn tin thành công!',
           () => {
             navigation.goBack();
           },
@@ -97,7 +99,9 @@ export const CreateGroupScreen = () => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <ArrowLeft size={24} color={color.text} />
         </TouchableOpacity>
-        <Text style={[styles.title, {color: color.text}]}>Tạo nhóm trò chuyện</Text>
+        <Text style={[styles.title, {color: color.text}]}>
+          Tạo nhóm trò chuyện
+        </Text>
         <View style={{width: 24}} />
       </View>
 
@@ -176,9 +180,44 @@ export const CreateGroupScreen = () => {
       {selected.length > 1 && (
         <TouchableOpacity
           style={styles.createButton}
-          onPress={handleCreateRoom}>
+          onPress={() => setModalVisible(true)}>
           <Text style={styles.createButtonText}>Tạo đoạn hội thoại</Text>
         </TouchableOpacity>
+      )}
+      {isModalVisible && (
+        <View style={styles.modalOverlay}>
+          <View
+            style={[
+              styles.modalContainer,
+              {backgroundColor: color.background},
+            ]}>
+            <Text style={[styles.modalTitle, {color: color.text}]}>
+              Nhập tên nhóm
+            </Text>
+            <TextInput
+              placeholder="Tên nhóm"
+              placeholderTextColor={color.textSecondary}
+              style={[
+                styles.modalInput,
+                {color: color.text, borderColor: color.textSecondary},
+              ]}
+              value={groupName}
+              onChangeText={setGroupName}
+            />
+            <View style={styles.modalActions}>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => setModalVisible(false)}>
+                <Text style={{color: color.error}}>Hủy</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.confirmButton}
+                onPress={handleCreateRoom}>
+                <Text style={{color: color.text}}>Tạo nhóm</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
       )}
     </SafeAreaView>
   );
@@ -287,5 +326,47 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: '600',
     fontSize: 16,
+  },
+  modalOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+    zIndex: 999,
+  },
+  modalContainer: {
+    width: '100%',
+    borderRadius: 10,
+    padding: 20,
+  },
+  modalTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 10,
+  },
+  modalInput: {
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 20,
+  },
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  cancelButton: {
+    marginRight: 16,
+  },
+  confirmButton: {
+    backgroundColor: '#4A90E2',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 6,
   },
 });
