@@ -58,3 +58,4 @@ export * from './MessageUndefined';
 export * from './ForgotPassword';
 export * from './ConfirmationCode';
 export * from './PrivacySafetyChat';
+export * from './CameraScreen';

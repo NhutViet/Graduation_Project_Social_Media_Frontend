@@ -345,7 +345,7 @@ const Profile = () => {
         );
       case 'bookmark':
         return !isBookmarkLoading && BookmarkItems ? (
-          <PostsView data={BookmarkItems} />
+          <PostsView data={BookmarkItems} isBookmark={true}/>
         ) : (
           <LoadingPlaceholder />
         );
