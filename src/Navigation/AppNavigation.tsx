@@ -57,6 +57,7 @@ import {
   MessageUndefined,
   GroupGallery,
   PrivacySafetyChat,
+  CameraScreen,
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 import ProfileComp from '../Screens/Profile';
@@ -77,7 +78,7 @@ import AllTaggedPostOfUserScreen from '../../components/AllTaggedPostOfUserScree
 export type RootStackParamList = {
   Splash: undefined;
   BottomTabs: undefined;
-
+  CameraScreen: undefined;
   AllPostOfCollection: undefined;
   AllPostOfUserScreen: undefined;
   AllTaggedPostOfUserScreen: undefined;
@@ -203,6 +204,7 @@ const AppNavigator = () => {
           name="AllTaggedPostOfUserScreen"
           component={AllTaggedPostOfUserScreen}
         />
+        <Stack.Screen name="CameraScreen" component={CameraScreen} />
         <Stack.Screen name="AllReels" component={AllReels} />
         <Stack.Screen name="PostDetailScreen" component={PostDetailScreen} />
         <Stack.Screen name="TagSo" component={TagSo} />
