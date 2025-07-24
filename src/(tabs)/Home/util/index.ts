@@ -87,15 +87,18 @@ export const handleFollowToggle = async ({
   senderId,
   handleName,
   dispatch,
+  onFollowChange,
 }: {
   userId: string;
   follow: boolean;
   senderId?: string;
   handleName?: string;
   dispatch: AppDispatch;
+  onFollowChange?: (userId: string, isFollow: boolean) => void;
 }) => {
   const actionType = follow ? 'unfollow' : 'follow';
   try {
+    onFollowChange?.(userId, actionType === 'follow');
     await dispatch(
       relationAction({
         targetId: userId,

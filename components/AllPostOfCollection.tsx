@@ -1,4 +1,4 @@
-import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
+import {useIsFocused, useNavigation, useRoute} from '@react-navigation/native';
 import {
   FlatList,
   SafeAreaView,
@@ -7,19 +7,19 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 import BottomSheetComment, {
   BottomSheetCommentRef,
 } from '../src/(tabs)/Home/components/CommentSection';
 import ItemHome from '../src/(tabs)/Home/components/ItemHome';
-import { useDispatch, useSelector } from 'react-redux';
-import { clearSearchResults } from '../services/searchRedux/searchSlice';
-import { clearPosts, clearReels } from '../services/searchRedux/searchReducer';
-import { useTheme } from '../src/util/ThemeContext';
-import { Colors } from '../assets/color/Colors';
-import { AppDispatch, RootState } from '../services/store';
-import { PostWithMedia } from '@services/postRedux/postTypes';
-import { ArrowLeft } from 'lucide-react-native';
+import {useDispatch, useSelector} from 'react-redux';
+import {clearSearchResults} from '../services/searchRedux/searchSlice';
+import {clearPosts, clearReels} from '../services/searchRedux/searchReducer';
+import {useTheme} from '../src/util/ThemeContext';
+import {Colors} from '../assets/color/Colors';
+import {AppDispatch, RootState} from '../services/store';
+import {PostWithMedia} from '@services/postRedux/postTypes';
+import {ArrowLeft} from 'lucide-react-native';
 
 interface RouteParams {
   posts: PostWithMedia[];
@@ -32,7 +32,7 @@ interface RouteParams {
 const AllPostOfCollectionContent = () => {
   const route = useRoute();
   const navigation = useNavigation();
-  const { theme } = useTheme();
+  const {theme} = useTheme();
   const colors = Colors[theme];
   const isFocused = useIsFocused();
 
@@ -44,20 +44,20 @@ const AllPostOfCollectionContent = () => {
     clearSearchRedux = true,
   } = route.params as RouteParams;
   const dispatch = useDispatch<AppDispatch>();
-  const { user } = useSelector((state: RootState) => state.user);
 
   const listRef = useRef<FlatList<any>>(null);
   const sheetRef = useRef<BottomSheetCommentRef>(null);
 
   const [currentVisible, setCurrentVisible] = useState<string | null>(null);
-  const selectedPostRef = useRef<{ postId: string; receiverId: string }>({
+  const selectedPostRef = useRef<{postId: string; receiverId: string}>({
     postId: '',
     receiverId: '',
   });
+  const [postList, setPostList] = useState<PostWithMedia[]>(posts);
 
   const targetIndex = posts.findIndex(p => p._id === targetPostId);
 
-  const onViewRef = useCallback(({ viewableItems }: { viewableItems: any[] }) => {
+  const onViewRef = useCallback(({viewableItems}: {viewableItems: any[]}) => {
     const id = viewableItems[0]?.item?._id;
     if (id) setCurrentVisible(id);
   }, []);
@@ -72,25 +72,35 @@ const AllPostOfCollectionContent = () => {
     };
   }, [clearSearchRedux, dispatch]);
 
+  const handleFollowChange = (userId: string, isFollow: boolean) => {
+    setPostList(prev =>
+      prev.map(post =>
+        post.user._id === userId
+          ? {...post, isFollow, user: {...post.user}} // nếu cần cập nhật cả user.isFollow
+          : post,
+      ),
+    );
+  };
+
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <View style={[styles.header, { backgroundColor: colors.background }]}>
+    <SafeAreaView style={{flex: 1}}>
+      <View style={[styles.header, {backgroundColor: colors.background}]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <ArrowLeft size={22} color={colors.text} />
         </TouchableOpacity>
-        <Text style={[styles.title, { color: colors.text }]}>{playlistName}</Text>
+        <Text style={[styles.title, {color: colors.text}]}>{playlistName}</Text>
         <View style={styles.iconBack} />
       </View>
 
-      <View style={{ flex: 1, backgroundColor: colors.background }}>
+      <View style={{flex: 1, backgroundColor: colors.background}}>
         <FlatList
           ref={listRef}
-          data={posts.filter(p => p.media && p.media.length > 0)}
+          data={postList.filter(p => p.media && p.media.length > 0)}
           keyExtractor={item => item._id}
           extraData={[currentVisible, isFocused]}
           onViewableItemsChanged={onViewRef}
-          viewabilityConfig={{ itemVisiblePercentThreshold: 100 }}
-          renderItem={({ item }) => {
+          viewabilityConfig={{itemVisiblePercentThreshold: 100}}
+          renderItem={({item}) => {
             const shouldPlay = item._id === currentVisible;
             return (
               <ItemHome
@@ -112,6 +122,7 @@ const AllPostOfCollectionContent = () => {
                 isFollow={item.isFollow}
                 SelectedPostRef={selectedPostRef}
                 clickableHashtags={clickableHashtag}
+                onFollowChange={handleFollowChange}
               />
             );
           }}
@@ -120,7 +131,7 @@ const AllPostOfCollectionContent = () => {
           initialScrollIndex={targetIndex >= 0 ? targetIndex : 0}
           removeClippedSubviews={true}
           nestedScrollEnabled={false}
-          maintainVisibleContentPosition={{ minIndexForVisible: 0 }}
+          maintainVisibleContentPosition={{minIndexForVisible: 0}}
           getItemLayout={(_, index) => ({
             length: 500,
             offset: 500 * index,

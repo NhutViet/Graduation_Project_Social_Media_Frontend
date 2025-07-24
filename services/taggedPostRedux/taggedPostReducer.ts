@@ -1,6 +1,6 @@
-import { createReducer, PayloadAction } from '@reduxjs/toolkit';
-import { fetchTaggedPosts } from './taggedPostSlice';
-import { TaggedPost } from './taggedPostTypes';
+import {createAction, createReducer, PayloadAction} from '@reduxjs/toolkit';
+import {fetchTaggedPosts} from './taggedPostSlice';
+import {TaggedPost} from './taggedPostTypes';
 
 interface TaggedPostsState {
   message: string;
@@ -16,15 +16,29 @@ const initialState: TaggedPostsState = {
   loading: false,
 };
 
+export const updateTaggedPostFollow = createAction<{
+  userId: string;
+  isFollow: boolean;
+}>('taggedPost/updateFollow');
+
 const taggedPostReducer = createReducer(initialState, builder => {
   builder
-    .addCase(fetchTaggedPosts.fulfilled, (
-      state,
-      action: PayloadAction<TaggedPost[]>) => {
-      state.loading = false;
-      state.data = action.payload;
-      state.message = 'success';
-      state.error = undefined;
+    .addCase(
+      fetchTaggedPosts.fulfilled,
+      (state, action: PayloadAction<TaggedPost[]>) => {
+        state.loading = false;
+        state.data = action.payload;
+        state.message = 'success';
+        state.error = undefined;
+      },
+    )
+    .addCase(updateTaggedPostFollow, (state, action) => {
+      const {userId, isFollow} = action.payload;
+      state.data = state.data.map(post =>
+        post.user._id === userId
+          ? {...post, isFollow, user: {...post.user, isFollow}}
+          : post,
+      );
     });
 });
 

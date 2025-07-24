@@ -69,6 +69,7 @@ export interface Item {
     user?: User;
     commentCount?: number;
     isBookmarked?: boolean;
+    isFollow?: boolean;
 }
 
 export type UserPostItem = Item;
