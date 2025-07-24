@@ -40,6 +40,8 @@ import LoadingModal from '../../../components/Global/LoadingModal';
 export const MessageScreen = () => {
   const navigation: any = useNavigation();
   const { theme } = useTheme();
+
+  // Remove setParams usage to prevent navigation warnings
   const color = Colors[theme];
   const dispatch = useDispatch<AppDispatch>();
   const [message, setMessage] = useState('');
@@ -140,10 +142,7 @@ export const MessageScreen = () => {
     const onMessage = (data: Message) => {
       setChat(prev => [...prev, data]);
       setHighlightedMessageId(null);
-      navigation.setParams({
-        highlightMessageId: null,
-        scrollToIndex: null,
-      });
+      // No need to set navigation params - using local state instead
     };
 
     const onReactionUpdated = ({
@@ -198,18 +197,13 @@ export const MessageScreen = () => {
           });
         }, 1000); // Wait a bit for messages to load
       }
-    }
 
-    // Clear highlight after 1 seconds
-    setTimeout(() => {
-      setHighlightedMessageId(null);
-    }, 1000);
-    // Clear the navigation parameters to prevent re-highlighting
-    navigation.setParams({
-      highlightMessageId: null,
-      scrollToIndex: null,
-    });
-  }, [highlightMessageId, scrollToIndex, chat, navigation]);
+      // Clear highlight after 3 seconds
+      setTimeout(() => {
+        setHighlightedMessageId(null);
+      }, 3000);
+    }
+  }, [highlightMessageId, scrollToIndex, chat]);
 
   const sendMessage = useCallback(() => {
     const trimmedMessage = message.trim();
@@ -220,12 +214,8 @@ export const MessageScreen = () => {
         senderId: userC?._id,
       });
       setMessage('');
-      // Clear highlight and navigation parameters when user sends a message
+      // Clear highlight when user sends a message
       setHighlightedMessageId(null);
-      navigation.setParams({
-        highlightMessageId: undefined,
-        scrollToIndex: undefined,
-      });
     }
   }, [message, socket, roomId, userC?._id]);
 
@@ -255,12 +245,8 @@ export const MessageScreen = () => {
               url: imageUrl,
             },
           });
-          // Clear highlight and navigation parameters when user sends an image
+          // Clear highlight when user sends an image
           setHighlightedMessageId(null);
-          navigation.setParams({
-            highlightMessageId: undefined,
-            scrollToIndex: undefined,
-          });
         } catch (err) {
           console.error('❌ Upload/send image error:', err);
         }
@@ -400,6 +386,9 @@ export const MessageScreen = () => {
               navigation={navigation}
               handleGoBack={handleGoBack}
               userC={userC}
+              showCallFeatures={!isWaiting}
+              bothFollowing={relationStatus}
+              messages={chat}
             />
             <FlatList
               ref={flatListRef}

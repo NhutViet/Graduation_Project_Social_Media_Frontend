@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, TouchableOpacity, Image, Text, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, Image, Text, StyleSheet, Vibration } from 'react-native';
 import { Colors } from '@assets/color/Colors';
 import IncomingCallModal from '../../../../components/IncomingCallModal';
 import { useSocket } from '@services/SocketContext';
@@ -19,6 +19,8 @@ interface MessageHeaderProps {
   handleGoBack: () => void;
   userC: User | null;
   showCallFeatures?: boolean;
+  bothFollowing?: boolean;
+  messages?: any[];
 }
 
 const MessageHeader: React.FC<MessageHeaderProps> = ({
@@ -29,6 +31,8 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
   handleGoBack,
   userC,
   showCallFeatures = false,
+  bothFollowing = true,
+  messages = [],
 }) => {
   const { theme } = useTheme();
   const color = Colors[theme];
@@ -42,38 +46,48 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
   const rejectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleCall = () => {
+    if (!room?._id || !userC) return;
+
+    // Add haptic feedback
+    Vibration.vibrate(50);
+
     if (socket) {
       socket.emit('incomingCall', {
-        callerName: userC?.username,
+        callerName: userC.username,
         type: 'video',
-        roomId: room?._id,
+        roomId: room._id,
       });
     }
 
     navigation.navigate('ZegoCallScreen', {
-      userID: userC?._id,
-      userName: userC?.username,
-      callID: room?._id,
+      userID: userC._id,
+      userName: userC.username,
+      callID: room._id,
       callType: 'video',
-      image: userC?.profilePic,
+      image: userC.profilePic,
       isCaller: true,
     });
   };
 
   const handleVoiceCall = () => {
+    if (!room?._id || !userC) return;
+
+    // Add haptic feedback
+    Vibration.vibrate(50);
+
     if (socket) {
       socket.emit('incomingCall', {
-        callerName: userC?.username,
+        callerName: userC.username,
         type: 'voice',
-        roomId: room?._id,
+        roomId: room._id,
       });
     }
 
     navigation.navigate('ZegoCallScreen', {
-      userID: userC?._id,
-      userName: userC?.username,
-      callID: room?._id,
-      image: userC?.profilePic,
+      userID: userC._id,
+      userName: userC.username,
+      callID: room._id,
+      image: userC.profilePic,
       callType: 'voice',
       isCaller: true,
     });
@@ -137,14 +151,22 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
     };
   }, [incomingCall.visible]);
 
-  const isWaitingRoom = (room as Room).type === 'waiting';
+  // Show call icons when:
+  // 1. showCallFeatures is true (not a waiting room)
+  // 2. AND (bothFollowing is false OR messages length > 2)
+  const shouldShowCallIcons =
+    showCallFeatures &&
+    (room?.type != 'waiting') &&
+    userC &&
+    (!bothFollowing || messages.length > 2);
 
-  // Debug logging for call features
-  console.log('🔍 MessageHeader Debug:', {
+  // Debug logging
+  console.log('🔍 Call Icons Logic:', {
     showCallFeatures,
-    isWaitingRoom,
-    roomType: room?.type,
-    shouldShowCallIcons: showCallFeatures
+    bothFollowing,
+    messagesLength: messages.length,
+    shouldShowCallIcons,
+    type: room?.type
   });
 
   return (
@@ -213,19 +235,31 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
         </View>
 
         <View style={styles.rowContainer1}>
-          {/* Show call icons when both users follow each other OR messages > 2 */}
-          {showCallFeatures && (
+          {/* Show call icons when: not waiting room AND (not both following OR messages > 2) */}
+          {shouldShowCallIcons && (
             <>
-              <TouchableOpacity onPress={handleVoiceCall}>
+              <TouchableOpacity
+                onPress={handleVoiceCall}
+                style={[styles.callButton, { backgroundColor: color.backgroundSecondary }]}
+                activeOpacity={0.7}
+              >
                 <Phone size={22} color={color.text} />
               </TouchableOpacity>
-              <TouchableOpacity onPress={handleCall}>
+              <TouchableOpacity
+                onPress={handleCall}
+                style={[styles.callButton, { backgroundColor: color.backgroundSecondary }]}
+                activeOpacity={0.7}
+              >
                 <Video size={22} color={color.text} />
               </TouchableOpacity>
             </>
           )}
-          <TouchableOpacity onPress={() => modalRef.current?.open()}>
-            <AlertCircle size={22} color={color.text} />
+          <TouchableOpacity
+            onPress={() => modalRef.current?.open()}
+            style={[styles.callButton, { backgroundColor: shouldShowCallIcons ? color.backgroundSecondary : 'transparent' }]}
+            activeOpacity={0.7}
+          >
+            <AlertCircle size={20} color={color.text} />
           </TouchableOpacity>
         </View>
       </View>
@@ -336,5 +370,13 @@ const styles = StyleSheet.create({
   destructiveText: {
     fontSize: 18,
     fontWeight: '600',
+  },
+  callButton: {
+    padding: 10,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 44,
+    minHeight: 44,
   },
 });
