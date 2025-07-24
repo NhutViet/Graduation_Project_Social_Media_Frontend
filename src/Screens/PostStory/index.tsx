@@ -10,7 +10,7 @@ import {
   SafeAreaView,
   Dimensions,
 } from 'react-native';
-import {FlashList} from '@shopify/flash-list';
+import {FlatList} from 'react-native';
 import CameraRoll from '@react-native-community/cameraroll';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
@@ -42,6 +42,7 @@ const PostStory = () => {
   const color = Colors[theme];
   const navigation: any = useNavigation();
   const sheetRef = useRef<BottomSheetRef>(null);
+  const flatListRef = useRef<FlatList>(null);
 
   const [mediaList, setMediaList] = useState<MediaItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -53,6 +54,8 @@ const PostStory = () => {
 
   const [selectedMusic, setSelectedMusic] = useState<MusicInfo | null>(null);
   const [songUrl, setSongUrl] = useState<string | null>(null);
+  const [isEndReachedTriggered, setIsEndReachedTriggered] = useState(false);
+  const [scrollPosition, setScrollPosition] = useState(0);
 
   const requestPermissions = useCallback(async (): Promise<boolean> => {
     if (Platform.OS !== 'android') return true;
@@ -120,6 +123,18 @@ const PostStory = () => {
         });
         setLastCursor(result.page_info.end_cursor || null);
         setHasNextPage(result.page_info.has_next_page);
+        if (loadMore) {
+          setIsEndReachedTriggered(false);
+          // Giữ nguyên vị trí scroll sau khi load thêm
+          setTimeout(() => {
+            if (flatListRef.current && scrollPosition > 0) {
+              flatListRef.current.scrollToOffset({
+                offset: scrollPosition,
+                animated: false,
+              });
+            }
+          }, 100);
+        }
       } catch (err) {
         console.error('Lỗi khi tải media:', err);
         setError('Lỗi khi tải media.');
@@ -213,11 +228,30 @@ const PostStory = () => {
       isLoadingMore,
       'hasNextPage:',
       hasNextPage,
+      'isEndReachedTriggered:',
+      isEndReachedTriggered,
     );
-    if (!isLoading && !isLoadingMore && hasNextPage && !isFetchingRef.current) {
+
+    if (
+      !isLoading &&
+      !isLoadingMore &&
+      hasNextPage &&
+      !isFetchingRef.current &&
+      !isEndReachedTriggered
+    ) {
+      setIsEndReachedTriggered(true);
       loadMedia(true);
     }
-  }, [isLoading, isLoadingMore, hasNextPage, loadMedia]);
+  }, [isLoading, isLoadingMore, hasNextPage, loadMedia, isEndReachedTriggered]);
+
+  const onMomentumScrollBegin = useCallback(() => {
+    setIsEndReachedTriggered(false);
+  }, []);
+
+  const onScroll = useCallback((event: any) => {
+    const offsetY = event.nativeEvent.contentOffset.y;
+    setScrollPosition(offsetY);
+  }, []);
 
   useEffect(() => {
     loadMedia();
@@ -256,25 +290,32 @@ const PostStory = () => {
       ) : error ? (
         <Text style={styles.errorText}>{error}</Text>
       ) : (
-        <FlashList
+        <FlatList
+          ref={flatListRef}
           data={mediaList}
           renderItem={renderItem}
           keyExtractor={keyExtractor}
           numColumns={4}
           extraData={[selectedMusic]}
-          estimatedItemSize={ITEM_SIZE}
           contentContainerStyle={styles.grid}
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
             <Text style={styles.emptyText}>Không tìm thấy media</Text>
           }
           ListFooterComponent={isLoadingMore ? <LoadingModal /> : null}
-          onEndReachedThreshold={0.3}
+          onEndReachedThreshold={0.1}
           onEndReached={onEndReached}
-          maintainVisibleContentPosition={{
-            minIndexForVisible: 0,
-            autoscrollToTopThreshold: 100,
-          }}
+          onMomentumScrollBegin={onMomentumScrollBegin}
+          onScroll={onScroll}
+          removeClippedSubviews={true}
+          maxToRenderPerBatch={20}
+          windowSize={10}
+          initialNumToRender={20}
+          getItemLayout={(data, index) => ({
+            length: ITEM_SIZE,
+            offset: ITEM_SIZE * Math.floor(index / 4),
+            index,
+          })}
         />
       )}
 
