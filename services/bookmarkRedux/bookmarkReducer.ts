@@ -182,11 +182,11 @@ const bookmarkReducer = createSlice({
         state.isSuccess = false;
       })
       .addCase(getItemsOfPlaylist.fulfilled, (state, action) => {
-        const {data, pagination, playlistId} = action.payload;
+        const {items, pagination, playlistId} = action.payload;
         state.isloading = false;
         state.isSuccess = true;
 
-        state.itemsByPlaylist[playlistId] = data;
+        state.itemsByPlaylist[playlistId] = items || [];
 
         state.paginationByPlaylist[playlistId] = pagination;
       })

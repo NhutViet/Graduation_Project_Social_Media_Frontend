@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import {Camera, Send, Mic, Image as ImageIcon, Plus} from 'lucide-react-native';
 import {useTheme} from '../../../../src/util/ThemeContext';
+import { useNavigation } from '@react-navigation/native';
 
 const screenWidth = Dimensions.get('window').width - 20;
 
@@ -30,13 +31,14 @@ const MessageInput: React.FC<MessageInputProps> = ({
 }) => {
   const {theme} = useTheme();
   const color = Colors[theme];
+  const navigation = useNavigation<any>();
   return (
     <View
       style={[
         styles.inputContainer,
         {backgroundColor: 'rgba(243, 244, 246, 0.7)', zIndex: 10},
       ]}>
-      <TouchableOpacity style={styles.blockCamera}>
+      <TouchableOpacity style={styles.blockCamera} onPress={() => navigation.navigate('CameraScreen')}>
         <Camera size={22} color={color.black} />
       </TouchableOpacity>
 

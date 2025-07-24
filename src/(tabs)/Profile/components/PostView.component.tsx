@@ -2,12 +2,25 @@ import React from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {GridView} from './GridView';
 
-export const PostsView: React.FC<{data: any[]}> = ({data}) => {
+export const PostsView: React.FC<{data: any[]; isBookmark?: boolean}> = ({
+  data,
+  isBookmark = false,
+}) => {
   const navigation = useNavigation<any>();
   const handlePress = (item: any) => {
-    navigation.navigate('AllPostOfUserScreen', {
-      targetPostId: item._id,
-    });
+    if (!isBookmark) {
+      navigation.navigate('AllPostOfUserScreen', {
+        targetPostId: item._id,
+      });
+    } else {
+      navigation.navigate('AllPostOfCollection', {
+        posts: data,
+        targetPostId: item._id,
+        playlistName: 'Đã lưu',
+        clickableHashtag: false,
+        clearSearchRedux: false,
+      });
+    }
   };
   return <GridView data={data} onPressItem={handlePress} />;
 };
