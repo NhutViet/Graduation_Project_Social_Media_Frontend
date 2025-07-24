@@ -154,6 +154,7 @@ export const TagSo = () => {
           {media[currentImageIndex].tags.length > 0 ? (
             <FlatList
               data={media[currentImageIndex].tags}
+              keyExtractor={(_item, index) => index.toString()}
               renderItem={item => {
                 return (
                   <User

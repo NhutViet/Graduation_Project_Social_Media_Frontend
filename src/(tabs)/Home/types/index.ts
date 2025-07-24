@@ -27,6 +27,7 @@ export interface ItemHomeProps {
 
 export interface User {
   _id: string;
+  username: string;
   handleName: string;
   profilePic: string;
 }
