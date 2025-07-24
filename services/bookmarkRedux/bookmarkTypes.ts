@@ -129,8 +129,9 @@ export interface Pagination {
 }
 
 export interface ResGetItemPlaylist {
-  message: string;
-  data: PlaylistItem[];
+  message?: string;
+  items?: PlaylistItem[];
+  data?: PlaylistItem[];
   pagination: Pagination;
   playlistId: string;
 }

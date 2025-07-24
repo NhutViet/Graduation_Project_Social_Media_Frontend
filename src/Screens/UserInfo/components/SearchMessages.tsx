@@ -42,7 +42,7 @@ const HighlightedText = ({
               color: isMatch ? normalColor : grayColor,
               fontWeight: isMatch ? '600' : 'normal',
             }}>
-            {part}
+            {part ?? ''}
           </Text>
         );
       })}
