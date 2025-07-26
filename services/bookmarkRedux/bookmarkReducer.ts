@@ -52,6 +52,33 @@ const bookmarkReducer = createSlice({
   initialState,
   reducers: {
     resetBookmarkState: () => initialState,
+    updateFollowStatusForUser: (
+      state,
+      action: {
+        payload: {userId: string; isFollow: boolean};
+      },
+    ) => {
+      const {userId, isFollow} = action.payload;
+
+      Object.keys(state.itemsByPlaylist).forEach(playlistId => {
+        const items = state.itemsByPlaylist[playlistId];
+
+        if (items && items.length > 0) {
+          state.itemsByPlaylist[playlistId] = items.map(item => {
+            if (item.user?._id === userId) {
+              return {
+                ...item,
+                user: {
+                  ...item.user,
+                  isFollow,
+                },
+              };
+            }
+            return item;
+          });
+        }
+      });
+    },
   },
   extraReducers: builder => {
     builder
@@ -288,5 +315,5 @@ const bookmarkReducer = createSlice({
   },
 });
 
-export const {resetBookmarkState} = bookmarkReducer.actions;
+export const {resetBookmarkState, updateFollowStatusForUser} = bookmarkReducer.actions;
 export default bookmarkReducer.reducer;

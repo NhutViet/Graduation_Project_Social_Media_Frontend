@@ -5,6 +5,7 @@ import {
   fetchMyRooms,
   fetchMyWaitingRooms,
   getRoomById,
+  kickMemberFromGroup,
   updateRoomName,
   updateRoomTheme,
 } from './roomSlice';
@@ -112,20 +113,41 @@ const roomSlice = createSlice({
       .addCase(getRoomById.fulfilled, (state, action) => {
         state.loading = false;
 
-        const exists = state.rooms.some(room => room._id === action.payload._id);
+        const exists = state.rooms.some(
+          room => room._id === action.payload._id,
+        );
         if (!exists) {
-          if(action.payload.type === 'accept'){
+          if (action.payload.type === 'accept') {
             state.rooms.push(action.payload);
-          }else{
+          } else {
             state.waitingRooms.push(action.payload);
           }
-          
         }
       })
       .addCase(getRoomById.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload?.message || 'Lấy chi tiết phòng chat thất bại.';
+        state.error =
+          action.payload?.message || 'Lấy chi tiết phòng chat thất bại.';
       })
+      .addCase(kickMemberFromGroup.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(kickMemberFromGroup.fulfilled, (state, action) => {
+        state.loading = false;
+        const {roomId, memberId} = action.meta.arg;
+
+        const roomIndex = state.rooms.findIndex(room => room._id === roomId);
+        if (roomIndex !== -1) {
+          state.rooms[roomIndex].user_ids = state.rooms[
+            roomIndex
+          ].user_ids.filter(user => user._id !== memberId);
+        }
+      })
+      .addCase(kickMemberFromGroup.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.message || 'Xóa thành viên thất bại.';
+      });
   },
 });
 

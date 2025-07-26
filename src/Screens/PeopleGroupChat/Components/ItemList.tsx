@@ -2,7 +2,7 @@ import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import React from 'react';
 import {useTheme} from '../../../util/ThemeContext';
 import {Colors} from '../../../../assets/color/Colors';
-import {MoreVertical} from 'lucide-react-native';
+import {MoreVertical, X} from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 
 type ItemListProps = {
@@ -10,10 +10,12 @@ type ItemListProps = {
   handle: string;
   name: string;
   onHandleMessage?: () => void;
+  onHandleDeleteMember?: () => void;
   isMine?: boolean;
   isAdmin?: boolean;
   id: string;
   isFollow: boolean;
+  isLeader: boolean;
 };
 
 const ItemList = (props: ItemListProps) => {
@@ -24,8 +26,10 @@ const ItemList = (props: ItemListProps) => {
     id,
     isFollow,
     onHandleMessage,
+    onHandleDeleteMember,
     isMine = false,
     isAdmin = false,
+    isLeader = false,
   } = props;
   const {theme} = useTheme();
   const colors = Colors[theme];
@@ -56,6 +60,15 @@ const ItemList = (props: ItemListProps) => {
             <Text style={[styles.message, {color: isFollow ? colors.text : colors.background, fontSize: 14}]}>
               {isFollow ? 'Đã theo dõi' : 'Theo dõi'}
             </Text>
+          </TouchableOpacity>
+        </View>
+      )}
+      {isLeader && (
+        <View style={styles.row}>
+          <TouchableOpacity
+            style={[styles.btnContainer, {borderWidth: 0, paddingHorizontal: 0}]}
+            onPress={onHandleDeleteMember}>
+            <X size={20} color={colors.text}/>
           </TouchableOpacity>
         </View>
       )}

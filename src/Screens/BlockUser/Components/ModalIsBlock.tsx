@@ -24,14 +24,10 @@ const ModalIsBlock = (props: ModalIsBlockProps) => {
         <Text style={[styles.question, {color: color.text}]}>
           Chặn {handle}?
         </Text>
-        <Text style={[styles.note, {color: color.textSecondary}]}>
-          Điều này cũng sẽ chặn bất kỳ tài khoản nào khác mà họ có hoặc có thể
-          tạo trong tương lai.
-        </Text>
         <View style={styles.notiContainer}>
           <Ban size={22} color={color.textSecondary} style={styles.icon} />
           <Text style={[styles.noti, {color: color.text}]}>
-            Họ sẽ không thể nhắn tin cho bạn hoặc tìm thấy hồ sơ hay nội dung
+            Họ sẽ không thể tìm thấy nội dung
             của bạn trên Cirla.
           </Text>
         </View>

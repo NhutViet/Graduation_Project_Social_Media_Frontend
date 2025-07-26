@@ -23,10 +23,12 @@ export interface ItemHomeProps {
   setSelectedPostId?: (v: {postId: string; receiverId: string}) => void;
   clickableHashtags?: boolean;
   SelectedPostRef?: any;
+  onFollowChange?: any;
 }
 
 export interface User {
   _id: string;
+  username: string;
   handleName: string;
   profilePic: string;
 }

@@ -5,10 +5,11 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import Video from 'react-native-video';
 import React from 'react';
-import {Media} from '@services/postRedux/postTypes';
-import {useNavigation} from '@react-navigation/native';
-import {Layers, Video} from 'lucide-react-native';
+import { Media } from '@services/postRedux/postTypes';
+import { useNavigation } from '@react-navigation/native';
+import { Layers, Video as VideoIcon } from 'lucide-react-native';
 
 export interface ExploreMedia {
   _id: string;
@@ -25,20 +26,6 @@ const screenWidth = Dimensions.get('window').width;
 const GAP = 2;
 const SMALL = (screenWidth - GAP * 3) / 3;
 const BIG = SMALL * 2 + GAP;
-
-// 🔁 Chuyển video sang thumbnail ảnh
-const convertToImage = (uri: string): string => {
-  if (
-    uri.includes('videodelivery.net') &&
-    uri.includes('/manifest/') &&
-    !uri.endsWith('.jpg')
-  ) {
-    const parts = uri.split('/');
-    const videoId = parts[3];
-    return `https://videodelivery.net/${videoId}/thumbnails/thumbnail.jpg?time=2s`;
-  }
-  return uri;
-};
 
 const ExploreSection: React.FC<ExploreSectionProps> = ({
   media,
@@ -61,7 +48,7 @@ const ExploreSection: React.FC<ExploreSectionProps> = ({
 
   const handleMediaPress = (
     exploreMediaId: string,
-    isBigMedia: boolean = false,
+    _isBigMedia: boolean = false,
   ) => {
     navigation.navigate('AllPostOfCollection', {
       posts: data,
@@ -80,27 +67,42 @@ const ExploreSection: React.FC<ExploreSectionProps> = ({
     const showOverlay =
       !isVideo && (parentExploreMedia?.media?.length || 0) > 1;
 
-    const displayImage = isVideo
-      ? convertToImage(item.videoUrl)
-      : item.imageUrl;
-
     return (
       <View
         style={
           isBigMedia ? styles.bigMediaContainer : styles.smallMediaContainer
         }>
-        {displayImage && (
+        {isVideo ? (
+          <Video
+            source={{ uri: item.videoUrl }}
+            style={styles.media}
+            poster={item.imageUrl || item.videoUrl}
+            resizeMode="contain"
+            paused={true}
+            muted={true}
+            controls={false}
+            repeat={false}
+            pointerEvents="none"
+          />
+        ) : item.imageUrl ? (
           <Image
-            source={{uri: displayImage}}
+            source={{ uri: item.imageUrl }}
             style={styles.media}
             resizeMode="cover"
           />
+        ) : (
+          <View style={[styles.media, styles.placeholder]}>
+            <VideoIcon size={isBigMedia ? 40 : 24} color="#666" />
+          </View>
         )}
 
+        {/* Overlay trong suốt để đảm bảo touch hoạt động */}
+        {isVideo && <View style={styles.touchOverlay} />}
+        
         {(isVideo || showOverlay) && (
           <View style={styles.overlayContainer}>
             {isVideo ? (
-              <Video size={22} color="white" />
+              <VideoIcon size={22} color="white" />
             ) : (
               <Layers size={22} color="white" />
             )}
@@ -119,12 +121,13 @@ const ExploreSection: React.FC<ExploreSectionProps> = ({
       style={[
         styles.row,
         isReversed && styles.rowReverse,
-        {marginBottom: GAP},
+        { marginBottom: GAP },
       ]}>
       <View style={isReversed ? styles.marginLeft : styles.marginRight}>
         <TouchableOpacity
           onPress={() => handleMediaPress(bigMediaParent?._id || '', true)}
-          activeOpacity={0.8}>
+          activeOpacity={0.8}
+        >
           {renderMediaItem(bigMedia, true)}
         </TouchableOpacity>
       </View>
@@ -215,6 +218,20 @@ const styles = StyleSheet.create({
     width: 18,
     height: 18,
     tintColor: 'white',
+  },
+  placeholder: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#e0e0e0',
+  },
+  touchOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'transparent',
+    zIndex: 1,
   },
 });
 

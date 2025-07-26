@@ -72,7 +72,7 @@ const ProfileComp = ({ route }: any) => {
     });
   };
 
-  const [hasBothFollow, setHasBothFollow] = useState<boolean>(false);
+  const [, setHasBothFollow] = useState<boolean>(false);
 
   const handleMessagePress = async () => {
     try {
@@ -399,17 +399,31 @@ const ProfileComp = ({ route }: any) => {
           </View>
           {/* Header Info */}
           <View>
-            <UserInfo
-              name={publicProfile.username}
-              followers={localFollowersCount}
-              following={localFollowingCount}
-              posts={PostsItem.length + ReelsItem.length}
-              avatar={publicProfile.profilePic}
-              bio={publicProfile.bio}
-              theme={theme}
-              onFollowersPress={() => navigateToUserFollow('UserFollowersTab')}
-              onFollowingPress={() => navigateToUserFollow('UserFollowingTab')}
-            />
+            {!isBlock ? (
+              <UserInfo
+                name={publicProfile.username}
+                followers={localFollowersCount}
+                following={localFollowingCount}
+                posts={PostsItem.length + ReelsItem.length}
+                avatar={publicProfile.profilePic}
+                bio={publicProfile.bio}
+                theme={theme}
+                onFollowersPress={() => navigateToUserFollow('UserFollowersTab')}
+                onFollowingPress={() => navigateToUserFollow('UserFollowingTab')}
+              />
+            ) : (
+              <UserInfo
+                name={publicProfile.username}
+                followers={0}
+                following={0}
+                posts={0}
+                avatar={publicProfile.profilePic}
+                bio={publicProfile.bio}
+                theme={theme}
+                onFollowersPress={ () => {}}
+                onFollowingPress={ () => {}}
+              />
+            )}
           </View>
           {/* Action Buttons */}
           <ActionButtons

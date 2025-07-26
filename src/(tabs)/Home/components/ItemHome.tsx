@@ -71,6 +71,7 @@ const ItemHome = (props: ItemHomeProps) => {
     SelectedPostRef,
     clickableHashtags = true,
     isFollow,
+    onFollowChange,
   } = props;
 
   const navigation = useNavigation<ProfileCompNav>();
@@ -148,6 +149,7 @@ const ItemHome = (props: ItemHomeProps) => {
         senderId: mine?._id,
         handleName: mine?.handleName,
         dispatch,
+        onFollowChange
       });
     },
     [user._id, isFollow, dispatch],

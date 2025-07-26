@@ -194,3 +194,43 @@ export const addPeopleToGroupChat = createAsyncThunk<
     });
   }
 });
+
+export const leaveGroupChat = createAsyncThunk<
+{message: string},
+{id: string},
+{rejectValue: {message: string}}
+>(
+  'rooms/leave',
+  async ({id}, {rejectWithValue}) => {
+    try {
+      const res = await axiosInstance.delete(`${API.ROOM}/${id}/leave`, {
+        headers: {
+          token: 'refresh',
+        }
+      });
+      return res.data;
+    } catch (error: any) {
+      return rejectWithValue({message: error?.response?.data?.message || 'Rời nhóm thất bại.'});
+    }
+  },
+);
+
+export const kickMemberFromGroup = createAsyncThunk<
+  any,
+  {roomId: string; memberId: string},
+  {rejectValue: {message: string}}
+>(
+  'rooms/users/leave',
+  async ({roomId, memberId}, {rejectWithValue}) => {
+    try {
+      const res = await axiosInstance.delete(`${API.ROOM}/${roomId}/users/${memberId}`, {
+        headers: {
+          token: 'refresh',
+        },
+      });
+      return res.data;
+    } catch (error: any) {
+      return rejectWithValue({message: error?.response?.data?.message || 'Xóa khỏi nhóm thất bại.'})
+    }
+  },
+);

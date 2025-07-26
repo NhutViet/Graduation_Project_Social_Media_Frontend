@@ -35,16 +35,18 @@ const ActionButtons: React.FC<ActionProps> = ({
           </Text>
         </TouchableOpacity>
       )}
-      {isBlocked &&
-      <TouchableOpacity style={styles.followButton} onPress={onUnblockPress}>
-        <Text style={styles.followButtonText}>Bỏ chặn</Text>
-      </TouchableOpacity>
-      }
-      <TouchableOpacity style={styles.messageButton} onPress={onMessagePress}>
-        <Text style={[styles.messageButtonText, {color: Colors[theme].text}]}>
-          Nhắn tin
-        </Text>
-      </TouchableOpacity>
+      {isBlocked && (
+        <TouchableOpacity style={[styles.followButton, styles.fullWidthButton]} onPress={onUnblockPress}>
+          <Text style={styles.followButtonText}>Bỏ chặn</Text>
+        </TouchableOpacity>
+      )}
+      {!isBlocked && (
+        <TouchableOpacity style={styles.messageButton} onPress={onMessagePress}>
+          <Text style={[styles.messageButtonText, {color: Colors[theme].text}]}>
+            Nhắn tin
+          </Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
@@ -85,6 +87,9 @@ const styles = StyleSheet.create({
   },
   followingButtonText: {
     color: Colors.textSecondary,
+  },
+  fullWidthButton: {
+    flex: 2, // Take full width when message button is hidden
   },
 });
 

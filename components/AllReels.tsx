@@ -176,7 +176,7 @@ const AllReels = () => {
                   currentVisible={item._id === currentVisible}
                   isFollow={item?.isFollow}
                   isLiked={isLiked}
-                  isFollowing={false}
+                  isFollowing={item?.isFollow}
                   isCurrentUser={isCurrentUser}
                   likeCount={likeCount}
                   muted={false}

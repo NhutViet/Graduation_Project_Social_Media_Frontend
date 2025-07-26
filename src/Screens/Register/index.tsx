@@ -54,9 +54,9 @@ export const Register = ({navigation}: any) => {
     if (!password) {
       setErrorPassword('Vui lòng nhập đầy đủ thông tin.');
       valid = false;
-    } else if (!/^\d{6}$/.test(password)) {
+    } else if (!/^[A-Za-z0-9]{6,}$/.test(password)) {
       setErrorPassword(
-        'Mật khẩu phải gồm đúng 6 chữ số và không có ký tự đặc biệt.',
+        'Mật khẩu bao gồm tối thiểu 6 ký tự và không có ký tự đặc biệt.',
       );
       valid = false;
     }
