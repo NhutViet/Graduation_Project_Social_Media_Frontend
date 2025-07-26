@@ -116,8 +116,9 @@ export interface ResGetPostsAndReels {
 
 export enum TimeRange {
   TODAY = 'today',
-  THIS_MONTH = 'this_month',
-  THIS_YEAR = 'this_year'
+  LAST_WEEK = 'last_week',
+  LAST_MONTH = 'last_month',
+  LAST_YEAR = 'last_year'
 }
 
 export enum SortOrder {

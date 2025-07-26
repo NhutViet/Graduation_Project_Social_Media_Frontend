@@ -96,10 +96,11 @@ export const LikedScreen = () => {
   const handleFilterSelect = (filter: string) => {
     switch (filterType) {
       case 'date':
-        setSelectedDate(filter as 'all'|'week'|'month'|'year');
-        if(filter === "week") setTimeRange(TimeRange.TODAY);
-        else if(filter === "month") setTimeRange(TimeRange.THIS_MONTH);
-        else if(filter === "year") setTimeRange(TimeRange.THIS_YEAR);
+        setSelectedDate(filter as 'all'|'today'|'week'|'month'|'year');
+        if(filter === "today") setTimeRange(TimeRange.TODAY);
+        else if(filter === "week") setTimeRange(TimeRange.LAST_WEEK);
+        else if(filter === "month") setTimeRange(TimeRange.LAST_MONTH);
+        else if(filter === "year") setTimeRange(TimeRange.LAST_YEAR);
         else setTimeRange(undefined);
         break;
       case 'sort':
@@ -160,8 +161,9 @@ export const LikedScreen = () => {
       case 'date':
         switch (timeRange) {
           case TimeRange.TODAY:       return 'Hôm nay';
-          case TimeRange.THIS_MONTH:  return 'Tháng trước';
-          case TimeRange.THIS_YEAR:   return 'Năm trước';
+          case TimeRange.LAST_WEEK:  return 'Tuần trước';
+          case TimeRange.LAST_MONTH:  return 'Tháng trước';
+          case TimeRange.LAST_YEAR:   return 'Năm trước';
           default:                    return 'Tất cả các ngày';
         }
       case 'sort':

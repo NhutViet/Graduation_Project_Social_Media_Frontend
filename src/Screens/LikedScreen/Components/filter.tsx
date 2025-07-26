@@ -35,7 +35,8 @@ const FilterModal: React.FC<FilterModalProps> = ({
       case 'date':
         return [
           {id: 'all', label: 'Tất cả các ngày'},
-          {id: 'week', label: 'Hôm nay'},
+          {id: 'today', label: 'Hôm nay'},
+          {id: 'week', label: 'Tuần trước'},
           {id: 'month', label: 'Tháng trước'},
           {id: 'year', label: 'Năm trước'},
         ];
