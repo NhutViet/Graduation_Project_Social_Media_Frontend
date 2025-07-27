@@ -147,7 +147,6 @@ export const EditStory = ({route, navigation}: any) => {
 
       const sound = new Sound(songUrl, undefined, error => {
         if (error) {
-          console.log('Không thể tải âm thanh: ', error);
           return;
         }
         audioRef.current = sound;
@@ -157,8 +156,6 @@ export const EditStory = ({route, navigation}: any) => {
           if (success) {
             sound.setCurrentTime(selectedMusic.timeStart || 0);
             sound.play();
-          } else {
-            console.log('Phát âm thanh thất bại.');
           }
         });
       });
@@ -283,8 +280,6 @@ export const EditStory = ({route, navigation}: any) => {
 
       if (user) {
         mentions.push({handleName, user});
-      } else {
-        console.log('❌ User not found for handle:', handleName);
       }
     }
 
@@ -372,7 +367,6 @@ export const EditStory = ({route, navigation}: any) => {
             y: 0.3,
           },
         }));
-        console.log('📤 Final tags payload:', payload.tags);
       }
 
       // ✅ Sử dụng Redux action thay vì direct API call

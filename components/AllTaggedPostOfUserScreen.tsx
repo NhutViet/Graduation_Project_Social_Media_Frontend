@@ -70,7 +70,6 @@ const AllTaggedPostOfUserScreen = () => {
           viewabilityConfig={{itemVisiblePercentThreshold: 100}}
           renderItem={({item}) => {
             const shouldPlay = item._id === currentVisible;
-            console.log('ìL: ', item.isFollow);
             return (
               <ItemHome
                 _id={item._id}

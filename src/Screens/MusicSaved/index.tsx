@@ -94,16 +94,13 @@ export const MusicSavedScreen = () => {
   const createAndPlay = (id: string, url: string) => {
     const sound = new Sound(url, '', error => {
       if (error) {
-        console.log('Lỗi khi tải audio:', error);
         setIsPlayingAudio(false);
         return;
       }
       soundRef.current = sound;
       sound.setNumberOfLoops(0);
       sound.play(success => {
-        if (!success) {
-          console.log('Phát thất bại');
-        }
+        if (!success) return
         sound.release();
         soundRef.current = null;
         setIsPlayingAudio(false);

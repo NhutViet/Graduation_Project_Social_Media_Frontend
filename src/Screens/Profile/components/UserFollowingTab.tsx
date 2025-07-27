@@ -77,7 +77,7 @@ const UserFollowingTab = ({userID}: Props) => {
           img2,
         });
       } catch (error) {
-        console.log('Tạo room thất bại:', error);
+        console.warn(error);
       }
     } else {
       try {
@@ -91,7 +91,6 @@ const UserFollowingTab = ({userID}: Props) => {
         ).unwrap();
       } catch (error) {
         GlobalAlertManager.show('Thất bại', 'Vui lòng thử lại sau');
-        console.log(error);
       }
     }
   };

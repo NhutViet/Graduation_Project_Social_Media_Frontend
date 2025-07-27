@@ -40,7 +40,6 @@ import LoadingModal from '../../../components/Global/LoadingModal';
 export const MessageScreen = () => {
   const navigation: any = useNavigation();
   const {theme} = useTheme();
-
   // Remove setParams usage to prevent navigation warnings
   const color = Colors[theme];
   const dispatch = useDispatch<AppDispatch>();
@@ -95,11 +94,22 @@ export const MessageScreen = () => {
   }, [roomFromList, roomId]);
 
   const rooms = originalRoom;
+  console.log('id vào: ', rooms?.created_by);
+  console.log('id ra: ', userC?._id);
+
+  const [isWaitingAndNotCreator, setIsWaitingAndNotCreator] = useState(false);
+
+  useEffect(() => {
+    if (rooms && userC?._id) {
+      const condition =
+        rooms.type === 'waiting' && rooms.created_by !== userC._id;
+      setIsWaitingAndNotCreator(condition);
+    }
+  }, [rooms, userC?._id]);
 
   const filteredUsers = rooms?.user_ids.filter(user => user._id !== userC?._id);
   const roomMember1 = filteredUsers?.[0];
   const roomMember2 = filteredUsers?.[1];
-  const isMeSender = rooms?.created_by === userC?._id;
 
   const {showUploadModal, hideUploadModal, setProgress} = useUploadProgress();
   const {socket, connectToSocket, disconnectSocket} = useSocket();
@@ -294,7 +304,6 @@ export const MessageScreen = () => {
   const handleAcceptRequest = useCallback(async () => {
     try {
       await updatedRoomStatus({roomId: rooms!._id});
-      await updatedRoomStatus({roomId: rooms!._id});
       setRelationStatus(true);
       dispatch(fetchMyRooms());
       dispatch(fetchMyWaitingRooms());
@@ -412,13 +421,33 @@ export const MessageScreen = () => {
                 flatListRef.current?.scrollToEnd({animated: true})
               }
             />
-            <MessageInput
-              message={message}
-              setMessage={setMessage}
-              sendMessage={sendMessage}
-              pickImageAndSend={pickImageAndSend}
-              roomId={roomId}
-            />
+            {isWaitingAndNotCreator ? (
+              <View style={styles.requestBanner}>
+                <View style={{marginBottom: 10}}>
+                  <Text style={styles.requestBannerText}>
+                    Bạn cần chấp nhận lời mời trước khi trò chuyện.
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  style={[
+                    styles.acceptButton,
+                    {backgroundColor: color.primary},
+                  ]}
+                  onPress={handleAcceptRequest}>
+                  <Text style={[styles.acceptButtonText, {color: '#fff'}]}>
+                    Chấp nhận lời mời
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <MessageInput
+                message={message}
+                setMessage={setMessage}
+                sendMessage={sendMessage}
+                pickImageAndSend={pickImageAndSend}
+                roomId={roomId}
+              />
+            )}
           </View>
         </View>
         <ImagePreviewModal

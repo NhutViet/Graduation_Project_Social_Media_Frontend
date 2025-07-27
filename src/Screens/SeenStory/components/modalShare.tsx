@@ -136,7 +136,7 @@ const ModalShareStory = forwardRef<ModalShareHandle, ModalShareProps>(
         //, ...friendItems
         setItems([...roomItems]);
       } catch (e) {
-        console.log(e);
+        console.warn(e);
       } finally {
         setLoading(false);
       }

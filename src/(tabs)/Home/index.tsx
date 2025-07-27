@@ -174,9 +174,6 @@ export const Home = forwardRef(({route}: HomeProps, ref) => {
               const isVisible = isStoryVisible(story.createdAt);
               if (!isVisible) {
                 const age = getStoryAge(story.createdAt);
-                console.log(
-                  `Story ${storyId} expired: ${age.hours}h ${age.minutes}m old`,
-                );
               }
               return isVisible;
             }) || [];
@@ -261,7 +258,7 @@ export const Home = forwardRef(({route}: HomeProps, ref) => {
         try {
           await prefetchStoryData(user._id, user.stories);
         } catch (error) {
-          console.log('Error prefetching stories for user:', user.handleName);
+          console.warn(error);
         }
       }
     }

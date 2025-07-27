@@ -87,8 +87,6 @@ const ReelsList = ({
           }),
         ).unwrap();
       } catch (error) {
-        // 3. Nếu thất bại, rollback UI
-        console.log('Like/unlike thất bại, khôi phục UI:', error);
         if (isLiked) {
           dispatch(addLikedPost(postId));
         } else {

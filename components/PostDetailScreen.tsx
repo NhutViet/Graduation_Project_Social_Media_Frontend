@@ -54,7 +54,7 @@ const PostDetailScreen = () => {
         );
         setPost(data.data);
       } catch (error) {
-        console.log('Lỗi lấy post:', error);
+        console.warn( error);
       }
     };
 

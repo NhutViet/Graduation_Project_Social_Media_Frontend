@@ -171,10 +171,6 @@ const ItemHome = (props: ItemHomeProps) => {
     () => modalReactionRef.current?.open(),
     [],
   );
-  const handleOpenShareModal = useCallback(
-    () => modalShareRef.current?.open(),
-    [],
-  );
 
   // Option logic
   const handleOptionSelect = useCallback(

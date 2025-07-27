@@ -57,14 +57,12 @@ const StoriesTab = () => {
 
   useEffect(() => {
     dispatch(fetchGetPostedSotry());
-    console.log('📦 myStories fetched:', myStories);
   }, []);
 
   const [isPause, setIsPause] = useState<boolean>(true);
 
   const renderItem = ({item}: {item: any}) => {
     const handleOpenStory = (item: any) => {
-      console.log('🟢 Nhấn vào story ID:', item._id);
 
       if (!user) {
         console.warn('⚠️ Không có thông tin user!');

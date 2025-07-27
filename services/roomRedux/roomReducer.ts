@@ -86,14 +86,6 @@ const roomSlice = createSlice({
 
       .addCase(createRoom.fulfilled, (state, action) => {
         state.loading = false;
-        state.createdRoom = action.payload.room;
-        state.isExisted = action.payload.isExisted;
-        state.message = action.payload.message;
-
-        const exists = state.rooms.some(r => r._id === action.payload.room._id);
-        if (!exists) {
-          state.rooms.push(action.payload.room);
-        }
       })
 
       .addCase(createRoom.pending, state => {

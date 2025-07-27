@@ -397,14 +397,14 @@ export const debugStoryGroups = (
   currentIndex: number,
   title?: string,
 ) => {
-  console.log(`📱 ${title || 'Story Groups Debug'}:`);
-  storyGroups.forEach((group, index) => {
-    const indicator = index === currentIndex ? '👉' : '  ';
-    console.log(
-      `${indicator} [${index}] ${group.creator.username} (${group.stories.length} stories)`,
-    );
-  });
-  console.log('---');
+  // console.log(`📱 ${title || 'Story Groups Debug'}:`);
+  // storyGroups.forEach((group, index) => {
+  //   const indicator = index === currentIndex ? '👉' : '  ';
+  //   console.log(
+  //     `${indicator} [${index}] ${group.creator.username} (${group.stories.length} stories)`,
+  //   );
+  // });
+  // console.log('---');
 };
 
 export const handleHighlightPress = async (

@@ -120,7 +120,7 @@ export const MessageBox = (props: any) => {
         try {
           await prefetchStoryData(user._id, user.stories);
         } catch (error) {
-          console.log('Error prefetching stories for user:', user.handleName);
+          console.warn(error);
         }
       }
     }

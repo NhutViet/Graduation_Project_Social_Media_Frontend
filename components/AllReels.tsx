@@ -119,7 +119,6 @@ const AllReels = () => {
           }),
         ).unwrap();
       } catch (error) {
-        console.log('Like/unlike thất bại, khôi phục UI:', error);
         if (isLiked) {
           dispatch(addLikedPost(postId));
         } else {

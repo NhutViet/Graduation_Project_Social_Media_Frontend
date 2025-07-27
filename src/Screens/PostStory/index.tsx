@@ -92,21 +92,8 @@ const PostStory = () => {
           id: edge.node.image.filename || edge.node.image.uri,
         }));
 
-        console.log(
-          'Loaded media:',
-          newMedia.length,
-          'Total:',
-          mediaList.length + newMedia.length,
-        );
-
         setMediaList(prev => {
           const newList = loadMore ? [...prev, ...newMedia] : newMedia;
-          console.log(
-            'Updated mediaList, length:',
-            newList.length,
-            'loadMore:',
-            loadMore,
-          );
           return newList;
         });
         setLastCursor(result.page_info.end_cursor || null);
@@ -190,17 +177,6 @@ const PostStory = () => {
     `${item.id}_${index}`;
 
   const onEndReached = useCallback(() => {
-    console.log(
-      'onEndReached called, isLoading:',
-      isLoading,
-      'isLoadingMore:',
-      isLoadingMore,
-      'hasNextPage:',
-      hasNextPage,
-      'isEndReachedTriggered:',
-      isEndReachedTriggered,
-    );
-
     if (
       !isLoading &&
       !isLoadingMore &&

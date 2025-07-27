@@ -47,18 +47,14 @@ export const ContactInfo = () => {
       <AddPhoneModal
         visible={visibleModalPhoneNumber}
         onClose={() => setVisibleModalPhoneNumber(false)}
-        onSubmit={({phoneNumber, accountId}: any) => {
-          console.log('Phone:', phoneNumber);
-          console.log('Selected Account ID:', accountId);
+        onSubmit={() => {
           setVisibleModalPhoneNumber(false);
         }}
       />
       <AddEmailModal
         visible={visibleModalEmail}
         onClose={() => setVisibleModalEmail(false)}
-        onSubmit={({phoneNumber, accountId}: any) => {
-          console.log('Phone:', phoneNumber);
-          console.log('Selected Account ID:', accountId);
+        onSubmit={() => {
           setVisibleModalEmail(false);
         }}
       />

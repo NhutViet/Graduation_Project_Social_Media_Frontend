@@ -18,7 +18,10 @@ import {useTheme} from '../../../util/ThemeContext';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '@services/store';
-import {updateHighlightStory, fetchGetPostedSotry} from '@services/StoryRedux/StorySlice';
+import {
+  updateHighlightStory,
+  fetchGetPostedSotry,
+} from '@services/StoryRedux/StorySlice';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {uploadImageToR2} from '../../../core/upload';
 import {useUploadProgress} from '../../../../services/UploadProgressManager';
@@ -55,36 +58,34 @@ const HighlightEditScreen = () => {
   const route: any = useRoute();
   const {theme} = useTheme();
   const color = Colors[theme];
-  
-  const {myStories, loading: storiesLoading} = useSelector((state: RootState) => state.stories);
+
+  const {myStories, loading: storiesLoading} = useSelector(
+    (state: RootState) => state.stories,
+  );
   const currentUser = useSelector((state: RootState) => state.user.user);
   const [highlightName, setHighlightName] = useState('');
   const [coverImage, setCoverImage] = useState<string | null>(null);
   const [selectedStories, setSelectedStories] = useState<string[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isCustomCover, setIsCustomCover] = useState(false);
-  
+
   const {showUploadModal, hideUploadModal, setProgress} = useUploadProgress();
 
   const highlight = route.params?.highlight;
 
   // Fetch myStories khi component mount
   useEffect(() => {
-    
     dispatch(fetchGetPostedSotry());
   }, [dispatch]);
 
   useEffect(() => {
     if (highlight) {
-   
       setHighlightName(highlight.collectionName || '');
       setCoverImage(highlight.thumbnail || null);
       setSelectedStories(highlight.storyId || []);
       setIsCustomCover(!!highlight.thumbnail);
     }
   }, [highlight]);
-
-
 
   const pickImage = () => {
     const options = {
@@ -96,7 +97,6 @@ const HighlightEditScreen = () => {
 
     ImagePicker.launchImageLibrary(options, response => {
       if (response.didCancel) {
-        console.log('User cancelled image picker');
       } else if (response.errorCode || response.errorMessage) {
         GlobalAlertManager.show(
           'Lỗi',
@@ -147,7 +147,6 @@ const HighlightEditScreen = () => {
           setProgress,
         });
       } else if (!isCustomCover && uploadedCoverUrl.startsWith('http')) {
-        console.log('Ảnh đã là public URL, bỏ qua upload:', uploadedCoverUrl);
         // Không làm gì
       }
 
@@ -174,16 +173,13 @@ const HighlightEditScreen = () => {
 
   const renderStoryItem = ({item}: {item: any}) => {
     const isSelected = selectedStories.includes(item._id);
-    
+
     return (
       <TouchableOpacity
         style={styles.storyItem}
         onPress={() => toggleStorySelection(item._id)}>
         <View style={styles.storyImageContainer}>
-          <Image
-            source={{uri: item.mediaUrl}}
-            style={styles.storyImage}
-          />
+          <Image source={{uri: item.mediaUrl}} style={styles.storyImage} />
           <View
             style={[
               styles.checkbox,
@@ -236,11 +232,17 @@ const HighlightEditScreen = () => {
             {coverImage ? (
               <Image source={{uri: coverImage}} style={styles.coverImage} />
             ) : (
-              <View style={[styles.coverPlaceholder, {backgroundColor: color.gray}]}>
+              <View
+                style={[
+                  styles.coverPlaceholder,
+                  {backgroundColor: color.gray},
+                ]}>
                 <Text style={{color: color.textSecondary}}>Chưa có ảnh</Text>
               </View>
             )}
-            <TouchableOpacity style={styles.editCoverButton} onPress={pickImage}>
+            <TouchableOpacity
+              style={styles.editCoverButton}
+              onPress={pickImage}>
               <Text style={[styles.editCoverText, {color: color.blue}]}>
                 Chỉnh sửa ảnh bìa
               </Text>
@@ -254,7 +256,10 @@ const HighlightEditScreen = () => {
             Tên highlight
           </Text>
           <TextInput
-            style={[styles.nameInput, {color: color.text, borderColor: color.border}]}
+            style={[
+              styles.nameInput,
+              {color: color.text, borderColor: color.border},
+            ]}
             placeholder="Nhập tên highlight"
             placeholderTextColor={color.textSecondary}
             value={highlightName}
@@ -269,26 +274,27 @@ const HighlightEditScreen = () => {
               Chọn Stories ({selectedStories.length})
             </Text>
             {selectedStories.length > 0 && (
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.clearButton}
-                onPress={() => setSelectedStories([])}
-              >
+                onPress={() => setSelectedStories([])}>
                 <Text style={[styles.clearButtonText, {color: '#FF4444'}]}>
                   Xóa tất cả
                 </Text>
               </TouchableOpacity>
             )}
           </View>
-          
+
           {storiesLoading ? (
             <View style={[styles.emptyState, {backgroundColor: color.gray}]}>
-              <Text style={[styles.emptyStateText, {color: color.textSecondary}]}>
+              <Text
+                style={[styles.emptyStateText, {color: color.textSecondary}]}>
                 Đang tải stories...
               </Text>
             </View>
           ) : myStories.length === 0 ? (
             <View style={[styles.emptyState, {backgroundColor: color.gray}]}>
-              <Text style={[styles.emptyStateText, {color: color.textSecondary}]}>
+              <Text
+                style={[styles.emptyStateText, {color: color.textSecondary}]}>
                 Bạn chưa có story nào
               </Text>
             </View>
@@ -296,10 +302,11 @@ const HighlightEditScreen = () => {
             <FlatList
               data={[...myStories].sort(
                 (a, b) =>
-                  new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+                  new Date(b.createdAt).getTime() -
+                  new Date(a.createdAt).getTime(),
               )}
               renderItem={renderStoryItem}
-              keyExtractor={(item) => item._id}
+              keyExtractor={item => item._id}
               numColumns={3}
               scrollEnabled={false}
               contentContainerStyle={styles.storiesList}
@@ -386,7 +393,6 @@ const styles = StyleSheet.create({
   },
   storyRow: {
     justifyContent: 'space-between',
-    
   },
   storyItem: {
     width: ITEM_SIZE,
@@ -461,4 +467,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HighlightEditScreen; 
+export default HighlightEditScreen;
