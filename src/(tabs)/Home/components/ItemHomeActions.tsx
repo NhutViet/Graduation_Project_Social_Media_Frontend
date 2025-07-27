@@ -10,6 +10,7 @@ import {
   BookmarkCheck,
   Share2,
 } from 'lucide-react-native';
+import {Share} from 'react-native';
 
 interface ItemHomeActionsProps {
   iconColor: string;
@@ -20,10 +21,10 @@ interface ItemHomeActionsProps {
   numLike: number;
   commentCount: number;
   share: number;
+  shareUrl?: string;
   likeDisabled?: boolean;
   onLikePress: () => void;
   onCommentPress: () => void;
-  onSharePress: () => void;
   onBookmarkPress: () => void;
   onReactionModalPress: () => void;
 }
@@ -37,10 +38,10 @@ export const ItemHomeActions: React.FC<ItemHomeActionsProps> = ({
   numLike,
   commentCount,
   share,
+  shareUrl = 'justina',
   likeDisabled = false,
   onLikePress,
   onCommentPress,
-  onSharePress,
   onBookmarkPress,
   onReactionModalPress,
 }) => {
@@ -79,7 +80,13 @@ export const ItemHomeActions: React.FC<ItemHomeActionsProps> = ({
         {/* Share */}
         <TouchableOpacity
           style={ItemHomeStyles.iconBlock}
-          onPress={onSharePress}>
+          onPress={async () => {
+            try {
+              await Share.share({message: shareUrl});
+            } catch (err) {
+              console.error('Error sharing:', err);
+            }
+          }}>
           <Share2 size={22} color={iconColor} />
         </TouchableOpacity>
         <Text style={{color: iconColor, marginLeft: 8, marginRight: 16}}>

@@ -58,46 +58,21 @@ const FollowersTab = () => {
   );
 
   const handleActionButton = useCallback(
-    async (item: UserProfile) => {
-      if (followingIds.has(item._id)) {
-        try {
-          const res = await dispatch(
-            createRoom({
-              name: '',
-              user_ids: [item._id],
-              type: 'waiting',
-            }),
-          ).unwrap();
-
-          const room = res.room;
-          const otherUsers = room.user_ids.filter(u => u._id !== userID);
-          const img1 = otherUsers[0]?.profilePic;
-          const img2 = room.user_ids.find(u => u._id === userID)?.profilePic;
-
-          navigation.navigate('MessageScreen', {
-            room: room._id,
-            img1,
-            img2,
-          });
-        } catch (error) {
-          console.log('Tạo room thất bại:', error);
-        }
-      } else {
-        try {
-          await dispatch(
-            relationAction({
-              targetId: item._id,
-              action: 'follow',
-              senderId: user?._id,
-              handleName: user?.handleName,
-            }),
-          ).unwrap();
-        } catch (error) {
-          GlobalAlertManager.show('Thất bại', 'Vui lòng thử lại sau');
-        }
+    async (item: UserProfile, isMutual: boolean) => {
+      try {
+        await dispatch(
+          relationAction({
+            targetId: item._id,
+            action: isMutual ? 'unfollow' : 'follow',
+            senderId: user?._id,
+            handleName: user?.handleName,
+          }),
+        ).unwrap();
+      } catch (error) {
+        GlobalAlertManager.show('Thất bại', 'Vui lòng thử lại sau');
       }
     },
-    [dispatch, followingIds, userID, user],
+    [dispatch, user],
   );
 
   const renderItem: ListRenderItem<UserProfile> = ({item}) => {
@@ -111,11 +86,11 @@ const FollowersTab = () => {
             <User size={styles.avatar.width || 40} color={color.text} />
           )}
           <View style={styles.userInfo}>
-            <Text style={[styles.handle, {color: color.text}]}>
-              {item.handleName}
-            </Text>
-            <Text style={[styles.username, {color: color.textSecondary}]}>
+            <Text style={[styles.username, {color: color.text}]}>
               {item.username}
+            </Text>
+            <Text style={[styles.handle, {color: color.textSecondary}]}>
+              {item.handleName}
             </Text>
           </View>
         </TouchableOpacity>
@@ -127,7 +102,7 @@ const FollowersTab = () => {
               ? [styles.messageButton, {borderColor: color.text}]
               : styles.followBack,
           ]}
-          onPress={() => handleActionButton(item)}>
+          onPress={() => handleActionButton(item, isMutual)}>
           <Text
             style={[
               styles.buttonText,
@@ -245,6 +220,7 @@ const styles = StyleSheet.create({
   touchableInfo: {
     flex: 1,
     flexDirection: 'row',
+    alignItems: 'center',
   },
   avatar: {
     width: 40,
@@ -256,10 +232,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   handle: {
-    fontWeight: 'bold',
+    color: '#666',
   },
   username: {
-    color: '#666',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   actionButton: {
     width: 90,

@@ -14,6 +14,7 @@ import TagMarker from './TagMarker';
 import {useNavigation} from '@react-navigation/native';
 import {Play, Volume2, VolumeX} from 'lucide-react-native';
 import {useVideoPause} from '../context/VideoPauseContext';
+import LinearGradient from 'react-native-linear-gradient';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -74,6 +75,10 @@ export const RenderMediaItem = React.memo(
         {item.videoUrl ? (
           <TouchableOpacity onPress={handleVideoPress}>
             <View style={{position: 'relative'}}>
+              <LinearGradient
+                colors={['rgba(0,0,0,0.7)', 'transparent']}
+                style={style.overlayHeader}
+              />
               <Video
                 source={{uri: item.videoUrl}}
                 resizeMode={videoResizeMode}
@@ -175,5 +180,14 @@ const style = StyleSheet.create({
   },
   img: {
     height: 520,
+  },
+  overlayHeader: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 100,
+    height: 140,
+    backgroundColor: 'transparent',
   },
 });

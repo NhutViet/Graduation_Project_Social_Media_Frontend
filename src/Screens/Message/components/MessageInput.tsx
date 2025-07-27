@@ -7,9 +7,9 @@ import {
   StyleSheet,
   Dimensions,
 } from 'react-native';
-import {Camera, Send, Mic, Image as ImageIcon, Plus} from 'lucide-react-native';
+import {Camera, Send, Image as ImageIcon} from 'lucide-react-native';
 import {useTheme} from '../../../../src/util/ThemeContext';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 
 const screenWidth = Dimensions.get('window').width - 20;
 
@@ -18,7 +18,7 @@ interface MessageInputProps {
   setMessage: (msg: string) => void;
   sendMessage: () => void;
   pickImageAndSend: () => void;
-  color: any;
+  roomId: string;
 }
 
 const MessageInput: React.FC<MessageInputProps> = ({
@@ -26,8 +26,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
   setMessage,
   sendMessage,
   pickImageAndSend,
-  // styles,
-  // color,
+  roomId,
 }) => {
   const {theme} = useTheme();
   const color = Colors[theme];
@@ -38,7 +37,9 @@ const MessageInput: React.FC<MessageInputProps> = ({
         styles.inputContainer,
         {backgroundColor: 'rgba(243, 244, 246, 0.7)', zIndex: 10},
       ]}>
-      <TouchableOpacity style={styles.blockCamera} onPress={() => navigation.navigate('CameraScreen')}>
+      <TouchableOpacity
+        style={styles.blockCamera}
+        onPress={() => navigation.navigate('CameraScreen', {roomId})}>
         <Camera size={22} color={color.black} />
       </TouchableOpacity>
 

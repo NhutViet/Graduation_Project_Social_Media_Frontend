@@ -7,8 +7,6 @@ import {
   useWindowDimensions,
   Image,
   Text,
-  Modal,
-  Animated,
   Dimensions,
 } from 'react-native';
 import {useTheme} from '../../util/ThemeContext';

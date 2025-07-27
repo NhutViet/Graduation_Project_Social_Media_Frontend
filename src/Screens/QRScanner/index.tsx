@@ -178,11 +178,6 @@ export const QRScanner = () => {
         codeScanner={codeScanner}
       />
 
-      {/* Overlay và scan area */}
-      <LinearGradient
-        colors={['rgba(0,0,0,0.6)', 'rgba(0,0,0,0.2)']}
-        style={StyleSheet.absoluteFill}
-      />
       <View style={styles.overlay}>
         <View
           style={[

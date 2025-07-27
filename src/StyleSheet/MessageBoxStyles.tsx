@@ -150,7 +150,7 @@ const MessageBoxStyles = (theme: ThemeType) => {
     },
     messagesHeaderSubtitle: {
       color: color.text,
-      fontSize: Colors.typography.fontSizes.m,
+      fontSize: Colors.typography.fontSizes.s,
     },
     messagesListContainer: {
       flex: 1,

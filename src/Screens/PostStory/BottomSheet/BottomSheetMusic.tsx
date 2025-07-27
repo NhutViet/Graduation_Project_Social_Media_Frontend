@@ -241,9 +241,7 @@ const BottomSheet = forwardRef<BottomSheetRef, Props>(
                 alignItems: 'center',
                 justifyContent: 'space-between',
               }}>
-              <View style={styles.blockIcon}>
-                <Search size={20} color={color.text} />
-              </View>
+              <Search size={20} color={color.text} />
               <TextInput
                 value={search}
                 onChangeText={setSearch}
@@ -253,9 +251,7 @@ const BottomSheet = forwardRef<BottomSheetRef, Props>(
               />
             </View>
             {search ? (
-              <TouchableOpacity
-                style={[styles.blockIcon, {padding: 5}]}
-                onPress={() => setSearch('')}>
+              <TouchableOpacity onPress={() => setSearch('')}>
                 <X size={20} color={color.text} />
               </TouchableOpacity>
             ) : null}
@@ -282,9 +278,7 @@ const BottomSheet = forwardRef<BottomSheetRef, Props>(
           ) : showSavedView ? (
             <View style={{flex: 1}}>
               <View style={styles.spaceContainer}>
-                <TouchableOpacity
-                  onPress={() => setShowSavedView(false)}
-                  style={styles.blockIcon}>
+                <TouchableOpacity onPress={() => setShowSavedView(false)}>
                   <ArrowLeft size={22} color={color.text} />
                 </TouchableOpacity>
                 <Text style={[styles.textNormal, {color: color.text}]}>
@@ -321,9 +315,7 @@ const BottomSheet = forwardRef<BottomSheetRef, Props>(
                   {backgroundColor: color.backgroundSecondary},
                 ]}
                 onPress={() => setShowSavedView(true)}>
-                <View style={styles.blockIcon}>
-                  <BookmarkIcon size={22} color={color.text} />
-                </View>
+                <BookmarkIcon size={22} color={color.text} />
                 <Text
                   style={[
                     styles.textNormal,
@@ -429,7 +421,6 @@ const styles = StyleSheet.create({
   blockIcon: {
     width: 20,
     height: 20,
-    padding: 2,
   },
   icon: {
     width: '100%',

@@ -48,9 +48,6 @@ export const SwitchAccount = ({navigation, route}: any) => {
   const {isLoading} = useSelector((state: RootState) => state.user);
   const {email: initialEmail, newPassword: initialPassword} =
     route?.params || {};
-  const {theme} = useTheme();
-  const color = Colors[theme];
-
   useEffect(() => {
     if (initialEmail) setEmail(initialEmail);
     if (initialPassword) setPassword(initialPassword);
@@ -111,12 +108,11 @@ export const SwitchAccount = ({navigation, route}: any) => {
       fetchLogin({email, password, fcmToken}),
     );
     if (fetchLogin.fulfilled.match(resultAction)) {
-      GlobalAlertManager.show('Thành công', 'Đăng nhập thành công', () => {
-        navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
-      });
+      showAlert('Thành công', 'Đăng nhập thành công');
+      navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
       dispatch(fetchMyRooms());
     } else {
-      GlobalAlertManager.show(
+      showAlert(
         'Thất bại',
         resultAction.payload?.message ||
           'Đăng nhập thất bại. Vui lòng thử lại.',
@@ -143,13 +139,8 @@ export const SwitchAccount = ({navigation, route}: any) => {
             fetchLogin({email, password: tempPassword, fcmToken}),
           );
           if (fetchLogin.fulfilled.match(loginAction)) {
-            GlobalAlertManager.show(
-              'Thành công',
-              'Đăng nhập thành công',
-              () => {
-                navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
-              },
-            );
+            showAlert('Thành công', 'Đăng nhập thành công');
+            navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
           } else {
             GlobalAlertManager.show(
               'Thông báo',
@@ -165,26 +156,23 @@ export const SwitchAccount = ({navigation, route}: any) => {
               fetchLogin({email, password: tempPassword}),
             );
             if (!fetchLogin.fulfilled.match(loginAction)) {
-              GlobalAlertManager.show(
-                'Thông báo',
-                'Đăng nhập thất bại sau khi đăng ký.',
-              );
+              showAlert('Thông báo', 'Đăng nhập thất bại');
             }
           } else {
-            GlobalAlertManager.show(
+            showAlert(
               'Thông báo',
-              registerAction.payload?.message || 'Đăng ký thất bại',
+              registerAction.payload?.message || 'Đăng nhập thất bại',
             );
           }
         }
       } else {
-        GlobalAlertManager.show(
+        showAlert(
           'Thông báo',
           checkEmailAction.payload?.message || 'Kiểm tra email thất bại',
         );
       }
     } catch (error: any) {
-      GlobalAlertManager.show('Lỗi', error);
+      showAlert('Lỗi', error);
     }
   };
 

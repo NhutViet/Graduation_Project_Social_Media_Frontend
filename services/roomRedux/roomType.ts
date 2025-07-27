@@ -3,6 +3,7 @@ import {MediaMessage} from '@services/messageRedux/messageType';
 export interface RoomUser {
   _id: string;
   handleName?: string;
+  username?: string;
   profilePic: string;
 }
 
