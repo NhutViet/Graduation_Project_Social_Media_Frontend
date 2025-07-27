@@ -7,12 +7,12 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, { useState } from 'react';
-import { useTheme } from '../../util/ThemeContext';
-import { Colors } from '../../../assets/color/Colors';
-import { useNavigation } from '@react-navigation/native';
+import React, {useState} from 'react';
+import {useTheme} from '../../util/ThemeContext';
+import {Colors} from '../../../assets/color/Colors';
+import {useNavigation} from '@react-navigation/native';
 import Header from '../../../components/Header';
-import { createStyles } from '../../StyleSheet/Setting.Styles';
+import {createStyles} from '../../StyleSheet/Setting.Styles';
 import {
   ChevronRight,
   HelpCircle,
@@ -27,26 +27,22 @@ import {
   Bookmark,
   KeyRound,
 } from 'lucide-react-native';
-import PersonalDetails from './PersonalDetail';
 import ContactInfo from './ChangePassword';
-import { useDispatch } from 'react-redux';
-import { fetchLogout } from '../../../services/userRedux/userSlice';
-import { AppDispatch } from '../../../services/store';
-import { resetBookmarkState } from '../../../services/bookmarkRedux/bookmarkReducer';
-import { resetReaction } from '../../../services/reactionRedux/reactionReducer';
-import { GlobalAlertManager } from '../../../components/Global/AlertModal';
-import { registerRoom } from '@services/roomRedux/roomReducer';
+import {useDispatch} from 'react-redux';
+import {fetchLogout} from '../../../services/userRedux/userSlice';
+import {AppDispatch} from '../../../services/store';
+import {resetBookmarkState} from '../../../services/bookmarkRedux/bookmarkReducer';
+import {resetReaction} from '../../../services/reactionRedux/reactionReducer';
+import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+import {registerRoom} from '@services/roomRedux/roomReducer';
 
 export const Setting = () => {
   const navigation: any = useNavigation();
-  const { theme, toggleTheme } = useTheme();
+  const {theme, toggleTheme} = useTheme();
   const styles = createStyles(theme);
   const mColor = Colors[theme] || Colors;
   const [showContact, setShowContact] = useState(false);
   const handleShowContact = () => setShowContact(!showContact);
-  const [showPersonalDetail, setShowPersonalDetail] = useState(false);
-  const handleShowPersonalDetail = () =>
-    setShowPersonalDetail(!showPersonalDetail);
   const dispatch = useDispatch<AppDispatch>();
 
   const handleLogout = () => {
@@ -55,13 +51,13 @@ export const Setting = () => {
       dispatch(resetBookmarkState());
       dispatch(registerRoom());
       dispatch(resetReaction());
-      navigation.reset({ index: 0, routes: [{ name: 'SwitchAccount' }] });
+      navigation.reset({index: 0, routes: [{name: 'SwitchAccount'}]});
     });
   };
 
   return (
     <SafeAreaView
-      style={[styles.container, { backgroundColor: mColor.background }]}>
+      style={[styles.container, {backgroundColor: mColor.background}]}>
       <ScrollView>
         <Header
           title="Cài đặt và hoạt động "
@@ -78,19 +74,19 @@ export const Setting = () => {
                 alignItems: 'center',
                 justifyContent: 'space-between',
               }}>
-              <Text style={[styles.sectionTitle, { color: mColor.text }]}>
+              <Text style={[styles.sectionTitle, {color: mColor.text}]}>
                 Tài khoản
               </Text>
 
               <Image
                 source={require('../../../assets/icon/logo_row.png')}
                 resizeMode="cover"
-                style={{ width: 75, height: 25 }}
+                style={{width: 75, height: 25}}
               />
             </View>
 
             <TouchableOpacity
-              onPress={() => handleShowPersonalDetail()}
+              onPress={() => navigation.navigate('EditProfile')}
               style={[
                 styles.settingItem,
                 {
@@ -99,20 +95,16 @@ export const Setting = () => {
                   borderBottomWidth: 0,
                 },
               ]}>
-              <PersonalDetails
-                isVisible={showPersonalDetail}
-                onClose={handleShowPersonalDetail}
-              />
               <View
                 style={[
                   styles.settingIconContainer,
-                  { backgroundColor: mColor.gray },
+                  {backgroundColor: mColor.gray},
                 ]}>
                 <User size={22} stroke={mColor.text} />
               </View>
               <View style={styles.settingContent}>
-                <Text style={[styles.settingTitle, { color: mColor.text }]}>
-                  Thông tin cá nhân
+                <Text style={[styles.settingTitle, {color: mColor.text}]}>
+                  Chỉnh sửa hồ sơ
                 </Text>
               </View>
               <ChevronRight size={20} stroke={mColor.textSecondary} />
@@ -135,44 +127,13 @@ export const Setting = () => {
               <View
                 style={[
                   styles.settingIconContainer,
-                  { backgroundColor: mColor.gray },
+                  {backgroundColor: mColor.gray},
                 ]}>
                 <KeyRound size={22} stroke={mColor.text} />
               </View>
               <View style={styles.settingContent}>
-                <Text style={[styles.settingTitle, { color: mColor.text }]}>
+                <Text style={[styles.settingTitle, {color: mColor.text}]}>
                   Đổi mật khẩu
-                </Text>
-              </View>
-              <ChevronRight size={20} stroke={mColor.textSecondary} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.settingItem,
-                {
-                  backgroundColor: mColor.background,
-                  borderBottomColor: mColor.border,
-                  borderBottomWidth: 0,
-                },
-              ]}
-              onPress={() => navigation.navigate('ShowActivity')}>
-              <View
-                style={[
-                  styles.settingIconContainer,
-                  { backgroundColor: mColor.gray },
-                ]}>
-                <UserRoundCheck size={22} stroke={mColor.text} />
-              </View>
-              <View style={styles.settingContent}>
-                <Text style={[styles.settingTitle, { color: mColor.text }]}>
-                  Trạng thái hoạt động
-                </Text>
-                <Text
-                  style={[
-                    styles.settingDescription,
-                    { color: mColor.textSecondary },
-                  ]}>
-                  Cập nhật trạng thái hoạt động
                 </Text>
               </View>
               <ChevronRight size={20} stroke={mColor.textSecondary} />
@@ -190,12 +151,12 @@ export const Setting = () => {
               <View
                 style={[
                   styles.settingIconContainer,
-                  { backgroundColor: mColor.gray },
+                  {backgroundColor: mColor.gray},
                 ]}>
                 <ShieldX size={22} stroke={mColor.text} />
               </View>
               <View style={styles.settingContent}>
-                <Text style={[styles.settingTitle, { color: mColor.text }]}>
+                <Text style={[styles.settingTitle, {color: mColor.text}]}>
                   Đã chặn
                 </Text>
               </View>
@@ -205,7 +166,7 @@ export const Setting = () => {
 
           {/* Preferences Section */}
           <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: mColor.text }]}>
+            <Text style={[styles.sectionTitle, {color: mColor.text}]}>
               Sở thích
             </Text>
 
@@ -220,18 +181,18 @@ export const Setting = () => {
               <View
                 style={[
                   styles.settingIconContainer,
-                  { backgroundColor: mColor.gray },
+                  {backgroundColor: mColor.gray},
                 ]}>
                 <Moon size={22} stroke={mColor.text} />
               </View>
               <View style={styles.settingContent}>
-                <Text style={[styles.settingTitle, { color: mColor.text }]}>
+                <Text style={[styles.settingTitle, {color: mColor.text}]}>
                   Chế độ tối
                 </Text>
                 <Text
                   style={[
                     styles.settingDescription,
-                    { color: mColor.textSecondary },
+                    {color: mColor.textSecondary},
                   ]}>
                   Chuyển chủ đề ứng dụng sang tối
                 </Text>
@@ -251,46 +212,7 @@ export const Setting = () => {
           </View>
 
           <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: mColor.text }]}>
-              Riêng tư
-            </Text>
-
-            <TouchableOpacity
-              style={[
-                styles.settingItem,
-                {
-                  backgroundColor: mColor.background,
-                  borderBottomColor: mColor.border,
-                },
-              ]}
-              onPress={() => navigation.navigate('Privacy')}>
-              <View
-                style={[
-                  styles.settingIconContainer,
-                  { backgroundColor: mColor.gray },
-                ]}>
-                <Lock size={22} stroke={mColor.text} />
-              </View>
-              <View style={styles.settingContent}>
-                <Text style={[styles.settingTitle, { color: mColor.text }]}>
-                  Quyền riêng tư và bảo mật
-                </Text>
-                <Text
-                  style={[
-                    styles.settingDescription,
-                    { color: mColor.textSecondary },
-                  ]}>
-                  Tùy chỉnh cho quyền riêng tư và bảo mật
-                </Text>
-              </View>
-              <ChevronRight size={20} stroke={mColor.textSecondary} />
-            </TouchableOpacity>
-
-            {/* Tương tự cho các settingItem khác trong Account Section */}
-          </View>
-
-          <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: mColor.text }]}>
+            <Text style={[styles.sectionTitle, {color: mColor.text}]}>
               Thông báo
             </Text>
 
@@ -306,18 +228,18 @@ export const Setting = () => {
               <View
                 style={[
                   styles.settingIconContainer,
-                  { backgroundColor: mColor.gray },
+                  {backgroundColor: mColor.gray},
                 ]}>
                 <Lock size={22} stroke={mColor.text} />
               </View>
               <View style={styles.settingContent}>
-                <Text style={[styles.settingTitle, { color: mColor.text }]}>
+                <Text style={[styles.settingTitle, {color: mColor.text}]}>
                   Cập nhật cài đặt thông báo
                 </Text>
                 <Text
                   style={[
                     styles.settingDescription,
-                    { color: mColor.textSecondary },
+                    {color: mColor.textSecondary},
                   ]}>
                   Chọn cách bạn muốn được thông báo
                 </Text>
@@ -328,7 +250,7 @@ export const Setting = () => {
 
           {/* Activity Section */}
           <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: mColor.text }]}>
+            <Text style={[styles.sectionTitle, {color: mColor.text}]}>
               Hoạt động
             </Text>
 
@@ -345,18 +267,18 @@ export const Setting = () => {
               <View
                 style={[
                   styles.settingIconContainer,
-                  { backgroundColor: mColor.gray },
+                  {backgroundColor: mColor.gray},
                 ]}>
                 <Heart size={22} stroke={mColor.text} />
               </View>
               <View style={styles.settingContent}>
-                <Text style={[styles.settingTitle, { color: mColor.text }]}>
+                <Text style={[styles.settingTitle, {color: mColor.text}]}>
                   Thích
                 </Text>
                 <Text
                   style={[
                     styles.settingDescription,
-                    { color: mColor.textSecondary },
+                    {color: mColor.textSecondary},
                   ]}>
                   Các bài đăng bạn đã thích
                 </Text>
@@ -377,12 +299,12 @@ export const Setting = () => {
               <View
                 style={[
                   styles.settingIconContainer,
-                  { backgroundColor: mColor.gray },
+                  {backgroundColor: mColor.gray},
                 ]}>
                 <Clock size={22} stroke={mColor.text} />
               </View>
               <View style={styles.settingContent}>
-                <Text style={[styles.settingTitle, { color: mColor.text }]}>
+                <Text style={[styles.settingTitle, {color: mColor.text}]}>
                   Kho lưu trữ
                 </Text>
               </View>
@@ -401,12 +323,12 @@ export const Setting = () => {
               <View
                 style={[
                   styles.settingIconContainer,
-                  { backgroundColor: mColor.gray },
+                  {backgroundColor: mColor.gray},
                 ]}>
                 <Bookmark size={22} stroke={mColor.text} />
               </View>
               <View style={styles.settingContent}>
-                <Text style={[styles.settingTitle, { color: mColor.text }]}>
+                <Text style={[styles.settingTitle, {color: mColor.text}]}>
                   Đã lưu
                 </Text>
               </View>
@@ -418,7 +340,7 @@ export const Setting = () => {
 
           {/* Support Section */}
           <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: mColor.text }]}>
+            <Text style={[styles.sectionTitle, {color: mColor.text}]}>
               Hỗ trợ
             </Text>
 
@@ -434,18 +356,18 @@ export const Setting = () => {
               <View
                 style={[
                   styles.settingIconContainer,
-                  { backgroundColor: mColor.gray },
+                  {backgroundColor: mColor.gray},
                 ]}>
                 <HelpCircle size={22} stroke={mColor.text} />
               </View>
               <View style={styles.settingContent}>
-                <Text style={[styles.settingTitle, { color: mColor.text }]}>
+                <Text style={[styles.settingTitle, {color: mColor.text}]}>
                   Trung tâm trợ giúp
                 </Text>
                 <Text
                   style={[
                     styles.settingDescription,
-                    { color: mColor.textSecondary },
+                    {color: mColor.textSecondary},
                   ]}>
                   Nhận trợ giúp với Cirla
                 </Text>
@@ -456,10 +378,10 @@ export const Setting = () => {
 
           {/* Logout Button */}
           <TouchableOpacity
-            style={[styles.logoutButton, { backgroundColor: mColor.gray }]}
+            style={[styles.logoutButton, {backgroundColor: mColor.gray}]}
             onPress={handleLogout}>
             <LogOut size={22} stroke={mColor.error} />
-            <Text style={[styles.logoutText, { color: mColor.error }]}>
+            <Text style={[styles.logoutText, {color: mColor.error}]}>
               Đăng xuất
             </Text>
           </TouchableOpacity>

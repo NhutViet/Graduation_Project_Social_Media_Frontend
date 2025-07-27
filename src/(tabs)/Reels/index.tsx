@@ -1,12 +1,11 @@
 import React, {forwardRef, useImperativeHandle, useRef, useState} from 'react';
-import {SafeAreaView, StyleSheet, View, Dimensions} from 'react-native';
+import {SafeAreaView, StyleSheet, View, Dimensions, Share} from 'react-native';
 import {useIsFocused, useFocusEffect} from '@react-navigation/native';
 import {Colors} from '../../../assets/color/Colors';
 import {useDispatch} from 'react-redux';
 import {AppDispatch} from '../../../services/store';
 import {fetchCommentsByPost} from '../../../services/commentRedux/commentSlice';
 import {Portal} from 'react-native-portalize';
-import ModalShare from '../Home/components/ModalShare';
 import {useReels} from './hooks/useReels';
 import {useShareModal} from './hooks/useShareModal';
 import {Modalize} from 'react-native-modalize';
@@ -15,9 +14,9 @@ import ReelsList from './components/ReelsLists';
 import ReelsBottomSheets from './components/ReelsBottomSheets';
 import {PostWithMedia} from '@services/postRedux/postTypes';
 import ReelsHeader from './components/ReelsHeader';
-import { ReelsSkeletonList } from '../../../components/SkeletonGrid';
+import {ReelsSkeletonList} from '../../../components/SkeletonGrid';
 
-const { height: screenHeight } = Dimensions.get('window');
+const {height: screenHeight} = Dimensions.get('window');
 
 const Reels = forwardRef((props, ref) => {
   const isFocused = useIsFocused();
@@ -42,7 +41,13 @@ const Reels = forwardRef((props, ref) => {
     skipReload,
   } = useReels();
 
-  const {modalShareRef, openShareModal} = useShareModal();
+  const openShareModal = async () => {
+    try {
+      await Share.share({message: 'justina'});
+    } catch (err) {
+      console.error('Error sharing:', err);
+    }
+  };
 
   const [selectedItem, setSelectedItem] = useState<PostWithMedia>();
   const [isCurrentBookmarked, setIsCurrentBookmarked] = useState(false);
@@ -92,10 +97,7 @@ const Reels = forwardRef((props, ref) => {
         <View style={styles.headerOverlay}>
           <ReelsHeader />
         </View>
-        <ReelsSkeletonList 
-          containerHeight={screenHeight} 
-          itemCount={3}
-        />
+        <ReelsSkeletonList containerHeight={screenHeight} itemCount={3} />
       </SafeAreaView>
     );
   }
@@ -126,9 +128,6 @@ const Reels = forwardRef((props, ref) => {
         selectedItem={selectedItem}
         selectedPostId={selectedPostRef}
       />
-      <Portal>
-        <ModalShare ref={modalShareRef} isDark={true} />
-      </Portal>
     </SafeAreaView>
   );
 });

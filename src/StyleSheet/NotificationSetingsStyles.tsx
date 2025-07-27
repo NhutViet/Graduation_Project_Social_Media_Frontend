@@ -1,14 +1,14 @@
-import { useMemo } from 'react';
-import { StyleSheet, TextStyle, ViewStyle, ImageStyle } from 'react-native';
-import { useTheme } from '../util/ThemeContext';
-import { Colors } from '../../assets/color/Colors';
+import {useMemo} from 'react';
+import {StyleSheet, TextStyle, ViewStyle, ImageStyle} from 'react-native';
+import {useTheme} from '../util/ThemeContext';
+import {Colors} from '../../assets/color/Colors';
 
 type FontWeight = TextStyle['fontWeight'];
 
 export const useNotificationSettingsStyles = () => {
-  const { theme } = useTheme();
+  const {theme} = useTheme();
   const palette = Colors[theme];
-  const { spacing, typography, dimensions } = Colors;
+  const {spacing, typography, dimensions} = Colors;
 
   return useMemo(
     () =>
@@ -51,54 +51,8 @@ export const useNotificationSettingsStyles = () => {
         } as TextStyle,
 
         headerSpacer: {
-          width: 32, 
+          width: 32,
         } as ViewStyle,
-
-        // Banner styles
-        bannerContainer: {
-          flexDirection: 'row',
-          paddingHorizontal: spacing.m,
-          paddingVertical: spacing.m,
-          backgroundColor: palette.background,
-          borderTopWidth: 1,
-          borderTopColor: palette.border,
-          alignItems: 'center',
-        } as ViewStyle,
-
-        bellIconContainer: {
-          width: 40,
-          height: 40,
-          borderRadius: 20,
-          backgroundColor: palette.transparent,
-          borderColor: palette.border,
-          borderWidth: 1,
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginRight: spacing.m,
-        } as ViewStyle,
-
-        bellIcon: {
-          width: 20,
-          height: 20,
-          tintColor: palette.text,
-        } as ImageStyle,
-
-        bannerTextContainer: {
-          flex: 1,
-        } as ViewStyle,
-
-        bannerText: {
-          fontSize: typography.fontSizes.m,
-          color: palette.textSecondary,
-          lineHeight: 20,
-          marginBottom: spacing.xs,
-        } as TextStyle,
-
-        bannerLink: {
-          fontSize: typography.fontSizes.m,
-          color: palette.primary,
-          fontWeight: typography.fontWeights.medium as FontWeight,
-        } as TextStyle,
 
         // Section styles
         section: {
@@ -203,6 +157,6 @@ export const useNotificationSettingsStyles = () => {
           lineHeight: 18,
         } as TextStyle,
       }),
-    [palette, spacing, typography, dimensions]
+    [palette, spacing, typography, dimensions],
   );
 };

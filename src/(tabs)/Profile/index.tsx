@@ -21,7 +21,6 @@ import {
   Bookmark,
 } from 'lucide-react-native';
 import {Styles} from '../../StyleSheet/Profile.Styles';
-import {SwitchAccount} from '../../../components/SwitchAccount';
 import {ViewMore} from '../../../components/ViewMore';
 import ModalCreate, {ModalCreateRef} from './components/ModalCreate';
 import {PostsView, ReelsView, TagsView} from './components/PostView.component';
@@ -32,13 +31,10 @@ import {
   fetchFollowing,
 } from '../../../services/relationRedux/relationSlice';
 import {getPostsAndReelsOfUser} from '../../../services/postUserRedux/postUserSlice';
-import ACNavigateModal, {
-  ACNavigateRef,
-} from '../../../src/Screens/AccountCenter/components/ACNavigateModal';
 import {fetchTaggedPosts} from '@services/taggedPostRedux/taggedPostSlice';
 import HighlightStoriesComponent from './components/HighlightStoriesComponent';
 import {TaggedPost} from '@services/taggedPostRedux/taggedPostTypes';
-import { getAllBookmark } from '@services/bookmarkRedux/bookmarkSlice';
+import {getAllBookmark} from '@services/bookmarkRedux/bookmarkSlice';
 
 const Profile = () => {
   const navigation: any = useNavigation();
@@ -64,11 +60,6 @@ const Profile = () => {
   const ReelsItem = reelsState && 'items' in reelsState ? reelsState.items : [];
   const {isSuccess} = useSelector((state: RootState) => state.postUser);
   const modalCreateRef = useRef<ModalCreateRef>(null);
-  const [isSwitchAccountVisible, setSwitchAccountVisible] = useState(false);
-  const handleUsernamePress = () => {
-    setSwitchAccountVisible(true);
-  };
-  const acModalRef = useRef<ACNavigateRef>(null);
 
   const [isViewMoreVisible, setViewMoreVisible] = useState(false);
 
@@ -84,7 +75,7 @@ const Profile = () => {
       });
     }
   }, [dispatch, userId]);
-  
+
   // These two State Functionals below is for handle the length of bio
   const [needsTruncation, setNeedsTruncation] = useState(false);
   const [viewMoreBio, setViewMoreBio] = useState<Boolean>(false);
@@ -124,11 +115,11 @@ const Profile = () => {
       <View style={styles.header}>
         <View style={styles.usernameContainer}>
           <Lock size={20} color={color.text} />
-          <TouchableOpacity onPress={handleUsernamePress}>
+          <View>
             <Text style={[styles.username, {color: color.text}]}>
-              {user?.handleName}
+              {user?.username}
             </Text>
-          </TouchableOpacity>
+          </View>
           <ChevronDown size={16} color={color.text} />
         </View>
         <View style={styles.headerRight}>
@@ -345,7 +336,7 @@ const Profile = () => {
         );
       case 'bookmark':
         return !isBookmarkLoading && BookmarkItems ? (
-          <PostsView data={BookmarkItems} isBookmark={true}/>
+          <PostsView data={BookmarkItems} isBookmark={true} />
         ) : (
           <LoadingPlaceholder />
         );
@@ -368,13 +359,6 @@ const Profile = () => {
     }, [dispatch, refreshToken, userId]),
   );
 
-  const handleAddAccountPress = () => {
-    setSwitchAccountVisible(false);
-    requestAnimationFrame(() => {
-      acModalRef.current?.open();
-    });
-  };
-
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
       <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
@@ -382,18 +366,11 @@ const Profile = () => {
         {renderTabBar()}
         {renderContent()}
       </ScrollView>
-      <SwitchAccount
-        visible={isSwitchAccountVisible}
-        onClose={() => setSwitchAccountVisible(false)}
-        navigation={navigation}
-        onAddAccountPress={handleAddAccountPress}
-      />
       <ViewMore
         visible={isViewMoreVisible}
         onClose={() => setViewMoreVisible(false)}
         postId="123456"
       />
-      <ACNavigateModal ref={acModalRef} />
     </SafeAreaView>
   );
 };

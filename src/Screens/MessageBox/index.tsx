@@ -199,7 +199,9 @@ export const MessageBox = (props: any) => {
             }}>
             <ArrowLeft size={22} color={color.text} />
           </TouchableOpacity>
-          <Text style={styles.name}>{user?.handleName}</Text>
+          <Text style={styles.name} numberOfLines={1}>
+            {user?.username}
+          </Text>
         </View>
         <View style={styles.headerBlock}>
           <TouchableOpacity
@@ -350,7 +352,7 @@ export const MessageBox = (props: any) => {
               const nameChat =
                 item.name?.trim().length > 0
                   ? item.name
-                  : user1?.handleName || 'Không xác định';
+                  : user1?.username || 'Không xác định';
 
               return (
                 <ItemNewMessage

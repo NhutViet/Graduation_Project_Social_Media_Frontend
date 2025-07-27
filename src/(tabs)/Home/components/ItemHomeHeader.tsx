@@ -41,8 +41,10 @@ export const ItemHomeHeader: React.FC<ItemHomeHeaderProps> = ({
           />
         </TouchableOpacity>
         <View>
-          <Text style={[ItemHomeStyles.textNormal, {color: textColor}]}>
-            {user.handleName}
+          <Text
+            numberOfLines={1}
+            style={[ItemHomeStyles.textNormal, {color: textColor}]}>
+            {user.username}
           </Text>
           <Text style={[ItemHomeStyles.text, {color: textColor}]}>
             Gợi ý cho bạn
@@ -60,13 +62,13 @@ export const ItemHomeHeader: React.FC<ItemHomeHeaderProps> = ({
             </Text>
           </TouchableOpacity>
         )}
-        {user._id !== userId && 
+        {user._id !== userId && (
           <TouchableOpacity
             onPress={onOptionsPress}
             style={ItemHomeStyles.iconBlock}>
             <MoreVertical size={22} color={iconTintColor} />
           </TouchableOpacity>
-        }
+        )}
       </View>
     </View>
   );

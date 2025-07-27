@@ -43,11 +43,13 @@ import {
   Music2,
   ChevronRight,
 } from 'lucide-react-native';
+import {useHeadAlert} from '../../../components/Global/HeadAlertProvider';
 
 export const PostSetting = () => {
   const {theme} = useTheme();
   const color = Colors[theme];
   const styles = getAddPostStyles(theme);
+  const {showAlert} = useHeadAlert();
   const navigation: any = useNavigation();
   const dispatch = useDispatch<AppDispatch>();
   const sheetRef = useRef<BottomSheetRef>(null);
@@ -180,14 +182,14 @@ export const PostSetting = () => {
       );
 
       if (uploadPostWithMedia.fulfilled.match(resultAction)) {
-        GlobalAlertManager.show('🎉 Thành công', 'Bài viết đã được tải lên!');
+        showAlert('🎉 Thành công', 'Bài viết đã được tải lên!');
         setMediaWithTags([]);
       } else {
-        GlobalAlertManager.show('Thất bại', 'Tải lên thất bại');
+        showAlert('Thất bại', 'Tải lên thất bại');
         setMediaWithTags([]);
       }
     } catch (error) {
-      GlobalAlertManager.show('Lỗi', 'Đã có lỗi khi upload');
+      showAlert('Lỗi', 'Đã có lỗi khi upload');
     }
   };
 

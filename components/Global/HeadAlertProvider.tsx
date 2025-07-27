@@ -8,13 +8,14 @@ import React, {
 } from 'react';
 import {
   Animated,
-  Dimensions,
   PanResponder,
   StyleSheet,
   Text,
   View,
   TouchableWithoutFeedback,
+  Platform,
 } from 'react-native';
+import {Info} from 'lucide-react-native';
 
 type AlertContextType = {
   showAlert: (title: string, message: string, duration?: number) => void;
@@ -39,7 +40,6 @@ export const HeadAlertProvider: React.FC<Props> = ({children}) => {
   const HEIGHT = 80;
   const translateY = useRef(new Animated.Value(-HEIGHT)).current;
 
-  // PanResponder để vuốt lên đóng
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => visible,
@@ -74,8 +74,7 @@ export const HeadAlertProvider: React.FC<Props> = ({children}) => {
       toValue: 0,
       useNativeDriver: true,
     }).start();
-    // tự ẩn sau duration (mặc định 3s)
-    timeoutRef.current = setTimeout(hide, duration);
+    timeoutRef.current = setTimeout(hide, 3000);
   };
 
   const hide = () => {
@@ -84,13 +83,12 @@ export const HeadAlertProvider: React.FC<Props> = ({children}) => {
       toValue: -HEIGHT,
       duration: 200,
       useNativeDriver: true,
-    }).start(() => {
-      setVisible(false);
-    });
+    }).start(() => setVisible(false));
   };
 
-  // clean up on unmount
-  useEffect(() => () => clearTimeout(timeoutRef.current), []);
+  useEffect(() => {
+    return () => clearTimeout(timeoutRef.current);
+  }, []);
 
   return (
     <AlertContext.Provider value={{showAlert: show}}>
@@ -100,13 +98,16 @@ export const HeadAlertProvider: React.FC<Props> = ({children}) => {
           style={[styles.container, {transform: [{translateY}]}]}
           {...panResponder.panHandlers}>
           <TouchableWithoutFeedback onPress={hide}>
-            <View style={styles.content}>
-              <Text style={styles.title} numberOfLines={1}>
-                {title}
-              </Text>
-              <Text style={styles.message} numberOfLines={2}>
-                {message}
-              </Text>
+            <View style={styles.alertBox}>
+              <Info size={20} color="#007AFF" style={{marginRight: 10}} />
+              <View style={{flex: 1}}>
+                <Text style={styles.title} numberOfLines={1}>
+                  {title}
+                </Text>
+                <Text style={styles.message} numberOfLines={2}>
+                  {message}
+                </Text>
+              </View>
             </View>
           </TouchableWithoutFeedback>
         </Animated.View>
@@ -118,30 +119,38 @@ export const HeadAlertProvider: React.FC<Props> = ({children}) => {
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    top: 10,
-    left: 10,
-    right: 10,
-    height: 60,
-    zIndex: 1000,
-    elevation: 4,
+    top: 20,
+    left: 16,
+    right: 16,
+    height: 80,
+    zIndex: 999,
+    elevation: 10,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    backgroundColor: 'transparent',
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
   },
-  content: {
+  alertBox: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#f0f8ff',
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: 16,
-    borderRadius: 12,
-    justifyContent: 'center',
+    paddingVertical: 12,
+    borderRadius: 16,
+    borderLeftWidth: 4,
+    borderLeftColor: '#007AFF',
+    ...Platform.select({
+      android: {
+        elevation: 10,
+      },
+    }),
   },
   title: {
-    fontWeight: '600',
+    fontWeight: '700',
     fontSize: 16,
-    marginBottom: 4,
-    color: '#555',
+    color: '#333',
+    marginBottom: 2,
   },
   message: {
     fontSize: 14,

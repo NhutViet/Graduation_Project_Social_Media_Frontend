@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, memo, useCallback } from 'react';
+import React, {useState, useRef, useEffect, memo, useCallback} from 'react';
 import {
   Animated,
   Dimensions,
@@ -8,84 +8,86 @@ import {
   View,
   Image,
 } from 'react-native';
-import { TabView, SceneMap } from 'react-native-tab-view';
-import { useTheme } from '../../util/ThemeContext';
+import {TabView, SceneMap} from 'react-native-tab-view';
+import {useTheme} from '../../util/ThemeContext';
 import UserInfoStyles from '../../StyleSheet/UserInfoStyles';
-import { Colors } from '../../../assets/color/Colors';
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import BottomSheetNotification, {
-  SwitchOption,
-} from '../../../components/BottomSheetNotification';
-import { Modalize } from 'react-native-modalize';
-import { Portal } from 'react-native-portalize';
-import { RootStackParamList } from '../../Navigation/AppNavigation';
+import {Colors} from '../../../assets/color/Colors';
+import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
+import {RootStackParamList} from '../../Navigation/AppNavigation';
 import ModalTheme from '../Message/components/ModalTheme';
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from '../../../services/store';
-import { updateRoomTheme } from '../../../services/roomRedux/roomSlice';
-import { GlobalAlertManager } from '../../../components/Global/AlertModal';
-import { getAllMediaInRoom } from '../../util/msgImgList';
-import { TabVi } from './components/mediaComponent';
-import { MediaItem } from '../../util/msgImgList';
-import { MessageSearchModal } from '../../../components/MessageSearchModal';
-import { fetchMessages } from '../../../services/messageRedux/messageSlice';
-import { Message } from '../../../services/messageRedux/messageType';
+import {useDispatch} from 'react-redux';
+import {AppDispatch} from '../../../services/store';
+import {updateRoomTheme} from '../../../services/roomRedux/roomSlice';
+import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+import {getAllMediaInRoom} from '../../util/msgImgList';
+import {TabVi} from './components/mediaComponent';
+import {MediaItem} from '../../util/msgImgList';
+import {MessageSearchModal} from '../../../components/MessageSearchModal';
+import {fetchMessages} from '../../../services/messageRedux/messageSlice';
+import {Message} from '../../../services/messageRedux/messageType';
 import ImagePreviewModal from '../Message/components/ImagePreviewModal';
 import {
   ArrowLeft,
   User,
   Search,
-  Bell,
   MoreHorizontal,
   Palette,
   Shield,
-  Users,
   ChevronRight,
   Repeat,
   Image as ImageIcon,
   LucideProps,
 } from 'lucide-react-native';
+import {useHeadAlert} from '../../../components/Global/HeadAlertProvider';
 
 const screenWidth = Dimensions.get('window').width - 8;
-const initialLayout = { width: Dimensions.get('window').width };
-const createFeatureItems = (navigation: any, openNotifications: () => void, handleSearchPress: () => void) => [
-  { icon: User, text: 'Trang tài khoản', onPress: () => { } },
+const initialLayout = {width: Dimensions.get('window').width};
+const createFeatureItems = (navigation: any, handleSearchPress: () => void) => [
+  {icon: User, text: 'Trang tài khoản', onPress: () => {}},
   {
     icon: Search,
     text: 'Tìm kiếm tin nhắn',
     onPress: handleSearchPress,
   },
-  { icon: Bell, text: 'Tắt thông báo', onPress: openNotifications },
-  { icon: MoreHorizontal, text: 'Thêm tùy chọn', onPress: () => { } },
+  {
+    icon: MoreHorizontal,
+    text: 'Thêm tùy chọn',
+    onPress: () => {
+      GlobalAlertManager.show('Thông báo', 'Chưa có thêm tính năng');
+    },
+  },
 ];
 const createSettingItems = (
   navigation: any,
   setVisibleThemeModal: (visible: boolean) => void,
 ) => [
-    { icon: Palette, text: 'Chủ đề', onPress: () => setVisibleThemeModal(true) },
-    { icon: Shield, text: 'Quyền riêng tư và an toàn', onPress: () => { } },
-    {
-      icon: Users,
-      text: 'Tạo nhóm trò chuyện',
-      onPress: () => navigation.navigate('CreateGroupScreen'),
+  {icon: Palette, text: 'Chủ đề', onPress: () => setVisibleThemeModal(true)},
+  {
+    icon: Shield,
+    text: 'Chính sách bảo mật và an toàn',
+    onPress: () => {
+      navigation.navigate('PrivacySafetyChat');
     },
-  ];
+  },
+];
 
 export const UserInfo = () => {
   const [index, setIndex] = useState(0);
-  const { theme } = useTheme();
+  const {theme} = useTheme();
   const navigation = useNavigation<any>();
   const route = useRoute<RouteProp<RootStackParamList, 'InfoUser'>>();
-  const { roomId, img1, nameChat } = route.params || {};
+  const {roomId, img1, nameChat} = route.params || {};
   const dispatch = useDispatch<AppDispatch>();
   const animatedLeftValue = useRef(new Animated.Value(0)).current;
   const [visibleThemeModal, setVisibleThemeModal] = useState(false);
   const [searchModalVisible, setSearchModalVisible] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [highlightedMessageId, setHighlightedMessageId] = useState<string | null>(null);
+  const [highlightedMessageId, setHighlightedMessageId] = useState<
+    string | null
+  >(null);
   const styles = UserInfoStyles(theme);
   const color = Colors[theme];
-
+  const {showAlert} = useHeadAlert();
   // State to manage MessageMedia fetching data
   const [media, setMedia] = useState<MediaItem[]>([]);
   const [mediaPage, setMediaPage] = useState<number>(1);
@@ -114,7 +116,7 @@ export const UserInfo = () => {
 
       setIsLoading(true);
       try {
-        const res = await getAllMediaInRoom({ roomId, page: 1 });
+        const res = await getAllMediaInRoom({roomId, page: 1});
         if (res && res.media && res.media.length > 0) {
           setMedia(res.media);
           setMediaPage(2);
@@ -137,12 +139,12 @@ export const UserInfo = () => {
   // Fetch messages for search functionality
   useEffect(() => {
     if (roomId) {
-      dispatch(fetchMessages({ roomId }))
+      dispatch(fetchMessages({roomId}))
         .unwrap()
-        .then((fetchedMessages) => {
+        .then(fetchedMessages => {
           setMessages(fetchedMessages);
         })
-        .catch((error) => {
+        .catch(error => {
           console.error('Failed to fetch messages:', error);
           setMessages([]);
         });
@@ -153,14 +155,17 @@ export const UserInfo = () => {
     setSearchModalVisible(true);
   }, []);
 
-  const handleMessageSelect = useCallback((messageId: string, index: number) => {
-    setHighlightedMessageId(messageId);
-    navigation.navigate('MessageScreen', {
-      room: roomId,
-      highlightMessageId: messageId,
-      scrollToIndex: index,
-    });
-  }, [navigation, roomId]);
+  const handleMessageSelect = useCallback(
+    (messageId: string, index: number) => {
+      setHighlightedMessageId(messageId);
+      navigation.navigate('MessageScreen', {
+        room: roomId,
+        highlightMessageId: messageId,
+        scrollToIndex: index,
+      });
+    },
+    [navigation, roomId],
+  );
 
   const handleHighlightClear = useCallback((messageId: string) => {
     setHighlightedMessageId(null);
@@ -174,25 +179,18 @@ export const UserInfo = () => {
     setVisibleThemeModal(false);
   }, []);
 
-  const handleThemeSelect = useCallback((selectedBackground: string) => {
-    dispatch(updateRoomTheme({ roomId, theme: selectedBackground }))
-      .unwrap()
-      .then(() =>
-        GlobalAlertManager.show('Thành công', 'Đã cập nhật chủ đề'),
-      )
-      .catch(() =>
-        GlobalAlertManager.show('Thất bại', 'Cập nhật chủ đề thất bại'),
-      );
-    setVisibleThemeModal(false);
-  }, [dispatch, roomId]);
-
-  const openNotifications = useCallback(() => {
-    sheetRef.current?.open();
-  }, []);
-
-  const closeNotifications = useCallback(() => {
-    sheetRef.current?.close();
-  }, []);
+  const handleThemeSelect = useCallback(
+    (selectedBackground: string) => {
+      dispatch(updateRoomTheme({roomId, theme: selectedBackground}))
+        .unwrap()
+        .then(() => showAlert('Thành công', 'Đã cập nhật chủ đề'))
+        .catch(() =>
+          GlobalAlertManager.show('Thất bại', 'Cập nhật chủ đề thất bại'),
+        );
+      setVisibleThemeModal(false);
+    },
+    [dispatch, roomId],
+  );
 
   const handleLoadMore = useCallback(async () => {
     if (isLoadingMore || !hasNextPage || !roomId) {
@@ -201,7 +199,7 @@ export const UserInfo = () => {
 
     setIsLoadingMore(true);
     try {
-      const res = await getAllMediaInRoom({ roomId, page: mediaPage });
+      const res = await getAllMediaInRoom({roomId, page: mediaPage});
       if (res && res.media && res.media.length > 0) {
         setMedia(prev => [...prev, ...res.media]);
         setMediaPage(prevPage => prevPage + 1);
@@ -224,50 +222,13 @@ export const UserInfo = () => {
     }).start();
   }, [animatedLeftValue, index]);
 
-  const sheetRef = useRef<Modalize>(null);
-
-  const [notificationSettings, setNotificationSettings] = useState({
-    msg: false,
-    call: false,
-    preview: false,
-  });
-
-  const handleNotifChange = (
-    key: keyof typeof notificationSettings,
-    value: boolean,
-  ) => {
-    setNotificationSettings(prev => ({ ...prev, [key]: value }));
-  };
-
-  const notificationOptions: SwitchOption[] = [
-    {
-      id: 'msg',
-      label: 'Tắt thông báo tin nhắn',
-      value: notificationSettings.msg,
-      onValueChange: v => handleNotifChange('msg', v),
-    },
-    {
-      id: 'call',
-      label: 'Tắt thông báo cuộc gọi',
-      value: notificationSettings.call,
-      onValueChange: v => handleNotifChange('call', v),
-    },
-    {
-      id: 'preview',
-      label: 'Xem trước thông báo',
-      description: 'Hiển thị tên và tin nhắn trên thông báo',
-      value: notificationSettings.preview,
-      onValueChange: v => handleNotifChange('preview', v),
-    },
-  ];
-
   const [routes] = useState([
-    { key: 'tab1', title: 'Media' },
-    { key: 'tab2', title: 'Files' },
+    {key: 'tab1', title: 'Media'},
+    {key: 'tab2', title: 'Files'},
   ]);
 
   const Header = memo(() => {
-    const featureItems = createFeatureItems(navigation, openNotifications, handleSearchPress);
+    const featureItems = createFeatureItems(navigation, handleSearchPress);
     const settingItems = createSettingItems(navigation, setVisibleThemeModal);
 
     const renderIcon = (
@@ -275,12 +236,15 @@ export const UserInfo = () => {
       text: string,
       onPress: () => void,
     ) => (
-      <View style={styles.blockFeature} key={text}>
-        <TouchableOpacity onPress={onPress}>
-          <Icon size={22} color={color.text} />
-        </TouchableOpacity>
-        <Text style={styles.text}>{text}</Text>
-      </View>
+      <TouchableOpacity
+        style={styles.blockFeature}
+        key={text}
+        onPress={onPress}>
+        <Icon size={22} color={color.text} />
+        <Text style={styles.text} numberOfLines={1}>
+          {text}
+        </Text>
+      </TouchableOpacity>
     );
 
     const renderSettingRow = (
@@ -301,7 +265,7 @@ export const UserInfo = () => {
       <View style={styles.container}>
         <View style={styles.blockHeader}>
           <TouchableOpacity style={styles.blockImg}>
-            <Image source={{ uri: img1 }} style={styles.imgUser} />
+            <Image source={{uri: img1}} style={styles.imgUser} />
           </TouchableOpacity>
           <Text style={styles.nameUser}>{nameChat}</Text>
         </View>
@@ -334,7 +298,12 @@ export const UserInfo = () => {
       );
     }
     return (
-      <TabVi medi={media} isLoading={isLoading} onEndReached={handleLoadMore} onImagePress={openPreview} />
+      <TabVi
+        medi={media}
+        isLoading={isLoading}
+        onEndReached={handleLoadMore}
+        onImagePress={openPreview}
+      />
     );
   }, [media, isLoading, handleLoadMore]);
 
@@ -344,10 +313,10 @@ export const UserInfo = () => {
   });
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: color.background }}>
+    <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
       <Header />
       <TabView
-        navigationState={{ index, routes }}
+        navigationState={{index, routes}}
         renderScene={renderScene}
         onIndexChange={setIndex}
         initialLayout={initialLayout}
@@ -364,7 +333,7 @@ export const UserInfo = () => {
             {[Repeat, ImageIcon].map((Icon, i) => (
               <TouchableOpacity
                 key={i}
-                style={{ flex: 1, alignItems: 'center' }}
+                style={{flex: 1, alignItems: 'center'}}
                 onPress={() => setIndex(i)}>
                 <Icon size={22} color={color.text} />
               </TouchableOpacity>
@@ -387,37 +356,12 @@ export const UserInfo = () => {
         onClose={handleCloseThemeModal}
         onSelect={handleThemeSelect}
       />
-      <Portal>
-        <Modalize
-          ref={sheetRef}
-          modalStyle={{
-            backgroundColor: color.background,
-            borderTopLeftRadius: 16,
-            borderTopRightRadius: 16,
-            paddingTop: 18,
-          }}
-          handleStyle={{
-            backgroundColor: color.text,
-            height: 6,
-            width: 40,
-            marginBottom: 8,
-          }}
-          handlePosition="inside"
-          panGestureEnabled
-          adjustToContentHeight>
-          <BottomSheetNotification
-            title="Thông báo"
-            options={notificationOptions}
-            onClose={closeNotifications}
-          />
-        </Modalize>
-      </Portal>
       <MessageSearchModal
         visible={searchModalVisible}
         onClose={handleCloseSearchModal}
         messages={messages}
         onMessageSelect={handleMessageSelect}
-        onHighlightClear={handleHighlightClear}
+        // onHighlightClear={handleHighlightClear}
       />
       <ImagePreviewModal
         visible={previewVisible}

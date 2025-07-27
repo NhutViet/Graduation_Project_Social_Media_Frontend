@@ -1,104 +1,91 @@
-import React, { useState } from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  View,
-  Text,
-  Switch,
-  TouchableOpacity,
-  StyleSheet,
-} from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { UserMinus2, Ban, AlertOctagon, Lock } from 'lucide-react-native';
+import React from 'react';
+import {SafeAreaView, ScrollView, View, Text, StyleSheet} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
 import Header from '../../../components/Header';
 import {Colors} from '../../../assets/color/Colors';
 import {useTheme} from '../../util/ThemeContext';
 
-export const PrivacySafetyChat = () => {
+export const PrivacySafetyChat: React.FC = () => {
   const navigation = useNavigation();
   const {theme} = useTheme();
   const color = Colors[theme];
-  const [endToEndEncryption, setEndToEndEncryption] = useState(false);
-  const [readReceipts, setReadReceipts] = useState(false);
-  const [typingIndicator, setTypingIndicator] = useState(false);
+
   return (
-    <SafeAreaView style={[styles.container, {backgroundColor: color.background}]}>
-      <View style={{width: '100%', height: 60}}>
+    <SafeAreaView
+      style={[styles.container, {backgroundColor: color.background}]}>
+      <View style={styles.headerContainer}>
         <Header
-          title="Quyền riêng tư và bảo mật"
-          iconBack={true}
+          title="Chính sách bảo mật và an toàn"
+          iconBack
           func={() => navigation.goBack()}
           navigation={navigation}
         />
       </View>
+
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={[[styles.sectionTitle, {color: color.text}], {color: color.text}]}>Giữ cho tin nhắn được bảo mật</Text>
-        <View style={styles.row}>
-          <View style={styles.rowText}>
-            <Lock size={20} style={{marginRight: 10}} />
-            <Text style={[styles.rowLabel, {color: color.text}]}>Sử dụng mã hóa đầu cuối</Text>
-          </View>
-          <Switch
-            value={endToEndEncryption}
-            onValueChange={setEndToEndEncryption}
-            trackColor={{ true: Colors.primary, false: Colors.gray21 }}
-            thumbColor={endToEndEncryption ? '#FFF' : '#FFF'}
-          />
-        </View>
-        <Text style={[styles.sectionTitle, {color: color.text}]}>Những người thể nhìn thấy hoạt động của bạn</Text>
-        <View style={styles.row}>
-          <Text style={[styles.rowLabel, {color: color.text, paddingBottom: 10}]}>Hiển thị đã đọc</Text>
-          <Switch
-            value={readReceipts}
-            onValueChange={setReadReceipts}
-            trackColor={{ true: Colors.primary, false: Colors.gray21 }}
-            thumbColor={readReceipts ? '#FFF' : '#FFF'}
-          />
-        </View>
-        <Text style={[styles.note, {color: color.textSecondary}]}>
-            Người khác có thể nhìn thấy khi bạn đã đọc tin nhắn của họ. {'\n\n'}
-            Tin nhắn biến mất luôn gửi thông báo đã đọc.
+        <Text style={[styles.sectionTitle, {color: color.text}]}>
+          1. Giới thiệu
         </Text>
-        <View style={styles.row}>
-          <Text style={[styles.rowLabel, {color: color.text, paddingBottom: 10}]}>Hiển thị gõ</Text>
-          <Switch
-            value={typingIndicator}
-            onValueChange={setTypingIndicator}
-            trackColor={{ true: Colors.primary, false: Colors.gray21 }}
-            thumbColor={typingIndicator ? '#FFF' : '#FFF'}
-          />
-        </View>
-        <Text style={[styles.note, {color: color.textSecondary}]}>
-            Người khác có thể nhìn thấy khi bạn đang gõ.
+        <Text style={[styles.paragraph, {color: color.textSecondary}]}>
+          Chúng tôi cam kết bảo vệ quyền riêng tư và dữ liệu cá nhân của bạn.
+          Chính sách này mô tả cách chúng tôi thu thập, sử dụng và bảo mật thông
+          tin khi bạn sử dụng ứng dụng.
         </Text>
-        <Text style={[styles.sectionTitle, {color: color.text}]}>Những người có thể liên hệ tới bạn</Text>
-        <TouchableOpacity style={styles.optionRow}>
-          <View style={styles.optionText}>
-            <UserMinus2 size={20} />
-            <Text style={[styles.optionLabel, {color: color.text}]}>Hạn chế</Text>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.optionRow}>
-          <View style={styles.optionText}>
-            <Ban size={20} color={color.error} />
-            <Text style={[styles.optionLabel, { color: color.error }]}>Chặn</Text>
-          </View>
-        </TouchableOpacity>
-        <Text style={[styles.sectionTitle, {color: color.text}]}>Hỗ trợ</Text>
-        <TouchableOpacity style={styles.optionRow}>
-          <View style={styles.optionText}>
-            <AlertOctagon size={20} color={color.error} />
-            <Text style={[styles.optionLabel, { color: color.error }]}>Báo cáo</Text>
-          </View>
-        </TouchableOpacity>
+
+        <Text style={[styles.sectionTitle, {color: color.text}]}>
+          2. Thông tin thu thập
+        </Text>
+        <Text style={[styles.paragraph, {color: color.textSecondary}]}>
+          - Thông tin bạn cung cấp khi đăng ký và sử dụng dịch vụ (tên, email,
+          ảnh đại diện...).{`\n`}- Nội dung trò chuyện và dữ liệu tin nhắn bạn
+          gửi.
+        </Text>
+
+        <Text style={[styles.sectionTitle, {color: color.text}]}>
+          3. Mục đích sử dụng
+        </Text>
+        <Text style={[styles.paragraph, {color: color.textSecondary}]}>
+          Chúng tôi sử dụng thông tin để: {`\n`}- Cung cấp và cải thiện dịch vụ
+          chat. {`\n`}- Gửi thông báo liên quan đến tin nhắn và cập nhật sản
+          phẩm.
+        </Text>
+
+        <Text style={[styles.sectionTitle, {color: color.text}]}>
+          4. Bảo mật dữ liệu
+        </Text>
+        <Text style={[styles.paragraph, {color: color.textSecondary}]}>
+          Chúng tôi áp dụng các biện pháp bảo mật kỹ thuật và quản lý nghiêm
+          ngặt để bảo vệ dữ liệu của bạn khỏi truy cập trái phép, rò rỉ hoặc mất
+          mát.
+        </Text>
+
+        <Text style={[styles.sectionTitle, {color: color.text}]}>
+          5. Quyền của bạn
+        </Text>
+        <Text style={[styles.paragraph, {color: color.textSecondary}]}>
+          Bạn có quyền xem, chỉnh sửa hoặc yêu cầu xóa dữ liệu cá nhân. Liên hệ
+          với chúng tôi qua mục hỗ trợ nếu cần.
+        </Text>
+
+        <Text style={[styles.sectionTitle, {color: color.text}]}>
+          6. Liên hệ
+        </Text>
+        <Text style={[styles.paragraph, {color: color.textSecondary}]}>
+          Nếu có thắc mắc về chính sách này, vui lòng liên hệ qua email
+          support@cirla.io.vn.
+        </Text>
       </ScrollView>
     </SafeAreaView>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  headerContainer: {
+    width: '100%',
+    height: 60,
   },
   content: {
     padding: 16,
@@ -106,39 +93,8 @@ const styles = StyleSheet.create({
   sectionTitle: {
     marginTop: 24,
     marginBottom: 8,
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 12,
-  },
-  rowText: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  rowLabel: {
     fontSize: 16,
+    fontWeight: '600',
   },
-  note: {
-    width: 250,
-    fontSize: 12,
-    marginTop: -16,
-    marginBottom: 8,
-  },
-  optionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 14,
-  },
-  optionText: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  optionLabel: {
-    marginLeft: 12,
-    fontSize: 16,
-  },
-})
+  paragraph: {fontSize: 14, lineHeight: 20, marginBottom: 12},
+});

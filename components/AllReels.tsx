@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   SafeAreaView,
   LayoutChangeEvent,
+  Share,
 } from 'react-native';
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
@@ -25,7 +26,6 @@ import BottomSheetComment, {
 } from '../src/(tabs)/Home/components/CommentSection';
 import ReelsComponent from '../src/(tabs)/Reels/components/reelsComponent';
 import {Portal} from 'react-native-portalize';
-import ModalShare from '../src/(tabs)/Home/components/ModalShare';
 import {useShareModal} from '../src/(tabs)/Reels/hooks/useShareModal';
 import {PostWithMedia} from '@services/postRedux/postTypes';
 import {ArrowLeft} from 'lucide-react-native';
@@ -53,7 +53,13 @@ const AllReels = () => {
   const flatListRef = useRef<FlatList<any>>(null);
   const sheetRef = useRef<BottomSheetReelsRef>(null);
   const sheetRefComment = useRef<BottomSheetCommentRef>(null);
-  const {modalShareRef, openShareModal} = useShareModal();
+  const openShareModal = async () => {
+    try {
+      await Share.share({message: 'justina'});
+    } catch (err) {
+      console.error('Error sharing:', err);
+    }
+  };
 
   const [currentVisible, setCurrentVisible] = useState<string | null>(
     initialId,
@@ -217,9 +223,6 @@ const AllReels = () => {
         ref={sheetRefComment}
         selectedPostRef={selectedPostRef}
       />
-      <Portal>
-        <ModalShare ref={modalShareRef} isDark={true} />
-      </Portal>
     </SafeAreaView>
   );
 };

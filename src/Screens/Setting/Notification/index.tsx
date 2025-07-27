@@ -21,21 +21,21 @@ import {useSelector, useDispatch} from 'react-redux';
 import {AppDispatch, RootState} from '@services/store';
 import {fetchEditUser} from '@services/userRedux/userSlice';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
-import { ActivityIndicator } from 'react-native-paper';
+import {ActivityIndicator} from 'react-native-paper';
+import {useHeadAlert} from '../../../../components/Global/HeadAlertProvider';
 
 export const Notifications = () => {
   const navigation: any = useNavigation();
   const styles = useNotificationSettingsStyles();
   const user = useSelector((state: RootState) => state.user.user);
   const dispatch = useDispatch<AppDispatch>();
-
+  const {showAlert} = useHeadAlert();
   const [loading, setLoading] = useState(false);
   const [localNotified, setLocalNotified] = useState(
     user?.wantNotified ?? false,
   );
 
   useEffect(() => {
-    console.log('í noti: ', user?.wantNotified);
     setLocalNotified(user?.wantNotified ?? false);
   }, [user?.wantNotified]);
 
@@ -53,13 +53,13 @@ export const Notifications = () => {
         dispatch(fetchEditUser({fcmToken, wantNotified: true}))
           .unwrap()
           .then(res => console.log('xong r nè: ', res));
-        GlobalAlertManager.show('Thành công', 'Bật thông báo thành công.');
+        showAlert('Thành công', 'Bật thông báo thành công.');
       } else {
         await deleteToken(messaging);
         dispatch(fetchEditUser({fcmToken: '', wantNotified: false}))
           .unwrap()
           .then(res => console.log('xong r nè: ', res));
-        GlobalAlertManager.show('Thành công', 'Tắt thông báo thành công.');
+        showAlert('Thành công', 'Tắt thông báo thành công.');
       }
     } catch (error) {
       setLocalNotified(prev => !prev);
@@ -83,20 +83,6 @@ export const Notifications = () => {
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Thông báo</Text>
           <View style={styles.headerSpacer} />
-        </View>
-
-        {/* Notification Banner */}
-        <View style={styles.bannerContainer}>
-          <View style={styles.bellIconContainer}>
-            <Bell size={22} color={styles.bellIcon.tintColor} />
-          </View>
-          <View style={styles.bannerTextContainer}>
-            <Text style={styles.bannerText}>
-              Bật thông báo từ cài đặt thiết bị của bạn để xem các cập nhật trên
-              màn hình khóa.
-            </Text>
-            <Text style={styles.bannerLink}>Chuyển đến cài đặt thiết bị</Text>
-          </View>
         </View>
 
         {/* Chỉ một nút toggle duy nhất */}
