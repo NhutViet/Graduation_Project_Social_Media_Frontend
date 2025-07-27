@@ -16,6 +16,7 @@ export interface User {
   updateAt: string;
   currentSessionId: string;
   wantNotified?: boolean;
+  isGoogle: boolean;
 }
 
 export interface UserRes {

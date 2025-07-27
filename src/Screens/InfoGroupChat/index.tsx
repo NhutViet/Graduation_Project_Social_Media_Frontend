@@ -210,18 +210,15 @@ export const InforGroupChat = () => {
           {!img2 && img1 && <Image style={styles.img} source={{uri: img1}} />}
         </TouchableOpacity>
         <Text style={[styles.name, {color: color.text}]}>{room?.name}</Text>
-        <Text style={[styles.name, {color: color.text}]}>{room?.name}</Text>
       </View>
 
       <View style={styles.actionRow}>
         <TouchableOpacity style={styles.actionItem} onPress={handleAddPeople}>
           <UserPlus size={20} color={color.text} />
           <Text style={[styles.actionText, {color: color.text}]}>Thêm</Text>
-          <Text style={[styles.actionText, {color: color.text}]}>Thêm</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.actionItem} onPress={handleSearchPress}>
           <Search size={20} color={color.text} />
-          <Text style={[styles.actionText, {color: color.text}]}>Tìm kiếm</Text>
           <Text style={[styles.actionText, {color: color.text}]}>Tìm kiếm</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.actionItem}>
