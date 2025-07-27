@@ -55,7 +55,7 @@ const UserInfoStyles = (theme: ThemeType) => {
       alignItems: 'center',
     },
     text: {
-      width: 60,
+      width: 80,
       textAlign: 'center',
       color: color.text,
       fontSize: 12,

@@ -149,10 +149,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
   },
-  namehandleText: {
-    fontSize: 12,
-    fontWeight: 'normal',
-  },
   imgHash: {
     height: 15,
     width: 15,

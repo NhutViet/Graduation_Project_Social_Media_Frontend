@@ -42,7 +42,7 @@ export const PendingMessages: React.FC = () => {
         <TouchableOpacity onPress={() => nav.goBack()}>
           <ArrowLeft size={22} color={color.text} />
         </TouchableOpacity>
-        <Text style={styles.headerUsername}>{user?.handleName}</Text>
+        <Text style={styles.headerUsername}>{user?.username}</Text>
       </View>
 
       {/* Search Bar */}

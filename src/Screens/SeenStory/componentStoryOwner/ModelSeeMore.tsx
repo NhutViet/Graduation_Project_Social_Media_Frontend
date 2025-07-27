@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import React from 'react';
 import {X} from 'lucide-react-native';
+import {Colors} from '@assets/color/Colors';
 
 const ModalSeeMore = ({
   visible,
@@ -36,7 +37,10 @@ const ModalSeeMore = ({
               </TouchableOpacity>
             </View>
             <View style={styles.mid}>
-              <TouchableOpacity onPress={onDelete}>
+              <TouchableOpacity
+                style={styles.deleteButton}
+                onPress={onDelete}
+                activeOpacity={0.7}>
                 <Text style={styles.txtRemoveStory}>Xoá tin</Text>
               </TouchableOpacity>
             </View>
@@ -82,13 +86,24 @@ const styles = StyleSheet.create({
     tintColor: '#fff',
   },
   txtRemoveStory: {
-    color: 'red',
+    color: '#fff',
     fontSize: 16,
     fontWeight: '500',
-    marginTop: 20,
+
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   mid: {
     alignItems: 'center',
     marginTop: 20,
+  },
+  deleteButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 8,
+    backgroundColor: Colors.primary,
+    borderWidth: 1,
+    width: '100%',
+    alignItems: 'center',
   },
 });

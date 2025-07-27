@@ -7,44 +7,43 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { SafeAreaView, ScrollView, View } from 'react-native';
-
-import { useTheme } from '../../util/ThemeContext';
-import { Colors } from '../../../assets/color/Colors';
-import { RouteProp, useIsFocused, useNavigation } from '@react-navigation/native';
-import { useDispatch, useSelector } from 'react-redux';
+import {SafeAreaView, ScrollView, View} from 'react-native';
+import {useTheme} from '../../util/ThemeContext';
+import {Colors} from '../../../assets/color/Colors';
+import {RouteProp, useIsFocused, useNavigation} from '@react-navigation/native';
+import {useDispatch, useSelector} from 'react-redux';
 import Animated, {
   useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { AppDispatch } from '../../../services/store';
-import { fetchPostsWithMedia } from '../../../services/postRedux/postSlice';
-import { fetchFollowingStories } from '../../../services/StoryRedux/StorySlice';
-import { forceRefreshStories } from '../../../services/StoryRedux/StoryReducer';
+import {AppDispatch} from '../../../services/store';
+import {fetchPostsWithMedia} from '../../../services/postRedux/postSlice';
+import {fetchFollowingStories} from '../../../services/StoryRedux/StorySlice';
+import {forceRefreshStories} from '../../../services/StoryRedux/StoryReducer';
 import Header from '../../../components/Header';
 import ItemHome from './components/ItemHome';
 import BottomSheetComment, {
   BottomSheetCommentRef,
 } from './components/CommentSection';
-import { handleUserPress } from './util';
+import {handleUserPress} from './util';
 import {
   checkStorySeenInStorage,
   clearExpiredSeenStories,
   isStoryVisible,
   getStoryAge,
 } from '../../../services/storage/storage';
-import { ModalLoading } from './components/loading';
-import { useStoryPrefetch } from './hook/useStoryPrefetch';
-import { getNotification } from '@services/notificationRedux/notificationSlice';
-import { fetchMyRooms } from '@services/roomRedux/roomSlice';
+import {ModalLoading} from './components/loading';
+import {useStoryPrefetch} from './hook/useStoryPrefetch';
+import {getNotification} from '@services/notificationRedux/notificationSlice';
+import {fetchMyRooms} from '@services/roomRedux/roomSlice';
 import StoryListHeader from './components/headerContainer';
 import messaging from '@react-native-firebase/messaging';
-import { fetchEditUser } from '@services/userRedux/userSlice';
+import {fetchEditUser} from '@services/userRedux/userSlice';
 import LoadingModal from '../../../components/Global/LoadingModal';
-import { selectHomeData } from './selectors/homeSelectors';
-import { HomeSkeleton } from '../../../components/SkeletonGrid';
+import {selectHomeData} from './selectors/homeSelectors';
+import {HomeSkeleton} from '../../../components/SkeletonGrid';
 
 const HEADER_HEIGHT = 100;
 const AnimatedFlatList = Animated.createAnimatedComponent(Animated.FlatList);
@@ -60,9 +59,9 @@ type HomeProps = {
   route?: RouteProp<HomeStackParamList, 'Home'>;
 };
 
-export const Home = forwardRef(({ route }: HomeProps, ref) => {
+export const Home = forwardRef(({route}: HomeProps, ref) => {
   const navigation = useNavigation<any>();
-  const { theme } = useTheme();
+  const {theme} = useTheme();
   const color = Colors[theme];
   const isFocused = useIsFocused();
   const dispatch = useDispatch<AppDispatch>();
@@ -78,7 +77,7 @@ export const Home = forwardRef(({ route }: HomeProps, ref) => {
   } = useSelector(selectHomeData);
   const sheetRef = useRef<BottomSheetCommentRef>(null);
   const [currentVisible, setCurrentVisible] = useState<string | null>(null);
-  const selectedPostRef = useRef<{ postId: string; receiverId: string }>({
+  const selectedPostRef = useRef<{postId: string; receiverId: string}>({
     postId: '',
     receiverId: '',
   });
@@ -95,12 +94,12 @@ export const Home = forwardRef(({ route }: HomeProps, ref) => {
   const [isLoadingMoreStories, setIsLoadingMoreStories] = useState(false);
 
   // // ✅ Use prefetch hook
-  const { prefetchStoryData, getCachedStoryData, clearExpiredCache } =
+  const {prefetchStoryData, getCachedStoryData, clearExpiredCache} =
     useStoryPrefetch();
 
   const reloadAllData = useCallback(() => {
-    dispatch(fetchPostsWithMedia({ page: 1 }));
-    dispatch(fetchFollowingStories({ page: 1 }));
+    dispatch(fetchPostsWithMedia({page: 1}));
+    dispatch(fetchFollowingStories({page: 1}));
     clearExpiredSeenStories();
     clearExpiredCache();
     setHasCalledLoadMore(false);
@@ -111,7 +110,7 @@ export const Home = forwardRef(({ route }: HomeProps, ref) => {
   useEffect(() => {
     if (myStories.length > 0) {
       dispatch(forceRefreshStories()); // Force component re-render
-      dispatch(fetchFollowingStories({ page: 1 })); // Fetch fresh data
+      dispatch(fetchFollowingStories({page: 1})); // Fetch fresh data
       clearExpiredCache(); // Clear prefetch cache to ensure fresh data
     }
   }, [myStories.length, dispatch, clearExpiredCache]);
@@ -120,12 +119,12 @@ export const Home = forwardRef(({ route }: HomeProps, ref) => {
   useEffect(() => {
     if (route?.params?.shouldRefresh || route?.params?.timestamp) {
       dispatch(forceRefreshStories());
-      dispatch(fetchFollowingStories({ page: 1 }));
+      dispatch(fetchFollowingStories({page: 1}));
       clearExpiredCache();
 
       // Clear the params to prevent infinite refresh
       if (navigation.setParams) {
-        navigation.setParams({ shouldRefresh: false, timestamp: undefined });
+        navigation.setParams({shouldRefresh: false, timestamp: undefined});
       }
     }
   }, [
@@ -141,7 +140,7 @@ export const Home = forwardRef(({ route }: HomeProps, ref) => {
     if (isFocused) {
       // Reduced delay for faster refresh
       const timeoutId = setTimeout(() => {
-        dispatch(fetchFollowingStories({ page: 1 }));
+        dispatch(fetchFollowingStories({page: 1}));
       }, 100);
 
       return () => clearTimeout(timeoutId);
@@ -153,8 +152,8 @@ export const Home = forwardRef(({ route }: HomeProps, ref) => {
   }));
 
   useEffect(() => {
-    dispatch(fetchPostsWithMedia({ page: 1 }));
-    dispatch(fetchFollowingStories({ page: 1 }));
+    dispatch(fetchPostsWithMedia({page: 1}));
+    dispatch(fetchFollowingStories({page: 1}));
     clearExpiredSeenStories();
     clearExpiredCache && clearExpiredCache();
     setHasCalledLoadMore(false);
@@ -164,50 +163,53 @@ export const Home = forwardRef(({ route }: HomeProps, ref) => {
   // // ✅ Process and sort stories data with 24-hour filtering
   const processedStories = React.useMemo(() => {
     const filterValidStories = (users: any[]) => {
-      return users.map(user => {
-        // Filter stories to only include those within 24 hours
-        const validStories = user.stories?.filter((storyId: string) => {
-          const story = storyDetails.find(s => s._id === storyId);
-          if (!story || !story.createdAt) return false;
+      return users
+        .map(user => {
+          // Filter stories to only include those within 24 hours
+          const validStories =
+            user.stories?.filter((storyId: string) => {
+              const story = storyDetails.find(s => s._id === storyId);
+              if (!story || !story.createdAt) return false;
 
-          const isVisible = isStoryVisible(story.createdAt);
-          if (!isVisible) {
-            const age = getStoryAge(story.createdAt);
-            console.log(`Story ${storyId} expired: ${age.hours}h ${age.minutes}m old`);
-          }
-          return isVisible;
-        }) || [];
+              const isVisible = isStoryVisible(story.createdAt);
+              if (!isVisible) {
+                const age = getStoryAge(story.createdAt);
+                console.log(
+                  `Story ${storyId} expired: ${age.hours}h ${age.minutes}m old`,
+                );
+              }
+              return isVisible;
+            }) || [];
 
-        return {
-          ...user,
-          stories: validStories,
-        };
-      }).filter(user => {
-        // Keep current user even if no stories, filter others only if they have valid stories
-        const isCurrentUser = user._id === user?._id || user.handleName === user?.handleName;
-        return isCurrentUser || user.stories?.length > 0;
-      });
+          return {
+            ...user,
+            stories: validStories,
+          };
+        })
+        .filter(user => {
+          // Keep current user even if no stories, filter others only if they have valid stories
+          const isCurrentUser =
+            user._id === user?._id || user.handleName === user?.handleName;
+          return isCurrentUser || user.stories?.length > 0;
+        });
     };
 
     const currentUserStories = filterValidStories(
       followingUsers.filter(
         item => item._id === user?._id || item.handleName === user?.handleName,
-      )
+      ),
     );
 
     const otherUsersStories = filterValidStories(
       followingUsers.filter(
         item => item._id !== user?._id && item.handleName !== user?.handleName,
-      )
+      ),
     ).sort(
       (a, b) =>
         (b.stories?.length > 0 ? 1 : 0) - (a.stories?.length > 0 ? 1 : 0),
     );
 
-    return [
-      ...currentUserStories,
-      ...otherUsersStories,
-    ];
+    return [...currentUserStories, ...otherUsersStories];
   }, [followingUsers, user?._id, user?.handleName, storyDetails]);
 
   // // ✅ Get visible stories based on current count
@@ -218,7 +220,7 @@ export const Home = forwardRef(({ route }: HomeProps, ref) => {
   // Handler for loading more stories when scrolling
   const handleStoryScroll = useCallback(
     (event: any) => {
-      const { contentOffset } = event.nativeEvent;
+      const {contentOffset} = event.nativeEvent;
       const currentIndex = Math.floor(contentOffset.x / 70); // Assuming each story item is ~70px wide
 
       // Load more when user reaches 3rd item from the end of visible stories
@@ -295,7 +297,7 @@ export const Home = forwardRef(({ route }: HomeProps, ref) => {
     setHasCalledLoadMore(true);
 
     try {
-      await dispatch(fetchPostsWithMedia({ page: page + 1 })).unwrap();
+      await dispatch(fetchPostsWithMedia({page: page + 1})).unwrap();
     } catch (error) {
       console.error('Error loading more posts:', error);
     } finally {
@@ -305,7 +307,7 @@ export const Home = forwardRef(({ route }: HomeProps, ref) => {
   }, [dispatch, isLoadingMore, hasNextPage, page, hasCalledLoadMore]);
 
   useEffect(() => {
-    dispatch(getNotification({ page: 1 }));
+    dispatch(getNotification({page: 1}));
     dispatch(fetchMyRooms());
   }, [dispatch]);
 
@@ -313,7 +315,7 @@ export const Home = forwardRef(({ route }: HomeProps, ref) => {
     const removeFcmtoken = async () => {
       try {
         await messaging().deleteToken();
-        dispatch(fetchEditUser({ fcmToken: '' }));
+        dispatch(fetchEditUser({fcmToken: ''}));
       } catch (error) {
         console.warn('Lỗi khi xóa FcmToken: ', error);
       }
@@ -334,7 +336,7 @@ export const Home = forwardRef(({ route }: HomeProps, ref) => {
   useEffect(() => {
     if (isFocused) {
       const timeoutId = setTimeout(() => {
-        dispatch(fetchFollowingStories({ page: 1 }));
+        dispatch(fetchFollowingStories({page: 1}));
       }, 500);
 
       return () => clearTimeout(timeoutId);
@@ -362,7 +364,7 @@ export const Home = forwardRef(({ route }: HomeProps, ref) => {
     }
   }, [followingUsers, storyDetails]);
 
-  const onViewRef = useRef(({ viewableItems }: { viewableItems: any[] }) => {
+  const onViewRef = useRef(({viewableItems}: {viewableItems: any[]}) => {
     const id = viewableItems[0]?.item?._id;
     if (id && id !== currentVisible) {
       setCurrentVisible(id);
@@ -388,10 +390,10 @@ export const Home = forwardRef(({ route }: HomeProps, ref) => {
       const delta = currentY - prevScrollY.value;
 
       if (currentY <= 0) {
-        headerTranslateY.value = withTiming(0, { duration: 200 });
+        headerTranslateY.value = withTiming(0, {duration: 200});
         scrolledUpDistance.value = 0;
       } else if (delta > 0) {
-        headerTranslateY.value = withTiming(-HEADER_HEIGHT, { duration: 200 });
+        headerTranslateY.value = withTiming(-HEADER_HEIGHT, {duration: 200});
         scrolledUpDistance.value = 0;
       } else {
         scrolledUpDistance.value = Math.min(
@@ -399,7 +401,7 @@ export const Home = forwardRef(({ route }: HomeProps, ref) => {
           1000,
         );
         if (scrolledUpDistance.value >= 20) {
-          headerTranslateY.value = withTiming(0, { duration: 200 });
+          headerTranslateY.value = withTiming(0, {duration: 200});
         }
       }
 
@@ -408,11 +410,11 @@ export const Home = forwardRef(({ route }: HomeProps, ref) => {
   });
 
   const animatedHeaderStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: headerTranslateY.value }],
+    transform: [{translateY: headerTranslateY.value}],
   }));
 
   const renderItem = useCallback(
-    ({ item }: { item: any }) => {
+    ({item}: {item: any}) => {
       return (
         <ItemHome
           {...item}
@@ -483,7 +485,7 @@ export const Home = forwardRef(({ route }: HomeProps, ref) => {
 
   const storyListHeader = useMemo(
     () => (
-      <View style={{ height: 160, flex: 0 }}>
+      <View style={{height: 160, flex: 0}}>
         <StoryListHeader
           visibleStories={visibleStories}
           processedStories={processedStories}
@@ -514,11 +516,11 @@ export const Home = forwardRef(({ route }: HomeProps, ref) => {
 
   if (loading && posts.length === 0) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: color.background }}>
+      <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
         {/* keep your animated header in place */}
         <Animated.View
           style={[
-            { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10 },
+            {position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10},
             animatedHeaderStyle,
           ]}>
           <Header
@@ -544,10 +546,10 @@ export const Home = forwardRef(({ route }: HomeProps, ref) => {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: color.background }}>
+    <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
       <Animated.View
         style={[
-          { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10 },
+          {position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10},
           animatedHeaderStyle,
         ]}>
         <Header
@@ -568,7 +570,7 @@ export const Home = forwardRef(({ route }: HomeProps, ref) => {
         windowSize={3}
         updateCellsBatchingPeriod={50}
         onViewableItemsChanged={onViewRef}
-        viewabilityConfig={{ itemVisiblePercentThreshold: 80 }}
+        viewabilityConfig={{itemVisiblePercentThreshold: 80}}
         scrollEventThrottle={16}
         onScroll={scrollHandler}
         showsVerticalScrollIndicator={false}

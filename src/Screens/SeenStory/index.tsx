@@ -28,11 +28,8 @@ import {renderTextWithMentions} from '../../util/storyTextRenderer';
 import {Story} from '@services/StoryRedux/StoryType';
 import {VideoRef} from 'react-native-video';
 import {GestureResponderEvent} from 'react-native-modal';
-import LoadingModal from '../../../components/Global/LoadingModal';
-import {Modalize} from 'react-native-modalize';
 import {Portal} from 'react-native-portalize';
-import debounce from 'lodash/debounce';
-import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+import {useHeadAlert} from '../../../components/Global/HeadAlertProvider';
 
 // Import owner-specific components
 import ModelPeopleSeen from './componentStoryOwner/ModelPeopleSeen';
@@ -90,6 +87,9 @@ export const SeenStory = ({route, navigation}: any) => {
   const [wasPausedByUser, setWasPausedByUser] = useState(false);
   const progressValues = useRef<number[]>(stories.map(() => 0)).current;
   const isNavigatingRef = useRef(false);
+
+  // ✅ Hook để hiển thị thông báo nhẹ
+  const {showAlert} = useHeadAlert();
 
   // ✅ Check if current user is the story owner
   const isCurrentUserStory =
@@ -158,6 +158,12 @@ export const SeenStory = ({route, navigation}: any) => {
         }
       });
 
+      // ✅ Reset pause state when story is deleted and index changes
+      if (isCurrentUserStory && syncedStories.length > 0) {
+        setIsPaused(false);
+        setWasPausedByUser(false);
+      }
+
       // ✅ If no stories left, go back
       if (syncedStories.length === 0) {
         setTimeout(() => {
@@ -172,6 +178,7 @@ export const SeenStory = ({route, navigation}: any) => {
     storyGroupIndex,
     currentStoryGroups,
     navigation,
+    isCurrentUserStory,
   ]);
 
   // ✅ Listen for parameter updates and navigation focus
@@ -241,6 +248,16 @@ export const SeenStory = ({route, navigation}: any) => {
     }
   }, [syncedStories.length, isCurrentUserStory]);
 
+  // ✅ Reset progress values when currentIndex changes due to story deletion
+  useEffect(() => {
+    if (isCurrentUserStory && progressValues.length > currentIndex) {
+      // Reset progress for current and future stories when index changes
+      for (let i = currentIndex; i < progressValues.length; i++) {
+        progressValues[i] = 0;
+      }
+    }
+  }, [currentIndex, isCurrentUserStory]);
+
   // ✅ Reset progress bar when currentIndex changes (due to story deletion)
   useEffect(() => {
     // ✅ Ensure progressAnims length matches syncedStories length
@@ -308,15 +325,18 @@ export const SeenStory = ({route, navigation}: any) => {
       // ✅ Tắt modal ngay lập tức
       setVisibleSeeMore(false);
 
+      // ✅ Reset pause state immediately when deleting
+      setIsPaused(false);
+      setWasPausedByUser(false);
+
       // Xóa story từ server (Redux store sẽ tự động cập nhật)
       await dispatch(deleteStory({storyId: currentStory._id})).unwrap();
 
-      GlobalAlertManager.show('Thành công', 'Tin của bạn đã được xoá');
-
-      // ✅ Không cần cập nhật local state nữa vì đã có cơ chế đồng bộ tự động
-      // syncedStories sẽ tự động cập nhật và useEffect sẽ xử lý việc điều chỉnh UI
+      // ✅ Hiển thị thông báo nhẹ thành công trong 1.5s
+      showAlert('Thông báo', 'Tin của bạn đã được xoá', 2000);
     } catch (error) {
-      GlobalAlertManager.show('Thất bại', 'Không thể xoá story');
+      // ✅ Hiển thị thông báo lỗi nhẹ
+      showAlert('Thất bại', 'Không thể xoá story', 2000);
       // ✅ Đóng modal nếu có lỗi
       setVisibleSeeMore(false);
     }
@@ -332,6 +352,11 @@ export const SeenStory = ({route, navigation}: any) => {
 
       const anim = progressAnims[currentIndex];
       if (!anim) return;
+
+      // ✅ Ensure progressValues array is properly sized
+      if (progressValues.length <= currentIndex) {
+        progressValues[currentIndex] = 0;
+      }
 
       // Nếu reset thì đặt lại
       if (forceRestart || progressValues[currentIndex] >= 1) {
@@ -614,9 +639,11 @@ export const SeenStory = ({route, navigation}: any) => {
     }
   };
 
+  // Tính toán vị trí caption từ percentage sang pixel để đảm bảo nhất quán với EditStory
   const getCaptionPosition = (xPercent: number, yPercent: number) => {
-    const width = mediaSize.width || screenWidth;
-    const height = mediaSize.height || screenHeight;
+    // Sử dụng screenWidth và screenHeight để đảm bảo nhất quán với EditStory
+    const width = screenWidth;
+    const height = screenHeight;
     return {
       left: (xPercent / 100) * width,
       top: (yPercent / 100) * height,
@@ -668,6 +695,11 @@ export const SeenStory = ({route, navigation}: any) => {
         style={{
           position: 'absolute',
           ...position,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          borderRadius: 8,
+          padding: 5,
+          minWidth: 100,
+          maxWidth: screenWidth * 0.8,
         }}
         activeOpacity={1}>
         {renderTextWithMentions(
@@ -678,6 +710,7 @@ export const SeenStory = ({route, navigation}: any) => {
             color: '#fff',
             fontSize: 18,
             fontWeight: '600',
+            textAlign: 'center',
           },
           {
             color: '#4A90E2',
@@ -739,6 +772,12 @@ export const SeenStory = ({route, navigation}: any) => {
       videoRef.current.seek(0);
     }
 
+    // ✅ Reset pause state when switching to a new story (for owner mode)
+    if (isCurrentUserStory) {
+      setIsPaused(false);
+      setWasPausedByUser(false);
+    }
+
     //  Nếu không có video/music, start luôn
     const hasVideo = !!selectedItem.uriVideo;
     const hasMusic = !!selectedItem.music?.link;
@@ -746,7 +785,7 @@ export const SeenStory = ({route, navigation}: any) => {
     if (!hasVideo && !hasMusic) {
       startProgressAnimation();
     }
-  }, [currentIndex, syncedStories.length]);
+  }, [currentIndex, syncedStories.length, isCurrentUserStory]);
 
   useEffect(() => {
     if (!isPaused) {

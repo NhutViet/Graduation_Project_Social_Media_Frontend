@@ -67,7 +67,7 @@ const FollowingTab = () => {
       const img2 = room.user_ids.find(user => user._id === userID)?.profilePic;
       navigation.navigate('MessageScreen', {room: room._id, img1, img2});
     } catch (error) {
-      console.log('Tạo room thất bại:', error);
+      console.warn(error);
     }
   };
 
@@ -119,11 +119,11 @@ const FollowingTab = () => {
       <TouchableOpacity style={styles.touchableInfo}>
         <Image source={{uri: item.profilePic}} style={styles.profilePic} />
         <View style={styles.suggestedInfo}>
-          <Text style={[styles.handle, {color: color.text}]}>
-            {item.handleName}
-          </Text>
-          <Text style={[styles.username, {color: color.textSecondary}]}>
+          <Text style={[styles.username, {color: color.text}]}>
             {item.username}
+          </Text>
+          <Text style={[styles.handle, {color: color.textSecondary}]}>
+            {item.handleName}
           </Text>
         </View>
       </TouchableOpacity>
@@ -265,12 +265,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   handle: {
-    fontSize: 16,
-    fontWeight: '600',
+    color: '#666',
   },
   username: {
-    fontSize: 13,
-    color: '#666',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   followButton: {
     backgroundColor: '#007BFF',
