@@ -25,13 +25,13 @@ import {forceRefreshStories} from '../../../services/StoryRedux/StoryReducer';
 import {uploadImageToR2, uploadVideoToR2} from '../../core/upload';
 import {Dimensions} from 'react-native';
 import {X, ChevronRight, Play, Music} from 'lucide-react-native';
-import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 import {userFollow} from '@services/StoryRedux/StoryType';
 import LoadingModal from '../../../components/Global/LoadingModal';
 import {Colors} from '@assets/color/Colors';
 import BottomSheet, {
   BottomSheetRef,
 } from '../PostStory/BottomSheet/BottomSheetMusic';
+import {useHeadAlert} from '../../../components/Global/HeadAlertProvider';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -74,6 +74,7 @@ export const EditStory = ({route, navigation}: any) => {
   const {refreshToken, user} = useSelector((state: RootState) => state.user);
 
   const {showUploadModal, hideUploadModal, setProgress} = useUploadProgress();
+  const {showAlert} = useHeadAlert();
 
   const imageDuration = 15000; // 15 seconds for images
 
@@ -320,7 +321,7 @@ export const EditStory = ({route, navigation}: any) => {
         }
       } catch (error) {
         setIsUploading(false);
-        GlobalAlertManager.show(
+        showAlert(
           'Upload thất bại',
           `Không thể upload ${
             selectedItem?.type.includes('video') ? 'video' : 'ảnh'
@@ -378,7 +379,7 @@ export const EditStory = ({route, navigation}: any) => {
       const storyResult = await dispatch(createStory(payload)).unwrap();
 
       if (storyResult) {
-        GlobalAlertManager.show('Thông báo', 'Đăng story thành công.');
+        showAlert('Thông báo', 'Đăng story thành công.', 2000);
         dispatch(forceRefreshStories());
       }
 
@@ -403,9 +404,10 @@ export const EditStory = ({route, navigation}: any) => {
       });
     } catch (error: any) {
       setIsUploading(false);
-      GlobalAlertManager.show(
+      showAlert(
         'Lỗi!!!',
         error?.response?.data?.message || 'Đăng story thất bại.',
+        2000,
       );
       hideUploadModal();
     }
