@@ -38,7 +38,7 @@ import ACNavigateModal, {
 import {fetchTaggedPosts} from '@services/taggedPostRedux/taggedPostSlice';
 import HighlightStoriesComponent from './components/HighlightStoriesComponent';
 import {TaggedPost} from '@services/taggedPostRedux/taggedPostTypes';
-import { getAllBookmark } from '@services/bookmarkRedux/bookmarkSlice';
+import {getAllBookmark} from '@services/bookmarkRedux/bookmarkSlice';
 
 const Profile = () => {
   const navigation: any = useNavigation();
@@ -72,19 +72,27 @@ const Profile = () => {
 
   const [isViewMoreVisible, setViewMoreVisible] = useState(false);
 
-  useEffect(() => {
-    if (userId) {
-      Promise.all([
-        dispatch(fetchFollowers({userId: userId})),
-        dispatch(fetchFollowing({userId: userId})),
-        dispatch(fetchTaggedPosts(userId)),
-        dispatch(getAllBookmark({})),
-      ]).catch(error => {
-        console.error('Error fetching relations:', error);
-      });
-    }
-  }, [dispatch, userId]);
-  
+  useFocusEffect(
+    useCallback(() => {
+      let isActive = true;
+
+      if (userId && isActive) {
+        Promise.all([
+          dispatch(fetchFollowers({userId})),
+          dispatch(fetchFollowing({userId})),
+          dispatch(fetchTaggedPosts(userId)),
+          dispatch(getAllBookmark({})),
+        ]).catch(error => {
+          console.error('Error fetching relations:', error);
+        });
+      }
+
+      return () => {
+        isActive = false;
+      };
+    }, [dispatch, userId]),
+  );
+
   // These two State Functionals below is for handle the length of bio
   const [needsTruncation, setNeedsTruncation] = useState(false);
   const [viewMoreBio, setViewMoreBio] = useState<Boolean>(false);
@@ -345,7 +353,7 @@ const Profile = () => {
         );
       case 'bookmark':
         return !isBookmarkLoading && BookmarkItems ? (
-          <PostsView data={BookmarkItems} isBookmark={true}/>
+          <PostsView data={BookmarkItems} isBookmark={true} />
         ) : (
           <LoadingPlaceholder />
         );
