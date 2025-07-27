@@ -34,7 +34,8 @@ const taggedPostReducer = createReducer(initialState, builder => {
     )
     .addCase(updateTaggedPostFollow, (state, action) => {
       const {userId, isFollow} = action.payload;
-      state.data = state.data.map(post =>
+      const arr: TaggedPost[] = Array.isArray(state.data) ? state.data : [];
+      state.data = arr.map(post =>
         post.user._id === userId
           ? {...post, isFollow, user: {...post.user, isFollow}}
           : post,

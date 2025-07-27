@@ -110,7 +110,7 @@ const FollowersTab = () => {
                 ? [styles.messageText, {color: color.text}]
                 : styles.followText,
             ]}>
-            {isMutual ? 'Bạn bè' : 'Theo dõi'}
+            {isMutual ? 'Nhắn tin' : 'Theo dõi'}
           </Text>
         </TouchableOpacity>
       </View>
