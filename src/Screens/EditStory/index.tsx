@@ -17,20 +17,21 @@ import Video, {OnLoadData, OnProgressData, VideoRef} from 'react-native-video';
 import Draggable from 'react-native-draggable';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import Sound from 'react-native-sound';
-import {API} from '../../../services/api';
 import {useUploadProgress} from '../../../services/UploadProgressManager';
 import {useSelector, useDispatch} from 'react-redux';
 import {RootState, AppDispatch} from '../../../services/store';
 import {createStory} from '../../../services/StoryRedux/StorySlice';
 import {forceRefreshStories} from '../../../services/StoryRedux/StoryReducer';
 import {uploadImageToR2, uploadVideoToR2} from '../../core/upload';
-import axiosInstance from '../../../services/axiosInstance';
 import {Dimensions} from 'react-native';
-import {X, ChevronRight, Play} from 'lucide-react-native';
+import {X, ChevronRight, Play, Music} from 'lucide-react-native';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 import {userFollow} from '@services/StoryRedux/StoryType';
 import LoadingModal from '../../../components/Global/LoadingModal';
 import {Colors} from '@assets/color/Colors';
+import BottomSheet, {
+  BottomSheetRef,
+} from '../PostStory/BottomSheet/BottomSheetMusic';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -38,7 +39,7 @@ const screenHeight = Dimensions.get('window').height;
 export const EditStory = ({route, navigation}: any) => {
   const dispatch = useDispatch<AppDispatch>();
   const {followingUsers} = useSelector((state: RootState) => state.stories);
-  const {selectedItem, selectedMusic, songUrl} = route.params;
+  const {selectedItem} = route.params;
   const [videoDuration, setVideoDuration] = useState<number | null>(null);
   const [videoCurrentTime, setVideoCurrentTime] = useState(0);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -51,10 +52,19 @@ export const EditStory = ({route, navigation}: any) => {
   const animationRef = useRef<Animated.CompositeAnimation | null>(null);
   const videoRef = useRef<VideoRef>(null);
   const audioRef = useRef<Sound | null>(null); // ref cho âm thanh
-  // Lấy tọa độ, đặt giá trị mặc định ở giữa nếu không kéo thả
-  const positionRef = useRef({x: 50, y: 50}); // Mặc định ở giữa (50% x, 50% y)
+  const sheetRef = useRef<BottomSheetRef>(null);
+  // Lưu trữ vị trí caption theo percentage (0-100) để đảm bảo nhất quán với SeenStory
+  const positionRef = useRef({x: 10, y: 20}); // Mặc định ở góc trên bên trái (10% x, 20% y)
   const [initialized, setInitialized] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [selectedMusic, setSelectedMusic] = useState<{
+    musicId: string;
+    timeStart: number;
+    timeEnd: number;
+    song: string;
+    songImage: string;
+  } | null>(null);
+  const [songUrl, setSongUrl] = useState<string | null>(null);
 
   // Sau khi render lần đầu, ngừng truyền x/y để tránh nhảy
   useEffect(() => {
@@ -127,6 +137,13 @@ export const EditStory = ({route, navigation}: any) => {
 
   useEffect(() => {
     if (selectedMusic && songUrl) {
+      // Dừng nhạc cũ trước khi tạo nhạc mới
+      if (audioRef.current) {
+        audioRef.current.stop();
+        audioRef.current.release();
+        audioRef.current = null;
+      }
+
       const sound = new Sound(songUrl, undefined, error => {
         if (error) {
           console.log('Không thể tải âm thanh: ', error);
@@ -173,6 +190,17 @@ export const EditStory = ({route, navigation}: any) => {
     };
   }, [selectedItem]);
 
+  // Cleanup effect để dừng nhạc khi component unmount
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.stop();
+        audioRef.current.release();
+        audioRef.current = null;
+      }
+    };
+  }, []);
+
   const handleScreenTap = () => {
     setIsModalVisible(true);
   };
@@ -207,6 +235,12 @@ export const EditStory = ({route, navigation}: any) => {
   };
 
   const handleCloserPress = () => {
+    // Dừng nhạc khi rời khỏi màn hình
+    if (audioRef.current) {
+      audioRef.current.stop();
+      audioRef.current.release();
+      audioRef.current = null;
+    }
     navigation.goBack();
   };
 
@@ -393,6 +427,23 @@ export const EditStory = ({route, navigation}: any) => {
             <View style={styles.viewHeaderRight}>
               <TouchableOpacity
                 style={[styles.btnCloser, {marginRight: 15}]}
+                onPress={() => {
+                  // Dừng nhạc hiện tại nếu có
+                  if (audioRef.current) {
+                    audioRef.current.stop();
+                    audioRef.current.release();
+                    audioRef.current = null;
+                  }
+                  // Reset selected music
+                  setSelectedMusic(null);
+                  setSongUrl(null);
+                  // Mở bottom sheet chọn nhạc
+                  sheetRef.current?.open();
+                }}>
+                <Music size={24} color={'#fff'} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.btnCloser, {marginRight: 15}]}
                 onPress={() => setIsModalVisible(true)}>
                 <Text style={styles.txtAa}>Aa</Text>
               </TouchableOpacity>
@@ -404,7 +455,7 @@ export const EditStory = ({route, navigation}: any) => {
             </View>
           </View>
 
-          <View style={styles.mediaItems}>{renderProgressBar()}</View>
+          {/* <View style={styles.mediaItems}>{renderProgressBar()}</View> */}
           <View style={styles.mediaWrapper}>
             <TouchableWithoutFeedback onPress={handleScreenTap}>
               <View style={styles.mediaTouchArea}>
@@ -440,17 +491,47 @@ export const EditStory = ({route, navigation}: any) => {
                 )}
                 {caption && (
                   <Draggable
-                    x={!initialized ? positionRef.current.x : undefined}
-                    y={!initialized ? positionRef.current.y : undefined}
+                    x={
+                      !initialized
+                        ? (positionRef.current.x / 100) * screenWidth
+                        : undefined
+                    }
+                    y={
+                      !initialized
+                        ? (positionRef.current.y / 100) * screenHeight
+                        : undefined
+                    }
                     onDragRelease={(event, gestureState) => {
                       const mediaWidth = screenWidth;
                       const mediaHeight = screenHeight;
 
-                      const absoluteX = positionRef.current.x + gestureState.dx;
-                      const absoluteY = positionRef.current.y + gestureState.dy;
+                      // Tính toán vị trí tuyệt đối dựa trên vị trí hiện tại (đã được convert từ %)
+                      const currentAbsoluteX =
+                        (positionRef.current.x / 100) * mediaWidth;
+                      const currentAbsoluteY =
+                        (positionRef.current.y / 100) * mediaHeight;
 
-                      positionRef.current.x = (absoluteX / mediaWidth) * 100;
-                      positionRef.current.y = (absoluteY / mediaHeight) * 100;
+                      // Cộng thêm delta từ gesture
+                      let newAbsoluteX = currentAbsoluteX + gestureState.dx;
+                      let newAbsoluteY = currentAbsoluteY + gestureState.dy;
+
+                      // Giới hạn vị trí để caption không bị tràn ra ngoài màn hình
+                      const captionWidth = screenWidth * 0.8; // maxWidth của caption
+                      const captionHeight = 50; // Ước tính chiều cao caption
+
+                      newAbsoluteX = Math.max(
+                        0,
+                        Math.min(mediaWidth - captionWidth, newAbsoluteX),
+                      );
+                      newAbsoluteY = Math.max(
+                        0,
+                        Math.min(mediaHeight - captionHeight, newAbsoluteY),
+                      );
+
+                      // Convert về percentage
+                      positionRef.current.x = (newAbsoluteX / mediaWidth) * 100;
+                      positionRef.current.y =
+                        (newAbsoluteY / mediaHeight) * 100;
                     }}>
                     <View style={styles.textInputContainer}>
                       <Text style={styles.captionText}>{caption}</Text>
@@ -523,6 +604,22 @@ export const EditStory = ({route, navigation}: any) => {
               </Text>
             </View>
           </Modal>
+
+          <BottomSheet
+            ref={sheetRef}
+            onDoneSelect={(musicInfo: {
+              musicId: string;
+              timeStart: number;
+              timeEnd: number;
+              song: string;
+              songImage: string;
+            }) => {
+              setSelectedMusic(musicInfo);
+            }}
+            songUrl={(url: string) => {
+              setSongUrl(url);
+            }}
+          />
         </SafeAreaView>
       </KeyboardAvoidingView>
     </GestureHandlerRootView>
@@ -603,7 +700,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     borderRadius: 8,
     padding: 5,
-    width: '100%',
+    minWidth: 100,
+    maxWidth: screenWidth * 0.8,
   },
   textInput: {
     position: 'absolute',
@@ -618,11 +716,11 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   captionText: {
-    width: 200,
     color: '#fff',
     fontSize: 20,
     textAlign: 'center',
     fontWeight: 'bold',
+    flexShrink: 1,
   },
   modalContainer: {
     flex: 1,
