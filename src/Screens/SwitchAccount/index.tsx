@@ -1,52 +1,54 @@
+import React, {useEffect, useState} from 'react';
 import {
-  Image,
-  PermissionsAndroid,
-  Platform,
+  SafeAreaView,
+  View,
   Text,
+  StyleSheet,
+  ImageBackground,
   TextInput,
   TouchableOpacity,
-  View,
+  Image,
+  ScrollView,
+  Platform,
+  PermissionsAndroid,
 } from 'react-native';
+import {Lock, Mail, Eye, EyeOff} from 'lucide-react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import LoginStyles from '../../StyleSheet/LoginStyles';
-import {useEffect, useState} from 'react';
-import SwitchAccountStyles from '../../StyleSheet/SwitchAccountStyles';
-import {Colors} from '../../../assets/color/Colors';
-import {useTheme} from '../../util/ThemeContext';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../services/store';
 import {
-  fetchCheckEmail,
   fetchLogin,
+  fetchCheckEmail,
   fetchRegister,
 } from '../../../services/userRedux/userSlice';
 import {resetStatus} from '../../../services/userRedux/userReducer';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
-import {Eye, EyeOff} from 'lucide-react-native';
 import messaging from '@react-native-firebase/messaging';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 import {fetchMyRooms} from '@services/roomRedux/roomSlice';
 import {useHeadAlert} from '../../../components/Global/HeadAlertProvider';
+import {useTheme} from '../../../src/util/ThemeContext';
+import {Colors} from '@assets/color/Colors';
 
 export const SwitchAccount = ({navigation, route}: any) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [errorEmail, setErrorEmail] = useState('');
   const [errorPassword, setErrorPassword] = useState('');
-  const {theme} = useTheme();
-  const color = Colors[theme];
-  const {showAlert} = useHeadAlert();
-  const styles = LoginStyles();
-  const SwitchStyles = SwitchAccountStyles(theme);
-  const [isPassWord, setIsPassWord] = useState(true);
-  //redux
   const dispatch = useDispatch<AppDispatch>();
   const {isLoading} = useSelector((state: RootState) => state.user);
-  const {email: initialEmail, newPassword: initialPassword} =
-    route?.params || {};
+  const {email: initialEmail, newPassword: initialPassword} = route?.params || {};
+  const {showAlert} = useHeadAlert();
+  const {theme} = useTheme();
+  const color = Colors[theme];
+
   useEffect(() => {
     if (initialEmail) setEmail(initialEmail);
     if (initialPassword) setPassword(initialPassword);
+    GoogleSignin.configure({
+      webClientId: '368528485101-ccrjeejqslg8t7uaokaduposs0c96qne.apps.googleusercontent.com',
+    });
   }, [initialEmail, initialPassword]);
 
   const requestNotificationPermission = async () => {
@@ -56,7 +58,7 @@ export const SwitchAccount = ({navigation, route}: any) => {
       );
       return granted === PermissionsAndroid.RESULTS.GRANTED;
     }
-    return true; // iOS or Android < 13
+    return true;
   };
 
   const handleForgot = async () => {
@@ -66,7 +68,6 @@ export const SwitchAccount = ({navigation, route}: any) => {
   const handleLogin = async () => {
     setErrorEmail('');
     setErrorPassword('');
-
     let valid = true;
     if (!email) {
       setErrorEmail('Vui lòng nhập đầy đủ thông tin.');
@@ -75,124 +76,70 @@ export const SwitchAccount = ({navigation, route}: any) => {
       setErrorEmail('Email không đúng định dạng');
       valid = false;
     }
-
     if (!password) {
       setErrorPassword('Vui lòng nhập đầy đủ thông tin.');
       valid = false;
     }
-
-    if (!valid) {
-      return;
-    }
+    if (!valid) return;
 
     const permissionGranted = await requestNotificationPermission();
     if (!permissionGranted) {
-      GlobalAlertManager.show(
-        'Thông báo',
-        'Bạn cần cấp quyền thông báo để sử dụng ứng dụng.',
-      );
+      GlobalAlertManager.show('Thông báo', 'Bạn cần cấp quyền thông báo để sử dụng ứng dụng.');
       return;
     }
 
     let fcmToken = '';
-
     try {
       fcmToken = await messaging().getToken();
     } catch (err) {
       console.warn('Lấy FCM token thất bại:', err);
     }
-    const resultAction = await dispatch(
-      fetchLogin({email, password, fcmToken}),
-    );
 
+    const resultAction = await dispatch(fetchLogin({email, password, fcmToken}));
     if (fetchLogin.fulfilled.match(resultAction)) {
       showAlert('Thành công', 'Đăng nhập thành công');
       navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
       dispatch(fetchMyRooms());
     } else {
-      showAlert(
-        'Thất bại',
-        resultAction.payload?.message ||
-          'Đăng nhập thất bại. Vui lòng thử lại.',
-      );
+      showAlert('Thất bại', resultAction.payload?.message || 'Đăng nhập thất bại. Vui lòng thử lại.');
     }
   };
 
-  useEffect(() => {
-    GoogleSignin.configure({
-      webClientId:
-        '368528485101-ccrjeejqslg8t7uaokaduposs0c96qne.apps.googleusercontent.com',
-    });
-  }, []);
-
-  const signInWithGoogle = async (): Promise<void> => {
+  const signInWithGoogle = async () => {
     try {
       dispatch(resetStatus());
       await GoogleSignin.hasPlayServices();
       const userInfo: any = await GoogleSignin.signIn();
-
       const email = userInfo.data.user.email;
       const tempPassword = userInfo.data.user.id;
       const profilePic = userInfo.data.user.photo;
-
       await GoogleSignin.signOut();
-
       const checkEmailAction = await dispatch(fetchCheckEmail({email}));
 
       if (fetchCheckEmail.fulfilled.match(checkEmailAction)) {
         const {exists} = checkEmailAction.payload;
-        let fcmToken = '';
-        try {
-          fcmToken = await messaging().getToken();
-        } catch (err) {
-          console.warn('Lấy FCM token thất bại:', err);
-        }
+        let fcmToken = await messaging().getToken();
         if (exists) {
-          dispatch(resetStatus());
-          const fcmToken = await messaging().getToken();
-          const loginAction = await dispatch(
-            fetchLogin({email, password: tempPassword, fcmToken}),
-          );
-
+          const loginAction = await dispatch(fetchLogin({email, password: tempPassword, fcmToken}));
           if (fetchLogin.fulfilled.match(loginAction)) {
             showAlert('Thành công', 'Đăng nhập thành công');
             navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
           } else {
-            GlobalAlertManager.show(
-              'Thông báo',
-              'Tài khoản này đã được đăng ký bằng hình thức khác.\nVui lòng dùng phương thức ban đầu.',
-            );
+            GlobalAlertManager.show('Thông báo', 'Tài khoản này đã được đăng ký bằng hình thức khác.\nVui lòng dùng phương thức ban đầu.');
           }
         } else {
-          dispatch(resetStatus());
-          const registerAction = await dispatch(
-            fetchRegister({
-              email,
-              password: tempPassword,
-              profilePic: profilePic,
-            }),
-          );
-
+          const registerAction = await dispatch(fetchRegister({email, password: tempPassword, profilePic}));
           if (fetchRegister.fulfilled.match(registerAction)) {
-            dispatch(resetStatus());
-            const loginAction = await dispatch(
-              fetchLogin({email, password: tempPassword}),
-            );
+            const loginAction = await dispatch(fetchLogin({email, password: tempPassword}));
             if (!fetchLogin.fulfilled.match(loginAction)) {
               showAlert('Thông báo', 'Đăng nhập thất bại');
             }
           } else {
-            showAlert(
-              'Thông báo',
-              registerAction.payload?.message || 'Đăng nhập thất bại',
-            );
+            showAlert('Thông báo', registerAction.payload?.message || 'Đăng nhập thất bại');
           }
         }
       } else {
-        showAlert(
-          'Thông báo',
-          checkEmailAction.payload?.message || 'Kiểm tra email thất bại',
-        );
+        showAlert('Thông báo', checkEmailAction.payload?.message || 'Kiểm tra email thất bại');
       }
     } catch (error: any) {
       showAlert('Lỗi', error);
@@ -200,99 +147,121 @@ export const SwitchAccount = ({navigation, route}: any) => {
   };
 
   return (
-    <View style={styles.page}>
-      <LinearGradient
-        colors={['#FEB70B', '#C83753', '#A52AA3', '#0064E0', '#0064E0']}
-        locations={[0, 0.24, 0.43, 0.65, 1]}
-        start={{x: 0, y: 1}}
-        end={{x: 1, y: 0}}
-        style={styles.linear}
-      />
-      <View style={styles.container}>
-        <Image
-          style={styles.logo}
-          source={require('../../../assets/icon/logo.png')}
-        />
-        <View style={[SwitchStyles.body]}>
-          <TextInput
-            value={email}
-            onChangeText={setEmail}
-            placeholder="Email"
-            placeholderTextColor={Colors.light.lightDark}
-            style={[SwitchStyles.input, {marginBottom: 5}]}
+    <SafeAreaView style={{flex: 1, backgroundColor: color.background}}>
+      <View style={[styles.root, {backgroundColor: color.background}]}>
+        <View style={{justifyContent: 'center', alignItems: 'center', paddingTop: 50}}>
+          <ImageBackground
+            source={require('../../../assets/icon/logo_loading.png')}
+            style={styles.topIllustration}
+            resizeMode="cover"
           />
-          {!(errorEmail === '') && (
-            <Text style={styles.errorText}>{errorEmail}</Text>
-          )}
-          <View
-            style={[
-              SwitchStyles.input,
-              {
-                marginTop: 20,
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: 5,
-              },
-            ]}>
-            <TextInput
-              value={password}
-              onChangeText={setPassword}
-              style={{width: '90%', color: color.black}}
-              placeholder="Mật khẩu"
-              secureTextEntry={isPassWord}
-              placeholderTextColor={Colors.light.lightDark}
-            />
-            <TouchableOpacity
-              onPress={() =>
-                isPassWord ? setIsPassWord(false) : setIsPassWord(true)
-              }>
-              {isPassWord ? (
-                <EyeOff strokeWidth={1.5} size={20} color={'#000'} />
-              ) : (
-                <Eye strokeWidth={1.5} size={20} color={'#000'} />
-              )}
-            </TouchableOpacity>
-          </View>
-
-          {!(errorPassword === '') && (
-            <Text style={styles.errorText}>{errorPassword}</Text>
-          )}
-
-          <TouchableOpacity
-            style={SwitchStyles.btnForgot}
-            onPress={handleForgot}>
-            <Text style={SwitchStyles.textForgot}>Quên mật khẩu?</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.buttonLogin} onPress={handleLogin}>
-            <Text style={styles.textBtn}>
-              {isLoading ? 'Đang xử lý...' : 'Đăng nhập'}
-            </Text>
-          </TouchableOpacity>
-          <View style={{alignItems: 'center', marginTop: 15}}>
-            <TouchableOpacity
-              onPress={() => {
-                signInWithGoogle();
-              }}
-              style={{flexDirection: 'row', alignItems: 'center'}}>
-              <Image
-                style={SwitchStyles.icon}
-                source={require('../../../assets/icon/gg.png')}
+        </View>
+        <ScrollView style={styles.container}>
+          <Text style={[styles.title, {color: color.text}]}>Đăng nhập</Text>
+          <Text style={[styles.subtitle, {color: color.text}]}>Đăng nhập với địa chỉ email</Text>
+          <View style={styles.form}>
+            <View style={[styles.inputRow, {backgroundColor: color.backgroundSecondary}]}>
+              <Mail size={20} color={color.text} />
+              <TextInput
+                style={[styles.input, {color: color.text}]}
+                placeholder="Email@gmail.com"
+                placeholderTextColor={color.textSecondary}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                value={email}
+                onChangeText={setEmail}
               />
-              <Text style={SwitchStyles.textGoogle}>Đăng nhập bằng Google</Text>
+            </View>
+            {errorEmail ? <Text style={{color: color.error, marginBottom: 8}}>{errorEmail}</Text> : null}
+            <View style={[styles.inputRow, {backgroundColor: color.backgroundSecondary}]}>
+              <Lock size={20} color={color.text} />
+              <TextInput
+                style={[styles.input, {color: color.text}]}
+                placeholder="Mật khẩu"
+                placeholderTextColor={color.textSecondary}
+                secureTextEntry={!showPassword}
+                value={password}
+                onChangeText={setPassword}
+              />
+              <TouchableOpacity onPress={() => setShowPassword(prev => !prev)}>
+                {showPassword ? (
+                  <EyeOff size={20} color={color.text} />
+                ) : (
+                  <Eye size={20} color={color.text} />
+                )}
+              </TouchableOpacity>
+            </View>
+            {errorPassword ? <Text style={{color: color.error, marginBottom: 8}}>{errorPassword}</Text> : null}
+            <TouchableOpacity onPress={handleForgot}>
+              <Text style={[styles.orText, {textAlign: 'right', marginBottom: 0, color: color.primary}]}>Quên mật khẩu</Text>
             </TouchableOpacity>
           </View>
-        </View>
-        <View style={styles.textRow}>
-          <Text style={styles.textGray}>Bạn chưa có tài khoản?</Text>
-          <TouchableOpacity
-            onPress={() => {
-              navigation.navigate('Register');
-            }}>
-            <Text style={styles.text}> Đăng ký</Text>
+          <TouchableOpacity activeOpacity={0.8} onPress={handleLogin}>
+            <LinearGradient
+              colors={['#005BEA', '#00E5FF']}
+              start={{x: 0, y: 0}}
+              end={{x: 1, y: 0}}
+              style={styles.button}>
+              <Text style={styles.buttonText}>{isLoading ? 'Đang xử lý...' : 'Đăng nhập'}</Text>
+            </LinearGradient>
           </TouchableOpacity>
-        </View>
+          <Text style={[styles.orText, {color: color.text}]}>Hoặc tiếp tục với</Text>
+          <TouchableOpacity
+            style={[styles.socialButton, {backgroundColor: color.backgroundSecondary}]}
+            activeOpacity={0.8}
+            onPress={signInWithGoogle}>
+            <Image
+              source={require('../../../assets/icon/gg.png')}
+              style={styles.socialIcon}
+            />
+            <Text style={[styles.socialText, {color: color.text}]}>Google</Text>
+          </TouchableOpacity>
+          <View style={{flexDirection: 'row', justifyContent: 'center', marginTop: 16}}>
+            <Text style={{color: color.textSecondary}}>Bạn chưa có tài khoản? </Text>
+            <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+              <Text style={{color: color.primary, fontWeight: '600'}}>Đăng ký</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  root: {flex: 1},
+  topIllustration: {width: 100, height: 100},
+  container: {padding: 24},
+  title: {fontSize: 32, fontWeight: '700'},
+  subtitle: {fontSize: 14, marginBottom: 24, marginTop: 5},
+  form: {marginBottom: 32},
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    elevation: 1,
+    height: 50,
+    marginTop: 16,
+    marginBottom: 5,
+  },
+  input: {flex: 1, marginLeft: 8, fontSize: 14},
+  button: {
+    height: 48,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  buttonText: {color: '#FFF', fontSize: 16, fontWeight: '600'},
+  orText: {textAlign: 'center', marginBottom: 16},
+  socialButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 8,
+    height: 48,
+    justifyContent: 'center',
+  },
+  socialIcon: {width: 20, height: 20},
+  socialText: {marginLeft: 8, fontSize: 16, fontWeight: '500'},
+});

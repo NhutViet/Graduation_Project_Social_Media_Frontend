@@ -5,11 +5,12 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  ScrollView,
+  SafeAreaView,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { useTheme } from '../../util/ThemeContext';
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react-native';
-import ForgotPasswordStyles from '../../StyleSheet/ForgotPasswordStyles';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchInitForgotPassword } from '../../../services/userRedux/userSlice';
 import { resetForgotStatus } from '../../../services/userRedux/userReducer';
@@ -27,13 +28,10 @@ export const ForgotPassword = ({ navigation }: any) => {
   const [errorPhone, setErrorPhone] = useState('');
   const [errorPassword, setErrorPassword] = useState('');
   const dispatch = useDispatch<AppDispatch>();
-  const { isLoadingForgot, isErrorForgot, forgotMessage } = useSelector(
-    (state: RootState) => state.user
-  );
+  const { isLoadingForgot, isErrorForgot, forgotMessage } = useSelector((state: RootState) => state.user);
 
   const { theme } = useTheme();
   const color = Colors[theme];
-  const styles = ForgotPasswordStyles(theme);
   const [isPassWord, setIsPassWord] = useState(true);
 
   useEffect(() => {
@@ -41,14 +39,11 @@ export const ForgotPassword = ({ navigation }: any) => {
   }, [dispatch]);
 
   const handleResetPassword = async () => {
-    // Clear existing errors
     setErrorEmail('');
     setErrorPhone('');
     setErrorPassword('');
-
     let valid = true;
 
-    // Validate identifier
     if (mode === 'email') {
       if (!email) {
         setErrorEmail('Vui lòng nhập email.');
@@ -76,13 +71,8 @@ export const ForgotPassword = ({ navigation }: any) => {
     if (!valid) return;
 
     try {
-      const args =
-        mode === 'email'
-          ? { email, newPassword: password }
-          : { phone, newPassword: password };
-
+      const args = mode === 'email' ? { email, newPassword: password } : { phone, newPassword: password };
       const result = await dispatch(fetchInitForgotPassword(args)).unwrap();
-
       navigation.navigate('ConfirmationCode', {
         identifier: mode === 'email' ? email : phone,
         mode,
@@ -94,125 +84,92 @@ export const ForgotPassword = ({ navigation }: any) => {
     }
   };
 
-  const isFormValid =
-    password.trim() !== '' &&
-    (mode === 'email'
-      ? email.trim() !== ''
-      : phone.trim() !== '');
+  const isFormValid = password.trim() !== '' && (mode === 'email' ? email.trim() !== '' : phone.trim() !== '');
 
   return (
-    <View style={styles.page}>
-      <LinearGradient
-        colors={['#FEB70B', '#C83753', '#A52AA3', '#0064E0', '#0064E0']}
-        locations={[0, 0.24, 0.43, 0.65, 1]}
-        start={{ x: 0, y: 1 }}
-        end={{ x: 1, y: 0 }}
-        style={styles.linear}
-      />
-      <View style={styles.container}>
-        <View style={styles.headerContainer}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
-            <ArrowLeft strokeWidth={1.5} size={24} color={color.black} />
-          </TouchableOpacity>
+    <SafeAreaView style={{ flex: 1, backgroundColor: color.background }}>
+      <View style={{ flex: 1, backgroundColor: color.background }}>
+        <View style={{ justifyContent: 'center', alignItems: 'center', paddingTop: 50 }}>
           <Image
-            style={styles.logo}
-            source={require('../../../assets/icon/logo.png')}
+            style={{ width: 100, height: 100 }}
+            source={require('../../../assets/icon/logo_loading.png')}
+            resizeMode="cover"
           />
-          <View style={styles.placeholder} />
         </View>
 
-        <View style={styles.body}>
-          <Text style={styles.title}>Đặt lại mật khẩu</Text>
-          <Text style={styles.subtitle}>
-            {mode === 'email'
-              ? 'Nhập email và mật khẩu mới của bạn'
-              : 'Nhập số điện thoại và mật khẩu mới của bạn'}
+        <ScrollView contentContainerStyle={{ padding: 24 }}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <ArrowLeft strokeWidth={1.5} size={24} color={color.text} />
+          </TouchableOpacity>
+
+          <Text style={{ fontSize: 32, fontWeight: '700', color: color.text, marginTop: 20 }}>Đặt lại mật khẩu</Text>
+          <Text style={{ fontSize: 14, color: color.textSecondary, marginBottom: 24, marginTop: 5 }}>
+            {mode === 'email' ? 'Nhập email và mật khẩu mới của bạn' : 'Nhập số điện thoại và mật khẩu mới của bạn'}
           </Text>
 
-          <TextInput
-            value={mode === 'email' ? email : phone}
-            onChangeText={mode === 'email' ? setEmail : setPhone}
-            placeholder={mode === 'email' ? 'Email' : 'Số điện thoại'}
-            placeholderTextColor={Colors.light.lightDark}
-            keyboardType={mode === 'email' ? 'email-address' : 'phone-pad'}
-            style={[styles.input, { marginBottom: 5 }]}
-          />
-          {mode === 'email' && errorEmail !== '' && (
-            <Text style={styles.errorText}>{errorEmail}</Text>
-          )}
-          {mode === 'phone' && errorPhone !== '' && (
-            <Text style={styles.errorText}>{errorPhone}</Text>
-          )}
+          <View style={{ backgroundColor: color.backgroundSecondary, borderRadius: 8, paddingHorizontal: 12, height: 50, flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
+            <TextInput
+              value={mode === 'email' ? email : phone}
+              onChangeText={mode === 'email' ? setEmail : setPhone}
+              placeholder={mode === 'email' ? 'Email' : 'Số điện thoại'}
+              placeholderTextColor={color.textSecondary}
+              keyboardType={mode === 'email' ? 'email-address' : 'phone-pad'}
+              style={{ flex: 1, color: color.text }}
+            />
+          </View>
+          {errorEmail && <Text style={{ color: color.error, marginBottom: 8 }}>{errorEmail}</Text>}
+          {errorPhone && <Text style={{ color: color.error, marginBottom: 8 }}>{errorPhone}</Text>}
 
-          <View style={[styles.input, styles.passwordContainer]}>
+          <View style={{ backgroundColor: color.backgroundSecondary, borderRadius: 8, paddingHorizontal: 12, height: 50, flexDirection: 'row', alignItems: 'center', marginBottom: 5 }}>
             <TextInput
               value={password}
               onChangeText={setPassword}
-              style={styles.passwordInput}
+              style={{ flex: 1, color: color.text }}
               placeholder="Mật khẩu mới"
               secureTextEntry={isPassWord}
-              placeholderTextColor={Colors.light.lightDark}
+              placeholderTextColor={color.textSecondary}
             />
-            <TouchableOpacity
-              style={styles.eyeButton}
-              onPress={() => setIsPassWord(!isPassWord)}
-            >
+            <TouchableOpacity onPress={() => setIsPassWord(!isPassWord)}>
               {isPassWord ? (
-                <EyeOff strokeWidth={1.5} size={20} color={'#000'} />
+                <EyeOff strokeWidth={1.5} size={20} color={color.text} />
               ) : (
-                <Eye strokeWidth={1.5} size={20} color={'#000'} />
+                <Eye strokeWidth={1.5} size={20} color={color.text} />
               )}
             </TouchableOpacity>
           </View>
-          {errorPassword !== '' && (
-            <Text style={styles.errorText}>{errorPassword}</Text>
-          )}
+          {errorPassword && <Text style={{ color: color.error, marginBottom: 8 }}>{errorPassword}</Text>}
 
-          {isErrorForgot && (
-            <Text style={styles.errorText}>{forgotMessage}</Text>
-          )}
+          {isErrorForgot && <Text style={{ color: color.error, marginBottom: 8 }}>{forgotMessage}</Text>}
 
           <TouchableOpacity
-            style={[
-              styles.buttonLogin,
-              { marginVertical: 20 },
-              !isFormValid && styles.disabledButton,
-            ]}
+            activeOpacity={0.8}
+            style={{ height: 48, borderRadius: 8, justifyContent: 'center', alignItems: 'center', marginTop: 24, marginBottom: 24, opacity: !isFormValid ? 0.5 : 1 }}
             onPress={handleResetPassword}
             disabled={!isFormValid || isLoadingForgot}
           >
-            <Text
-              style={[
-                styles.textBtn,
-                !isFormValid && styles.disabledText,
-              ]}
+            <LinearGradient
+              colors={['#005BEA', '#00E5FF']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={{ height: 48, borderRadius: 8, justifyContent: 'center', alignItems: 'center', width: '100%' }}
             >
-              Xác nhận
-            </Text>
+              <Text style={{ color: '#fff', fontSize: 16, fontWeight: '600' }}>Xác nhận</Text>
+            </LinearGradient>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            onPress={() =>
-              setMode(mode === 'email' ? 'phone' : 'email')
-            }
-          >
-            <Text style={styles.toggleText}>
-              {mode === 'email'
-                ? 'Chuyển sang xác nhận qua số điện thoại'
-                : 'Chuyển sang xác nhận qua email'}
+          <TouchableOpacity onPress={() => setMode(mode === 'email' ? 'phone' : 'email')}>
+            <Text style={{ color: color.primary, textAlign: 'center' }}>
+              {mode === 'email' ? 'Chuyển sang xác nhận qua số điện thoại' : 'Chuyển sang xác nhận qua email'}
             </Text>
           </TouchableOpacity>
-        </View>
+        </ScrollView>
       </View>
 
       {isLoadingForgot && (
-        <View style={styles.loadingOverlay}>
+        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
           <LoadingModal withBackdrop={false} />
         </View>
       )}
-    </View>
+    </SafeAreaView>
   );
 };
