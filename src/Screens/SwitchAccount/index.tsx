@@ -27,8 +27,7 @@ import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import messaging from '@react-native-firebase/messaging';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 import {fetchMyRooms} from '@services/roomRedux/roomSlice';
-import { useTheme } from '../../../src/util/ThemeContext';
-import { Colors } from '@assets/color/Colors';
+import { useHeadAlert } from '../../../components/Global/HeadAlertProvider';
 
 const {width, height} = Dimensions.get('window');
 
@@ -48,6 +47,7 @@ export const SwitchAccount = ({navigation, route}: any) => {
   const {isLoading} = useSelector((state: RootState) => state.user);
   const {email: initialEmail, newPassword: initialPassword} =
     route?.params || {};
+    const {showAlert} = useHeadAlert();
   useEffect(() => {
     if (initialEmail) setEmail(initialEmail);
     if (initialPassword) setPassword(initialPassword);
