@@ -356,32 +356,6 @@ export const MessageScreen = () => {
 
   const keyExtractor = useCallback((item: Message) => item._id, []);
 
-  const isMessageRequest = !relationStatus && chat.length > 0;
-  const isCurrentUserSender =
-    isMessageRequest && roomMember1?._id === userC?._id;
-  // console.log(` 258 >>>>>>>>> ${isMeSender} <<<<<<<<<<<<< `);
-  // console.log(` 259 >>>>>>>>> ${relationStatus} <<<<<<<<<<<<< `);
-  const MessageRequestBanner = ({onAccept}: {onAccept: () => void}) => (
-    <View style={styles.requestBanner}>
-      <Text style={styles.requestBannerText}>
-        {isMeSender
-          ? `Đang chờ ${roomMember1?.handleName} chấp nhận để tiếp tục cuộc trò chuyện.`
-          : `${roomMember1?.handleName} muốn nhắn tin cho bạn. Chấp nhận để tiếp tục cuộc trò chuyện.`}
-      </Text>
-      {!isMeSender && (
-        <TouchableOpacity
-          style={[
-            styles.acceptButton,
-            {backgroundColor: color.background, shadowColor: color.text},
-            {backgroundColor: color.background, shadowColor: color.text},
-          ]}
-          onPress={onAccept}>
-          <Text style={styles.callText}>Chấp nhận</Text>
-        </TouchableOpacity>
-      )}
-    </View>
-  );
-
   if (loading || !rooms) {
     return (
       <SafeAreaView
@@ -438,19 +412,13 @@ export const MessageScreen = () => {
                 flatListRef.current?.scrollToEnd({animated: true})
               }
             />
-            {isMessageRequest &&
-            !isCurrentUserSender &&
-            rooms?.type === 'waiting' ? (
-              <MessageRequestBanner onAccept={handleAcceptRequest} />
-            ) : (
-              <MessageInput
-                message={message}
-                setMessage={setMessage}
-                sendMessage={sendMessage}
-                pickImageAndSend={pickImageAndSend}
-                roomId={roomId}
-              />
-            )}
+            <MessageInput
+              message={message}
+              setMessage={setMessage}
+              sendMessage={sendMessage}
+              pickImageAndSend={pickImageAndSend}
+              roomId={roomId}
+            />
           </View>
         </View>
         <ImagePreviewModal
