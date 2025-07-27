@@ -171,14 +171,28 @@ export const MessageScreen = () => {
       );
     };
 
+    const onThemeUpdated = ({
+      roomId: updatedRoomId,
+      theme,
+    }: {
+      roomId: string;
+      theme: string;
+    }) => {
+      if (updatedRoomId === roomId) {
+        setOriginalRoom(prev => (prev ? {...prev, theme} : prev));
+      }
+    };
+
     socket.on('receiveMessage', onMessage);
     socket.on('reactionUpdated', onReactionUpdated);
     socket.on('messageDeleted', onMessageDeleted);
+    socket.on('room:update-theme', onThemeUpdated);
 
     return () => {
       socket.off('receiveMessage', onMessage);
       socket.off('reactionUpdated', onReactionUpdated);
       socket.off('messageDeleted', onMessageDeleted);
+      socket.off('room:update-theme', onThemeUpdated);
     };
   }, [socket]);
 

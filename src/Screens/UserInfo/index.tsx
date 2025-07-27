@@ -39,6 +39,7 @@ import {
   LucideProps,
 } from 'lucide-react-native';
 import {useHeadAlert} from '../../../components/Global/HeadAlertProvider';
+import {useSocket} from '@services/SocketContext';
 
 const screenWidth = Dimensions.get('window').width - 8;
 const initialLayout = {width: Dimensions.get('window').width};
@@ -96,6 +97,7 @@ export const UserInfo = () => {
   const [hasNextPage, setHasNextPage] = useState<boolean>(true);
   const [previewVisible, setPreviewVisible] = useState(false);
   const [previewUri, setPreviewUri] = useState<string | null>(null);
+  const {socket} = useSocket();
 
   const openPreview = useCallback((uri: string) => {
     setPreviewUri(uri);
@@ -183,7 +185,15 @@ export const UserInfo = () => {
     (selectedBackground: string) => {
       dispatch(updateRoomTheme({roomId, theme: selectedBackground}))
         .unwrap()
-        .then(() => showAlert('Thành công', 'Đã cập nhật chủ đề'))
+        .then(() => {
+          if (!socket) return;
+          showAlert('Thành công', 'Đã cập nhật chủ đề');
+
+          socket.emit('room:update-theme', {
+            roomId,
+            theme: selectedBackground,
+          });
+        })
         .catch(() =>
           GlobalAlertManager.show('Thất bại', 'Cập nhật chủ đề thất bại'),
         );
