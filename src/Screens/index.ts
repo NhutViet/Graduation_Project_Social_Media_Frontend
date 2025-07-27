@@ -6,7 +6,6 @@ export * from './PostSetting';
 export * from './PostStory';
 export * from './QRcode';
 export * from './Setting';
-export * from './Setting/Privacy';
 export * from './Setting/Notification';
 export * from './Setting/Notification/Options';
 export * from './Splash';
