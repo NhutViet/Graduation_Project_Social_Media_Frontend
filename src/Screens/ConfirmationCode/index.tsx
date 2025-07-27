@@ -5,11 +5,11 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  ScrollView,
+  SafeAreaView,
 } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
 import { useTheme } from '../../util/ThemeContext';
 import { ArrowLeft } from 'lucide-react-native';
-import ForgotPasswordStyles from '../../StyleSheet/ForgotPasswordStyles';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchConfirmNewPassword, fetchInitForgotPassword } from '../../../services/userRedux/userSlice';
 import { resetConfirmStatus, resetForgotStatus } from '../../../services/userRedux/userReducer';
@@ -20,7 +20,6 @@ import { GlobalAlertManager } from '../../../components/Global/AlertModal';
 
 export const ConfirmationCode = ({ navigation, route }: any) => {
   const { identifier, mode, password, token: initialToken } = route.params;
-
   const [currentToken, setCurrentToken] = useState<string>(initialToken);
   const [code, setCode] = useState<string[]>(['', '', '', '', '', '']);
   const [errorMessage, setErrorMessage] = useState('');
@@ -29,7 +28,6 @@ export const ConfirmationCode = ({ navigation, route }: any) => {
 
   const { theme } = useTheme();
   const color = Colors[theme];
-  const styles = ForgotPasswordStyles(theme);
   const inputRefs = useRef<(TextInput | null)[]>([]);
 
   useEffect(() => {
@@ -39,7 +37,7 @@ export const ConfirmationCode = ({ navigation, route }: any) => {
   }, [dispatch]);
 
   const handleCodeChange = (text: string, index: number) => {
-    if (!/^\d*$/.test(text)) return;
+    if (!/^[0-9]?$/.test(text)) return;
     const newCode = [...code];
     newCode[index] = text;
     setCode(newCode);
@@ -71,21 +69,14 @@ export const ConfirmationCode = ({ navigation, route }: any) => {
     }
 
     try {
-      const result = await dispatch(
-        fetchConfirmNewPassword({ token: currentToken, code: fullCode })
-      ).unwrap();
-
-      GlobalAlertManager.show(
-        'Thành công',
-        'Mật khẩu đã được đặt lại thành công.',
-        () => {
-          navigation.navigate('SwitchAccount', {
-            identifier,
-            mode,
-            newPassword: result.newPassword,
-          });
-        }
-      );
+      const result = await dispatch(fetchConfirmNewPassword({ token: currentToken, code: fullCode })).unwrap();
+      GlobalAlertManager.show('Thành công', 'Mật khẩu đã được đặt lại thành công.', () => {
+        navigation.navigate('SwitchAccount', {
+          identifier,
+          mode,
+          newPassword: result.newPassword,
+        });
+      });
     } catch (err: any) {
       GlobalAlertManager.show('Lỗi!', err.message);
     }
@@ -93,12 +84,9 @@ export const ConfirmationCode = ({ navigation, route }: any) => {
 
   const handleResendCode = async () => {
     try {
-      // resend using same identifier & password
-      const args =
-        mode === 'email'
-          ? { email: identifier, newPassword: password }
-          : { phone: identifier, newPassword: password };
-
+      const args = mode === 'email'
+        ? { email: identifier, newPassword: password }
+        : { phone: identifier, newPassword: password };
       const result = await dispatch(fetchInitForgotPassword(args)).unwrap();
       setCurrentToken(result.token);
       GlobalAlertManager.show('Gửi lại mã', 'Mã xác nhận đã được gửi lại');
@@ -110,89 +98,82 @@ export const ConfirmationCode = ({ navigation, route }: any) => {
   const isFormValid = code.every((digit) => digit !== '');
 
   return (
-    <View style={styles.page}>
-      <LinearGradient
-        colors={['#FEB70B', '#C83753', '#A52AA3', '#0064E0', '#0064E0']}
-        locations={[0, 0.24, 0.43, 0.65, 1]}
-        start={{ x: 0, y: 1 }}
-        end={{ x: 1, y: 0 }}
-        style={styles.linear}
-      />
-      <View style={styles.container}>
-        <View style={styles.headerContainer}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
-            <ArrowLeft strokeWidth={1.5} size={24} color={color.black} />
-          </TouchableOpacity>
-          <Image
-            style={styles.logo}
-            source={require('../../../assets/icon/logo.png')}
-          />
-          <View style={styles.placeholder} />
-        </View>
-
-        <View style={styles.body}>
-          <Text style={styles.title}>Xác nhận mã</Text>
-          <Text style={styles.subtitle}>
-            Nhập mã xác nhận 6 chữ số được gửi đến{' '}
-            {mode === 'email' ? 'email của bạn' : 'số điện thoại của bạn'}
-          </Text>
-
-          <View style={styles.codeContainer}>
-            {code.map((digit, index) => (
-              <TextInput
-                key={index}
-                ref={(ref) => (inputRefs.current[index] = ref)}
-                style={[
-                  styles.codeInput,
-                  digit ? styles.codeInputFilled : undefined,
-                ]}
-                value={digit}
-                onChangeText={(text) => handleCodeChange(text, index)}
-                onKeyPress={({ nativeEvent }) =>
-                  handleKeyPress(nativeEvent.key, index)
-                }
-                keyboardType="number-pad"
-                maxLength={1}
-                textAlign="center"
-                selectTextOnFocus={true}
-              />
-            ))}
-          </View>
-
-          {errorMessage !== '' && (
-            <Text style={styles.errorText}>{errorMessage}</Text>
-          )}
-
-          <TouchableOpacity
-            style={styles.resendContainer}
-            onPress={handleResendCode}
-            disabled={isLoadingForgot}
-          >
-            <Text style={styles.resendText}>
-              Không nhận được mã? <Text style={styles.resendLink}>Gửi lại</Text>
-            </Text>  
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.buttonLogin, !isFormValid && styles.disabledButton]}
-            onPress={handleConfirmCode}
-            disabled={!isFormValid || isLoadingConfirm}
-          >
-            <Text style={[styles.textBtn, !isFormValid && styles.disabledText]}>
-              Xác nhận
-            </Text>
-          </TouchableOpacity>
-        </View>
+    <SafeAreaView style={{ flex: 1, backgroundColor: color.background }}>
+      <View style={{ justifyContent: 'center', alignItems: 'center', paddingTop: 50 }}>
+        <Image
+          source={require('../../../assets/icon/logo_loading.png')}
+          style={{ width: 100, height: 100 }}
+          resizeMode="cover"
+        />
       </View>
-      
+      <ScrollView style={{ padding: 24 }}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <ArrowLeft strokeWidth={1.5} size={24} color={color.text} />
+        </TouchableOpacity>
+
+        <Text style={{ fontSize: 32, fontWeight: '700', marginTop: 24, color: color.text }}>
+          Xác nhận mã
+        </Text>
+        <Text style={{ fontSize: 14, color: color.textSecondary, marginTop: 4 }}>
+          Nhập mã xác nhận 6 chữ số được gửi đến {mode === 'email' ? 'email' : 'số điện thoại'} của bạn
+        </Text>
+
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 32, marginBottom: 16 }}>
+          {code.map((digit, index) => (
+            <TextInput
+              key={index}
+              ref={(ref) => (inputRefs.current[index] = ref)}
+              style={{
+                width: 48,
+                height: 48,
+                borderRadius: 8,
+                borderWidth: 1,
+                borderColor: color.border || '#ccc',
+                backgroundColor: color.backgroundSecondary || '#f0f0f0',
+                color: color.text,
+                fontSize: 18,
+                textAlign: 'center',
+              }}
+              value={digit}
+              onChangeText={(text) => handleCodeChange(text, index)}
+              onKeyPress={({ nativeEvent }) => handleKeyPress(nativeEvent.key, index)}
+              keyboardType="number-pad"
+              maxLength={1}
+            />
+          ))}
+        </View>
+
+        {errorMessage !== '' && (
+          <Text style={{ color: color.error, marginBottom: 12 }}>{errorMessage}</Text>
+        )}
+
+        <TouchableOpacity onPress={handleResendCode} disabled={isLoadingForgot}>
+          <Text style={{ textAlign: 'center', color: color.primary }}>
+            Không nhận được mã? <Text style={{ fontWeight: '600' }}>Gửi lại</Text>
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={{
+            height: 48,
+            borderRadius: 8,
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginTop: 24,
+            backgroundColor: color.primary
+          }}
+          onPress={handleConfirmCode}
+          disabled={!isFormValid || isLoadingConfirm}
+        >
+          <Text style={{ color: '#FFF', fontSize: 16, fontWeight: '600' }}>Xác nhận</Text>
+        </TouchableOpacity>
+      </ScrollView>
+
       {(isLoadingConfirm || isLoadingForgot) && (
-        <View style={styles.loadingOverlay}>
+        <View style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}>
           <LoadingModal withBackdrop={false} />
         </View>
       )}
-    </View>
+    </SafeAreaView>
   );
 };
