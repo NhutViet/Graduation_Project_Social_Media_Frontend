@@ -51,18 +51,18 @@ axiosInstance.interceptors.request.use(
 
 axiosInstance.interceptors.response.use(
   response => {
-    // console.log(
-    //   '📥 Response:',
-    //   JSON.stringify(
-    //     {
-    //       url: response.config.url,
-    //       status: response.status,
-    //       data: response.data,
-    //     },
-    //     null,
-    //     2,
-    //   ),
-    // );
+    console.log(
+      '📥 Response:',
+      JSON.stringify(
+        {
+          url: response.config.url,
+          status: response.status,
+          data: response.data,
+        },
+        null,
+        2,
+      ),
+    );
     return response;
   },
   error => {

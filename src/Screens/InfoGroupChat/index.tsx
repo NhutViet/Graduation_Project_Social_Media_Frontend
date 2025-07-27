@@ -35,11 +35,13 @@ import {getAllMediaInRoom} from '../../util/msgImgList';
 import {MessageSearchModal} from '../../../components/MessageSearchModal';
 import {fetchMessages} from '../../../services/messageRedux/messageSlice';
 import {Message} from '../../../services/messageRedux/messageType';
+import {useHeadAlert} from '../../../components/Global/HeadAlertProvider';
 
 export const InforGroupChat = () => {
   const {theme} = useTheme();
   const color = Colors[theme];
   const navigation: any = useNavigation();
+  const {showAlert} = useHeadAlert();
   const dispatch = useDispatch<AppDispatch>();
   const route = useRoute<RouteProp<RootStackParamList, 'InforGroupChat'>>();
   const roomId = route?.params?.roomId;
@@ -127,7 +129,7 @@ export const InforGroupChat = () => {
       dispatch(updateRoomTheme({roomId: roomId, theme: selectedBackground}))
         .unwrap()
         .then(() => {
-          GlobalAlertManager.show('Thành công', 'Đã cập nhật chủ đề');
+          showAlert('Thành công', 'Đã cập nhật chủ đề');
         })
         .catch(() => {
           GlobalAlertManager.show('Thất bại', 'Cập nhật chủ đề thất bại');
@@ -146,7 +148,7 @@ export const InforGroupChat = () => {
       dispatch(updateRoomName({roomId: roomId, name: newName}))
         .unwrap()
         .then(() => {
-          GlobalAlertManager.show('Thành công', 'Đã đổi tên nhóm');
+          showAlert('Thành công', 'Đã đổi tên nhóm');
           setVisibleRenameModal(false);
         })
         .catch(() => {
@@ -168,7 +170,7 @@ export const InforGroupChat = () => {
     dispatch(leaveGroupChat({id: roomId}))
       .unwrap()
       .then(() => {
-        GlobalAlertManager.show('Thành công', 'Rời nhóm thành công.');
+        showAlert('Thành công', 'Rời nhóm thành công.');
         navigation.goBack();
       })
       .catch(() => {
@@ -210,25 +212,16 @@ export const InforGroupChat = () => {
           {!img2 && img1 && <Image style={styles.img} source={{uri: img1}} />}
         </TouchableOpacity>
         <Text style={[styles.name, {color: color.text}]}>{room?.name}</Text>
-        <Text style={[styles.name, {color: color.text}]}>{room?.name}</Text>
       </View>
 
       <View style={styles.actionRow}>
         <TouchableOpacity style={styles.actionItem} onPress={handleAddPeople}>
           <UserPlus size={20} color={color.text} />
           <Text style={[styles.actionText, {color: color.text}]}>Thêm</Text>
-          <Text style={[styles.actionText, {color: color.text}]}>Thêm</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.actionItem} onPress={handleSearchPress}>
           <Search size={20} color={color.text} />
           <Text style={[styles.actionText, {color: color.text}]}>Tìm kiếm</Text>
-          <Text style={[styles.actionText, {color: color.text}]}>Tìm kiếm</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.actionItem}>
-          <Bell size={20} color={color.text} />
-          <Text style={[styles.actionText, {color: color.text}]}>
-            Tắt thông báo
-          </Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.actionItem}
@@ -238,7 +231,9 @@ export const InforGroupChat = () => {
             Đổi tên nhóm
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.actionItem} onPress={handleLeaveGroupChat}>
+        <TouchableOpacity
+          style={styles.actionItem}
+          onPress={handleLeaveGroupChat}>
           <LogOut size={20} color={color.text} />
           <Text style={[styles.actionText, {color: color.text}]}>Rời khỏi</Text>
         </TouchableOpacity>

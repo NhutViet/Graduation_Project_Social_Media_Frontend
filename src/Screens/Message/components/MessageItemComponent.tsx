@@ -43,10 +43,10 @@ const MessageItemComponent: React.FC<MessageItemProps> = memo(
   }) => {
     const {theme} = useTheme();
     const color = Colors[theme];
-    const isMe = item.sender.handleName === userHandleName;
+    const isMe = item.sender?.handleName === userHandleName;
     const prevMsg = chat[index - 1];
     const showAvatar =
-      !prevMsg || prevMsg.sender.handleName !== item.sender.handleName;
+      !prevMsg || prevMsg.sender?.handleName !== item.sender?.handleName;
 
     const {socket} = useSocket();
     const navigation = useNavigation<any>();
@@ -92,12 +92,12 @@ const MessageItemComponent: React.FC<MessageItemProps> = memo(
         !isMe && showAvatar ? (
           <TouchableOpacity style={[styles.blockAvatar, {marginRight: 10}]}>
             <Image
-              source={{uri: item.sender.profilePic}}
+              source={{uri: item.sender?.profilePic}}
               style={styles.avatar}
             />
           </TouchableOpacity>
         ) : null,
-      [isMe, showAvatar, item.sender.profilePic],
+      [isMe, showAvatar, item.sender?.profilePic],
     );
 
     const renderContent = useCallback(() => {
@@ -193,43 +193,6 @@ const MessageItemComponent: React.FC<MessageItemProps> = memo(
         );
       }
 
-      if (item.media?.type === 'video') {
-        const filteredText = item.content
-          .split(/(\s+)/)
-          .filter(part => !/^https?:\/\/\S+$/i.test(part))
-          .join('');
-
-        return (
-          <>
-            <Pressable onPress={handleImagePress} onLongPress={handleLongPress}>
-              <View
-                style={{
-                  width: 150,
-                  height: 200,
-                  borderRadius: 10,
-                  overflow: 'hidden',
-                }}>
-                <Image
-                  source={{uri: item.media.url}}
-                  style={{width: '100%', height: '100%'}}
-                  resizeMode="cover"
-                />
-              </View>
-            </Pressable>
-            {filteredText !== '' && (
-              <Text
-                style={{
-                  color: color.text,
-                  fontSize: 14,
-                  marginBottom: 8,
-                }}>
-                {filteredText}
-              </Text>
-            )}
-          </>
-        );
-      }
-
       const filteredText = item.content
         .split(/(\s+)/)
         .filter(part => !/^https?:\/\/\S+$/i.test(part))
@@ -317,15 +280,37 @@ const MessageItemComponent: React.FC<MessageItemProps> = memo(
       const remainingCount =
         (item.reactions?.length || 0) - displayedReactions.length;
 
+      if (item.isDeleted) {
+        return (
+          <View
+            style={{
+              padding: 10,
+              marginLeft: isMe || showAvatar ? 0 : 40,
+              marginRight: isMe ? 0 : 30,
+              alignSelf:
+                item.sender.userId === userC?._id ? 'flex-end' : 'flex-start',
+              backgroundColor: 'rgba(0,0,0,0.05)',
+              borderRadius: 8,
+            }}>
+            <Text style={{fontStyle: 'italic', color: '#666'}}>
+              Tin nhắn đã bị thu hồi
+            </Text>
+          </View>
+        );
+      }
+
       return (
-        <Pressable onLongPress={handleLongPress} style={{position: 'relative'}}>
+        <Pressable
+          disabled={item.isDeleted}
+          onLongPress={handleLongPress}
+          style={{position: 'relative'}}>
           <View
             style={[
               styles.message,
               {
                 maxWidth: '80%',
-                marginLeft: isMe || showAvatar ? 0 : 50,
-                marginRight: isMe ? 0 : 40,
+                marginLeft: isMe || showAvatar ? 0 : 40,
+                marginRight: isMe ? 0 : 30,
                 backgroundColor: item.media
                   ? item.media.type === 'call'
                     ? color.backgroundSecondary
@@ -360,15 +345,10 @@ const MessageItemComponent: React.FC<MessageItemProps> = memo(
                 borderRadius: 20,
               }}>
               {displayedReactions.map((r, idx) => (
-                <View
-                  key={idx}
-                  style={{
-                    marginRight: idx === 0 ? 0 : -8,
-                  }}>
+                <View key={idx} style={{marginRight: idx === 0 ? 0 : -8}}>
                   <Text style={{fontSize: 16}}>{r.content}</Text>
                 </View>
               ))}
-
               {remainingCount > 0 && (
                 <Text
                   style={{
@@ -382,12 +362,11 @@ const MessageItemComponent: React.FC<MessageItemProps> = memo(
         </Pressable>
       );
     }, [
-      item.reactions,
+      item,
       handleLongPress,
       isMe,
       showAvatar,
-      item.media,
-      color.backgroundSecondary,
+      color,
       linkPreviews,
       index,
       renderContent,
@@ -404,6 +383,7 @@ const MessageItemComponent: React.FC<MessageItemProps> = memo(
             borderRadius: isHighlighted ? 8 : 0,
             paddingVertical: 4,
             marginHorizontal: isHighlighted ? 4 : 0,
+            alignItems: 'flex-end',
           },
         ]}>
         {renderAvatar()}
@@ -422,8 +402,8 @@ export default MessageItemComponent;
 
 const styles = StyleSheet.create({
   blockAvatar: {
-    width: 40,
-    height: 40,
+    width: 30,
+    height: 30,
     borderRadius: 25,
     overflow: 'hidden',
   },
@@ -443,8 +423,6 @@ const styles = StyleSheet.create({
   containerMessage: {
     width: '100%',
     flexDirection: 'row',
-    paddingHorizontal: 5,
-    paddingVertical: 2,
   },
   row: {
     width: '100%',

@@ -151,13 +151,6 @@ const ActionModalMessage = ({visible, onClose, content, setChat}: Props) => {
           </View>
           <View style={styles.actionContainer}>
             <TouchableOpacity style={styles.featureContainer}>
-              <Reply size={22} color="black" />
-              <Text style={styles.text} numberOfLines={1}>
-                Trả lời
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.featureContainer}>
               <Copy size={22} color="black" />
               <Text style={styles.text} numberOfLines={1}>
                 Sao chép
@@ -178,7 +171,15 @@ const ActionModalMessage = ({visible, onClose, content, setChat}: Props) => {
 
                       if (deleted) {
                         setChat(prev =>
-                          prev.filter(msg => msg._id !== content._id),
+                          prev.map(msg =>
+                            msg._id === content._id
+                              ? {
+                                  ...msg,
+                                  isDelete: true,
+                                  content: 'Tin nhắn đã bị thu hồi',
+                                }
+                              : msg,
+                          ),
                         );
                         onClose();
                       } else {
@@ -203,7 +204,7 @@ const ActionModalMessage = ({visible, onClose, content, setChat}: Props) => {
               }}>
               <Trash2 size={22} color="black" />
               <Text style={styles.text} numberOfLines={1}>
-                Xoá tin nhắn
+                Thu hồi tin nhắn
               </Text>
             </TouchableOpacity>
           </View>

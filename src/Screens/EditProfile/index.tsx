@@ -242,7 +242,7 @@ export const EditProfile = () => {
         <TouchableOpacity
           hitSlop={{top: 20, bottom: 20, left: 20, right: 20}}
           onPress={() => navigation.goBack()}>
-          <ChevronLeft size={35} color={palette.text} />
+          <ChevronLeft size={24} color={palette.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Chỉnh sửa hồ sơ</Text>
         <TouchableOpacity

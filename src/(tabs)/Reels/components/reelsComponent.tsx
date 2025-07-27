@@ -176,13 +176,15 @@ const ReelsComponent = memo((props: any) => {
               onPress={handleProfilePress}>
               {renderProfileImage()}
             </TouchableOpacity>
-            <MemoizedText style={styles.name}>{user?.handleName}</MemoizedText>
+            <MemoizedText numberOfLines={1} style={styles.name}>
+              {user?.username}
+            </MemoizedText>
             {renderFollowButton()}
           </View>
           <HashtagText
             text={caption}
             clickable
-            baseStyle={styles.textNormal}
+            baseStyle={styles.textNormal} 
             hashtagColor={Colors.hashtag}
             hashtagStyle={{fontWeight: '600'}}
             setSkipReload={setSkipReload}

@@ -24,4 +24,5 @@ export interface Message {
   createdAt: string;
   sender: Sender;
   reactions?: Reaction[];
+  isDeleted?: boolean;
 }

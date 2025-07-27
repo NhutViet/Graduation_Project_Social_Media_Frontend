@@ -24,14 +24,12 @@ import {
   BookmarkScreen,
   PlaylistsScreen,
   BlockUser,
-  Privacy,
   Notifications,
   NotificationOption,
   PeopleGroupChat,
   AddPeopleToGroupChat,
   QRScanner,
   InforGroupChat,
-  ShowActivity,
   LikedScreen,
   MusicSavedScreen,
   AddCollectionScreen,
@@ -42,7 +40,6 @@ import {
   SearchMessages,
   ContactInfo,
   DissapearingMessage,
-  PrivacyAndSafety,
   Splash,
   UserFollowScreen,
   ForgotPassword,
@@ -69,16 +66,15 @@ import AllPostOfCollection from '../../components/AllPostOfCollection';
 import ZegoCallScreen from '../Screens/ZegoCloud/ZegoCallScreen';
 import {navigationRef} from '../NavigationService';
 import AllReels from '../../components/AllReels';
-import AccountCenter from '../../src/Screens/AccountCenter';
-import InfoAccountCenter from '../../src/Screens/AccountCenter/InfoAccountCenter';
 import {User} from '@services/userRedux/userTypes';
 import PostDetailScreen from '../../components/PostDetailScreen';
 import AllTaggedPostOfUserScreen from '../../components/AllTaggedPostOfUserScreen';
+import {CameraPreview} from '../../src/Screens/CameraPreview';
 
 export type RootStackParamList = {
   Splash: undefined;
   BottomTabs: undefined;
-  CameraScreen: undefined;
+  CameraScreen: {roomId: string};
   AllPostOfCollection: undefined;
   AllPostOfUserScreen: undefined;
   AllTaggedPostOfUserScreen: undefined;
@@ -90,7 +86,6 @@ export type RootStackParamList = {
   PlaylistsScreen: undefined;
   Archive: undefined;
   YourActivity: undefined;
-  ShowActivity: undefined;
   AddCollection: undefined;
   SearchMessages: undefined;
   GroupGallery: undefined;
@@ -114,8 +109,6 @@ export type RootStackParamList = {
   ConfirmationCode: undefined;
   BlockedAccounts: undefined;
   BlockUser: undefined;
-  Privacy: undefined;
-  PrivacyAndSafety: undefined;
   PrivacySafetyChat: undefined;
   PeopleGroupChat: undefined;
   AddPeopleToGroupChat: undefined;
@@ -127,7 +120,6 @@ export type RootStackParamList = {
   FAQScreen: undefined;
   ContactScreen: undefined;
   ReportProblemScreen: undefined;
-  AccountCenter: undefined;
   NewMessage: undefined;
   PostDetailScreen: {id: string};
   Profile: undefined;
@@ -158,7 +150,6 @@ export type RootStackParamList = {
     callType: 'video' | 'voice';
   };
   ProfileComp: {userID: string};
-  InfoAccountCenter: {user: User};
   UserFollowScreen: undefined;
   HighlightEditScreen: undefined;
   QRCode: undefined;
@@ -166,6 +157,7 @@ export type RootStackParamList = {
   MessageUndefined: undefined;
   CreateGroupScreen: undefined;
   HighlightCreateScreen: undefined;
+  CameraPreview: {uri: string; roomId: string};
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -178,7 +170,6 @@ const linking: LinkingOptions<RootStackParamList> = {
       BottomTabs: 'home',
       ProfileComp: 'profile/:userID',
       MessageScreen: 'chat/:room',
-      InfoAccountCenter: 'account-center',
       ZegoCallScreen: 'call/:callID',
       AllPostOfUserScreen: 'posts/user',
       AllReels: 'reels/all',
@@ -212,7 +203,6 @@ const AppNavigator = () => {
         <Stack.Screen name="ZegoCallScreen" component={ZegoCallScreen} />
         <Stack.Screen name="ChangePassword" component={ChangePassword} />
         <Stack.Screen name="BlockedAccounts" component={BlockedAccounts} />
-        <Stack.Screen name="ShowActivity" component={ShowActivity} />
         <Stack.Screen name="LikedScreen" component={LikedScreen} />
         <Stack.Screen
           name="AddPeopleToGroupChat"
@@ -247,7 +237,6 @@ const AppNavigator = () => {
         <Stack.Screen name="CreateGroupScreen" component={CreateGroupScreen} />
         <Stack.Screen name="BookmarkScreen" component={BookmarkScreen} />
         <Stack.Screen name="PlaylistsScreen" component={PlaylistsScreen} />
-        <Stack.Screen name="Privacy" component={Privacy} />
         <Stack.Screen name="Notifications" component={Notifications} />
         <Stack.Screen
           name="NotificationOption"
@@ -268,7 +257,6 @@ const AppNavigator = () => {
           name="DissapearingMessage"
           component={DissapearingMessage}
         />
-        <Stack.Screen name="PrivacyAndSafety" component={PrivacyAndSafety} />
         <Stack.Screen name="UserFollowScreen" component={UserFollowScreen} />
         <Stack.Screen
           name="HighlightCreateScreen"
@@ -285,11 +273,10 @@ const AppNavigator = () => {
           name="ReportProblemScreen"
           component={ReportProblemScreen}
         />
-        <Stack.Screen name="AccountCenter" component={AccountCenter} />
-        <Stack.Screen name="InfoAccountCenter" component={InfoAccountCenter} />
         <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
         <Stack.Screen name="ConfirmationCode" component={ConfirmationCode} />
         <Stack.Screen name="PrivacySafetyChat" component={PrivacySafetyChat} />
+        <Stack.Screen name="CameraPreview" component={CameraPreview} />
       </Stack.Navigator>
     </NavigationContainer>
   );

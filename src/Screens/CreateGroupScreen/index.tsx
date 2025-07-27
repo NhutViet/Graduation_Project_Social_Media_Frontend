@@ -19,12 +19,13 @@ import {RootState, AppDispatch} from '@services/store';
 import {UserProfile} from '@services/relationRedux/relationTypes';
 import {fetchFollowers} from '@services/relationRedux/relationSlice';
 import {createRoom} from '@services/roomRedux/roomSlice';
-import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+import {useHeadAlert} from '../../../components/Global/HeadAlertProvider';
 
 export const CreateGroupScreen = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigation = useNavigation();
   const [selected, setSelected] = useState<UserProfile[]>([]);
+  const {showAlert} = useHeadAlert();
   const {theme} = useTheme();
   const color = Colors[theme];
   const [searchText, setSearchText] = useState('');
@@ -73,21 +74,13 @@ export const CreateGroupScreen = () => {
       ).unwrap();
 
       if (res.isExisted) {
-        GlobalAlertManager.show('Thông báo', 'Nhóm tin nhắn đã tồn tại!');
+        showAlert('Thông báo', 'Nhóm tin nhắn đã tồn tại!');
       } else {
-        GlobalAlertManager.show(
-          'Thành công',
-          'Tạo nhóm nhắn tin thành công!',
-          () => {
-            navigation.goBack();
-          },
-        );
+        showAlert('Thành công', 'Tạo nhóm nhắn tin thành công!');
+        navigation.goBack();
       }
     } catch (error: any) {
-      GlobalAlertManager.show(
-        'Thất bại',
-        error?.message || 'Tạo đoạn chat thất bại!',
-      );
+      showAlert('Thất bại', error?.message || 'Tạo đoạn chat thất bại!');
     }
   };
 
@@ -213,7 +206,9 @@ export const CreateGroupScreen = () => {
               <TouchableOpacity
                 style={styles.confirmButton}
                 onPress={handleCreateRoom}>
-                <Text style={{color: color.background, fontWeight: '500'}}>Tạo nhóm</Text>
+                <Text style={{color: color.background, fontWeight: '500'}}>
+                  Tạo nhóm
+                </Text>
               </TouchableOpacity>
             </View>
           </View>

@@ -1,46 +1,54 @@
-import React from 'react';
-import {View, Text, Image} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {View, Text, Image, Platform, ActivityIndicator} from 'react-native';
 import {useBookmarkStyles} from '../../../StyleSheet/BookmarkedStyles';
 import {Colors} from '../../../../assets/color/Colors';
 import {Plus} from 'lucide-react-native';
+import {createThumbnail} from 'react-native-create-thumbnail';
 
 interface Props {
   title: string;
-  thumbnails: string[];
-  coverImg: string;
+  thumbnails: string[]; // video URLs
+  coverImg: string; // fallback image
 }
-
-// Hàm chuyển m3u8 thành ảnh thumbnail nếu là Cloudflare Stream
-const convertToImage = (uri: string): string => {
-  if (
-    uri.includes('videodelivery.net') &&
-    uri.includes('/manifest/') &&
-    !uri.endsWith('.jpg') // tránh convert ảnh đã hợp lệ
-  ) {
-    const parts = uri.split('/');
-    const videoId = parts[3]; // lấy videoId từ đường dẫn
-    return `https://videodelivery.net/${videoId}/thumbnails/thumbnail.jpg?time=2s`;
-  }
-  return uri;
-};
 
 const BookmarkedPlaylist: React.FC<Props> = ({title, thumbnails, coverImg}) => {
   const styles = useBookmarkStyles();
+  const [thumbUris, setThumbUris] = useState<string[] | null>(null);
 
-  // Chuyển đổi m3u8 thành ảnh và lọc ảnh hợp lệ
-  const validThumbs = thumbnails
-    .map(convertToImage)
-    .filter(uri => uri && uri.trim());
+  useEffect(() => {
+    const videoUris = thumbnails.filter(u => !!u).slice(0, 4);
 
-  // Nếu không có ảnh => dùng placeholder
-  const imagesToShow =
-    validThumbs.length > 0 ? validThumbs.slice(0, 4) : [coverImg];
+    Promise.all(
+      videoUris.map(uri =>
+        createThumbnail({url: uri, timeStamp: 2000})
+          .then(res => {
+            const path = res.path;
+            if (!path) return null;
+            // Android cần file:// prefix
+            return Platform.OS === 'android' && !path.startsWith('file://')
+              ? `file://${path}`
+              : path;
+          })
+          .catch(() => null),
+      ),
+    ).then(results => {
+      const valid = results.filter((p): p is string => !!p);
+      setThumbUris(valid);
+    });
+  }, [thumbnails]);
+
+  if (thumbUris === null) {
+    return;
+  }
+
+  // Nếu có thumbnail valid thì dùng, không thì coverImg
+  const images = thumbUris.length > 0 ? thumbUris : [coverImg];
 
   const renderGrid = () => {
-    const count = imagesToShow.length;
+    const count = images.length;
 
     if (count === 1) {
-      return imagesToShow[0] === coverImg ? (
+      return images[0] === coverImg ? (
         <View
           style={[
             styles.fullImage,
@@ -50,7 +58,7 @@ const BookmarkedPlaylist: React.FC<Props> = ({title, thumbnails, coverImg}) => {
         </View>
       ) : (
         <Image
-          source={{uri: imagesToShow[0]}}
+          source={{uri: images[0]}}
           style={styles.fullImage}
           resizeMode="cover"
         />
@@ -60,9 +68,9 @@ const BookmarkedPlaylist: React.FC<Props> = ({title, thumbnails, coverImg}) => {
     if (count === 2) {
       return (
         <View style={styles.row}>
-          {imagesToShow.map((uri, idx) => (
+          {images.map((uri, i) => (
             <Image
-              key={idx}
+              key={i}
               source={{uri}}
               style={styles.halfImage}
               resizeMode="cover"
@@ -77,19 +85,19 @@ const BookmarkedPlaylist: React.FC<Props> = ({title, thumbnails, coverImg}) => {
         <View style={styles.grid3Container}>
           <View style={styles.grid3Row}>
             <Image
-              source={{uri: imagesToShow[0]}}
+              source={{uri: images[0]}}
               style={styles.grid3TopImage}
               resizeMode="cover"
             />
             <Image
-              source={{uri: imagesToShow[1]}}
+              source={{uri: images[1]}}
               style={styles.grid3TopImage}
               resizeMode="cover"
             />
           </View>
           <View style={styles.grid3BottomWrapper}>
             <Image
-              source={{uri: imagesToShow[2]}}
+              source={{uri: images[2]}}
               style={styles.grid3BottomImage}
               resizeMode="cover"
             />
@@ -98,12 +106,12 @@ const BookmarkedPlaylist: React.FC<Props> = ({title, thumbnails, coverImg}) => {
       );
     }
 
-    // 4 ảnh trở lên
+    // 4+ ảnh
     return (
       <View style={styles.gridContainer}>
-        {imagesToShow.map((uri, idx) => (
+        {images.map((uri, i) => (
           <Image
-            key={idx}
+            key={i}
             source={{uri}}
             style={styles.gridImage}
             resizeMode="cover"

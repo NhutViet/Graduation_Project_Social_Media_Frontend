@@ -86,7 +86,7 @@ export const useProfileEditingStyles = () => {
           textAlign: 'center',
           fontSize: 16,
           color: palette.text,
-          fontWeight: '400',
+          fontWeight: 'bold',
         },
         profileSection: {
           height: 160,

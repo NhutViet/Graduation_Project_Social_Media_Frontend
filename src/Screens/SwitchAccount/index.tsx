@@ -25,7 +25,8 @@ import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import {Eye, EyeOff} from 'lucide-react-native';
 import messaging from '@react-native-firebase/messaging';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
-import { fetchMyRooms } from '@services/roomRedux/roomSlice';
+import {fetchMyRooms} from '@services/roomRedux/roomSlice';
+import {useHeadAlert} from '../../../components/Global/HeadAlertProvider';
 
 export const SwitchAccount = ({navigation, route}: any) => {
   const [email, setEmail] = useState('');
@@ -34,13 +35,15 @@ export const SwitchAccount = ({navigation, route}: any) => {
   const [errorPassword, setErrorPassword] = useState('');
   const {theme} = useTheme();
   const color = Colors[theme];
+  const {showAlert} = useHeadAlert();
   const styles = LoginStyles();
   const SwitchStyles = SwitchAccountStyles(theme);
   const [isPassWord, setIsPassWord] = useState(true);
   //redux
   const dispatch = useDispatch<AppDispatch>();
   const {isLoading} = useSelector((state: RootState) => state.user);
-  const { email: initialEmail, newPassword: initialPassword } = route?.params || {};
+  const {email: initialEmail, newPassword: initialPassword} =
+    route?.params || {};
   useEffect(() => {
     if (initialEmail) setEmail(initialEmail);
     if (initialPassword) setPassword(initialPassword);
@@ -58,8 +61,8 @@ export const SwitchAccount = ({navigation, route}: any) => {
 
   const handleForgot = async () => {
     navigation.navigate('ForgotPassword');
-  }
- 
+  };
+
   const handleLogin = async () => {
     setErrorEmail('');
     setErrorPassword('');
@@ -103,12 +106,11 @@ export const SwitchAccount = ({navigation, route}: any) => {
     );
 
     if (fetchLogin.fulfilled.match(resultAction)) {
-      GlobalAlertManager.show('Thành công', 'Đăng nhập thành công', () => {
-        navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
-      });
+      showAlert('Thành công', 'Đăng nhập thành công');
+      navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
       dispatch(fetchMyRooms());
     } else {
-      GlobalAlertManager.show(
+      showAlert(
         'Thất bại',
         resultAction.payload?.message ||
           'Đăng nhập thất bại. Vui lòng thử lại.',
@@ -153,13 +155,8 @@ export const SwitchAccount = ({navigation, route}: any) => {
           );
 
           if (fetchLogin.fulfilled.match(loginAction)) {
-            GlobalAlertManager.show(
-              'Thành công',
-              'Đăng nhập thành công',
-              () => {
-                navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
-              },
-            );
+            showAlert('Thành công', 'Đăng nhập thành công');
+            navigation.reset({index: 0, routes: [{name: 'BottomTabs'}]});
           } else {
             GlobalAlertManager.show(
               'Thông báo',
@@ -182,26 +179,23 @@ export const SwitchAccount = ({navigation, route}: any) => {
               fetchLogin({email, password: tempPassword}),
             );
             if (!fetchLogin.fulfilled.match(loginAction)) {
-              GlobalAlertManager.show(
-                'Thông báo',
-                'Đăng nhập thất bại sau khi đăng ký.',
-              );
+              showAlert('Thông báo', 'Đăng nhập thất bại');
             }
           } else {
-            GlobalAlertManager.show(
+            showAlert(
               'Thông báo',
-              registerAction.payload?.message || 'Đăng ký thất bại',
+              registerAction.payload?.message || 'Đăng nhập thất bại',
             );
           }
         }
       } else {
-        GlobalAlertManager.show(
+        showAlert(
           'Thông báo',
           checkEmailAction.payload?.message || 'Kiểm tra email thất bại',
         );
       }
     } catch (error: any) {
-      GlobalAlertManager.show('Lỗi', error);
+      showAlert('Lỗi', error);
     }
   };
 
@@ -265,7 +259,9 @@ export const SwitchAccount = ({navigation, route}: any) => {
             <Text style={styles.errorText}>{errorPassword}</Text>
           )}
 
-          <TouchableOpacity style={SwitchStyles.btnForgot} onPress={handleForgot}>
+          <TouchableOpacity
+            style={SwitchStyles.btnForgot}
+            onPress={handleForgot}>
             <Text style={SwitchStyles.textForgot}>Quên mật khẩu?</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.buttonLogin} onPress={handleLogin}>
