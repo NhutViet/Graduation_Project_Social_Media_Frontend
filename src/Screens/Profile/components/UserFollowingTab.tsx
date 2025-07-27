@@ -7,7 +7,7 @@ import {
   ScrollView,
 } from 'react-native';
 import {FlashList, ListRenderItem} from '@shopify/flash-list';
-import React, {useEffect} from 'react';
+import React, {useEffect, useMemo} from 'react';
 import {Colors} from '@assets/color/Colors';
 import {useTheme} from '../../../util/ThemeContext';
 import {useNavigation} from '@react-navigation/native';
@@ -52,8 +52,14 @@ const UserFollowingTab = ({userID}: Props) => {
 
   const displayList = useSelector(selectDisplayViewedFollowing);
 
+  const filteredRecommendations = useMemo(() => {
+    const viewedIds = new Set(displayList.map(u => u._id));
+    return recommendations.filter(u => !viewedIds.has(u._id));
+  }, [recommendations, displayList]);
+
   const handleActionButton = async (
     item: UserProfile & {isMeFollowing?: boolean},
+    isRecommendation: boolean = false,
   ) => {
     const mutual = item.isMeFollowing ?? false;
     if (mutual) {
@@ -89,6 +95,10 @@ const UserFollowingTab = ({userID}: Props) => {
             handleName: user?.handleName,
           }),
         ).unwrap();
+        if (isRecommendation) {
+          dispatch(fetchRecommendations({limit: 10}));
+          await dispatch(fetchViewedFollowing({userId: userID}));
+        }
       } catch (error) {
         GlobalAlertManager.show('Thất bại', 'Vui lòng thử lại sau');
         console.log(error);
@@ -131,7 +141,7 @@ const UserFollowingTab = ({userID}: Props) => {
                   ? [styles.messageText, {color: color.text}]
                   : styles.followText,
               ]}>
-              {item.isMeFollowing ? 'Bạn bè' : 'Theo dõi'}
+              {item.isMeFollowing ? 'Nhắn tin' : 'Theo dõi'}
             </Text>
           </TouchableOpacity>
         )}
@@ -153,7 +163,7 @@ const UserFollowingTab = ({userID}: Props) => {
         </View>
       </TouchableOpacity>
       <TouchableOpacity
-        onPress={() => handleActionButton(item)}
+        onPress={() => handleActionButton(item, true)}
         style={styles.followButton}>
         <Text style={styles.followText}>Theo dõi</Text>
       </TouchableOpacity>
@@ -178,24 +188,26 @@ const UserFollowingTab = ({userID}: Props) => {
   return (
     <ScrollView style={[styles.container, {backgroundColor: color.background}]}>
       {!loading && displayList.length === 0 ? (
-        <View
-          style={{
-            backgroundColor: color.background,
-            flex: 1,
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: 20,
-          }}>
-          <UserPlus size={80} color={color.text} style={{marginBottom: 24}} />
-          <Text
+        <View>
+          <View
             style={{
-              color: color.text,
-              fontSize: 20,
-              fontWeight: 'bold',
-              marginBottom: 8,
+              backgroundColor: color.background,
+              flex: 1,
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 20,
             }}>
-            Người dùng chưa theo dõi ai
-          </Text>
+            <UserPlus size={80} color={color.text} style={{marginBottom: 24}} />
+            <Text
+              style={{
+                color: color.text,
+                fontSize: 20,
+                fontWeight: 'bold',
+                marginBottom: 8,
+              }}>
+              Người dùng chưa theo dõi ai
+            </Text>
+          </View>
         </View>
       ) : (
         <FlashList
@@ -206,18 +218,45 @@ const UserFollowingTab = ({userID}: Props) => {
           estimatedItemSize={60}
         />
       )}
-      <FlashList
-        data={recommendations}
-        keyExtractor={item => item._id}
-        renderItem={renderRecommendItem}
-        showsVerticalScrollIndicator={false}
-        estimatedItemSize={10}
-        ListHeaderComponent={
+      {!loading && filteredRecommendations.length === 0 ? (
+        <View>
           <Text style={[styles.sectionHeader, {color: color.text}]}>
             Gợi ý cho bạn
           </Text>
-        }
-      />
+          <View
+            style={{
+              backgroundColor: color.background,
+              flex: 1,
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 20,
+            }}>
+            <UserPlus size={80} color={color.text} style={{marginBottom: 24}} />
+            <Text
+              style={{
+                color: color.text,
+                fontSize: 16,
+                fontWeight: 'bold',
+                marginBottom: 8,
+              }}>
+              Không có đề xuất. Theo dõi thêm nhiều người khác để có đề xuất.
+            </Text>
+          </View>
+        </View>
+      ) : (
+        <FlashList
+          data={filteredRecommendations}
+          keyExtractor={item => item._id}
+          renderItem={renderRecommendItem}
+          showsVerticalScrollIndicator={false}
+          estimatedItemSize={10}
+          ListHeaderComponent={
+            <Text style={[styles.sectionHeader, {color: color.text}]}>
+              Gợi ý cho bạn
+            </Text>
+          }
+        />
+      )}
     </ScrollView>
   );
 };

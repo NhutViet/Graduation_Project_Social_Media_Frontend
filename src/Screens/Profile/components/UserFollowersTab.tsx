@@ -133,7 +133,7 @@ const UserFollowersTab = ({route}: any) => {
                     ? [styles.messageText, {color: color.text}]
                     : styles.followText,
                 ]}>
-                {item.isMeFollowing ? 'Bạn bè' : 'Theo dõi'}
+                {item.isMeFollowing ? 'Nhắn tin' : 'Theo dõi'}
               </Text>
             </TouchableOpacity>
           )}

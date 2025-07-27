@@ -22,7 +22,7 @@ import {createRoom} from '../../../../services/roomRedux/roomSlice';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 import {UserProfile} from '@services/relationRedux/relationTypes';
 import MoreActionPopup, {MoreActionPopupRef} from './MoreActionModal';
-import {MoreVertical, Users} from 'lucide-react-native';
+import {MoreVertical, Users, UserPlus} from 'lucide-react-native';
 import LoadingModal from '../../../../components/Global/LoadingModal';
 
 const FollowingTab = () => {
@@ -71,7 +71,7 @@ const FollowingTab = () => {
     }
   };
 
-  const handleFollowPress = async (item: UserProfile) => {
+  const handleFollowPress = async (item: UserProfile, isRecommendation = false) => {
     try {
       await dispatch(
         relationAction({
@@ -81,6 +81,10 @@ const FollowingTab = () => {
           handleName: user?.handleName,
         }),
       ).unwrap();
+      if (isRecommendation) {
+        dispatch(fetchFollowing({ userId: userID! }));
+        dispatch(fetchRecommendations({ limit: 10 }));
+      }
     } catch (error) {
       GlobalAlertManager.show('Thất bại', 'Vui lòng thử lại sau');
     }
@@ -110,7 +114,7 @@ const FollowingTab = () => {
     GlobalAlertManager.show('Thông báo', 'Đã báo cáo người dùng');
   };
 
-  const renderUserItem = (item: UserProfile, isFollowing: boolean) => (
+  const renderUserItem = (item: UserProfile, isFollowing: boolean, isRecommendation: boolean = false) => (
     <View style={[styles.suggestedItem, {backgroundColor: color.background}]}>
       <TouchableOpacity style={styles.touchableInfo}>
         <Image source={{uri: item.profilePic}} style={styles.profilePic} />
@@ -138,7 +142,7 @@ const FollowingTab = () => {
         </>
       ) : (
         <TouchableOpacity
-          onPress={() => handleFollowPress(item)}
+          onPress={() => handleFollowPress(item, isRecommendation)}
           style={styles.followButton}>
           <Text style={styles.followText}>Theo dõi</Text>
         </TouchableOpacity>
@@ -180,20 +184,45 @@ const FollowingTab = () => {
           showsVerticalScrollIndicator={false}
         />
       )}
-
-      <FlashList
-        data={recommendations}
-        keyExtractor={item => item._id}
-        renderItem={({item}) => renderUserItem(item, false)}
-        ListHeaderComponent={
+      {recommendations.length === 0 ? (
+        <View>
           <Text style={[styles.sectionHeader, {color: color.text}]}>
             Gợi ý cho bạn
           </Text>
-        }
-        estimatedItemSize={60}
-        showsVerticalScrollIndicator={false}
-      />
-
+          <View
+            style={{
+              backgroundColor: color.background,
+              flex: 1,
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 20,
+            }}>
+            <UserPlus size={80} color={color.text} style={{marginBottom: 24}} />
+            <Text
+              style={{
+                color: color.text,
+                fontSize: 16,
+                fontWeight: 'bold',
+                marginBottom: 8,
+              }}>
+              Không có đề xuất. Theo dõi thêm nhiều người khác để có đề xuất.
+            </Text>
+          </View>
+        </View>
+      ) : (
+        <FlashList
+          data={recommendations}
+          keyExtractor={item => item._id}
+          renderItem={({item}) => renderUserItem(item, false, true)}
+          ListHeaderComponent={
+            <Text style={[styles.sectionHeader, {color: color.text}]}>
+              Gợi ý cho bạn
+            </Text>
+          }
+          estimatedItemSize={60}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
       <MoreActionPopup
         ref={popupRef}
         onUnfollow={onUnfollow}
