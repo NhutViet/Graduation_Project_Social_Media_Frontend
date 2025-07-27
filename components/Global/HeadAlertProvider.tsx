@@ -17,7 +17,7 @@ import {
 } from 'react-native';
 
 type AlertContextType = {
-  showAlert: (title: string, message: string) => void;
+  showAlert: (title: string, message: string, duration?: number) => void;
 };
 
 const AlertContext = createContext<AlertContextType>({
@@ -61,7 +61,11 @@ export const HeadAlertProvider: React.FC<Props> = ({children}) => {
     }),
   ).current;
 
-  const show = (newTitle: string, newMessage: string) => {
+  const show = (
+    newTitle: string,
+    newMessage: string,
+    duration: number = 3000,
+  ) => {
     clearTimeout(timeoutRef.current);
     setTitle(newTitle);
     setMessage(newMessage);
@@ -70,8 +74,8 @@ export const HeadAlertProvider: React.FC<Props> = ({children}) => {
       toValue: 0,
       useNativeDriver: true,
     }).start();
-    // tự ẩn sau 3s
-    timeoutRef.current = setTimeout(hide, 3000);
+    // tự ẩn sau duration (mặc định 3s)
+    timeoutRef.current = setTimeout(hide, duration);
   };
 
   const hide = () => {

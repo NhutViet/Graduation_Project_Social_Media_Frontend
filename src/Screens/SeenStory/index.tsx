@@ -29,7 +29,7 @@ import {Story} from '@services/StoryRedux/StoryType';
 import {VideoRef} from 'react-native-video';
 import {GestureResponderEvent} from 'react-native-modal';
 import {Portal} from 'react-native-portalize';
-import {GlobalAlertManager} from '../../../components/Global/AlertModal';
+import {useHeadAlert} from '../../../components/Global/HeadAlertProvider';
 
 // Import owner-specific components
 import ModelPeopleSeen from './componentStoryOwner/ModelPeopleSeen';
@@ -87,6 +87,9 @@ export const SeenStory = ({route, navigation}: any) => {
   const [wasPausedByUser, setWasPausedByUser] = useState(false);
   const progressValues = useRef<number[]>(stories.map(() => 0)).current;
   const isNavigatingRef = useRef(false);
+
+  // ✅ Hook để hiển thị thông báo nhẹ
+  const {showAlert} = useHeadAlert();
 
   // ✅ Check if current user is the story owner
   const isCurrentUserStory =
@@ -329,12 +332,11 @@ export const SeenStory = ({route, navigation}: any) => {
       // Xóa story từ server (Redux store sẽ tự động cập nhật)
       await dispatch(deleteStory({storyId: currentStory._id})).unwrap();
 
-      GlobalAlertManager.show('Thành công', 'Tin của bạn đã được xoá');
-
-      // ✅ Không cần cập nhật local state nữa vì đã có cơ chế đồng bộ tự động
-      // syncedStories sẽ tự động cập nhật và useEffect sẽ xử lý việc điều chỉnh UI
+      // ✅ Hiển thị thông báo nhẹ thành công trong 1.5s
+      showAlert('Thông báo', 'Tin của bạn đã được xoá', 2000);
     } catch (error) {
-      GlobalAlertManager.show('Thất bại', 'Không thể xoá story');
+      // ✅ Hiển thị thông báo lỗi nhẹ
+      showAlert('Thất bại', 'Không thể xoá story', 2000);
       // ✅ Đóng modal nếu có lỗi
       setVisibleSeeMore(false);
     }

@@ -357,8 +357,8 @@ export const EditStory = ({route, navigation}: any) => {
       if (isValidContent && cleanText.length > 0) {
         payload.content = {
           text: cleanText,
-          x: Number(positionRef.current.x) || 50,
-          y: Number(positionRef.current.y) || 50,
+          x: Number(positionRef.current.x) || 10,
+          y: Number(positionRef.current.y) || 20,
         };
       }
 
