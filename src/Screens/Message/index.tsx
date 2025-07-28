@@ -168,7 +168,7 @@ export const MessageScreen = () => {
     const onMessageDeleted = ({messageId}: {messageId: string}) => {
       setChat(prev =>
         prev.map(msg =>
-          msg._id === messageId
+          msg._id.toString() === messageId.toString()
             ? {
                 ...msg,
                 isDeleted: true,

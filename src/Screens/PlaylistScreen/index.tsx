@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef, useState, memo} from 'react';
+import React, { useCallback, useEffect, useRef, useState, memo } from 'react';
 import {
   View,
   Text,
@@ -9,15 +9,15 @@ import {
   StatusBar,
   TextInput,
 } from 'react-native';
-import VideoPlayer, {VideoRef} from 'react-native-video';
-import {useNavigation, useRoute} from '@react-navigation/native';
-import {Modalize} from 'react-native-modalize';
-import {Portal} from 'react-native-portalize';
-import {useDispatch, useSelector} from 'react-redux';
-import {AppDispatch, RootState} from '../../../services/store';
-import {useBookmarkStyles} from '../../StyleSheet/BookmarkedStyles';
-import {useTheme} from '../../util/ThemeContext';
-import {Colors} from '../../../assets/color/Colors';
+import VideoPlayer, { VideoRef } from 'react-native-video';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { Modalize } from 'react-native-modalize';
+import { Portal } from 'react-native-portalize';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../../services/store';
+import { useBookmarkStyles } from '../../StyleSheet/BookmarkedStyles';
+import { useTheme } from '../../util/ThemeContext';
+import { Colors } from '../../../assets/color/Colors';
 import {
   deletePlaylist,
   getItemsOfPlaylist,
@@ -25,10 +25,10 @@ import {
   reNamePalylistBookmark,
   switchBookmark,
 } from '../../../services/bookmarkRedux/bookmarkSlice';
-import {FlashList} from '@shopify/flash-list';
-import {GlobalAlertManager} from '../../../components/Global/AlertModal';
-import {PlaylistItem} from '@services/bookmarkRedux/bookmarkTypes';
-import {Media, MediaR} from '@services/bookmarkRedux/bookmarkTypes';
+import { FlashList } from '@shopify/flash-list';
+import { GlobalAlertManager } from '../../../components/Global/AlertModal';
+import { PlaylistItem } from '@services/bookmarkRedux/bookmarkTypes';
+import { Media, MediaR } from '@services/bookmarkRedux/bookmarkTypes';
 import {
   ArrowLeft,
   MoreVertical,
@@ -47,21 +47,21 @@ interface RouteParams {
 export const PlaylistsScreen = () => {
   const navigation = useNavigation<any>();
   const route = useRoute();
-  const {title, playlistId} = route.params as RouteParams;
+  const { title, playlistId } = route.params as RouteParams;
 
   const styles = useBookmarkStyles();
-  const {theme} = useTheme();
+  const { theme } = useTheme();
   const palette = Colors[theme];
 
   const dispatch = useDispatch<AppDispatch>();
-  const {itemsByPlaylist, playlists} = useSelector(
+  const { itemsByPlaylist, playlists } = useSelector(
     (state: RootState) => state.bookmark,
   );
   const [playlistItems, setPlaylistItems] = useState(
-    itemsByPlaylist[playlistId] ?? [],
+    itemsByPlaylist[playlistId],
   );
   const isLoading = useSelector((s: RootState) => s.bookmark.isloading);
-  const {refreshToken} = useSelector((state: RootState) => state.user);
+  const { refreshToken } = useSelector((state: RootState) => state.user);
 
   const [activeTab, setActiveTab] = useState<'grid' | 'reels'>('grid');
   const [selectedItem, setSelectedItem] = useState<any | null>(null);
@@ -83,14 +83,56 @@ export const PlaylistsScreen = () => {
   );
 
   useEffect(() => {
-    dispatch(getItemsOfPlaylist({playlistId, refreshToken}));
+    dispatch(getItemsOfPlaylist({ playlistId, refreshToken }));
     setSelectedItem(null);
     modalizeRef.current?.close();
   }, [dispatch, playlistId]);
 
   useEffect(() => {
-    setPlaylistItems(itemsByPlaylist[playlistId] ?? []);
-  }, [itemsByPlaylist]);
+    const items = itemsByPlaylist[playlistId] ?? [];
+
+    // Debug: Check for items with invalid media URLs
+    const isValidUrl = (url: string | null | undefined): boolean => {
+      if (!url || typeof url !== 'string') return false;
+      const trimmed = url.trim();
+      return trimmed.length > 0 && (trimmed.startsWith('http') || trimmed.startsWith('file://'));
+    };
+
+    const itemsWithInvalidUrls = items.filter(item => {
+      if (!item.media || item.media.length === 0) return true; // No media at all
+
+      const media = item.media[0];
+      // Handle both itemType and type properties for backward compatibility
+      const isVideo = item.itemType === 'reel' || (item as any).type === 'reel';
+      const videoUrl = isVideo ? (media as Media)?.videoUrl : null;
+      const imageUrl = !isVideo ? (media as MediaR)?.imageUrl : null;
+
+      // Check if the expected URL type is invalid
+      if (isVideo) {
+        return !isValidUrl(videoUrl);
+      } else {
+        return !isValidUrl(imageUrl);
+      }
+    });
+
+    if (itemsWithInvalidUrls.length > 0) {
+      console.warn('⚠️ PlaylistScreen: Found items with invalid media URLs:',
+        itemsWithInvalidUrls.map(item => ({
+          id: item._id,
+          itemType: item.itemType,
+          type: (item as any).type,
+          mediaCount: item.media?.length || 0,
+          expectedType: (item.itemType === 'reel' || (item as any).type === 'reel') ? 'video' : 'image',
+          firstMediaUrls: item.media?.[0] ? {
+            videoUrl: (item.media[0] as Media)?.videoUrl || 'empty/null',
+            imageUrl: (item.media[0] as MediaR)?.imageUrl || 'empty/null'
+          } : 'no media'
+        }))
+      );
+    }
+
+    setPlaylistItems(items);
+  }, [itemsByPlaylist, playlistId]);
 
   const openItem = (item: PlaylistItem) => {
     if (activeTab === 'grid') {
@@ -152,19 +194,19 @@ export const PlaylistsScreen = () => {
 
   const closeModal = () => modalizeRef.current?.close();
 
-  const EmptyPlaceholder = memo(({message}: {message: string}) => (
-    <View style={{alignItems: 'center', paddingVertical: 40}}>
-      <Text style={{color: palette.textSecondary}}>{message}</Text>
+  const EmptyPlaceholder = memo(({ message }: { message: string }) => (
+    <View style={{ alignItems: 'center', paddingVertical: 40 }}>
+      <Text style={{ color: palette.textSecondary }}>{message}</Text>
     </View>
   ));
 
   const renderTabBar = useCallback(
     () => (
-      <View style={[styles.tabBar, {backgroundColor: palette.background}]}>
+      <View style={[styles.tabBar, { backgroundColor: palette.background }]}>
         {(
           [
-            {key: 'grid', icon: LayoutGrid},
-            {key: 'reels', icon: Clapperboard},
+            { key: 'grid', icon: LayoutGrid },
+            { key: 'reels', icon: Clapperboard },
           ] as const
         ).map(tab => (
           <TouchableOpacity
@@ -172,7 +214,7 @@ export const PlaylistsScreen = () => {
             style={[
               styles.tab,
               activeTab === tab.key && styles.activeTab,
-              {borderBottomColor: palette.text},
+              { borderBottomColor: palette.text },
             ]}
             onPress={() => setActiveTab(tab.key)}>
             <tab.icon
@@ -190,15 +232,34 @@ export const PlaylistsScreen = () => {
 
   const renderItemThumb = useCallback(
     (item: PlaylistItem) => {
-      const isVideo = item.itemType === 'reel';
-      if (!(item.media && item.media.length > 0)) return null;
+      // Handle both itemType and type properties for backward compatibility
+      const isVideo = item.itemType === 'reel' || (item as any).type === 'reel';
+      if (!(item.media && item.media.length > 0)) {
+        console.warn('⚠️ PlaylistScreen: No media found for item:', item._id);
+        return null;
+      }
       const isSelected = listSelected.includes(item?._id!) || false;
 
       const videoUrl = isVideo ? (item?.media[0] as Media)?.videoUrl : null;
       const imageUrl = !isVideo ? (item.media[0] as MediaR)?.imageUrl : null;
 
+      // Validate URLs to prevent empty strings and invalid URLs
+      const isValidUrl = (url: string | null | undefined): boolean => {
+        if (!url || typeof url !== 'string') return false;
+        const trimmed = url.trim();
+        return trimmed.length > 0 && (trimmed.startsWith('http') || trimmed.startsWith('file://'));
+      };
+
+      const validVideoUrl = isValidUrl(videoUrl) ? videoUrl : null;
+      const validImageUrl = isValidUrl(imageUrl) ? imageUrl : null;
+      const finalUri = validImageUrl || validVideoUrl;
+
+      if (!finalUri) {
+        return null;
+      }
+
       // Check if it's an mp4 video that needs VideoPlayer for thumbnail
-      const isMP4Video = videoUrl && videoUrl.endsWith('.mp4');
+      const isMP4Video = validVideoUrl && validVideoUrl.endsWith('.mp4');
 
       return (
         <TouchableOpacity
@@ -212,18 +273,18 @@ export const PlaylistsScreen = () => {
           }}>
           {isMP4Video ? (
             <VideoPlayer
-              source={{uri: videoUrl}}
+              source={{ uri: validVideoUrl }}
               style={styles.postImage}
               resizeMode="cover"
               paused={true}
               muted={true}
-              poster={videoUrl}
+              poster={validVideoUrl}
               controls={false}
               disableFocus={true}
             />
           ) : (
             <Image
-              source={{uri: imageUrl || videoUrl || ''}}
+              source={{ uri: finalUri }}
               style={styles.postImage}
               resizeMode="cover"
             />
@@ -252,7 +313,7 @@ export const PlaylistsScreen = () => {
       <FlatList
         data={data}
         numColumns={3}
-        renderItem={({item}) => renderItemThumb(item)}
+        renderItem={({ item }) => renderItemThumb(item)}
         keyExtractor={item => item._id!}
         extraData={[data.length, playlistItems]}
         contentContainerStyle={styles.postsGridContent}
@@ -270,7 +331,7 @@ export const PlaylistsScreen = () => {
       <FlatList
         data={data}
         numColumns={3}
-        renderItem={({item}) => renderItemThumb(item)}
+        renderItem={({ item }) => renderItemThumb(item)}
         keyExtractor={item => item._id!}
         extraData={[data.length, playlistItems]}
         contentContainerStyle={styles.postsGridContent}
@@ -381,14 +442,14 @@ export const PlaylistsScreen = () => {
 
       {renderTabBar()}
 
-      <View style={{flex: 1}}>{renderContent()}</View>
+      <View style={{ flex: 1 }}>{renderContent()}</View>
 
       {isSelec && (
         <View style={styles.bottomcontainer}>
           <TouchableOpacity
             style={[
               styles.bottomBtn,
-              {opacity: listSelected.length > 0 ? 1 : 0.3},
+              { opacity: listSelected.length > 0 ? 1 : 0.3 },
             ]}
             disabled={listSelected.length === 0}
             onPress={removeListBookmark}>
@@ -397,7 +458,7 @@ export const PlaylistsScreen = () => {
           <TouchableOpacity
             style={[
               styles.bottomBtn,
-              {opacity: listSelected.length > 0 ? 1 : 0.3},
+              { opacity: listSelected.length > 0 ? 1 : 0.3 },
             ]}
             disabled={listSelected.length === 0}
             onPress={() => switchRef.current?.open()}>
@@ -409,7 +470,7 @@ export const PlaylistsScreen = () => {
       <Portal>
         <Modalize
           ref={modalizeRef}
-          modalStyle={{backgroundColor: palette.background}}
+          modalStyle={{ backgroundColor: palette.background }}
           adjustToContentHeight
           withHandle={false}
           onClose={() => setSelectedItem(null)}>
@@ -421,9 +482,9 @@ export const PlaylistsScreen = () => {
               (selectedItem.type === 'reel' ? (
                 <VideoPlayer
                   ref={videoRef}
-                  source={{uri: selectedItem.media[0]?.videoUrl}}
+                  source={{ uri: selectedItem.media[0]?.videoUrl || '' }}
                   style={styles.fullScreenVideo}
-                  poster={selectedItem.media[0]?.videoUrl}
+                  poster={selectedItem.media[0]?.videoUrl || ''}
                   repeat={false}
                   controls
                   resizeMode="contain"
@@ -432,7 +493,7 @@ export const PlaylistsScreen = () => {
                 />
               ) : (
                 <Image
-                  source={{uri: selectedItem.media[0]?.imageUrl}}
+                  source={{ uri: selectedItem.media[0]?.imageUrl || '' }}
                   style={styles.fullScreenImage}
                   resizeMode="contain"
                 />
@@ -470,7 +531,7 @@ export const PlaylistsScreen = () => {
                 <TouchableOpacity
                   style={styles.cancel}
                   onPress={() => {
-                    dispatch(deletePlaylist({id: playlistId}))
+                    dispatch(deletePlaylist({ id: playlistId }))
                       .unwrap()
                       .then(() => {
                         GlobalAlertManager.show(
@@ -506,7 +567,7 @@ export const PlaylistsScreen = () => {
           modalStyle={styles.modal}
           handleStyle={styles.handle}
           withHandle>
-          <View style={{width: '100%', height: 100}}>
+          <View style={{ width: '100%', height: 100 }}>
             {anotherplaylist.length > 0 ? (
               <FlashList
                 data={anotherplaylist}
@@ -527,6 +588,14 @@ export const PlaylistsScreen = () => {
                               : item.item.thumbnails[0],
                         }}
                         style={styles.anotherImage}
+                        onError={(error) => {
+                          console.error('❌ PlaylistScreen Switch Image error:', {
+                            playlistId: item.item._id,
+                            thumbnail: item.item.thumbnails[0],
+                            coverImg: item.item.coverImg,
+                            error: error.nativeEvent.error
+                          });
+                        }}
                       />
                       <Text style={styles.anotherText}>
                         {item.item.playlistName}
@@ -557,7 +626,7 @@ export const PlaylistsScreen = () => {
           handleStyle={styles.handle}
           ref={renameRef}>
           <View style={styles.box}>
-            <Text style={[styles.optionText, {textAlign: 'center'}]}>
+            <Text style={[styles.optionText, { textAlign: 'center' }]}>
               Nhập tên danh sách mới
             </Text>
             <TextInput
@@ -576,7 +645,7 @@ export const PlaylistsScreen = () => {
             />
 
             <TouchableOpacity
-              style={[styles.option, {marginTop: 10}]}
+              style={[styles.option, { marginTop: 10 }]}
               onPress={() => {
                 if (!newPlaylistName.trim()) {
                   GlobalAlertManager.show(
