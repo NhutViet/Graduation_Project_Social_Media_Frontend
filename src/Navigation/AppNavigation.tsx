@@ -100,7 +100,17 @@ export type RootStackParamList = {
   AddPost: undefined;
   UpStory: undefined; // tương ứng PostStory
   EditStory: undefined;
-  SeenStory: undefined;
+  SeenStory: {
+    storyId?: string;
+    creatorId?: string;
+    stories?: any[];
+    creator?: any;
+    storyGroups?: any[];
+    storyGroupIndex?: number;
+    isLoading?: boolean;
+    initialIndex?: number;
+    timestamp?: number;
+  };
   EditProfile: undefined;
   SwitchAccount: undefined;
   Setting: undefined;
@@ -173,6 +183,7 @@ const linking: LinkingOptions<RootStackParamList> = {
       ZegoCallScreen: 'call/:callID',
       AllPostOfUserScreen: 'posts/user',
       AllReels: 'reels/all',
+      SeenStory: 'story/:storyId/:creatorId',
     },
   },
 };
