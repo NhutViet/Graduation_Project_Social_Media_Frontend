@@ -8,13 +8,13 @@ import {
   TouchableOpacity,
   Linking,
 } from 'react-native';
-import {
-  Camera,
-  useCameraDevices,
-  useCodeScanner,
-  getCameraDevice,
-  Code,
-} from 'react-native-vision-camera';
+// import {
+//   Camera,
+//   useCameraDevices,
+//   useCodeScanner,
+//   getCameraDevice,
+//   Code,
+// } from 'react-native-vision-camera';
 import LinearGradient from 'react-native-linear-gradient';
 import {useNavigation, useIsFocused} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
@@ -29,149 +29,155 @@ const SCAN_AREA_SIZE = width * 0.7;
 const COOLDOWN_TIME = 10000;
 
 export const QRScanner = () => {
-  const [hasPermission, setHasPermission] = useState(false);
-  const [canScan, setCanScan] = useState(true);
-  const cooldownTimer = useRef<NodeJS.Timeout | null>(null);
-  const devices = useCameraDevices();
-  const device = getCameraDevice(devices, 'back');
-  const navigation = useNavigation<any>();
-  const dispatch = useDispatch<AppDispatch>();
-  const myUserId = useSelector((s: RootState) => s.user.user?._id);
-  const isFocused = useIsFocused();
-  const didHandleScanRef = useRef(false);
+  // const [isReady, setIsReady] = useState(false);
+  // const [hasPermission, setHasPermission] = useState(false);
+  // const [canScan, setCanScan] = useState(true);
+  // const cooldownTimer = useRef<NodeJS.Timeout | null>(null);
+  // const devices = hasPermission ? useCameraDevices() : [];
+  // const device = getCameraDevice(devices, 'back');
+  // const navigation = useNavigation<any>();
+  // const dispatch = useDispatch<AppDispatch>();
+  // const myUserId = useSelector((s: RootState) => s.user.user?._id);
+  // const isFocused = useIsFocused();
+  // const didHandleScanRef = useRef(false);
 
-  // Vùng quét
-  const scanArea = {
-    x: (width - SCAN_AREA_SIZE) / 2,
-    y: (height - SCAN_AREA_SIZE) / 2,
-    width: SCAN_AREA_SIZE,
-    height: SCAN_AREA_SIZE,
-  };
+  // useEffect(() => {
+  //   const timer = setTimeout(() => setIsReady(true), 100);
+  //   return () => clearTimeout(timer);
+  // }, []);
 
-  const startCooldown = () => {
-    setCanScan(false);
-    cooldownTimer.current = setTimeout(() => setCanScan(true), COOLDOWN_TIME);
-  };
-  const resetCooldown = () => {
-    cooldownTimer.current && clearTimeout(cooldownTimer.current);
-    setCanScan(true);
-  };
+  // // Vùng quét
+  // const scanArea = {
+  //   x: (width - SCAN_AREA_SIZE) / 2,
+  //   y: (height - SCAN_AREA_SIZE) / 2,
+  //   width: SCAN_AREA_SIZE,
+  //   height: SCAN_AREA_SIZE,
+  // };
 
-  useEffect(() => {
-    return () => {
-      if (cooldownTimer.current) {
-        clearTimeout(cooldownTimer.current);
-        cooldownTimer.current = null;
-      }
-    };
-  }, []);
+  // const startCooldown = () => {
+  //   setCanScan(false);
+  //   cooldownTimer.current = setTimeout(() => setCanScan(true), COOLDOWN_TIME);
+  // };
+  // const resetCooldown = () => {
+  //   cooldownTimer.current && clearTimeout(cooldownTimer.current);
+  //   setCanScan(true);
+  // };
 
-  useEffect(() => {
-    if (isFocused) didHandleScanRef.current = false;
-  }, [isFocused]);
+  // useEffect(() => {
+  //   return () => {
+  //     if (cooldownTimer.current) {
+  //       clearTimeout(cooldownTimer.current);
+  //       cooldownTimer.current = null;
+  //     }
+  //   };
+  // }, []);
 
-  const isInArea = (bounds: Code['frame'] | undefined) => {
-    if (!bounds) return false;
-    const cx = bounds.x + bounds.width / 2;
-    const cy = bounds.y + bounds.height / 2;
-    return (
-      cx >= scanArea.x &&
-      cx <= scanArea.x + scanArea.width &&
-      cy >= scanArea.y &&
-      cy <= scanArea.y + scanArea.height
-    );
-  };
+  // useEffect(() => {
+  //   if (isFocused) didHandleScanRef.current = false;
+  // }, [isFocused]);
 
-  useEffect(() => {
-    (async () => {
-      let granted = false;
+  // const isInArea = (bounds: Code['frame'] | undefined) => {
+  //   if (!bounds) return false;
+  //   const cx = bounds.x + bounds.width / 2;
+  //   const cy = bounds.y + bounds.height / 2;
+  //   return (
+  //     cx >= scanArea.x &&
+  //     cx <= scanArea.x + scanArea.width &&
+  //     cy >= scanArea.y &&
+  //     cy <= scanArea.y + scanArea.height
+  //   );
+  // };
 
-      if (Platform.OS === 'android') {
-        const androidRes = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.CAMERA,
-        );
-        granted = androidRes === PermissionsAndroid.RESULTS.GRANTED;
-      } else {
-        // iOS: get current status
-        const status0 = await Camera.getCameraPermissionStatus();
-        let status: any = status0;
+  // useEffect(() => {
+  //   (async () => {
+  //     let granted = false;
 
-        if (status === 'not-determined') {
-          status = (await Camera.requestCameraPermission()) as
-            | 'not-determined'
-            | 'denied'
-            | 'authorized';
-        }
+  //     if (Platform.OS === 'android') {
+  //       const androidRes = await PermissionsAndroid.request(
+  //         PermissionsAndroid.PERMISSIONS.CAMERA,
+  //       );
+  //       granted = androidRes === PermissionsAndroid.RESULTS.GRANTED;
+  //     } else {
+  //       // iOS: get current status
+  //       const status0 = await Camera.getCameraPermissionStatus();
+  //       let status: any = status0;
 
-        granted = status === 'authorized';
-      }
+  //       if (status === 'not-determined') {
+  //         status = (await Camera.requestCameraPermission()) as
+  //           | 'not-determined'
+  //           | 'denied'
+  //           | 'authorized';
+  //       }
 
-      setHasPermission(granted);
-    })();
-  }, []);
+  //       granted = status === 'authorized';
+  //     }
 
-  const onCodeScanned = (codes: Code[]) => {
-    if (!canScan || !codes.length || didHandleScanRef.current) return;
+  //     setHasPermission(granted);
+  //   })();
+  // }, []);
 
-    const {value, frame} = codes[0];
-    if (!value || !isInArea(frame)) return;
+  // const onCodeScanned = (codes: Code[]) => {
+  //   if (!canScan || !codes.length || didHandleScanRef.current) return;
 
-    didHandleScanRef.current = true;
-    startCooldown();
+  //   const {value, frame} = codes[0];
+  //   if (!value || !isInArea(frame)) return;
 
-    // 1) Nếu là URL, mở link
-    if (/^https?:\/\//i.test(value)) {
-      Linking.openURL(value).catch(() =>
-        GlobalAlertManager.show(
-          'Lỗi',
-          'Không mở được liên kết.',
-          resetCooldown,
-        ),
-      );
-      return;
-    }
+  //   didHandleScanRef.current = true;
+  //   startCooldown();
 
-    // 2) Nếu quét chính mình
-    if (value === myUserId) {
-      GlobalAlertManager.show(
-        'Lỗi',
-        'Bạn không thể quét mã QR của chính mình',
-        resetCooldown,
-      );
-      return;
-    }
+  //   // 1) Nếu là URL, mở link
+  //   if (/^https?:\/\//i.test(value)) {
+  //     Linking.openURL(value).catch(() =>
+  //       GlobalAlertManager.show(
+  //         'Lỗi',
+  //         'Không mở được liên kết.',
+  //         resetCooldown,
+  //       ),
+  //     );
+  //     return;
+  //   }
 
-    // 3) Còn lại coi như userId
-    dispatch(validateUserId({userId: value}))
-      .then(unwrapResult)
-      .then(payload => {
-        if (payload.success) {
-          GlobalAlertManager.show(
-            'Tìm thấy người dùng',
-            payload.message,
-            () => {
-              navigation.navigate('ProfileComp', {userID: value});
-              resetCooldown();
-            },
-          );
-        } else {
-          resetCooldown();
-        }
-      })
-      .catch(err => {
-        const msg =
-          err.payload?.message || err.message || 'Lỗi xác thực người dùng';
-        GlobalAlertManager.show('Lỗi', msg, resetCooldown);
-      });
-  };
+  //   // 2) Nếu quét chính mình
+  //   if (value === myUserId) {
+  //     GlobalAlertManager.show(
+  //       'Lỗi',
+  //       'Bạn không thể quét mã QR của chính mình',
+  //       resetCooldown,
+  //     );
+  //     return;
+  //   }
 
-  const codeScanner = useCodeScanner({onCodeScanned, codeTypes: ['qr']});
+  //   // 3) Còn lại coi như userId
+  //   dispatch(validateUserId({userId: value}))
+  //     .then(unwrapResult)
+  //     .then(payload => {
+  //       if (payload.success) {
+  //         GlobalAlertManager.show(
+  //           'Tìm thấy người dùng',
+  //           payload.message,
+  //           () => {
+  //             navigation.navigate('ProfileComp', {userID: value});
+  //             resetCooldown();
+  //           },
+  //         );
+  //       } else {
+  //         resetCooldown();
+  //       }
+  //     })
+  //     .catch(err => {
+  //       const msg =
+  //         err.payload?.message || err.message || 'Lỗi xác thực người dùng';
+  //       GlobalAlertManager.show('Lỗi', msg, resetCooldown);
+  //     });
+  // };
 
-  if (!device || !hasPermission) return <View style={styles.container} />;
+  // const codeScanner = useCodeScanner({onCodeScanned, codeTypes: ['qr']});
+
+  // if (!device || !hasPermission || !isReady) return <View style={styles.container} />;
 
   return (
     <View style={styles.container}>
-      <Camera
+      {/* <Camera
         style={StyleSheet.absoluteFill}
         device={device}
         isActive={isFocused}
@@ -192,11 +198,11 @@ export const QRScanner = () => {
       </View>
 
       {/* Nút back */}
-      <TouchableOpacity
+      {/* <TouchableOpacity
         style={styles.backButton}
         onPress={() => navigation.goBack()}>
         <ArrowLeft size={24} color="#fff" />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </View>
   );
 };
