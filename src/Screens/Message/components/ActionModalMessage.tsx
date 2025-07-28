@@ -195,6 +195,15 @@ const ActionModalMessage = ({visible, onClose, content, setChat}: Props) => {
                               : msg,
                           ),
                         );
+
+                        if (socket) {
+                          socket.emit('deleteMessage', {
+                            messageId: content._id,
+                            userId: user?._id,
+                            roomId: content.roomId,
+                          });
+                        }
+
                         onClose();
                       } else {
                         GlobalAlertManager.show(
