@@ -3,6 +3,7 @@ import {UserRes, PublicUserRes, EditUserDto} from './userTypes';
 import axiosInstance from '../axiosInstance';
 import {API} from '../api';
 import {resetUser} from './userReducer';
+import { RootState } from '@services/store';
 
 export const fetchLogin = createAsyncThunk<
   {user: UserRes['user']; refreshToken: string},
@@ -156,25 +157,42 @@ export const getAccessTokenFromRefresh = async (): Promise<string | null> => {
 export const fetchEditUser = createAsyncThunk<
   any,
   EditUserDto,
-  {rejectValue: string}
+  { rejectValue: string; state: RootState }
 >(
   'user/fetchEdituser',
-  async (fromData: EditUserDto, {rejectWithValue, getState}) => {
+  async (formData, { rejectWithValue, getState }) => {
     try {
-      const state: any = getState();
-      const response = await axiosInstance.patch(API.EDIT_USER, fromData, {
-        headers: {
-          token: 'refresh',
-        },
-      });
+      // 1) Grab the token
+      const { refreshToken } = getState().user;
+      console.log('[fetchEditUser] using refreshToken:', refreshToken);
+
+      // 2) Build the header
+      const headers = { Authorization: `Bearer ${refreshToken}` };
+      console.log('[fetchEditUser] headers:', headers);
+
+      // 3) Fire the request
+      const response = await axiosInstance.patch(
+        API.EDIT_USER,
+        formData,
+        { headers }
+      );
+
+      console.log('[fetchEditUser] response status:', response.status);
+      console.log('[fetchEditUser] response data:', response.data);
 
       return response.data.user;
-    } catch (error) {
-      console.error('Edit user error:', error);
+    } catch (error: any) {
+      // 4) Log the full error
+      console.error('[fetchEditUser] caught error:', error);
+      console.error(
+        '[fetchEditUser] error response data:',
+        error.response?.data
+      );
       return rejectWithValue('Could not update user');
     }
-  },
+  }
 );
+
 
 export const getPublicProfile = createAsyncThunk<
   PublicUserRes,
@@ -221,8 +239,8 @@ export const fetchUserIdByHandleName = createAsyncThunk<
 });
 
 type InitForgotPasswordArgs =
-  | { email: string; newPassword: string; phone?: never }
-  | { phone: string; newPassword: string; email?: never }
+  | { email: string; phone?: never }
+  | { phone: string; email?: never }
 
 export const fetchInitForgotPassword = createAsyncThunk<
   { token: string },
@@ -230,7 +248,7 @@ export const fetchInitForgotPassword = createAsyncThunk<
   { rejectValue: { message: string } }
 >(
   'auth/initForgotPassword',
-  async ({ email, phone, newPassword }, { rejectWithValue }) => {
+  async ({ email, phone }, { rejectWithValue }) => {
     // ensure exactly one of email/phone is provided
     if ((!email && !phone) || (email && phone)) {
       return rejectWithValue({
@@ -240,7 +258,7 @@ export const fetchInitForgotPassword = createAsyncThunk<
 
     try {
       // build payload with the correct field
-      const payload: Record<string, string> = { newPassword }
+      const payload: Record<string, string> = {}
       if (email) payload.email = email
       else payload.phone = phone!
 
@@ -259,19 +277,19 @@ export const fetchInitForgotPassword = createAsyncThunk<
   }
 )
 
-export const fetchConfirmNewPassword = createAsyncThunk<
-  { message: string; newPassword: string },
+export const fetchConfirmForgotPassword = createAsyncThunk<
+  { message: string; refreshToken: string },
   { token: string; code: string },
   { rejectValue: { message: string } }
->('auth/confirmNewPassword', async ({ token, code }, { rejectWithValue }) => {
+>('auth/confirmForgotPassword', async ({ token, code }, { rejectWithValue }) => {
   try {
-    const res = await axiosInstance.post<{ message: string; newPassword: string }>(
+    const res = await axiosInstance.post<{ message: string; refreshToken: string }>(
       API.CONFIRM_NEW_PASSWORD,
       { token, code }
     );
-    return { message: res.data.message, newPassword: res.data.newPassword };
+    return { message: res.data.message, refreshToken: res.data.refreshToken };
   } catch (error: any) {
-    return rejectWithValue({ message: error.response?.data?.message || 'Confirm new password failed' });
+    return rejectWithValue({ message: error.response?.data?.message || 'Confirm forgot password failed' });
   }
 });
 

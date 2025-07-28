@@ -75,7 +75,6 @@ export interface User {
     address?: string;
     gender?: string;
     profilePic?: string;
-    isVip?: boolean;
     userFollowing?: boolean;
 }
 

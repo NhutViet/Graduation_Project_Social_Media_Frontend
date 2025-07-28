@@ -114,7 +114,7 @@ const AllReels = () => {
             postId,
             refreshToken,
             receiverId,
-            handleName: currentUser?.handleName ?? '',
+            handleName: currentUser?.username ?? '',
             userId: currentUser?._id,
           }),
         ).unwrap();

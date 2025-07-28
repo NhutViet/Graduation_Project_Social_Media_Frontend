@@ -11,11 +11,11 @@ export interface User {
   dateOfBirth: string;
   gender: string;
   profilePic: string;
-  isVip: boolean;
   createdAt: string;
   updateAt: string;
   currentSessionId: string;
   wantNotified?: boolean;
+  isGoogle: boolean;
 }
 
 export interface UserRes {
@@ -34,6 +34,7 @@ export interface EditUserDto {
   profilePic?: string;
   wantNotified?: boolean;
   fcmToken?: string;
+  password?: string;
 }
 
 export interface PublicUserRes {
@@ -44,7 +45,6 @@ export interface PublicUserRes {
   address: string;
   gender: string;
   profilePic: string;
-  isVip: boolean;
   userFollowing: boolean;
   userBlocked: boolean;
 }

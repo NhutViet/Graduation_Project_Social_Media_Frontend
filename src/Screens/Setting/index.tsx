@@ -28,9 +28,9 @@ import {
   KeyRound,
 } from 'lucide-react-native';
 import ContactInfo from './ChangePassword';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {fetchLogout} from '../../../services/userRedux/userSlice';
-import {AppDispatch} from '../../../services/store';
+import {AppDispatch, RootState} from '../../../services/store';
 import {resetBookmarkState} from '../../../services/bookmarkRedux/bookmarkReducer';
 import {resetReaction} from '../../../services/reactionRedux/reactionReducer';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
@@ -44,6 +44,9 @@ export const Setting = () => {
   const [showContact, setShowContact] = useState(false);
   const handleShowContact = () => setShowContact(!showContact);
   const dispatch = useDispatch<AppDispatch>();
+  const isGoogle = useSelector((state: RootState) =>
+    state.user.user?.isGoogle
+  );
 
   const handleLogout = () => {
     GlobalAlertManager.show('Đã đăng xuất', 'Đăng xuất thành công', () => {
@@ -110,8 +113,9 @@ export const Setting = () => {
               <ChevronRight size={20} stroke={mColor.textSecondary} />
             </TouchableOpacity>
 
+            {isGoogle === false && (
             <TouchableOpacity
-              onPress={() => handleShowContact()}
+              onPress={handleShowContact}
               style={[
                 styles.settingItem,
                 {
@@ -119,7 +123,8 @@ export const Setting = () => {
                   borderBottomColor: mColor.border,
                   borderBottomWidth: 0,
                 },
-              ]}>
+              ]}
+            >
               <ContactInfo
                 isVisible={showContact}
                 onClose={handleShowContact}
@@ -127,17 +132,19 @@ export const Setting = () => {
               <View
                 style={[
                   styles.settingIconContainer,
-                  {backgroundColor: mColor.gray},
-                ]}>
+                  { backgroundColor: mColor.gray },
+                ]}
+              >
                 <KeyRound size={22} stroke={mColor.text} />
               </View>
               <View style={styles.settingContent}>
-                <Text style={[styles.settingTitle, {color: mColor.text}]}>
+                <Text style={[styles.settingTitle, { color: mColor.text }]}>
                   Đổi mật khẩu
                 </Text>
               </View>
               <ChevronRight size={20} stroke={mColor.textSecondary} />
             </TouchableOpacity>
+            )}
 
             <TouchableOpacity
               style={[
