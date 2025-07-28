@@ -99,16 +99,8 @@ const ProfileComp = ({route}: any) => {
 
       const {room} = res;
 
-      const otherUsers = room.user_ids.filter(user => user._id !== myUserId);
-      const img1 = otherUsers[0]?.profilePic;
-      const img2 = myUserId
-        ? room.user_ids.find(user => user._id === myUserId)?.profilePic
-        : undefined;
-
       navigation.navigate('MessageScreen', {
         room: room._id,
-        img1,
-        img2,
       });
     } catch (error) {
       console.error('❌ Tạo room thất bại:', error);

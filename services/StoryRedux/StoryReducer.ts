@@ -234,20 +234,20 @@ const storySlice = createSlice({
       .addCase(
         fetchHighlightStory.fulfilled,
         (state, action: PayloadAction<Story[]>) => {
-          console.log('🔍 Redux: fetchHighlightStory.fulfilled:', {
-            payloadLength: action.payload?.length || 0,
-            payload: action.payload?.map((h: Story) => ({
-              id: h._id,
-              name: h.collectionName,
-            })),
-            oldStateLength: state.highlightStories?.length || 0,
-          });
+          // console.log('🔍 Redux: fetchHighlightStory.fulfilled:', {
+          //   payloadLength: action.payload?.length || 0,
+          //   payload: action.payload?.map((h: Story) => ({
+          //     id: h._id,
+          //     name: h.collectionName,
+          //   })),
+          //   oldStateLength: state.highlightStories?.length || 0,
+          // });
           state.loading = false;
           state.highlightStories = action.payload;
-          console.log(
-            '🔍 Redux: Updated highlightStories length:',
-            state.highlightStories?.length || 0,
-          );
+          // console.log(
+          //   '🔍 Redux: Updated highlightStories length:',
+          //   state.highlightStories?.length || 0,
+          // );
         },
       )
       .addCase(fetchHighlightStory.rejected, (state, action) => {
@@ -276,10 +276,10 @@ const storySlice = createSlice({
           );
 
           // ✅ Cập nhật highlightStories - xóa storyId khỏi storyId array của highlights
-          console.log(
-            '🔍 Before updating highlights:',
-            state.highlightStories.length,
-          );
+          // console.log(
+          //   '🔍 Before updating highlights:',
+          //   state.highlightStories.length,
+          // );
           state.highlightStories = state.highlightStories.map(highlight => {
             if (highlight.storyId && highlight.storyId.includes(storyId)) {
               // Xóa storyId khỏi storyId array
@@ -287,11 +287,11 @@ const storySlice = createSlice({
                 id => id !== storyId,
               );
 
-              console.log('🔍 Updated highlight:', {
-                highlightId: highlight._id,
-                oldStoryIds: highlight.storyId,
-                newStoryIds: updatedStoryIds,
-              });
+              // console.log('🔍 Updated highlight:', {
+              //   highlightId: highlight._id,
+              //   oldStoryIds: highlight.storyId,
+              //   newStoryIds: updatedStoryIds,
+              // });
 
               // Nếu không còn story nào, trả về highlight với storyId rỗng
               return {
@@ -309,11 +309,11 @@ const storySlice = createSlice({
           );
           const afterFilter = state.highlightStories.length;
 
-          console.log('🔍 Highlights filtered:', {
-            beforeFilter,
-            afterFilter,
-            removedCount: beforeFilter - afterFilter,
-          });
+          // console.log('🔍 Highlights filtered:', {
+          //   beforeFilter,
+          //   afterFilter,
+          //   removedCount: beforeFilter - afterFilter,
+          // });
 
           // Xóa khỏi followingUsers
           for (const user of state.followingUsers) {

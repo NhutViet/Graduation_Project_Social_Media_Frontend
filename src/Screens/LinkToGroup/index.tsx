@@ -50,7 +50,7 @@ export const LinkToGroup = () => {
   };
 
   const resetLink = () => {
-    console.log('Reset link triggered');
+    // console.log('Reset link triggered');
   };
 
   const openModal = () => setModalVisible(true);

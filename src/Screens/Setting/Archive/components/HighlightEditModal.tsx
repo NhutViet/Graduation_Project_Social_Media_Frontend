@@ -71,7 +71,6 @@ const HighlightEditModal = ({
 
     ImagePicker.launchImageLibrary(options, response => {
       if (response.didCancel) {
-        console.log('User cancelled image picker');
       } else if (response.errorCode || response.errorMessage) {
         GlobalAlertManager.show(
           'Lỗi',
@@ -109,7 +108,6 @@ const HighlightEditModal = ({
           setProgress,
         });
       } else if (!isCustomCover && uploadedCoverUrl.startsWith('http')) {
-        console.log('Ảnh đã là public URL, bỏ qua upload:', uploadedCoverUrl);
         // Không làm gì
       }
 

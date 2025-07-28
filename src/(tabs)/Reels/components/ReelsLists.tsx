@@ -82,13 +82,11 @@ const ReelsList = ({
             postId,
             refreshToken,
             receiverId,
-            handleName: currentUser?.handleName ?? '',
+            handleName: currentUser?.username ?? '',
             userId: currentUser?._id,
           }),
         ).unwrap();
       } catch (error) {
-        // 3. Nếu thất bại, rollback UI
-        console.log('Like/unlike thất bại, khôi phục UI:', error);
         if (isLiked) {
           dispatch(addLikedPost(postId));
         } else {
@@ -105,7 +103,7 @@ const ReelsList = ({
         relationAction({
           targetId,
           senderId: currentUser?._id,
-          handleName: currentUser?.handleName,
+          handleName: currentUser?.username,
           action: isFollowing ? 'unfollow' : 'follow',
         }),
       );

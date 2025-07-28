@@ -81,7 +81,7 @@ export const PendingMessages: React.FC = () => {
           const nameChat =
             item.name?.trim().length > 0
               ? item.name
-              : user1?.handleName || 'Không xác định';
+              : user1?.username || 'Không xác định';
 
           return (
             <ItemNewMessage

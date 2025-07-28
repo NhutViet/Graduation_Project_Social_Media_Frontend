@@ -75,8 +75,7 @@ const UserFollowersTab = ({route}: any) => {
             img2,
           });
         } catch (err) {
-          GlobalAlertManager.show('Thất bại', 'Không thể tạo phòng chat.');
-          console.log(err);
+          GlobalAlertManager.show('Thất bại', 'Không thể tạo phòng chat');
         }
       } else {
         try {
@@ -89,8 +88,7 @@ const UserFollowersTab = ({route}: any) => {
             }),
           ).unwrap();
         } catch (err) {
-          GlobalAlertManager.show('Thất bại', 'Vui lòng thử lại sau.');
-          console.log(err);
+          GlobalAlertManager.show('Thất bại', 'Vui lòng thử lại sau');
         }
       }
     },
@@ -133,7 +131,7 @@ const UserFollowersTab = ({route}: any) => {
                     ? [styles.messageText, {color: color.text}]
                     : styles.followText,
                 ]}>
-                {item.isMeFollowing ? 'Bạn bè' : 'Theo dõi'}
+                {item.isMeFollowing ? 'Nhắn tin' : 'Theo dõi'}
               </Text>
             </TouchableOpacity>
           )}

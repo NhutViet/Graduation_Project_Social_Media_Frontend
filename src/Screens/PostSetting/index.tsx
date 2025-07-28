@@ -300,13 +300,14 @@ export const PostSetting = () => {
             navigation.navigate('TagSo', {selectedMedia: mediaWithTags})
           }
         />
-
-        <Section
-          title={selectedMusic?.song ?? 'Thêm nhạc'}
-          iconLeft={<Music2 size={22} color={color.text} />}
-          iconRight={<ChevronRight size={22} color={color.textSecondary} />}
-          func={() => sheetRef.current?.open()}
-        />
+        {!selectedMedia[0].node.type.startsWith('video') && (
+          <Section
+            title={selectedMusic?.song ?? 'Thêm nhạc'}
+            iconLeft={<Music2 size={22} color={color.text} />}
+            iconRight={<ChevronRight size={22} color={color.textSecondary} />}
+            func={() => sheetRef.current?.open()}
+          />
+        )}
       </Animated.ScrollView>
 
       <TouchableOpacity

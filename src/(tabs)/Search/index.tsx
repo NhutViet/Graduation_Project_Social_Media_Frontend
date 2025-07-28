@@ -95,7 +95,6 @@ export const Search = forwardRef<SearchRef, {}>((props, ref) => {
 
   // Cleanup function
   const cleanup = useCallback(() => {
-    console.log('🔄 [Search] cleanup() called — clearing search state');
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
       abortControllerRef.current = null;
@@ -108,7 +107,6 @@ export const Search = forwardRef<SearchRef, {}>((props, ref) => {
 
   // Reset to initial state function
   const resetToInitial = useCallback(() => {
-    console.log('[Search] resetToInitial() called');
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
       abortControllerRef.current = null;
@@ -298,11 +296,6 @@ export const Search = forwardRef<SearchRef, {}>((props, ref) => {
     () => ({viewAreaCoveragePercentThreshold: 50}),
     [],
   );
-
-  // Effects
-  useEffect(() => {
-    return () => console.log('🏷️ [Search] component is unmounting now');
-  }, []);
 
   useEffect(() => cleanup, [cleanup]);
 

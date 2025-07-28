@@ -199,10 +199,15 @@ export const fetchRecommendations = createAsyncThunk<
     });
 
     const data = response.data;
-    if (!data || !Array.isArray(data.recommendations)) {
-      return rejectWithValue('Dữ liệu trả về không hợp lệ');
+    if (Array.isArray(data.recommendations)) {
+      return data.recommendations as UserProfile[];
     }
-    return data.recommendations;
+
+    if (typeof data.message === 'string') {
+      return [];
+    }
+
+    return rejectWithValue('Dữ liệu trả về không hợp lệ');
   } catch (error: any) {
     console.error('fetchRecommendations error:', error);
     return rejectWithValue(

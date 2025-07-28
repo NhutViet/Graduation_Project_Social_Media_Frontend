@@ -6,11 +6,10 @@ import {
   Switch,
   ScrollView,
   SafeAreaView,
-  Alert,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {useNotificationSettingsStyles} from '../../../StyleSheet/NotificationSetingsStyles';
-import {ArrowLeft, Bell, ChevronRight} from 'lucide-react-native';
+import {ArrowLeft} from 'lucide-react-native';
 import {
   getMessaging,
   getToken,
@@ -63,9 +62,7 @@ export const Notifications = () => {
       }
     } catch (error) {
       setLocalNotified(prev => !prev);
-      GlobalAlertManager.show('Lỗi', 'Không thể thay đổi thông báo.', () =>
-        console.log('Lỗi khi thay đổi thông báo: ', error),
-      );
+      GlobalAlertManager.show('Lỗi', 'Không thể thay đổi thông báo');
     } finally {
       setLoading(false);
     }

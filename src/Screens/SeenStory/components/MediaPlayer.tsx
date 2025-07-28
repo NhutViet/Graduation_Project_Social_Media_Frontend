@@ -153,7 +153,7 @@ export const MediaPlayer = forwardRef<any, MediaPlayerProps>(
             style={styles.media}
             resizeMode="contain"
             onError={e =>
-              console.log('🖼️  Image load error:', e.nativeEvent.error)
+              console.warn(e.nativeEvent.error)
             }
             onLoad={onImageLoad}
           />

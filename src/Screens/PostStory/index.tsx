@@ -15,9 +15,8 @@ import CameraRoll from '@react-native-community/cameraroll';
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {useNavigation} from '@react-navigation/native';
-import BottomSheet, {BottomSheetRef} from './BottomSheet/BottomSheetMusic';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
-import {ArrowLeft, Music2} from 'lucide-react-native';
+import {ArrowLeft} from 'lucide-react-native';
 import LoadingModal from '../../../components/Global/LoadingModal';
 
 const ITEM_SIZE = Dimensions.get('window').width / 4;
@@ -29,19 +28,10 @@ interface MediaItem {
   id: string;
 }
 
-interface MusicInfo {
-  musicId: string;
-  timeStart: number;
-  timeEnd: number;
-  song: string;
-  songImage: string;
-}
-
 const PostStory = () => {
   const {theme} = useTheme();
   const color = Colors[theme];
   const navigation: any = useNavigation();
-  const sheetRef = useRef<BottomSheetRef>(null);
   const flatListRef = useRef<FlatList>(null);
 
   const [mediaList, setMediaList] = useState<MediaItem[]>([]);
@@ -52,8 +42,6 @@ const PostStory = () => {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const isFetchingRef = useRef(false);
 
-  const [selectedMusic, setSelectedMusic] = useState<MusicInfo | null>(null);
-  const [songUrl, setSongUrl] = useState<string | null>(null);
   const [isEndReachedTriggered, setIsEndReachedTriggered] = useState(false);
   const [scrollPosition, setScrollPosition] = useState(0);
 
@@ -104,21 +92,8 @@ const PostStory = () => {
           id: edge.node.image.filename || edge.node.image.uri,
         }));
 
-        console.log(
-          'Loaded media:',
-          newMedia.length,
-          'Total:',
-          mediaList.length + newMedia.length,
-        );
-
         setMediaList(prev => {
           const newList = loadMore ? [...prev, ...newMedia] : newMedia;
-          console.log(
-            'Updated mediaList, length:',
-            newList.length,
-            'loadMore:',
-            loadMore,
-          );
           return newList;
         });
         setLastCursor(result.page_info.end_cursor || null);
@@ -147,24 +122,13 @@ const PostStory = () => {
     [requestPermissions, lastCursor, hasNextPage],
   );
 
-  const validateNavigationData = useCallback(
-    (item: MediaItem): boolean => {
-      if (!item?.uri) {
-        setError('Không thể chọn media này.');
-        return false;
-      }
-      if (selectedMusic && (!selectedMusic.musicId || !selectedMusic.song)) {
-        setError('Dữ liệu nhạc không hợp lệ.');
-        return false;
-      }
-      if (songUrl && typeof songUrl !== 'string') {
-        setError('URL bài hát không hợp lệ.');
-        return false;
-      }
-      return true;
-    },
-    [selectedMusic, songUrl],
-  );
+  const validateNavigationData = useCallback((item: MediaItem): boolean => {
+    if (!item?.uri) {
+      setError('Không thể chọn media này.');
+      return false;
+    }
+    return true;
+  }, []);
 
   const formatDuration = useCallback((duration: number) => {
     if (!duration || duration <= 0) return '00:00';
@@ -174,17 +138,15 @@ const PostStory = () => {
   }, []);
 
   const handleItemPress = useCallback(
-    (item: MediaItem, selectedMusic?: MusicInfo, songUrl?: string) => {
+    (item: MediaItem) => {
       if (!validateNavigationData(item)) {
         return;
       }
       navigation.navigate('EditStory', {
         selectedItem: item,
-        selectedMusic: selectedMusic || undefined,
-        songUrl: songUrl || undefined,
       });
     },
-    [navigation, selectedMusic, songUrl, validateNavigationData],
+    [navigation, validateNavigationData],
   );
 
   const renderItem = useCallback(
@@ -193,13 +155,7 @@ const PostStory = () => {
 
       return (
         <TouchableOpacity
-          onPress={() =>
-            handleItemPress(
-              item,
-              selectedMusic || undefined,
-              songUrl || undefined,
-            )
-          }
+          onPress={() => handleItemPress(item)}
           activeOpacity={0.8}>
           <View style={styles.thumbnailWrapper}>
             <Image source={{uri: item.uri}} style={styles.thumbnail} />
@@ -214,24 +170,13 @@ const PostStory = () => {
         </TouchableOpacity>
       );
     },
-    [formatDuration, handleItemPress, selectedMusic, songUrl],
+    [formatDuration, handleItemPress],
   );
 
   const keyExtractor = (item: MediaItem, index: number) =>
     `${item.id}_${index}`;
 
   const onEndReached = useCallback(() => {
-    console.log(
-      'onEndReached called, isLoading:',
-      isLoading,
-      'isLoadingMore:',
-      isLoadingMore,
-      'hasNextPage:',
-      hasNextPage,
-      'isEndReachedTriggered:',
-      isEndReachedTriggered,
-    );
-
     if (
       !isLoading &&
       !isLoadingMore &&
@@ -268,15 +213,6 @@ const PostStory = () => {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.topSection}>
-        <TopButton
-          IconComponent={Music2}
-          label="Music"
-          color={color.text}
-          onPress={() => sheetRef.current?.open()}
-        />
-      </View>
-
       <View style={styles.mid}>
         <Text style={[styles.titleMid, {color: color.text}]}>
           Gần đây {'>'}
@@ -296,7 +232,6 @@ const PostStory = () => {
           renderItem={renderItem}
           keyExtractor={keyExtractor}
           numColumns={4}
-          extraData={[selectedMusic]}
           contentContainerStyle={styles.grid}
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
@@ -318,27 +253,9 @@ const PostStory = () => {
           })}
         />
       )}
-
-      <BottomSheet
-        ref={sheetRef}
-        onDoneSelect={(musicInfo: MusicInfo) => {
-          setSelectedMusic(musicInfo);
-        }}
-        songUrl={(url: string) => {
-          setSongUrl(url);
-        }}
-      />
     </SafeAreaView>
   );
 };
-
-// Component TopButton không thay đổi
-const TopButton = ({IconComponent, label, onPress, color}: any) => (
-  <TouchableOpacity style={styles.btnTop} onPress={onPress}>
-    <IconComponent size={28} color={color} />
-    <Text style={[styles.txtTop, {color}]}>{label}</Text>
-  </TouchableOpacity>
-);
 
 const styles = StyleSheet.create({
   container: {
@@ -357,34 +274,7 @@ const styles = StyleSheet.create({
     height: '100%',
     resizeMode: 'contain',
   },
-  topSection: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    margin: 15,
-  },
-  btnTop: {
-    borderWidth: 1,
-    borderColor: '#CDD7E1',
-    width: '100%',
-    paddingVertical: 12,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  iconBlock: {
-    height: 35,
-    width: 60,
-    padding: 2,
-  },
-  imgTop: {
-    width: '100%',
-    height: '100%',
-  },
-  txtTop: {
-    marginTop: 6,
-    fontSize: 15,
-    fontWeight: '400',
-  },
+
   mid: {
     flexDirection: 'row',
     alignItems: 'center',

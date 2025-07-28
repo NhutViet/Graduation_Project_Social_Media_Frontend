@@ -114,12 +114,11 @@ const AllReels = () => {
             postId,
             refreshToken,
             receiverId,
-            handleName: currentUser?.handleName ?? '',
+            handleName: currentUser?.username ?? '',
             userId: currentUser?._id,
           }),
         ).unwrap();
       } catch (error) {
-        console.log('Like/unlike thất bại, khôi phục UI:', error);
         if (isLiked) {
           dispatch(addLikedPost(postId));
         } else {

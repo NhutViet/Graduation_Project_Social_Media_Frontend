@@ -37,12 +37,11 @@ export const SocketProvider = ({children}: {children: React.ReactNode}) => {
     });
 
     newSocket.on('connect', () => {
-      console.log('✅ Socket connected!');
       newSocket.emit('joinRoom', {roomId});
     });
 
     newSocket.on('connect_error', err => {
-      console.log('❌ Socket error:', err.message);
+      console.warn('❌ Socket error:', err.message);
     });
 
     socketRef.current = newSocket;
@@ -54,7 +53,6 @@ export const SocketProvider = ({children}: {children: React.ReactNode}) => {
       socketRef.current.disconnect();
       socketRef.current = null;
       setSocket(null);
-      console.log('🔌 Socket disconnected.');
     }
   };
 

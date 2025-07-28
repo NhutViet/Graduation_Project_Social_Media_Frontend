@@ -192,7 +192,7 @@ export const useHighlightStoryPrefetch = () => {
               1, // High priority for initial highlights
             );
           } catch (error) {
-            console.log('Error prefetching highlight:', highlight._id);
+            console.warn(error);
           }
         }
       }

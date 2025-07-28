@@ -72,7 +72,6 @@ export const EditProfile = () => {
     const cleanDate = dateStr.replace(/[\s-]/g, '');
 
     if (cleanDate.length !== 10) {
-      console.log(cleanDate);
       return {isValid: false, error: 'Ngày sinh không đầy đủ'};
     }
 
@@ -82,18 +81,15 @@ export const EditProfile = () => {
 
     // Basic validation
     if (day < 1 || day > 31) {
-      console.log(day);
       return {isValid: false, error: 'Ngày không hợp lệ (01-31)'};
     }
 
     if (month < 1 || month > 12) {
-      console.log(month);
       return {isValid: false, error: 'Tháng không hợp lệ (01-12)'};
     }
 
     const currentYear = new Date().getFullYear();
     if (year < 1900 || year > currentYear) {
-      console.log(year);
       return {isValid: false, error: `Năm không hợp lệ (1900-${currentYear})`};
     }
 
@@ -166,15 +162,12 @@ export const EditProfile = () => {
   const takePhoto = async () => {
     const hasPermission = await requestCameraPermission();
     if (!hasPermission) {
-      console.log('Camera permission denied');
       return;
     }
 
     launchCamera({mediaType: 'photo', saveToPhotos: true}, async response => {
       if (response.didCancel) {
-        console.log('User cancelled camera');
       } else if (response.errorCode) {
-        console.log('Camera error: ', response.errorMessage);
       } else if (response.assets && response.assets.length > 0) {
         const uri = response.assets[0].uri;
         if (uri) {

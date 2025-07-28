@@ -38,8 +38,6 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
   handleGoBack,
   userC,
   showCallFeatures = false,
-  bothFollowing = true,
-  messages = [],
 }) => {
   const {theme} = useTheme();
   const color = Colors[theme];

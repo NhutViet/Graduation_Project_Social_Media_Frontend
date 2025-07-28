@@ -148,7 +148,6 @@ export const fetchHighlightStory = createAsyncThunk<
   {rejectValue: string}
 >('stories/getHighlighrStory', async ({userId}, {rejectWithValue}) => {
   try {
-    console.log('🔍 Fetching highlight stories for userId:', userId);
     const response = await axiosInstance.get(
       `/stories/highlights/user/${userId}`,
       {
@@ -157,14 +156,6 @@ export const fetchHighlightStory = createAsyncThunk<
         },
       },
     );
-    console.log('🔍 API response:', {
-      status: response.status,
-      dataLength: response.data?.data?.length || 0,
-      data: response.data?.data?.map((h: Story) => ({
-        id: h._id,
-        name: h.collectionName,
-      })),
-    });
     return response.data.data;
   } catch (error: any) {
     console.error('🔍 Error fetching highlight stories:', error);
@@ -267,7 +258,6 @@ export const deleteHighlightStory = createAsyncThunk<
   {rejectValue: string}
 >('stories/deleteHighlightStory', async ({highlightId}, {rejectWithValue}) => {
   try {
-    console.log('🔍 Deleting highlight with ID:', highlightId);
     const response = await axiosInstance.patch(
       API.DELETE_HIGHLIGHT_STORY,
       {_id: highlightId},
@@ -277,7 +267,6 @@ export const deleteHighlightStory = createAsyncThunk<
         },
       },
     );
-    console.log('🔍 Delete highlight response:', response.data);
     return {highlightId};
   } catch (error: any) {
     console.error('🔍 Delete highlight error:', {
