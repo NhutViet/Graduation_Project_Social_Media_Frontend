@@ -32,6 +32,7 @@ import {VideoRef} from 'react-native-video';
 import {GestureResponderEvent} from 'react-native-modal';
 import {Portal} from 'react-native-portalize';
 import {useHeadAlert} from '../../../components/Global/HeadAlertProvider';
+import {DraggableCaption} from '../../../components/DraggableCaption';
 
 // Import owner-specific components
 import ModelPeopleSeen from './componentStoryOwner/ModelPeopleSeen';
@@ -741,17 +742,6 @@ export const SeenStory = ({route, navigation}: any) => {
     }
   };
 
-  // Tính toán vị trí caption từ percentage sang pixel để đảm bảo nhất quán với EditStory
-  const getCaptionPosition = (xPercent: number, yPercent: number) => {
-    // Sử dụng screenWidth và screenHeight để đảm bảo nhất quán với EditStory
-    const width = screenWidth;
-    const height = screenHeight;
-    return {
-      left: (xPercent / 100) * width,
-      top: (yPercent / 100) * height,
-    };
-  };
-
   const renderCaption = () => {
     const content = selectedItem?.content;
     const tags = selectedItem?.tags;
@@ -774,7 +764,13 @@ export const SeenStory = ({route, navigation}: any) => {
       return null;
     }
 
-    const position = getCaptionPosition(content?.x || 50, content?.y || 50);
+    // ✅ Debug vị trí caption để đảm bảo tính toán chính xác
+    console.log('🎯 Caption position:', {
+      xPercent: content?.x || 10,
+      yPercent: content?.y || 20,
+      screenWidth,
+      screenHeight,
+    });
 
     // Tạo mention data để có thể click từ valid tags only (adapt to backend structure)
     const mentionData = validTags.map((tag: any) => ({
@@ -792,34 +788,36 @@ export const SeenStory = ({route, navigation}: any) => {
       }
     };
 
+    // ✅ Custom render function để hỗ trợ mentions
+    const renderTextWithMentionsWrapper = (text: string) => {
+      return renderTextWithMentions(
+        text,
+        mentionData,
+        handleMentionPress,
+        {
+          color: '#fff',
+          fontSize: 20,
+          fontWeight: 'bold',
+          textAlign: 'center',
+        },
+        {
+          color: '#4A90E2',
+          fontWeight: '700',
+        },
+      );
+    };
+
     return (
-      <TouchableOpacity
+      <DraggableCaption
+        text={combinedText}
+        initialX={content?.x || 10}
+        initialY={content?.y || 20}
+        draggable={false} // Không cho phép kéo trong SeenStory
+        renderText={renderTextWithMentionsWrapper}
         style={{
-          position: 'absolute',
-          ...position,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          borderRadius: 8,
-          padding: 5,
-          minWidth: 100,
-          maxWidth: screenWidth * 0.8,
+          zIndex: 1000,
         }}
-        activeOpacity={1}>
-        {renderTextWithMentions(
-          combinedText,
-          mentionData,
-          handleMentionPress,
-          {
-            color: '#fff',
-            fontSize: 18,
-            fontWeight: '600',
-            textAlign: 'center',
-          },
-          {
-            color: '#4A90E2',
-            fontWeight: '700',
-          },
-        )}
-      </TouchableOpacity>
+      />
     );
   };
 
@@ -965,28 +963,32 @@ export const SeenStory = ({route, navigation}: any) => {
           progressAnims={progressAnims}
           storyCount={syncedStories.length}
         />
-        <MediaPlayer
-          key={`${selectedItem?._id}-${currentIndex}`} // ✅ Force re-render khi chuyển story
-          item={selectedItem}
-          ref={videoRef}
-          onLoad={d => {
-            setVideoDuration(d.duration);
-            setIsVideoLoaded(true);
-          }}
-          onEnd={goToNextStory}
-          onMediaLayout={setMediaSize}
-          onMusicLoad={seconds => {
-            setMusicDuration(seconds);
-            setIsMusicLoaded(true);
-          }}
-          onMusicEnd={goToNextStory}
-          paused={isPaused}
-          muted={isMuted}
-          isMediaLoading={isMediaLoading}
-          onImageLoad={onImageLoad}
-          forceReset={true} // ✅ Force reset sound khi chuyển story
-        />
-        {renderCaption()}
+
+        {/* ✅ Thêm container tương tự như EditStory để đảm bảo vị trí caption chính xác */}
+        <View style={styles.mediaTouchArea}>
+          <MediaPlayer
+            key={`${selectedItem?._id}-${currentIndex}`} // ✅ Force re-render khi chuyển story
+            item={selectedItem}
+            ref={videoRef}
+            onLoad={d => {
+              setVideoDuration(d.duration);
+              setIsVideoLoaded(true);
+            }}
+            onEnd={goToNextStory}
+            onMediaLayout={setMediaSize}
+            onMusicLoad={seconds => {
+              setMusicDuration(seconds);
+              setIsMusicLoaded(true);
+            }}
+            onMusicEnd={goToNextStory}
+            paused={isPaused}
+            muted={isMuted}
+            isMediaLoading={isMediaLoading}
+            onImageLoad={onImageLoad}
+            forceReset={true} // ✅ Force reset sound khi chuyển story
+          />
+          {renderCaption()}
+        </View>
         {/* {renderTags()} */}
       </TouchableOpacity>
 
