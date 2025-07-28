@@ -94,8 +94,6 @@ export const MessageScreen = () => {
   }, [roomFromList, roomId]);
 
   const rooms = originalRoom;
-  console.log('id vào: ', rooms?.created_by);
-  console.log('id ra: ', userC?._id);
 
   const [isWaitingAndNotCreator, setIsWaitingAndNotCreator] = useState(false);
 
@@ -173,7 +171,7 @@ export const MessageScreen = () => {
           msg._id === messageId
             ? {
                 ...msg,
-                isDelete: true,
+                isDeleted: true,
                 content: 'Tin nhắn đã bị thu hồi',
               }
             : msg,

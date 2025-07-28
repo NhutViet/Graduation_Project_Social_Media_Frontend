@@ -37,7 +37,6 @@ export const ScreenQRCode = ({navigation}: any) => {
   const handleShare = async () => {
     try {
       await Share.share({message: url});
-      showAlert('Chia sẻ', 'Link đã sẵn sàng để chia sẻ.');
     } catch {
       showAlert('Lỗi', 'Không thể chia sẻ link.');
     }
