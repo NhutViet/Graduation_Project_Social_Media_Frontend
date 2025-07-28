@@ -35,6 +35,7 @@ const PostDetailScreen = () => {
   const {postId} = route.params as RouteParams;
 
   const [post, setPost] = useState<any | null>(null);
+  const [isError, setIsError] = useState(false);
   const sheetRef = useRef<BottomSheetCommentRef>(null);
   const selectedPostRef = useRef<{postId: string; receiverId: string}>({
     postId: '',
@@ -52,6 +53,8 @@ const PostDetailScreen = () => {
         setPost(data.data);
       } catch (error) {
         console.warn('Lỗi khi fetch post:', error);
+        setIsError(true);
+        setPost(null);
       }
     };
     fetchPostById();
@@ -75,7 +78,13 @@ const PostDetailScreen = () => {
 
         {!post ? (
           <SafeAreaView style={styles.centeredContainer}>
-            <ActivityIndicator size={'large'} color={colors.primary} />
+            {isError ? (
+              <Text style={{color: colors.text}}>
+                Bài viết này đã bị ẩn hoặc không tồn tại
+              </Text>
+            ) : (
+              <ActivityIndicator size={'large'} color={colors.primary} />
+            )}
           </SafeAreaView>
         ) : (
           <ScrollView showsVerticalScrollIndicator={false}>
