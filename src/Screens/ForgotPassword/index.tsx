@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { useTheme } from '../../util/ThemeContext';
-import { Eye, EyeOff, ArrowLeft } from 'lucide-react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchInitForgotPassword } from '../../../services/userRedux/userSlice';
 import { resetForgotStatus } from '../../../services/userRedux/userReducer';
@@ -23,25 +22,21 @@ export const ForgotPassword = ({ navigation }: any) => {
   const [mode, setMode] = useState<'email' | 'phone'>('email');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [password, setPassword] = useState('');
   const [errorEmail, setErrorEmail] = useState('');
   const [errorPhone, setErrorPhone] = useState('');
-  const [errorPassword, setErrorPassword] = useState('');
   const dispatch = useDispatch<AppDispatch>();
   const { isLoadingForgot, isErrorForgot, forgotMessage } = useSelector((state: RootState) => state.user);
 
   const { theme } = useTheme();
   const color = Colors[theme];
-  const [isPassWord, setIsPassWord] = useState(true);
 
   useEffect(() => {
     dispatch(resetForgotStatus());
   }, [dispatch]);
 
-  const handleResetPassword = async () => {
+  const handleSendCode = async () => {
     setErrorEmail('');
     setErrorPhone('');
-    setErrorPassword('');
     let valid = true;
 
     if (mode === 'email') {
@@ -63,20 +58,14 @@ export const ForgotPassword = ({ navigation }: any) => {
       }
     }
 
-    if (!password) {
-      setErrorPassword('Vui lòng nhập mật khẩu mới.');
-      valid = false;
-    }
-
     if (!valid) return;
 
     try {
-      const args = mode === 'email' ? { email, newPassword: password } : { phone, newPassword: password };
+      const args = mode === 'email' ? { email } : { phone };
       const result = await dispatch(fetchInitForgotPassword(args)).unwrap();
       navigation.navigate('ConfirmationCode', {
         identifier: mode === 'email' ? email : phone,
         mode,
-        password,
         token: result.token,
       });
     } catch (err: any) {
@@ -84,7 +73,7 @@ export const ForgotPassword = ({ navigation }: any) => {
     }
   };
 
-  const isFormValid = password.trim() !== '' && (mode === 'email' ? email.trim() !== '' : phone.trim() !== '');
+  const isFormValid = mode === 'email' ? email.trim() !== '' : phone.trim() !== '';
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: color.background }}>
@@ -98,13 +87,13 @@ export const ForgotPassword = ({ navigation }: any) => {
         </View>
 
         <ScrollView contentContainerStyle={{ padding: 24 }}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <ArrowLeft strokeWidth={1.5} size={24} color={color.text} />
-          </TouchableOpacity>
 
           <Text style={{ fontSize: 32, fontWeight: '700', color: color.text, marginTop: 20 }}>Đặt lại mật khẩu</Text>
           <Text style={{ fontSize: 14, color: color.textSecondary, marginBottom: 24, marginTop: 5 }}>
-            {mode === 'email' ? 'Nhập email và mật khẩu mới của bạn' : 'Nhập số điện thoại và mật khẩu mới của bạn'}
+            {mode === 'email' 
+              ? 'Nhập email để nhận mã xác nhận đặt lại mật khẩu' 
+              : 'Nhập số điện thoại để nhận mã xác nhận đặt lại mật khẩu'
+            }
           </Text>
 
           <View style={{ backgroundColor: color.backgroundSecondary, borderRadius: 8, paddingHorizontal: 12, height: 50, flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
@@ -120,31 +109,12 @@ export const ForgotPassword = ({ navigation }: any) => {
           {errorEmail && <Text style={{ color: color.error, marginBottom: 8 }}>{errorEmail}</Text>}
           {errorPhone && <Text style={{ color: color.error, marginBottom: 8 }}>{errorPhone}</Text>}
 
-          <View style={{ backgroundColor: color.backgroundSecondary, borderRadius: 8, paddingHorizontal: 12, height: 50, flexDirection: 'row', alignItems: 'center', marginBottom: 5 }}>
-            <TextInput
-              value={password}
-              onChangeText={setPassword}
-              style={{ flex: 1, color: color.text }}
-              placeholder="Mật khẩu mới"
-              secureTextEntry={isPassWord}
-              placeholderTextColor={color.textSecondary}
-            />
-            <TouchableOpacity onPress={() => setIsPassWord(!isPassWord)}>
-              {isPassWord ? (
-                <EyeOff strokeWidth={1.5} size={20} color={color.text} />
-              ) : (
-                <Eye strokeWidth={1.5} size={20} color={color.text} />
-              )}
-            </TouchableOpacity>
-          </View>
-          {errorPassword && <Text style={{ color: color.error, marginBottom: 8 }}>{errorPassword}</Text>}
-
           {isErrorForgot && <Text style={{ color: color.error, marginBottom: 8 }}>{forgotMessage}</Text>}
 
           <TouchableOpacity
             activeOpacity={0.8}
             style={{ height: 48, borderRadius: 8, justifyContent: 'center', alignItems: 'center', marginTop: 24, marginBottom: 24, opacity: !isFormValid ? 0.5 : 1 }}
-            onPress={handleResetPassword}
+            onPress={handleSendCode}
             disabled={!isFormValid || isLoadingForgot}
           >
             <LinearGradient
@@ -153,7 +123,7 @@ export const ForgotPassword = ({ navigation }: any) => {
               end={{ x: 1, y: 0 }}
               style={{ height: 48, borderRadius: 8, justifyContent: 'center', alignItems: 'center', width: '100%' }}
             >
-              <Text style={{ color: '#fff', fontSize: 16, fontWeight: '600' }}>Xác nhận</Text>
+              <Text style={{ color: '#fff', fontSize: 16, fontWeight: '600' }}>Gửi mã xác nhận</Text>
             </LinearGradient>
           </TouchableOpacity>
 
@@ -166,8 +136,18 @@ export const ForgotPassword = ({ navigation }: any) => {
       </View>
 
       {isLoadingForgot && (
-        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
-          <LoadingModal withBackdrop={false} />
+        <View style={{ 
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.3)',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 999,
+        }}>
+          <LoadingModal withBackdrop={true} />
         </View>
       )}
     </SafeAreaView>

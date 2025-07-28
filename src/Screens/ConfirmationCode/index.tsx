@@ -9,9 +9,8 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { useTheme } from '../../util/ThemeContext';
-import { ArrowLeft } from 'lucide-react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchConfirmNewPassword, fetchInitForgotPassword } from '../../../services/userRedux/userSlice';
+import { fetchConfirmForgotPassword, fetchInitForgotPassword } from '../../../services/userRedux/userSlice';
 import { resetConfirmStatus, resetForgotStatus } from '../../../services/userRedux/userReducer';
 import { RootState, AppDispatch } from '../../../services/store';
 import { Colors } from '../../../assets/color/Colors';
@@ -19,7 +18,7 @@ import LoadingModal from '../../../components/Global/LoadingModal';
 import { GlobalAlertManager } from '../../../components/Global/AlertModal';
 
 export const ConfirmationCode = ({ navigation, route }: any) => {
-  const { identifier, mode, password, token: initialToken } = route.params;
+  const { identifier, mode, token: initialToken } = route.params;
   const [currentToken, setCurrentToken] = useState<string>(initialToken);
   const [code, setCode] = useState<string[]>(['', '', '', '', '', '']);
   const [errorMessage, setErrorMessage] = useState('');
@@ -69,13 +68,11 @@ export const ConfirmationCode = ({ navigation, route }: any) => {
     }
 
     try {
-      const result = await dispatch(fetchConfirmNewPassword({ token: currentToken, code: fullCode })).unwrap();
-      GlobalAlertManager.show('Thành công', 'Mật khẩu đã được đặt lại thành công.', () => {
-        navigation.navigate('SwitchAccount', {
-          identifier,
-          mode,
-          newPassword: result.newPassword,
-        });
+      const result = await dispatch(fetchConfirmForgotPassword({ token: currentToken, code: fullCode })).unwrap();
+      navigation.navigate('NewPasswordReset', {
+        identifier,
+        mode,
+        refreshToken: result.refreshToken,
       });
     } catch (err: any) {
       GlobalAlertManager.show('Lỗi!', err.message);
@@ -85,10 +82,13 @@ export const ConfirmationCode = ({ navigation, route }: any) => {
   const handleResendCode = async () => {
     try {
       const args = mode === 'email'
-        ? { email: identifier, newPassword: password }
-        : { phone: identifier, newPassword: password };
+        ? { email: identifier }
+        : { phone: identifier };
       const result = await dispatch(fetchInitForgotPassword(args)).unwrap();
       setCurrentToken(result.token);
+      // Clear the code inputs when resending
+      setCode(['', '', '', '', '', '']);
+      inputRefs.current[0]?.focus();
       GlobalAlertManager.show('Gửi lại mã', 'Mã xác nhận đã được gửi lại');
     } catch (err: any) {
       GlobalAlertManager.show('Lỗi!', err.message);
@@ -107,9 +107,6 @@ export const ConfirmationCode = ({ navigation, route }: any) => {
         />
       </View>
       <ScrollView style={{ padding: 24 }}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <ArrowLeft strokeWidth={1.5} size={24} color={color.text} />
-        </TouchableOpacity>
 
         <Text style={{ fontSize: 32, fontWeight: '700', marginTop: 24, color: color.text }}>
           Xác nhận mã
@@ -160,7 +157,8 @@ export const ConfirmationCode = ({ navigation, route }: any) => {
             justifyContent: 'center',
             alignItems: 'center',
             marginTop: 24,
-            backgroundColor: color.primary
+            backgroundColor: color.primary,
+            opacity: (!isFormValid || isLoadingConfirm) ? 0.5 : 1
           }}
           onPress={handleConfirmCode}
           disabled={!isFormValid || isLoadingConfirm}
@@ -170,8 +168,17 @@ export const ConfirmationCode = ({ navigation, route }: any) => {
       </ScrollView>
 
       {(isLoadingConfirm || isLoadingForgot) && (
-        <View style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}>
-          <LoadingModal withBackdrop={false} />
+        <View style={{ 
+          position: 'absolute', 
+          top: 0, 
+          left: 0, 
+          right: 0, 
+          bottom: 0,
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 1000
+        }}>
+          <LoadingModal withBackdrop={true} />
         </View>
       )}
     </SafeAreaView>

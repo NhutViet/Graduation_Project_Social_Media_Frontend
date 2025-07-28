@@ -69,7 +69,9 @@ const LoadingModal: React.FC<{withBackdrop?: boolean}> = ({
   });
 
   return (
-    <View style={[styles.container, withBackdrop && styles.backdrop]}>
+    <View style={[
+      withBackdrop ? styles.backdrop : styles.container
+    ]}>
       <Animated.View
         style={[
           styles.gradientBorder,
@@ -142,10 +144,11 @@ const styles = StyleSheet.create({
   backdrop: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(14,38,60,0.22)',
+    justifyContent: 'center',
+    alignItems: 'center',
     zIndex: 99,
   },
   gradientBorder: {
-    position: 'absolute',
     width: OUTER_SIZE,
     height: OUTER_SIZE,
     justifyContent: 'center',
@@ -154,6 +157,7 @@ const styles = StyleSheet.create({
     opacity: 0.99,
   },
   logoWrap: {
+    position: 'absolute',
     width: SIZE,
     height: SIZE,
     borderRadius: SIZE / 2,

@@ -55,6 +55,7 @@ import {
   GroupGallery,
   PrivacySafetyChat,
   CameraScreen,
+  NewPasswordReset,
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 import ProfileComp from '../Screens/Profile';
@@ -107,6 +108,7 @@ export type RootStackParamList = {
   Register: undefined;
   ForgotPassword: undefined;
   ConfirmationCode: undefined;
+  NewPasswordReset: undefined;
   BlockedAccounts: undefined;
   BlockUser: undefined;
   PrivacySafetyChat: undefined;
@@ -277,6 +279,7 @@ const AppNavigator = () => {
         <Stack.Screen name="ConfirmationCode" component={ConfirmationCode} />
         <Stack.Screen name="PrivacySafetyChat" component={PrivacySafetyChat} />
         <Stack.Screen name="CameraPreview" component={CameraPreview} />
+        <Stack.Screen name="NewPasswordReset" component={NewPasswordReset} />
       </Stack.Navigator>
     </NavigationContainer>
   );
