@@ -45,6 +45,7 @@ import {ItemHomeActions} from './ItemHomeActions';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RootStackParamList} from 'src/Navigation/AppNavigation';
 import {selectItemHomeData} from '../selectors/homeSelectors';
+import {useItemHomeAudio} from '../hook/useItemHomeAudio';
 
 Sound.setCategory('Playback');
 const screenWidth = Dimensions.get('window').width;
@@ -86,11 +87,13 @@ const ItemHome = (props: ItemHomeProps) => {
   const [isBookmark, setIsBookmark] = useState(!!isBookmarked);
   const [likeLoading, setLikeLoading] = useState(false);
 
+  // music
+  useItemHomeAudio(props, muted);
+
   // Modal ref
   const optionSheetRef = useRef<CustomBottomSheetOptionsRef>(null);
   const intentRef = useRef<CustomBottomSheetOptionsRef>(null);
   const modalReactionRef = useRef<CustomBottomSheetOptionsRef>(null);
-  const modalShareRef = useRef<CustomBottomSheetOptionsRef>(null);
 
   // Action handlers
   const pendingLikeRequest = useRef<Promise<any> | null>(null);

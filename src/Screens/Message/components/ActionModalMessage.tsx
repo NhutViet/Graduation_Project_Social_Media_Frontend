@@ -13,7 +13,9 @@ import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '@services/store';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 import {useSocket} from '@services/SocketContext';
-import {Reply, Copy, Trash2} from 'lucide-react-native';
+import {Copy, Trash2} from 'lucide-react-native';
+import Clipboard from '@react-native-clipboard/clipboard';
+import {useHeadAlert} from '../../../../components/Global/HeadAlertProvider';
 
 interface Props {
   visible: boolean;
@@ -26,6 +28,7 @@ const ActionModalMessage = ({visible, onClose, content, setChat}: Props) => {
   const reactions = ['👍', '❤️', '😂', '😮', '😢', '😡'];
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.user.user);
+  const {showAlert} = useHeadAlert();
   const {socket} = useSocket();
 
   const handleReaction = (reaction: string) => {
@@ -38,6 +41,15 @@ const ActionModalMessage = ({visible, onClose, content, setChat}: Props) => {
     });
 
     onClose();
+  };
+
+  const handleCopy = () => {
+    if (content?.content) {
+      Clipboard.setString(content?.content);
+      showAlert('Sao chép', 'Đã sao chép tin nhắn');
+    } else {
+      showAlert('Sao chép', 'Không thể sao chép được tin nhắn');
+    }
   };
 
   const renderContent = () => {
@@ -150,7 +162,9 @@ const ActionModalMessage = ({visible, onClose, content, setChat}: Props) => {
             </View>
           </View>
           <View style={styles.actionContainer}>
-            <TouchableOpacity style={styles.featureContainer}>
+            <TouchableOpacity
+              style={styles.featureContainer}
+              onPress={handleCopy}>
               <Copy size={22} color="black" />
               <Text style={styles.text} numberOfLines={1}>
                 Sao chép

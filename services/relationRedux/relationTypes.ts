@@ -19,7 +19,6 @@ export interface UserProfile {
   gender: string;
   profilePic: string;
   dateOfBirth: string;
-  isVip: boolean;
   deletedAt: boolean;
   isFollowing: boolean;
   isMeFollowing?: boolean;

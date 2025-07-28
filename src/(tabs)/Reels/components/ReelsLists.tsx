@@ -82,7 +82,7 @@ const ReelsList = ({
             postId,
             refreshToken,
             receiverId,
-            handleName: currentUser?.handleName ?? '',
+            handleName: currentUser?.username ?? '',
             userId: currentUser?._id,
           }),
         ).unwrap();
@@ -103,7 +103,7 @@ const ReelsList = ({
         relationAction({
           targetId,
           senderId: currentUser?._id,
-          handleName: currentUser?.handleName,
+          handleName: currentUser?.username,
           action: isFollowing ? 'unfollow' : 'follow',
         }),
       );

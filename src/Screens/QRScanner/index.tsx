@@ -146,14 +146,8 @@ export const QRScanner = () => {
       .then(unwrapResult)
       .then(payload => {
         if (payload.success) {
-          GlobalAlertManager.show(
-            'Tìm thấy người dùng',
-            payload.message,
-            () => {
-              navigation.navigate('ProfileComp', {userID: value});
-              resetCooldown();
-            },
-          );
+          navigation.navigate('ProfileComp', {userID: value});
+          resetCooldown();
         } else {
           resetCooldown();
         }

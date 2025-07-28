@@ -6,7 +6,7 @@ import {
   getPublicProfile,
   fetchEditUser,
   fetchInitForgotPassword,
-  fetchConfirmNewPassword,
+  fetchConfirmForgotPassword,
 } from './userSlice';
 import {User, PublicUserRes} from './userTypes';
 
@@ -27,6 +27,7 @@ interface UserState {
   isSuccessForgot: boolean;
   isErrorForgot: boolean;
   forgotMessage: string;
+  forgotRefreshToken: string;
   isLoadingConfirm: boolean;
   isSuccessConfirm: boolean;
   isErrorConfirm: boolean;
@@ -50,6 +51,7 @@ const initialState: UserState = {
   isSuccessForgot: false,
   isErrorForgot: false,
   forgotMessage: '',
+  forgotRefreshToken: '',
   isLoadingConfirm: false,
   isSuccessConfirm: false,
   isErrorConfirm: false,
@@ -244,23 +246,26 @@ const UserReducer = createSlice({
           action.payload?.message || 'Init forgot password failed';
       })
 
-      // CONFIRM NEW PASSWORD
-      .addCase(fetchConfirmNewPassword.pending, state => {
+      // CONFIRM FORGOT PASSWORD
+      .addCase(fetchConfirmForgotPassword.pending, state => {
         state.isLoadingConfirm = true;
         state.isErrorConfirm = state.isSuccessConfirm = false;
         state.confirmMessage = '';
+        state.forgotRefreshToken = '';
       })
-      .addCase(fetchConfirmNewPassword.fulfilled, (state, action) => {
+      .addCase(fetchConfirmForgotPassword.fulfilled, (state, action) => {
         state.isLoadingConfirm = false;
         state.isSuccessConfirm = true;
         state.confirmMessage = action.payload.message;
+        state.forgotRefreshToken = action.payload.refreshToken;
+        state.refreshToken       = action.payload.refreshToken;
       })
-      .addCase(fetchConfirmNewPassword.rejected, (state, action) => {
+      .addCase(fetchConfirmForgotPassword.rejected, (state, action) => {
         state.isLoadingConfirm = false;
         state.isErrorConfirm = true;
         state.confirmMessage =
-          action.payload?.message || 'Confirm new password failed';
-      });
+          action.payload?.message || 'Confirm forgot password failed';
+      })
   },
 });
 

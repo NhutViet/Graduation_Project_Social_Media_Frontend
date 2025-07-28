@@ -56,3 +56,4 @@ export * from './ForgotPassword';
 export * from './ConfirmationCode';
 export * from './PrivacySafetyChat';
 export * from './CameraScreen';
+export * from './NewPasswordReset'
