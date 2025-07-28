@@ -238,28 +238,15 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
         <View style={styles.rowContainer1}>
           {shouldShowCallIcons && (
             <>
-              <TouchableOpacity
-                onPress={handleVoiceCall}
-                style={{backgroundColor: color.backgroundSecondary}}
-                activeOpacity={0.7}>
+              <TouchableOpacity onPress={handleVoiceCall}>
                 <Phone size={22} color={color.text} />
               </TouchableOpacity>
-              <TouchableOpacity
-                onPress={handleCall}
-                style={{backgroundColor: color.backgroundSecondary}}
-                activeOpacity={0.7}>
+              <TouchableOpacity onPress={handleCall}>
                 <Video size={22} color={color.text} />
               </TouchableOpacity>
             </>
           )}
-          <TouchableOpacity
-            onPress={() => modalRef.current?.open()}
-            style={{
-              backgroundColor: shouldShowCallIcons
-                ? color.backgroundSecondary
-                : 'transparent',
-            }}
-            activeOpacity={0.7}>
+          <TouchableOpacity onPress={() => modalRef.current?.open()}>
             <AlertCircle size={20} color={color.text} />
           </TouchableOpacity>
         </View>

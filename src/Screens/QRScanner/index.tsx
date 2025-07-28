@@ -137,15 +137,23 @@ export const QRScanner = () => {
   //     return;
   //   }
 
-  //   // 2) Nếu quét chính mình
-  //   if (value === myUserId) {
-  //     GlobalAlertManager.show(
-  //       'Lỗi',
-  //       'Bạn không thể quét mã QR của chính mình',
-  //       resetCooldown,
-  //     );
-  //     return;
-  //   }
+    // 3) Còn lại coi như userId
+  //   dispatch(validateUserId({userId: value}))
+  //     .then(unwrapResult)
+  //     .then(payload => {
+  //       if (payload.success) {
+  //         navigation.navigate('ProfileComp', {userID: value});
+  //         resetCooldown();
+  //       } else {
+  //         resetCooldown();
+  //       }
+  //     })
+  //     .catch(err => {
+  //       const msg =
+  //         err.payload?.message || err.message || 'Lỗi xác thực người dùng';
+  //       GlobalAlertManager.show('Lỗi', msg, resetCooldown);
+  //     });
+  // };
 
   //   // 3) Còn lại coi như userId
   //   dispatch(validateUserId({userId: value}))

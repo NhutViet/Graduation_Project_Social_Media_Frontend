@@ -289,10 +289,16 @@ const MessageItemComponent: React.FC<MessageItemProps> = memo(
               marginRight: isMe ? 0 : 30,
               alignSelf:
                 item.sender.userId === userC?._id ? 'flex-end' : 'flex-start',
-              backgroundColor: 'rgba(0,0,0,0.05)',
+              backgroundColor: isMe
+                ? 'rgba(0, 191, 255, 0.5)'
+                : 'rgba(250, 250, 240, 0.5)',
               borderRadius: 8,
             }}>
-            <Text style={{fontStyle: 'italic', color: '#666'}}>
+            <Text
+              style={{
+                fontStyle: 'italic',
+                color: '#191919',
+              }}>
               Tin nhắn đã bị thu hồi
             </Text>
           </View>
