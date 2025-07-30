@@ -5,6 +5,7 @@ import {
   getPostsOfUser,
   getReelsOfUser,
   getLikedPosts,
+  DeleteMyPost,
 } from './postUserSlice';
 
 const emptyPagination: Pagination = {
@@ -163,9 +164,47 @@ const PostUserReducer = createSlice({
         state.errorMessage =
           action.payload?.message || 'Lấy bài đã thích thất bại.';
         state.likedPosts = initialLiked;
+      })
+      .addCase(DeleteMyPost.pending, state => {
+        state.isLoading = true;
+        state.isError = false;
+        state.isSuccess = false;
+        state.errorMessage = '';
+      })
+      .addCase(DeleteMyPost.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        const {modifiedCount} = action.payload;
+        if (modifiedCount > 0) {
+          const {postIds} = action.meta.arg;
+
+          const filterItems = (items?: Item[]) =>
+            items?.filter(item => !postIds.includes(item._id ?? '')) || [];
+
+          // Xóa khỏi posts nếu có
+          if ('items' in state.posts) {
+            state.posts.items = filterItems(state.posts.items as Item[]);
+          }
+
+          // Xóa khỏi reels nếu có
+          if ('items' in state.reels) {
+            state.reels.items = filterItems(state.reels.items as Item[]);
+          }
+
+          state.likedPosts.items = state.likedPosts.items.filter(
+            item => !postIds.includes(item._id ?? ''),
+          );
+        }
+      })
+      .addCase(DeleteMyPost.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.errorMessage =
+          action.payload?.message || 'Xóa bài viết thất bại.';
       });
   },
 });
 
-export const {clearPostsAndReels, clearLikedPosts, updateIsFollowPostUser} = PostUserReducer.actions;
+export const {clearPostsAndReels, clearLikedPosts, updateIsFollowPostUser} =
+  PostUserReducer.actions;
 export default PostUserReducer.reducer;

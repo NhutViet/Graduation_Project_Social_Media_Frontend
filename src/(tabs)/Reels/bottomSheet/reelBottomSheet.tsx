@@ -1,5 +1,6 @@
 import React, {
   forwardRef,
+  useCallback,
   useEffect,
   useImperativeHandle,
   useMemo,
@@ -22,7 +23,9 @@ import {
   saveBookmark,
 } from '../../../../services/bookmarkRedux/bookmarkSlice';
 import {PostWithMedia} from '@services/postRedux/postTypes';
-import {Bookmark, EyeOff, Flag} from 'lucide-react-native';
+import {Bookmark, EyeOff, Flag, X} from 'lucide-react-native';
+import { handleDeleteMyPost } from '../../../../src/(tabs)/Home/util';
+import { useHeadAlert } from '../../../../components/Global/HeadAlertProvider';
 
 export type BottomSheetReelsRef = {
   open: () => void;
@@ -40,8 +43,9 @@ const BottomSheetReels = forwardRef<BottomSheetReelsRef, BottomSheetReelsProps>(
     const {theme} = useTheme();
     const colors = Colors[theme];
     const dispatch = useDispatch<AppDispatch>();
+    const {showAlert} = useHeadAlert();
     const {bookmark} = useSelector((state: RootState) => state.reelBookmark);
-    const {refreshToken} = useSelector((state: RootState) => state.user);
+    const {refreshToken, user} = useSelector((state: RootState) => state.user);
 
     const isBookmark = useMemo(() => {
       return selectedItem?._id
@@ -82,7 +86,14 @@ const BottomSheetReels = forwardRef<BottomSheetReelsRef, BottomSheetReelsProps>(
           });
       }
     };
-
+    
+    const handleDeletePost = useCallback(() => {
+        handleDeleteMyPost({
+          postId: selectedItem?._id ?? '',
+          dispatch,
+          showAlert,
+        });
+      }, [ selectedItem?._id, refreshToken, dispatch]);
     return (
       <CustomPopupModal
         ref={popupRef}
@@ -111,6 +122,13 @@ const BottomSheetReels = forwardRef<BottomSheetReelsRef, BottomSheetReelsProps>(
             <Flag size={22} color="red" style={styles.icon} />
             <Text style={[styles.textItem, {color: 'red'}]}>Báo cáo</Text>
           </TouchableOpacity>
+
+          {user?._id === selectedItem?.userID && (
+            <TouchableOpacity style={styles.rowItem} onPress={handleDeletePost}>
+              <X size={22} color="red" style={styles.icon} />
+              <Text style={[styles.textItem, {color: 'red'}]}>Xóa bài đăng</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </CustomPopupModal>
     );

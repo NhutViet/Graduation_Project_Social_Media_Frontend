@@ -16,6 +16,7 @@ import {
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 import {Story, userFollow, UserMini} from '@services/StoryRedux/StoryType';
 import {User} from '@services/userRedux/userTypes';
+import {DeleteMyPost} from '@services/postUserRedux/postUserSlice';
 
 export const handleBookmark = async ({
   isBookmarked,
@@ -299,7 +300,10 @@ export const handleUserPress = async (
                     return {
                       ...tag,
                       // Đảm bảo user field vẫn là string ID như gốc
-                      user: typeof tag.user === 'string' ? tag.user : tag.user?._id || tag.user,
+                      user:
+                        typeof tag.user === 'string'
+                          ? tag.user
+                          : tag.user?._id || tag.user,
                     };
                   },
                 );
@@ -474,7 +478,10 @@ export const handleHighlightPress = async (
             return {
               ...tag,
               // Đảm bảo user field vẫn là string ID như gốc
-              user: typeof tag.user === 'string' ? tag.user : tag.user?._id || tag.user,
+              user:
+                typeof tag.user === 'string'
+                  ? tag.user
+                  : tag.user?._id || tag.user,
             };
           });
 
@@ -633,67 +640,72 @@ export const handleHighlightPress = async (
           }
 
           const loadedStories = await Promise.all(
-            highlightDetailRes.filter((item): item is Story => item !== undefined).map(async (item: Story) => {
-              try {
-                await dispatch(seenStory({storyId: item._id}));
+            highlightDetailRes
+              .filter((item): item is Story => item !== undefined)
+              .map(async (item: Story) => {
+                try {
+                  await dispatch(seenStory({storyId: item._id}));
 
-                // ✅ Giữ nguyên cấu trúc tags gốc cho các highlight khác
-                const populatedTags = (item.tags || []).map(
-                  (tag: {
-                    user: UserMini;
-                    position: {
-                      x: number;
-                      y: number;
-                    };
-                  }) => {
-                    // Giữ nguyên cấu trúc gốc, chỉ đảm bảo user field là string ID
-                    return {
-                      ...tag,
-                      // Đảm bảo user field vẫn là string ID như gốc
-                      user: typeof tag.user === 'string' ? tag.user : tag.user?._id || tag.user,
-                    };
-                  },
-                );
+                  // ✅ Giữ nguyên cấu trúc tags gốc cho các highlight khác
+                  const populatedTags = (item.tags || []).map(
+                    (tag: {
+                      user: UserMini;
+                      position: {
+                        x: number;
+                        y: number;
+                      };
+                    }) => {
+                      // Giữ nguyên cấu trúc gốc, chỉ đảm bảo user field là string ID
+                      return {
+                        ...tag,
+                        // Đảm bảo user field vẫn là string ID như gốc
+                        user:
+                          typeof tag.user === 'string'
+                            ? tag.user
+                            : tag.user?._id || tag.user,
+                      };
+                    },
+                  );
 
-                const processedStory = {
-                  ...item,
-                  tags: populatedTags,
-                  uriVideo: item.mediaUrl?.endsWith('.mp4')
-                    ? item.mediaUrl
-                    : null,
-                  image:
-                    item.mediaUrl?.endsWith('.jpg') ||
-                    item.mediaUrl?.endsWith('.png')
+                  const processedStory = {
+                    ...item,
+                    tags: populatedTags,
+                    uriVideo: item.mediaUrl?.endsWith('.mp4')
                       ? item.mediaUrl
                       : null,
-                };
+                    image:
+                      item.mediaUrl?.endsWith('.jpg') ||
+                      item.mediaUrl?.endsWith('.png')
+                        ? item.mediaUrl
+                        : null,
+                  };
 
-                // ✅ Đảm bảo data được lưu trữ trong Redux state cho các highlight khác
-                const state = store.getState();
-                const existingIndex = state.stories.storyDetails.findIndex(
-                  (s: Story) => s._id === item._id,
-                );
+                  // ✅ Đảm bảo data được lưu trữ trong Redux state cho các highlight khác
+                  const state = store.getState();
+                  const existingIndex = state.stories.storyDetails.findIndex(
+                    (s: Story) => s._id === item._id,
+                  );
 
-                if (existingIndex !== -1) {
-                  // Update existing story in Redux state
-                  store.dispatch({
-                    type: 'stories/fetchStoryDetails/fulfilled',
-                    payload: [processedStory],
-                  });
-                } else {
-                  // Add new story to Redux state
-                  store.dispatch({
-                    type: 'stories/fetchStoryDetails/fulfilled',
-                    payload: [processedStory],
-                  });
+                  if (existingIndex !== -1) {
+                    // Update existing story in Redux state
+                    store.dispatch({
+                      type: 'stories/fetchStoryDetails/fulfilled',
+                      payload: [processedStory],
+                    });
+                  } else {
+                    // Add new story to Redux state
+                    store.dispatch({
+                      type: 'stories/fetchStoryDetails/fulfilled',
+                      payload: [processedStory],
+                    });
+                  }
+
+                  return processedStory;
+                } catch (err) {
+                  console.error('seenStory error', err);
+                  return null;
                 }
-
-                return processedStory;
-              } catch (err) {
-                console.error('seenStory error', err);
-                return null;
-              }
-            }),
+              }),
           );
 
           return {
@@ -712,11 +724,11 @@ export const handleHighlightPress = async (
 
     // Lọc ra các groups có stories
     const validStoryGroups = allHighlightStories.filter(
-      (group) => group.stories.length > 0,
+      group => group.stories.length > 0,
     );
 
     const currentGroupIndex = validStoryGroups.findIndex(
-      (group) => group.highlightId === story._id,
+      group => group.highlightId === story._id,
     );
 
     // ✅ Đảm bảo tất cả stories được lưu trữ trong Redux state trước khi navigate
@@ -746,5 +758,25 @@ export const handleHighlightPress = async (
     });
   } catch (error) {
     GlobalAlertManager.show('Thất bại', 'Lỗi khi tải highlight');
+  }
+};
+
+export const handleDeleteMyPost = async ({
+  showAlert,
+  dispatch,
+  postId,
+}: {
+  postId: string;
+  showAlert: any;
+  dispatch: AppDispatch;
+}) => {
+  try {
+    await dispatch(DeleteMyPost({postIds: [postId]}))
+      .unwrap()
+      .then(() => {
+        showAlert('Thành công', 'Xóa bài đăng thành công');
+      });
+  } catch (error) {
+    showAlert('Thất bại', 'Xóa bài đăng thất bại.');
   }
 };

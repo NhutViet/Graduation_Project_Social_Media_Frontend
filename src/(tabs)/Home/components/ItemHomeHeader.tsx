@@ -62,13 +62,11 @@ export const ItemHomeHeader: React.FC<ItemHomeHeaderProps> = ({
             </Text>
           </TouchableOpacity>
         )}
-        {user._id !== userId && (
-          <TouchableOpacity
-            onPress={onOptionsPress}
-            style={ItemHomeStyles.iconBlock}>
-            <MoreVertical size={22} color={iconTintColor} />
-          </TouchableOpacity>
-        )}
+        <TouchableOpacity
+          onPress={onOptionsPress}
+          style={ItemHomeStyles.iconBlock}>
+          <MoreVertical size={22} color={iconTintColor} />
+        </TouchableOpacity>
       </View>
     </View>
   );

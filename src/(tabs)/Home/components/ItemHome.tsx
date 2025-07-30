@@ -5,7 +5,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import {Portal} from 'react-native-portalize';
 import Sound from 'react-native-sound';
 import {ItemHomeStyles} from '../component_styles/ItemHomeStyles';
-import {formatTimeAgo} from '../util';
+import {formatTimeAgo, handleDeleteMyPost} from '../util';
 import {AppDispatch, RootState} from '../../../../services/store';
 import ModalReaction from './ModalReaction';
 import BottomSheetIntentionsModal from './BottomSheetIntentionsModal';
@@ -46,6 +46,7 @@ import {StackNavigationProp} from '@react-navigation/stack';
 import {RootStackParamList} from 'src/Navigation/AppNavigation';
 import {selectItemHomeData} from '../selectors/homeSelectors';
 import {useItemHomeAudio} from '../hook/useItemHomeAudio';
+import {useHeadAlert} from '../../../../components/Global/HeadAlertProvider';
 
 Sound.setCategory('Playback');
 const screenWidth = Dimensions.get('window').width;
@@ -76,6 +77,7 @@ const ItemHome = (props: ItemHomeProps) => {
 
   const navigation = useNavigation<ProfileCompNav>();
   const dispatch = useDispatch<AppDispatch>();
+  const {showAlert} = useHeadAlert();
 
   const {refreshToken, userID, handleName} = useSelector(selectItemHomeData);
 
@@ -166,6 +168,14 @@ const ItemHome = (props: ItemHomeProps) => {
       dispatch,
     });
   }, [isBookmark, _id, refreshToken, dispatch]);
+
+  const handleDeletePost = useCallback(() => {
+    handleDeleteMyPost({
+      postId: _id,
+      dispatch,
+      showAlert,
+    });
+  }, [ _id, refreshToken, dispatch]);
 
   // Modal actions
   const openOptions = useCallback(() => optionSheetRef.current?.open(), []);
@@ -336,8 +346,10 @@ const ItemHome = (props: ItemHomeProps) => {
         ref={optionSheetRef}
         isBookmarked={isBookmark}
         topOptions={topOptions}
+        isCurrentUser={userID === user._id}
         firstListOptions={firstListOptions}
         secondListOptions={secondListOptions}
+        onDeleteMyPost={handleDeletePost}
         onBookmarkPress={handleBookmarkAction}
       />
 
