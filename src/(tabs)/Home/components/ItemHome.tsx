@@ -110,7 +110,7 @@ const ItemHome = (props: ItemHomeProps) => {
         postId: _id,
         refreshToken,
         receiverId: user._id,
-        handleName: handleName ?? '',
+        handleName: user.username ?? '',
         userId: userID,
       }),
     ).unwrap();
@@ -149,7 +149,7 @@ const ItemHome = (props: ItemHomeProps) => {
         userId: user._id,
         follow: isFollow,
         senderId: mine?._id,
-        handleName: mine?.handleName,
+        handleName: mine?.username,
         dispatch,
         onFollowChange,
       });

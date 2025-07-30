@@ -62,7 +62,7 @@ export const SwitchAccount = ({navigation, route}: any) => {
   };
 
   const handleForgot = async () => {
-    navigation.navigate('ForgotPassword');
+    navigation.navigate('CheckEmail');
   };
 
   const handleLogin = async () => {

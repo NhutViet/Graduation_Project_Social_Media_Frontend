@@ -1,5 +1,5 @@
-export const BASE_URL = 'http://cirla.io.vn';
-// export const BASE_URL = 'http://192.168.100.157:4001/'; // for local testing on QA's pc
+// export const BASE_URL = 'http://cirla.io.vn';
+export const BASE_URL = 'http://192.168.100.157:4001/'; // for local testing on QA's pc
 export const CallAppID = 41521435;
 export const CallAppSign =
   '6c6785fccbe2469324a805ea64c58069dc7254723d60c056c925ab48d2aee6a4';
@@ -56,8 +56,9 @@ export const API = {
   CHANGE_PASSWORD: '/users/password',
   VALIDATE_USER: '/users/validate',
   /// Forgot and reset password
-  INIT_FORGOT_PASSWORD: '/users/forgot-password',
-  CONFIRM_NEW_PASSWORD: '/users/forgot-password/confirm',
+  CHECK_EMAIL_FORGOT_PASSWORD: '/users/forgot-password/check-email',
+  SEND_CODE_FORGOT_PASSWORD: '/users/forgot-password/send-code',
+  VERIFY_CODE_FORGOT_PASSWORD: '/users/forgot-password/verify-code',
   ////bookmark
   POST_SAVE_BOOKMARK: 'bookmark-playlists/add-default',
   DELETE_BOOKMARK: 'bookmark-items/remove',

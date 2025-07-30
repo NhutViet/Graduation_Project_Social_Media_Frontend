@@ -5,8 +5,9 @@ import {
   fetchRegister,
   getPublicProfile,
   fetchEditUser,
-  fetchInitForgotPassword,
-  fetchConfirmForgotPassword,
+  fetchCheckEmailForgotPassword,
+  fetchSendCodeForgotPassword,
+  fetchVerifyCodeForgotPassword,
 } from './userSlice';
 import {User, PublicUserRes} from './userTypes';
 
@@ -23,15 +24,24 @@ interface UserState {
   isErrorPublicProfile: boolean;
   errorMessagePublicProfile: string;
   loggedInUsers: User[];
-  isLoadingForgot: boolean;
-  isSuccessForgot: boolean;
-  isErrorForgot: boolean;
-  forgotMessage: string;
-  forgotRefreshToken: string;
-  isLoadingConfirm: boolean;
-  isSuccessConfirm: boolean;
-  isErrorConfirm: boolean;
-  confirmMessage: string;
+  
+  isLoadingCheckEmail: boolean;
+  isSuccessCheckEmail: boolean;
+  isErrorCheckEmail: boolean;
+  checkEmailMessage: string;
+  hasPhoneNumber: boolean;
+  
+  isLoadingSendCode: boolean;
+  isSuccessSendCode: boolean;
+  isErrorSendCode: boolean;
+  sendCodeMessage: string;
+  forgotPasswordToken: string;
+  
+  isLoadingVerifyCode: boolean;
+  isSuccessVerifyCode: boolean;
+  isErrorVerifyCode: boolean;
+  verifyCodeMessage: string;
+  verifyRefreshToken: string;
 }
 
 const initialState: UserState = {
@@ -47,15 +57,24 @@ const initialState: UserState = {
   isErrorPublicProfile: false,
   errorMessagePublicProfile: '',
   loggedInUsers: [],
-  isLoadingForgot: false,
-  isSuccessForgot: false,
-  isErrorForgot: false,
-  forgotMessage: '',
-  forgotRefreshToken: '',
-  isLoadingConfirm: false,
-  isSuccessConfirm: false,
-  isErrorConfirm: false,
-  confirmMessage: '',
+  
+  isLoadingCheckEmail: false,
+  isSuccessCheckEmail: false,
+  isErrorCheckEmail: false,
+  checkEmailMessage: '',
+  hasPhoneNumber: false,
+  
+  isLoadingSendCode: false,
+  isSuccessSendCode: false,
+  isErrorSendCode: false,
+  sendCodeMessage: '',
+  forgotPasswordToken: '',
+  
+  isLoadingVerifyCode: false,
+  isSuccessVerifyCode: false,
+  isErrorVerifyCode: false,
+  verifyCodeMessage: '',
+  verifyRefreshToken: '',
 };
 
 const UserReducer = createSlice({
@@ -97,19 +116,31 @@ const UserReducer = createSlice({
         user => user._id !== action.payload,
       );
     },
-    resetForgotStatus: state => {
-      state.isLoadingForgot =
-        state.isSuccessForgot =
-        state.isErrorForgot =
-          false;
-      state.forgotMessage = '';
+    resetCheckEmailStatus: state => {
+      state.isLoadingCheckEmail = state.isSuccessCheckEmail = state.isErrorCheckEmail = false;
+      state.checkEmailMessage = '';
+      state.hasPhoneNumber = false;
     },
-    resetConfirmStatus: state => {
-      state.isLoadingConfirm =
-        state.isSuccessConfirm =
-        state.isErrorConfirm =
-          false;
-      state.confirmMessage = '';
+    resetSendCodeStatus: state => {
+      state.isLoadingSendCode = state.isSuccessSendCode = state.isErrorSendCode = false;
+      state.sendCodeMessage = '';
+      state.forgotPasswordToken = '';
+    },
+    resetVerifyCodeStatus: state => {
+      state.isLoadingVerifyCode = state.isSuccessVerifyCode = state.isErrorVerifyCode = false;
+      state.verifyCodeMessage = '';
+      state.verifyRefreshToken = '';
+    },
+    resetAllForgotPasswordStatus: state => {      
+      state.isLoadingCheckEmail = state.isSuccessCheckEmail = state.isErrorCheckEmail = false;
+      state.checkEmailMessage = '';
+      state.hasPhoneNumber = false;
+      state.isLoadingSendCode = state.isSuccessSendCode = state.isErrorSendCode = false;
+      state.sendCodeMessage = '';
+      state.forgotPasswordToken = '';
+      state.isLoadingVerifyCode = state.isSuccessVerifyCode = state.isErrorVerifyCode = false;
+      state.verifyCodeMessage = '';
+      state.verifyRefreshToken = '';
     },
   },
   extraReducers: builder => {
@@ -228,44 +259,66 @@ const UserReducer = createSlice({
         state.publicProfile = null;
       })
 
-      // INIT FORGOT PASSWORD
-      .addCase(fetchInitForgotPassword.pending, state => {
-        state.isLoadingForgot = true;
-        state.isErrorForgot = state.isSuccessForgot = false;
-        state.forgotMessage = '';
+      // check email
+      .addCase(fetchCheckEmailForgotPassword.pending, state => {
+        state.isLoadingCheckEmail = true;
+        state.isErrorCheckEmail = state.isSuccessCheckEmail = false;
+        state.checkEmailMessage = '';
+        state.hasPhoneNumber = false;
       })
-      .addCase(fetchInitForgotPassword.fulfilled, (state, action) => {
-        state.isLoadingForgot = false;
-        state.isSuccessForgot = true;
-        state.forgotMessage = action.payload.token;
+      .addCase(fetchCheckEmailForgotPassword.fulfilled, (state, action) => {
+        state.isLoadingCheckEmail = false;
+        state.isSuccessCheckEmail = true;
+        state.checkEmailMessage = action.payload.message;
+        state.hasPhoneNumber = action.payload.hasPhoneNumber;
       })
-      .addCase(fetchInitForgotPassword.rejected, (state, action) => {
-        state.isLoadingForgot = false;
-        state.isErrorForgot = true;
-        state.forgotMessage =
-          action.payload?.message || 'Init forgot password failed';
+      .addCase(fetchCheckEmailForgotPassword.rejected, (state, action) => {
+        state.isLoadingCheckEmail = false;
+        state.isErrorCheckEmail = true;
+        state.checkEmailMessage = action.payload?.message || 'Kiểm tra email không thành công';
+        state.hasPhoneNumber = false;
       })
-
-      // CONFIRM FORGOT PASSWORD
-      .addCase(fetchConfirmForgotPassword.pending, state => {
-        state.isLoadingConfirm = true;
-        state.isErrorConfirm = state.isSuccessConfirm = false;
-        state.confirmMessage = '';
-        state.forgotRefreshToken = '';
+      
+      // send code
+      .addCase(fetchSendCodeForgotPassword.pending, state => {
+        state.isLoadingSendCode = true;
+        state.isErrorSendCode = state.isSuccessSendCode = false;
+        state.sendCodeMessage = '';
+        state.forgotPasswordToken = '';
       })
-      .addCase(fetchConfirmForgotPassword.fulfilled, (state, action) => {
-        state.isLoadingConfirm = false;
-        state.isSuccessConfirm = true;
-        state.confirmMessage = action.payload.message;
-        state.forgotRefreshToken = action.payload.refreshToken;
-        state.refreshToken       = action.payload.refreshToken;
+      .addCase(fetchSendCodeForgotPassword.fulfilled, (state, action) => {
+        state.isLoadingSendCode = false;
+        state.isSuccessSendCode = true;
+        state.sendCodeMessage = action.payload.message;
+        state.forgotPasswordToken = action.payload.token;
       })
-      .addCase(fetchConfirmForgotPassword.rejected, (state, action) => {
-        state.isLoadingConfirm = false;
-        state.isErrorConfirm = true;
-        state.confirmMessage =
-          action.payload?.message || 'Confirm forgot password failed';
+      .addCase(fetchSendCodeForgotPassword.rejected, (state, action) => {
+        state.isLoadingSendCode = false;
+        state.isErrorSendCode = true;
+        state.sendCodeMessage = action.payload?.message || 'Gửi mã xác nhận không thành công';
+        state.forgotPasswordToken = '';
       })
+      
+      // verify code
+      .addCase(fetchVerifyCodeForgotPassword.pending, state => {
+        state.isLoadingVerifyCode = true;
+        state.isErrorVerifyCode = state.isSuccessVerifyCode = false;
+        state.verifyCodeMessage = '';
+        state.verifyRefreshToken = '';
+      })
+      .addCase(fetchVerifyCodeForgotPassword.fulfilled, (state, action) => {
+        state.isLoadingVerifyCode = false;
+        state.isSuccessVerifyCode = true;
+        state.verifyCodeMessage = action.payload.message;
+        state.verifyRefreshToken = action.payload.refreshToken;
+        state.refreshToken = action.payload.refreshToken;
+      })
+      .addCase(fetchVerifyCodeForgotPassword.rejected, (state, action) => {
+        state.isLoadingVerifyCode = false;
+        state.isErrorVerifyCode = true;
+        state.verifyCodeMessage = action.payload?.message || 'Xác nhận mã không thành công';
+        state.verifyRefreshToken = '';
+      });
   },
 });
 
@@ -276,7 +329,9 @@ export const {
   resetPublicProfileStatus,
   clearPublicProfile,
   removeLoggedInUser,
-  resetForgotStatus,
-  resetConfirmStatus,
+  resetCheckEmailStatus,
+  resetSendCodeStatus,
+  resetVerifyCodeStatus,
+  resetAllForgotPasswordStatus,
 } = UserReducer.actions;
 export default UserReducer.reducer;

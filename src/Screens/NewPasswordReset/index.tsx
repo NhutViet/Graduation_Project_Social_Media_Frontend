@@ -13,7 +13,7 @@ import { useTheme } from '../../util/ThemeContext';
 import { Eye, EyeOff } from 'lucide-react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchEditUser } from '../../../services/userRedux/userSlice';
-import { resetStatus, resetForgotStatus, resetConfirmStatus } from '../../../services/userRedux/userReducer';
+import { resetStatus, resetAllForgotPasswordStatus } from '../../../services/userRedux/userReducer';
 import { RootState, AppDispatch } from '../../../services/store';
 import { Colors } from '../../../assets/color/Colors';
 import LoadingModal from '../../../components/Global/LoadingModal';
@@ -34,7 +34,7 @@ export const NewPasswordReset = ({ navigation, route }: any) => {
   const [isConfirmPassWord, setIsConfirmPassWord] = useState(true);
 
   useEffect(() => {
-    dispatch(resetStatus(), resetConfirmStatus(), resetForgotStatus());
+    dispatch(resetStatus(), resetAllForgotPasswordStatus());
   }, [dispatch]);
 
   useEffect(() => {
