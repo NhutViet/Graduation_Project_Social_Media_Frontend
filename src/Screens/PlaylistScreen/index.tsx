@@ -27,7 +27,8 @@ import {
 } from '../../../services/bookmarkRedux/bookmarkSlice';
 import { FlashList } from '@shopify/flash-list';
 import { GlobalAlertManager } from '../../../components/Global/AlertModal';
-import { PlaylistItem, Media, MediaR } from '@services/bookmarkRedux/bookmarkTypes';
+import { PlaylistItem } from '@services/bookmarkRedux/bookmarkTypes';
+import { Media, MediaR } from '@services/bookmarkRedux/bookmarkTypes';
 import {
   ArrowLeft,
   MoreVertical,
@@ -53,8 +54,12 @@ export const PlaylistsScreen = () => {
   const palette = Colors[theme];
 
   const dispatch = useDispatch<AppDispatch>();
-  const { itemsByPlaylist, playlists } = useSelector((state: RootState) => state.bookmark);
-  const [playlistItems, setPlaylistItems] = useState(itemsByPlaylist[playlistId] ?? []);
+  const { itemsByPlaylist, playlists } = useSelector(
+    (state: RootState) => state.bookmark,
+  );
+  const [playlistItems, setPlaylistItems] = useState(
+    itemsByPlaylist[playlistId] || [],
+  );
   const isLoading = useSelector((s: RootState) => s.bookmark.isloading);
   const { refreshToken } = useSelector((state: RootState) => state.user);
 
@@ -72,8 +77,9 @@ export const PlaylistsScreen = () => {
   const renameRef = useRef<Modalize>(null);
   const videoRef = useRef<VideoRef>(null);
 
-  const anotherplaylist = playlists.filter(
-    p => p._id !== playlistId && p.playlistName !== 'Âm nhạc',
+  const anotherplaylist = (playlists || []).filter(
+    playlist =>
+      playlist._id !== playlistId && playlist.playlistName !== 'Âm nhạc',
   );
 
   useEffect(() => {
@@ -83,48 +89,116 @@ export const PlaylistsScreen = () => {
   }, [dispatch, playlistId]);
 
   useEffect(() => {
-    setPlaylistItems(itemsByPlaylist[playlistId] ?? []);
-  }, [itemsByPlaylist]);
+    const items = itemsByPlaylist[playlistId] ?? [];
+    setPlaylistItems(items);
+  }, [itemsByPlaylist, playlistId]);
 
   const openItem = (item: PlaylistItem) => {
     if (activeTab === 'grid') {
-      navigation.navigate('AllPostOfCollection' as never, {
-        posts: playlistItems,
-        targetPostId: item._id,
-        playlistName: title,
-        clickableHashtag: true,
-        clearSearchRedux: true,
-      } as never);
+      navigation.navigate(
+        'AllPostOfCollection' as never,
+        {
+          posts: playlistItems,
+          targetPostId: item._id,
+          playlistName: title,
+          clickableHashtag: true,
+          clearSearchRedux: true,
+        } as never,
+      );
     } else {
-      navigation.navigate('AllReels', { reels: playlistItems, initialId: item._id });
+      navigation.navigate('AllReels', {
+        reels: playlistItems,
+        initialId: item._id,
+      });
     }
   };
 
   const toggleSelect = (id: string) => {
-    setListSelected(prev => (prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]));
+    setListSelected(prev =>
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id],
+    );
   };
 
-  const isAllSelected = listSelected.length === playlistItems.length;
-  const handleToggleAll = () =>
-    isAllSelected ? setListSelected([]) : setListSelected(playlistItems.map(i => i._id));
+  const selectAll = (items: PlaylistItem[]) => {
+    const allIds = items.map(item => item._id);
+    setListSelected(allIds);
+  };
+
+  const unselectAll = () => {
+    setListSelected([]);
+  };
+
+  const isAllSelected = (listSelected || []).length === (playlistItems || []).length && (playlistItems || []).length > 0;
+
+  const handleToggleAll = () => {
+    if (isAllSelected) {
+      unselectAll();
+    } else {
+      selectAll(playlistItems);
+    }
+  };
+
   const handleCancel = () => {
     setIsSelect(false);
     setListSelected([]);
   };
+
   const handleRight = () => {
-    if (isSelec) handleToggleAll();
-    else selectRef.current?.open();
+    if (isSelec) {
+      handleToggleAll();
+    } else {
+      selectRef.current?.open();
+    }
   };
+
+  const closeModal = () => modalizeRef.current?.close();
+
+  const EmptyPlaceholder = memo(({ message }: { message: string }) => (
+    <View style={{ alignItems: 'center', paddingVertical: 40 }}>
+      <Text style={{ color: palette.textSecondary }}>{message}</Text>
+    </View>
+  ));
+
+  const renderTabBar = useCallback(
+    () => (
+      <View style={[styles.tabBar, { backgroundColor: palette.background }]}>
+        {(
+          [
+            { key: 'grid', icon: LayoutGrid },
+            { key: 'reels', icon: Clapperboard },
+          ] as const
+        ).map(tab => (
+          <TouchableOpacity
+            key={tab.key}
+            style={[
+              styles.tab,
+              activeTab === tab.key && styles.activeTab,
+              { borderBottomColor: palette.text },
+            ]}
+            onPress={() => setActiveTab(tab.key)}>
+            <tab.icon
+              size={20}
+              color={
+                activeTab === tab.key ? palette.text : palette.textSecondary
+              }
+            />
+          </TouchableOpacity>
+        ))}
+      </View>
+    ),
+    [activeTab, setActiveTab],
+  );
 
   const renderItemThumb = useCallback(
     (item: PlaylistItem) => {
-      const isVideo = item.type === 'reel';
-      if (!item.media || item.media.length === 0) {
+      // Handle both itemType and type properties for backward compatibility
+      const isVideo = item.itemType === 'reel' || (item as any).type === 'reel';
+      if (!item.media || !Array.isArray(item.media) || item.media.length === 0) {
         return null;
       }
 
-      const isSelected = listSelected.includes(item._id);
-      const url = isVideo ? (item.media[0] as Media).videoUrl : (item.media[0] as MediaR)?.imageUrl;
+      const isSelected = (listSelected || []).includes(item._id);
+      const url = isVideo ? (item.media[0] as Media)?.videoUrl : (item.media[0] as MediaR)?.imageUrl;
       const isMP4Video = url && url.endsWith('.mp4');
 
       return (
@@ -159,37 +233,50 @@ export const PlaylistsScreen = () => {
         </TouchableOpacity>
       );
     },
-    [listSelected, isSelec, toggleSelect, openItem, styles],
+    [listSelected, openItem],
   );
 
   const GridContent = useCallback(() => {
-    if (!playlistItems.length) return <Text>Không có bài viết nào.</Text>;
-    return (
-      <FlatList
-        data={playlistItems}
-        numColumns={3}
-        renderItem={({ item }) => renderItemThumb(item)}
-        keyExtractor={i => i._id!}
-      />
-    );
-  }, [playlistItems, renderItemThumb]);
-
-  const ReelsContent = useCallback(() => {
-    const data = playlistItems.filter(i => i.type === 'reel');
-    if (!data.length) return <Text>Không có thước phim nào.</Text>;
+    const data = playlistItems;
+    if (!data || data.length < 1) {
+      return <EmptyPlaceholder message="Bạn vẫn chưa lưu bài viết nào." />;
+    }
     return (
       <FlatList
         data={data}
         numColumns={3}
         renderItem={({ item }) => renderItemThumb(item)}
-        keyExtractor={i => i._id!}
+        keyExtractor={item => item._id!}
+        extraData={[data.length, playlistItems]}
+        contentContainerStyle={styles.postsGridContent}
+        columnWrapperStyle={styles.columnWrapper}
+        showsVerticalScrollIndicator={false}
       />
     );
-  }, [playlistItems, renderItemThumb]);
+  }, [playlistItems, renderItemThumb, styles]);
+
+  const ReelsContent = useCallback(() => {
+    const data = (playlistItems || []).filter(i => (i as any).type === 'reel');
+    if (!data.length)
+      return <EmptyPlaceholder message="Bạn chưa lưu thước phim nào." />;
+    return (
+      <FlatList
+        data={data}
+        numColumns={3}
+        renderItem={({ item }) => renderItemThumb(item)}
+        keyExtractor={item => item._id!}
+        extraData={[data.length, playlistItems]}
+        contentContainerStyle={styles.postsGridContent}
+        columnWrapperStyle={styles.columnWrapper}
+        showsVerticalScrollIndicator={false}
+      />
+    );
+  }, [playlistItems, renderItemThumb, styles]);
 
   const renderContent = useCallback(() => {
-    return isLoading ? <Text>Đang tải...</Text> : activeTab === 'grid' ? <GridContent /> : <ReelsContent />;
-  }, [isLoading, activeTab, playlistItems]);
+    if (isLoading) return <EmptyPlaceholder message="Đang tải..." />;
+    return activeTab === 'grid' ? <GridContent /> : <ReelsContent />;
+  }, [isLoading, activeTab, GridContent, ReelsContent]);
 
   const switchPlaylist = useCallback(
     (id: string) => {
@@ -202,29 +289,44 @@ export const PlaylistsScreen = () => {
       )
         .unwrap()
         .then(() => {
-          setPlaylistItems(prev => prev.filter(item => !listSelected.includes(item._id)));
+          setPlaylistItems(prev =>
+            prev.filter(item => !listSelected.includes(item._id)),
+          );
           setIsSelect(false);
           setListSelected([]);
           switchRef.current?.close();
         })
         .catch(res => {
-          GlobalAlertManager.show('Lỗi', res?.response?.data?.message || 'Chuyển danh mục thất bại.');
+          GlobalAlertManager.show(
+            'Lỗi',
+            res?.response?.data?.message || 'Chuyển danh mục thất bại.',
+          );
         });
     },
     [listSelected, refreshToken, dispatch],
   );
 
   const removeListBookmark = useCallback(() => {
-    dispatch(removeBookmark({ postIds: listSelected, refreshToken }))
+    dispatch(
+      removeBookmark({
+        postIds: listSelected,
+        refreshToken,
+      }),
+    )
       .unwrap()
       .then(() => {
-        setPlaylistItems(prev => prev.filter(item => !listSelected.includes(item._id)));
+        setPlaylistItems(prev =>
+          prev.filter(item => !listSelected.includes(item._id)),
+        );
         setIsSelect(false);
         setListSelected([]);
         switchRef.current?.close();
       })
       .catch(res => {
-        GlobalAlertManager.show('Lỗi', res?.response?.data?.message || 'Bỏ lưu thất bại.');
+        GlobalAlertManager.show(
+          'Lỗi',
+          res?.response?.data?.message || 'Bỏ lưu thất bại.',
+        );
       });
   }, [listSelected, refreshToken, dispatch]);
 
@@ -233,35 +335,59 @@ export const PlaylistsScreen = () => {
       <StatusBar barStyle="dark-content" />
 
       <View style={styles.playlistsHeader}>
+        {/* left: back or cancel */}
         <View style={[styles.headerSlot, styles.headerSlotLeft]}>
-          <TouchableOpacity onPress={() => (isSelec ? handleCancel() : navigation.goBack())}>
-            {isSelec ? <Text style={styles.textTop}>Hủy bỏ</Text> : <ArrowLeft size={24} color={palette.text} />}
+          <TouchableOpacity
+            onPress={() => (isSelec ? handleCancel() : navigation.goBack())}>
+            {isSelec ? (
+              <Text style={styles.textTop}>Hủy bỏ</Text>
+            ) : (
+              <ArrowLeft size={24} color={palette.text} />
+            )}
           </TouchableOpacity>
         </View>
 
+        {/* center: title */}
         <View style={styles.headerSlot}>
-          <Text style={styles.headerTitle} numberOfLines={1}>{titleMain}</Text>
+          <Text style={styles.headerTitle} numberOfLines={1}>
+            {titleMain}
+          </Text>
         </View>
 
+        {/* right: options */}
         <View style={[styles.headerSlot, styles.headerSlotRight]}>
           <TouchableOpacity onPress={handleRight}>
-            {isSelec ? <Text style={styles.textTop}>{isAllSelected ? 'Bỏ chọn tất cả' : 'Chọn tất cả'}</Text> : <MoreVertical size={24} color={palette.text} />}
+            {isSelec ? (
+              <Text style={styles.textTop}>
+                {isAllSelected ? 'Bỏ chọn tất cả' : 'Chọn tất cả'}
+              </Text>
+            ) : (
+              <MoreVertical size={24} color={palette.text} />
+            )}
           </TouchableOpacity>
         </View>
       </View>
+
+      {renderTabBar()}
 
       <View style={{ flex: 1 }}>{renderContent()}</View>
 
       {isSelec && (
         <View style={styles.bottomcontainer}>
           <TouchableOpacity
-            style={[styles.bottomBtn, { opacity: listSelected.length > 0 ? 1 : 0.3 }]}
+            style={[
+              styles.bottomBtn,
+              { opacity: listSelected.length > 0 ? 1 : 0.3 },
+            ]}
             disabled={listSelected.length === 0}
             onPress={removeListBookmark}>
             <Text style={styles.textBtn}>Bỏ lưu</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.bottomBtn, { opacity: listSelected.length > 0 ? 1 : 0.3 }]}
+            style={[
+              styles.bottomBtn,
+              { opacity: listSelected.length > 0 ? 1 : 0.3 },
+            ]}
             disabled={listSelected.length === 0}
             onPress={() => switchRef.current?.open()}>
             <Text style={styles.textBtn}>Chuyển danh mục lưu</Text>
@@ -270,52 +396,105 @@ export const PlaylistsScreen = () => {
       )}
 
       <Portal>
-        <Modalize ref={modalizeRef} modalStyle={{ backgroundColor: palette.background }} adjustToContentHeight withHandle={false} onClose={() => setSelectedItem(null)}>
+        <Modalize
+          ref={modalizeRef}
+          modalStyle={{ backgroundColor: palette.background }}
+          adjustToContentHeight
+          withHandle={false}
+          onClose={() => setSelectedItem(null)}>
           <View style={styles.modalizeContent}>
-            <TouchableOpacity style={styles.closeButton} onPress={() => modalizeRef.current?.close()}>
+            <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
               <X size={20} color={palette.text} />
             </TouchableOpacity>
             {selectedItem &&
               (selectedItem.type === 'reel' ? (
-                <VideoPlayer ref={videoRef} source={{ uri: selectedItem.media[0]?.videoUrl }} style={styles.fullScreenVideo} poster={selectedItem.media[0]?.videoUrl} repeat={false} controls resizeMode="contain" paused muted />
+                <VideoPlayer
+                  ref={videoRef}
+                  source={{ uri: selectedItem.media[0]?.videoUrl || '' }}
+                  style={styles.fullScreenVideo}
+                  poster={selectedItem.media[0]?.videoUrl || ''}
+                  repeat={false}
+                  controls
+                  resizeMode="contain"
+                  paused={true}
+                  muted={true}
+                />
               ) : (
-                <Image source={{ uri: selectedItem.media[0]?.imageUrl }} style={styles.fullScreenImage} resizeMode="contain" />
+                <Image
+                  source={{ uri: selectedItem.media[0]?.imageUrl || '' }}
+                  style={styles.fullScreenImage}
+                  resizeMode="contain"
+                />
               ))}
           </View>
         </Modalize>
-
-        <Modalize ref={selectRef} adjustToContentHeight modalStyle={styles.modal} handleStyle={styles.handle} withHandle>
+        {/* //////select */}
+        <Modalize
+          ref={selectRef}
+          adjustToContentHeight
+          modalStyle={styles.modal}
+          handleStyle={styles.handle}
+          withHandle>
           <View style={styles.box}>
-            <TouchableOpacity style={styles.option} onPress={() => { setIsSelect(true); selectRef.current?.close(); }}>
+            <TouchableOpacity
+              style={styles.option}
+              onPress={() => {
+                setIsSelect(true);
+                selectRef.current?.close();
+              }}>
               <Text style={styles.optionText}>Chọn...</Text>
             </TouchableOpacity>
 
             {titleMain !== 'Tất cả bài đăng' && (
               <>
-                <TouchableOpacity style={styles.option} onPress={() => { renameRef.current?.open(); selectRef.current?.close(); }}>
+                <TouchableOpacity
+                  style={styles.option}
+                  onPress={() => {
+                    renameRef.current?.open();
+                    selectRef.current?.close();
+                  }}>
                   <Text style={styles.optionText}>Đổi tên danh mục</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.cancel} onPress={() => {
-                  dispatch(deletePlaylist({ id: playlistId }))
-                    .unwrap()
-                    .then(() => { GlobalAlertManager.show('Thông báo', 'Xóa danh mục thành công.'); navigation.goBack(); })
-                    .catch(err => { GlobalAlertManager.show('Lỗi', err?.message || 'Xóa danh mục thất bại.'); });
-                  selectRef.current?.close();
-                }}>
+                <TouchableOpacity
+                  style={styles.cancel}
+                  onPress={() => {
+                    dispatch(deletePlaylist({ id: playlistId }))
+                      .unwrap()
+                      .then(() => {
+                        GlobalAlertManager.show(
+                          'Thông báo',
+                          'Xóa danh mục thành công.',
+                        );
+                        navigation.goBack();
+                      })
+                      .catch(err => {
+                        GlobalAlertManager.show(
+                          'Lỗi',
+                          err?.message || 'Xóa danh mục thất bại.',
+                        );
+                      });
+                    selectRef.current?.close();
+                  }}>
                   <Text style={styles.cancelText}>Xóa danh mục</Text>
                 </TouchableOpacity>
               </>
             )}
 
-            <TouchableOpacity style={styles.cancel} onPress={() => selectRef.current?.close()}>
+            <TouchableOpacity
+              style={styles.cancel}
+              onPress={() => selectRef.current?.close()}>
               <Text style={styles.cancelText}>Quay lại</Text>
             </TouchableOpacity>
           </View>
         </Modalize>
-
-        {/* Modal chuyển danh mục */}
-        <Modalize ref={switchRef} adjustToContentHeight modalStyle={styles.modal} handleStyle={styles.handle} withHandle>
+        {/* /////////////switch bookmark sang playlist khác */}
+        <Modalize
+          ref={switchRef}
+          adjustToContentHeight
+          modalStyle={styles.modal}
+          handleStyle={styles.handle}
+          withHandle>
           <View style={{ width: '100%', height: 100 }}>
             {anotherplaylist.length > 0 ? (
               <FlashList
@@ -324,39 +503,116 @@ export const PlaylistsScreen = () => {
                 estimatedItemSize={200}
                 keyExtractor={item => item._id.toString()}
                 showsHorizontalScrollIndicator={false}
-                renderItem={({ item }) => (
-                  <TouchableOpacity style={styles.anotherBox} onPress={() => switchPlaylist(item._id)}>
-                    <Image source={{ uri: item.coverImg || item.thumbnails[0] }} style={styles.anotherImage} />
-                    <Text style={styles.anotherText}>{item.playlistName}</Text>
-                  </TouchableOpacity>
-                )}
+                renderItem={item => {
+                  const thumbnails = item.item.thumbnails || [];
+                  const thumbnail = thumbnails.length > 0 ? thumbnails[0] : '';
+                  return (
+                    <TouchableOpacity
+                      style={styles.anotherBox}
+                      onPress={() => switchPlaylist(item.item._id)}>
+                      <Image
+                        source={{
+                          uri: thumbnail === '' ? item.item.coverImg : thumbnail,
+                        }}
+                        style={styles.anotherImage}
+                        onError={(error) => {
+                          console.error('❌ PlaylistScreen Switch Image error:', {
+                            playlistId: item.item._id,
+                            thumbnail: thumbnail,
+                            coverImg: item.item.coverImg,
+                            error: error.nativeEvent.error
+                          });
+                        }}
+                      />
+                      <Text style={styles.anotherText}>
+                        {item.item.playlistName}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                }}
               />
             ) : (
-              <Text style={[styles.anotherText, { width: '100%', textAlign: 'center', marginTop: 20 }]}>Bạn hiện không có danh sách nào.</Text>
+              <Text
+                style={[
+                  styles.anotherText,
+                  {
+                    width: '100%',
+                    textAlign: 'center',
+                    marginTop: 20,
+                  },
+                ]}>
+                Bạn hiện không có danh sách nào.
+              </Text>
             )}
           </View>
         </Modalize>
-
-        {/* Modal rename playlist */}
-        <Modalize ref={renameRef} adjustToContentHeight withHandle modalStyle={styles.modal} handleStyle={styles.handle}>
+        <Modalize
+          adjustToContentHeight
+          withHandle
+          modalStyle={styles.modal}
+          handleStyle={styles.handle}
+          ref={renameRef}>
           <View style={styles.box}>
-            <Text style={[styles.optionText, { textAlign: 'center' }]}>Nhập tên danh sách mới</Text>
-            <TextInput placeholder="Tên danh mục mới" value={newPlaylistName} onChangeText={setNewPlaylistName} style={{ borderColor: palette.border, borderWidth: 1, borderRadius: 8, padding: 10, marginTop: 10, color: palette.text }} placeholderTextColor={palette.textSecondary} />
+            <Text style={[styles.optionText, { textAlign: 'center' }]}>
+              Nhập tên danh sách mới
+            </Text>
+            <TextInput
+              placeholder="Tên danh mục mới"
+              value={newPlaylistName}
+              onChangeText={setNewPlaylistName}
+              style={{
+                borderColor: palette.border,
+                borderWidth: 1,
+                borderRadius: 8,
+                padding: 10,
+                marginTop: 10,
+                color: palette.text,
+              }}
+              placeholderTextColor={palette.textSecondary}
+            />
 
-            <TouchableOpacity style={[styles.option, { marginTop: 10 }]} onPress={() => {
-              if (!newPlaylistName.trim()) {
-                GlobalAlertManager.show('Lỗi', 'Tên danh mục không được để trống.');
-                return;
-              }
-              dispatch(reNamePalylistBookmark({ id: playlistId, playlistName: newPlaylistName.trim() }))
-                .unwrap()
-                .then(() => { GlobalAlertManager.show('Thông báo', 'Đổi tên danh mục thành công.'); setTitle(newPlaylistName); setNewPlaylistName(''); renameRef.current?.close(); })
-                .catch(err => { GlobalAlertManager.show('Lỗi', err?.message || 'Đổi tên danh mục thất bại.'); });
-            }}>
+            <TouchableOpacity
+              style={[styles.option, { marginTop: 10 }]}
+              onPress={() => {
+                if (!newPlaylistName.trim()) {
+                  GlobalAlertManager.show(
+                    'Lỗi',
+                    'Tên danh mục không được để trống.',
+                  );
+                  return;
+                }
+                dispatch(
+                  reNamePalylistBookmark({
+                    id: playlistId,
+                    playlistName: newPlaylistName.trim(),
+                  }),
+                )
+                  .unwrap()
+                  .then(() => {
+                    GlobalAlertManager.show(
+                      'Thông báo',
+                      'Đổi tên danh mục thành công.',
+                    );
+                    setTitle(newPlaylistName);
+                    setNewPlaylistName('');
+                    renameRef.current?.close();
+                  })
+                  .catch(err => {
+                    GlobalAlertManager.show(
+                      'Lỗi',
+                      err?.message || 'Đổi tên danh mục thất bại.',
+                    );
+                  });
+              }}>
               <Text style={styles.optionText}>Đổi tên</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.cancel} onPress={() => { setNewPlaylistName(''); renameRef.current?.close(); }}>
+            <TouchableOpacity
+              style={styles.cancel}
+              onPress={() => {
+                setNewPlaylistName('');
+                renameRef.current?.close();
+              }}>
               <Text style={styles.cancelText}>Hủy</Text>
             </TouchableOpacity>
           </View>
