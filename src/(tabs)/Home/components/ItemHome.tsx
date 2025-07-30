@@ -191,6 +191,9 @@ const ItemHome = (props: ItemHomeProps) => {
         case 'bookmark':
           handleBookmarkAction();
           break;
+        case 'accountInfo':
+          handleUserPress();
+          break;
       }
       optionSheetRef.current?.close();
     },
