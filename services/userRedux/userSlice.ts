@@ -238,60 +238,84 @@ export const fetchUserIdByHandleName = createAsyncThunk<
   }
 });
 
-type InitForgotPasswordArgs =
-  | { email: string; phone?: never }
-  | { phone: string; email?: never }
-
-export const fetchInitForgotPassword = createAsyncThunk<
-  { token: string },
-  InitForgotPasswordArgs,
+// step 1: check email 
+export const fetchCheckEmailForgotPassword = createAsyncThunk<
+  { message: string; hasPhoneNumber: boolean },
+  { email: string },
   { rejectValue: { message: string } }
 >(
-  'auth/initForgotPassword',
-  async ({ email, phone }, { rejectWithValue }) => {
-    // ensure exactly one of email/phone is provided
-    if ((!email && !phone) || (email && phone)) {
-      return rejectWithValue({
-        message: 'Vui lòng cung cấp email hoặc số điện thoại, không được cả hai.'
-      })
-    }
-
+  'auth/checkEmailForgotPassword',
+  async ({ email }, { rejectWithValue }) => {
     try {
-      // build payload with the correct field
-      const payload: Record<string, string> = {}
-      if (email) payload.email = email
-      else payload.phone = phone!
-
-      const res = await axiosInstance.post<{ token: string }>(
-        API.INIT_FORGOT_PASSWORD,
-        payload
-      )
-      return { token: res.data.token }
+      const res = await axiosInstance.post<{ message: string; hasPhoneNumber: boolean }>(
+        API.CHECK_EMAIL_FORGOT_PASSWORD,
+        { email }
+      );
+      return { 
+        message: res.data.message, 
+        hasPhoneNumber: res.data.hasPhoneNumber 
+      };
     } catch (error: any) {
       return rejectWithValue({
-        message:
-          error.response?.data?.message ||
-          'Gửi mã xác nhận không thành công.'
-      })
+        message: error.response?.data?.message || 'Kiểm tra email không thành công.'
+      });
     }
   }
-)
+);
 
-export const fetchConfirmForgotPassword = createAsyncThunk<
+// step 2: send verification code
+type SendCodeForgotPasswordArgs = 
+  | { email: string; phoneNumber: string } // hasPhoneNumber is false
+  | { email: string; phoneNumber?: never } // hasPhoneNumber is true
+
+export const fetchSendCodeForgotPassword = createAsyncThunk<
+  { message: string; token: string },
+  SendCodeForgotPasswordArgs,
+  { rejectValue: { message: string } }
+>(
+  'auth/sendCodeForgotPassword',
+  async (payload, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.post<{ message: string; token: string }>(
+        API.SEND_CODE_FORGOT_PASSWORD,
+        payload
+      );
+      return { 
+        message: res.data.message, 
+        token: res.data.token 
+      };
+    } catch (error: any) {
+      return rejectWithValue({
+        message: error.response?.data?.message || 'Gửi mã xác nhận không thành công.'
+      });
+    }
+  }
+);
+
+// step 3: verify code
+export const fetchVerifyCodeForgotPassword = createAsyncThunk<
   { message: string; refreshToken: string },
   { token: string; code: string },
   { rejectValue: { message: string } }
->('auth/confirmForgotPassword', async ({ token, code }, { rejectWithValue }) => {
-  try {
-    const res = await axiosInstance.post<{ message: string; refreshToken: string }>(
-      API.CONFIRM_NEW_PASSWORD,
-      { token, code }
-    );
-    return { message: res.data.message, refreshToken: res.data.refreshToken };
-  } catch (error: any) {
-    return rejectWithValue({ message: error.response?.data?.message || 'Confirm forgot password failed' });
+>(
+  'auth/verifyCodeForgotPassword', 
+  async ({ token, code }, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.post<{ message: string; refreshToken: string }>(
+        API.VERIFY_CODE_FORGOT_PASSWORD,
+        { token, code }
+      );
+      return { 
+        message: res.data.message, 
+        refreshToken: res.data.refreshToken 
+      };
+    } catch (error: any) {
+      return rejectWithValue({ 
+        message: error.response?.data?.message || 'Xác nhận mã không thành công.' 
+      });
+    }
   }
-});
+);
 
 export const validateUserId = createAsyncThunk<
   { message: string; success: boolean },

@@ -52,6 +52,7 @@ export * from './Setting/HelpCenter/FAQ.tsx';
 export * from './Setting/HelpCenter/Contact.tsx';
 export * from './Setting/HelpCenter/ReportProblem.tsx';
 export * from './MessageUndefined';
+export * from './CheckEmail';
 export * from './ForgotPassword';
 export * from './ConfirmationCode';
 export * from './PrivacySafetyChat';
