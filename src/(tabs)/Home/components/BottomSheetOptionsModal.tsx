@@ -5,6 +5,7 @@ import {Colors} from '../../../../assets/color/Colors';
 import CustomPopupModal, {
   CustomPopupModalRef,
 } from '../../../../components/Global/CustomPopupModal';
+import {X} from 'lucide-react-native';
 
 export interface ConfigOption {
   id: string;
@@ -25,6 +26,8 @@ interface Props {
   firstListOptions: ConfigOption[];
   secondListOptions: ConfigOption[];
   onBookmarkPress: () => void;
+  onDeleteMyPost?: () => void;
+  isCurrentUser?: boolean;
 }
 
 const CustomBottomSheetOptions = forwardRef<CustomBottomSheetOptionsRef, Props>(
@@ -35,6 +38,8 @@ const CustomBottomSheetOptions = forwardRef<CustomBottomSheetOptionsRef, Props>(
       firstListOptions,
       secondListOptions,
       onBookmarkPress,
+      onDeleteMyPost,
+      isCurrentUser = false,
     },
     ref,
   ) => {
@@ -55,37 +60,48 @@ const CustomBottomSheetOptions = forwardRef<CustomBottomSheetOptionsRef, Props>(
 
     return (
       <CustomPopupModal ref={modalRef} backgroundColor={palette.background}>
-        {allOptions.map(opt => {
-          const Icon = opt.icon;
-          return (
-            <TouchableOpacity
-              key={opt.id}
-              style={styles.optionButton}
-              onPress={opt.id === 'bookmark' ? onBookmarkPress : opt.onPress}>
-              <View style={styles.optionIcon}>
-                <Icon
-                  size={22}
-                  color={
-                    opt.labelColor ??
-                    (isBookmarked && opt.id === 'bookmark'
-                      ? '#F2C641'
-                      : palette.text)
-                  }
-                  {...(isBookmarked && opt.id === 'bookmark'
-                    ? {fill: '#F2C641'}
-                    : {})}
-                />
-              </View>
-              <Text
-                style={[
-                  styles.optionLabel,
-                  {color: opt.labelColor ?? palette.text},
-                ]}>
-                {isBookmarked && opt.id === 'bookmark' ? 'Đã lưu' : opt.label}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
+        {isCurrentUser ? (
+          <TouchableOpacity style={styles.optionButton} onPress={onDeleteMyPost}>
+            <View style={styles.optionIcon}>
+              <X size={22} color={palette.text} />
+            </View>
+            <Text style={[styles.optionLabel, {color: palette.text}]}>
+              Xóa bài viết
+            </Text>
+          </TouchableOpacity>
+        ) : (
+          allOptions.map(opt => {
+            const Icon = opt.icon;
+            return (
+              <TouchableOpacity
+                key={opt.id}
+                style={styles.optionButton}
+                onPress={opt.id === 'bookmark' ? onBookmarkPress : opt.onPress}>
+                <View style={styles.optionIcon}>
+                  <Icon
+                    size={22}
+                    color={
+                      opt.labelColor ??
+                      (isBookmarked && opt.id === 'bookmark'
+                        ? '#F2C641'
+                        : palette.text)
+                    }
+                    {...(isBookmarked && opt.id === 'bookmark'
+                      ? {fill: '#F2C641'}
+                      : {})}
+                  />
+                </View>
+                <Text
+                  style={[
+                    styles.optionLabel,
+                    {color: opt.labelColor ?? palette.text},
+                  ]}>
+                  {isBookmarked && opt.id === 'bookmark' ? 'Đã lưu' : opt.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })
+        )}
       </CustomPopupModal>
     );
   },

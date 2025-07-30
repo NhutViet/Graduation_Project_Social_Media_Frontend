@@ -16,6 +16,7 @@ export const API = {
   GET_POST: 'posts/user/all',
   GET_TAGGING_POST: 'posts/tags',
   GET_LIKED_POSTS: 'post-like/liked-posts',
+  DELETE_MY_POST: 'posts/delete',
 
   //// comment
   COMMENT: 'comments',

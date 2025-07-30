@@ -1,6 +1,7 @@
 import {createSlice} from '@reduxjs/toolkit';
 import {fetchPostsWithMedia, fetchReelsWithMedia, hidePost} from './postSlice';
 import {PostWithMedia} from './postTypes';
+import {DeleteMyPost} from '@services/postUserRedux/postUserSlice';
 
 interface PostState {
   posts: PostWithMedia[];
@@ -136,7 +137,7 @@ const postReducer = createSlice({
 
         if (isLoadMore) {
           const newItems = items.filter(
-            i => !state.reels.some(existing => existing._id === i._id)
+            i => !state.reels.some(existing => existing._id === i._id),
           );
           state.reels.push(...newItems);
         } else {
@@ -164,8 +165,34 @@ const postReducer = createSlice({
 
       .addCase(hidePost.fulfilled, (state, action) => {
         const postId = action.meta.arg;
-        state.posts = state.posts.filter((post: PostWithMedia) => post._id !== postId);
-        state.reels = state.reels.filter((post: PostWithMedia) => post._id !== postId);
+        state.posts = state.posts.filter(
+          (post: PostWithMedia) => post._id !== postId,
+        );
+        state.reels = state.reels.filter(
+          (post: PostWithMedia) => post._id !== postId,
+        );
+      })
+      .addCase(DeleteMyPost.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(DeleteMyPost.fulfilled, (state, action) => {
+        state.loading = false;
+        const {modifiedCount} = action.payload;
+        if (modifiedCount > 0) {
+          const {postIds} = action.meta.arg;
+
+          const filterItems = (items?: PostWithMedia[]) =>
+            items?.filter(item => !postIds.includes(item._id ?? '')) || [];
+
+            state.posts = filterItems(state.posts);
+            state.reels = filterItems(state.reels);
+        }
+      })
+      .addCase(DeleteMyPost.rejected, (state, action) => {
+        state.loading = false;
+        state.error =
+          action.payload?.message || 'Xóa bài viết thất bại.';
       });
   },
 });
