@@ -121,6 +121,11 @@ export const PostSetting = () => {
 
     if (checkProfanityAndAlert(caption)) return;
 
+    if(caption.length > 1000){
+      showAlert('Lỗi', 'Nội dung vượt quá giới hạn cho phép (1000 từ).');
+      return;
+    }
+
     try {
       const uploadedMedia: any[] = [];
       for (const media of mediaWithTags) {
