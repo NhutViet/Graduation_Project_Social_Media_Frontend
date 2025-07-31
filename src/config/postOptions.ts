@@ -33,12 +33,6 @@ export const postFirstList: Omit<ConfigOption, 'onPress'>[] = [
 ];
 
 export const postSecondList: Omit<ConfigOption, 'onPress'>[] = [
-  {
-    id: 'accountInfo',
-    icon: User2,
-    label: 'Giới thiệu về tài khoản này',
-  },
-  {id: 'whySee', icon: Info, label: 'Tại sao tôi thấy bài viết này ?'},
   {id: 'hide', icon: EyeOff, label: 'Ẩn'},
   {id: 'report', icon: Flag, label: 'Báo cáo', labelColor: '#FF0000'},
 ];

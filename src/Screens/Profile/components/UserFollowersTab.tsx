@@ -100,7 +100,7 @@ const UserFollowersTab = ({route}: any) => {
       const isMe = item._id === myUserId;
       return (
         <View style={styles.userContainer}>
-          <TouchableOpacity style={styles.touchableInfo}>
+          <View style={styles.touchableInfo}>
             {item.profilePic ? (
               <Image source={{uri: item.profilePic}} style={styles.avatar} />
             ) : (
@@ -114,7 +114,7 @@ const UserFollowersTab = ({route}: any) => {
                 {item.username}
               </Text>
             </View>
-          </TouchableOpacity>
+          </View>
           {!isMe && (
             <TouchableOpacity
               style={[

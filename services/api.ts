@@ -57,8 +57,9 @@ export const API = {
   CHANGE_PASSWORD: '/users/password',
   VALIDATE_USER: '/users/validate',
   /// Forgot and reset password
-  INIT_FORGOT_PASSWORD: '/users/forgot-password',
-  CONFIRM_NEW_PASSWORD: '/users/forgot-password/confirm',
+  CHECK_EMAIL_FORGOT_PASSWORD: '/users/forgot-password/check-email',
+  SEND_CODE_FORGOT_PASSWORD: '/users/forgot-password/send-code',
+  VERIFY_CODE_FORGOT_PASSWORD: '/users/forgot-password/verify-code',
   ////bookmark
   POST_SAVE_BOOKMARK: 'bookmark-playlists/add-default',
   DELETE_BOOKMARK: 'bookmark-items/remove',

@@ -10,24 +10,26 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { useTheme } from '../../util/ThemeContext';
-import { Eye, EyeOff, ArrowLeft } from 'lucide-react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchSendCodeForgotPassword } from '../../../services/userRedux/userSlice';
-import { resetSendCodeStatus } from '../../../services/userRedux/userReducer';
+import { fetchCheckEmailForgotPassword, fetchSendCodeForgotPassword } from '../../../services/userRedux/userSlice';
+import { resetCheckEmailStatus, resetSendCodeStatus } from '../../../services/userRedux/userReducer';
 import { RootState, AppDispatch } from '../../../services/store';
 import { Colors } from '../../../assets/color/Colors';
 import LoadingModal from '../../../components/Global/LoadingModal';
 import { GlobalAlertManager } from '../../../components/Global/AlertModal';
 
-export const ForgotPassword = ({ navigation, route }: any) => {
-  const { email, hasPhoneNumber } = route.params;
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [errorPhone, setErrorPhone] = useState('');
+export const CheckEmail = ({ navigation }: any) => {
+  const [email, setEmail] = useState('');
+  const [errorEmail, setErrorEmail] = useState('');
   
   const dispatch = useDispatch<AppDispatch>();
   const { 
-    isLoadingSendCode, 
-    isErrorSendCode, 
+    isLoadingCheckEmail, 
+    isErrorCheckEmail, 
+    checkEmailMessage,
+    hasPhoneNumber,
+    isLoadingSendCode,
+    isErrorSendCode,
     sendCodeMessage,
     forgotPasswordToken
   } = useSelector((state: RootState) => state.user);
@@ -36,46 +38,59 @@ export const ForgotPassword = ({ navigation, route }: any) => {
   const color = Colors[theme];
 
   useEffect(() => {
+    // Reset all states when component mounts
+    dispatch(resetCheckEmailStatus());
     dispatch(resetSendCodeStatus());
   }, [dispatch]);
 
-  const validatePhoneNumber = (phone: string): boolean => {
-    const vnPhoneRe = /^0\d{8,9}$/;
-    return vnPhoneRe.test(phone);
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   };
 
-  const handleSendCode = async () => {
-    setErrorPhone('');
-
-    if (!phoneNumber.trim()) {
-      setErrorPhone('Vui lòng nhập số điện thoại.');
+  const handleCheckEmail = async () => {
+    setErrorEmail('');
+    
+    if (!email.trim()) {
+      setErrorEmail('Vui lòng nhập email.');
       return;
     }
-
-    if (!validatePhoneNumber(phoneNumber)) {
-      setErrorPhone('Số điện thoại không hợp lệ. Vui lòng nhập số điện thoại Việt Nam (10-11 chữ số, bắt đầu bằng 0).');
+    
+    if (!validateEmail(email)) {
+      setErrorEmail('Email không đúng định dạng.');
       return;
     }
 
     try {
-      const result = await dispatch(fetchSendCodeForgotPassword({ 
-        email, 
-        phoneNumber 
-      })).unwrap();
+      const result = await dispatch(fetchCheckEmailForgotPassword({ email })).unwrap();
       
-      // Navigate to verification code screen
-      navigation.navigate('ConfirmationCode', {
-        email,
-        phoneNumber,
-        token: result.token,
-        hasPhoneNumber: false, // We just added the phone number
-      });
+      // if user has phone number, automatically send code and go to verification
+      if (result.hasPhoneNumber) {
+        try {
+          const sendCodeResult = await dispatch(fetchSendCodeForgotPassword({ email })).unwrap();
+          
+          navigation.navigate('ConfirmationCode', {
+            email,
+            token: sendCodeResult.token,
+            hasPhoneNumber: true,
+          });
+        } catch (sendCodeError: any) {
+          GlobalAlertManager.show('Lỗi!', sendCodeError.message);
+        }
+      } else {
+        // otherwise user needs to provide phone number, navigate to phone input screen
+        navigation.navigate('ForgotPassword', {
+          email,
+          hasPhoneNumber: false,
+        });
+      }
     } catch (error: any) {
       GlobalAlertManager.show('Lỗi!', error.message);
     }
   };
 
-  const isFormValid = phoneNumber.trim() !== '' && validatePhoneNumber(phoneNumber);
+  const isFormValid = email.trim() !== '' && validateEmail(email);
+  const isLoading = isLoadingCheckEmail || isLoadingSendCode;
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: color.background }}>
@@ -95,24 +110,16 @@ export const ForgotPassword = ({ navigation, route }: any) => {
             color: color.text, 
             marginTop: 20 
           }}>
-            Nhập số điện thoại
+            Đặt lại mật khẩu
           </Text>
           
           <Text style={{ 
             fontSize: 14, 
             color: color.textSecondary, 
-            marginBottom: 8, 
+            marginBottom: 24, 
             marginTop: 5 
           }}>
-            Email: <Text style={{ fontWeight: '600', color: color.text }}>{email}</Text>
-          </Text>
-          
-          <Text style={{ 
-            fontSize: 14, 
-            color: color.textSecondary, 
-            marginBottom: 24 
-          }}>
-            Chúng tôi cần số điện thoại của bạn để gửi mã xác nhận đặt lại mật khẩu
+            Nhập email đã đăng ký để bắt đầu quá trình đặt lại mật khẩu
           </Text>
 
           <View style={{ 
@@ -125,18 +132,26 @@ export const ForgotPassword = ({ navigation, route }: any) => {
             marginBottom: 15 
           }}>
             <TextInput
-              value={phoneNumber}
-              onChangeText={setPhoneNumber}
-              placeholder="Số điện thoại (VD: 0788677842)"
+              value={email}
+              onChangeText={setEmail}
+              placeholder="Email"
               placeholderTextColor={color.textSecondary}
-              keyboardType="phone-pad"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
               style={{ flex: 1, color: color.text }}
             />
           </View>
           
-          {errorPhone && (
+          {errorEmail && (
             <Text style={{ color: color.error, marginBottom: 8 }}>
-              {errorPhone}
+              {errorEmail}
+            </Text>
+          )}
+
+          {isErrorCheckEmail && (
+            <Text style={{ color: color.error, marginBottom: 8 }}>
+              {checkEmailMessage}
             </Text>
           )}
 
@@ -155,10 +170,10 @@ export const ForgotPassword = ({ navigation, route }: any) => {
               alignItems: 'center', 
               marginTop: 24, 
               marginBottom: 24, 
-              opacity: !isFormValid || isLoadingSendCode ? 0.5 : 1 
+              opacity: !isFormValid || isLoading ? 0.5 : 1 
             }}
-            onPress={handleSendCode}
-            disabled={!isFormValid || isLoadingSendCode}
+            onPress={handleCheckEmail}
+            disabled={!isFormValid || isLoading}
           >
             <LinearGradient
               colors={['#005BEA', '#00E5FF']}
@@ -173,20 +188,20 @@ export const ForgotPassword = ({ navigation, route }: any) => {
               }}
             >
               <Text style={{ color: '#fff', fontSize: 16, fontWeight: '600' }}>
-                Gửi mã xác nhận
+                Tiếp tục
               </Text>
             </LinearGradient>
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Text style={{ color: color.primary, textAlign: 'center' }}>
-              Quay lại
+              Quay lại đăng nhập
             </Text>
           </TouchableOpacity>
         </ScrollView>
       </View>
 
-      {isLoadingSendCode && (
+      {isLoading && (
         <View style={{ 
           position: 'absolute',
           top: 0,

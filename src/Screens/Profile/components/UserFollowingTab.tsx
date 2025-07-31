@@ -109,7 +109,7 @@ const UserFollowingTab = ({userID}: Props) => {
     const isMe = item._id === myUserId;
     return (
       <View style={[styles.suggestedItem, {backgroundColor: color.background}]}>
-        <TouchableOpacity style={styles.touchableInfo}>
+        <View style={styles.touchableInfo}>
           {item.profilePic ? (
             <Image source={{uri: item.profilePic}} style={styles.profilePic} />
           ) : (
@@ -123,7 +123,7 @@ const UserFollowingTab = ({userID}: Props) => {
               {item.username}
             </Text>
           </View>
-        </TouchableOpacity>
+        </View>
         {!isMe && (
           <TouchableOpacity
             style={[
@@ -150,7 +150,7 @@ const UserFollowingTab = ({userID}: Props) => {
 
   const renderRecommendItem: ListRenderItem<UserProfile> = ({item}) => (
     <View style={[styles.suggestedItem, {backgroundColor: color.background}]}>
-      <TouchableOpacity style={styles.touchableInfo}>
+      <View style={styles.touchableInfo}>
         <Image source={{uri: item.profilePic}} style={styles.profilePic} />
         <View style={styles.suggestedInfo}>
           <Text style={[styles.handle, {color: color.text}]}>
@@ -160,7 +160,7 @@ const UserFollowingTab = ({userID}: Props) => {
             {item.username}
           </Text>
         </View>
-      </TouchableOpacity>
+      </View>
       <TouchableOpacity
         onPress={() => handleActionButton(item, true)}
         style={styles.followButton}>

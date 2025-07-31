@@ -114,11 +114,6 @@ const BottomSheetReels = forwardRef<BottomSheetReelsRef, BottomSheetReelsProps>(
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.rowItem}>
-            <EyeOff size={22} color={colors.black} style={styles.icon} />
-            <Text style={styles.textItem}>Không quan tâm</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.rowItem}>
             <Flag size={22} color="red" style={styles.icon} />
             <Text style={[styles.textItem, {color: 'red'}]}>Báo cáo</Text>
           </TouchableOpacity>

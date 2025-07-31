@@ -25,8 +25,6 @@ import BottomSheetComment, {
   BottomSheetCommentRef,
 } from '../src/(tabs)/Home/components/CommentSection';
 import ReelsComponent from '../src/(tabs)/Reels/components/reelsComponent';
-import {Portal} from 'react-native-portalize';
-import {useShareModal} from '../src/(tabs)/Reels/hooks/useShareModal';
 import {PostWithMedia} from '@services/postRedux/postTypes';
 import {ArrowLeft} from 'lucide-react-native';
 import LoadingModal from './Global/LoadingModal';

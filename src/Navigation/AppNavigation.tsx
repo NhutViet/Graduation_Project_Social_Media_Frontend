@@ -42,6 +42,7 @@ import {
   DissapearingMessage,
   Splash,
   UserFollowScreen,
+  CheckEmail,
   ForgotPassword,
   ConfirmationCode,
   TagSo,
@@ -116,6 +117,7 @@ export type RootStackParamList = {
   SwitchAccount: undefined;
   Setting: undefined;
   Register: undefined;
+  CheckEmail: undefined;
   ForgotPassword: undefined;
   ConfirmationCode: undefined;
   NewPasswordReset: undefined;
@@ -286,6 +288,7 @@ const AppNavigator = () => {
           name="ReportProblemScreen"
           component={ReportProblemScreen}
         />
+        <Stack.Screen name="CheckEmail" component={CheckEmail} />
         <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
         <Stack.Screen name="ConfirmationCode" component={ConfirmationCode} />
         <Stack.Screen name="PrivacySafetyChat" component={PrivacySafetyChat} />
