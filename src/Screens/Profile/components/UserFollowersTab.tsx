@@ -56,40 +56,29 @@ const UserFollowersTab = ({route}: any) => {
 
   const handleActionButton = useCallback(
     async (item: DisplayProfile) => {
-      if (item.isMeFollowing) {
-        try {
-          const res = await dispatch(
-            createRoom({
-              name: '',
-              user_ids: [item._id],
-              type: 'waiting',
-            }),
-          ).unwrap();
-          const {room} = res;
-          const otherUsers = room.user_ids.filter(u => u._id !== myUserId);
-          const img1 = otherUsers[0]?.profilePic;
-          const img2 = room.user_ids.find(u => u._id === myUserId)?.profilePic;
-          navigation.navigate('MessageScreen', {
-            room: room._id,
-            img1,
-            img2,
-          });
-        } catch (err) {
-          GlobalAlertManager.show('Thất bại', 'Không thể tạo phòng chat');
-        }
-      } else {
-        try {
-          await dispatch(
-            relationAction({
-              targetId: item._id,
-              action: 'follow',
-              senderId: user?._id,
-              handleName: user?.handleName,
-            }),
-          ).unwrap();
-        } catch (err) {
-          GlobalAlertManager.show('Thất bại', 'Vui lòng thử lại sau');
-        }
+      const actionType = item.isMeFollowing ? 'unfollow' : 'follow';
+
+      try {
+        await dispatch(
+          relationAction({
+            targetId: item._id,
+            action: actionType,
+            senderId: user?._id,
+            handleName: user?.handleName,
+          }),
+        ).unwrap();
+
+        await Promise.all([
+          dispatch(fetchViewedFollowers({ userId: userID })),
+          dispatch(fetchFollowing({ userId: myUserId! })),
+        ]);
+      } catch (err) {
+        GlobalAlertManager.show(
+          'Thất bại',
+          actionType === 'follow'
+            ? 'Không thể theo dõi, vui lòng thử lại'
+            : 'Không thể bỏ theo dõi, vui lòng thử lại',
+        );
       }
     },
     [dispatch, navigation, myUserId, user],
@@ -131,7 +120,7 @@ const UserFollowersTab = ({route}: any) => {
                     ? [styles.messageText, {color: color.text}]
                     : styles.followText,
                 ]}>
-                {item.isMeFollowing ? 'Nhắn tin' : 'Theo dõi'}
+                {item.isMeFollowing ? 'Hủy theo dõi' : 'Theo dõi'}
               </Text>
             </TouchableOpacity>
           )}
@@ -271,6 +260,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#007BFF',
   },
   messageButton: {
+    width: 100,
     borderWidth: 1,
   },
   buttonText: {
