@@ -32,6 +32,7 @@ import Animated, {
   withTiming,
   runOnJS,
 } from 'react-native-reanimated';
+import { useHeadAlert } from '../../../../components/Global/HeadAlertProvider';
 
 export type BottomSheetCommentRef = {open: () => void; close: () => void};
 
@@ -54,6 +55,7 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
     const navigation = useNavigation<any>();
     const {theme} = useTheme();
     const color = Colors[theme];
+    const {showAlert} = useHeadAlert();
 
     const user = useSelector((state: RootState) => state.user.user);
     const {comments, loading} = useSelector(
@@ -105,6 +107,9 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
     const handleSendComment = async () => {
       if (!comment.trim() || isSending) return;
       if (checkProfanityAndAlert(comment)) return;
+      if (comment.trim().length > 500){
+        showAlert('Lỗi', 'Nội dung vượt quá số lượng từ cho phép (500 từ).');
+      };
       const payload = {
         postID: selectedPostRef.current?.postId ?? '',
         content: comment.trim(),

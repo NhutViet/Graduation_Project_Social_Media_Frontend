@@ -39,9 +39,9 @@ const Reels = forwardRef((props, ref) => {
     skipReload,
   } = useReels();
 
-  const openShareModal = async () => {
+  const openShareModal = async (postId: string) => {
     try {
-      await Share.share({message: 'justina'});
+      await Share.share({message: `https://cirla.io.vn/share/${postId}`});
     } catch (err) {
       console.error('Error sharing:', err);
     }
@@ -116,7 +116,7 @@ const Reels = forwardRef((props, ref) => {
         handleLoadMore={handleLoadMore}
         openBottomSheet={openBottomSheet}
         openCommentSheet={openCommentSheet}
-        openShareModal={openShareModal}
+        openShareModal={(postId: string) => openShareModal(postId)}
         setSkipReload={setSkipReload}
       />
       <ReelsBottomSheets

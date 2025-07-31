@@ -10,6 +10,8 @@ import NotificationModal from '@services/notification/NotificationModal';
 import {createNotificationChannel} from '@services/notification/notification';
 import {useNotificationHandler} from '@services/notification/useNotification';
 import {navigationRef} from './NavigationService';
+import { Linking } from 'react-native';
+import { navigateFromUrl } from './core/deeplinkHandler';
 
 const AppContent = () => {
   useEffect(() => {
@@ -66,6 +68,19 @@ const AppContent = () => {
       GlobalAlertManager.setAlertRef(ref);
     }
   };
+
+  useEffect(() => {
+    const sub = Linking.addEventListener('url', ({url}) => {
+      if (url) {
+        const stripped = url
+          .replace('cirla://', '')
+          .replace('https://cirla.io.vn/', '');
+        navigateFromUrl(stripped); 
+      }
+    });
+
+    return () => sub.remove(); // cleanup listener
+  }, []);
 
   return (
     <>

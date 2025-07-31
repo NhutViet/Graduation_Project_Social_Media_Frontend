@@ -24,6 +24,7 @@ import {GlobalAlertManager} from '../../../components/Global/AlertModal';
 import {useTheme} from '../../../src/util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {checkProfanityAndAlert} from '../../util/profanityFilter';
+import {useHeadAlert} from '../../../components/Global/HeadAlertProvider';
 
 async function requestCameraPermission() {
   if (Platform.OS !== 'android') return true;
@@ -59,6 +60,7 @@ export const EditProfile = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const {theme} = useTheme();
   const palette = Colors[theme];
+  const {showAlert} = useHeadAlert();
 
   // Date validation function
   const validateDateOfBirth = (
@@ -191,6 +193,17 @@ export const EditProfile = () => {
     if (profanityCheck.some(field => checkProfanityAndAlert(field))) {
       return;
     }
+    if(username === ''){
+      showAlert('Thông báo', 'Tên người dùng không được để trống');
+      return;
+    }
+    const safeUsername = username ?? '';
+    const safeBio = bio ?? '';
+    if (safeUsername.length > 100 || safeBio.length > 200) {
+      showAlert('Lỗi', 'Chuỗi vượt quá số lượng cho phép');
+      return;
+    }
+
     // Validate date of birth
     const dateValidation = validateDateOfBirth(dateOfBirth);
     if (!dateValidation.isValid) {
