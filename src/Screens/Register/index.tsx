@@ -55,6 +55,8 @@ export const Register = ({navigation}: any) => {
     } else if (!/^[A-Za-z0-9]{6,}$/.test(password)) {
       setErrorPassword('Mật khẩu bao gồm tối thiểu 6 ký tự và không có ký tự đặc biệt.');
       valid = false;
+    }else if (password.trim().length > 50){
+      setErrorPassword('Mật khẩu vượt quá ký tự cho phép (50 ký tự).')
     }
 
     if (!rePassword) {
