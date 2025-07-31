@@ -16,7 +16,6 @@ import {
   Pagination,
   Playlist,
   PlaylistItem,
-  ResCreatePlaylist,
 } from './bookmarkTypes';
 
 interface BookmarkState {

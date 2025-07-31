@@ -1,5 +1,5 @@
-// export const BASE_URL = 'http://cirla.io.vn';
-export const BASE_URL = 'http://192.168.100.157:4001/'; // for local testing on QA's pc
+export const BASE_URL = 'http://cirla.io.vn';
+// export const BASE_URL = 'http://192.168.100.157:4001/'; // for local testing on QA's pc
 export const CallAppID = 41521435;
 export const CallAppSign =
   '6c6785fccbe2469324a805ea64c58069dc7254723d60c056c925ab48d2aee6a4';
@@ -16,6 +16,7 @@ export const API = {
   GET_POST: 'posts/user/all',
   GET_TAGGING_POST: 'posts/tags',
   GET_LIKED_POSTS: 'post-like/liked-posts',
+  DELETE_MY_POST: 'posts/delete',
 
   //// comment
   COMMENT: 'comments',

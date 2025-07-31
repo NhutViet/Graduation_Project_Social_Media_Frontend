@@ -30,6 +30,7 @@ export interface MusicInfo {
 export interface User {
     _id: string;
     handleName: string;
+    username: string;
     profilePic: string;
 }
 

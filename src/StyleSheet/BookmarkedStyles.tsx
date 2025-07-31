@@ -47,6 +47,7 @@ export const useBookmarkStyles = () => {
           marginBottom: spacing.l,
         } as ViewStyle,
         playlistTitle: {
+          marginTop: 10,
           fontSize: typography.fontSizes.m,
           fontWeight: '600',
           color: palette.text,
@@ -272,8 +273,6 @@ export const useBookmarkStyles = () => {
         },
         option: {
           paddingVertical: 16,
-          borderBottomWidth: 0.5,
-          borderBottomColor: '#eee',
         },
         cancel: {
           paddingVertical: 16,

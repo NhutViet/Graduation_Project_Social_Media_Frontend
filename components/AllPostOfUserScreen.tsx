@@ -72,7 +72,7 @@ const AllPostOfUserScreen = () => {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <View style={[styles.header, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: colors.textSecondary}]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <ArrowLeft size={22} color={colors.text} />
         </TouchableOpacity>
