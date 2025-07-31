@@ -559,7 +559,7 @@ export const Home = forwardRef(({route}: HomeProps, ref) => {
       </Animated.View>
       <AnimatedFlatList
         data={posts}
-        keyExtractor={item => item._id}
+        keyExtractor={(item, index) => item._id + index}
         renderItem={renderItem}
         removeClippedSubviews={true}
         initialNumToRender={5}

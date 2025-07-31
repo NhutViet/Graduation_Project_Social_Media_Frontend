@@ -50,7 +50,7 @@ export const AddCollectionScreen = () => {
       .filter(item => {
         if (!item?.media || item.media.length === 0) return false;
 
-        const isVideo = item.itemType === 'reel';
+        const isVideo = item.type === 'reel';
         const mediaItem = item.media[0];
 
         if (isVideo) {

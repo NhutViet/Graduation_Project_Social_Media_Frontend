@@ -96,3 +96,23 @@ export const getLikedPosts = createAsyncThunk<
     }
   }
 );
+
+export const DeleteMyPost = createAsyncThunk<
+  {modifiedCount: number},
+  {postIds: string[]},
+  {rejectValue: {message: string}}
+>(
+  'posts/delete',
+  async ({postIds}, {rejectWithValue}) => {
+    try {
+      const res = await axiosInstance.post(API.DELETE_MY_POST, {postIds}, {
+        headers: {
+          token: 'refresh',
+        },
+      });
+      return res.data; 
+    } catch (error: any) {
+      return rejectWithValue({message: error?.response?.data?.message || 'Xóa bài viết thất bại.'})
+    }
+  }
+);
