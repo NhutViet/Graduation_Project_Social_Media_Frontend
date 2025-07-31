@@ -7,7 +7,7 @@ import {Search} from '../(tabs)/Search';
 import ProfileNavigation from '../(tabs)/Profile/ProfileNavigation';
 import Reels from '../(tabs)/Reels';
 import {Home} from '../(tabs)/Home';
-import {useRef, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {useTabLoading} from '../../services/TabLoadingContext';
 import {
   Home as HomeIcon,
@@ -16,6 +16,13 @@ import {
   PlaySquare,
   UserCircle2,
 } from 'lucide-react-native';
+import {
+  handleDeeplinkIfNeeded,
+  listenToDeeplink,
+  navigateFromUrl,
+} from '../../src/core/deeplinkHandler';
+import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
+import {RootStackParamList} from './AppNavigation';
 
 const Tab = createBottomTabNavigator();
 
@@ -62,6 +69,18 @@ const BottomTabs = ({onTabChange}: {onTabChange?: (index: number) => void}) => {
       searchRef.current?.resetToInitial();
     }
   };
+
+  ////////// deeplink
+  const route = useRoute<RouteProp<RootStackParamList, 'BottomTabs'>>();
+  const navigation = useNavigation<any>();
+
+  useEffect(() => {
+    const path = route?.params?.path;
+    if (!path || typeof path !== 'string') return;
+
+    navigateFromUrl(path);
+    navigation.setParams?.({path: undefined});
+  }, [route?.params?.path]);
 
   return (
     <Tab.Navigator

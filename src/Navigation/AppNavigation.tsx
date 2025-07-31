@@ -68,14 +68,13 @@ import AllPostOfCollection from '../../components/AllPostOfCollection';
 import ZegoCallScreen from '../Screens/ZegoCloud/ZegoCallScreen';
 import {navigationRef} from '../NavigationService';
 import AllReels from '../../components/AllReels';
-import {User} from '@services/userRedux/userTypes';
 import PostDetailScreen from '../../components/PostDetailScreen';
 import AllTaggedPostOfUserScreen from '../../components/AllTaggedPostOfUserScreen';
 import {CameraPreview} from '../../src/Screens/CameraPreview';
 
 export type RootStackParamList = {
   Splash: undefined;
-  BottomTabs: undefined;
+  BottomTabs: {path?: string} | undefined;
   CameraScreen: {roomId: string};
   AllPostOfCollection: undefined;
   AllPostOfUserScreen: undefined;
@@ -176,25 +175,9 @@ export type RootStackParamList = {
 
 const Stack = createStackNavigator<RootStackParamList>();
 
-const linking: LinkingOptions<RootStackParamList> = {
-  prefixes: ['cirla://', 'https://cirla.io.vn'],
-  config: {
-    screens: {
-      Splash: 'splash',
-      BottomTabs: 'home',
-      ProfileComp: 'profile/:userID',
-      MessageScreen: 'chat/:room',
-      ZegoCallScreen: 'call/:callID',
-      AllPostOfUserScreen: 'posts/user',
-      AllReels: 'reels/all',
-      SeenStory: 'story/:storyId/:creatorId',
-    },
-  },
-};
-
 const AppNavigator = () => {
   return (
-    <NavigationContainer ref={navigationRef} linking={linking}>
+    <NavigationContainer ref={navigationRef}>
       <Stack.Navigator
         initialRouteName="Splash"
         screenOptions={{headerShown: false}}>

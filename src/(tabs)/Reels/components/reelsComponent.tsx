@@ -18,7 +18,6 @@ import {
   Heart,
   MessageCircle,
   MoreVertical,
-  Music,
   Share2,
   UserCircle2,
   Play,
@@ -114,20 +113,23 @@ const ReelsComponent = memo((props: any) => {
       onPress: () => void,
       iconColor?: string,
       filled?: boolean,
+      hideCount?: boolean,
     ) => (
       <View style={[styles.sectionContainer, styles.topSection]}>
-        <TouchableOpacity style={styles.iconContainer} onPress={onPress}>
+        <TouchableOpacity onPress={onPress}>
           <IconComponent
             size={26}
             color={iconColor || Colors.white}
             fill={filled ? iconColor || Colors.white : 'none'}
           />
         </TouchableOpacity>
-        <TouchableOpacity onPress={onPress}>
-          <MemoizedText style={styles.textNormal}>
-            {formatNumber(count || 0)}
-          </MemoizedText>
-        </TouchableOpacity>
+        {!hideCount && (
+          <TouchableOpacity onPress={onPress}>
+            <MemoizedText style={styles.textNormal}>
+              {formatNumber(count || 0)}
+            </MemoizedText>
+          </TouchableOpacity>
+        )}
       </View>
     ),
     [],
@@ -184,7 +186,7 @@ const ReelsComponent = memo((props: any) => {
           <HashtagText
             text={caption}
             clickable
-            baseStyle={styles.textNormal} 
+            baseStyle={styles.textNormal}
             hashtagColor={Colors.hashtag}
             hashtagStyle={{fontWeight: '600'}}
             setSkipReload={setSkipReload}
@@ -201,9 +203,16 @@ const ReelsComponent = memo((props: any) => {
             isLiked,
           )}
           {renderActionButton(MessageCircle, commentCount, openComment)}
-          {renderActionButton(Share2, share, openShareModal)}
+          {renderActionButton(
+            Share2,
+            share,
+            () => openShareModal(_id),
+            undefined,
+            false,
+            true,
+          )}
           <View style={styles.sectionContainer}>
-            <TouchableOpacity style={styles.iconContainer} onPress={onMenu}>
+            <TouchableOpacity onPress={onMenu}>
               <MoreVertical size={26} color={Colors.white} />
             </TouchableOpacity>
           </View>
@@ -299,26 +308,11 @@ const styles = StyleSheet.create({
     color: Colors.white,
     marginTop: 5,
   },
-  iconContainer: {
-    width: 25,
-    height: 25,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   sectionContainer: {
-    marginTop: 26,
+    marginTop: 30,
   },
   topSection: {
     alignItems: 'center',
-  },
-  iconMusicContainer: {
-    width: 26,
-    height: 26,
-    borderRadius: 2,
-    borderColor: Colors.white,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });
 

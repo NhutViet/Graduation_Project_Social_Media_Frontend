@@ -38,7 +38,7 @@ export const ItemHomeActions: React.FC<ItemHomeActionsProps> = ({
   numLike,
   commentCount,
   share,
-  shareUrl = 'justina',
+  shareUrl = '',
   likeDisabled = false,
   onLikePress,
   onCommentPress,

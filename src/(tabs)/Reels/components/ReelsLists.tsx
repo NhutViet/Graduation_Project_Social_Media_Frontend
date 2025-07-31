@@ -31,7 +31,7 @@ interface ReelsListProps {
   handleLoadMore: () => void;
   openBottomSheet: (item: PostWithMedia) => void;
   openCommentSheet: (item: PostWithMedia) => void;
-  openShareModal: (item: PostWithMedia) => void;
+  openShareModal: (postId: string) => void;
   setSkipReload: (value: boolean) => void;
 }
 
@@ -198,7 +198,7 @@ const ReelsList = ({
                 onMenu={() => handleOpenBottomSheet(item)}
                 openComment={() => handleOpenCommentSheet(item)}
                 openReactionModal={() => {}}
-                openShareModal={() => openShareModal(item)}
+                openShareModal={(postId: string) => openShareModal(postId)}
                 setSkipReload={setSkipReload}
               />
             );
