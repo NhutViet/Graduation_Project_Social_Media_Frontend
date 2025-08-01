@@ -16,7 +16,11 @@ interface TagCount {
   count: number;
 }
 
-const HashTag: React.FC = React.memo(() => {
+interface HashTagProps {
+  searchKeyword?: string;
+}
+
+const HashTag: React.FC<HashTagProps> = React.memo(({searchKeyword = ''}) => {
   const {theme} = useTheme();
   const color = Colors[theme];
   const navigation = useNavigation<any>();
@@ -33,7 +37,18 @@ const HashTag: React.FC = React.memo(() => {
   // Combine posts and reels
   const allItems = useMemo(() => [...posts, ...reels], [posts, reels]);
 
-  // Extract and count hashtags using utility functions
+  // Function to check if hashtag is similar to search keyword
+  const isHashtagSimilar = useCallback((hashtag: string, keyword: string): boolean => {
+    if (!keyword.trim()) return true; // If no keyword, show all hashtags
+    
+    const cleanHashtag = hashtag.replace('#', '').toLowerCase();
+    const cleanKeyword = keyword.toLowerCase().trim();
+    
+    // Check if hashtag contains the keyword or keyword contains hashtag
+    return cleanHashtag.includes(cleanKeyword) || cleanKeyword.includes(cleanHashtag);
+  }, []);
+
+  // Extract and count hashtags with keyword filtering
   const tagsData: TagCount[] = useMemo(() => {
     const counts: Record<string, number> = {};
 
@@ -48,7 +63,11 @@ const HashTag: React.FC = React.memo(() => {
         hashtags.forEach(hashtag => {
           // Remove the # symbol and convert to lowercase for consistency
           const cleanTag = hashtag.replace('#', '').toLowerCase();
-          counts[cleanTag] = (counts[cleanTag] || 0) + 1;
+          
+          // Only count hashtags that are similar to the search keyword
+          if (isHashtagSimilar(hashtag, searchKeyword)) {
+            counts[cleanTag] = (counts[cleanTag] || 0) + 1;
+          }
         });
       }
     });
@@ -56,7 +75,7 @@ const HashTag: React.FC = React.memo(() => {
     return Object.entries(counts)
       .map(([tag, count]) => ({tag, count}))
       .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
-  }, [allItems]);
+  }, [allItems, searchKeyword, isHashtagSimilar]);
 
   const handlePressTag = useCallback(
     (tag: string) => {
@@ -121,7 +140,10 @@ const HashTag: React.FC = React.memo(() => {
     return (
       <View style={[styles.center, {backgroundColor: color.background}]}>
         <Text style={[styles.loadingText, {color: color.textSecondary}]}>
-          Không có hashtag nào.
+          {searchKeyword.trim() 
+            ? `Không có hashtag nào phù hợp với "${searchKeyword}".`
+            : 'Không có hashtag nào.'
+          }
         </Text>
       </View>
     );

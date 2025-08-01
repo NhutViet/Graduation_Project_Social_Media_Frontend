@@ -48,7 +48,7 @@ const SearchResult: React.FC<SearchResultProps> = ({
         />
       ),
       second: <SearchUser />,
-      three: <HashTag />,
+      three: <HashTag searchKeyword={searchText} />,
     };
     
     return components[route.key as keyof typeof components] || null;
