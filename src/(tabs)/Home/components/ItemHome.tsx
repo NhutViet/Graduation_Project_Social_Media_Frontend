@@ -407,6 +407,7 @@ const ItemHome = (props: ItemHomeProps) => {
           onCommentPress={handleOpenComment}
           onBookmarkPress={handleBookmarkAction}
           onReactionModalPress={handleOpenReactionModal}
+          shareUrl={`https://cirla.io.vn/share/${_id}`}
         />
         {!!caption?.trim() && (
           <HashtagText

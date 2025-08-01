@@ -30,8 +30,15 @@ const persistRoomConfig = {
   storage: AsyncStorage,
 };
 
+const persistReportConfig = {
+  key: 'reportUser',
+  storage: AsyncStorage,
+  whitelist: ['reportedUsers'],
+};
+
 const persistedUserReducer = persistReducer(persistUserConfig, userReducer);
 const persistedRoomReducer = persistReducer(persistRoomConfig, RoomReducer);
+const persistedReportUserReducer = persistReducer(persistReportConfig,reportUserReducer);
 
 export const store = configureStore({
   reducer: {
@@ -52,7 +59,7 @@ export const store = configureStore({
     reelBookmark: reelBookmarkReducer,
     searchPost: searchPostReducer,
     notification: notificationReducer,
-    reportUser: reportUserReducer
+    reportUser: persistedReportUserReducer
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({

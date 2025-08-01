@@ -22,7 +22,6 @@ import {ProgressBar} from './components/ProgressBar';
 import {MediaPlayer} from './components/MediaPlayer';
 import {Footer} from './components/Footer';
 import {Keyboard} from 'react-native';
-import ModalShareStory, {ModalShareHandle} from './components/modalShare';
 import ModalReplyStory, {ModalReplyHandle} from './components/ModalReplyStory';
 import StoryLoadingSkeleton from '../../(tabs)/Home/components/StoryLoadingSkeleton';
 import {debugStoryGroups} from '../../(tabs)/Home/util';
@@ -33,6 +32,7 @@ import {GestureResponderEvent} from 'react-native-modal';
 import {Portal} from 'react-native-portalize';
 import {useHeadAlert} from '../../../components/Global/HeadAlertProvider';
 import {DraggableCaption} from '../../../components/DraggableCaption';
+import Clipboard from '@react-native-clipboard/clipboard';
 
 // Import owner-specific components
 import ModelPeopleSeen from './componentStoryOwner/ModelPeopleSeen';
@@ -76,7 +76,6 @@ export const SeenStory = ({route, navigation}: any) => {
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   const [isMusicLoaded, setIsMusicLoaded] = useState(false);
   const [isMediaLoading, setIsMediaLoading] = useState(true);
-  const shareModalRef = useRef<ModalShareHandle>(null);
   const replyModalRef = useRef<ModalReplyHandle>(null);
   const yourUserId = useSelector((state: RootState) => state.user.user?._id);
 
@@ -895,13 +894,20 @@ export const SeenStory = ({route, navigation}: any) => {
     }
   }, [isPaused]);
 
-  // ✅ Viewer-specific: Share functionality
-  const handleOpenShare = () => {
-    if (isCurrentUserStory) return; // Owner doesn't have share
+  // ✅ Viewer-specific: Copy link functionality
+  const handleCopyLink = () => {
+    if (isCurrentUserStory) return; // Owner doesn't have copy link
 
-    stopCurrentAnimation();
-    setIsPaused(true); // Pause story when opening share modal
-    shareModalRef.current?.open(); // phải dùng ref để mở Modal
+    if (selectedItem?._id) {
+      // Generate deeplink for the story - use universal link format
+      const deeplink = `https://cirla.io.vn/story/${selectedItem._id}/${
+        currentCreator?._id || ''
+      }`;
+
+      Clipboard.setString(deeplink);
+    } else {
+      console.log('Không có liên kết để sao chép');
+    }
   };
 
   // ✅ Viewer-specific: Reply functionality
@@ -1021,51 +1027,31 @@ export const SeenStory = ({route, navigation}: any) => {
           onLike={handleLike}
           isLiked={isLiked}
           scaleAnim={scaleAnim}
-          onPressSend={handleOpenShare}
+          onPressCopyLink={handleCopyLink}
           onPressReply={handleOpenReply}
         />
       )}
 
       {/* Conditional Modals based on ownership */}
       {!isCurrentUserStory && (
-        <>
-          <ModalShareStory
-            ref={shareModalRef}
-            storyData={{
-              _id: selectedItem?._id,
-              mediaUrl: selectedItem?.mediaUrl,
-              type: selectedItem?.uriVideo ? 'video' : 'image',
-            }}
-            creatorId={currentCreator?._id}
-            onOpen={() => {
-              // Story is already paused in handleOpenShare
-              stopCurrentAnimation(); // đảm bảo animation ngừng
-            }}
-            onClose={() => {
-              // Chỉ resume story khi modal thực sự đóng hoàn toàn
-              setIsPaused(false); // tiếp tục
-              startProgressAnimation(); // gọi lại animation!
-            }}
-          />
-          <ModalReplyStory
-            ref={replyModalRef}
-            storyData={{
-              _id: selectedItem?._id,
-              mediaUrl: selectedItem?.mediaUrl,
-              type: selectedItem?.uriVideo ? 'video' : 'image',
-            }}
-            creatorId={currentCreator?._id}
-            onOpen={() => {
-              // Story is already paused in handleOpenReply
-              stopCurrentAnimation(); // đảm bảo animation ngừng
-            }}
-            onClose={() => {
-              // Chỉ resume story khi modal thực sự đóng hoàn toàn
-              setIsPaused(false); // tiếp tục
-              startProgressAnimation(); // gọi lại animation!
-            }}
-          />
-        </>
+        <ModalReplyStory
+          ref={replyModalRef}
+          storyData={{
+            _id: selectedItem?._id,
+            mediaUrl: selectedItem?.mediaUrl,
+            type: selectedItem?.uriVideo ? 'video' : 'image',
+          }}
+          creatorId={currentCreator?._id}
+          onOpen={() => {
+            // Story is already paused in handleOpenReply
+            stopCurrentAnimation(); // đảm bảo animation ngừng
+          }}
+          onClose={() => {
+            // Chỉ resume story khi modal thực sự đóng hoàn toàn
+            setIsPaused(false); // tiếp tục
+            startProgressAnimation(); // gọi lại animation!
+          }}
+        />
       )}
 
       {/* Owner-specific modals */}

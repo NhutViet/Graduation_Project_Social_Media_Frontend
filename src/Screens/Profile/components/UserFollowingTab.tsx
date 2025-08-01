@@ -61,47 +61,27 @@ const UserFollowingTab = ({userID}: Props) => {
     item: UserProfile & {isMeFollowing?: boolean},
     isRecommendation: boolean = false,
   ) => {
-    const mutual = item.isMeFollowing ?? false;
-    if (mutual) {
-      try {
-        const res = await dispatch(
-          createRoom({
-            name: '',
-            user_ids: [item._id],
-            type: 'waiting',
-          }),
-        ).unwrap();
-
-        const {room} = res;
-        const otherUsers = room.user_ids.filter(u => u._id !== userID);
-        const img1 = otherUsers[0]?.profilePic;
-        const img2 = room.user_ids.find(u => u._id === userID)?.profilePic;
-
-        navigation.navigate('MessageScreen', {
-          room: room._id,
-          img1,
-          img2,
-        });
-      } catch (error) {
-        console.warn(error);
+    const actionType = item.isMeFollowing ? 'unfollow' : 'follow';
+    try {
+      await dispatch(
+        relationAction({
+          targetId: item._id,
+          action: actionType,
+          senderId: user?._id,
+          handleName: user?.handleName,
+        }),
+      ).unwrap();
+      await dispatch(fetchViewedFollowing({ userId: userID }));
+      if (isRecommendation) {
+        await dispatch(fetchRecommendations({ limit: 10 }));
       }
-    } else {
-      try {
-        await dispatch(
-          relationAction({
-            targetId: item._id,
-            action: 'follow',
-            senderId: user?._id,
-            handleName: user?.handleName,
-          }),
-        ).unwrap();
-        if (isRecommendation) {
-          dispatch(fetchRecommendations({limit: 10}));
-          await dispatch(fetchViewedFollowing({userId: userID}));
-        }
-      } catch (error) {
-        GlobalAlertManager.show('Thất bại', 'Vui lòng thử lại sau');
-      }
+    } catch (err) {
+      GlobalAlertManager.show(
+        'Thất bại',
+        actionType === 'follow'
+          ? 'Không thể theo dõi, vui lòng thử lại'
+          : 'Không thể bỏ theo dõi, vui lòng thử lại',
+      );
     }
   };
 
@@ -140,7 +120,7 @@ const UserFollowingTab = ({userID}: Props) => {
                   ? [styles.messageText, {color: color.text}]
                   : styles.followText,
               ]}>
-              {item.isMeFollowing ? 'Nhắn tin' : 'Theo dõi'}
+              {item.isMeFollowing ? 'Hủy theo dõi' : 'Theo dõi'}
             </Text>
           </TouchableOpacity>
         )}
@@ -336,9 +316,10 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
+    marginRight: Colors.spacing.s
   },
   messageButton: {
-    width: 89,
+    width: 110,
     paddingHorizontal: 15,
     paddingVertical: 6,
     borderRadius: 10,

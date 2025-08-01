@@ -110,7 +110,7 @@ const FollowersTab = () => {
                 ? [styles.messageText, {color: color.text}]
                 : styles.followText,
             ]}>
-            {isMutual ? 'Nhắn tin' : 'Theo dõi'}
+            {isMutual ? 'Hủy theo dõi' : 'Theo dõi'}
           </Text>
         </TouchableOpacity>
       </View>
@@ -250,6 +250,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#007BFF',
   },
   messageButton: {
+    width: 100,
     borderWidth: 1,
     borderColor: '#ccc',
   },
