@@ -105,42 +105,29 @@ export const SeenStory = ({route, navigation}: any) => {
   // ✅ Handle deeplink navigation
   useEffect(() => {
     if (storyId && creatorId && !stories.length) {
-      console.log('🔄 Starting deeplink navigation...');
-      console.log('Story ID:', storyId);
-      console.log('Creator ID:', creatorId);
-      console.log('Current stories length:', stories.length);
+
 
       // Handle deeplink navigation - fetch story data
       const handleDeeplinkStory = async () => {
         try {
           setIsDataLoading(true);
-          console.log('📡 Fetching story details...');
+          
 
           // Fetch story details
           const storyDetails = await dispatch(
             fetchStoryDetails({storyIds: [storyId]}),
           ).unwrap();
 
-          console.log(
-            '📡 Story details received:',
-            storyDetails.length,
-            'stories',
-          );
+      
 
           if (storyDetails.length > 0) {
             const story = storyDetails[0];
-            console.log('📖 Story data:', {
-              id: story._id,
-              mediaUrl: story.mediaUrl,
-              hasVideo: story.mediaUrl?.endsWith('.mp4'),
-              hasMusic: !!story.music?.link,
-              createdAt: story.createdAt,
-            });
+      
 
             // ✅ Check if story has expired (24 hours)
             if (story.createdAt && !isStoryVisible(story.createdAt)) {
               const storyAge = getStoryAge(story.createdAt);
-              console.log('⏰ Story has expired:', storyAge);
+            
               
               showAlert(
                 'Story đã hết hạn', 
@@ -153,12 +140,12 @@ export const SeenStory = ({route, navigation}: any) => {
 
             // Fetch creator information - first try to find in following users
             let creatorInfo = followingUsers.find(u => u._id === creatorId);
-            console.log('👤 Creator info found in following users:', !!creatorInfo);
+         
 
             // If not found in following users, fetch from public profile API
             if (!creatorInfo) {
               try {
-                console.log('📡 Fetching creator info from public profile API...');
+                
                 const publicProfileResponse = await dispatch(
                   getPublicProfile({userId: creatorId}),
                 ).unwrap();
@@ -170,9 +157,9 @@ export const SeenStory = ({route, navigation}: any) => {
                   profilePic: publicProfileResponse.profilePic,
                   stories: [], // Empty stories array since we don't have following data
                 };
-                console.log('✅ Creator info fetched from API successfully');
+               
               } catch (error) {
-                console.error('❌ Error fetching creator info from API:', error);
+               
                 showAlert('Lỗi', 'Không tìm thấy người dùng này');
                 navigation.goBack();
                 return;
@@ -195,23 +182,23 @@ export const SeenStory = ({route, navigation}: any) => {
                 },
               ]);
 
-              console.log('✅ Story and creator set successfully');
+        
 
               // Mark story as seen
               await dispatch(seenStory({storyId}));
             } else {
-              console.log('❌ Creator not found in following users');
+             
               // If creator not found in following users, show error
               showAlert('Lỗi', 'Không tìm thấy người dùng này');
               navigation.goBack();
             }
           } else {
-            console.log('❌ No story details found');
+          
             showAlert('Thông báo', 'Story này không còn tồn tại hoặc đã bị xóa.');
             navigation.goBack();
           }
         } catch (error) {
-          console.error('❌ Error handling deeplink story:', error);
+          
           // ✅ Kiểm tra loại lỗi để hiển thị thông báo phù hợp
           if (error && typeof error === 'object' && 'status' in error) {
             const status = (error as any).status;
@@ -226,7 +213,7 @@ export const SeenStory = ({route, navigation}: any) => {
           navigation.goBack();
         } finally {
           setIsDataLoading(false);
-          console.log('🏁 Deeplink navigation completed');
+
         }
       };
 
@@ -459,12 +446,7 @@ export const SeenStory = ({route, navigation}: any) => {
   const selectedItem = useMemo(() => {
     const item = syncedStories[currentIndex];
     if (!item) {
-      console.log(
-        'No story found at index:',
-        currentIndex,
-        'Total stories:',
-        syncedStories.length,
-      );
+  
       return null;
     }
     return item;
@@ -672,7 +654,7 @@ export const SeenStory = ({route, navigation}: any) => {
 
                   // ✅ Check if there are any visible stories in the next group
           if (syncedNextGroupStories.length === 0) {
-            console.log('⚠️ No visible stories in next group, skipping...');
+          
             
             // ✅ Kiểm tra xem story có bị xóa hay hết hạn
             const nextUserInRedux = followingUsers.find(
@@ -840,7 +822,7 @@ export const SeenStory = ({route, navigation}: any) => {
 
           // ✅ Check if there are any visible stories in the previous group
           if (syncedPrevGroupStories.length === 0) {
-            console.log('⚠️ No visible stories in previous group, skipping...');
+           
             
             // ✅ Kiểm tra xem story có bị xóa hay hết hạn
             const prevUserInRedux = followingUsers.find(
@@ -1004,7 +986,7 @@ export const SeenStory = ({route, navigation}: any) => {
         }),
       ]).start();
     } catch (err) {
-      console.error('Error liking story:', err);
+    
       
       // ✅ Kiểm tra loại lỗi để hiển thị thông báo phù hợp
       if (err && typeof err === 'object' && 'status' in err) {
@@ -1041,14 +1023,6 @@ export const SeenStory = ({route, navigation}: any) => {
     if (!combinedText) {
       return null;
     }
-
-    // ✅ Debug vị trí caption để đảm bảo tính toán chính xác
-    console.log('🎯 Caption position:', {
-      xPercent: content?.x || 10,
-      yPercent: content?.y || 20,
-      screenWidth,
-      screenHeight,
-    });
 
     // Tạo mention data để có thể click từ valid tags only (adapt to backend structure)
     const mentionData = validTags.map((tag: any) => ({
@@ -1191,7 +1165,7 @@ export const SeenStory = ({route, navigation}: any) => {
 
       Clipboard.setString(deeplink);
     } else {
-      console.log('Không có liên kết để sao chép');
+    
     }
   };
 
