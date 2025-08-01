@@ -25,6 +25,7 @@ interface CommentComponentProps {
     _id?: string;
     handleName?: string;
     profilePic?: string;
+    username?: string;
   };
   content: string;
   mediaUrl?: string;
@@ -100,7 +101,7 @@ const ReplyComment = memo(
         <View style={styles.replyContentBox}>
           <View style={styles.rowTop}>
             <Text style={[styles.name, {color: color.text, marginRight: 8}]}>
-              {user?.handleName || 'Người dùng'}
+              {user?.username || 'Người dùng'}
             </Text>
             <Text style={[styles.text, {color: color.text}]}>
               {formatTimeAgo(createdAt)}
@@ -204,7 +205,7 @@ const CommentComponent = memo((props: CommentComponentProps) => {
         <View style={{flex: 1}}>
           <View style={styles.rowTop}>
             <Text style={[styles.name, {color: color.text, marginRight: 8}]}>
-              {user?.handleName || 'Người dùng'}
+              {user?.username || 'Người dùng'}
             </Text>
             <Text style={[styles.text, {color: color.text}]}>
               {formatTimeAgo(createdAt)}

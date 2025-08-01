@@ -2,6 +2,7 @@ export interface UserComment {
   _id: string;
   handleName: string;
   profilePic?: string;
+  username?: string;
 }
 
 export interface CommentPost {

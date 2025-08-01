@@ -97,10 +97,10 @@ const UserFollowingTab = ({userID}: Props) => {
           )}
           <View style={styles.suggestedInfo}>
             <Text style={[styles.handle, {color: color.text}]}>
-              {item.handleName}
+              {item.username}
             </Text>
             <Text style={[styles.username, {color: color.textSecondary}]}>
-              {item.username}
+              {item.handleName}
             </Text>
           </View>
         </View>
@@ -119,7 +119,7 @@ const UserFollowingTab = ({userID}: Props) => {
                 item.isMeFollowing
                   ? [styles.messageText, {color: color.text}]
                   : styles.followText,
-              ]}>
+              ]} numberOfLines={1} ellipsizeMode='tail'>
               {item.isMeFollowing ? 'Hủy theo dõi' : 'Theo dõi'}
             </Text>
           </TouchableOpacity>

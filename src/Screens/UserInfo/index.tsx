@@ -43,19 +43,12 @@ import {useSocket} from '@services/SocketContext';
 
 const screenWidth = Dimensions.get('window').width - 8;
 const initialLayout = {width: Dimensions.get('window').width};
-const createFeatureItems = (navigation: any, handleSearchPress: () => void) => [
-  {icon: User, text: 'Trang tài khoản', onPress: () => {}},
+const createFeatureItems = (navigation: any, handleSearchPress: () => void, handleProfile: () => void) => [
+  { icon: User, text: 'Trang tài khoản', onPress: handleProfile},
   {
     icon: Search,
     text: 'Tìm kiếm tin nhắn',
     onPress: handleSearchPress,
-  },
-  {
-    icon: MoreHorizontal,
-    text: 'Thêm tùy chọn',
-    onPress: () => {
-      GlobalAlertManager.show('Thông báo', 'Chưa có thêm tính năng');
-    },
   },
 ];
 const createSettingItems = (
@@ -77,7 +70,7 @@ export const UserInfo = () => {
   const {theme} = useTheme();
   const navigation = useNavigation<any>();
   const route = useRoute<RouteProp<RootStackParamList, 'InfoUser'>>();
-  const {roomId, img1, nameChat} = route.params || {};
+  const {roomId, img1, nameChat, userId} = route.params || {};
   const dispatch = useDispatch<AppDispatch>();
   const animatedLeftValue = useRef(new Animated.Value(0)).current;
   const [visibleThemeModal, setVisibleThemeModal] = useState(false);
@@ -108,6 +101,10 @@ export const UserInfo = () => {
     setPreviewVisible(false);
     setPreviewUri(null);
   }, []);
+
+   const handleProfile = useCallback(() => {
+    navigation.navigate('ProfileComp', {userID: userId});
+  }, [userId]);
 
   // Simplified useEffect()
   useEffect(() => {
@@ -238,7 +235,7 @@ export const UserInfo = () => {
   ]);
 
   const Header = memo(() => {
-    const featureItems = createFeatureItems(navigation, handleSearchPress);
+    const featureItems = createFeatureItems(navigation, handleSearchPress, handleProfile);
     const settingItems = createSettingItems(navigation, setVisibleThemeModal);
 
     const renderIcon = (

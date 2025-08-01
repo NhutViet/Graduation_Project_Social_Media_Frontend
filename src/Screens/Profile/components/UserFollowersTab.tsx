@@ -18,7 +18,6 @@ import {
   fetchFollowing,
   relationAction,
 } from '../../../../services/relationRedux/relationSlice';
-import {createRoom} from '../../../../services/roomRedux/roomSlice';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 import {UserProfile} from '@services/relationRedux/relationTypes';
 import {selectDisplayViewedFollowers} from '@services/relationRedux/relationSelector';
@@ -97,10 +96,10 @@ const UserFollowersTab = ({route}: any) => {
             )}
             <View style={styles.userInfo}>
               <Text style={[styles.handle, {color: color.text}]}>
-                {item.handleName}
+                {item.username}
               </Text>
               <Text style={[styles.username, {color: color.textSecondary}]}>
-                {item.username}
+                {item.handleName}
               </Text>
             </View>
           </View>
@@ -119,7 +118,7 @@ const UserFollowersTab = ({route}: any) => {
                   item.isMeFollowing
                     ? [styles.messageText, {color: color.text}]
                     : styles.followText,
-                ]}>
+                ]} numberOfLines={1} ellipsizeMode='tail'>
                 {item.isMeFollowing ? 'Hủy theo dõi' : 'Theo dõi'}
               </Text>
             </TouchableOpacity>
