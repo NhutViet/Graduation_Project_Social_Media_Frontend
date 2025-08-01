@@ -13,12 +13,12 @@ export type MoreActionPopupRef = {
 };
 
 type MoreActionPopupProps = {
-  onUnfollow: (targetId: string) => void;
+  // onUnfollow: (targetId: string) => void;
   onReport: (targetId: string) => void;
 };
 
 const MoreActionPopup = forwardRef<MoreActionPopupRef, MoreActionPopupProps>(
-  ({onUnfollow, onReport}, ref) => {
+  ({onReport}, ref) => {
     const modalRef = useRef<CustomPopupModalRef>(null);
     const {theme} = useTheme();
     const colors = Colors[theme];
@@ -30,13 +30,13 @@ const MoreActionPopup = forwardRef<MoreActionPopupRef, MoreActionPopupProps>(
       setUser: (id: string) => (userIdRef.current = id),
     }));
 
-    const handleUnfollow = () => {
-      if (userIdRef.current) onUnfollow(userIdRef.current);
-      modalRef.current?.close();
-    };
+    // const handleUnfollow = () => {
+    //   if (userIdRef.current) onUnfollow(userIdRef.current);
+    //   modalRef.current?.close();
+    // };
 
     const handleReport = () => {
-      if (userIdRef.current) onReport(userIdRef.current);
+      if (userIdRef.current) onReport(userIdRef.current!);
       modalRef.current?.close();
     };
 
@@ -46,9 +46,6 @@ const MoreActionPopup = forwardRef<MoreActionPopupRef, MoreActionPopupProps>(
         backgroundColor={colors.white}
         cancelText="Hủy"
         cancelTextColor="#FF3B30">
-        <TouchableOpacity style={styles.option} onPress={handleUnfollow}>
-          <Text style={[styles.text, {color: '#FF3B30'}]}>Bỏ theo dõi</Text>
-        </TouchableOpacity>
         <TouchableOpacity style={styles.option} onPress={handleReport}>
           <Text style={[styles.text, {color: colors.text}]}>Báo cáo</Text>
         </TouchableOpacity>

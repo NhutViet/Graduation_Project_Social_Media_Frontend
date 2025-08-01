@@ -20,7 +20,7 @@ import { ChevronLeft } from 'lucide-react-native';
 import { GlobalAlertManager } from '../../../../components/Global/AlertModal';
 
 interface ReportUserModalProps {
-  //
+  onReported?: (targetId: string) => void;
 }
 
 export interface ReportUserModalHandle {
@@ -46,7 +46,7 @@ const modalHeight2 = Dimensions.get('window').height * 0.4;
 const ReportUserModal = forwardRef<
   ReportUserModalHandle,
   ReportUserModalProps
->((_props, ref) => {
+>(({onReported}, ref) => {
   const {theme} = useTheme();
   const color = Colors[theme];
   const modalizeRef = useRef<Modalize>(null);
@@ -94,6 +94,7 @@ const ReportUserModal = forwardRef<
         'Thành công',
         'Báo cáo người dùng thành công',
       );
+      onReported?.(targetId);
     } catch (err: any) {
       GlobalAlertManager.show(
         'Thất bại',

@@ -24,6 +24,8 @@ import {UserProfile} from '@services/relationRedux/relationTypes';
 import MoreActionPopup, {MoreActionPopupRef} from './MoreActionModal';
 import {MoreVertical, Users, UserPlus} from 'lucide-react-native';
 import LoadingModal from '../../../../components/Global/LoadingModal';
+import ReportUserModal, {ReportUserModalHandle} from '../../../../src/Screens/Profile/components/reportUserModal';
+import { Portal } from 'react-native-portalize';
 
 const FollowingTab = () => {
   const navigation: any = useNavigation();
@@ -40,6 +42,7 @@ const FollowingTab = () => {
   } = useSelector((state: RootState) => state.relation);
 
   const popupRef = useRef<MoreActionPopupRef>(null);
+  const reportRef = useRef<ReportUserModalHandle>(null);
 
   useEffect(() => {
     if (!userID) return;
@@ -55,21 +58,6 @@ const FollowingTab = () => {
     () => reduxRecommendations.filter(u => !followingIds.has(u._id)),
     [reduxRecommendations, followingIds],
   );
-
-  const handleMessagingPress = async (item: UserProfile) => {
-    try {
-      const res = await dispatch(
-        createRoom({name: '', user_ids: [item._id], type: 'waiting'}),
-      ).unwrap();
-      const {room} = res;
-      const otherUsers = room.user_ids.filter(user => user._id !== userID);
-      const img1 = otherUsers[0]?.profilePic;
-      const img2 = room.user_ids.find(user => user._id === userID)?.profilePic;
-      navigation.navigate('MessageScreen', {room: room._id, img1, img2});
-    } catch (error) {
-      console.warn(error);
-    }
-  };
 
   const handleFollowPress = async (item: UserProfile, isRecommendation = false) => {
     try {
@@ -95,6 +83,13 @@ const FollowingTab = () => {
     popupRef.current?.open();
   };
 
+  const openReportModal = (userId: string) => {
+    popupRef.current?.close();
+    setTimeout(() => {
+      reportRef.current?.open(userId);
+    }, 250);
+  };
+
   const onUnfollow = (targetId: string) => {
     dispatch(
       relationAction({
@@ -108,10 +103,6 @@ const FollowingTab = () => {
       .catch(() => {
         GlobalAlertManager.show('Lỗi', 'Không thể bỏ theo dõi');
       });
-  };
-
-  const onReport = (targetId: string) => {
-    GlobalAlertManager.show('Thông báo', 'Đã báo cáo người dùng');
   };
 
   const renderUserItem = (item: UserProfile, isFollowing: boolean, isRecommendation: boolean = false) => (
@@ -130,10 +121,10 @@ const FollowingTab = () => {
       {isFollowing ? (
         <>
           <TouchableOpacity
-            onPress={() => handleMessagingPress(item)}
+            onPress={() => onUnfollow(item._id)}
             style={[styles.messageButton, {borderColor: color.text}]}>
             <Text style={[styles.messageText, {color: color.text}]}>
-              Nhắn tin
+              Hủy theo dõi
             </Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => handleMorePress(item)}>
@@ -223,11 +214,33 @@ const FollowingTab = () => {
           showsVerticalScrollIndicator={false}
         />
       )}
-      <MoreActionPopup
-        ref={popupRef}
-        onUnfollow={onUnfollow}
-        onReport={onReport}
-      />
+      <Portal>
+        <MoreActionPopup
+          ref={popupRef}
+          onReport={openReportModal}
+        />
+      </Portal>
+      <Portal>
+        <ReportUserModal
+          ref={reportRef}
+          onReported={async (id: string) => {
+            try{
+              await dispatch(
+                relationAction({
+                  targetId: id,
+                  action: 'unfollow',
+                  senderId: user?._id!,
+                  handleName: user?.handleName!,
+                })
+              ).unwrap();
+              dispatch(fetchFollowing({ userId: userID! }));
+              dispatch(fetchRecommendations({ limit: 10}));
+            } catch (error){
+              console.log('Cannot unfollow after reporting: ', error);
+            }
+          }}  
+        />
+      </Portal>
     </ScrollView>
   );
 };
