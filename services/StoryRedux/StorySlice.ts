@@ -312,3 +312,18 @@ export const updateHighlightStory = createAsyncThunk<
     );
   }
 });
+
+// Track story share count (for external sharing)
+export const trackStoryShare = createAsyncThunk<
+  {storyId: string},
+  {storyId: string},
+  {rejectValue: string}
+>('stories/trackStoryShare', async ({storyId}, {rejectWithValue}) => {
+  try {
+    // This is a local tracking action - no API call needed
+    // The share count will be updated in the reducer
+    return {storyId};
+  } catch (error: any) {
+    return rejectWithValue('Không thể track share count');
+  }
+});

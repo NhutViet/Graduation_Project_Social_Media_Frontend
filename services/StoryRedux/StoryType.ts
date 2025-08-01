@@ -6,6 +6,7 @@ export interface Story {
   isArchived?: boolean;
   viewedByUsers: UserMini[];
   likedByUsers: string[];
+  shareCount?: number;
   collectionName?: string;
   storyId?: string[];
   thumbnail: string;
