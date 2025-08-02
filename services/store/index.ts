@@ -19,6 +19,7 @@ import reelBookmarkReducer from '../reelBookmarkRedux/reelBookmarkReducer';
 import searchPostReducer from '../SearchPost/searchPostReducer';
 import notificationReducer from '../notificationRedux/notificationReducer';
 import reportUserReducer from '../reportUserRedux/reportUserReducer'
+import ChatAIReducer from '../ChatAIRedux/ChatAIReducer';
 
 const persistUserConfig = {
   key: 'user',
@@ -59,7 +60,8 @@ export const store = configureStore({
     reelBookmark: reelBookmarkReducer,
     searchPost: searchPostReducer,
     notification: notificationReducer,
-    reportUser: persistedReportUserReducer
+    reportUser: persistedReportUserReducer,
+    chatAI: ChatAIReducer,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({

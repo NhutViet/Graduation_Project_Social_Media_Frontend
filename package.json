@@ -49,6 +49,7 @@
     "react-native-callkeep": "^4.3.16",
     "react-native-create-thumbnail": "^2.1.1",
     "react-native-device-info": "^11.1.0",
+    "react-native-dot-typing": "^1.0.2",
     "react-native-draggable": "^3.3.0",
     "react-native-encrypted-storage": "^4.0.3",
     "react-native-fs": "^2.20.0",

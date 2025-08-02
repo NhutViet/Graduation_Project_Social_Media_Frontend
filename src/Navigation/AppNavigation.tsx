@@ -57,6 +57,7 @@ import {
   PrivacySafetyChat,
   CameraScreen,
   NewPasswordReset,
+  ChatAIBox
 } from '../Screens';
 import BottomTabs from './BottomTabs';
 import ProfileComp from '../Screens/Profile';
@@ -74,6 +75,7 @@ import {CameraPreview} from '../../src/Screens/CameraPreview';
 
 export type RootStackParamList = {
   Splash: undefined;
+  ChatAIBox: undefined;
   BottomTabs: {path?: string} | undefined;
   CameraScreen: {roomId: string};
   AllPostOfCollection: undefined;
@@ -193,6 +195,7 @@ const AppNavigator = () => {
           name="AllTaggedPostOfUserScreen"
           component={AllTaggedPostOfUserScreen}
         />
+        <Stack.Screen name="ChatAIBox" component={ChatAIBox} />
         <Stack.Screen name="CameraScreen" component={CameraScreen} />
         <Stack.Screen name="AllReels" component={AllReels} />
         <Stack.Screen name="PostDetailScreen" component={PostDetailScreen} />
