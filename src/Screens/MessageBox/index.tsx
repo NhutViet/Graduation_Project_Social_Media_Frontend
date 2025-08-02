@@ -26,9 +26,8 @@ import {
   clearExpiredSeenStories,
 } from '../../../services/storage/storage';
 import {useStoryPrefetch} from '../../(tabs)/Home/hook/useStoryPrefetch';
-import {ArrowLeft, MessageSquarePlus, Search, X} from 'lucide-react-native';
+import {ArrowLeft, MessageSquarePlus, Search, Sparkles, X} from 'lucide-react-native';
 import {ChatSkeleton} from '../../../components/SkeletonGrid';
-import LoadingModal from '../../../components/Global/LoadingModal';
 export const MessageBox = (props: any) => {
   const navigation: any = useNavigation();
   const {theme} = useTheme();
@@ -209,6 +208,12 @@ export const MessageBox = (props: any) => {
               navigation.navigate('CreateGroupScreen');
             }}>
             <MessageSquarePlus size={22} color={color.text} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('ChatAIBox');
+            }} style={{paddingLeft: 15}}>
+            <Sparkles size={22} color={color.text} />
           </TouchableOpacity>
         </View>
       </View>
