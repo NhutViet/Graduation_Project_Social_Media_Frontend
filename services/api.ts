@@ -97,4 +97,8 @@ export const API = {
 
   ////Report user
   REPORT_USER: '/report-users/report',
+
+  ////Chat AI
+  POST_ASK_AI: 'chat/ask',
+  GET_HISTORY_CHAT_AI: 'chat-box/history',
 };
