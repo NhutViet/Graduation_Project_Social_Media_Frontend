@@ -47,7 +47,8 @@ import {RootStackParamList} from 'src/Navigation/AppNavigation';
 import {selectItemHomeData} from '../selectors/homeSelectors';
 import {useItemHomeAudio} from '../hook/useItemHomeAudio';
 import {useHeadAlert} from '../../../../components/Global/HeadAlertProvider';
-import { updateLikeByPostId } from '@services/postRedux/postReducer';
+import {updateLikeByPostId} from '@services/postRedux/postReducer';
+import {updateLikePostUser} from '@services/postUserRedux/postUserReducer';
 
 Sound.setCategory('Playback');
 const screenWidth = Dimensions.get('window').width;
@@ -119,10 +120,12 @@ const ItemHome = (props: ItemHomeProps) => {
     ).unwrap();
     pendingLikeRequest.current = requestPromise;
     dispatch(updateLikeByPostId({postId: _id, isLike: shouldLike}));
+    dispatch(updateLikePostUser({postId: _id, isLike: shouldLike}));
     try {
       await requestPromise;
     } catch {
       dispatch(updateLikeByPostId({postId: _id, isLike: !shouldLike}));
+      dispatch(updateLikePostUser({postId: _id, isLike: !shouldLike}));
     } finally {
       pendingLikeRequest.current = null;
     }
@@ -174,7 +177,7 @@ const ItemHome = (props: ItemHomeProps) => {
       dispatch,
       showAlert,
     });
-  }, [ _id, refreshToken, dispatch]);
+  }, [_id, refreshToken, dispatch]);
 
   // Modal actions
   const openOptions = useCallback(() => optionSheetRef.current?.open(), []);
@@ -297,7 +300,7 @@ const ItemHome = (props: ItemHomeProps) => {
   );
 
   // Handle open comment
-  const currentUserID = useSelector((state: RootState) => state.user.user?._id);
+  const currentUserID = useSelector((state: RootState) => state.user?.user?._id);
   const handleUserPress = useCallback(() => {
     if (user._id !== currentUserID) {
       navigation.navigate('ProfileComp', {userID: user._id});

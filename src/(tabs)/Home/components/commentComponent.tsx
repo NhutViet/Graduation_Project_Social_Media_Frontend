@@ -18,12 +18,18 @@ const fallbackImg =
   'https://i.pinimg.com/736x/30/01/1e/30011ec01f59434d761d323e0d4b5a07.jpg';
 
 interface CommentComponentProps {
-  onReply: (id: string, handleName: string, userId?: string) => void;
+  onReply: (
+    id: string,
+    handleName: string,
+    username?: string,
+    userId?: string,
+  ) => void;
   _id: string;
   postId: string;
   user?: {
     _id?: string;
     handleName?: string;
+    username?: string;
     profilePic?: string;
   };
   content: string;
@@ -44,7 +50,12 @@ const ReplyComment = memo(
     navigation,
   }: {
     item: CommentComponentProps;
-    onReply: (id: string, handleName: string, userId?: string) => void;
+    onReply: (
+      id: string,
+      handleName: string,
+      username?: string,
+      userId?: string,
+    ) => void;
     navigation: any;
   }) => {
     const {theme} = useTheme();
@@ -100,7 +111,7 @@ const ReplyComment = memo(
         <View style={styles.replyContentBox}>
           <View style={styles.rowTop}>
             <Text style={[styles.name, {color: color.text, marginRight: 8}]}>
-              {user?.handleName || 'Người dùng'}
+              {user?.username || 'Người dùng'}
             </Text>
             <Text style={[styles.text, {color: color.text}]}>
               {formatTimeAgo(createdAt)}
@@ -116,7 +127,14 @@ const ReplyComment = memo(
           />
           <View style={styles.rowBottom}>
             <TouchableOpacity
-              onPress={() => onReply(_id, user?.handleName || '', user?._id)}>
+              onPress={() =>
+                onReply(
+                  _id,
+                  user?.handleName || '',
+                  user?.username || '',
+                  user?._id,
+                )
+              }>
               <Text style={[styles.text, {color: color.text, marginRight: 16}]}>
                 Trả lời
               </Text>
@@ -204,7 +222,7 @@ const CommentComponent = memo((props: CommentComponentProps) => {
         <View style={{flex: 1}}>
           <View style={styles.rowTop}>
             <Text style={[styles.name, {color: color.text, marginRight: 8}]}>
-              {user?.handleName || 'Người dùng'}
+              {user?.username || 'Người dùng'}
             </Text>
             <Text style={[styles.text, {color: color.text}]}>
               {formatTimeAgo(createdAt)}
@@ -220,7 +238,9 @@ const CommentComponent = memo((props: CommentComponentProps) => {
           />
           <View style={styles.rowBottom}>
             <TouchableOpacity
-              onPress={() => onReply(_id, user?.handleName || '', user?._id)}>
+              onPress={() =>
+                onReply(_id, user?.handleName || '', user?.username, user?._id)
+              }>
               <Text style={[styles.text, {color: color.text, marginRight: 16}]}>
                 Trả lời
               </Text>

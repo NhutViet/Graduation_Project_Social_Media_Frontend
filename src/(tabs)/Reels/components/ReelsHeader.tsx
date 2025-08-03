@@ -1,5 +1,5 @@
-import React, {memo} from 'react';
-import {View, Text, StyleSheet, Dimensions} from 'react-native';
+import React from 'react';
+import {View, Text, StyleSheet} from 'react-native';
 import {Colors} from '@assets/color/Colors';
 
 const ReelsHeader = () => {
@@ -25,4 +25,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default memo(ReelsHeader);
+export default ReelsHeader;

@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useRef, useState} from 'react';
 import {
   TouchableOpacity,
   View,
@@ -15,7 +15,6 @@ import {
   Menu,
   Grid,
   Lock,
-  ChevronDown,
   Video,
   SquareUserRound,
   Bookmark,
@@ -128,7 +127,6 @@ const Profile = () => {
               {user?.username}
             </Text>
           </View>
-          <ChevronDown size={16} color={color.text} />
         </View>
         <View style={styles.headerRight}>
           <TouchableOpacity

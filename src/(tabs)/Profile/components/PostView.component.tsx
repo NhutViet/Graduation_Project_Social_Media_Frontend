@@ -29,7 +29,6 @@ export const ReelsView: React.FC<{data: any[]}> = ({data}) => {
   const navigation = useNavigation<any>();
   const handlePress = (item: any) => {
     navigation.navigate('AllReels', {
-      reels: data,
       initialId: item._id,
     });
   };

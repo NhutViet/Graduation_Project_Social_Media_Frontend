@@ -28,7 +28,6 @@ const LoadTyping = (props: LoadingTypingProps) => {
             style={[styles.avatarContainer, {backgroundColor: color.primary}]}>
             <Icon size={18} color={color.background} strokeWidth={2.5} />
           </View>
-          <Text style={[styles.text, {color: color.text}]}>Đang suy nghĩ</Text>
           <View
             style={[
               styles.containerRow,
@@ -36,6 +35,7 @@ const LoadTyping = (props: LoadingTypingProps) => {
                 paddingVertical: 5,
                 borderRadius: 10,
                 backgroundColor: color.transparent,
+                alignItems: 'center',
               },
             ]}>
             <Text style={[styles.text, {color: color.text}]}>

@@ -1,4 +1,4 @@
-import {createSlice} from '@reduxjs/toolkit';
+import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {Load, Pagination, LoadLiked, Item} from './postUserType';
 import {
   getPostsAndReelsOfUser,
@@ -78,6 +78,39 @@ const PostUserReducer = createSlice({
 
       // Cập nhật likedPosts
       updateList(state.likedPosts.items as Item[]);
+    },
+    updateLikePostUser: (
+      state,
+      action: PayloadAction<{postId: string; isLike: boolean}>,
+    ) => {
+      const {postId, isLike} = action.payload;
+      const delta = isLike ? 1 : -1;
+      console.log('chạy');
+      console.log('state.posts', state.posts);
+      console.log('state.reels', state.reels);
+
+      const updateList = (list: Item[] | undefined): Item[] => {
+        if (!list) return [];
+        return list.map(post => {
+          if (post._id !== postId) return post;
+          const current = post.likeCount ?? 0;
+          return {
+            ...post,
+            isLike,
+            likeCount: Math.max(0, current + delta),
+          };
+        });
+      };
+
+      if ('items' in state.posts) {
+        state.posts.items = updateList(state.posts.items as Item[]);
+        console.log('hmmm');
+      }
+
+      if ('items' in state.reels) {
+        state.reels.items = updateList(state.reels.items as Item[]);
+        console.log('hazzzz');
+      }
     },
   },
   extraReducers: builder => {
@@ -205,6 +238,10 @@ const PostUserReducer = createSlice({
   },
 });
 
-export const {clearPostsAndReels, clearLikedPosts, updateIsFollowPostUser} =
-  PostUserReducer.actions;
+export const {
+  clearPostsAndReels,
+  clearLikedPosts,
+  updateIsFollowPostUser,
+  updateLikePostUser,
+} = PostUserReducer.actions;
 export default PostUserReducer.reducer;

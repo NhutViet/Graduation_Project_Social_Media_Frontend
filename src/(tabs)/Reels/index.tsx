@@ -1,4 +1,10 @@
-import React, {forwardRef, useImperativeHandle, useRef, useState} from 'react';
+import React, {
+  forwardRef,
+  useCallback,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react';
 import {SafeAreaView, StyleSheet, View, Dimensions, Share} from 'react-native';
 import {useIsFocused, useFocusEffect} from '@react-navigation/native';
 import {Colors} from '../../../assets/color/Colors';
@@ -39,13 +45,13 @@ const Reels = forwardRef((props, ref) => {
     skipReload,
   } = useReels();
 
-  const openShareModal = async (postId: string) => {
+  const openShareModal = useCallback(async (postId: string) => {
     try {
       await Share.share({message: `https://cirla.io.vn/share/${postId}`});
     } catch (err) {
       console.error('Error sharing:', err);
     }
-  };
+  }, []);
 
   const [selectedItem, setSelectedItem] = useState<PostWithMedia>();
   const [isCurrentBookmarked, setIsCurrentBookmarked] = useState(false);
@@ -54,17 +60,20 @@ const Reels = forwardRef((props, ref) => {
     receiverId: '',
   });
 
-  const openBottomSheet = (item: PostWithMedia) => {
+  const openBottomSheet = useCallback((item: PostWithMedia) => {
     setSelectedItem(item);
     setIsCurrentBookmarked(item.isBookmarked ?? false);
-    sheetRef?.current?.open();
-  };
+    sheetRef.current?.open();
+  }, []);
 
-  const openCommentSheet = (item: PostWithMedia) => {
-    selectedPostRef.current = {postId: item._id, receiverId: item.user._id};
-    dispatch(fetchCommentsByPost(item._id));
-    sheetRefComment.current?.open();
-  };
+  const openCommentSheet = useCallback(
+    (item: PostWithMedia) => {
+      selectedPostRef.current = {postId: item?._id, receiverId: item.user?._id};
+      dispatch(fetchCommentsByPost(item._id));
+      sheetRefComment.current?.open();
+    },
+    [dispatch],
+  );
 
   useImperativeHandle(ref, () => ({
     reload: () => {
