@@ -13,6 +13,7 @@ import {
   shareStory,
   deleteHighlightStory,
   updateHighlightStory,
+  trackStoryShare,
 } from './StorySlice';
 
 interface StoryState {
@@ -431,6 +432,28 @@ const storySlice = createSlice({
       .addCase(updateHighlightStory.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Không thể cập nhật highlight story';
+      })
+      // ====== TRACK STORY SHARE ======
+      .addCase(trackStoryShare.fulfilled, (state, action) => {
+        const {storyId} = action.payload;
+        
+        // Update share count in storyDetails
+        const story = state.storyDetails.find(s => s._id === storyId);
+        if (story) {
+          story.shareCount = (story.shareCount || 0) + 1;
+        }
+        
+        // Update share count in myStories
+        const myStory = state.myStories.find(s => s._id === storyId);
+        if (myStory) {
+          myStory.shareCount = (myStory.shareCount || 0) + 1;
+        }
+        
+        // Update share count in highlightStories
+        const highlightStory = state.highlightStories.find(s => s._id === storyId);
+        if (highlightStory) {
+          highlightStory.shareCount = (highlightStory.shareCount || 0) + 1;
+        }
       });
   },
 });

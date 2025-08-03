@@ -16,6 +16,7 @@ import {
   fetchStoryDetails,
   seenStory,
 } from '../../../services/StoryRedux/StorySlice';
+import {getPublicProfile} from '../../../services/userRedux/userSlice';
 import {styles} from './components/styles';
 import {Header} from './components/Header';
 import {ProgressBar} from './components/ProgressBar';
@@ -33,6 +34,7 @@ import {Portal} from 'react-native-portalize';
 import {useHeadAlert} from '../../../components/Global/HeadAlertProvider';
 import {DraggableCaption} from '../../../components/DraggableCaption';
 import Clipboard from '@react-native-clipboard/clipboard';
+import {isStoryVisible, getStoryAge} from '../../../services/storage/storage';
 
 // Import owner-specific components
 import ModelPeopleSeen from './componentStoryOwner/ModelPeopleSeen';
@@ -103,40 +105,66 @@ export const SeenStory = ({route, navigation}: any) => {
   // ✅ Handle deeplink navigation
   useEffect(() => {
     if (storyId && creatorId && !stories.length) {
-      console.log('🔄 Starting deeplink navigation...');
-      console.log('Story ID:', storyId);
-      console.log('Creator ID:', creatorId);
-      console.log('Current stories length:', stories.length);
+
 
       // Handle deeplink navigation - fetch story data
       const handleDeeplinkStory = async () => {
         try {
           setIsDataLoading(true);
-          console.log('📡 Fetching story details...');
+          
 
           // Fetch story details
           const storyDetails = await dispatch(
             fetchStoryDetails({storyIds: [storyId]}),
           ).unwrap();
 
-          console.log(
-            '📡 Story details received:',
-            storyDetails.length,
-            'stories',
-          );
+      
 
           if (storyDetails.length > 0) {
             const story = storyDetails[0];
-            console.log('📖 Story data:', {
-              id: story._id,
-              mediaUrl: story.mediaUrl,
-              hasVideo: story.mediaUrl?.endsWith('.mp4'),
-              hasMusic: !!story.music?.link,
-            });
+      
 
-            // Fetch creator information
-            const creatorInfo = followingUsers.find(u => u._id === creatorId);
-            console.log('👤 Creator info found:', !!creatorInfo);
+            // ✅ Check if story has expired (24 hours)
+            if (story.createdAt && !isStoryVisible(story.createdAt)) {
+              const storyAge = getStoryAge(story.createdAt);
+            
+              
+              showAlert(
+                'Story đã hết hạn', 
+                `Story này đã được đăng ${storyAge.hours} giờ ${storyAge.minutes} phút trước và đã hết hạn sau 24 giờ.`,
+                3000
+              );
+              navigation.goBack();
+              return;
+            }
+
+            // Fetch creator information - first try to find in following users
+            let creatorInfo = followingUsers.find(u => u._id === creatorId);
+         
+
+            // If not found in following users, fetch from public profile API
+            if (!creatorInfo) {
+              try {
+                
+                const publicProfileResponse = await dispatch(
+                  getPublicProfile({userId: creatorId}),
+                ).unwrap();
+                
+                creatorInfo = {
+                  _id: creatorId, // Use the creatorId from params
+                  username: publicProfileResponse.username,
+                  handleName: publicProfileResponse.handleName,
+                  profilePic: publicProfileResponse.profilePic,
+                  stories: [], // Empty stories array since we don't have following data
+                };
+               
+              } catch (error) {
+               
+                showAlert('Lỗi', 'Không tìm thấy người dùng này');
+                navigation.goBack();
+                return;
+              }
+            }
 
             if (creatorInfo) {
               setCurrentCreator({
@@ -154,28 +182,38 @@ export const SeenStory = ({route, navigation}: any) => {
                 },
               ]);
 
-              console.log('✅ Story and creator set successfully');
+        
 
               // Mark story as seen
               await dispatch(seenStory({storyId}));
             } else {
-              console.log('❌ Creator not found in following users');
+             
               // If creator not found in following users, show error
               showAlert('Lỗi', 'Không tìm thấy người dùng này');
               navigation.goBack();
             }
           } else {
-            console.log('❌ No story details found');
-            showAlert('Lỗi', 'Không tìm thấy story');
+          
+            showAlert('Thông báo', 'Story này không còn tồn tại hoặc đã bị xóa.');
             navigation.goBack();
           }
         } catch (error) {
-          console.error('❌ Error handling deeplink story:', error);
-          showAlert('Lỗi', 'Không thể tải story');
+          
+          // ✅ Kiểm tra loại lỗi để hiển thị thông báo phù hợp
+          if (error && typeof error === 'object' && 'status' in error) {
+            const status = (error as any).status;
+            if (status === 404) {
+              showAlert('Thông báo', 'Story này không còn tồn tại hoặc đã bị xóa.');
+            } else {
+              showAlert('Lỗi', 'Không thể tải story. Vui lòng thử lại sau.');
+            }
+          } else {
+            showAlert('Lỗi', 'Không thể tải story. Vui lòng thử lại sau.');
+          }
           navigation.goBack();
         } finally {
           setIsDataLoading(false);
-          console.log('🏁 Deeplink navigation completed');
+
         }
       };
 
@@ -189,6 +227,7 @@ export const SeenStory = ({route, navigation}: any) => {
     followingUsers,
     navigation,
     showAlert,
+    getPublicProfile,
   ]);
 
   // ✅ Sync stories with Redux store data and filter out deleted stories
@@ -206,7 +245,13 @@ export const SeenStory = ({route, navigation}: any) => {
       validStoryIds.includes(story._id),
     );
 
-    return filteredStories.map((story: Story) => {
+    // ✅ Filter out expired stories (older than 24 hours)
+    const visibleStories = filteredStories.filter((story: Story) => {
+      if (!story.createdAt) return false;
+      return isStoryVisible(story.createdAt);
+    });
+
+    return visibleStories.map((story: Story) => {
       // Find updated story data from Redux store
       const updatedStory = storyDetails.find(s => s._id === story._id);
       if (updatedStory) {
@@ -261,6 +306,35 @@ export const SeenStory = ({route, navigation}: any) => {
 
       // ✅ If no stories left, go back
       if (syncedStories.length === 0) {
+        // Check if all stories were filtered out due to expiration or deletion
+        const originalStoriesCount = stories.length;
+        const filteredStoriesCount = originalStoriesCount - syncedStories.length;
+        
+        if (filteredStoriesCount > 0) {
+          // ✅ Kiểm tra xem story có bị xóa hay hết hạn
+          const currentUserInRedux = followingUsers.find(
+            u =>
+              u._id === currentCreator?._id ||
+              u.handleName === currentCreator?.handleName,
+          );
+          
+          if (currentUserInRedux && currentUserInRedux.stories.length === 0) {
+            // Story bị xóa
+            showAlert(
+              'Thông báo', 
+              'Story này không còn tồn tại hoặc đã bị xóa.',
+              2000
+            );
+          } else {
+            // Story hết hạn
+            showAlert(
+              'Thông báo', 
+              `Tất cả ${filteredStoriesCount} story đã hết hạn sau 24 giờ.`,
+              2000
+            );
+          }
+        }
+        
         setTimeout(() => {
           navigation.goBack();
         }, 1000);
@@ -372,12 +446,7 @@ export const SeenStory = ({route, navigation}: any) => {
   const selectedItem = useMemo(() => {
     const item = syncedStories[currentIndex];
     if (!item) {
-      console.log(
-        'No story found at index:',
-        currentIndex,
-        'Total stories:',
-        syncedStories.length,
-      );
+  
       return null;
     }
     return item;
@@ -564,6 +633,11 @@ export const SeenStory = ({route, navigation}: any) => {
         const validNextStoryIds = nextUserInRedux?.stories || [];
         const syncedNextGroupStories = nextGroup.stories
           .filter((story: Story) => validNextStoryIds.includes(story._id))
+          .filter((story: Story) => {
+            // ✅ Filter out expired stories
+            if (!story.createdAt) return false;
+            return isStoryVisible(story.createdAt);
+          })
           .map((story: Story) => {
             const updatedStory = storyDetails.find(s => s._id === story._id);
             if (updatedStory) {
@@ -577,6 +651,88 @@ export const SeenStory = ({route, navigation}: any) => {
             }
             return story;
           });
+
+                  // ✅ Check if there are any visible stories in the next group
+          if (syncedNextGroupStories.length === 0) {
+          
+            
+            // ✅ Kiểm tra xem story có bị xóa hay hết hạn
+            const nextUserInRedux = followingUsers.find(
+              u =>
+                u._id === nextGroup.creator?._id ||
+                u.handleName === nextGroup.creator?.handleName,
+            );
+            
+            if (nextUserInRedux && nextUserInRedux.stories.length === 0) {
+              // Story bị xóa - hiển thị thông báo
+              showAlert(
+                'Thông báo', 
+                'Story tiếp theo không còn tồn tại hoặc đã bị xóa.',
+                2000
+              );
+            }
+            
+            // Try to find the next group with visible stories
+            let nextVisibleGroupIndex = nextGroupIndex + 1;
+            while (nextVisibleGroupIndex < currentStoryGroups.length) {
+              const nextVisibleGroup = currentStoryGroups[nextVisibleGroupIndex];
+              const nextVisibleUserInRedux = followingUsers.find(
+                u =>
+                  u._id === nextVisibleGroup.creator?._id ||
+                  u.handleName === nextVisibleGroup.creator?.handleName,
+              );
+              const validNextVisibleStoryIds = nextVisibleUserInRedux?.stories || [];
+              const visibleStoriesInNextGroup = nextVisibleGroup.stories
+                .filter((story: Story) => validNextVisibleStoryIds.includes(story._id))
+                .filter((story: Story) => {
+                  if (!story.createdAt) return false;
+                  return isStoryVisible(story.createdAt);
+                });
+              
+              if (visibleStoriesInNextGroup.length > 0) {
+                // Navigate to this group instead
+                const isOwnerNext =
+                  nextVisibleGroup.creator?.handleName === user?.handleName ||
+                  nextVisibleGroup.creator?._id === user?._id;
+                const routeNameNext = isOwnerNext ? 'SeenStory' : 'SeenStory';
+                
+                const syncedNextVisibleGroupStories = visibleStoriesInNextGroup.map((story: Story) => {
+                  const updatedStory = storyDetails.find(s => s._id === story._id);
+                  if (updatedStory) {
+                    return {
+                      ...story,
+                      likedByUsers:
+                        updatedStory.likedByUsers || story.likedByUsers || [],
+                      viewedByUsers:
+                        updatedStory.viewedByUsers || story.viewedByUsers || [],
+                    };
+                  }
+                  return story;
+                });
+
+                const updatedStoryGroupsNext = [...currentStoryGroups];
+                updatedStoryGroupsNext[nextVisibleGroupIndex] = {
+                  ...nextVisibleGroup,
+                  stories: syncedNextVisibleGroupStories,
+                };
+
+                navigation.replace(routeNameNext, {
+                  storyGroups: updatedStoryGroupsNext,
+                  storyGroupIndex: nextVisibleGroupIndex,
+                  creator: nextVisibleGroup.creator,
+                  stories: syncedNextVisibleGroupStories,
+                  initialIndex: 0,
+                  timestamp: Date.now(),
+                });
+                return;
+              }
+              nextVisibleGroupIndex++;
+            }
+            
+            // If no visible stories found in any next groups, go back
+            navigation.goBack();
+            return;
+          }
 
         // ✅ Update storyGroups with synced data
         const updatedStoryGroups = [...currentStoryGroups];
@@ -645,6 +801,11 @@ export const SeenStory = ({route, navigation}: any) => {
           const validPrevStoryIds = prevUserInRedux?.stories || [];
           const syncedPrevGroupStories = prevGroup.stories
             .filter((story: Story) => validPrevStoryIds.includes(story._id))
+            .filter((story: Story) => {
+              // ✅ Filter out expired stories
+              if (!story.createdAt) return false;
+              return isStoryVisible(story.createdAt);
+            })
             .map((story: Story) => {
               const updatedStory = storyDetails.find(s => s._id === story._id);
               if (updatedStory) {
@@ -658,6 +819,88 @@ export const SeenStory = ({route, navigation}: any) => {
               }
               return story;
             });
+
+          // ✅ Check if there are any visible stories in the previous group
+          if (syncedPrevGroupStories.length === 0) {
+           
+            
+            // ✅ Kiểm tra xem story có bị xóa hay hết hạn
+            const prevUserInRedux = followingUsers.find(
+              u =>
+                u._id === prevGroup.creator?._id ||
+                u.handleName === prevGroup.creator?.handleName,
+            );
+            
+            if (prevUserInRedux && prevUserInRedux.stories.length === 0) {
+              // Story bị xóa - hiển thị thông báo
+              showAlert(
+                'Thông báo', 
+                'Story trước đó không còn tồn tại hoặc đã bị xóa.',
+                2000
+              );
+            }
+            
+            // Try to find the previous group with visible stories
+            let prevVisibleGroupIndex = prevGroupIndex - 1;
+            while (prevVisibleGroupIndex >= 0) {
+              const prevVisibleGroup = currentStoryGroups[prevVisibleGroupIndex];
+              const prevVisibleUserInRedux = followingUsers.find(
+                u =>
+                  u._id === prevVisibleGroup.creator?._id ||
+                  u.handleName === prevVisibleGroup.creator?.handleName,
+              );
+              const validPrevVisibleStoryIds = prevVisibleUserInRedux?.stories || [];
+              const visibleStoriesInPrevGroup = prevVisibleGroup.stories
+                .filter((story: Story) => validPrevVisibleStoryIds.includes(story._id))
+                .filter((story: Story) => {
+                  if (!story.createdAt) return false;
+                  return isStoryVisible(story.createdAt);
+                });
+              
+              if (visibleStoriesInPrevGroup.length > 0) {
+                // Navigate to this group instead
+                const isOwnerPrev =
+                  prevVisibleGroup.creator?.handleName === user?.handleName ||
+                  prevVisibleGroup.creator?._id === user?._id;
+                const routeNamePrev = isOwnerPrev ? 'SeenStory' : 'SeenStory';
+                
+                const syncedPrevVisibleGroupStories = visibleStoriesInPrevGroup.map((story: Story) => {
+                  const updatedStory = storyDetails.find(s => s._id === story._id);
+                  if (updatedStory) {
+                    return {
+                      ...story,
+                      likedByUsers:
+                        updatedStory.likedByUsers || story.likedByUsers || [],
+                      viewedByUsers:
+                        updatedStory.viewedByUsers || story.viewedByUsers || [],
+                    };
+                  }
+                  return story;
+                });
+
+                const updatedStoryGroupsPrev = [...currentStoryGroups];
+                updatedStoryGroupsPrev[prevVisibleGroupIndex] = {
+                  ...prevVisibleGroup,
+                  stories: syncedPrevVisibleGroupStories,
+                };
+
+                navigation.replace(routeNamePrev, {
+                  storyGroups: updatedStoryGroupsPrev,
+                  storyGroupIndex: prevVisibleGroupIndex,
+                  creator: prevVisibleGroup.creator,
+                  stories: syncedPrevVisibleGroupStories,
+                  initialIndex: (syncedPrevVisibleGroupStories.length || 1) - 1,
+                  timestamp: Date.now(),
+                });
+                return;
+              }
+              prevVisibleGroupIndex--;
+            }
+            
+            // If no visible stories found in any previous groups, go back
+            navigation.goBack();
+            return;
+          }
 
           // ✅ Update storyGroups with synced data
           const updatedStoryGroups = [...currentStoryGroups];
@@ -718,6 +961,12 @@ export const SeenStory = ({route, navigation}: any) => {
   const handleLike = async () => {
     if (isCurrentUserStory) return; // Owner can't like their own story
 
+    // ✅ Check if story has expired before liking
+    if (selectedItem?.createdAt && !isStoryVisible(selectedItem.createdAt)) {
+      showAlert('Thông báo', 'Story này đã hết hạn sau 24 giờ và không thể thích.');
+      return;
+    }
+
     try {
       await dispatch(toggleLikeStory({storyId: selectedItem._id})).unwrap();
 
@@ -737,7 +986,19 @@ export const SeenStory = ({route, navigation}: any) => {
         }),
       ]).start();
     } catch (err) {
-      console.error('Error liking story:', err);
+    
+      
+      // ✅ Kiểm tra loại lỗi để hiển thị thông báo phù hợp
+      if (err && typeof err === 'object' && 'status' in err) {
+        const status = (err as any).status;
+        if (status === 404) {
+          showAlert('Thông báo', 'Story này không còn tồn tại hoặc đã bị xóa.');
+        } else {
+          showAlert('Lỗi', 'Không thể thích story. Vui lòng thử lại sau.');
+        }
+      } else {
+        showAlert('Lỗi', 'Không thể thích story. Vui lòng thử lại sau.');
+      }
     }
   };
 
@@ -762,14 +1023,6 @@ export const SeenStory = ({route, navigation}: any) => {
     if (!combinedText) {
       return null;
     }
-
-    // ✅ Debug vị trí caption để đảm bảo tính toán chính xác
-    console.log('🎯 Caption position:', {
-      xPercent: content?.x || 10,
-      yPercent: content?.y || 20,
-      screenWidth,
-      screenHeight,
-    });
 
     // Tạo mention data để có thể click từ valid tags only (adapt to backend structure)
     const mentionData = validTags.map((tag: any) => ({
@@ -898,6 +1151,12 @@ export const SeenStory = ({route, navigation}: any) => {
   const handleCopyLink = () => {
     if (isCurrentUserStory) return; // Owner doesn't have copy link
 
+    // ✅ Check if story has expired before copying link
+    if (selectedItem?.createdAt && !isStoryVisible(selectedItem.createdAt)) {
+      showAlert('Thông báo', 'Story này đã hết hạn sau 24 giờ và không thể sao chép liên kết.');
+      return;
+    }
+
     if (selectedItem?._id) {
       // Generate deeplink for the story - use universal link format
       const deeplink = `https://cirla.io.vn/story/${selectedItem._id}/${
@@ -906,13 +1165,19 @@ export const SeenStory = ({route, navigation}: any) => {
 
       Clipboard.setString(deeplink);
     } else {
-      console.log('Không có liên kết để sao chép');
+    
     }
   };
 
   // ✅ Viewer-specific: Reply functionality
   const handleOpenReply = () => {
     if (isCurrentUserStory) return; // Owner can't reply to their own story
+
+    // ✅ Check if story has expired before replying
+    if (selectedItem?.createdAt && !isStoryVisible(selectedItem.createdAt)) {
+      showAlert('Thông báo', 'Story này đã hết hạn sau 24 giờ và không thể trả lời.');
+      return;
+    }
 
     stopCurrentAnimation();
     setIsPaused(true); // Pause story when opening reply modal
@@ -1029,6 +1294,14 @@ export const SeenStory = ({route, navigation}: any) => {
           scaleAnim={scaleAnim}
           onPressCopyLink={handleCopyLink}
           onPressReply={handleOpenReply}
+          onShare={() => {
+            // ✅ Toggle pause state khi share (pause/resume)
+            setIsPaused(prev => !prev);
+          }}
+          storyId={selectedItem?._id}
+          creatorId={currentCreator?._id}
+          shareCount={selectedItem?.shareCount || 0}
+          createdAt={selectedItem?.createdAt}
         />
       )}
 
