@@ -17,6 +17,7 @@ import {
   removeLikedPost,
 } from '@services/reactionRedux/reactionReducer';
 import LoadingModal from '../../../../components/Global/LoadingModal';
+import { updateLikeByPostId } from '@services/postRedux/postReducer';
 
 const width = Dimensions.get('window').width;
 
@@ -75,6 +76,7 @@ const ReelsList = ({
       } else {
         dispatch(addLikedPost(postId));
       }
+      dispatch(updateLikeByPostId({postId: postId, isLike: !isLiked}));
 
       try {
         await dispatch(
@@ -92,6 +94,7 @@ const ReelsList = ({
         } else {
           dispatch(removeLikedPost(postId));
         }
+        dispatch(updateLikeByPostId({postId: postId, isLike: isLiked}));
       }
     },
     [dispatch, refreshToken, currentUser, reels],

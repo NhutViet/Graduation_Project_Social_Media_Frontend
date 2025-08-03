@@ -47,6 +47,7 @@ import {RootStackParamList} from 'src/Navigation/AppNavigation';
 import {selectItemHomeData} from '../selectors/homeSelectors';
 import {useItemHomeAudio} from '../hook/useItemHomeAudio';
 import {useHeadAlert} from '../../../../components/Global/HeadAlertProvider';
+import { updateLikeByPostId } from '@services/postRedux/postReducer';
 
 Sound.setCategory('Playback');
 const screenWidth = Dimensions.get('window').width;
@@ -117,13 +118,11 @@ const ItemHome = (props: ItemHomeProps) => {
       }),
     ).unwrap();
     pendingLikeRequest.current = requestPromise;
-    setIsLiked(shouldLike);
-    setNumLike(prev => prev + (shouldLike ? 1 : -1));
+    dispatch(updateLikeByPostId({postId: _id, isLike: shouldLike}));
     try {
       await requestPromise;
     } catch {
-      setIsLiked(!shouldLike);
-      setNumLike(prev => prev + (shouldLike ? -1 : 1));
+      dispatch(updateLikeByPostId({postId: _id, isLike: !shouldLike}));
     } finally {
       pendingLikeRequest.current = null;
     }

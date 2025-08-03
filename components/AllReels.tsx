@@ -29,6 +29,7 @@ import {PostWithMedia} from '@services/postRedux/postTypes';
 import {ArrowLeft} from 'lucide-react-native';
 import LoadingModal from './Global/LoadingModal';
 import {Item} from '@services/postUserRedux/postUserType';
+import { updateLikeByPostId } from '@services/postRedux/postReducer';
 
 type RootStackParamList = {
   AllReels: {
@@ -105,6 +106,7 @@ const AllReels = () => {
       } else {
         dispatch(addLikedPost(postId));
       }
+      dispatch(updateLikeByPostId({postId: postId, isLike: !isLiked}));
 
       try {
         await dispatch(
@@ -122,6 +124,7 @@ const AllReels = () => {
         } else {
           dispatch(removeLikedPost(postId));
         }
+        dispatch(updateLikeByPostId({postId: postId, isLike: isLiked}));
       }
     },
     [dispatch, refreshToken, currentUser, reels],
