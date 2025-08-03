@@ -6,6 +6,8 @@ import {Colors} from '@assets/color/Colors';
 
 interface LoadingTypingProps {
   itemLoading?: {
+    roomId?: string;
+    userId?: string;
     username?: string;
     profilePic?: string;
   }[];
