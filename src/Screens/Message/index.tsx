@@ -36,6 +36,14 @@ import {
 } from './utils/helpers';
 import {fetchMyRooms, fetchMyWaitingRooms} from '@services/roomRedux/roomSlice';
 import LoadingModal from '../../../components/Global/LoadingModal';
+import LoadTyping from '../ChatAIBox/Components/LoadTyping';
+
+interface ItemTyping {
+  roomId: string;
+  userId: string;
+  username: string;
+  profilePic: string;
+}
 
 export const MessageScreen = () => {
   const navigation: any = useNavigation();
@@ -53,6 +61,7 @@ export const MessageScreen = () => {
   const [highlightedMessageId, setHighlightedMessageId] = useState<
     string | null
   >(null);
+  const [listTyping, setListTyping] = useState<ItemTyping[]>([]);
 
   const flatListRef = useRef<FlatList>(null);
 
@@ -191,16 +200,38 @@ export const MessageScreen = () => {
       }
     };
 
+    const onTyping = (item: ItemTyping) => {
+      if (item.userId !== userC?._id && item.roomId === roomId) {
+        setListTyping([...listTyping, item]);
+      }
+    };
+
+    const onStopTying = ({
+      roomId,
+      userId,
+    }: {
+      roomId: string;
+      userId: string;
+    }) => {
+      if (userId !== userC?._id && roomId === roomId) {
+        setListTyping(listTyping.filter(prev => prev.userId !== userId));
+      }
+    };
+
     socket.on('receiveMessage', onMessage);
     socket.on('reactionUpdated', onReactionUpdated);
     socket.on('messageDeleted', onMessageDeleted);
     socket.on('room:update-theme', onThemeUpdated);
+    socket.on('typing', onTyping);
+    socket.on('stopTyping', onStopTying);
 
     return () => {
       socket.off('receiveMessage', onMessage);
       socket.off('reactionUpdated', onReactionUpdated);
       socket.off('messageDeleted', onMessageDeleted);
       socket.off('room:update-theme', onThemeUpdated);
+      socket.off('typing', onTyping);
+      socket.off('stopTyping', onStopTying);
     };
   }, [socket]);
 
@@ -334,6 +365,40 @@ export const MessageScreen = () => {
     setModalVisible(false);
   }, []);
 
+  // Ref lưu timestamp lần gõ cuối
+  const lastTypingAt = useRef<number>(0);
+  // Ref lưu timeout ID
+  const stopTypingTimer = useRef<NodeJS.Timeout | null>(null);
+
+  const handleChangeText = (text: string) => {
+    setMessage(text);
+
+    const now = Date.now();
+
+    if (!socket) return;
+
+    // 1) Nếu lastTypingAt=0 → đây là lần gõ đầu tiên → emit 'typing'
+    if (lastTypingAt.current === 0) {
+      socket.emit('typing', {roomId, userId: userC?._id});
+    }
+
+    // 2) Cập nhật lại thời điểm gõ
+    lastTypingAt.current = now;
+
+    // 3) Huỷ timeout cũ (nếu có), đặt lại stopTyping sau 5s
+    if (stopTypingTimer.current) {
+      clearTimeout(stopTypingTimer.current);
+    }
+    stopTypingTimer.current = setTimeout(() => {
+      // Nếu đã 5s mà không gõ thêm (so với lastTypingAt), emit 'stop_typing'
+      if (Date.now() - lastTypingAt.current >= 5000) {
+        socket.emit('stop_typing', {roomId, userId: userC?._id});
+        // reset lại để lần gõ kế tiếp sẽ phát lại 'typing'
+        lastTypingAt.current = 0;
+      }
+    }, 5000);
+  };
+
   const renderItem = useCallback(
     ({item, index}: {item: Message; index: number}) => {
       return (
@@ -438,13 +503,17 @@ export const MessageScreen = () => {
                 </TouchableOpacity>
               </View>
             ) : (
-              <MessageInput
-                message={message}
-                setMessage={setMessage}
-                sendMessage={sendMessage}
-                pickImageAndSend={pickImageAndSend}
-                roomId={roomId}
-              />
+              <>
+                {listTyping.length > 0 && <LoadTyping />}
+                <MessageInput
+                  message={message}
+                  setMessage={setMessage}
+                  sendMessage={sendMessage}
+                  pickImageAndSend={pickImageAndSend}
+                  roomId={roomId}
+                  handleChangeText={handleChangeText}
+                />
+              </>
             )}
           </View>
         </View>

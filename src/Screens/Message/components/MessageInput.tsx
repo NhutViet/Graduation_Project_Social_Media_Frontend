@@ -19,6 +19,7 @@ interface MessageInputProps {
   sendMessage: () => void;
   pickImageAndSend: () => void;
   roomId: string;
+  handleChangeText: (text: string) => void;
 }
 
 const MessageInput: React.FC<MessageInputProps> = ({
@@ -27,6 +28,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
   sendMessage,
   pickImageAndSend,
   roomId,
+  handleChangeText
 }) => {
   const {theme} = useTheme();
   const color = Colors[theme];
@@ -45,7 +47,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
 
       <TextInput
         value={message}
-        onChangeText={setMessage}
+        onChangeText={handleChangeText}
         placeholder="Soạn tin nhắn..."
         placeholderTextColor={Colors.black}
         style={[styles.input, {color: color.black}]}
