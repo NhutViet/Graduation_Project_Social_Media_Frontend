@@ -1,4 +1,4 @@
-import {createSlice} from '@reduxjs/toolkit';
+import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {fetchPostsWithMedia, fetchReelsWithMedia, hidePost} from './postSlice';
 import {PostWithMedia} from './postTypes';
 import {DeleteMyPost} from '@services/postUserRedux/postUserSlice';
@@ -102,6 +102,28 @@ const postReducer = createSlice({
       state.reels = updateCommentCount(state.reels);
       state.firstPageItems = updateCommentCount(state.firstPageItems);
     },
+    updateLikeByPostId: (
+      state,
+      action: PayloadAction<{postId: string; isLike: boolean}>,
+    ) => {
+      const {postId, isLike} = action.payload;
+      const delta = isLike ? 1 : -1;
+
+      const updateList = (list: PostWithMedia[]) =>
+        list.map(post => {
+          if (post._id !== postId) return post;
+          const current = post.likeCount || 0;
+          return {
+            ...post,
+            isLike,
+            likeCount: Math.max(0, current + delta),
+          };
+        });
+
+      state.posts = updateList(state.posts);
+      state.reels = updateList(state.reels);
+      state.firstPageItems = updateList(state.firstPageItems);
+    },
   },
   extraReducers: builder => {
     builder
@@ -185,14 +207,13 @@ const postReducer = createSlice({
           const filterItems = (items?: PostWithMedia[]) =>
             items?.filter(item => !postIds.includes(item._id ?? '')) || [];
 
-            state.posts = filterItems(state.posts);
-            state.reels = filterItems(state.reels);
+          state.posts = filterItems(state.posts);
+          state.reels = filterItems(state.reels);
         }
       })
       .addCase(DeleteMyPost.rejected, (state, action) => {
         state.loading = false;
-        state.error =
-          action.payload?.message || 'Xóa bài viết thất bại.';
+        state.error = action.payload?.message || 'Xóa bài viết thất bại.';
       });
   },
 });
@@ -202,5 +223,6 @@ export const {
   trimOldReels,
   resetReels,
   incrementCommentCountByPostId,
+  updateLikeByPostId,
 } = postReducer.actions;
 export default postReducer.reducer;
