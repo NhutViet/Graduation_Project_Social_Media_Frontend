@@ -21,7 +21,7 @@ const LoadTyping = (props: LoadingTypingProps) => {
   const {itemLoading, Icon} = props;
 
   return (
-    <View style={styles.containerRow}>
+    <View style={[styles.containerRow]}>
       {Icon && (
         <View style={[styles.containerRow, {alignItems: 'center'}]}>
           <View
@@ -29,19 +29,73 @@ const LoadTyping = (props: LoadingTypingProps) => {
             <Icon size={18} color={color.background} strokeWidth={2.5} />
           </View>
           <Text style={[styles.text, {color: color.text}]}>Đang suy nghĩ</Text>
+          <View
+            style={[
+              styles.containerRow,
+              {
+                paddingVertical: 5,
+                borderRadius: 10,
+                backgroundColor: color.transparent,
+              },
+            ]}>
+            <Text style={[styles.text, {color: color.text}]}>
+              Đang suy nghĩ
+            </Text>
+            <DotTypingAnimation
+              dotRadius={2}
+              dotAmplitude={1}
+              dotMargin={8}
+              dotColor={color.textSecondary}
+              style={{
+                alignSelf: 'center',
+                marginVertical: 8,
+                height: 10,
+                marginLeft: 10,
+              }}
+            />
+          </View>
         </View>
       )}
       {itemLoading?.length === 1 ? (
-        <View style={[styles.containerRow, {alignItems: 'center'}]}>
+        <View
+          style={[
+            styles.containerRow,
+            {alignItems: 'center', maxWidth: '80%'},
+          ]}>
           <TouchableOpacity style={[styles.blockAvatar, {marginRight: 10}]}>
             <Image
               source={{uri: itemLoading[0].profilePic}}
               style={styles.avatar}
             />
           </TouchableOpacity>
-          <Text style={[styles.text, {color: color.text}]}>
-            {itemLoading[0].username} đang nhập tin nhắn
-          </Text>
+          <View
+            style={[
+              styles.containerRow,
+              {
+                paddingVertical: 8,
+                borderRadius: 10,
+                paddingLeft: 10,
+                alignItems: 'center',
+                backgroundColor: color.backgroundSecondary,
+              },
+            ]}>
+            <Text style={[styles.text]} numberOfLines={1}>
+              {itemLoading[0].username} đang nhập
+            </Text>
+            <DotTypingAnimation
+              dotRadius={2}
+              dotAmplitude={1}
+              dotMargin={8}
+              dotColor={color.textSecondary}
+              style={{
+                alignSelf: 'center',
+                marginVertical: 8,
+                width: 30,
+                height: 10,
+                marginHorizontal: 10,
+              }}
+            />
+          </View>
         </View>
       ) : (
         itemLoading &&
@@ -71,26 +125,39 @@ const LoadTyping = (props: LoadingTypingProps) => {
                 />
               </TouchableOpacity>
             </View>
-            <Text style={[styles.text, {color: color.text}]}>
-              {itemLoading.length === 2
-                ? `${itemLoading[0].username} và ${itemLoading[1].username} đang nhập tin nhắn`
-                : `${itemLoading[0].username} và những người khác đang nhập tin nhắn`}
-            </Text>
+            <View
+              style={[
+                styles.containerRow,
+                {
+                  paddingVertical: 8,
+                  borderRadius: 10,
+                  paddingLeft: 10,
+                  alignItems: 'center',
+                  backgroundColor: color.backgroundSecondary,
+                },
+              ]}>
+              <Text style={[styles.text, {color: color.text}]}>
+                {itemLoading.length === 2
+                  ? `${itemLoading[0].username} và ${itemLoading[1].username} đang nhập tin nhắn`
+                  : `${itemLoading[0].username} và những người khác đang nhập tin nhắn`}
+              </Text>
+              <DotTypingAnimation
+                dotRadius={2}
+                dotAmplitude={1}
+                dotMargin={8}
+                dotColor={color.textSecondary}
+                style={{
+                  alignSelf: 'center',
+                  marginVertical: 8,
+                  width: 30,
+                  height: 10,
+                  marginHorizontal: 10,
+                }}
+              />
+            </View>
           </View>
         )
       )}
-      <DotTypingAnimation
-        dotRadius={2}
-        dotAmplitude={1}
-        dotMargin={8}
-        dotColor={color.textSecondary}
-        style={{
-          alignSelf: 'center',
-          marginVertical: 8,
-          height: 10,
-          marginLeft: 10,
-        }}
-      />
     </View>
   );
 };

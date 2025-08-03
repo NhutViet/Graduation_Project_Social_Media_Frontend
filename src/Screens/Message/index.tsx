@@ -200,38 +200,36 @@ export const MessageScreen = () => {
       }
     };
 
-    const onTyping = (item: ItemTyping) => {
-      if (item.userId !== userC?._id && item.roomId === roomId) {
-        setListTyping([...listTyping, item]);
-      }
-    };
+    const handleTyping = (item: ItemTyping) => {
+    if (item.userId !== userC?._id && item.roomId === roomId) {
+      setListTyping(prev => {
+        if (prev.some(u => u.userId === item.userId && u.roomId === roomId)) return prev;
+        return [...prev, item];
+      });
+    }
+  };
 
-    const onStopTying = ({
-      roomId,
-      userId,
-    }: {
-      roomId: string;
-      userId: string;
-    }) => {
-      if (userId !== userC?._id && roomId === roomId) {
-        setListTyping(listTyping.filter(prev => prev.userId !== userId));
-      }
-    };
+  const handleStopTyping = (payload: { roomId: string, userId: string }) => {
+    const { roomId: rid, userId: uid } = payload;
+    if (uid !== userC?._id && rid === roomId) {
+      setListTyping(prev => prev.filter(u => u.userId !== uid && u.roomId !== roomId));
+    }
+  };
 
     socket.on('receiveMessage', onMessage);
     socket.on('reactionUpdated', onReactionUpdated);
     socket.on('messageDeleted', onMessageDeleted);
     socket.on('room:update-theme', onThemeUpdated);
-    socket.on('typing', onTyping);
-    socket.on('stopTyping', onStopTying);
+    socket.on('userTyping', handleTyping);
+    socket.on('userStoppedTyping', handleStopTyping);
 
     return () => {
       socket.off('receiveMessage', onMessage);
       socket.off('reactionUpdated', onReactionUpdated);
       socket.off('messageDeleted', onMessageDeleted);
       socket.off('room:update-theme', onThemeUpdated);
-      socket.off('typing', onTyping);
-      socket.off('stopTyping', onStopTying);
+      socket.off('userTyping', handleTyping);
+      socket.off('userStoppedTyping', handleStopTyping);
     };
   }, [socket]);
 
@@ -379,7 +377,7 @@ export const MessageScreen = () => {
 
     // 1) Nếu lastTypingAt=0 → đây là lần gõ đầu tiên → emit 'typing'
     if (lastTypingAt.current === 0) {
-      socket.emit('typing', {roomId, userId: userC?._id});
+      socket.emit('typing', {roomId: roomId, userId: userC?._id});
     }
 
     // 2) Cập nhật lại thời điểm gõ
@@ -392,8 +390,7 @@ export const MessageScreen = () => {
     stopTypingTimer.current = setTimeout(() => {
       // Nếu đã 5s mà không gõ thêm (so với lastTypingAt), emit 'stop_typing'
       if (Date.now() - lastTypingAt.current >= 5000) {
-        socket.emit('stop_typing', {roomId, userId: userC?._id});
-        // reset lại để lần gõ kế tiếp sẽ phát lại 'typing'
+        socket.emit('stopTyping', {roomId: roomId, userId: userC?._id});
         lastTypingAt.current = 0;
       }
     }, 5000);
@@ -504,7 +501,7 @@ export const MessageScreen = () => {
               </View>
             ) : (
               <>
-                {listTyping.length > 0 && <LoadTyping />}
+                {listTyping.length > 0 && <LoadTyping itemLoading={listTyping}/>}
                 <MessageInput
                   message={message}
                   setMessage={setMessage}
