@@ -26,8 +26,6 @@ type UserInfoProps = {
 
 export const UserInfo: React.FC<UserInfoProps> = ({title, subtitle, rows}) => {
   const styles = useProfileEditingStyles();
-  const [editingDateIndex, setEditingDateIndex] = useState<number | null>(null);
-  const [tempDateInput, setTempDateInput] = useState<string>('');
   const [showPickerIndex, setShowPickerIndex] = useState<number | null>(null);
   const safeDate = (input?: string): Date => {
     const parsed = new Date(input || '');
