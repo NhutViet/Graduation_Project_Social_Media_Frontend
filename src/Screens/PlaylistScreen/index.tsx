@@ -107,7 +107,7 @@ export const PlaylistsScreen = () => {
       );
     } else {
       navigation.navigate('AllReels', {
-        reels: playlistItems,
+        data: playlistItems,
         initialId: item._id,
       });
     }

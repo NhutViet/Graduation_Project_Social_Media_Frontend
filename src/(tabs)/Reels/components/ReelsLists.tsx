@@ -159,7 +159,7 @@ const ReelsList = ({
         <FlashList
           ref={flashListRef}
           data={reels}
-          extraData={[currentVisible, isFocused]}
+          extraData={[currentVisible, isFocused, followingUserIds]}
           onEndReached={handleOptimizedLoadMore}
           onEndReachedThreshold={0.5}
           removeClippedSubviews={true}
@@ -181,9 +181,6 @@ const ReelsList = ({
           renderItem={({item}) => {
             const shouldPlay = item?._id === currentVisible;
             const isLiked = likedPostIds.includes(item._id) ?? false;
-            const isFollowing = followingUserIds.some(
-              (user: UserProfile) => user._id === item.userID,
-            );
             const isCurrentUser = currentUser?._id === item.user._id;
 
             const currentLikeCount =
@@ -196,9 +193,8 @@ const ReelsList = ({
                 containerHeight={visibleHeight}
                 isFocused={isFocused}
                 currentVisible={shouldPlay}
-                isFollow={item?.isFollow}
                 isLiked={isLiked}
-                isFollowing={isFollowing}
+                isFollowing={item?.isFollow}
                 isCurrentUser={isCurrentUser}
                 likeCount={currentLikeCount}
                 muted={false}

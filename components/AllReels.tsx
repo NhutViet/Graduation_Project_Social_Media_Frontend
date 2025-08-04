@@ -31,10 +31,12 @@ import LoadingModal from './Global/LoadingModal';
 import {Item} from '@services/postUserRedux/postUserType';
 import {updateLikeByPostId} from '@services/postRedux/postReducer';
 import {updateLikePostUser} from '@services/postUserRedux/postUserReducer';
+import { UserProfile } from '@services/relationRedux/relationTypes';
 
 type RootStackParamList = {
   AllReels: {
     initialId: string;
+    data: Item[];
   };
 };
 
@@ -45,14 +47,14 @@ const AllReels = () => {
   const route = useRoute<ReelsScreenRouteProp>();
   const dispatch = useDispatch<AppDispatch>();
 
-  const {initialId} = route.params || {};
-  const reelState = useSelector((state: RootState) => state.postUser.reels);
-  const reels: Item[] = 'items' in reelState ? reelState.items : [];
+  const {initialId, data} = route.params || {};
+  const reels: Item[] = data || [];
 
   const [visibleHeight, setVisibleHeight] = useState(0);
   const flatListRef = useRef<FlatList<any>>(null);
   const sheetRef = useRef<BottomSheetReelsRef>(null);
   const sheetRefComment = useRef<BottomSheetCommentRef>(null);
+
   const openShareModal = async (_id: string) => {
     try {
       await Share.share({message: `https://cirla.io.vn/share/${_id}`});
@@ -76,12 +78,29 @@ const AllReels = () => {
   const refreshToken = useSelector(
     (state: RootState) => state.user.refreshToken,
   );
+  const likedPostIds = useSelector(
+      (state: RootState) => state.reactions.likePosts,
+    );
+    const followingUserIds = useSelector(
+      (state: RootState) => state.relation.following,
+    );
 
   useEffect(() => {
+    // khởi tạo vị trí ban đầu và tắt loading
     const index = reels.findIndex((item: Item) => item._id === initialId);
     setInitialIndex(index >= 0 ? index : 0);
     setLoading(false);
   }, [initialId, reels]);
+
+  useEffect(() => {
+    data.forEach(item => {
+      if (item.isLike) {
+        dispatch(addLikedPost(item._id));
+      } else {
+        dispatch(removeLikedPost(item._id));
+      }
+    });
+  }, [dispatch, data]);
 
   const onLayout = (event: LayoutChangeEvent) => {
     const {height} = event.nativeEvent.layout;
@@ -104,8 +123,8 @@ const AllReels = () => {
       } else {
         dispatch(addLikedPost(postId));
       }
-      dispatch(updateLikeByPostId({postId: postId, isLike: !isLiked}));
-      dispatch(updateLikePostUser({postId: postId, isLike: !isLiked}));
+      dispatch(updateLikeByPostId({postId, isLike: !isLiked}));
+      dispatch(updateLikePostUser({postId, isLike: !isLiked}));
 
       try {
         await dispatch(
@@ -123,8 +142,8 @@ const AllReels = () => {
         } else {
           dispatch(removeLikedPost(postId));
         }
-        dispatch(updateLikeByPostId({postId: postId, isLike: isLiked}));
-        dispatch(updateLikePostUser({postId: postId, isLike: isLiked}));
+        dispatch(updateLikeByPostId({postId, isLike: isLiked}));
+        dispatch(updateLikePostUser({postId, isLike: isLiked}));
       }
     },
     [dispatch, refreshToken, currentUser, reels],
@@ -161,14 +180,19 @@ const AllReels = () => {
       </TouchableOpacity>
 
       <View style={{flex: 1}} onLayout={onLayout}>
-        {visibleHeight > 0 && (
+        {visibleHeight > 0 && initialIndex >= 0 && (
           <FlatList
             ref={flatListRef}
             data={reels}
             keyExtractor={item => item._id}
             initialScrollIndex={initialIndex}
             renderItem={({item}) => {
+              const isLiked = likedPostIds.includes(item._id) ?? false;
               const isCurrentUser = currentUser?._id === item.user._id;
+
+              const currentLikeCount =
+                (item.likeCount ?? 0) +
+                (isLiked === item.isLike ? 0 : isLiked ? 1 : -1);
 
               return (
                 <ReelsComponent
@@ -176,20 +200,19 @@ const AllReels = () => {
                   containerHeight={visibleHeight}
                   isFocused={true}
                   currentVisible={item._id === currentVisible}
-                  isFollow={item?.isFollow}
-                  isLiked={item?.isLike}
+                  isLiked={isLiked}
                   isFollowing={item?.isFollow}
                   isCurrentUser={isCurrentUser}
-                  likeCount={item?.likeCount}
+                  likeCount={currentLikeCount}
                   muted={false}
-                  onLike={() => handleLike(item._id, item?.isLike)}
+                  onLike={() => handleLike(item._id, isLiked)}
                   onFollow={() => {}}
                   onMenu={() => openBottomSheet(item)}
                   openComment={() => openComment(item)}
                   onProfilePress={() => {}}
                   onTagPress={() => {}}
                   openReactionModal={() => {}}
-                  openShareModal={() => openShareModal(item?._id)}
+                  openShareModal={() => openShareModal(item._id)}
                   setSkipReload={() => {}}
                 />
               );
@@ -206,6 +229,7 @@ const AllReels = () => {
             initialNumToRender={3}
             maxToRenderPerBatch={5}
             windowSize={5}
+            extraData={[likedPostIds]}
           />
         )}
       </View>
@@ -234,12 +258,6 @@ const styles = StyleSheet.create({
     left: 10,
     zIndex: 20,
     padding: 10,
-  },
-  backIcon: {
-    width: 20,
-    height: 20,
-    resizeMode: 'contain',
-    tintColor: Colors.white,
   },
   center: {
     justifyContent: 'center',
