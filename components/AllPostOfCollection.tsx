@@ -130,6 +130,11 @@ const AllPostOfCollectionContent = () => {
           initialScrollIndex={targetIndex >= 0 ? targetIndex : 0}
           removeClippedSubviews={true}
           maintainVisibleContentPosition={{minIndexForVisible: 0}}
+          getItemLayout={(_, index) => ({
+            length: 500,
+            offset: 500 * index,
+            index,
+          })}
         />
         <BottomSheetComment ref={sheetRef} selectedPostRef={selectedPostRef} />
       </View>

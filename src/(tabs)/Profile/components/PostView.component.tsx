@@ -30,6 +30,7 @@ export const ReelsView: React.FC<{data: any[]}> = ({data}) => {
   const handlePress = (item: any) => {
     navigation.navigate('AllReels', {
       initialId: item._id,
+      data: data,
     });
   };
   return <GridView data={data} onPressItem={handlePress} />;

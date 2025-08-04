@@ -109,6 +109,13 @@ const ItemHome = (props: ItemHomeProps) => {
       } catch {}
     }
     const shouldLike = !isLiked;
+    if (shouldLike) {
+      dispatch(addLikedPost(_id));
+      setNumLike(prev => prev + 1);
+    } else {
+      removeLikedPost(_id);
+      setNumLike(prev => prev - 1);
+    }
     const requestPromise = dispatch(
       (shouldLike ? likePost : unlikePost)({
         postId: _id,
@@ -119,13 +126,15 @@ const ItemHome = (props: ItemHomeProps) => {
       }),
     ).unwrap();
     pendingLikeRequest.current = requestPromise;
-    dispatch(updateLikeByPostId({postId: _id, isLike: shouldLike}));
-    dispatch(updateLikePostUser({postId: _id, isLike: shouldLike}));
     try {
       await requestPromise;
     } catch {
-      dispatch(updateLikeByPostId({postId: _id, isLike: !shouldLike}));
-      dispatch(updateLikePostUser({postId: _id, isLike: !shouldLike}));
+      if (!shouldLike) {
+        dispatch(addLikedPost(_id));
+      } else {
+        removeLikedPost(_id);
+      }
+      setNumLike(likeCount);
     } finally {
       pendingLikeRequest.current = null;
     }
@@ -300,7 +309,9 @@ const ItemHome = (props: ItemHomeProps) => {
   );
 
   // Handle open comment
-  const currentUserID = useSelector((state: RootState) => state.user?.user?._id);
+  const currentUserID = useSelector(
+    (state: RootState) => state.user?.user?._id,
+  );
   const handleUserPress = useCallback(() => {
     if (user._id !== currentUserID) {
       navigation.navigate('ProfileComp', {userID: user._id});
