@@ -16,11 +16,7 @@ import {
   PlaySquare,
   UserCircle2,
 } from 'lucide-react-native';
-import {
-  handleDeeplinkIfNeeded,
-  listenToDeeplink,
-  navigateFromUrl,
-} from '../../src/core/deeplinkHandler';
+import {navigateFromUrl} from '../../src/core/deeplinkHandler';
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {RootStackParamList} from './AppNavigation';
 
@@ -89,7 +85,7 @@ const BottomTabs = ({onTabChange}: {onTabChange?: (index: number) => void}) => {
         tabBarStyle: {
           backgroundColor: barBackground,
           borderTopWidth: 0,
-          height: 60,
+          height: 55,
           shadowColor: 'gray',
           shadowOpacity: 0.3,
         },

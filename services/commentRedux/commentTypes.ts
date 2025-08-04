@@ -1,6 +1,7 @@
 export interface UserComment {
   _id: string;
   handleName: string;
+  username?: string;
   profilePic?: string;
   username?: string;
 }

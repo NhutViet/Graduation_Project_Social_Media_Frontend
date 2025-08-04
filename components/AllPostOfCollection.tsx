@@ -12,12 +12,12 @@ import BottomSheetComment, {
   BottomSheetCommentRef,
 } from '../src/(tabs)/Home/components/CommentSection';
 import ItemHome from '../src/(tabs)/Home/components/ItemHome';
-import {useDispatch, useSelector} from 'react-redux';
+import {useDispatch} from 'react-redux';
 import {clearSearchResults} from '../services/searchRedux/searchSlice';
 import {clearPosts, clearReels} from '../services/searchRedux/searchReducer';
 import {useTheme} from '../src/util/ThemeContext';
 import {Colors} from '../assets/color/Colors';
-import {AppDispatch, RootState} from '../services/store';
+import {AppDispatch} from '../services/store';
 import {PostWithMedia} from '@services/postRedux/postTypes';
 import {ArrowLeft} from 'lucide-react-native';
 
@@ -97,7 +97,7 @@ const AllPostOfCollectionContent = () => {
           ref={listRef}
           data={postList.filter(p => p.media && p.media.length > 0)}
           keyExtractor={item => item._id}
-          extraData={[currentVisible, isFocused]}
+          extraData={{currentVisible, isFocused}}
           onViewableItemsChanged={onViewRef}
           viewabilityConfig={{itemVisiblePercentThreshold: 100}}
           renderItem={({item}) => {
@@ -127,16 +127,9 @@ const AllPostOfCollectionContent = () => {
             );
           }}
           showsVerticalScrollIndicator={false}
-          scrollEventThrottle={16}
           initialScrollIndex={targetIndex >= 0 ? targetIndex : 0}
           removeClippedSubviews={true}
-          nestedScrollEnabled={false}
           maintainVisibleContentPosition={{minIndexForVisible: 0}}
-          getItemLayout={(_, index) => ({
-            length: 500,
-            offset: 500 * index,
-            index,
-          })}
         />
         <BottomSheetComment ref={sheetRef} selectedPostRef={selectedPostRef} />
       </View>
@@ -156,9 +149,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0.5,
   },
   iconBack: {
-    width: 14,
-    height: 20,
-    resizeMode: 'contain',
+    width: 22,
+    height: 22,
   },
   title: {
     fontSize: 18,

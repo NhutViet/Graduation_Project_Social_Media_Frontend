@@ -43,10 +43,9 @@ export const AddPeopleToGroupChatStyles = (theme: 'light' | 'dark') => {
       tintColor: colors.text,
     },
     input: {
-      backgroundColor: colors.lightGray,
       borderWidth: 1,
-      borderColor: colors.lightDark,
-      paddingHorizontal: 30,
+      borderColor: colors.text,
+      paddingHorizontal: 35,
       paddingVertical: 5,
       color: colors.text,
       flex: 1,

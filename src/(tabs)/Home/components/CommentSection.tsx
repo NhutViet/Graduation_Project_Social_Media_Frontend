@@ -32,7 +32,7 @@ import Animated, {
   withTiming,
   runOnJS,
 } from 'react-native-reanimated';
-import { useHeadAlert } from '../../../../components/Global/HeadAlertProvider';
+import {useHeadAlert} from '../../../../components/Global/HeadAlertProvider';
 
 export type BottomSheetCommentRef = {open: () => void; close: () => void};
 
@@ -43,6 +43,7 @@ interface Props {
 interface ReplyTo {
   id: string;
   handleName: string;
+  username?: string;
   userId?: string;
 }
 
@@ -107,9 +108,9 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
     const handleSendComment = async () => {
       if (!comment.trim() || isSending) return;
       if (checkProfanityAndAlert(comment)) return;
-      if (comment.trim().length > 500){
+      if (comment.trim().length > 500) {
         showAlert('Lỗi', 'Nội dung vượt quá số lượng từ cho phép (500 từ).');
-      };
+      }
       const payload = {
         postID: selectedPostRef.current?.postId ?? '',
         content: comment.trim(),
@@ -188,8 +189,8 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
                               reply={item.reply}
                               totalLikes={item.totalLikes}
                               user={item.user}
-                              onReply={(id, handleName, userId) => {
-                                setReplyTo({id, handleName, userId});
+                              onReply={(id, handleName, username, userId) => {
+                                setReplyTo({id, handleName, username, userId});
                                 setTimeout(
                                   () => inputRef.current?.focus(),
                                   200,
@@ -215,7 +216,7 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
                             Đang trả lời{' '}
                             <Text
                               style={[styles.replyName, {color: color.text}]}>
-                              {replyTo.handleName}
+                              {replyTo.username}
                             </Text>
                           </Text>
                           <TouchableOpacity onPress={() => setReplyTo(null)}>
@@ -241,7 +242,7 @@ const BottomSheetComment = forwardRef<BottomSheetCommentRef, Props>(
                       value={comment}
                       onChangeText={setComment}
                       placeholder={
-                        replyTo ? `Trả lời ${replyTo.handleName}` : 'Bình luận'
+                        replyTo ? `Trả lời ${replyTo.username}` : 'Bình luận'
                       }
                       placeholderTextColor={color.text}
                       style={[

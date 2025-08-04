@@ -17,7 +17,8 @@ import {
   removeLikedPost,
 } from '@services/reactionRedux/reactionReducer';
 import LoadingModal from '../../../../components/Global/LoadingModal';
-import { updateLikeByPostId } from '@services/postRedux/postReducer';
+import {updateLikeByPostId} from '@services/postRedux/postReducer';
+import {updateLikePostUser} from '@services/postUserRedux/postUserReducer';
 
 const width = Dimensions.get('window').width;
 
@@ -77,6 +78,7 @@ const ReelsList = ({
         dispatch(addLikedPost(postId));
       }
       dispatch(updateLikeByPostId({postId: postId, isLike: !isLiked}));
+      dispatch(updateLikePostUser({postId: postId, isLike: !isLiked}));
 
       try {
         await dispatch(
@@ -95,6 +97,7 @@ const ReelsList = ({
           dispatch(removeLikedPost(postId));
         }
         dispatch(updateLikeByPostId({postId: postId, isLike: isLiked}));
+        dispatch(updateLikePostUser({postId: postId, isLike: isLiked}));
       }
     },
     [dispatch, refreshToken, currentUser, reels],
@@ -164,7 +167,12 @@ const ReelsList = ({
           ListFooterComponent={
             loading && !isInitialLoad
               ? () => (
-                  <View style={{padding: 12}}>
+                  <View
+                    style={{
+                      padding: 12,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}>
                     <LoadingModal />
                   </View>
                 )
@@ -218,7 +226,6 @@ const ReelsList = ({
           onViewableItemsChanged={onViewRef.current}
           viewabilityConfig={{
             itemVisiblePercentThreshold: 90,
-            minimumViewTime: 300,
           }}
         />
       )}

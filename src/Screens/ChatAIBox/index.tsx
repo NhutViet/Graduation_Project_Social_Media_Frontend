@@ -1,11 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {
-  View,
-  FlatList,
-  StyleSheet,
-  Text,
-  Dimensions,
-} from 'react-native';
+import {View, FlatList, StyleSheet, Text} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import ChatHeader from './Components/ChatHeader';
 import ChatInput from './Components/ChatInput';
@@ -19,7 +13,6 @@ import LoadTyping from './Components/LoadTyping';
 
 type FlatItem = {prompt?: string; answer?: string};
 
-const {width} = Dimensions.get('window');
 export const ChatAIBox = () => {
   const {theme} = useTheme();
   const color = Colors[theme];
@@ -94,9 +87,7 @@ export const ChatAIBox = () => {
           styles.promptBubble,
           {backgroundColor: color.primary},
         ]}>
-        <Text style={[styles.text, {color: color.white}]}>
-          {item.prompt}
-        </Text>
+        <Text style={[styles.text, {color: color.white}]}>{item.prompt}</Text>
       </View>
     ) : (
       <View style={styles.bubbleContainer}>
@@ -126,9 +117,12 @@ export const ChatAIBox = () => {
         inverted
         onEndReached={handleLoadMore}
         onEndReachedThreshold={0.2}
+        contentContainerStyle={{paddingBottom: 10}}
         ListHeaderComponent={
           isLoading ? (
-            <View style={styles.bubbleContainer}><LoadTyping Icon={Sparkles}/></View>
+            <View style={styles.bubbleContainer}>
+              <LoadTyping Icon={Sparkles} />
+            </View>
           ) : null
         }
       />

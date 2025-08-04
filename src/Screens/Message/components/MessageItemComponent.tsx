@@ -421,7 +421,7 @@ const styles = StyleSheet.create({
   blockAvatar: {
     width: 30,
     height: 30,
-    borderRadius: 25,
+    borderRadius: 15,
     overflow: 'hidden',
   },
   avatar: {

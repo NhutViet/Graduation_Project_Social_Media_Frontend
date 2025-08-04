@@ -15,28 +15,34 @@ export const listenToDeeplink = () => {
 };
 
 export const navigateFromUrl = (path: string) => {
-  const segments = path.split('/');
+  try {
+    const cleanUrl = path.replace(/.*?:\/\//g, ''); // loại cirla://
+    const segments = cleanUrl.split('/');
 
-  switch (segments[0]) {
-    case 'profile':
-      if (segments[1]) {
-        navigationRef.current?.navigate('ProfileComp', {userID: segments[1]});
-      }
-      break;
-    case 'share':
-      if (segments[1]) {
-        navigationRef.current?.navigate('PostDetailScreen', {
-          postId: segments[1],
-        });
-      }
-      break;
-    case 'story':
-      if (segments[1] && segments[2]) {
-        navigationRef.current?.navigate('SeenStory', {
-          storyId: segments[1],
-          creatorId: segments[2],
-        });
-      }
-      break;
+    const route = segments[0];
+    const id = segments[1];
+
+    switch (route) {
+      case 'profile':
+        if (id) {
+          navigationRef.current?.navigate('ProfileComp', {userID: id});
+        }
+        break;
+      case 'share':
+        if (id) {
+          navigationRef.current?.navigate('PostDetailScreen', {postId: id});
+        }
+        break;
+      case 'story':
+        if (segments[1] && segments[2]) {
+          navigationRef.current?.navigate('SeenStory', {
+            storyId: segments[1],
+            creatorId: segments[2],
+          });
+        }
+        break;
+    }
+  } catch (err) {
+    console.warn('Invalid deep link:', path);
   }
 };

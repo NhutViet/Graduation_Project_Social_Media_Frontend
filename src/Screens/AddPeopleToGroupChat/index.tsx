@@ -12,9 +12,8 @@ import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {AddPeopleToGroupChatStyles} from '../../StyleSheet/AddPeopleToGroupChatStyles';
 import {useNavigation, useRoute} from '@react-navigation/native';
-import Clipboard from '@react-native-clipboard/clipboard';
 import {GlobalAlertManager} from '../../../components/Global/AlertModal';
-import {ArrowLeft, Link2, Search, X, CheckCircle2} from 'lucide-react-native';
+import {ArrowLeft, Search, X, CheckCircle2} from 'lucide-react-native';
 import {useDispatch} from 'react-redux';
 import {
   addPeopleToGroupChat,
@@ -42,11 +41,6 @@ export const AddPeopleToGroupChat = () => {
   const route = useRoute();
   const roomId = (route.params as {roomId: string})?.roomId;
   const dispatch = useDispatch<AppDispatch>();
-
-  const copyToClipboard = (text: string) => {
-    Clipboard.setString(text);
-    GlobalAlertManager.show('Thông báo', 'Đã sao chép văn bản');
-  };
 
   useEffect(() => {
     if (roomId) {
@@ -146,34 +140,9 @@ export const AddPeopleToGroupChat = () => {
       </View>
 
       <View style={styles.header}>
-        <Link2 size={22} color={colors.text} style={styles.icon} />
-        <View style={styles.max}>
-          <Text style={styles.invite}>Liên kết mời</Text>
-          <Text
-            numberOfLines={1}
-            ellipsizeMode="tail"
-            style={[
-              styles.textName,
-              {fontWeight: '400', color: colors.textSecondary},
-            ]}>
-            https://ig.me/ksjhdkjskbjhsbjkbvsjbvksjhdkjskbjhsbjkbvsjbv
-          </Text>
-        </View>
-        <TouchableOpacity
-          style={styles.btnCopy}
-          onPress={() =>
-            copyToClipboard(
-              'https://ig.me/ksjhdkjskbjhsbjkbvsjbvksjhdkjskbjhsbjkbvsjbv',
-            )
-          }>
-          <Text style={styles.textName}>Sao chép</Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.header}>
         <TextInput
           placeholder="Tìm kiếm"
-          placeholderTextColor={colors.lightDark}
+          placeholderTextColor={colors.gray21}
           value={searchText}
           onChangeText={setSearchText}
           style={styles.input}
@@ -181,8 +150,8 @@ export const AddPeopleToGroupChat = () => {
           onBlur={() => setIsFocused(false)}
         />
         <Search
-          size={22}
-          color={colors.lightDark}
+          size={20}
+          color={colors.text}
           style={[styles.iconBack, {position: 'absolute', left: 30}]}
         />
         {searchText !== '' && (
