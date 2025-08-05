@@ -35,10 +35,11 @@ export type BottomSheetReelsRef = {
 type BottomSheetReelsProps = {
   isBookmarked?: boolean;
   selectedItem?: PostWithMedia | null;
+  handleReportPost: () => void;
 };
 
 const BottomSheetReels = forwardRef<BottomSheetReelsRef, BottomSheetReelsProps>(
-  ({isBookmarked, selectedItem}, ref) => {
+  ({isBookmarked, selectedItem, handleReportPost}, ref) => {
     const popupRef = useRef<CustomPopupModalRef>(null);
     const {theme} = useTheme();
     const colors = Colors[theme];
@@ -113,7 +114,7 @@ const BottomSheetReels = forwardRef<BottomSheetReelsRef, BottomSheetReelsProps>(
             <Text style={styles.textItem}>{isBookmark ? 'Đã lưu' : 'Lưu'}</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.rowItem}>
+          <TouchableOpacity style={styles.rowItem} onPress={handleReportPost}>
             <Flag size={22} color="red" style={styles.icon} />
             <Text style={[styles.textItem, {color: 'red'}]}>Báo cáo</Text>
           </TouchableOpacity>

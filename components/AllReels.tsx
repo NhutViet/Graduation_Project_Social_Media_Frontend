@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
   View,
   FlatList,
@@ -32,6 +32,14 @@ import {Item} from '@services/postUserRedux/postUserType';
 import {updateLikeByPostId} from '@services/postRedux/postReducer';
 import {updateLikePostUser} from '@services/postUserRedux/postUserReducer';
 import { UserProfile } from '@services/relationRedux/relationTypes';
+import ModalOtherReport, { ModalOtherReportHandle } from '../src/(tabs)/Home/components/ModalOtherReport';
+import { reportPost } from '@services/reportPost/reportSlice';
+import { hidePost } from '@services/postRedux/postSlice';
+import { GlobalAlertManager } from './Global/AlertModal';
+import { useHeadAlert } from './Global/HeadAlertProvider';
+import { CustomBottomSheetOptionsRef } from '../src/(tabs)/Home/components/BottomSheetOptionsModal';
+import BottomSheetIntentionsModal from '../src/(tabs)/Home/components/BottomSheetIntentionsModal';
+import { reportChoices } from '../src/config/postOptions';
 
 type RootStackParamList = {
   AllReels: {
@@ -54,6 +62,10 @@ const AllReels = () => {
   const flatListRef = useRef<FlatList<any>>(null);
   const sheetRef = useRef<BottomSheetReelsRef>(null);
   const sheetRefComment = useRef<BottomSheetCommentRef>(null);
+  const otherReportRef = useRef<ModalOtherReportHandle>(null);
+  const intentRef = useRef<CustomBottomSheetOptionsRef>(null);
+  const {showAlert} = useHeadAlert();
+  
 
   const openShareModal = async (_id: string) => {
     try {
@@ -163,6 +175,44 @@ const AllReels = () => {
     sheetRef.current?.open();
   }, []);
 
+  const handleHidePost = useCallback(() => {
+    dispatch(hidePost(selectedItem ? selectedItem._id : ''))
+      .unwrap()
+      .catch(() => GlobalAlertManager.show('Thất bại', 'Ẩn bài viết lỗi'));
+  }, [selectedItem, dispatch]);
+
+  const handleIntentionSelect = useCallback(
+      (label: string, description?: string) => {
+        if (label !== 'other') {
+          dispatch(reportPost({targetId: selectedItem ? selectedItem._id : '', reason: label}))
+            .unwrap()
+            .then(() => {
+              showAlert(
+                'Thành công',
+                'Bài viết này sẽ được báo cáo và kiểm duyệt.',
+              );
+              handleHidePost();
+              intentRef.current?.close();
+            })
+            .catch(() => {
+              showAlert('Thất bại', 'Có lỗi xảy ra khi báo cáo.');
+            });
+        } else {
+          otherReportRef.current?.open();
+        }
+      },
+      [selectedItem],
+    );
+
+    const intentionOptions = useMemo(
+      () =>
+        reportChoices.map(opt => ({
+          ...opt,
+          onPress: () => handleIntentionSelect(opt.id),
+        })),
+      [handleIntentionSelect],
+    );
+
   if (loading) {
     return (
       <View style={[styles.container, styles.center]}>
@@ -238,10 +288,38 @@ const AllReels = () => {
         ref={sheetRef}
         isBookmarked={selectedItem?.isBookmarked}
         selectedItem={selectedItem}
+        handleReportPost={() => {
+          sheetRef.current?.close();
+          intentRef.current?.open();}}
+      />
+      <BottomSheetIntentionsModal
+        ref={intentRef}
+        options={intentionOptions}
+        onSelect={handleIntentionSelect}
       />
       <BottomSheetComment
         ref={sheetRefComment}
         selectedPostRef={selectedPostRef}
+      />
+      <ModalOtherReport
+        ref={otherReportRef}
+        onSubmit={desc => {
+          dispatch(
+            reportPost({targetId: selectedItem ? selectedItem._id : '', reason: 'OTHER', description: desc}),
+          )
+            .unwrap()
+            .then(() => {
+              showAlert(
+                'Thành công',
+                'Bài viết sẽ được báo cáo và kiểm duyệt.',
+              );
+              handleHidePost();
+              otherReportRef.current?.close();
+            })
+            .catch(() => {
+              showAlert('Thất bại', 'Có lỗi xảy ra khi báo cáo.');
+            });
+        }}
       />
     </SafeAreaView>
   );
