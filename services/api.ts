@@ -17,6 +17,7 @@ export const API = {
   GET_TAGGING_POST: 'posts/tags',
   GET_LIKED_POSTS: 'post-like/liked-posts',
   DELETE_MY_POST: 'posts/delete',
+  POSR_REPORT_POST: 'report-contents/report',
 
   //// comment
   COMMENT: 'comments',

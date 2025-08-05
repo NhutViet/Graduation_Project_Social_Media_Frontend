@@ -47,8 +47,9 @@ import {RootStackParamList} from 'src/Navigation/AppNavigation';
 import {selectItemHomeData} from '../selectors/homeSelectors';
 import {useItemHomeAudio} from '../hook/useItemHomeAudio';
 import {useHeadAlert} from '../../../../components/Global/HeadAlertProvider';
-import {updateLikeByPostId} from '@services/postRedux/postReducer';
-import {updateLikePostUser} from '@services/postUserRedux/postUserReducer';
+import {reportPost} from '@services/reportPost/reportSlice';
+import {Modalize} from 'react-native-modalize';
+import ModalOtherReport, {ModalOtherReportHandle} from './ModalOtherReport';
 
 Sound.setCategory('Playback');
 const screenWidth = Dimensions.get('window').width;
@@ -98,6 +99,7 @@ const ItemHome = (props: ItemHomeProps) => {
   const optionSheetRef = useRef<CustomBottomSheetOptionsRef>(null);
   const intentRef = useRef<CustomBottomSheetOptionsRef>(null);
   const modalReactionRef = useRef<CustomBottomSheetOptionsRef>(null);
+  const otherReportRef = useRef<ModalOtherReportHandle>(null);
 
   // Action handlers
   const pendingLikeRequest = useRef<Promise<any> | null>(null);
@@ -224,9 +226,28 @@ const ItemHome = (props: ItemHomeProps) => {
     ],
   );
 
-  const handleIntentionSelect = useCallback(() => {
-    intentRef.current?.close();
-  }, []);
+  const handleIntentionSelect = useCallback(
+    (label: string, description?: string) => {
+      if (label !== 'other') {
+        dispatch(reportPost({targetId: _id, reason: label}))
+          .unwrap()
+          .then(() => {
+            showAlert(
+              'Thành công',
+              'Bài viết này sẽ được báo cáo và kiểm duyệt.',
+            );
+            handleHidePost();
+            intentRef.current?.close();
+          })
+          .catch(() => {
+            showAlert('Thất bại', 'Có lỗi xảy ra khi báo cáo.');
+          });
+      } else {
+        otherReportRef.current?.open();
+      }
+    },
+    [],
+  );
 
   // Memo options
   const topOptions = useMemo(
@@ -269,7 +290,7 @@ const ItemHome = (props: ItemHomeProps) => {
     () =>
       reportChoices.map(opt => ({
         ...opt,
-        onPress: () => handleIntentionSelect,
+        onPress: () => handleIntentionSelect(opt.id),
       })),
     [handleIntentionSelect],
   );
@@ -439,6 +460,26 @@ const ItemHome = (props: ItemHomeProps) => {
 
       <Portal>
         <ModalReaction ref={modalReactionRef} postId={_id} isLiked={isLiked} />
+        <ModalOtherReport
+          ref={otherReportRef}
+          onSubmit={desc => {
+            dispatch(
+              reportPost({targetId: _id, reason: 'OTHER', description: desc}),
+            )
+              .unwrap()
+              .then(() => {
+                showAlert(
+                  'Thành công',
+                  'Bài viết sẽ được báo cáo và kiểm duyệt.',
+                );
+                handleHidePost();
+                otherReportRef.current?.close();
+              })
+              .catch(() => {
+                showAlert('Thất bại', 'Có lỗi xảy ra khi báo cáo.');
+              });
+          }}
+        />
       </Portal>
     </View>
   );

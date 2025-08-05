@@ -49,4 +49,5 @@ export const reportChoices: IntentionOptionConfig[] = [
   {id: 'spam', label: 'Lừa đảo, gian lận hoặc spam'},
   {id: 'false', label: 'Thông tin sai sự thật'},
   {id: 'copyright', label: 'Quyền sở hữu trí tuệ'},
+  {id: 'other', label: 'Khác'},
 ];
