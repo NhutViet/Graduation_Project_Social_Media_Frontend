@@ -10,7 +10,7 @@ import {
 import {useNavigation, useRoute, useIsFocused} from '@react-navigation/native';
 import {FlashList} from '@shopify/flash-list';
 import Sound from 'react-native-sound';
-import {ChevronLeft, Share2, Play, Pause} from 'lucide-react-native';
+import {ChevronLeft, Play, Pause} from 'lucide-react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../services/store';
 import {getItemsOfPlaylist} from '../../../services/bookmarkRedux/bookmarkSlice';
@@ -79,7 +79,7 @@ export const MusicSavedScreen = () => {
 
   const mappedMusicData: MusicItem[] = useMemo(() => {
     return playlistItems
-      .filter(i => i.itemType === 'music' && i._id && i.link)
+      .filter(i => i.type === 'music' && i._id && i.link)
       .map(i => ({
         id: i._id!,
         title: i.song ?? 'No title',
@@ -100,7 +100,7 @@ export const MusicSavedScreen = () => {
       soundRef.current = sound;
       sound.setNumberOfLoops(0);
       sound.play(success => {
-        if (!success) return
+        if (!success) return;
         sound.release();
         soundRef.current = null;
         setIsPlayingAudio(false);
@@ -156,10 +156,14 @@ export const MusicSavedScreen = () => {
         <View style={styles.leftContent}>
           <Image source={{uri: item.thumbnail}} style={styles.thumbnail} />
           <View style={styles.textContainer}>
-            <Text style={[styles.title, {color: colors.text}]} numberOfLines={1}>
+            <Text
+              style={[styles.title, {color: colors.text}]}
+              numberOfLines={1}>
               {item.title}
             </Text>
-            <Text style={[styles.subtitle, {color: colors.textSecondary}]} numberOfLines={1}>
+            <Text
+              style={[styles.subtitle, {color: colors.textSecondary}]}
+              numberOfLines={1}>
               {item.artist}
             </Text>
           </View>
@@ -168,7 +172,7 @@ export const MusicSavedScreen = () => {
           style={[
             styles.playButton,
             {
-              backgroundColor: theme === 'light' ? 'rgba(0,0,0,0.1)' : 'rgba(255, 255, 255, 0.2)',
+              backgroundColor: colors.backgroundSecondary,
             },
           ]}
           onPress={() => handlePlayPress(item.id, item.audioUrl)}>
@@ -183,34 +187,54 @@ export const MusicSavedScreen = () => {
   };
 
   return (
-    <SafeAreaView style={[styles.container, {backgroundColor: colors.background}]}>
+    <SafeAreaView
+      style={[styles.container, {backgroundColor: colors.background}]}>
       <View style={styles.header}>
-        <Text style={[styles.headerTitle, {color: colors.text, position: 'absolute', textAlign: 'center', width: '110%'}]}>{title}</Text>
+        <Text
+          style={[
+            styles.headerTitle,
+            {
+              color: colors.text,
+              position: 'absolute',
+              textAlign: 'center',
+              width: '110%',
+            },
+          ]}>
+          {title}
+        </Text>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <ChevronLeft size={24} color={colors.text} />
         </TouchableOpacity>
       </View>
 
-      { mappedMusicData.length === 0 ? (
-        <View style={{flex: 1, justifyContent: 'center', backgroundColor: colors.background}}>
-          <Text style={{
-            fontSize: 16,
-            fontWeight: '400',
-            color: colors.textSecondary,
-            textAlign: 'center',
-            marginTop: 60,
-          }}>Bạn hiện không lưu âm thanh nào.</Text>
+      {mappedMusicData.length === 0 ? (
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            backgroundColor: colors.background,
+          }}>
+          <Text
+            style={{
+              fontSize: 16,
+              fontWeight: '400',
+              color: colors.textSecondary,
+              textAlign: 'center',
+              marginTop: 60,
+            }}>
+            Bạn hiện không lưu âm thanh nào.
+          </Text>
         </View>
       ) : (
         <FlashList<MusicItem>
-        data={mappedMusicData}
-        renderItem={renderItem}
-        estimatedItemSize={50}
-        keyExtractor={item => item.id}
-        extraData={{playingTrackId, isPlayingAudio, currentPlayingId}}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContainer}
-      />
+          data={mappedMusicData}
+          renderItem={renderItem}
+          estimatedItemSize={50}
+          keyExtractor={item => item.id}
+          extraData={{playingTrackId, isPlayingAudio, currentPlayingId}}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listContainer}
+        />
       )}
     </SafeAreaView>
   );
