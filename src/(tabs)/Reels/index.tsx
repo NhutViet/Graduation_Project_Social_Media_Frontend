@@ -19,6 +19,8 @@ import ReelsBottomSheets from './components/ReelsBottomSheets';
 import {PostWithMedia} from '@services/postRedux/postTypes';
 import ReelsHeader from './components/ReelsHeader';
 import {ReelsSkeletonList} from '../../../components/SkeletonGrid';
+import { ModalOtherReportHandle } from '../Home/components/ModalOtherReport';
+import { CustomBottomSheetOptionsRef } from '../Home/components/BottomSheetOptionsModal';
 
 const {height: screenHeight} = Dimensions.get('window');
 
@@ -28,6 +30,8 @@ const Reels = forwardRef((props, ref) => {
 
   const sheetRef = useRef<Modalize>(null);
   const sheetRefComment = useRef<Modalize>(null);
+  const otherReportRef = useRef<ModalOtherReportHandle>(null);
+  const intentRef = useRef<CustomBottomSheetOptionsRef>(null);
   const flashListRef = useRef(null);
 
   const {
@@ -134,6 +138,9 @@ const Reels = forwardRef((props, ref) => {
         isBookmarked={isCurrentBookmarked}
         selectedItem={selectedItem}
         selectedPostId={selectedPostRef}
+        otherRef={otherReportRef}
+        postId={selectedItem ? selectedItem._id : ''}
+        intentRef={intentRef}
       />
     </SafeAreaView>
   );
