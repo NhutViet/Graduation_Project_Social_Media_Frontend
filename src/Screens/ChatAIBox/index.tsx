@@ -110,22 +110,29 @@ export const ChatAIBox = () => {
     <View style={[styles.container, {backgroundColor: color.background}]}>
       <ChatHeader />
 
-      <FlatList
-        data={flatHistory}
-        keyExtractor={(_, idx) => idx.toString()}
-        renderItem={renderItem}
-        inverted
-        onEndReached={handleLoadMore}
-        onEndReachedThreshold={0.2}
-        contentContainerStyle={{paddingBottom: 10}}
-        ListHeaderComponent={
-          isLoading ? (
-            <View style={styles.bubbleContainer}>
-              <LoadTyping Icon={Sparkles} />
-            </View>
-          ) : null
-        }
-      />
+      {flatHistory.length === 0 ? (
+        <View style={{flex: 1, alignItems: 'center', justifyContent: 'flex-end', paddingBottom: 30}}>
+          <Sparkles size={50} color={color.textSecondary}/>
+          <Text style={[styles.textEmty, {color: color.textSecondary}]}>Hãy bắt đầu cuộc trò chuyện nào.</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={flatHistory}
+          keyExtractor={(_, idx) => idx.toString()}
+          renderItem={renderItem}
+          inverted
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.2}
+          contentContainerStyle={{paddingBottom: 10}}
+          ListHeaderComponent={
+            isLoading ? (
+              <View style={styles.bubbleContainer}>
+                <LoadTyping Icon={Sparkles} />
+              </View>
+            ) : null
+          }
+        />
+      )}
 
       <ChatInput onSend={handleSend} />
     </View>
@@ -164,4 +171,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  textEmty: {
+    fontSize: 20,
+    fontWeight: '700',
+    paddingVertical: 20,
+  }
 });

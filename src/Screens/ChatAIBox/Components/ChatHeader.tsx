@@ -24,7 +24,7 @@ const ChatHeader = () => {
         </View>
         <View style={styles.textContainer}>
           <Text style={[styles.title, {color: colors.primary}]}>
-            Hermes Assistant
+            Trợ lý Hermes
           </Text>
           <Text style={[styles.subtitle, {color: colors.textSecondary}]}>
             Luôn sẵn sàng hỗ trợ
