@@ -3,7 +3,6 @@ export interface UserComment {
   handleName: string;
   username?: string;
   profilePic?: string;
-  username?: string;
 }
 
 export interface CommentPost {

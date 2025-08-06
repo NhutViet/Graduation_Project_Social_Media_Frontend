@@ -583,10 +583,18 @@ export const EditStory = ({route, navigation}: any) => {
               song: string;
               songImage: string;
             }) => {
-              setSelectedMusic(musicInfo);
+              if(musicInfo.musicId === ''){
+                setSelectedMusic(null);
+              }else{
+                setSelectedMusic(musicInfo);
+              }
             }}
             songUrl={(url: string) => {
-              setSongUrl(url);
+              if(url === ''){
+                setSongUrl(null);
+              }else{
+                setSongUrl(url);
+              }
             }}
           />
         </SafeAreaView>

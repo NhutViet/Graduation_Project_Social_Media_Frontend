@@ -76,9 +76,6 @@ const OptionModal = forwardRef<CustomPopupModalRef, OptionModalProps>(
         backgroundColor={color.background}
         onCancel={() => modalRef.current?.close()}>
         <View style={styles.content}>
-          <TouchableOpacity style={styles.option}>
-            <Text style={styles.optionText}>Hạn chế</Text>
-          </TouchableOpacity>
 
           <TouchableOpacity style={styles.option} onPress={toggleBlock}>
             <Text style={styles.optionText}>
@@ -87,12 +84,6 @@ const OptionModal = forwardRef<CustomPopupModalRef, OptionModalProps>(
           </TouchableOpacity>
           <TouchableOpacity style={styles.option} onPress={onReportPress}>
             <Text style={styles.optionText}>Báo cáo</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.option}>
-            <Text style={[styles.optionText, {color: color.text}]}>
-              Sao chép URL Trang cá nhân
-            </Text>
           </TouchableOpacity>
         </View>
       </CustomPopupModal>

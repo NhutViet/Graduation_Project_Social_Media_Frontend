@@ -96,6 +96,21 @@ export const PendingMessages: React.FC = () => {
         }}
         estimatedItemSize={100}
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={() => {
+          return (
+            <View style={{flex: 1, alignItems: 'center', paddingVertical: 50}}>
+              <Text
+                style={{
+                  fontSize: 14,
+                  fontWeight: '600',
+                  width: '50%',
+                  textAlign: 'center',
+                }}>
+                Bạn hiện không có hộp thoại tin nhắn chờ nào.
+              </Text>
+            </View>
+          );
+        }}
       />
     </View>
   );

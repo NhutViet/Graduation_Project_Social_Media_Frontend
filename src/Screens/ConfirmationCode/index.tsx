@@ -145,16 +145,7 @@ export const ConfirmationCode = ({ navigation, route }: any) => {
           marginTop: 4,
           marginBottom: 8
         }}>
-          Nhập mã xác nhận 6 chữ số được gửi đến {identifierType} của bạn
-        </Text>
-        
-        <Text style={{ 
-          fontSize: 14, 
-          color: color.text,
-          fontWeight: '600',
-          marginBottom: 24
-        }}>
-          {displayIdentifier}
+          Nhập mã xác nhận 6 chữ số được gửi đến số điện thoại của bạn
         </Text>
 
         <View style={{ 
