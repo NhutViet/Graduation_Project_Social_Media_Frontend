@@ -219,7 +219,18 @@ const AudioTrimModal = (props: AudioTrimModalProps) => {
 
           {/* Bottom Buttons */}
           <View style={styles.bottomButtons}>
-            <TouchableOpacity onPress={onClose}>
+            <TouchableOpacity
+              onPress={() => {
+                onDoneSelect?.({
+                  musicId: '',
+                  timeStart: 0,
+                  timeEnd: 0,
+                  song: '',
+                  songImage: '',
+                });
+                if(songUrl) songUrl('');
+                onClose();
+              }}>
               <Text style={styles.bottomText}>Hủy</Text>
             </TouchableOpacity>
             <TouchableOpacity>

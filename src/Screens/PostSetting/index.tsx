@@ -342,7 +342,11 @@ export const PostSetting = () => {
           song: string;
           songImage: string;
         }) => {
-          setSelectedMusic(musicInfo);
+          if(musicInfo.musicId === '') {
+            setSelectedMusic(null);
+          }else{
+            setSelectedMusic(musicInfo);
+          }
         }}
       />
     </SafeAreaView>
