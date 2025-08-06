@@ -27,10 +27,10 @@ export const handlePasswordChange = async (
     );
 
     // Handle API response format
-    if (response.data.message === 'Failed') {
+    if (response.data.message != 'Success') {
       return {
         success: false,
-        message: response.data.error || 'Đổi mật khẩu thất bại',
+        message: response.data.message || 'Đổi mật khẩu thất bại',
       };
     }
 
