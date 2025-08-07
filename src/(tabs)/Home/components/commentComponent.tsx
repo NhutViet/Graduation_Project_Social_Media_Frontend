@@ -29,7 +29,6 @@ interface CommentComponentProps {
   user?: {
     _id?: string;
     handleName?: string;
-    username?: string;
     profilePic?: string;
   };
   content: string;
@@ -125,26 +124,6 @@ const ReplyComment = memo(
             hashtagStyle={{fontWeight: '600'}}
             navigation={navigation}
           />
-          <View style={styles.rowBottom}>
-            <TouchableOpacity
-              onPress={() =>
-                onReply(
-                  _id,
-                  user?.handleName || '',
-                  user?.username || '',
-                  user?._id,
-                )
-              }>
-              <Text style={[styles.text, {color: color.text, marginRight: 16}]}>
-                Trả lời
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity>
-              <Text style={[styles.text, {color: color.text}]}>
-                xem bản dịch
-              </Text>
-            </TouchableOpacity>
-          </View>
         </View>
         <View style={styles.heartContainer}>
           <TouchableOpacity style={styles.blockIcon} onPress={handleLike}>
@@ -243,11 +222,6 @@ const CommentComponent = memo((props: CommentComponentProps) => {
               }>
               <Text style={[styles.text, {color: color.text, marginRight: 16}]}>
                 Trả lời
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity>
-              <Text style={[styles.text, {color: color.text}]}>
-                xem bản dịch
               </Text>
             </TouchableOpacity>
           </View>

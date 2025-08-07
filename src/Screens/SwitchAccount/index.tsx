@@ -185,9 +185,9 @@ export const SwitchAccount = ({navigation, route}: any) => {
               />
               <TouchableOpacity onPress={() => setShowPassword(prev => !prev)}>
                 {showPassword ? (
-                  <EyeOff size={20} color={color.text} />
-                ) : (
                   <Eye size={20} color={color.text} />
+                ) : (
+                  <EyeOff size={20} color={color.text} />
                 )}
               </TouchableOpacity>
             </View>

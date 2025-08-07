@@ -70,7 +70,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
       </View>
       <View style={styles.bioContainer}>
         <Text style={[styles.username, {color: color.text}]}>{name}</Text>
-        <Text style={[styles.bioText, {color: color.text}]}>{bio}</Text>
+        <Text style={[styles.bioText, {color: color.text}]} numberOfLines={4} ellipsizeMode='tail'>{bio}</Text>
       </View>
     </View>
   );

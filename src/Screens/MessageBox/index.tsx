@@ -183,7 +183,7 @@ export const MessageBox = (props: any) => {
     const nameChat =
       room.name?.trim().length > 0
         ? room.name
-        : otherUsers[0]?.handleName || '';
+        : otherUsers[0]?.username || '';
     return nameChat.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
@@ -374,6 +374,11 @@ export const MessageBox = (props: any) => {
             showsVerticalScrollIndicator={false}
             refreshControl={
               <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
+            ListEmptyComponent={
+              <View style={{flex: 1, alignItems: 'center', paddingVertical: 50,}}>
+                <Text style={{fontSize: 14, fontWeight: '600', width: '50%', textAlign: 'center'}}>Bạn hiện chưa có hộp thoại tin nhắn nào.</Text>
+              </View>
             }
           />
         )}
