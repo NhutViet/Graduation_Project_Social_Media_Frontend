@@ -10,7 +10,6 @@ import {
 import {useTheme} from '../../util/ThemeContext';
 import {Colors} from '../../../assets/color/Colors';
 import {
-  Bell,
   Search,
   UserPlus,
   PenLine,
@@ -309,7 +308,7 @@ export const styles = StyleSheet.create({
     fontSize: 12,
   },
   btn: {
-    flex: 1,
+    paddingVertical: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',

@@ -63,7 +63,7 @@ const UserFollowersTab = ({route}: any) => {
             targetId: item._id,
             action: actionType,
             senderId: user?._id,
-            handleName: user?.handleName,
+            handleName: user?.username,
           }),
         ).unwrap();
 
@@ -118,7 +118,7 @@ const UserFollowersTab = ({route}: any) => {
                   item.isMeFollowing
                     ? [styles.messageText, {color: color.text}]
                     : styles.followText,
-                ]} numberOfLines={1} ellipsizeMode='tail'>
+                ]}>
                 {item.isMeFollowing ? 'Hủy theo dõi' : 'Theo dõi'}
               </Text>
             </TouchableOpacity>
@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#007BFF',
   },
   messageButton: {
-    width: 100,
+    width: 110,
     borderWidth: 1,
   },
   buttonText: {

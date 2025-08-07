@@ -65,7 +65,7 @@ const FollowersTab = () => {
             targetId: item._id,
             action: isMutual ? 'unfollow' : 'follow',
             senderId: user?._id,
-            handleName: user?.handleName,
+            handleName: user?.username,
           }),
         ).unwrap();
       } catch (error) {
@@ -250,7 +250,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#007BFF',
   },
   messageButton: {
-    width: 100,
+    width: 110,
     borderWidth: 1,
     borderColor: '#ccc',
   },

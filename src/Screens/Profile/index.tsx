@@ -136,7 +136,7 @@ const ProfileComp = ({route}: any) => {
           targetId: userID,
           action: actionType,
           senderId: user?._id,
-          handleName: user?.handleName,
+          handleName: user?.username,
         }),
       ).unwrap();
 

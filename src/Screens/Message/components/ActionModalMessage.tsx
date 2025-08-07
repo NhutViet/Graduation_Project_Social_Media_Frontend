@@ -139,7 +139,7 @@ const ActionModalMessage = ({visible, onClose, content, setChat}: Props) => {
       onRequestClose={onClose}>
       <View style={styles.container}>
         <TouchableOpacity onPress={onClose} style={styles.overlay} />
-        <View style={styles.visibleAction}>
+        <View style={[styles.visibleAction, {alignItems: content?.sender.userId === user?._id ? 'flex-end' : 'flex-start'}]}>
           <View style={styles.reactionContainer}>
             {reactions.map((reaction, index) => (
               <TouchableOpacity
@@ -171,31 +171,33 @@ const ActionModalMessage = ({visible, onClose, content, setChat}: Props) => {
               </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.featureContainer}
-              onPress={async () => {
-                if (content && socket) {
-                  socket.emit('deleteMessage', {
-                    messageId: content._id,
-                    userId: user?._id,
-                    roomId: content.roomId,
-                  });
+            {content?.sender.userId === user?._id && (
+              <TouchableOpacity
+                style={styles.featureContainer}
+                onPress={async () => {
+                  if (content && socket) {
+                    socket.emit('deleteMessage', {
+                      messageId: content._id,
+                      userId: user?._id,
+                      roomId: content.roomId,
+                    });
 
-                  showAlert('Thông báo', 'bạn đã xoá tin nhắn');
+                    showAlert('Thông báo', 'bạn đã xoá tin nhắn');
 
-                  onClose();
-                } else {
-                  GlobalAlertManager.show(
-                    'Thất bại',
-                    'Bạn không thể xoá tin nhắn này',
-                  );
-                }
-              }}>
-              <Trash2 size={22} color="black" />
-              <Text style={styles.text} numberOfLines={1}>
-                Thu hồi tin nhắn
-              </Text>
-            </TouchableOpacity>
+                    onClose();
+                  } else {
+                    GlobalAlertManager.show(
+                      'Thất bại',
+                      'Bạn không thể xoá tin nhắn này',
+                    );
+                  }
+                }}>
+                <Trash2 size={22} color="black" />
+                <Text style={styles.text} numberOfLines={1}>
+                  Thu hồi tin nhắn
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
         </View>
       </View>
@@ -221,7 +223,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     zIndex: 1,
     bottom: 60,
-    alignItems: 'center',
   },
   reactionContainer: {
     width: '90%',
@@ -242,7 +243,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   actionContainer: {
-    width: '90%',
     backgroundColor: Colors.white,
     borderRadius: 10,
     padding: 20,
