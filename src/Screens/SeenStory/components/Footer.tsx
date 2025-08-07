@@ -10,12 +10,11 @@ import {
 } from 'react-native';
 import {useDispatch} from 'react-redux';
 import {styles} from './styles';
-import {Heart, Link, MessageCircle, Check, Share2} from 'lucide-react-native';
-import Clipboard from '@react-native-clipboard/clipboard';
+import {Heart, Share2} from 'lucide-react-native';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 import {trackStoryShare} from '../../../../services/StoryRedux/StorySlice';
 import {AppDispatch} from '../../../../services/store';
-import {isStoryVisible} from '../../../../services/storage/storage';
+
 
 interface FooterProps {
   onLike: () => void;
@@ -61,11 +60,7 @@ export const Footer = ({
       return;
     }
 
-    // ✅ Check if story has expired before sharing
-    if (createdAt && !isStoryVisible(createdAt)) {
-      GlobalAlertManager.show('Thông báo', 'Story này đã hết hạn sau 24 giờ và không thể chia sẻ.');
-      return;
-    }
+
 
     // ✅ Pause story khi share
     onShare();

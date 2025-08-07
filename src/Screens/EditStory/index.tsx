@@ -40,6 +40,9 @@ export const EditStory = ({route, navigation}: any) => {
   const dispatch = useDispatch<AppDispatch>();
   const {followingUsers} = useSelector((state: RootState) => state.stories);
   const {selectedItem} = route.params;
+  
+  // Debug log để kiểm tra selectedItem
+  console.log('EditStory - selectedItem:', selectedItem);
   const [videoDuration, setVideoDuration] = useState<number | null>(null);
   const [videoCurrentTime, setVideoCurrentTime] = useState(0);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -112,6 +115,7 @@ export const EditStory = ({route, navigation}: any) => {
   };
 
   const onVideoLoad = (data: OnLoadData) => {
+    console.log('Video loaded successfully:', data);
     setVideoDuration(data.duration);
   };
 
@@ -412,7 +416,7 @@ export const EditStory = ({route, navigation}: any) => {
       hideUploadModal();
     }
   };
-  const [isPause, setIsPause] = useState<boolean>(true);
+  const [isPause, setIsPause] = useState<boolean>(false);
 
   // ✅ Render caption với DraggableCaption component
   const renderCaption = () => {
@@ -477,22 +481,37 @@ export const EditStory = ({route, navigation}: any) => {
             <TouchableWithoutFeedback onPress={handleScreenTap}>
               <View style={styles.mediaTouchArea}>
                 {selectedItem ? (
+                  console.log('EditStory - Rendering media, type:', selectedItem.type, 'URI:', selectedItem.uri),
                   selectedItem.type.includes('video') ? (
-                    <TouchableOpacity onPress={() => setIsPause(!isPause)}>
+                    <TouchableOpacity 
+                      onPress={() => setIsPause(!isPause)}
+                      style={styles.videoContainer}
+                    >
                       <Video
                         ref={videoRef}
                         source={{uri: selectedItem.uri}}
                         style={styles.media}
                         resizeMode="contain"
-                        repeat={false}
+                        repeat={true}
                         paused={isPause}
                         onLoad={onVideoLoad}
                         onProgress={onVideoProgress}
                         onEnd={onVideoEnd}
+                        onError={(error) => {
+                          console.error('Video error:', error);
+                          showAlert('Lỗi video', 'Không thể tải video. Vui lòng thử lại.');
+                        }}
+                        onLoadStart={() => {
+                          console.log('Video load started for URI:', selectedItem.uri);
+                        }}
                         playInBackground={false}
                         playWhenInactive={false}
                       />
-                      {isPause && <Play size={20} color={Colors.white} />}
+                      {isPause && (
+                        <View style={styles.playButtonOverlay}>
+                          <Play size={40} color={Colors.white} />
+                        </View>
+                      )}
                     </TouchableOpacity>
                   ) : (
                     <Image
@@ -502,9 +521,14 @@ export const EditStory = ({route, navigation}: any) => {
                     />
                   )
                 ) : (
-                  <Text style={styles.errorText}>
-                    Không có media để hiển thị
-                  </Text>
+                  <View style={styles.errorContainer}>
+                    <Text style={styles.errorText}>
+                      Không có media để hiển thị
+                    </Text>
+                    <Text style={styles.debugText}>
+                      Debug: selectedItem = {JSON.stringify(selectedItem, null, 2)}
+                    </Text>
+                  </View>
                 )}
                 {renderCaption()}
               </View>
@@ -648,6 +672,7 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     height: '100%',
+    backgroundColor: '#000',
   },
   progressContainer: {
     flexDirection: 'row',
@@ -737,5 +762,34 @@ const styles = StyleSheet.create({
   },
   viewHeaderRight: {
     flexDirection: 'row',
+  },
+  playButtonOverlay: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: [{translateX: -20}, {translateY: -20}],
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: 25,
+    width: 50,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  videoContainer: {
+    flex: 1,
+    position: 'relative',
+    backgroundColor: '#000',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  debugText: {
+    color: '#888',
+    fontSize: 12,
+    marginTop: 10,
+    textAlign: 'center',
   },
 });
