@@ -82,7 +82,7 @@ const ItemHome = (props: ItemHomeProps) => {
   const dispatch = useDispatch<AppDispatch>();
   const {showAlert} = useHeadAlert();
 
-  const {refreshToken, userID, handleName} = useSelector(selectItemHomeData);
+  const {refreshToken, userID, username} = useSelector(selectItemHomeData);
 
   // UI state
   const [muted, setMuted] = useState(true);
@@ -123,7 +123,7 @@ const ItemHome = (props: ItemHomeProps) => {
         postId: _id,
         refreshToken,
         receiverId: user._id,
-        handleName: user.username ?? '',
+        handleName: username ?? '',
         userId: userID,
       }),
     ).unwrap();
@@ -140,7 +140,7 @@ const ItemHome = (props: ItemHomeProps) => {
     } finally {
       pendingLikeRequest.current = null;
     }
-  }, [isLiked, _id, refreshToken, userID, user._id, handleName, dispatch]);
+  }, [isLiked, _id, refreshToken, userID, user._id, username, dispatch]);
 
   const handleLikePress = useCallback(async () => {
     if (likeLoading) return;

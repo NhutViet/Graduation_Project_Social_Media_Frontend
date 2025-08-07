@@ -75,13 +75,6 @@ export const MenuSection = memo(
         />
 
         <MenuItem
-          icon={<LinkIcon size={22} color={color.text} />}
-          title="Liên kết"
-          subtitle="Đang tắt"
-          textColor={color.text}
-        />
-
-        <MenuItem
           icon={<Users size={22} color={color.text} />}
           title="Mọi người"
           onPress={handlePeoplePress}
@@ -163,12 +156,6 @@ export const MenuSection = memo(
           icon={<Lock size={22} color={color.text} />}
           title="Quyền riêng tư và bảo mật"
           onPress={() => navigation.navigate('PrivacySafetyChat')}
-          textColor={color.text}
-        />
-
-        <MenuItem
-          icon={<AlertTriangle size={22} color={color.text} />}
-          title="Đã xảy ra lỗi"
           textColor={color.text}
         />
       </View>

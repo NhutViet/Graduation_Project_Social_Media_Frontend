@@ -58,6 +58,7 @@ export const addComment = createAsyncThunk<
           _id: currentUser?._id || '',
           handleName: handleName || '',
           profilePic: currentUser?.profilePic,
+          username: currentUser?.username,
         },
       };
 

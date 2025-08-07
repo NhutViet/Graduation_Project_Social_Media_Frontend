@@ -80,10 +80,7 @@ export const BookmarkScreen = () => {
             <ArrowLeft size={24} color={colors.text} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Đã lưu</Text>
-          <TouchableOpacity
-            onPress={() => navigation.navigate('AddCollection' as never)}>
-            <Plus size={24} color={colors.text} />
-          </TouchableOpacity>
+          <View/>
         </View>
 
         {/* Danh sách playlist */}

@@ -19,7 +19,6 @@ import {
   relationAction,
   fetchRecommendations,
 } from '../../../../services/relationRedux/relationSlice';
-import {createRoom} from '../../../../services/roomRedux/roomSlice';
 import {GlobalAlertManager} from '../../../../components/Global/AlertModal';
 import {UserProfile} from '@services/relationRedux/relationTypes';
 import {selectDisplayViewedFollowing} from '@services/relationRedux/relationSelector';
@@ -68,7 +67,7 @@ const UserFollowingTab = ({userID}: Props) => {
           targetId: item._id,
           action: actionType,
           senderId: user?._id,
-          handleName: user?.handleName,
+          handleName: user?.username,
         }),
       ).unwrap();
       await dispatch(fetchViewedFollowing({ userId: userID }));

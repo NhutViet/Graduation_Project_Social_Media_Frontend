@@ -50,7 +50,7 @@ export const PeopleGroupChat = () => {
   } | null>(null);
   const mine = useSelector((state: RootState) => state.user.user?._id);
   const handleN = useSelector(
-    (state: RootState) => state.user.user?.handleName,
+    (state: RootState) => state.user.user?.username,
   );
   const route = useRoute();
   const roomId = (route.params as {roomId: string})?.roomId;

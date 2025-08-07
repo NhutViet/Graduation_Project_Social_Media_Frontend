@@ -183,7 +183,7 @@ export const PostSetting = () => {
       };
 
       const resultAction = await dispatch(
-        uploadPostWithMedia({payload: body, handleName: user?.handleName}),
+        uploadPostWithMedia({payload: body, handleName: user?.username}),
       );
 
       if (uploadPostWithMedia.fulfilled.match(resultAction)) {
