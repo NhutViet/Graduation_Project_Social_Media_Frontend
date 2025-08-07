@@ -34,7 +34,7 @@ import {Portal} from 'react-native-portalize';
 import {useHeadAlert} from '../../../components/Global/HeadAlertProvider';
 import {DraggableCaption} from '../../../components/DraggableCaption';
 import Clipboard from '@react-native-clipboard/clipboard';
-import {isStoryVisible, getStoryAge} from '../../../services/storage/storage';
+
 
 // Import owner-specific components
 import ModelPeopleSeen from './componentStoryOwner/ModelPeopleSeen';
@@ -124,19 +124,7 @@ export const SeenStory = ({route, navigation}: any) => {
             const story = storyDetails[0];
       
 
-            // ✅ Check if story has expired (24 hours)
-            if (story.createdAt && !isStoryVisible(story.createdAt)) {
-              const storyAge = getStoryAge(story.createdAt);
-            
-              
-              showAlert(
-                'Story đã hết hạn', 
-                `Story này đã được đăng ${storyAge.hours} giờ ${storyAge.minutes} phút trước và đã hết hạn sau 24 giờ.`,
-                3000
-              );
-              navigation.goBack();
-              return;
-            }
+  
 
             // Fetch creator information - first try to find in following users
             let creatorInfo = followingUsers.find(u => u._id === creatorId);
@@ -239,17 +227,21 @@ export const SeenStory = ({route, navigation}: any) => {
         u.handleName === currentCreator?.handleName,
     );
 
-    // ✅ Filter out stories that have been deleted from Redux store
-    const validStoryIds = currentUserInRedux?.stories || [];
-    const filteredStories = stories.filter((story: Story) =>
-      validStoryIds.includes(story._id),
-    );
+    // ✅ For stories passed via route params (including deeplink and archive), don't filter by validStoryIds
+    // because stories older than 24h may not be in followingUsers.stories but still exist in database
+    let filteredStories = stories;
+    
+    // ✅ Only filter by validStoryIds if we're viewing from Home feed (not deeplink, not archive)
+    // Archive stories and deeplink stories should be viewable regardless of 24h limit
+    if (!storyId && !creatorId && !route.params?.fromArchive) {
+      const validStoryIds = currentUserInRedux?.stories || [];
+      filteredStories = stories.filter((story: Story) =>
+        validStoryIds.includes(story._id),
+      );
+    }
 
-    // ✅ Filter out expired stories (older than 24 hours)
-    const visibleStories = filteredStories.filter((story: Story) => {
-      if (!story.createdAt) return false;
-      return isStoryVisible(story.createdAt);
-    });
+    // ✅ Use filtered stories directly without expiration check
+    const visibleStories = filteredStories;
 
     return visibleStories.map((story: Story) => {
       // Find updated story data from Redux store
@@ -266,7 +258,7 @@ export const SeenStory = ({route, navigation}: any) => {
       }
       return story;
     });
-  }, [stories, storyDetails, followingUsers, currentCreator]);
+  }, [stories, storyDetails, followingUsers, currentCreator, storyId, creatorId]);
 
   // ✅ Update local state when syncedStories changes (due to deletions)
   useEffect(() => {
@@ -311,25 +303,19 @@ export const SeenStory = ({route, navigation}: any) => {
         const filteredStoriesCount = originalStoriesCount - syncedStories.length;
         
         if (filteredStoriesCount > 0) {
-          // ✅ Kiểm tra xem story có bị xóa hay hết hạn
+          // ✅ Kiểm tra xem story có bị xóa
           const currentUserInRedux = followingUsers.find(
             u =>
               u._id === currentCreator?._id ||
               u.handleName === currentCreator?.handleName,
           );
           
-          if (currentUserInRedux && currentUserInRedux.stories.length === 0) {
+          // ✅ Only show deletion message if we're not in deeplink mode, not archive mode, and stories were actually deleted
+          if (!storyId && !creatorId && !route.params?.fromArchive && currentUserInRedux && currentUserInRedux.stories.length === 0) {
             // Story bị xóa
             showAlert(
               'Thông báo', 
               'Story này không còn tồn tại hoặc đã bị xóa.',
-              2000
-            );
-          } else {
-            // Story hết hạn
-            showAlert(
-              'Thông báo', 
-              `Tất cả ${filteredStoriesCount} story đã hết hạn sau 24 giờ.`,
               2000
             );
           }
@@ -623,47 +609,41 @@ export const SeenStory = ({route, navigation}: any) => {
           nextGroup.creator?._id === user?._id;
         const routeName = isOwner ? 'SeenStory' : 'SeenStory'; // Use unified component
 
-        // ✅ Sync next group stories with Redux store
-        const nextUserInRedux = followingUsers.find(
-          u =>
-            u._id === nextGroup.creator?._id ||
-            u.handleName === nextGroup.creator?.handleName,
-        );
+                  // ✅ Sync next group stories with Redux store
+          const nextUserInRedux = followingUsers.find(
+            u =>
+              u._id === nextGroup.creator?._id ||
+              u.handleName === nextGroup.creator?.handleName,
+          );
 
-        const validNextStoryIds = nextUserInRedux?.stories || [];
-        const syncedNextGroupStories = nextGroup.stories
-          .filter((story: Story) => validNextStoryIds.includes(story._id))
-          .filter((story: Story) => {
-            // ✅ Filter out expired stories
-            if (!story.createdAt) return false;
-            return isStoryVisible(story.createdAt);
-          })
-          .map((story: Story) => {
-            const updatedStory = storyDetails.find(s => s._id === story._id);
-            if (updatedStory) {
-              return {
-                ...story,
-                likedByUsers:
-                  updatedStory.likedByUsers || story.likedByUsers || [],
-                viewedByUsers:
-                  updatedStory.viewedByUsers || story.viewedByUsers || [],
-              };
-            }
-            return story;
-          });
+          // ✅ Don't filter by validStoryIds for navigation - use all stories from storyGroups
+          const syncedNextGroupStories = nextGroup.stories
+            .map((story: Story) => {
+              const updatedStory = storyDetails.find(s => s._id === story._id);
+              if (updatedStory) {
+                return {
+                  ...story,
+                  likedByUsers:
+                    updatedStory.likedByUsers || story.likedByUsers || [],
+                  viewedByUsers:
+                    updatedStory.viewedByUsers || story.viewedByUsers || [],
+                };
+              }
+              return story;
+            });
 
-                  // ✅ Check if there are any visible stories in the next group
-          if (syncedNextGroupStories.length === 0) {
+                  // ✅ Check if there are any stories in the next group (don't filter by 24h)
+          if (nextGroup.stories.length === 0) {
           
             
-            // ✅ Kiểm tra xem story có bị xóa hay hết hạn
+            // ✅ Kiểm tra xem story có bị xóa (chỉ khi không phải deeplink mode và không phải archive mode)
             const nextUserInRedux = followingUsers.find(
               u =>
                 u._id === nextGroup.creator?._id ||
                 u.handleName === nextGroup.creator?.handleName,
             );
             
-            if (nextUserInRedux && nextUserInRedux.stories.length === 0) {
+            if (!storyId && !creatorId && !route.params?.fromArchive && nextUserInRedux && nextUserInRedux.stories.length === 0) {
               // Story bị xóa - hiển thị thông báo
               showAlert(
                 'Thông báo', 
@@ -676,18 +656,9 @@ export const SeenStory = ({route, navigation}: any) => {
             let nextVisibleGroupIndex = nextGroupIndex + 1;
             while (nextVisibleGroupIndex < currentStoryGroups.length) {
               const nextVisibleGroup = currentStoryGroups[nextVisibleGroupIndex];
-              const nextVisibleUserInRedux = followingUsers.find(
-                u =>
-                  u._id === nextVisibleGroup.creator?._id ||
-                  u.handleName === nextVisibleGroup.creator?.handleName,
-              );
-              const validNextVisibleStoryIds = nextVisibleUserInRedux?.stories || [];
-              const visibleStoriesInNextGroup = nextVisibleGroup.stories
-                .filter((story: Story) => validNextVisibleStoryIds.includes(story._id))
-                .filter((story: Story) => {
-                  if (!story.createdAt) return false;
-                  return isStoryVisible(story.createdAt);
-                });
+              
+              // ✅ Don't filter by validStoryIds - use all stories from storyGroups
+              const visibleStoriesInNextGroup = nextVisibleGroup.stories;
               
               if (visibleStoriesInNextGroup.length > 0) {
                 // Navigate to this group instead
@@ -722,6 +693,7 @@ export const SeenStory = ({route, navigation}: any) => {
                   creator: nextVisibleGroup.creator,
                   stories: syncedNextVisibleGroupStories,
                   initialIndex: 0,
+                  fromArchive: route.params?.fromArchive, // ✅ Truyền flag từ Archive
                   timestamp: Date.now(),
                 });
                 return;
@@ -747,6 +719,7 @@ export const SeenStory = ({route, navigation}: any) => {
           creator: nextGroup.creator,
           stories: syncedNextGroupStories,
           initialIndex: 0,
+          fromArchive: route.params?.fromArchive, // ✅ Truyền flag từ Archive
           timestamp: Date.now(),
         });
       } else {
@@ -798,14 +771,8 @@ export const SeenStory = ({route, navigation}: any) => {
               u.handleName === prevGroup.creator?.handleName,
           );
 
-          const validPrevStoryIds = prevUserInRedux?.stories || [];
+          // ✅ Don't filter by validStoryIds for navigation - use all stories from storyGroups
           const syncedPrevGroupStories = prevGroup.stories
-            .filter((story: Story) => validPrevStoryIds.includes(story._id))
-            .filter((story: Story) => {
-              // ✅ Filter out expired stories
-              if (!story.createdAt) return false;
-              return isStoryVisible(story.createdAt);
-            })
             .map((story: Story) => {
               const updatedStory = storyDetails.find(s => s._id === story._id);
               if (updatedStory) {
@@ -820,18 +787,18 @@ export const SeenStory = ({route, navigation}: any) => {
               return story;
             });
 
-          // ✅ Check if there are any visible stories in the previous group
-          if (syncedPrevGroupStories.length === 0) {
+          // ✅ Check if there are any stories in the previous group (don't filter by 24h)
+          if (prevGroup.stories.length === 0) {
            
             
-            // ✅ Kiểm tra xem story có bị xóa hay hết hạn
+            // ✅ Kiểm tra xem story có bị xóa (chỉ khi không phải deeplink mode và không phải archive mode)
             const prevUserInRedux = followingUsers.find(
               u =>
                 u._id === prevGroup.creator?._id ||
                 u.handleName === prevGroup.creator?.handleName,
             );
             
-            if (prevUserInRedux && prevUserInRedux.stories.length === 0) {
+            if (!storyId && !creatorId && !route.params?.fromArchive && prevUserInRedux && prevUserInRedux.stories.length === 0) {
               // Story bị xóa - hiển thị thông báo
               showAlert(
                 'Thông báo', 
@@ -844,18 +811,9 @@ export const SeenStory = ({route, navigation}: any) => {
             let prevVisibleGroupIndex = prevGroupIndex - 1;
             while (prevVisibleGroupIndex >= 0) {
               const prevVisibleGroup = currentStoryGroups[prevVisibleGroupIndex];
-              const prevVisibleUserInRedux = followingUsers.find(
-                u =>
-                  u._id === prevVisibleGroup.creator?._id ||
-                  u.handleName === prevVisibleGroup.creator?.handleName,
-              );
-              const validPrevVisibleStoryIds = prevVisibleUserInRedux?.stories || [];
-              const visibleStoriesInPrevGroup = prevVisibleGroup.stories
-                .filter((story: Story) => validPrevVisibleStoryIds.includes(story._id))
-                .filter((story: Story) => {
-                  if (!story.createdAt) return false;
-                  return isStoryVisible(story.createdAt);
-                });
+              
+              // ✅ Don't filter by validStoryIds - use all stories from storyGroups
+              const visibleStoriesInPrevGroup = prevVisibleGroup.stories;
               
               if (visibleStoriesInPrevGroup.length > 0) {
                 // Navigate to this group instead
@@ -890,6 +848,7 @@ export const SeenStory = ({route, navigation}: any) => {
                   creator: prevVisibleGroup.creator,
                   stories: syncedPrevVisibleGroupStories,
                   initialIndex: (syncedPrevVisibleGroupStories.length || 1) - 1,
+                  fromArchive: route.params?.fromArchive, // ✅ Truyền flag từ Archive
                   timestamp: Date.now(),
                 });
                 return;
@@ -915,6 +874,7 @@ export const SeenStory = ({route, navigation}: any) => {
             creator: prevGroup.creator,
             stories: syncedPrevGroupStories,
             initialIndex: (syncedPrevGroupStories.length || 1) - 1,
+            fromArchive: route.params?.fromArchive, // ✅ Truyền flag từ Archive
             timestamp: Date.now(),
           });
 
@@ -961,11 +921,7 @@ export const SeenStory = ({route, navigation}: any) => {
   const handleLike = async () => {
     if (isCurrentUserStory) return; // Owner can't like their own story
 
-    // ✅ Check if story has expired before liking
-    if (selectedItem?.createdAt && !isStoryVisible(selectedItem.createdAt)) {
-      showAlert('Thông báo', 'Story này đã hết hạn sau 24 giờ và không thể thích.');
-      return;
-    }
+
 
     try {
       await dispatch(toggleLikeStory({storyId: selectedItem._id})).unwrap();
@@ -1151,11 +1107,7 @@ export const SeenStory = ({route, navigation}: any) => {
   const handleCopyLink = () => {
     if (isCurrentUserStory) return; // Owner doesn't have copy link
 
-    // ✅ Check if story has expired before copying link
-    if (selectedItem?.createdAt && !isStoryVisible(selectedItem.createdAt)) {
-      showAlert('Thông báo', 'Story này đã hết hạn sau 24 giờ và không thể sao chép liên kết.');
-      return;
-    }
+
 
     if (selectedItem?._id) {
       // Generate deeplink for the story - use universal link format
@@ -1173,11 +1125,7 @@ export const SeenStory = ({route, navigation}: any) => {
   const handleOpenReply = () => {
     if (isCurrentUserStory) return; // Owner can't reply to their own story
 
-    // ✅ Check if story has expired before replying
-    if (selectedItem?.createdAt && !isStoryVisible(selectedItem.createdAt)) {
-      showAlert('Thông báo', 'Story này đã hết hạn sau 24 giờ và không thể trả lời.');
-      return;
-    }
+
 
     stopCurrentAnimation();
     setIsPaused(true); // Pause story when opening reply modal
@@ -1283,7 +1231,9 @@ export const SeenStory = ({route, navigation}: any) => {
             }
           }}
           visible={visible}
-          users={selectedItem?.viewedByUsers || []}
+          users={(selectedItem?.viewedByUsers || []).filter(
+            (viewer: any) => viewer._id !== currentCreator?._id
+          )}
           onClose={() => setVisible(false)}
           onDelete={handleDeleteStory}
         />
@@ -1340,7 +1290,10 @@ export const SeenStory = ({route, navigation}: any) => {
                 setWasPausedByUser(false);
               }
             }}
-            users={selectedItem?.viewedByUsers || []}
+            users={(selectedItem?.viewedByUsers || []).filter(
+              (viewer: any) => viewer._id !== currentCreator?._id
+            )}
+            likedByUsers={selectedItem?.likedByUsers || []}
             onUserPress={user => {
               setVisible(false);
               if (user._id === yourUserId) {

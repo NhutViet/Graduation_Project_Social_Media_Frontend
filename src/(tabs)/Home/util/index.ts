@@ -464,12 +464,15 @@ export const handleHighlightPress = async (
         try {
           await dispatch(seenStory({storyId: item._id}));
 
-          const hasSeen = await checkStorySeenInStorage(
-            item._id,
-            item.createdAt,
-          );
-          if (!hasSeen) {
-            await markStoryAsSeen(item._id, item.createdAt);
+          // ✅ Chỉ check seen status cho stories không phải từ Archive
+          if (!isOwner) {
+            const hasSeen = await checkStorySeenInStorage(
+              item._id,
+              item.createdAt,
+            );
+            if (!hasSeen) {
+              await markStoryAsSeen(item._id, item.createdAt);
+            }
           }
 
           // ✅ Giữ nguyên cấu trúc tags gốc để tránh lỗi navigation
@@ -572,6 +575,7 @@ export const handleHighlightPress = async (
         storyGroupIndex: 0,
         creator,
         stories: validStories,
+        fromArchive: isOwner, // ✅ Truyền flag để biết đây là từ Archive
         timestamp: Date.now(),
       });
       return;
@@ -645,6 +649,17 @@ export const handleHighlightPress = async (
               .map(async (item: Story) => {
                 try {
                   await dispatch(seenStory({storyId: item._id}));
+
+                  // ✅ Chỉ check seen status cho stories không phải từ Archive
+                  if (!isOwner) {
+                    const hasSeen = await checkStorySeenInStorage(
+                      item._id,
+                      item.createdAt,
+                    );
+                    if (!hasSeen) {
+                      await markStoryAsSeen(item._id, item.createdAt);
+                    }
+                  }
 
                   // ✅ Giữ nguyên cấu trúc tags gốc cho các highlight khác
                   const populatedTags = (item.tags || []).map(
@@ -754,6 +769,7 @@ export const handleHighlightPress = async (
       storyGroupIndex: currentGroupIndex >= 0 ? currentGroupIndex : 0,
       creator,
       stories: validStories,
+      fromArchive: isOwner, // ✅ Truyền flag để biết đây là từ Archive
       timestamp: Date.now(),
     });
   } catch (error) {

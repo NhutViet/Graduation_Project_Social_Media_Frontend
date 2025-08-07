@@ -76,6 +76,7 @@ const ItemHome = (props: ItemHomeProps) => {
     clickableHashtags = true,
     isFollow,
     onFollowChange,
+    musicInfo,
   } = props;
 
   const navigation = useNavigation<ProfileCompNav>();
@@ -418,6 +419,7 @@ const ItemHome = (props: ItemHomeProps) => {
           onUserPress={handleUserPress}
           onFollowPress={handleFollowAction}
           onOptionsPress={openOptions}
+          musicInfo={musicInfo}
         />
         <RenderMuteButton
           muted={muted}
