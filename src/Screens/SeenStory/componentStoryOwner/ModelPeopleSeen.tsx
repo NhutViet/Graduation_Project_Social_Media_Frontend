@@ -9,13 +9,14 @@ import {
 } from 'react-native';
 import React from 'react';
 import {FlashList} from '@shopify/flash-list';
-import {UsersRound, X} from 'lucide-react-native';
+import {UsersRound, X, Heart} from 'lucide-react-native';
 
 const ModalPeopleSeen = ({
   visible,
   onClose,
   users,
   onUserPress, // thêm prop này
+  likedByUsers = [], // thêm prop này để biết ai đã like
 }: {
   visible: boolean;
   onClose: () => void;
@@ -31,6 +32,7 @@ const ModalPeopleSeen = ({
     profilePic: string;
     username: string;
   }) => void;
+  likedByUsers?: string[]; // thêm prop này
 }) => {
   const RenderItem = ({
     item,
@@ -41,14 +43,27 @@ const ModalPeopleSeen = ({
       profilePic: string;
       username: string;
     };
-  }) => (
-    <TouchableOpacity onPress={() => onUserPress(item)}>
-      <View style={styles.itemContainer}>
-        <Image style={styles.itemIcon} source={{uri: item.profilePic}} />
-        <Text style={styles.itemName}>{item.username}</Text>
-      </View>
-    </TouchableOpacity>
-  );
+  }) => {
+    // Kiểm tra xem user này có like story không
+    const hasLiked = likedByUsers.includes(item._id);
+    
+    return (
+      <TouchableOpacity onPress={() => onUserPress(item)}>
+        <View style={styles.itemContainer}>
+          <Image style={styles.itemIcon} source={{uri: item.profilePic}} />
+          <View style={styles.userInfoContainer}>
+            <Text style={styles.itemName}>{item.username}</Text>
+            {hasLiked && (
+              <View style={styles.likeContainer}>
+                <Heart size={12} color="#ff4757" fill="#ff4757" />
+                <Text style={styles.likeText}>Đã thích</Text>
+              </View>
+            )}
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <Modal
@@ -131,9 +146,23 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
   },
+  userInfoContainer: {
+    flex: 1,
+    marginLeft: 10,
+  },
   itemName: {
     color: '#fff',
     fontSize: 16,
-    marginLeft: 10,
+  },
+  likeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 2,
+  },
+  likeText: {
+    color: '#ff4757',
+    fontSize: 12,
+    marginLeft: 4,
+    fontWeight: '500',
   },
 });

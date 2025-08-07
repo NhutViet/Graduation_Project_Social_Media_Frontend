@@ -31,8 +31,6 @@ import {handleUserPress} from './util';
 import {
   checkStorySeenInStorage,
   clearExpiredSeenStories,
-  isStoryVisible,
-  getStoryAge,
 } from '../../../services/storage/storage';
 import {ModalLoading} from './components/loading';
 import {useStoryPrefetch} from './hook/useStoryPrefetch';
@@ -170,12 +168,7 @@ export const Home = forwardRef(({route}: HomeProps, ref) => {
             user.stories?.filter((storyId: string) => {
               const story = storyDetails.find(s => s._id === storyId);
               if (!story || !story.createdAt) return false;
-
-              const isVisible = isStoryVisible(story.createdAt);
-              if (!isVisible) {
-                const age = getStoryAge(story.createdAt);
-              }
-              return isVisible;
+              return true; // Allow all stories regardless of age
             }) || [];
 
           return {

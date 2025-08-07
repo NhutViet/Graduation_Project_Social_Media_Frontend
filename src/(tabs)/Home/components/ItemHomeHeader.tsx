@@ -16,6 +16,10 @@ interface ItemHomeHeaderProps {
   onUserPress: () => void;
   onFollowPress: (mine: Mine) => void;
   onOptionsPress: () => void;
+  musicInfo?: {
+    song?: string;
+    author?: string;
+  };
 }
 
 export const ItemHomeHeader: React.FC<ItemHomeHeaderProps> = ({
@@ -27,6 +31,7 @@ export const ItemHomeHeader: React.FC<ItemHomeHeaderProps> = ({
   onUserPress,
   onFollowPress,
   onOptionsPress,
+  musicInfo,
 }) => {
   const userId = useSelector((state: RootState) => state.user?.user?._id);
   const mine = useSelector((state: RootState) => state.user?.user);
@@ -40,15 +45,17 @@ export const ItemHomeHeader: React.FC<ItemHomeHeaderProps> = ({
             source={{uri: user.profilePic}}
           />
         </TouchableOpacity>
-        <View>
+        <View style={{width: '50%'}}>
           <Text
             numberOfLines={1}
             style={[ItemHomeStyles.textNormal, {color: textColor}]}>
             {user.username}
           </Text>
-          <Text style={[ItemHomeStyles.text, {color: textColor}]}>
-            Gợi ý cho bạn
-          </Text>
+          {musicInfo?.song ? (
+            <Text numberOfLines={1} style={[ItemHomeStyles.text, {color: textColor}]}>
+              {musicInfo.song} 
+            </Text>
+          ) : null}
         </View>
       </View>
 
