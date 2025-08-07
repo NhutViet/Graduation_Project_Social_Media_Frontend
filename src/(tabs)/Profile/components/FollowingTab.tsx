@@ -66,7 +66,7 @@ const FollowingTab = () => {
           targetId: item._id,
           action: 'follow',
           senderId: user?._id,
-          handleName: user?.handleName,
+          handleName: user?.username,
         }),
       ).unwrap();
       if (isRecommendation) {
@@ -96,7 +96,7 @@ const FollowingTab = () => {
         targetId,
         action: 'unfollow',
         senderId: user?._id!,
-        handleName: user?.handleName!,
+        handleName: user?.username!,
       }),
     )
       .unwrap()
@@ -230,7 +230,7 @@ const FollowingTab = () => {
                   targetId: id,
                   action: 'unfollow',
                   senderId: user?._id!,
-                  handleName: user?.handleName!,
+                  handleName: user?.username!,
                 })
               ).unwrap();
               dispatch(fetchFollowing({ userId: userID! }));

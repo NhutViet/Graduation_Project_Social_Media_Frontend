@@ -333,7 +333,7 @@ export const Search = forwardRef<SearchRef, {}>((props, ref) => {
                 setIsFocused(true);
                 setIsShowResult(false);
               }}
-              style={{color: color.text, flex: 1, paddingVertical: 8, paddingHorizontal: 8,}}
+              style={{color: color.text, flex: 1, paddingVertical: 8, paddingHorizontal: 8}}
               value={searchText}
               onChangeText={setSearchText}
               onSubmitEditing={handleSearchSubmit}

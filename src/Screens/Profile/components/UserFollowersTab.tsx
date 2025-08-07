@@ -64,7 +64,7 @@ const UserFollowersTab = ({route}: any) => {
             targetId: item._id,
             action: actionType,
             senderId: user?._id,
-            handleName: user?.handleName,
+            handleName: user?.username,
           }),
         ).unwrap();
 
@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#007BFF',
   },
   messageButton: {
-    width: 100,
+    width: 110,
     borderWidth: 1,
   },
   buttonText: {

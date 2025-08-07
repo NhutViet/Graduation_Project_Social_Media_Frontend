@@ -84,7 +84,7 @@ const ModalReaction = forwardRef<Modalize, ModalReactionProps>(
                 userId: item?.userId,
                 follow: item.userFollowing ?? false,
                 senderId: user?._id,
-                handleName: user?.handleName,
+                handleName: user?.username,
                 dispatch,
               });
               setUsers(prevUsers =>
