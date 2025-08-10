@@ -9,8 +9,7 @@ import {
 } from 'react-native';
 import {Colors} from '../assets/color/Colors';
 import {useTheme} from '../src/util/ThemeContext';
-import {Menu, Divider, Provider} from 'react-native-paper';
-import {GlobalAlertManager} from './Global/AlertModal';
+import {Provider} from 'react-native-paper';
 import {useSelector} from 'react-redux';
 import {RootState} from '@services/store';
 import {getUnreadNotificationCount} from '@services/notificationRedux/notificationSlice';
@@ -62,10 +61,6 @@ const Header = (props: HeaderProps) => {
   const {theme} = useTheme();
   const color = Colors[theme];
 
-  const [visible, setVisible] = useState(false);
-  const openMenu = () => setVisible(true);
-  const closeMenu = () => setVisible(false);
-
   const isReadNoti = useSelector(
     (state: RootState) => state.notification.isReadNoti,
   );
@@ -80,35 +75,9 @@ const Header = (props: HeaderProps) => {
         {/* Left Section */}
         <View style={styles.leftSection}>
           {icon && (
-            <Menu
-              visible={visible}
-              onDismiss={closeMenu}
-              style={{marginTop: 40, marginLeft: 40}}
-              anchor={
-                <TouchableOpacity onPress={openMenu}>
-                  <Image source={icon} style={styles.logo} />
-                </TouchableOpacity>
-              }>
-              <Menu.Item
-                onPress={() =>
-                  GlobalAlertManager.show(
-                    'Thông báo',
-                    'Chức năng chưa phát triển',
-                  )
-                }
-                title="Đang theo dõi"
-              />
-              <Menu.Item
-                onPress={() =>
-                  GlobalAlertManager.show(
-                    'Thông báo',
-                    'Chức năng chưa phát triển',
-                  )
-                }
-                title="Yêu thích"
-              />
-              <Divider />
-            </Menu>
+            <View>
+              <Image source={icon} style={styles.logo} />
+            </View>
           )}
 
           {iconBack && (

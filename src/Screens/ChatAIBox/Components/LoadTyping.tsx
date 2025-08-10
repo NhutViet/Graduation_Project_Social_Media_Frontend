@@ -21,7 +21,7 @@ const LoadTyping = (props: LoadingTypingProps) => {
   const {itemLoading, Icon} = props;
 
   return (
-    <View style={[styles.containerRow]}>
+    <View style={[styles.containerRow, {marginVertical: 4}]}>
       {Icon && (
         <View style={[styles.containerRow, {alignItems: 'center'}]}>
           <View
@@ -77,9 +77,15 @@ const LoadTyping = (props: LoadingTypingProps) => {
                 paddingLeft: 10,
                 alignItems: 'center',
                 backgroundColor: color.backgroundSecondary,
+                elevation: 4,
+                shadowColor: '#000',
+                shadowOffset: {width: 0, height: 1},
+                shadowOpacity: 0.2,
+                shadowRadius: 4,
+                maxWidth: '80%',
               },
             ]}>
-            <Text style={[styles.text]} numberOfLines={1}>
+            <Text style={[styles.text, {color: color.text}]} numberOfLines={1}>
               {itemLoading[0].username} đang nhập
             </Text>
             <DotTypingAnimation
@@ -134,6 +140,12 @@ const LoadTyping = (props: LoadingTypingProps) => {
                   paddingLeft: 10,
                   alignItems: 'center',
                   backgroundColor: color.backgroundSecondary,
+                  elevation: 4,
+                  shadowColor: '#000',
+                  shadowOffset: {width: 0, height: 1},
+                  shadowOpacity: 0.2,
+                  shadowRadius: 4,
+                  maxWidth: '80%'
                 },
               ]}>
               <Text style={[styles.text, {color: color.text}]}>
