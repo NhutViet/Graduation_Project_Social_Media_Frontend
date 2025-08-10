@@ -283,11 +283,11 @@ export const EditProfile = () => {
                   type: 'text',
                 },
                 {
-                  label: 'Tên tài khoản *',
+                  label: 'Tên tài khoản',
                   value: handleName,
                   onChangeText: setHandleName,
                   editable: false,
-                  type: 'text',
+                  type: 'ban',
                 },
                 {
                   label: 'Mô tả',
@@ -304,11 +304,11 @@ export const EditProfile = () => {
                   type: 'date',
                 },
                 {
-                  label: 'Email *',
+                  label: 'Email',
                   value: email,
                   onChangeText: setEmail,
                   editable: false,
-                  type: 'text',
+                  type: 'ban',
                 },
                 {
                   label: 'Số điện thoại',

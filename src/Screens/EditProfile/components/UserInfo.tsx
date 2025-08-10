@@ -14,7 +14,7 @@ type Row = {
   onChangeText?: (text: string) => void;
   editable?: boolean;
   onDateChange?: (date: string) => void;
-  type?: 'text' | 'date' | 'dropdown';
+  type?: 'text' | 'date' | 'dropdown' | 'ban';
   options?: {label: string; value: string}[];
 };
 
@@ -43,12 +43,9 @@ export const UserInfo: React.FC<UserInfoProps> = ({title, subtitle, rows}) => {
         <View key={idx} style={styles.row}>
           {(() => {
             const baseText = row.label.replace(/\*/g, '');
-            const hasStar = row.label.includes('*');
-
             return (
-              <Text style={styles.label}>
+              <Text style={[styles.label, {color: row.type === 'ban' ? color.textSecondary : color.text}]}>
                 {baseText}
-                {hasStar && <Text style={styles.asterisk}>*</Text>}
               </Text>
             );
           })()}
@@ -124,6 +121,7 @@ export const UserInfo: React.FC<UserInfoProps> = ({title, subtitle, rows}) => {
                   paddingVertical: 8,
                   fontSize: 16,
                   fontWeight: '400',
+                  color: row.type === 'ban' ? color.textSecondary : color.text,
                 },
               ]}
               numberOfLines={1}
@@ -136,7 +134,7 @@ export const UserInfo: React.FC<UserInfoProps> = ({title, subtitle, rows}) => {
               value={row.value}
               onChangeText={row.onChangeText}
               placeholder={row.placeholder ?? row.label}
-              placeholderTextColor="#979797"
+              placeholderTextColor={color.textSecondary}
               editable={row.editable}
             />
           )}

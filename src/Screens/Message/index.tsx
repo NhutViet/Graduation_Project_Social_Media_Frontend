@@ -157,7 +157,7 @@ export const MessageScreen = () => {
     if (!socket) return;
 
     const onMessage = (data: Message) => {
-      setChat(prev => [...prev, data]);
+      setChat(prev => [data, ...prev]);
       setHighlightedMessageId(null);
       // No need to set navigation params - using local state instead
     };
@@ -241,12 +241,6 @@ export const MessageScreen = () => {
         });
       }
     });
-  }, [chat]);
-
-  useEffect(() => {
-    if (chat.length > 0) {
-      flatListRef.current?.scrollToEnd({animated: true});
-    }
   }, [chat]);
 
   // Handle highlighting from search results
@@ -469,6 +463,7 @@ export const MessageScreen = () => {
               ref={flatListRef}
               data={chat}
               renderItem={renderItem}
+              inverted
               keyExtractor={keyExtractor}
               showsVerticalScrollIndicator={false}
               contentContainerStyle={{
@@ -477,9 +472,7 @@ export const MessageScreen = () => {
                 paddingHorizontal: 10,
                 flexGrow: 1,
               }}
-              onContentSizeChange={() =>
-                flatListRef.current?.scrollToEnd({animated: true})
-              }
+              ListHeaderComponent={listTyping.length > 0 ? <LoadTyping itemLoading={listTyping}/> : null}
             />
             {isWaitingAndNotCreator ? (
               <View style={styles.requestBanner}>
@@ -501,7 +494,6 @@ export const MessageScreen = () => {
               </View>
             ) : (
               <>
-                {listTyping.length > 0 && <LoadTyping itemLoading={listTyping}/>}
                 <MessageInput
                   message={message}
                   setMessage={setMessage}
