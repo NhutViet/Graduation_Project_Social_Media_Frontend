@@ -1,8 +1,8 @@
 export const BASE_URL = 'https://cirla.io.vn';
 // export const BASE_URL = 'http://192.168.1.3:4001';
-export const CallAppID = 41521435;
+export const CallAppID = 1490842003;
 export const CallAppSign =
-  '6c6785fccbe2469324a805ea64c58069dc7254723d60c056c925ab48d2aee6a4';
+  '6ac0a0fb97decf11bc62355bb3fc7587b35d882c87b2f42b59d0d8734f61940e';
 export const LiveStreamAppID = 192295587;
 export const LiveStreamAppSign =
   '0baa6cfb9bb2efb6d8c859f6ef13dba0fa6eb2df520196e63b8ae8d44bd7663e';
