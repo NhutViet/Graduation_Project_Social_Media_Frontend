@@ -2,6 +2,7 @@ export interface Sender {
   userId: string;
   handleName: string;
   profilePic: string;
+  username?: string;
 }
 
 export interface MediaMessage {

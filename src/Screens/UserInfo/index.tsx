@@ -169,10 +169,6 @@ export const UserInfo = () => {
     [navigation, roomId],
   );
 
-  const handleHighlightClear = useCallback((messageId: string) => {
-    setHighlightedMessageId(null);
-  }, []);
-
   const handleCloseSearchModal = useCallback(() => {
     setSearchModalVisible(false);
   }, []);
@@ -371,7 +367,6 @@ export const UserInfo = () => {
         onClose={handleCloseSearchModal}
         messages={messages}
         onMessageSelect={handleMessageSelect}
-        // onHighlightClear={handleHighlightClear}
       />
       <ImagePreviewModal
         visible={previewVisible}
