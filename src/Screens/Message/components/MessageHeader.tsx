@@ -155,10 +155,6 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
       if (rejectTimeoutRef.current) clearTimeout(rejectTimeoutRef.current);
     };
   }, [incomingCall.visible]);
-
-  // Show call icons when:
-  // 1. showCallFeatures is true (not a waiting room)
-  // 2. AND (bothFollowing is false OR messages length > 2)
   const shouldShowCallIcons =
     showCallFeatures && room?.type != 'waiting' && userC;
 
