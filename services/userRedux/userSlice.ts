@@ -188,7 +188,9 @@ export const fetchEditUser = createAsyncThunk<
         '[fetchEditUser] error response data:',
         error.response?.data
       );
-      return rejectWithValue('Could not update user');
+      return rejectWithValue(
+        error.response?.data?.message || 'Could not update user'
+      );
     }
   }
 );
