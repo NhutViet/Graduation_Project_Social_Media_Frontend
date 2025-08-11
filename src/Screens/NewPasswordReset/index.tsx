@@ -74,7 +74,8 @@ export const NewPasswordReset = ({ navigation, route }: any) => {
       console.log('[NewPasswordReset] fetchEditUser result:', result);
     } catch (err: any) {
       console.log('[NewPasswordReset] fetchEditUser error:', err);
-      GlobalAlertManager.show('Lỗi!', err.message || errorMessage);
+      const message = typeof err === 'string' ? err : 'Có lỗi xảy ra';
+      GlobalAlertManager.show('Lỗi!', message);
     }
   };
 
