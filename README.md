@@ -5,7 +5,9 @@ Một trải nghiệm mạng xã hội hiện đại cho phép người dùng ch
 🚀 Get Started
 
 1) Cài đặt phụ thuộc
-yarn install
+```bash
+   yarn install
+```
 
 2) Chạy ứng dụng mobile (React Native CLI)
 
