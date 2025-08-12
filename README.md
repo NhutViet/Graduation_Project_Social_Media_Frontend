@@ -1,131 +1,135 @@
-🌿 Welcome to Socail Meida Cirla 
+🌿 Welcome to Social Media Cirla
 
-Một trải nghiệm mạng xã hội hiện đại cho phép người dùng chia sẻ khoảnh khắc, kết nối bạn bè và trò chuyện thời gian thực — xây dựng bằng React Native CLI ở frontend và NextJS + MongoDB ở backend. Từ đăng bài (ảnh/video), theo dõi, đến nhắn tin và nhận thông báo, Cirla mang lại trải nghiệm mạng xã hội mượt mà trên di động.
+A modern social networking experience that lets people share moments, connect with friends, and chat in real time — built with React Native CLI on the frontend and Next.js + MongoDB on the backend. From posting (photos/videos) and following to messaging and notifications, Cirla delivers a smooth mobile‑first social experience.
 
 🚀 Get Started
 
-1) Cài đặt phụ thuộc
-```bash
-   yarn install
+1) Install dependencies
+``` bash
+yarn install
 ```
-2) Chạy ứng dụng mobile (React Native CLI
-```bash
-npx react-native run-start
+
+2) Run the mobile app (React Native CLI)
+``` bash
+npx react-native start
 ```
-Tùy chọn (build chạy thiết bị thật):
+
+Optional (run on device):
+
 iOS
-```bash
+
+``` bash
 npx react-native run-ios
 ```
+
 Android
-```bash
+
+``` bash
 npx react-native run-android
 ```
 
 ✨ Key Features
 
-👤 Tài khoản & Hồ sơ
+👤 Accounts & Profiles
 
-Đăng ký/Đăng nhập (Email + Google OAuth), xác thực JWT.
+Sign up / Sign in (Email + Google OAuth), JWT authentication.
 
-Cập nhật thông tin cá nhân, ảnh đại diện/ảnh bìa, bio, liên kết.
+Update profile info, avatar/cover photo, bio, external links.
 
-Quản lý quyền riêng tư: công khai/bạn bè/riêng tư.
+Privacy controls: public / friends / private.
 
-🏠 Bảng Tin (Feed)
+🏠 Feed
 
-Hiển thị bài viết của người theo dõi và gợi ý xu hướng.
+See posts from people you follow and trending suggestions.
 
-Tìm kiếm nhanh theo người dùng, hashtag, từ khoá.
+Quick search by user, hashtag, or keyword.
 
 📸 Story
 
-Đăng story ảnh/video dọc, tự động hết hạn sau 24 giờ (lưu vào Archive riêng tư nếu bật).
+Post vertical photo/video stories that expire after 24 hours (optional private Archive).
 
-Vòng tròn story trên avatar ở Home/Profile; hiển thị gradient ring khi có story mới, đổi màu khi đã xem.
+Story ring on avatars in Home/Profile; gradient ring for new stories, dimmed when viewed.
 
-Trình phát toàn màn hình: tap để chuyển tiếp/quay lại, thanh tiến độ cho từng đoạn.
+Full‑screen player: tap to next/previous, progress bar for each segment.
 
-Tương tác: reaction nhanh bằng emoji, reply mở thẳng cuộc trò chuyện (DM), danh sách người xem, đếm lượt xem.
+Interactions: quick emoji reactions, reply opens the chat (DM), viewer list and view count.
 
-Highlights: ghim story lên profile, nhóm thành bộ sưu tập, ảnh bìa tuỳ chỉnh.
+Highlights: pin stories to profile, group into collections, custom cover art.
 
-Giới hạn & media: tối đa 15 giây/đoạn (tự chia nếu dài), giới hạn kích thước tệp, nén/transcode phía server, tải trước (prefetch) story tiếp theo; dùng CDN và TTL 24h.
+Limits & media: up to 15s per segment (auto-split if longer), file size limits, server‑side transcode/compression, prefetch next story; CDN + 24h TTL.
 
-📝 Bài viết
+📝 Posts
 
-Văn bản + ảnh/video, hashtag #tag, nhắc tên @user.
+Text + photos/videos, #hashtags, @mentions.
 
-Bộ lọc/hiển thị theo chủ đề, vị trí, hoặc phương tiện.
+Filters/sorting by topic, location, or media type.
 
-Trang chi tiết bài viết: ảnh lớn, mô tả đầy đủ, bình luận, lượt thích.
+Post detail page: large media, full description, comments, likes.
 
-💬 Tương tác & Kết nối
+💬 Interactions & Connections
 
-Thích (like), bình luận, chia sẻ, lưu bài.
+Like, comment, share, save.
 
-Theo dõi/Huỷ theo dõi, gợi ý bạn bè.
+Follow / Unfollow, friend suggestions.
 
-⚡ Chat Realtime
+⚡ Realtime Chat
 
-Nhắn tin 1‑1/nhóm bằng Socket.IO.
+1‑1 and group messaging via Socket.IO.
 
-Trạng thái online/đang gõ, xem đã đọc.
+Online/typing indicators, read receipts.
 
-🔔 Thông báo
+🔔 Notifications
 
-In‑app + push (Expo Notifications), cập nhật like/bình luận/theo dõi/tin nhắn.
+In‑app + push (Expo Notifications), updates for likes/comments/follows/messages.
 
-🛡️ Quản trị & An toàn
+🛡️ Moderation & Safety
 
-Báo cáo nội dung, gắn cờ vi phạm, khoá tài khoản.
+Report content, flag violations, suspend accounts.
 
-Bộ lọc từ nhạy cảm, chống spam, rate‑limit API.
+Sensitive‑word filters, anti‑spam, API rate limiting.
 
 🛠️ Tech Stack
 
 🧩 Frameworks
 
-React Native — Ứng dụng di động (Expo/CLI)
+React Native — Mobile app (Expo/CLI)
 
-React — Web (dashboard/admin), kết hợp shadcn/ui
+React — Web (dashboard/admin) with shadcn/ui
 
 NestJS — Backend REST API & WebSocket Gateways
 
-🗣️ Ngôn ngữ
+🗣️ Language
 
-TypeScript (strict) trên cả mobile, web và server
+TypeScript (strict) across mobile, web, and server
 
-🗄️ Cơ sở dữ liệu
+🗄️ Database
 
-MongoDB với Mongoose (schema, index, TTL)
+MongoDB with Mongoose (schemas, indexes, TTL)
 
 🔌 Realtime & Media
 
-Socket.IO ("Socket") — Nhắn tin, presence, thông báo realtime
+Socket.IO — Messaging, presence, realtime notifications
 
-ZegoCloud — Thoại/Video call & livestream (nếu bật)
+ZegoCloud — Voice/Video calls & livestreams (optional)
 
-☁️ Hạ tầng & Dịch vụ bên thứ ba
+☁️ Infrastructure & Third‑party Services
 
-Cloudflare — DNS/CDN/Proxy; tuỳ chọn Images/R2/Workers
+Cloudflare — DNS/CDN/Proxy; optional Images/R2/Workers
 
-Firebase — Cloud Messaging (push), tuỳ chọn Auth/Analytics
+Firebase — Cloud Messaging (push), optional Auth/Analytics
 
-eSMS — OTP/SMS brandname (VN)
+eSMS — OTP/SMS brandname (Vietnam)
 
-openrouter — Tích hợp AI (gợi ý nội dung, kiểm duyệt hỗ trợ)
+openrouter — AI integration (content suggestions, assistive moderation)
 
 🎨 UI
 
-shadcn/ui cho phần React web (admin)
+shadcn/ui for the React web admin
 
-Thành phần React Native: Modal, SafeAreaView, Gesture Handler, FlashList
+React Native primitives: Modal, SafeAreaView, Gesture Handler, FlashList
 
 🧰 Dev & VCS
 
-Git, GitHub 
+Git, GitHub
 
-Trình quản lý gói: yarn / pnpm
-
-
+Package managers: yarn / pnpm
