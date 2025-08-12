@@ -117,6 +117,7 @@ const AllPostOfUserScreen = () => {
                 likeCount={item.likeCount || 0}
                 share={item.share || 0}
                 music={item.music}
+                musicInfo={item.musicInfo}
                 currentVisible={shouldPlay}
                 isFocused={isFocused}
                 sheetRef={sheetRef}

@@ -99,9 +99,6 @@ const ItemMusic = (props: ItemMusicProps) => {
           </Text>
           <View style={styles.leftContainer}>
             <Text style={[styles.text, {color: color.text}]}>{author} </Text>
-            <Text style={[styles.text, {color: color.text}]}>
-              · {countVideoUsed} bài đăng
-            </Text>
           </View>
         </View>
       </View>
