@@ -31,15 +31,17 @@ import LoadingModal from './Global/LoadingModal';
 import {Item} from '@services/postUserRedux/postUserType';
 import {updateLikeByPostId} from '@services/postRedux/postReducer';
 import {updateLikePostUser} from '@services/postUserRedux/postUserReducer';
-import { UserProfile } from '@services/relationRedux/relationTypes';
-import ModalOtherReport, { ModalOtherReportHandle } from '../src/(tabs)/Home/components/ModalOtherReport';
-import { reportPost } from '@services/reportPost/reportSlice';
-import { hidePost } from '@services/postRedux/postSlice';
-import { GlobalAlertManager } from './Global/AlertModal';
-import { useHeadAlert } from './Global/HeadAlertProvider';
-import { CustomBottomSheetOptionsRef } from '../src/(tabs)/Home/components/BottomSheetOptionsModal';
+import {UserProfile} from '@services/relationRedux/relationTypes';
+import ModalOtherReport, {
+  ModalOtherReportHandle,
+} from '../src/(tabs)/Home/components/ModalOtherReport';
+import {reportPost} from '@services/reportPost/reportSlice';
+import {hidePost} from '@services/postRedux/postSlice';
+import {GlobalAlertManager} from './Global/AlertModal';
+import {useHeadAlert} from './Global/HeadAlertProvider';
+import {CustomBottomSheetOptionsRef} from '../src/(tabs)/Home/components/BottomSheetOptionsModal';
 import BottomSheetIntentionsModal from '../src/(tabs)/Home/components/BottomSheetIntentionsModal';
-import { reportChoices } from '../src/config/postOptions';
+import {reportChoices} from '../src/config/postOptions';
 
 type RootStackParamList = {
   AllReels: {
@@ -65,7 +67,6 @@ const AllReels = () => {
   const otherReportRef = useRef<ModalOtherReportHandle>(null);
   const intentRef = useRef<CustomBottomSheetOptionsRef>(null);
   const {showAlert} = useHeadAlert();
-  
 
   const openShareModal = async (_id: string) => {
     try {
@@ -91,11 +92,8 @@ const AllReels = () => {
     (state: RootState) => state.user.refreshToken,
   );
   const likedPostIds = useSelector(
-      (state: RootState) => state.reactions.likePosts,
-    );
-    const followingUserIds = useSelector(
-      (state: RootState) => state.relation.following,
-    );
+    (state: RootState) => state.reactions.likePosts,
+  );
 
   useEffect(() => {
     // khởi tạo vị trí ban đầu và tắt loading
@@ -185,36 +183,41 @@ const AllReels = () => {
   }, [selectedItem, dispatch]);
 
   const handleIntentionSelect = useCallback(
-      (label: string, description?: string) => {
-        if (label !== 'other') {
-          dispatch(reportPost({targetId: selectedItem ? selectedItem._id : '', reason: label}))
-            .unwrap()
-            .then(() => {
-              showAlert(
-                'Thành công',
-                'Bài viết này sẽ được báo cáo và kiểm duyệt.',
-              );
-              handleHidePost();
-              intentRef.current?.close();
-            })
-            .catch(() => {
-              showAlert('Thất bại', 'Có lỗi xảy ra khi báo cáo.');
-            });
-        } else {
-          otherReportRef.current?.open();
-        }
-      },
-      [selectedItem],
-    );
+    (label: string, description?: string) => {
+      if (label !== 'other') {
+        dispatch(
+          reportPost({
+            targetId: selectedItem ? selectedItem._id : '',
+            reason: label,
+          }),
+        )
+          .unwrap()
+          .then(() => {
+            showAlert(
+              'Thành công',
+              'Bài viết này sẽ được báo cáo và kiểm duyệt.',
+            );
+            handleHidePost();
+            intentRef.current?.close();
+          })
+          .catch(() => {
+            showAlert('Thất bại', 'Có lỗi xảy ra khi báo cáo.');
+          });
+      } else {
+        otherReportRef.current?.open();
+      }
+    },
+    [selectedItem],
+  );
 
-    const intentionOptions = useMemo(
-      () =>
-        reportChoices.map(opt => ({
-          ...opt,
-          onPress: () => handleIntentionSelect(opt.id),
-        })),
-      [handleIntentionSelect],
-    );
+  const intentionOptions = useMemo(
+    () =>
+      reportChoices.map(opt => ({
+        ...opt,
+        onPress: () => handleIntentionSelect(opt.id),
+      })),
+    [handleIntentionSelect],
+  );
 
   if (loading) {
     return (
@@ -293,7 +296,8 @@ const AllReels = () => {
         selectedItem={selectedItem}
         handleReportPost={() => {
           sheetRef.current?.close();
-          intentRef.current?.open();}}
+          intentRef.current?.open();
+        }}
       />
       <BottomSheetIntentionsModal
         ref={intentRef}
@@ -308,7 +312,11 @@ const AllReels = () => {
         ref={otherReportRef}
         onSubmit={desc => {
           dispatch(
-            reportPost({targetId: selectedItem ? selectedItem._id : '', reason: 'OTHER', description: desc}),
+            reportPost({
+              targetId: selectedItem ? selectedItem._id : '',
+              reason: 'OTHER',
+              description: desc,
+            }),
           )
             .unwrap()
             .then(() => {

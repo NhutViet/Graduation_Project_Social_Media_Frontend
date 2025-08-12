@@ -14,6 +14,7 @@ import {
   Easing,
 } from 'react-native';
 import {Colors} from '../../../../assets/color/Colors';
+import {useTheme} from '../../../../src/util/ThemeContext';
 
 interface ModalThemeProps {
   visible: boolean;
@@ -24,17 +25,17 @@ interface ModalThemeProps {
 const backgroundOptions = [
   'https://i.pinimg.com/736x/94/2c/32/942c32efe5dd2e27254524a06b36ed3e.jpg',
   'https://i.pinimg.com/736x/b2/36/92/b236927a5d9952979b53ca487d132806.jpg',
-  'https://i.pinimg.com/736x/2f/5f/9a/2f5f9a16d7a5170a4690185f5e15e679.jpg',
+  'https://i.pinimg.com/originals/73/a8/4f/73a84f87a73aad2a1fa24cba544e9b34.png',
   'https://i.pinimg.com/736x/09/86/39/098639815a3da4edced552072f165ed8.jpg',
   'https://i.pinimg.com/736x/7f/93/1f/7f931f82706669b77dbfec0d64cbc346.jpg',
   'https://i.pinimg.com/736x/de/5e/6e/de5e6eeb01d05713f4205dea4294caa5.jpg',
   'https://i.pinimg.com/736x/79/d1/02/79d102e2817224fd99806210dffb6e14.jpg',
   'https://i.pinimg.com/736x/bd/4b/a8/bd4ba884117a69f04b82bbea41609935.jpg',
   'https://i.pinimg.com/736x/68/b5/e0/68b5e0e14d51b6646e79ba1e7a8efe71.jpg',
-  'https://i.pinimg.com/736x/38/3b/22/383b22f6c69a5c0b437c6fa6d942ee1b.jpg',
-  'https://i.pinimg.com/736x/a4/ba/df/a4badfdd908857ac5f3a0246a5b76791.jpg',
+  'https://i.pinimg.com/originals/ff/10/60/ff106081dda51e633c0ea47cd4bf4e8b.jpg',
+  'https://i.pinimg.com/550x/a2/40/a0/a240a0a23d572b2dfa60dea45b279ece.jpg',
   'https://i.pinimg.com/736x/85/05/fc/8505fcde48698821c0e29c130ed88a3c.jpg',
-  'https://i.pinimg.com/736x/28/21/ba/2821ba1cab65b39122bf77cb8a293981.jpg',
+  'https://i.pinimg.com/originals/4a/d2/4a/4ad24a86cd58949d953c8e3d69fb209b.jpg',
   'https://i.pinimg.com/736x/8f/be/04/8fbe04b72d7aaf5417bb146951c45530.jpg',
 ];
 
@@ -52,6 +53,8 @@ const ModalTheme: React.FC<ModalThemeProps> = ({
   const [show, setShow] = useState(false);
   const opacity = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(height)).current;
+  const {theme} = useTheme();
+  const color = Colors[theme];
 
   // Mở khi prop `visible` chuyển true
   useEffect(() => {
@@ -112,10 +115,13 @@ const ModalTheme: React.FC<ModalThemeProps> = ({
         style={[
           styles.sheet,
           {transform: [{translateY}], height: SHEET_HEIGHT},
+          {backgroundColor: color.backgroundSecondary},
         ]}>
         <SafeAreaView style={styles.container}>
           <View style={styles.grabber} />
-          <Text style={styles.title}>Đổi nền khung chat</Text>
+          <Text style={[styles.title, {color: color.text}]}>
+            Đổi nền khung chat
+          </Text>
 
           <FlatList
             data={backgroundOptions}
@@ -153,7 +159,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     width: '100%',
-    backgroundColor: '#fff',
     borderTopLeftRadius: 12,
     borderTopRightRadius: 12,
   },
@@ -174,7 +179,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     textAlign: 'center',
     marginBottom: ITEM_SPACING,
-    color: Colors.gray21,
   },
   list: {
     paddingBottom: ITEM_SPACING,

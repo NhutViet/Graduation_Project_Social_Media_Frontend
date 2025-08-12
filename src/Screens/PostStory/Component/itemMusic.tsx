@@ -20,21 +20,12 @@ type ItemMusicProps = {
   coverImg: string;
   song: string;
   author: string;
-  countVideoUsed?: number;
   onPress?: () => void;
   isBookmarked?: boolean;
 };
 
 const ItemMusic = (props: ItemMusicProps) => {
-  const {
-    _id,
-    coverImg,
-    song,
-    author,
-    countVideoUsed = 0,
-    onPress,
-    isBookmarked,
-  } = props;
+  const {_id, coverImg, song, author, onPress, isBookmarked} = props;
   const {theme} = useTheme();
   const color = Colors[theme];
   const dispatch = useDispatch<AppDispatch>();
@@ -105,7 +96,7 @@ const ItemMusic = (props: ItemMusicProps) => {
 
       <TouchableOpacity style={styles.playBlock} onPress={handleBookmark}>
         {isSave ? (
-          <BookmarkCheck size={22} color={'#F2C641'} fill='#F2C641' />
+          <BookmarkCheck size={22} color={'#F2C641'} fill="#F2C641" />
         ) : (
           <Bookmark size={22} color={color.text} />
         )}

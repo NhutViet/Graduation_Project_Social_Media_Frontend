@@ -55,7 +55,7 @@ const CustomPopupModal = forwardRef<CustomPopupModalRef, CustomPopupModalProps>(
     const translateY = useRef(new Animated.Value(height)).current;
     const {theme} = useTheme();
     const colors = Colors[theme];
-    backgroundColor = backgroundColor ?? colors.background;
+    backgroundColor = backgroundColor ?? colors.backgroundSecondary;
 
     const open = useCallback(() => {
       setVisible(true);

@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   View,
   Text,
@@ -21,14 +21,12 @@ import {Send} from 'lucide-react-native';
 import {GlobalAlertManager} from '../components/Global/AlertModal';
 import CommentComponent from '../src/(tabs)/Home/components/commentComponent';
 import {useNavigation} from '@react-navigation/native';
-import { CommentSkeleton } from '../components/SkeletonGrid';
+import {CommentSkeleton} from '../components/SkeletonGrid';
 
 interface Props {
   postId: string;
   receiverId?: string;
 }
-
-const {height} = Dimensions.get('window');
 
 const CommentSection = ({postId, receiverId}: Props) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -75,7 +73,7 @@ const CommentSection = ({postId, receiverId}: Props) => {
   };
 
   // Gọi API lấy comment khi vào
-  React.useEffect(() => {
+  useEffect(() => {
     dispatch(fetchCommentsByPost(postId));
   }, [dispatch, postId]);
 

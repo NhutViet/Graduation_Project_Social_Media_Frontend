@@ -52,8 +52,10 @@ export const ItemHomeHeader: React.FC<ItemHomeHeaderProps> = ({
             {user.username}
           </Text>
           {musicInfo?.song ? (
-            <Text numberOfLines={1} style={[ItemHomeStyles.text, {color: textColor}]}>
-              {musicInfo.song} 
+            <Text
+              numberOfLines={1}
+              style={[ItemHomeStyles.text, {color: textColor}]}>
+              {musicInfo.song}
             </Text>
           ) : null}
         </View>

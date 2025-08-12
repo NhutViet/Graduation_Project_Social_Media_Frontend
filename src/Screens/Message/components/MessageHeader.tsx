@@ -160,7 +160,13 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
 
   return (
     <>
-      <View style={styles.header}>
+      <View
+        style={[
+          styles.header,
+          {
+            backgroundColor: color.backgroundSecondary,
+          },
+        ]}>
         <View style={styles.rowContainer2}>
           <TouchableOpacity onPress={handleGoBack}>
             <ArrowLeft size={22} color={color.text} />
@@ -281,15 +287,6 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
             Rời đoạn chat
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.destructiveButton}
-          onPress={() => {
-            modalRef.current?.close();
-          }}>
-          <Text style={[styles.destructiveText, {color: '#FF3B30'}]}>
-            Báo cáo đoạn chat
-          </Text>
-        </TouchableOpacity>
       </CustomPopupModal>
     </>
   );
@@ -304,7 +301,6 @@ const styles = StyleSheet.create({
     height: 60,
     paddingHorizontal: 10,
     justifyContent: 'space-between',
-    backgroundColor: 'rgba(243, 244, 246, 0.7)',
   },
   rowContainer2: {
     width: '40%',
@@ -355,8 +351,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
-    borderTopColor: '#E5E5EA',
   },
   destructiveText: {
     fontSize: 18,
