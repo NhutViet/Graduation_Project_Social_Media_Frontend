@@ -81,3 +81,51 @@ In‑app + push (Expo Notifications), cập nhật like/bình luận/theo dõi/t
 Báo cáo nội dung, gắn cờ vi phạm, khoá tài khoản.
 
 Bộ lọc từ nhạy cảm, chống spam, rate‑limit API.
+
+🛠️ Tech Stack
+
+🧩 Frameworks
+
+React Native — Ứng dụng di động (Expo/CLI)
+
+React — Web (dashboard/admin), kết hợp shadcn/ui
+
+NestJS — Backend REST API & WebSocket Gateways
+
+🗣️ Ngôn ngữ
+
+TypeScript (strict) trên cả mobile, web và server
+
+🗄️ Cơ sở dữ liệu
+
+MongoDB với Mongoose (schema, index, TTL)
+
+🔌 Realtime & Media
+
+Socket.IO ("Socket") — Nhắn tin, presence, thông báo realtime
+
+ZegoCloud — Thoại/Video call & livestream (nếu bật)
+
+☁️ Hạ tầng & Dịch vụ bên thứ ba
+
+Cloudflare — DNS/CDN/Proxy; tuỳ chọn Images/R2/Workers
+
+Firebase — Cloud Messaging (push), tuỳ chọn Auth/Analytics
+
+eSMS — OTP/SMS brandname (VN)
+
+openrouter — Tích hợp AI (gợi ý nội dung, kiểm duyệt hỗ trợ)
+
+🎨 UI
+
+shadcn/ui cho phần React web (admin)
+
+Thành phần React Native: Modal, SafeAreaView, Gesture Handler, FlashList
+
+🧰 Dev & VCS
+
+Git, GitHub 
+
+Trình quản lý gói: yarn / pnpm
+
+
