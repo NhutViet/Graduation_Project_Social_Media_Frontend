@@ -48,8 +48,8 @@ import {selectItemHomeData} from '../selectors/homeSelectors';
 import {useItemHomeAudio} from '../hook/useItemHomeAudio';
 import {useHeadAlert} from '../../../../components/Global/HeadAlertProvider';
 import {reportPost} from '@services/reportPost/reportSlice';
-import {Modalize} from 'react-native-modalize';
 import ModalOtherReport, {ModalOtherReportHandle} from './ModalOtherReport';
+import ImagePreviewModal from '../../../../src/Screens/Message/components/ImagePreviewModal';
 
 Sound.setCategory('Playback');
 const screenWidth = Dimensions.get('window').width;
@@ -77,6 +77,7 @@ const ItemHome = (props: ItemHomeProps) => {
     isFollow,
     onFollowChange,
     musicInfo,
+    setDeleteMyPost,
   } = props;
 
   const navigation = useNavigation<ProfileCompNav>();
@@ -92,6 +93,7 @@ const ItemHome = (props: ItemHomeProps) => {
   const [numLike, setNumLike] = useState(likeCount);
   const [isBookmark, setIsBookmark] = useState(!!isBookmarked);
   const [likeLoading, setLikeLoading] = useState(false);
+  const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
 
   // music
   useItemHomeAudio(props, muted);
@@ -156,6 +158,10 @@ const ItemHome = (props: ItemHomeProps) => {
   const handleHidePost = useCallback(() => {
     dispatch(hidePost(_id))
       .unwrap()
+      .then(() => {
+        if (setDeleteMyPost) setDeleteMyPost(_id);
+        showAlert('Thành công', 'Ẩn bài viết thành công');
+      })
       .catch(() => GlobalAlertManager.show('Thất bại', 'Ẩn bài viết lỗi'));
   }, [_id, dispatch]);
 
@@ -188,6 +194,7 @@ const ItemHome = (props: ItemHomeProps) => {
       postId: _id,
       dispatch,
       showAlert,
+      setDeleteMyPost,
     });
   }, [_id, refreshToken, dispatch]);
 
@@ -198,6 +205,9 @@ const ItemHome = (props: ItemHomeProps) => {
     () => modalReactionRef.current?.open(),
     [],
   );
+  const handleCloseImagePreview = useCallback(() => {
+    setSelectedImageUri(null);
+  }, []);
 
   // Option logic
   const handleOptionSelect = useCallback(
@@ -325,6 +335,7 @@ const ItemHome = (props: ItemHomeProps) => {
         isFocused={isFocused}
         currentVisible={currentVisible && currentIndex === index}
         muted={muted}
+        setSelectedImageUri={setSelectedImageUri}
       />
     ),
     [isFocused, currentVisible, currentIndex, muted],
@@ -461,6 +472,11 @@ const ItemHome = (props: ItemHomeProps) => {
       </View>
 
       <Portal>
+        <ImagePreviewModal
+          visible={!!selectedImageUri}
+          imageUri={selectedImageUri}
+          onClose={handleCloseImagePreview}
+        />
         <ModalReaction ref={modalReactionRef} postId={_id} isLiked={isLiked} />
         <ModalOtherReport
           ref={otherReportRef}

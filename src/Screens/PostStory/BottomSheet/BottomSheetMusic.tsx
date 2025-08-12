@@ -375,7 +375,9 @@ const BottomSheet = forwardRef<BottomSheetRef, Props>(
           onDoneSelect={data => {
             onDoneSelect(data);
             setIsModalOpen(false);
-            close();
+            if (data.musicId !== '') {
+              close();
+            }
           }}
           songUrl={songUrl}
         />

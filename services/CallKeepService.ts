@@ -1,6 +1,6 @@
 import RNCallKeep from 'react-native-callkeep';
 import { PermissionsAndroid, Platform, Alert } from 'react-native';
-import { GlobalAlertManager } from 'components/Global/AlertModal';
+import { GlobalAlertManager } from '../components/Global/AlertModal';
 
 export const requestCallPermissions = async () => {
   if (Platform.OS === 'android') {
