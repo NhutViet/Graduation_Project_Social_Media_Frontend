@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {SetStateAction, useCallback, useMemo, useState} from 'react';
 import {
   View,
   Image,
@@ -23,6 +23,7 @@ interface RenderMediaItemProps {
   currentVisible: boolean;
   isFocused: boolean;
   muted: boolean;
+  setSelectedImageUri?: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 interface RenderPaginationProps {
@@ -37,7 +38,13 @@ interface RenderMuteButtonProps {
 }
 
 export const RenderMediaItem = React.memo(
-  ({item, currentVisible, isFocused, muted}: RenderMediaItemProps) => {
+  ({
+    item,
+    currentVisible,
+    isFocused,
+    muted,
+    setSelectedImageUri,
+  }: RenderMediaItemProps) => {
     const [videoSize, setVideoSize] = useState({width: 0, height: 0});
     const navigation = useNavigation<any>();
     const {
@@ -104,11 +111,16 @@ export const RenderMediaItem = React.memo(
             </View>
           </TouchableOpacity>
         ) : (
-          <Image
-            source={{uri: item.imageUrl ?? ''}}
-            style={[style.img, {width: screenWidth}]}
-            resizeMode="cover"
-          />
+          <TouchableOpacity
+            onPress={() => {
+              if (setSelectedImageUri) setSelectedImageUri(item.imageUrl ?? '');
+            }}>
+            <Image
+              source={{uri: item.imageUrl ?? ''}}
+              style={[style.img, {width: screenWidth}]}
+              resizeMode="cover"
+            />
+          </TouchableOpacity>
         )}
 
         {/* Hiển thị các tag (nếu có) */}

@@ -24,6 +24,7 @@ export interface ItemHomeProps {
   clickableHashtags?: boolean;
   SelectedPostRef?: any;
   onFollowChange?: any;
+  setDeleteMyPost?: (postId: string) => void;
 }
 
 export interface User {

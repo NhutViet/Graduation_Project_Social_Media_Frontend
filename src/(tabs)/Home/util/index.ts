@@ -777,22 +777,31 @@ export const handleHighlightPress = async (
   }
 };
 
-export const handleDeleteMyPost = async ({
+export const handleDeleteMyPost = ({
   showAlert,
   dispatch,
   postId,
+  setDeleteMyPost,
 }: {
   postId: string;
   showAlert: any;
   dispatch: AppDispatch;
+  setDeleteMyPost?: (postId: string) => void;
 }) => {
-  try {
-    await dispatch(DeleteMyPost({postIds: [postId]}))
-      .unwrap()
-      .then(() => {
-        showAlert('Thành công', 'Xóa bài đăng thành công');
-      });
-  } catch (error) {
-    showAlert('Thất bại', 'Xóa bài đăng thất bại.');
-  }
+  GlobalAlertManager.show(
+    'Thông báo',
+    'Bạn có chắc chắn muốn xóa bài viết này không?',
+    async () => {
+      try {
+        await dispatch(DeleteMyPost({postIds: [postId]}))
+          .unwrap()
+          .then(() => {
+            if (setDeleteMyPost) setDeleteMyPost(postId);
+            showAlert('Thành công', 'Xóa bài đăng thành công');
+          });
+      } catch (error) {
+        showAlert('Thất bại', 'Xóa bài đăng thất bại.');
+      }
+    },
+  );
 };

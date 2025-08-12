@@ -11,7 +11,7 @@ import {
   Keyboard,
   Image,
 } from 'react-native';
-import {Search, X, ChevronUp, ChevronDown} from 'lucide-react-native';
+import {Search, X} from 'lucide-react-native';
 import {useTheme} from '../src/util/ThemeContext';
 import {Colors} from '../assets/color/Colors';
 import {Message} from '../services/messageRedux/messageType';

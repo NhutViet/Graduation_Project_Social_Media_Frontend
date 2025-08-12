@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import BottomSheetComment, {
   BottomSheetCommentRef,
 } from '../src/(tabs)/Home/components/CommentSection';
@@ -69,6 +69,12 @@ const AllPostOfUserScreen = () => {
     const id = viewableItems[0]?.item?._id;
     if (id) setCurrentVisible(id);
   }, []);
+
+  useEffect(() => {
+    if(PostsItem.length === 0){
+      navigation.goBack();
+    }
+  }, [PostsItem]);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>

@@ -93,6 +93,9 @@ const PostDetailScreen = () => {
               currentVisible={true}
               isFocused={isFocused}
               sheetRef={sheetRef}
+              setDeleteMyPost={postId => {
+                navigation.goBack();
+              }}
               SelectedPostRef={selectedPostRef}
             />
           </ScrollView>

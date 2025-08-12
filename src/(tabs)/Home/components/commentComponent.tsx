@@ -101,7 +101,7 @@ const ReplyComment = memo(
 
     return (
       <View style={styles.replyContainer}>
-        <TouchableOpacity style={styles.replyAvatar}>
+        <TouchableOpacity style={styles.replyAvatar} onPress={() => navigation.navigate('ProfileComp', {userID: user?._id})}>
           <Image
             style={styles.imgUser}
             source={{uri: user?.profilePic || fallbackImg}}
@@ -192,7 +192,7 @@ const CommentComponent = memo((props: CommentComponentProps) => {
   return (
     <View style={styles.container}>
       <View style={styles.row}>
-        <TouchableOpacity style={styles.blockImg}>
+        <TouchableOpacity style={styles.blockImg} onPress={() => navigation.navigate('ProfileComp', {userID: user?._id})}>
           <Image
             style={styles.imgUser}
             source={{uri: user?.profilePic || fallbackImg}}
