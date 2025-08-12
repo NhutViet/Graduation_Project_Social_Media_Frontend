@@ -89,9 +89,6 @@ export const ItemHomeActions: React.FC<ItemHomeActionsProps> = ({
           }}>
           <Share2 size={22} color={iconColor} />
         </TouchableOpacity>
-        <Text style={{color: iconColor, marginLeft: 8, marginRight: 16}}>
-          {formatNumber(share)}
-        </Text>
       </View>
 
       {/* Bookmark */}

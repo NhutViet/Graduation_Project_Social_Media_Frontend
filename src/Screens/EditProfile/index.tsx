@@ -189,18 +189,31 @@ export const EditProfile = () => {
       );
       return;
     }
-    const profanityCheck = [username ?? '', bio ?? '', handleName ?? ''];
+    const profanityCheck = [
+      username?.trim() ?? '',
+      bio?.trim() ?? '',
+      handleName?.trim() ?? '',
+    ];
     if (profanityCheck.some(field => checkProfanityAndAlert(field))) {
       return;
     }
-    if(username === ''){
+    if (username?.trim() === '') {
       showAlert('Thông báo', 'Tên người dùng không được để trống');
       return;
     }
-    const safeUsername = username ?? '';
-    const safeBio = bio ?? '';
-    if (safeUsername.length > 100 || safeBio.length > 200) {
+    const safeUsername = username?.trim() ?? '';
+    const safeBio = bio?.trim() ?? '';
+    if (safeUsername.length > 100 || safeBio.length > 255) {
       showAlert('Lỗi', 'Chuỗi vượt quá số lượng cho phép');
+      return;
+    }
+
+    const phoneRegex = /^0\d{9}$/;
+    if (phoneNumber?.trim() && !phoneRegex.test(phoneNumber.trim())) {
+      showAlert(
+        'Lỗi',
+        'Số điện thoại không hợp lệ (phải bắt đầu bằng 0 và có đúng 10 chữ số)',
+      );
       return;
     }
 
@@ -217,14 +230,13 @@ export const EditProfile = () => {
     // If all validations pass, proceed with save
     dispatch(
       fetchEditUser({
-        username,
-        bio,
-        email,
-        phoneNumber,
+        username: safeUsername,
+        bio: safeBio,
+        email: email?.trim() ?? '',
+        phoneNumber: phoneNumber?.trim() ?? '',
         gender,
-        address,
+        address: address?.trim() ?? '',
         dateOfBirth,
-        handleName,
         profilePic,
       }),
     );

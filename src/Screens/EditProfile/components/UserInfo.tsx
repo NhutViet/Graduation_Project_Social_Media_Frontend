@@ -136,6 +136,7 @@ export const UserInfo: React.FC<UserInfoProps> = ({title, subtitle, rows}) => {
               placeholder={row.placeholder ?? row.label}
               placeholderTextColor={color.textSecondary}
               editable={row.editable}
+              maxLength={row.label === 'Số điện thoại' ? 10 : 255}
             />
           )}
         </View>

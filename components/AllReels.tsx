@@ -56,7 +56,7 @@ const AllReels = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   const {initialId, data} = route.params || {};
-  const reels: Item[] = data || [];
+  const [reels, setReels] = useState<Item[]>(data || []);
 
   const [visibleHeight, setVisibleHeight] = useState(0);
   const flatListRef = useRef<FlatList<any>>(null);
@@ -177,7 +177,10 @@ const AllReels = () => {
 
   const handleHidePost = useCallback(() => {
     dispatch(hidePost(selectedItem ? selectedItem._id : ''))
-      .unwrap()
+      .unwrap().then(() => {
+        if(reels.length === 1 && reels[0]._id === selectedItem?._id) navigation.goBack();
+        setReels(prev => prev.filter(i => i._id !== selectedItem?._id));
+      })
       .catch(() => GlobalAlertManager.show('Thất bại', 'Ẩn bài viết lỗi'));
   }, [selectedItem, dispatch]);
 

@@ -123,6 +123,10 @@ const AllPostOfCollectionContent = () => {
                 SelectedPostRef={selectedPostRef}
                 clickableHashtags={clickableHashtag}
                 onFollowChange={handleFollowChange}
+                setDeleteMyPost={(postId) => {
+                  if(postList.length === 1 && postList[0]._id === postId) navigation.goBack();
+                  setPostList(prev => prev.filter(i => i._id !== postId))
+                }}
               />
             );
           }}
