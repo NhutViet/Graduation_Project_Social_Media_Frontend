@@ -1,59 +1,72 @@
 import RNCallKeep from 'react-native-callkeep';
-import { PermissionsAndroid, Platform, Alert } from 'react-native';
-import { GlobalAlertManager } from '../components/Global/AlertModal';
+import {Permission, PermissionsAndroid, Platform} from 'react-native';
+import {GlobalAlertManager} from '../components/Global/AlertModal';
 
 export const requestCallPermissions = async () => {
-  if (Platform.OS === 'android') {
-    try {
-      const permissions = [
-        PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
-        PermissionsAndroid.PERMISSIONS.ANSWER_PHONE_CALLS,
-        PermissionsAndroid.PERMISSIONS.CALL_PHONE,
-        PermissionsAndroid.PERMISSIONS.READ_PHONE_STATE,
-      ];
+  if (Platform.OS !== 'android') return true;
 
-      const checkResults = await Promise.all(
-        permissions.map(permission => 
-          PermissionsAndroid.check(permission)
-        )
+  // Quyền BẮT BUỘC
+  const required: Permission[] = [
+    PermissionsAndroid.PERMISSIONS.RECORD_AUDIO as Permission,
+  ];
+
+  // Quyền TÙY CHỌN (không làm fail tất cả nếu bị từ chối)
+  const optional: Permission[] = [];
+
+  // Android 13+ (API 33): thông báo cho foreground service
+  if (
+    Platform.Version >= 33 &&
+    PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
+  ) {
+    optional.push(
+      PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS as Permission,
+    );
+  }
+
+  // Android 12+ (API 31): nếu bạn muốn route audio qua tai nghe BT
+  // 👉 CHỈ giữ dòng này nếu Manifest có BLUETOOTH_CONNECT
+  // optional.push(PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT as Permission);
+
+  try {
+    const toAsk: Permission[] = [...required, ...optional];
+
+    const results = await PermissionsAndroid.requestMultiple(toAsk);
+    console.log(
+      '[CallKeep] requestResults:',
+      results,
+      'API:',
+      Platform.Version,
+    );
+
+    const requiredGranted = required.every(
+      p => results[p] === PermissionsAndroid.RESULTS.GRANTED,
+    );
+
+    if (!requiredGranted) {
+      GlobalAlertManager.show(
+        'Quyền bị từ chối',
+        'Ứng dụng cần quyền Micro để hoạt động cuộc gọi.',
       );
-
-      const hasAllPermissions = checkResults.every(result => result === true);
-      
-      if (hasAllPermissions) {
-        console.log('[CallKeep] All permissions already granted');
-        return true;
-      }
-
-      // Request missing permissions
-      console.log('[CallKeep] Requesting permissions...');
-      const requestResults = await PermissionsAndroid.requestMultiple(permissions);
-      
-      const granted = Object.values(requestResults).every(
-        result => result === PermissionsAndroid.RESULTS.GRANTED
-      );
-
-      if (!granted) {
-        console.warn('[CallKeep] Some permissions were denied:', requestResults);
-        // Show alert to user about missing permissions
-        GlobalAlertManager.show(
-          'Quyền bị từ chối',
-          'Ứng dụng cần các quyền cuộc gọi để hoạt động đúng cách. Vui lòng cấp quyền trong Cài đặt.',
-        );
-      }
-
-      return granted;
-    } catch (err) {
-      console.error('[CallKeep] Error requesting permissions:', err);
       return false;
     }
+
+    // Nếu optional bị từ chối, chỉ cảnh báo nhẹ, không chặn
+    optional.forEach(p => {
+      if (results[p] !== PermissionsAndroid.RESULTS.GRANTED) {
+        console.warn('[CallKeep] Optional permission denied:', p);
+      }
+    });
+
+    return true;
+  } catch (err) {
+    console.error('[CallKeep] Error requesting permissions:', err);
+    return false;
   }
-  return true;
 };
 
 const options = {
   ios: {
-    appName: 'Cirla', 
+    appName: 'Cirla',
     supportsVideo: true,
     maximumCallGroups: '10',
     maximumCallsPerCallGroup: '10',
@@ -69,7 +82,7 @@ const options = {
       channelId: 'com.cirla.call',
       channelName: 'Cuộc gọi Cirla',
       notificationTitle: 'Cuộc gọi đang diễn ra',
-      notificationIcon: 'logo_loading', 
+      notificationIcon: 'logo_loading',
     },
   },
 };
@@ -84,7 +97,7 @@ export const setupCallKeep = async () => {
 
   try {
     console.log('[CallKeep] Starting setup...');
-    
+
     // Request permissions first
     const hasPermissions = await requestCallPermissions();
     if (!hasPermissions) {
@@ -95,7 +108,7 @@ export const setupCallKeep = async () => {
     // Setup CallKeep
     await RNCallKeep.setup(options);
     RNCallKeep.setAvailable(true);
-    
+
     isSetupComplete = true;
     console.log('[CallKeep] Setup completed successfully');
     return true;
@@ -116,7 +129,9 @@ export const showIncomingCall = ({
   name: string;
 }) => {
   try {
-    console.log(`[CallKeep] Displaying incoming call: ${name} (${handle}) UUID: ${uuid}`);
+    console.log(
+      `[CallKeep] Displaying incoming call: ${name} (${handle}) UUID: ${uuid}`,
+    );
     RNCallKeep.displayIncomingCall(uuid, handle, name, 'generic', true);
   } catch (err) {
     console.error('[CallKeep] Failed to display incoming call:', err);

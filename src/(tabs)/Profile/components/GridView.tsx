@@ -151,15 +151,6 @@ export const GridView: React.FC<GridViewProps> = ({ data, onPressItem }) => {
     );
   }
 
-  // Debug: Check for posts with empty URLs (only if data is valid)
-  const postsWithEmptyUrls = data.filter(post => {
-    const media = post.media?.[0];
-    return media && (
-      (media.videoUrl === '' || media.imageUrl === '') ||
-      (!media.videoUrl && !media.imageUrl)
-    );
-  });
-
   const renderItem = useCallback(
     ({ item }: { item: PostWithMedia }) => (
       <GridItem item={item} onPress={onPressItem} />

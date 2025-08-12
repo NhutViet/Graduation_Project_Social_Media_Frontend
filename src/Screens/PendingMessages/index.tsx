@@ -1,5 +1,11 @@
-import React, {useCallback, useRef, useState} from 'react';
-import {View, Text, TextInput, TouchableOpacity} from 'react-native';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  RefreshControl,
+} from 'react-native';
 import {FlashList} from '@shopify/flash-list';
 import {useProfileEditingStyles} from '../EditProfile/components/ProfileEditingStyles';
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
@@ -18,22 +24,60 @@ export const PendingMessages: React.FC = () => {
   const {theme} = useTheme();
   const color = Colors[theme];
   const styles2 = MessageBoxStyles(theme);
-  const nav = useNavigation();
+  const nav = useNavigation<any>();
   const searchInputRef = useRef<TextInput>(null);
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [room, setRoom] = useState<Room[]>();
+
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.user.user);
 
+  // local state
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+
+  // 1) Memo hoá fetch và dùng guard isActive để tránh setState sau khi blur
+  const fetchRooms = useCallback(
+    async (isActiveRef?: {current: boolean}) => {
+      const res = await dispatch(fetchMyWaitingRooms());
+      if (isActiveRef ? isActiveRef.current : true) {
+        if (res.payload) setRooms(res.payload as Room[]);
+        else setRooms([]);
+      }
+    },
+    [dispatch],
+  );
+
+  // 2) Gọi mỗi lần focus
   useFocusEffect(
     useCallback(() => {
-      const fetchRooms = async () => {
-        const res = await dispatch(fetchMyWaitingRooms());
-        if (res.payload) setRoom(res.payload as Room[]);
+      const isActive = {current: true};
+      fetchRooms(isActive);
+      return () => {
+        isActive.current = false;
       };
-      fetchRooms();
-    }, [dispatch]),
+    }, [fetchRooms]),
   );
+
+  // 3) Pull-to-refresh tái dùng fetchRooms
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchRooms();
+    setRefreshing(false);
+  }, [fetchRooms]);
+
+  // 4) Lọc theo search
+  const filteredRooms = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return rooms;
+    return rooms.filter(room => {
+      const others = room.user_ids.filter(u => u._id !== user?._id);
+      const user1 = others[0];
+      const nameChat = room.name?.trim().length
+        ? room.name
+        : user1?.username || '';
+      return nameChat.toLowerCase().includes(q);
+    });
+  }, [rooms, searchQuery, user?._id]);
 
   return (
     <View style={styles.screen}>
@@ -59,6 +103,9 @@ export const PendingMessages: React.FC = () => {
             ]}
             value={searchQuery}
             onChangeText={setSearchQuery}
+            autoCorrect={false}
+            autoCapitalize="none"
+            returnKeyType="search"
           />
           {searchQuery.length > 0 && (
             <TouchableOpacity
@@ -70,14 +117,19 @@ export const PendingMessages: React.FC = () => {
         </View>
       </View>
 
-      {/* FlashList */}
+      {/* List */}
       <FlashList
-        data={room}
+        data={filteredRooms}
+        keyExtractor={item => item._id}
+        estimatedItemSize={100}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
         renderItem={({item}) => {
-          const filteredUsers = item.user_ids.filter(u => u._id !== user?._id);
-          const user1 = filteredUsers[0];
-          const user2 = filteredUsers[1];
-
+          const others = item.user_ids.filter(u => u._id !== user?._id);
+          const user1 = others[0];
+          const user2 = others[1];
           const nameChat =
             item.name?.trim().length > 0
               ? item.name
@@ -94,23 +146,19 @@ export const PendingMessages: React.FC = () => {
             />
           );
         }}
-        estimatedItemSize={100}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={() => {
-          return (
-            <View style={{flex: 1, alignItems: 'center', paddingVertical: 50}}>
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontWeight: '600',
-                  width: '50%',
-                  textAlign: 'center',
-                }}>
-                Bạn hiện không có hộp thoại tin nhắn chờ nào.
-              </Text>
-            </View>
-          );
-        }}
+        ListEmptyComponent={() => (
+          <View style={{flex: 1, alignItems: 'center', paddingVertical: 50}}>
+            <Text
+              style={{
+                fontSize: 14,
+                fontWeight: '600',
+                width: '50%',
+                textAlign: 'center',
+              }}>
+              Bạn hiện không có hộp thoại tin nhắn chờ nào.
+            </Text>
+          </View>
+        )}
       />
     </View>
   );

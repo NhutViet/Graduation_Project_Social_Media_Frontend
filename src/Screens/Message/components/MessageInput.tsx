@@ -28,7 +28,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
   sendMessage,
   pickImageAndSend,
   roomId,
-  handleChangeText
+  handleChangeText,
 }) => {
   const {theme} = useTheme();
   const color = Colors[theme];
@@ -37,20 +37,20 @@ const MessageInput: React.FC<MessageInputProps> = ({
     <View
       style={[
         styles.inputContainer,
-        {backgroundColor: 'rgba(243, 244, 246, 0.7)', zIndex: 10},
+        {backgroundColor: color.backgroundSecondary, zIndex: 10},
       ]}>
       <TouchableOpacity
         style={styles.blockCamera}
         onPress={() => navigation.navigate('CameraScreen', {roomId})}>
-        <Camera size={22} color={color.black} />
+        <Camera size={22} color={color.text} />
       </TouchableOpacity>
 
       <TextInput
         value={message}
         onChangeText={handleChangeText}
         placeholder="Soạn tin nhắn..."
-        placeholderTextColor={Colors.black}
-        style={[styles.input, {color: color.black}]}
+        placeholderTextColor={color.text}
+        style={[styles.input, {color: color.text}]}
         multiline={true}
         returnKeyType="default"
         blurOnSubmit={false}
@@ -63,7 +63,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
       ) : (
         <View style={styles.rowContainer}>
           <TouchableOpacity onPress={pickImageAndSend}>
-            <ImageIcon size={22} color={color.black} />
+            <ImageIcon size={22} color={color.text} />
           </TouchableOpacity>
         </View>
       )}

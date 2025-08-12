@@ -1,4 +1,4 @@
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import {FlashList} from '@shopify/flash-list';
 import {
   NativeScrollEvent,
@@ -26,7 +26,13 @@ import {
   clearExpiredSeenStories,
 } from '../../../services/storage/storage';
 import {useStoryPrefetch} from '../../(tabs)/Home/hook/useStoryPrefetch';
-import {ArrowLeft, MessageSquarePlus, Search, Sparkles, X} from 'lucide-react-native';
+import {
+  ArrowLeft,
+  MessageSquarePlus,
+  Search,
+  Sparkles,
+  X,
+} from 'lucide-react-native';
 import {ChatSkeleton} from '../../../components/SkeletonGrid';
 export const MessageBox = (props: any) => {
   const navigation: any = useNavigation();
@@ -50,15 +56,25 @@ export const MessageBox = (props: any) => {
   const [visibleStoryCount, setVisibleStoryCount] = useState(5);
   const STORIES_LOAD_BATCH = 5;
   const [isLoadingMoreStories, setIsLoadingMoreStories] = useState(false);
-
   const {prefetchStoryData, getCachedStoryData, clearExpiredCache} =
     useStoryPrefetch();
 
-  const onRefresh = async () => {
-    setRefreshing(true);
+  const fetchRooms = useCallback(async () => {
     await dispatch(fetchMyRooms());
+  }, [dispatch]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchRooms();
     setRefreshing(false);
-  };
+  }, [fetchRooms]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchRooms();
+      return undefined;
+    }, [fetchRooms]),
+  );
 
   const processedStories = React.useMemo(() => {
     return [
@@ -178,14 +194,16 @@ export const MessageBox = (props: any) => {
     return () => clearTimeout(timeoutId);
   }, [storyDetails]);
 
-  const filteredRooms = rooms.filter(room => {
-    const otherUsers = room.user_ids.filter(u => u._id !== user?._id);
-    const nameChat =
-      room.name?.trim().length > 0
-        ? room.name
-        : otherUsers[0]?.username || '';
-    return nameChat.toLowerCase().includes(searchQuery.toLowerCase());
-  });
+  const filteredRooms = React.useMemo(() => {
+    return rooms.filter(room => {
+      const otherUsers = room.user_ids.filter((u: any) => u._id !== user?._id);
+      const nameChat =
+        room.name?.trim().length > 0
+          ? room.name
+          : otherUsers[0]?.username || '';
+      return nameChat.toLowerCase().includes(searchQuery.toLowerCase());
+    });
+  }, [rooms, user?._id, searchQuery]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -212,7 +230,8 @@ export const MessageBox = (props: any) => {
           <TouchableOpacity
             onPress={() => {
               navigation.navigate('ChatAIBox');
-            }} style={{paddingLeft: 15}}>
+            }}
+            style={{paddingLeft: 15}}>
             <Sparkles size={22} color={color.text} />
           </TouchableOpacity>
         </View>
@@ -376,8 +395,17 @@ export const MessageBox = (props: any) => {
               <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }
             ListEmptyComponent={
-              <View style={{flex: 1, alignItems: 'center', paddingVertical: 50,}}>
-                <Text style={{fontSize: 14, fontWeight: '600', width: '50%', textAlign: 'center'}}>Bạn hiện chưa có hộp thoại tin nhắn nào.</Text>
+              <View
+                style={{flex: 1, alignItems: 'center', paddingVertical: 50}}>
+                <Text
+                  style={{
+                    fontSize: 14,
+                    fontWeight: '600',
+                    width: '50%',
+                    textAlign: 'center',
+                  }}>
+                  Bạn hiện chưa có hộp thoại tin nhắn nào.
+                </Text>
               </View>
             }
           />

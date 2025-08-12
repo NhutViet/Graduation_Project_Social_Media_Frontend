@@ -201,20 +201,23 @@ export const MessageScreen = () => {
     };
 
     const handleTyping = (item: ItemTyping) => {
-    if (item.userId !== userC?._id && item.roomId === roomId) {
-      setListTyping(prev => {
-        if (prev.some(u => u.userId === item.userId && u.roomId === roomId)) return prev;
-        return [...prev, item];
-      });
-    }
-  };
+      if (item.userId !== userC?._id && item.roomId === roomId) {
+        setListTyping(prev => {
+          if (prev.some(u => u.userId === item.userId && u.roomId === roomId))
+            return prev;
+          return [...prev, item];
+        });
+      }
+    };
 
-  const handleStopTyping = (payload: { roomId: string, userId: string }) => {
-    const { roomId: rid, userId: uid } = payload;
-    if (uid !== userC?._id && rid === roomId) {
-      setListTyping(prev => prev.filter(u => u.userId !== uid && u.roomId !== roomId));
-    }
-  };
+    const handleStopTyping = (payload: {roomId: string; userId: string}) => {
+      const {roomId: rid, userId: uid} = payload;
+      if (uid !== userC?._id && rid === roomId) {
+        setListTyping(prev =>
+          prev.filter(u => u.userId !== uid && u.roomId !== roomId),
+        );
+      }
+    };
 
     socket.on('receiveMessage', onMessage);
     socket.on('reactionUpdated', onReactionUpdated);
@@ -442,7 +445,7 @@ export const MessageScreen = () => {
           styles.viewDf,
           {
             backgroundColor: rooms?.theme
-              ? 'rgba(0,0,0,0.2)'
+              ? 'rgba(0,0,0,0.1)'
               : color.background,
           },
         ]}>
@@ -472,7 +475,11 @@ export const MessageScreen = () => {
                 paddingHorizontal: 10,
                 flexGrow: 1,
               }}
-              ListHeaderComponent={listTyping.length > 0 ? <LoadTyping itemLoading={listTyping}/> : null}
+              ListHeaderComponent={
+                listTyping.length > 0 ? (
+                  <LoadTyping itemLoading={listTyping} />
+                ) : null
+              }
             />
             {isWaitingAndNotCreator ? (
               <View style={styles.requestBanner}>
