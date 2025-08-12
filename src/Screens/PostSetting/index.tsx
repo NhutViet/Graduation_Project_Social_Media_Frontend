@@ -55,10 +55,6 @@ export const PostSetting = () => {
   const sheetRef = useRef<BottomSheetRef>(null);
   const user = useSelector((state: RootState) => state.user.user);
   const [selectedMusic, setSelectedMusic] = useState<any>(null);
-  const {followers} = useSelector((state: RootState) => state.relation);
-  const [mentionQuery, setMentionQuery] = useState('');
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [captionLayoutY, setCaptionLayoutY] = useState(0);
   const scrollY = useSharedValue(0);
 
   const scrollHandler = useAnimatedScrollHandler(event => {
@@ -76,23 +72,6 @@ export const PostSetting = () => {
       dispatch(fetchFollowers({userId: user._id}));
     }
   }, []);
-
-  const handleChangeText = (text: string) => {
-    setCaption(text);
-    const trimmedText = text.trim();
-    const lastAt = trimmedText.lastIndexOf('@');
-    if (lastAt !== -1) {
-      const textAfterAt = trimmedText.slice(lastAt + 1);
-      const isValidQuery = /^[a-zA-Z0-9_]*$/.test(textAfterAt);
-      if (isValidQuery) {
-        setMentionQuery(textAfterAt);
-        setShowSuggestions(true);
-        return;
-      }
-    }
-    setShowSuggestions(false);
-    setMentionQuery('');
-  };
 
   useFocusEffect(
     useCallback(() => {
@@ -121,7 +100,7 @@ export const PostSetting = () => {
 
     if (checkProfanityAndAlert(caption)) return;
 
-    if(caption.length > 1000){
+    if (caption.length > 1000) {
       showAlert('Lỗi', 'Nội dung vượt quá giới hạn cho phép (1000 từ).');
       return;
     }
@@ -268,21 +247,6 @@ export const PostSetting = () => {
           )}
         </View>
 
-        <MentionSuggestion
-          visible={showSuggestions}
-          query={mentionQuery}
-          followers={followers}
-          onSelect={handle => {
-            const lastAt = caption.lastIndexOf('@');
-            const newText = caption.slice(0, lastAt + 1) + handle + ' ';
-            setCaption(newText);
-            setShowSuggestions(false);
-          }}
-          backgroundColor={color.background}
-          positionY={captionLayoutY}
-          scrollY={scrollY}
-        />
-
         <TextInput
           placeholder="Thêm chú thích"
           placeholderTextColor={color.textSecondary}
@@ -290,10 +254,7 @@ export const PostSetting = () => {
           multiline
           textAlignVertical="top"
           value={caption}
-          onChangeText={handleChangeText}
-          onLayout={e => {
-            e.target.measureInWindow((_x, y) => setCaptionLayoutY(y));
-          }}
+          onChangeText={setCaption}
         />
 
         <Section
@@ -342,9 +303,9 @@ export const PostSetting = () => {
           song: string;
           songImage: string;
         }) => {
-          if(musicInfo.musicId === '') {
+          if (musicInfo.musicId === '') {
             setSelectedMusic(null);
-          }else{
+          } else {
             setSelectedMusic(musicInfo);
           }
         }}
