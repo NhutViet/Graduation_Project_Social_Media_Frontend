@@ -115,6 +115,7 @@ const AllPostOfCollectionContent = () => {
                 commentCount={item.commentCount}
                 likeCount={item.likeCount}
                 share={item.share}
+                musicInfo={item.musicInfo}
                 music={item.music}
                 currentVisible={shouldPlay}
                 isFocused={isFocused}
