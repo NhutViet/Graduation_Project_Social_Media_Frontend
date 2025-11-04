@@ -1,4 +1,5 @@
 🌿 Welcome to Social Media Cirla
+
 Link Demo: https://drive.google.com/drive/folders/1W_cWTHOzPq8do3xUG6FvlwbBxfKfdFby
 
 A modern social networking experience that lets people share moments, connect with friends, and chat in real time — built with React Native CLI on the frontend and Next.js + MongoDB on the backend. From posting (photos/videos) and following to messaging and notifications, Cirla delivers a smooth mobile‑first social experience.
